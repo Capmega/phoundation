@@ -18,7 +18,7 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Content\Images\ImageFile;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\PhoDirectory;
 
 
 CliDocumentation::setUsage('./pho image convert IMAGE');
@@ -29,7 +29,7 @@ CliDocumentation::setHelp('This command can apply various conversions to the spe
 // Validate arguments
 $argv = ArgvValidator::new()
                      ->select('method')->isName()
-                     ->select('file')->sanitizeFile(FsDirectory::newFilesystemRootObject())
+                     ->select('file')->sanitizeFile(PhoDirectory::newFilesystemRootObject())
                      ->validate();
 
 

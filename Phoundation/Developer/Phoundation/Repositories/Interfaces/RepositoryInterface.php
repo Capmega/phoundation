@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Phoundation\Repositories\Interfaces;
 
 use Phoundation\Developer\Enums\EnumRepositoryType;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 
-interface RepositoryInterface extends FsDirectoryInterface
+interface RepositoryInterface extends PhoDirectoryInterface
 {
     /**
      * Returns true if this repository is a Phoundation repository

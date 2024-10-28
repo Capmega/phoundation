@@ -1,0 +1,153 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Phoundation\Filesystem\Interfaces;
+
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Filesystem\PhoFiles;
+use Phoundation\Filesystem\PhoRestrictions;
+use ReturnTypeWillChange;
+use Stringable;
+
+interface PhoFilesInterface extends IteratorInterface
+{
+    /**
+     * Returns the server restrictions
+     *
+     * @return PhoRestrictionsInterface
+     */
+    public function getRestrictions(): PhoRestrictionsInterface;
+
+    /**
+     * Sets the server and filesystem restrictions for this FsFile object
+     *
+     * @param PhoRestrictionsInterface|array|string|null $restrictions The file restrictions to apply to this object
+     * @param bool                                       $write        If $restrictions is not specified as a
+     *                                                                FsRestrictions class, but as a path string, or
+     *                                                                array of path strings, then this method will
+     *                                                                convert that into a FsRestrictions object and
+     *                                                                this is the $write modifier for that object
+     * @param string|null                                $label        If $restrictions is not specified as a
+     *                                                                FsRestrictions class, but as a path string, or
+     *                                                                array of path strings, then this method will
+     *                                                                convert that into a FsRestrictions object and
+     *                                                                this is the $label modifier for that object
+     */
+    public function setRestrictions(PhoRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
+
+    /**
+     * Returns either the specified restrictions, or this object's restrictions, or system default restrictions
+     *
+     * @param PhoRestrictionsInterface|null $restrictions
+     *
+     * @return PhoRestrictionsInterface
+     */
+    public function ensureRestrictions(?PhoRestrictionsInterface $restrictions): PhoRestrictionsInterface;
+
+    /**
+     * Returns the parent Path (if available) that contains these files
+     *
+     * @return PhoPathInterface|null
+     */
+    public function getParentDirectory(): ?PhoPathInterface;
+
+    /**
+     * Returns the parent Path (if available) that contains these files
+     *
+     * @param PhoPathInterface|null $parent_directory
+     *
+     * @return PhoFiles
+     */
+    public function setParentDirectory(?PhoPathInterface $parent_directory): static;
+
+    /**
+     * Move all files to the specified target
+     *
+     * @note The specified target MUST be a directory, as multiple files will be moved there
+     * @note The specified target either must exist or will be created automatically
+     *
+     * @param Stringable|string    $target
+     * @param PhoRestrictions|null $restrictions
+     *
+     * @return static
+     */
+    public function move(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null): static;
+
+    /**
+     * Copy all files to the specified target
+     *
+     * @note The specified target MUST be a directory, as multiple files will be moved there
+     * @note The specified target either must exist or will be created automatically
+     *
+     * @param Stringable|string             $target
+     * @param PhoRestrictionsInterface|null $restrictions
+     * @param callable|null                 $callback
+     *
+     * @return static
+     */
+    public function copy(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null): static;
+
+    /**
+     * Returns the current file
+     *
+     * @return PhoPathInterface|null
+     */
+    #[ReturnTypeWillChange] public function current(): ?PhoPathInterface;
+
+    /**
+     * Returns if the current pointer is valid or not
+     *
+     * Since FsFiles classes skip the "." and ".." directories, valid will ensure these get skipped too
+     *
+     * @return bool
+     */
+    public function valid(): bool;
+
+
+    /**
+     * Returns all files that match the specified mimetype
+     *
+     * @param string $mimetype
+     * @param bool   $remove
+     *
+     * @return $this
+     */
+    public function getFilesWithMimetype(string $mimetype, bool $remove = false): static;
+
+    /**
+     * Will delete all files in this FsFiles object
+     *
+     * @note This will remove the files from this FsFiles object
+     *
+     * @return $this
+     */
+    public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static;
+
+    /**
+     * @param int  $passes
+     * @param bool $simultaneously
+     * @param bool $randomized
+     * @param int  $block_size
+     *
+     * @return $this
+     *
+     * @todo Implement support for $simultaneously
+     */
+    public function shred(int $passes = 3, bool $simultaneously = false, bool $randomized = false, int $block_size = 4096): static;
+
+    /**
+     * @inheritDoc
+     */
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): ?PhoPathInterface;
+
+    /**
+     * @inheritDoc
+     */
+    #[ReturnTypeWillChange] public function getFirstValue(): ?PhoPathInterface;
+
+    /**
+     * @inheritDoc
+     */
+    #[ReturnTypeWillChange] public function getLastValue(): ?PhoPathInterface;
+}

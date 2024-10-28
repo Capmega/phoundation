@@ -20,7 +20,7 @@ use Phoundation\Developer\Debug;
 use Throwable;
 
 
-class NoLongerSupportedException extends Exception
+class NoLongerSupportedException extends PhoException
 {
     public function __construct(Throwable|array|string|null $messages = null, ?Throwable $previous = null)
     {

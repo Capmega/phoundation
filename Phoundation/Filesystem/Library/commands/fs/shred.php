@@ -17,12 +17,12 @@ declare(strict_types=1);
 use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsPath;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoPath;
+use Phoundation\Filesystem\PhoRestrictions;
 
 
-$restrictions = FsRestrictions::newWritable('/');
+$restrictions = PhoRestrictions::newWritable('/');
 
 CliDocumentation::setAutoComplete([
     'arguments' => [
@@ -32,10 +32,10 @@ CliDocumentation::setAutoComplete([
     'positions' => [
         '0' => [
             'word'   => function ($word) use ($restrictions) {
-                return FsDirectory::new(FsDirectory::newFilesystemRootObject())->scan($word . '*');
+                return PhoDirectory::new(PhoDirectory::newFilesystemRootObject())->scan($word . '*');
             },
             'noword' => function () use ($restrictions) {
-                return FsDirectory::new(FsDirectory::newFilesystemRootObject())->scan('*');
+                return PhoDirectory::new(PhoDirectory::newFilesystemRootObject())->scan('*');
             },
         ],
     ]
@@ -63,11 +63,11 @@ PATH                                    The path of which the size needs to be c
 
 // Get the arguments
 $argv = ArgvValidator::new()
-    ->select('path')->sanitizeDirectory(FsDirectory::newFilesystemRootObject())
+    ->select('path')->sanitizeDirectory(PhoDirectory::newFilesystemRootObject())
     ->select('-r,--random')->isOptional(false)->isBoolean()
     ->select('-p,--passes', true)->isOptional(false)->isInteger()->isBetween(1, 100)
     ->validate();
 
 
 // Shred the specified file
-FsPath::newExisting($argv['path'], FsRestrictions::newWritable('/'))->shred($argv['passes'], $argv['random']);
+PhoPath::newExisting($argv['path'], PhoRestrictions::newWritable('/'))->shred($argv['passes'], $argv['random']);

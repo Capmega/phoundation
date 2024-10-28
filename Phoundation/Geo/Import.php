@@ -20,11 +20,11 @@ use PDO;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Databases\Sql\Sql;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
-use Phoundation\Filesystem\FsPath;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
+use Phoundation\Filesystem\PhoPath;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Wget;
 use Phoundation\Utils\Config;
 use Stringable;
@@ -56,20 +56,20 @@ class Import extends \Phoundation\Developer\Project\Import
      *       https://www.maxmind.com/en/accounts/YOUR_ACCOUNT_ID/license-key and configured in the configuration path
      *       geo.ip.max-mind.api-key
      *
-     * @param string|null                               $directory
-     * @param FsRestrictionsInterface|array|string|null $restrictions
+     * @param string|null                                $directory
+     * @param PhoRestrictionsInterface|array|string|null $restrictions
      *
-     * @return FsDirectory
+     * @return PhoDirectory
      */
-    public static function download(string $directory = null, FsRestrictionsInterface|array|string|null $restrictions = null): FsDirectory
+    public static function download(string $directory = null, PhoRestrictionsInterface|array|string|null $restrictions = null): PhoDirectory
     {
         // Default restrictions are default path writable
         $directory    = $directory ?? DIRECTORY_DATA . 'sources/geo';
-        $restrictions = $restrictions ?? new FsRestrictions(DIRECTORY_DATA . 'sources/geo', true);
+        $restrictions = $restrictions ?? new PhoRestrictions(DIRECTORY_DATA . 'sources/geo', true);
         // Ensure target path can be written and is non-existent
-        $directory = FsDirectory::new($directory, $restrictions)
-                                ->ensureWritable()
-                                ->delete();
+        $directory = PhoDirectory::new($directory, $restrictions)
+                                 ->ensureWritable()
+                                 ->delete();
         $wget     = Wget::new();
         $tmp_path = $wget->setExecutionDirectoryToTemp()
                          ->getExecutionDirectory();
@@ -156,38 +156,38 @@ class Import extends \Phoundation\Developer\Project\Import
      *
      * @return string
      */
-    public static function process(Stringable|string $source_path, Stringable|string|null $target_path = null, FsRestrictionsInterface|array|string|null $restrictions = null): string
+    public static function process(Stringable|string $source_path, Stringable|string|null $target_path = null, PhoRestrictionsInterface|array|string|null $restrictions = null): string
     {
         // Determine what target path to use
-        $restrictions = $restrictions ?? FsRestrictions::new(DIRECTORY_DATA, true);
+        $restrictions = $restrictions ?? PhoRestrictions::new(DIRECTORY_DATA, true);
         $target_path  = Config::getString('geo.geonames.path', DIRECTORY_DATA . 'sources/geo/geonames/', $target_path);
-        $target_path  = FsPath::absolutePath($target_path, DIRECTORY_ROOT, false);
-        FsDirectory::new($target_path, $restrictions)
+        $target_path  = PhoPath::absolutePath($target_path, DIRECTORY_ROOT, false);
+        PhoDirectory::new($target_path, $restrictions)
                  ->ensure();
         Log::action(tr('Processing GeoNames Geo files and moving to directory ":directory"', [':directory' => $target_path]));
         try {
             // Clean source path GeoLite2 directories and garbage path and move the current data files to the garbage
-            FsFile::new(DIRECTORY_DATA . 'garbage/geonames', $restrictions->addDirectory(DIRECTORY_DATA . 'garbage/', true))
+            PhoFile::new(DIRECTORY_DATA . 'garbage/geonames', $restrictions->addDirectory(DIRECTORY_DATA . 'garbage/', true))
                 ->delete();
-            $previous = FsDirectory::new($target_path, $restrictions)
-                                   ->move(DIRECTORY_DATA . 'garbage/');
+            $previous = PhoDirectory::new($target_path, $restrictions)
+                                    ->move(DIRECTORY_DATA . 'garbage/');
             // Prepare and import each file
             foreach (static::getGeoNamesFiles() as $file => $data) {
                 Log::action(tr('Processing GeoNames file ":file"', [':file' => $file]));
                 if (str_ends_with($file, '.zip')) {
                     foreach ($data['files'] as $target_file) {
                         // Ensure the target files are gone so that we can unzip over them
-                        FsFile::new($source_path . $target_file, $restrictions)
+                        PhoFile::new($source_path . $target_file, $restrictions)
                             ->delete();
                     }
                     // Unzip the files so that we have usable target files
-                    FsFile::new($source_path . $file, $restrictions)
+                    PhoFile::new($source_path . $file, $restrictions)
                         ->checkReadable()
                         ->unzip();
                 }
                 // Move all target files to the target path
                 foreach ($data['files'] as $target_file) {
-                    FsFile::new($source_path . $target_file, $restrictions)
+                    PhoFile::new($source_path . $target_file, $restrictions)
                         ->checkReadable()
                         ->move($target_path);
                 }

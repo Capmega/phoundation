@@ -25,10 +25,10 @@ use Phoundation\Developer\Versioning\Git\Interfaces\StashInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\TagInterface;
 use Phoundation\Developer\Versioning\Versioning;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Config;
@@ -41,9 +41,9 @@ class Git extends Versioning implements GitInterface
     /**
      * The directory that will be checked
      *
-     * @var FsDirectoryInterface $directory
+     * @var PhoDirectoryInterface $directory
      */
-    protected FsDirectoryInterface $directory;
+    protected PhoDirectoryInterface $directory;
 
     /**
      * The git process
@@ -56,9 +56,9 @@ class Git extends Versioning implements GitInterface
     /**
      * Git class constructor
      *
-     * @param FsDirectoryInterface $directory
+     * @param PhoDirectoryInterface $directory
      */
-    public function __construct(FsDirectoryInterface $directory)
+    public function __construct(PhoDirectoryInterface $directory)
     {
         $this->setDirectory($directory);
     }
@@ -67,9 +67,9 @@ class Git extends Versioning implements GitInterface
     /**
      * Returns the directory for this ChangedFiles object
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public function getDirectory(): FsDirectoryInterface
+    public function getDirectory(): PhoDirectoryInterface
     {
         return $this->directory;
     }
@@ -78,11 +78,11 @@ class Git extends Versioning implements GitInterface
     /**
      * Returns the directory for this ChangedFiles object
      *
-     * @param FsDirectoryInterface $directory
+     * @param PhoDirectoryInterface $directory
      *
      * @return static
      */
-    public function setDirectory(FsDirectoryInterface $directory): static
+    public function setDirectory(PhoDirectoryInterface $directory): static
     {
         $this->directory = $directory->makeAbsolute()->checkWritable();
         $this->git       = Process::new('git')
@@ -181,11 +181,11 @@ class Git extends Versioning implements GitInterface
     /**
      * Generates and returns a new Git object
      *
-     * @param FsPathInterface $directory
+     * @param PhoPathInterface $directory
      *
      * @return static
      */
-    public static function new(FsPathInterface $directory): static
+    public static function new(PhoPathInterface $directory): static
     {
         return new static($directory);
     }
@@ -343,11 +343,11 @@ class Git extends Versioning implements GitInterface
     /**
      * Returns if this git directory has any changes
      *
-     * @param FsDirectoryInterface|null $directory
+     * @param PhoDirectoryInterface|null $directory
      *
      * @return bool
      */
-    public function hasChanges(?FsDirectoryInterface $directory = null): bool
+    public function hasChanges(?PhoDirectoryInterface $directory = null): bool
     {
         return (bool) $this->getStatusFilesObject($directory ?? $this->directory)->getCount();
     }
@@ -356,11 +356,11 @@ class Git extends Versioning implements GitInterface
     /**
      * Returns a ChangedFiles object containing all the files that have changes according to git
      *
-     * @param FsPathInterface|null $path
+     * @param PhoPathInterface|null $path
      *
      * @return StatusFilesInterface
      */
-    public function getStatusFilesObject(?FsPathInterface $path = null): StatusFilesInterface
+    public function getStatusFilesObject(?PhoPathInterface $path = null): StatusFilesInterface
     {
         return StatusFiles::new($path ?? $this->directory)->scanChanges();
     }
@@ -375,15 +375,15 @@ class Git extends Versioning implements GitInterface
      * @param array|string $files
      * @param bool         $cached
      *
-     * @return FsFileInterface|null
+     * @return PhoFileInterface|null
      */
-    public function saveDiff(array|string $files, bool $cached = false): ?FsFileInterface
+    public function saveDiff(array|string $files, bool $cached = false): ?PhoFileInterface
     {
         $diff = $this->getDiff($files, $cached);
 
         if ($diff) {
-            return FsFile::getTemporaryObject(false, sha1(Strings::force($files, '-')) . '.patch', false)
-                         ->putContents($diff . PHP_EOL);
+            return PhoFile::getTemporaryObject(false, sha1(Strings::force($files, '-')) . '.patch', false)
+                          ->putContents($diff . PHP_EOL);
         }
 
         Log::warning(tr('Files ":files" have no diff', [':files' => $files]));
@@ -435,11 +435,11 @@ class Git extends Versioning implements GitInterface
     /**
      * Apply the specified patch to the specified target file
      *
-     * @param FsFileInterface|null $patch_file
+     * @param PhoFileInterface|null $patch_file
      *
      * @return static
      */
-    public function apply(?FsFileInterface $patch_file): static
+    public function apply(?PhoFileInterface $patch_file): static
     {
         if (!$patch_file) {
             Log::warning(tr('Ignoring empty patch filename'));

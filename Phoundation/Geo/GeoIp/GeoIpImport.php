@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Geo\GeoIp;
 
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Geo\GeoIp\Interfaces\GeoIpImportInterface;
 
 
@@ -31,18 +31,18 @@ abstract class GeoIpImport extends Import implements GeoIpImportInterface
      *       https://www.maxmind.com/en/accounts/YOUR_ACCOUNT_ID/license-key and configured in the configuration path
      *       geo.ip.max-mind.api-key
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    abstract public static function download(): FsDirectoryInterface;
+    abstract public static function download(): PhoDirectoryInterface;
 
 
     /**
      * Process downloaded GeoIP files
      *
-     * @param FsDirectoryInterface      $source_directory
-     * @param FsDirectoryInterface|null $target_directory
+     * @param PhoDirectoryInterface      $source_directory
+     * @param PhoDirectoryInterface|null $target_directory
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    abstract public static function process(FsDirectoryInterface $source_directory, FsDirectoryInterface|null $target_directory = null): FsDirectoryInterface;
+    abstract public static function process(PhoDirectoryInterface $source_directory, PhoDirectoryInterface|null $target_directory = null): PhoDirectoryInterface;
 }

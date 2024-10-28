@@ -59,10 +59,16 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
      */
     public function applyFiltersToQueryBuilder(QueryBuilderInterface $builder): static
     {
-        if ($this->getSeverities()) {
-            $values = SqlQueries::in($this->getSeverities());
-            $builder->addWhere('`security_incidents`.`severity` IN (' . SqlQueries::inColumns($values) . ')', $values);
+        if ($this->apply_filters->keyExists('severity')) {
+            if ($this->getSeverities()) {
+                $values = SqlQueries::in($this->getSeverities());
+                $builder->addWhere('`security_incidents`.`severity` IN (' . SqlQueries::inColumns($values) . ')', $values);
+            }
         }
+
+        $this->apply_filters->removeKeys([
+            'severity',
+        ]);
 
         return parent::applyFiltersToQueryBuilder($builder);
     }

@@ -24,8 +24,8 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FileWriteAccessDeniedException;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Os\Processes\Commands\Lsof;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
@@ -40,12 +40,12 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 
 
-class Device extends FsFile
+class Device extends PhoFile
 {
     /**
-     * @var FsPathInterface|null $device_name
+     * @var PhoPathInterface|null $device_name
      */
-    protected ?FsPathInterface $device_name = null;
+    protected ?PhoPathInterface $device_name = null;
 
     /**
      * The code used to open this LUKS file
@@ -258,13 +258,13 @@ class Device extends FsFile
     /**
      * Opens the luks device file with the specified code and generates the specified device name in /dev/mapper/
      *
-     * @param string                     $passphrase
-     * @param FsPathInterface|string     $device_name
-     * @param EnumExecuteMethod $method
+     * @param string                  $passphrase
+     * @param PhoPathInterface|string $device_name
+     * @param EnumExecuteMethod       $method
      *
      * @return static
      */
-    public function luksOpen(string $passphrase, FsPathInterface|string $device_name, EnumExecuteMethod $method = EnumExecuteMethod::noReturn): static
+    public function luksOpen(string $passphrase, PhoPathInterface|string $device_name, EnumExecuteMethod $method = EnumExecuteMethod::noReturn): static
     {
         try {
             $this->luksCheckPath();
@@ -320,7 +320,7 @@ class Device extends FsFile
         }
 
         $this->code        = $passphrase;
-        $this->device_name = new FsFile('/dev/mapper/' . $device_name);
+        $this->device_name = new PhoFile('/dev/mapper/' . $device_name);
 
         Log::success(tr('Opened LUKS file ":file" and mapped it to device ":device"', [
             ':file'   => $this->source,

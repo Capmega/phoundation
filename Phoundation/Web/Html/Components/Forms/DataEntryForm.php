@@ -18,6 +18,7 @@ namespace Phoundation\Web\Html\Components\Forms;
 
 use PDOStatement;
 use Phoundation\Core\Libraries\Library;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
@@ -264,6 +265,10 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                         ':field_name' => $field_name,
                         ':data'       => gettype($definition) . ': ' . $definition,
                     ]));
+                }
+
+                if ($definition->getPreRenderFunctions()) {
+                    $source[$column] = $this->executePreRenderFunctions($definition, $source, isset_get($source[$column]));
                 }
 
                 if ($definition->isMeta()) {
@@ -714,6 +719,26 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
         }
 
         return $return;
+    }
+
+
+    /**
+     * Applies pre-render functions if defined and adds the specified component to the DataEntryFormRow
+     *
+     * @param DefinitionInterface $definition
+     * @param array               $source
+     * @param mixed               $value
+     *
+     * @return mixed
+     */
+    protected function executePreRenderFunctions(DefinitionInterface $definition, array $source, mixed $value): mixed
+    {
+        // Execute all available pre-render functions
+        foreach ($definition->getPreRenderFunctions() as $function) {
+            $value = $function ($definition, $source, $value);
+        }
+
+        return $value;
     }
 
 

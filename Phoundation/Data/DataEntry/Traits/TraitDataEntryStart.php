@@ -16,8 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use Phoundation\Date\DateTime;
-use Phoundation\Date\Interfaces\DateTimeInterface;
+use Phoundation\Date\PhoDateTime;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 
 
 trait TraitDataEntryStart
@@ -25,9 +25,9 @@ trait TraitDataEntryStart
     /**
      * Returns the start for this object
      *
-     * @return DateTimeInterface|null
+     * @return PhoDateTimeInterface|null
      */
-    public function getStart(): ?DateTimeInterface
+    public function getStart(): ?PhoDateTimeInterface
     {
         return $this->getTypesafe('datetime', 'start');
     }
@@ -36,12 +36,12 @@ trait TraitDataEntryStart
     /**
      * Sets the start for this object
      *
-     * @param DateTimeInterface|string|null $start
+     * @param PhoDateTimeInterface|string|null $start
      *
      * @return static
      */
-    public function setStart(DateTimeInterface|string|null $start): static
+    public function setStart(PhoDateTimeInterface|string|null $start): static
     {
-        return $this->set($start ? new DateTime($start, 'system') : null, 'start');
+        return $this->set($start ? new PhoDateTime($start, 'system') : null, 'start');
     }
 }

@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace Phoundation\Developer;
 
 use DateTime;
-use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\PhoDirectory;
 use Stringable;
 
 
@@ -44,7 +44,7 @@ class Mtime
      */
     protected function __construct()
     {
-        FsDirectory::new(static::$directory)
+        PhoDirectory::new(static::$directory)
                  ->ensure();
     }
 

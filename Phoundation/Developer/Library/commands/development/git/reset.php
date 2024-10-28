@@ -18,7 +18,7 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Versioning\Git\Git;
-use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\PhoDirectory;
 
 
 CliDocumentation::setUsage('./pho development git reset [BRANCH] [FILE] [--hard]
@@ -35,4 +35,4 @@ $argv = ArgvValidator::new()
                      ->select('--hard')->isOptional()->isBoolean()
                      ->validate();
 
-Git::new(FsDirectory::newRootObject())->reset($argv['branch'], get_null($argv['files']));
+Git::new(PhoDirectory::newRootObject())->reset($argv['branch'], get_null($argv['files']));

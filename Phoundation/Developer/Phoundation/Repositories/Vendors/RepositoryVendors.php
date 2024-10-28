@@ -20,7 +20,7 @@ use Phoundation\Developer\Phoundation\Repositories\Interfaces\RepositoryInterfac
 use Phoundation\Developer\Phoundation\Repositories\Vendors\Interfaces\RepositoryVendorsInterface;
 use Phoundation\Developer\Traits\TraitDataRepository;
 use Phoundation\Developer\Vendors;
-use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\PhoDirectory;
 
 
 class RepositoryVendors extends Vendors implements RepositoryVendorsInterface
@@ -40,7 +40,7 @@ class RepositoryVendors extends Vendors implements RepositoryVendorsInterface
         $this->type       = $repository?->getRepositoryType();
 
         if ($repository) {
-            $this->directory = new FsDirectory($repository);
+            $this->directory = new PhoDirectory($repository);
         }
 
         parent::__construct($changed);

@@ -22,7 +22,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\FileValidatorInterface;
-use Phoundation\Filesystem\Interfaces\FsUploadedFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoUploadedFileInterface;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\FlashMessage;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
@@ -42,7 +42,7 @@ try {
                 $validator->isImage('jpg,png')->isSmallerThan('10MB')
                           ->validate();
             })
-            ->setFunction(function(FsUploadedFileInterface $file) {
+            ->setFunction(function(PhoUploadedFileInterface $file) {
                 // Set this image as the profile image
                 ProfileImage::newFromImageFile(new ImageFile($file))
                     ->setUserObject(Session::getUserObject())

@@ -18,12 +18,12 @@ namespace Phoundation\Filesystem\Mounts;
 
 use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Exception\NotExistsException;
-use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\Exception\DirectoryNotMountedException;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\Mounts\Interfaces\MountsInterface;
 use Phoundation\Os\Processes\Commands\Mount;
 use Phoundation\Os\Processes\Commands\UnMount;
@@ -46,7 +46,7 @@ class FsMounts extends DataIterator implements MountsInterface
      */
     public static function getDefaultContentDataType(): ?string
     {
-        return FsMount::class;
+        return PhoMount::class;
     }
 
 
@@ -131,8 +131,8 @@ class FsMounts extends DataIterator implements MountsInterface
     protected static function listMounts(string $key): static
     {
         $return = static::new();
-        $mounts = FsFile::new('/proc/mounts', FsRestrictions::newReadonly('/proc/'))
-                        ->getContentsAsArray();
+        $mounts = PhoFile::new('/proc/mounts', PhoRestrictions::newReadonly('/proc/'))
+                         ->getContentsAsArray();
 
         foreach ($mounts as $mount) {
             $mount = explode(' ', $mount);
@@ -145,7 +145,7 @@ class FsMounts extends DataIterator implements MountsInterface
                 'fs_passno'   => $mount[5],
             ];
 
-            $return->add(FsMount::newFromSource($mount), $mount[$key]);
+            $return->add(PhoMount::newFromSource($mount), $mount[$key]);
         }
 
         return $return;
@@ -166,11 +166,11 @@ class FsMounts extends DataIterator implements MountsInterface
     /**
      * Returns a list of all source devices / paths as keys for the specified target path and with what options
      *
-     * @param FsDirectoryInterface $target
+     * @param PhoDirectoryInterface $target
      *
      * @return static
      */
-    public static function getMountSources(FsDirectoryInterface $target): static
+    public static function getMountSources(PhoDirectoryInterface $target): static
     {
         $target = $target->getSource(remove_terminating_slash: true);
         $mounts = static::listMounts('target_path');
@@ -196,11 +196,11 @@ class FsMounts extends DataIterator implements MountsInterface
      * Returns a list of all target directories as keys with value information about where they are mounted from and
      * with what options
      *
-     * @param FsDirectoryInterface $source
+     * @param PhoDirectoryInterface $source
      *
      * @return static
      */
-    public static function getMountTargets(FsDirectoryInterface $source): static
+    public static function getMountTargets(PhoDirectoryInterface $source): static
     {
         $source = $source->getSource(remove_terminating_slash: true);
         $mounts = static::listMounts('source_path');

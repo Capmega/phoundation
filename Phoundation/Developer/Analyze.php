@@ -17,9 +17,9 @@ declare(strict_types=1);
 namespace Phoundation\Developer;
 
 use Phoundation\Data\Traits\TraitDataPathInterface;
-use Phoundation\Filesystem\FsPath;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
+use Phoundation\Filesystem\PhoPath;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 
 
 class Analyze
@@ -32,7 +32,7 @@ class Analyze
     /**
      * Analyze class constructor
      */
-    public function __construct(FsPathInterface|string|null $path = null)
+    public function __construct(PhoPathInterface|string|null $path = null)
     {
         $this->setPath($path);
     }
@@ -41,15 +41,15 @@ class Analyze
     /**
      * Sets the path
      *
-     * @param FsPathInterface|null $path
+     * @param PhoPathInterface|null $path
      *
      * @return static
      */
-    public function setPath(FsPathInterface|null $path = null): static
+    public function setPath(PhoPathInterface|null $path = null): static
     {
         if (!$path) {
             // Default to the root directory of this project
-            $path = new FsPath(DIRECTORY_ROOT, FsRestrictions::newReadonly(DIRECTORY_ROOT));
+            $path = new PhoPath(DIRECTORY_ROOT, PhoRestrictions::newReadonly(DIRECTORY_ROOT));
         }
 
         return $this->__setPath($path);

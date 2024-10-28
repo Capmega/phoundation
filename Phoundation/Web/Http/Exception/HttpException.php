@@ -16,9 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Exception;
 
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 
 
-class HttpException extends Exception
+class HttpException extends PhoException
 {
 }

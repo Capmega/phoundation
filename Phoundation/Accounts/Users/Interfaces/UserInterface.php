@@ -12,7 +12,7 @@ use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImagesInterface;
 use Phoundation\Accounts\Users\ProfileImages\ProfileImage;
 use Phoundation\Core\Sessions\Interfaces\SessionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Date\DateTime;
+use Phoundation\Date\PhoDateTime;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Stringable;
@@ -373,16 +373,6 @@ interface UserInterface extends DataEntryInterface
      * @return string|null
      */
     public function getLeadersName(): ?string;
-
-
-    /**
-     * Sets the leader for this user
-     *
-     * @param string|null $leaders_name
-     *
-     * @return static
-     */
-    public function setLeadersName(?string $leaders_name): static;
 
 
     /**

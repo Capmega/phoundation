@@ -18,7 +18,7 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Versioning\Git\Git;
-use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\PhoDirectory;
 
 
 CliDocumentation::setUsage('./pho development git push REPOSITORY BRANCH
@@ -35,4 +35,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Git::new(FsDirectory::newRootObject())->push($argv['branch'], $argv['repository']);
+Git::new(PhoDirectory::newRootObject())->push($argv['branch'], $argv['repository']);

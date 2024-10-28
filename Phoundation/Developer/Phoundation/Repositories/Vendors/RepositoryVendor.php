@@ -20,7 +20,7 @@ use Phoundation\Developer\Phoundation\Repositories\Interfaces\RepositoryInterfac
 use Phoundation\Developer\Project\Vendors\Interfaces\ProjectVendorInterface;
 use Phoundation\Developer\Traits\TraitDataRepository;
 use Phoundation\Developer\Vendor;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 
 
 class RepositoryVendor extends Vendor implements ProjectVendorInterface
@@ -32,9 +32,9 @@ class RepositoryVendor extends Vendor implements ProjectVendorInterface
      * RepositoryVendor class constructor
      *
      * @param RepositoryInterface|null $repository
-     * @param FsDirectoryInterface     $directory
+     * @param PhoDirectoryInterface    $directory
      */
-    public function __construct(?RepositoryInterface $repository, FsDirectoryInterface $directory)
+    public function __construct(?RepositoryInterface $repository, PhoDirectoryInterface $directory)
     {
         $this->repository = $repository;
         parent::__construct($directory, $repository->getRepositoryType());
@@ -44,12 +44,12 @@ class RepositoryVendor extends Vendor implements ProjectVendorInterface
     /**
      * Returns a new RepositoryVendors object
      *
-     * @param RepositoryInterface|null  $repository
-     * @param FsDirectoryInterface|null $directory
+     * @param RepositoryInterface|null   $repository
+     * @param PhoDirectoryInterface|null $directory
      *
      * @return static
      */
-    public static function new(?RepositoryInterface $repository, FsDirectoryInterface $directory = null): static
+    public static function new(?RepositoryInterface $repository, PhoDirectoryInterface $directory = null): static
     {
         return new static($repository, $directory);
     }

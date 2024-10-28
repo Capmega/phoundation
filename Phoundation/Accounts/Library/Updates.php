@@ -33,7 +33,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.5.2';
+        return '0.6.0';
     }
 
 
@@ -1161,6 +1161,34 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->getSchemaObject()
                  ->getTableObject('accounts_authentications')
                     ->alter()->changeColumn('`action`', '`action` enum("authentication", "signin", "signout", "startimpersonation", "stopimpersonation", "test", "other") CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,');
+
+        })->addUpdate('0.6.0', function () {
+            // Create the users_roles table.
+            sql()->getSchemaObject()->getTableObject('accounts_configurations')
+                                    ->drop()
+                                    ->define()
+                                    ->setColumns('  `id` bigint NOT NULL AUTO_INCREMENT,
+                                                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                                    `created_by` bigint NULL DEFAULT NULL,
+                                                    `meta_id` bigint NULL DEFAULT NULL,
+                                                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                                                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                                                    `users_id` bigint NOT NULL,
+                                                    `path` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
+                                                    `value` text NULL DEFAULT NULL,
+                                                ')->setIndices('                
+                                                    PRIMARY KEY (`id`),
+                                                    KEY `created_on` (`created_on`),
+                                                    KEY `created_by` (`created_by`),
+                                                    KEY `status` (`status`),
+                                                    KEY `meta_id` (`meta_id`),
+                                                    KEY `users_id` (`users_id`),
+                                                    KEY `path` (`path`),
+                                                ')->setForeignKeys('
+                                                    CONSTRAINT `fk_accounts_configurations_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                                                    CONSTRAINT `fk_accounts_configurations_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                                                    CONSTRAINT `fk_accounts_configurations_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
+                                                ')->create();
         });
     }
 }

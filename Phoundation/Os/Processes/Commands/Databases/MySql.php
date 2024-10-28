@@ -25,9 +25,9 @@ use Phoundation\Data\Traits\TraitDataUserPass;
 use Phoundation\Databases\Exception\MysqlException;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Filesystem\Exception\FileTypeNotSupportedException;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Commands\Zcat;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
@@ -91,9 +91,9 @@ class MySql extends Command
     /**
      * Imports the specified MySQL dump file into the specified database
      *
-     * @param FsFileInterface $file
+     * @param PhoFileInterface $file
      */
-    public function import(FsFileInterface $file): void
+    public function import(PhoFileInterface $file): void
     {
         // Get file and database information
         $threshold = Log::setThreshold(3);
@@ -218,7 +218,7 @@ class MySql extends Command
      */
     protected function deletePasswordFile(): static
     {
-        FsFile::new('~/.my.cnf', '~/.my.cnf')
+        PhoFile::new('~/.my.cnf', '~/.my.cnf')
             ->setServer($this->server)
             ->secureDelete();
 
@@ -305,7 +305,7 @@ class MySql extends Command
                             'root',
                             'mysql',
                         ]);
-        Process::new('mysql_tzinfo_to_sql', FsRestrictions::new('/usr/share/zoneinfo'))
+        Process::new('mysql_tzinfo_to_sql', PhoRestrictions::new('/usr/share/zoneinfo'))
                ->setTimeout(10)
                ->addArgument('/usr/share/zoneinfo')
                ->setPipe($mysql)

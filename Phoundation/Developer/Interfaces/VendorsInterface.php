@@ -6,17 +6,17 @@ namespace Phoundation\Developer\Interfaces;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsFilesInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
 
 interface VendorsInterface extends IteratorInterface
 {
     /**
      * Returns the directory where this projects vendor list may be found
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public function getDirectory(): FsDirectoryInterface;
+    public function getDirectory(): PhoDirectoryInterface;
 
     /**
      * Returns true if this vendors list contains only vendors with changes, or false if it contains all vendors
@@ -28,9 +28,9 @@ interface VendorsInterface extends IteratorInterface
     /**
      * Returns all files for this vendor
      *
-     * @return FsFilesInterface
+     * @return PhoFilesInterface
      */
-    public function getFiles(): FsFilesInterface;
+    public function getFiles(): PhoFilesInterface;
 
     /**
      * Returns all modified files for this vendor

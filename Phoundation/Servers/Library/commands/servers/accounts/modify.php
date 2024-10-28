@@ -19,7 +19,7 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
-use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\PhoFile;
 use Phoundation\Servers\SshAccount;
 
 
@@ -56,7 +56,7 @@ $account = SshAccount::load($argv['identifier']);
 
 // Add SSH key for this account either from file or from CLI input
 if ($argv['ssh_key_file']) {
-    FsFile::new($argv['ssh_key_file'], $argv['ssh_key_file'])->ensureReadable();
+    PhoFile::new($argv['ssh_key_file'], $argv['ssh_key_file'])->ensureReadable();
     $argv['ssh_key'] = file_get_contents($argv['ssh_key_file']);
 } else {
     $argv['ssh_key'] = Cli::readPassword(tr('Please paste the private key here:'));

@@ -20,9 +20,9 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Commands\Exception\NoSudoException;
@@ -57,14 +57,14 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessInterfac
     /**
      * Create a new CLI script process factory
      *
-     * @param string|null                               $command
-     * @param FsRestrictionsInterface|array|string|null $restrictions
-     * @param string|null                               $operating_system
-     * @param string|null                               $packages
+     * @param string|null                                $command
+     * @param PhoRestrictionsInterface|array|string|null $restrictions
+     * @param string|null                                $operating_system
+     * @param string|null                                $packages
      *
      * @return static
      */
-    public static function newCliScript(?string $command = null, FsRestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null): static
+    public static function newCliScript(?string $command = null, PhoRestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null): static
     {
         $process = static::new('cli', $restrictions, $operating_system, $packages);
         $process->addArguments(Arrays::force($command, ' '));
@@ -213,9 +213,9 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessInterfac
         if ($exit_code === 126) {
             // Permission to execute was denied to the timeout command. Was this a ROOT/data/bin/ command? If so, these
             // commands should all have 750. Check for this, and if not, make it 750 and retry.
-            $file = FsFile::new(
+            $file = PhoFile::new(
                 $this->command,
-                FsRestrictions::newWritable(dirname($this->command))
+                PhoRestrictions::newWritable(dirname($this->command))
             );
 
             if ($file->getParentDirectory()->getSource() === DIRECTORY_DATA . 'bin/') {
@@ -602,7 +602,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessInterfac
     {
         $this->setExecutionMethod(EnumExecuteMethod::passthru);
 
-        $output_file = FsFile::getTemporaryObject(false)->getSource();
+        $output_file = PhoFile::getTemporaryObject(false)->getSource();
         $command     = $this->getFullCommandLine();
         $command     = Strings::ensureEndsNotWith($command, ';');
 

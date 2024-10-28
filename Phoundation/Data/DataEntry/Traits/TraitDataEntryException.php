@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 use Throwable;
 
 
@@ -25,11 +25,11 @@ trait TraitDataEntryException
     /**
      * Returns the exception for this object
      *
-     * @return Exception|null
+     * @return PhoException|null
      */
-    public function getException(): ?Exception
+    public function getException(): ?PhoException
     {
-        return Exception::newFromImport($this->getTypesafe('string', 'exception'));
+        return PhoException::newFromImport($this->getTypesafe('string', 'exception'));
     }
 
 
@@ -43,9 +43,9 @@ trait TraitDataEntryException
     public function setException(Throwable|string|null $e): static
     {
         if (is_object($e)) {
-            if ($e instanceof Exception) {
+            if ($e instanceof PhoException) {
                 // Make it a Phoundation Exception
-                $e = new Exception($e);
+                $e = new PhoException($e);
             }
 
             $e = $e->exportToString();

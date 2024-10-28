@@ -19,7 +19,7 @@ namespace Phoundation\Web\Html\Components\Input;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
 
-class InputFile extends Input
+class InputFile extends InputText
 {
     /**
      * Defines what this file upload control will accept

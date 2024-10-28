@@ -21,7 +21,7 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\IteratorCore;
 use Phoundation\Data\Traits\TraitMethodHasRendered;
-use Phoundation\Date\Interfaces\DateTimeInterface;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 
@@ -100,13 +100,13 @@ class Activities extends IteratorCore
     /**
      * Loads activities for the specified user within the specified date ranges
      *
-     * @param UserInterface     $user
-     * @param DateTimeInterface $start
-     * @param DateTimeInterface $stop
+     * @param UserInterface        $user
+     * @param PhoDateTimeInterface $start
+     * @param PhoDateTimeInterface $stop
      *
      * @return $this
      */
-    public function loadForUserDateRange(UserInterface $user, DateTimeInterface $start, DateTimeInterface $stop): static
+    public function loadForUserDateRange(UserInterface $user, PhoDateTimeInterface $start, PhoDateTimeInterface $stop): static
     {
         $this->source = sql()->listKeyValues('SELECT `id`
                                                            `created_on`,
@@ -133,13 +133,13 @@ class Activities extends IteratorCore
     /**
      * Loads activities for the specified meta id
      *
-     * @param DataEntryInterface|int $meta_id
-     * @param DateTimeInterface|null $start
-     * @param DateTimeInterface|null $stop
+     * @param DataEntryInterface|int    $meta_id
+     * @param PhoDateTimeInterface|null $start
+     * @param PhoDateTimeInterface|null $stop
      *
      * @return $this
      */
-    public function loadForMetaId(DataEntryInterface|int $meta_id, ?DateTimeInterface $start = null, ?DateTimeInterface $stop = null): static
+    public function loadForMetaId(DataEntryInterface|int $meta_id, ?PhoDateTimeInterface $start = null, ?PhoDateTimeInterface $stop = null): static
     {
         if ($meta_id instanceof DataEntryInterface) {
             $object  = $meta_id;

@@ -16,12 +16,12 @@ declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsPath;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoPath;
+use Phoundation\Filesystem\PhoRestrictions;
 
 
-$restrictions = FsRestrictions::newWritable('/');
+$restrictions = PhoRestrictions::newWritable('/');
 
 CliDocumentation::setAutoComplete([
     'arguments' => [
@@ -31,10 +31,10 @@ CliDocumentation::setAutoComplete([
     'positions' => [
         '0' => [
             'word'   => function ($word) use ($restrictions) {
-                return FsDirectory::new(FsDirectory::newFilesystemRootObject())->scan($word . '*');
+                return PhoDirectory::new(PhoDirectory::newFilesystemRootObject())->scan($word . '*');
             },
             'noword' => function () use ($restrictions) {
-                return FsDirectory::new(FsDirectory::newFilesystemRootObject())->scan('*');
+                return PhoDirectory::new(PhoDirectory::newFilesystemRootObject())->scan('*');
             },
         ],
     ]
@@ -67,7 +67,7 @@ PATH                                    The path of which the size needs to be c
 
 // Get the arguments
 $argv = ArgvValidator::new()
-                     ->select('path')->sanitizeFile(FsDirectory::newFilesystemRootObject(true))
+                     ->select('path')->sanitizeFile(PhoDirectory::newFilesystemRootObject(true))
                      ->select('-r,--randomized')->isOptional(false)->isBoolean()
                      ->select('-b,--block-size', true)->isOptional(4096)->sanitizeBytes()->isBetween(100, 1_073_741_824)
                      ->select('-d,--data', true)->isString()->hasMinCharacters(1)->hasMaxCharacters(1_073_741_824)
@@ -75,5 +75,5 @@ $argv = ArgvValidator::new()
 
 
 // Initialize the specified file
-FsPath::newExisting($argv['path'], FsRestrictions::newWritable('/'))
+PhoPath::newExisting($argv['path'], PhoRestrictions::newWritable('/'))
       ->initialize($argv['data'], $argv['block_size'], $argv['randomized']);

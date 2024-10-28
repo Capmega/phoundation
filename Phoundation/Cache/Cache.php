@@ -25,9 +25,9 @@ use Phoundation\Databases\NullDb;
 use Phoundation\Databases\Redis\Redis;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Developer\Versioning\Git\Git;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsPath;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoPath;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
@@ -67,7 +67,7 @@ class Cache
 
         Log::action(tr('Clearing file caches'), 3);
 
-        FsPath::new(DIRECTORY_SYSTEM . 'cache/files/', FsRestrictions::newWritable(DIRECTORY_SYSTEM . 'cache/files/'))
+        PhoPath::new(DIRECTORY_SYSTEM . 'cache/files/', PhoRestrictions::newWritable(DIRECTORY_SYSTEM . 'cache/files/'))
             ->delete();
 
         static::driver()?->clear();
@@ -220,7 +220,7 @@ class Cache
 
         if ($auto_commit) {
             // Is there anything to commit?
-            $directory = new FsDirectory(DIRECTORY_SYSTEM . 'cache/system/' . $section, FsRestrictions::newCache(true));
+            $directory = new PhoDirectory(DIRECTORY_SYSTEM . 'cache/system/' . $section, PhoRestrictions::newCache(true));
             $git       = Git::new($directory);
 
             if ($git->getStatusFilesObject()->getCount()) {

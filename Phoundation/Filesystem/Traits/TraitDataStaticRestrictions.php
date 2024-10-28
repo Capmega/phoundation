@@ -16,8 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Traits;
 
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
+use Phoundation\Filesystem\PhoRestrictions;
 
 
 trait TraitDataStaticRestrictions
@@ -25,36 +25,36 @@ trait TraitDataStaticRestrictions
     /**
      * Server object where the image conversion commands will be executed
      *
-     * @var FsRestrictionsInterface $restrictions
+     * @var PhoRestrictionsInterface $restrictions
      */
-    protected static FsRestrictionsInterface $restrictions;
+    protected static PhoRestrictionsInterface $restrictions;
 
 
     /**
      * Returns the server restrictions
      *
-     * @return FsRestrictionsInterface
+     * @return PhoRestrictionsInterface
      */
-    public static function getRestrictions(): FsRestrictionsInterface
+    public static function getRestrictions(): PhoRestrictionsInterface
     {
         if (isset(static::$restrictions)) {
             return static::$restrictions;
         }
 
-        return FsRestrictions::getRestrictionsOrDefault();
+        return PhoRestrictions::getRestrictionsOrDefault();
     }
 
 
     /**
      * Sets the server and filesystem restrictions for this object
      *
-     * @param FsRestrictionsInterface|array|string|null $restrictions The file restrictions to apply to this object
-     * @param bool                                      $write        If $restrictions are not specified as a
+     * @param PhoRestrictionsInterface|array|string|null $restrictions The file restrictions to apply to this object
+     * @param bool                                       $write        If $restrictions are not specified as a
      *                                                                FsRestrictions class, but as a path string, or
      *                                                                array of path strings, then this method will
      *                                                                convert that into a FsRestrictions object and this
      *                                                                is the $write modifier for that object
-     * @param string|null                               $label        If $restrictions are not specified as a
+     * @param string|null                                $label        If $restrictions are not specified as a
      *                                                                FsRestrictions class, but as a path string, or
      *                                                                array of path strings, then this method will
      *                                                                convert that into a FsRestrictions object and this
@@ -62,25 +62,25 @@ trait TraitDataStaticRestrictions
      *
      * @return void
      */
-    public static function setRestrictions(FsRestrictionsInterface|array|string|null $restrictions, bool $write = false, ?string $label = null): void
+    public static function setRestrictions(PhoRestrictionsInterface|array|string|null $restrictions, bool $write = false, ?string $label = null): void
     {
-        static::$restrictions = FsRestrictions::ensure($restrictions, $write, $label);
+        static::$restrictions = PhoRestrictions::ensure($restrictions, $write, $label);
     }
 
 
     /**
      * Returns either the specified restrictions, or this object's restrictions, or system default restrictions
      *
-     * @param FsRestrictionsInterface|null $restrictions
+     * @param PhoRestrictionsInterface|null $restrictions
      *
-     * @return FsRestrictionsInterface
+     * @return PhoRestrictionsInterface
      */
-    public static function ensureRestrictions(?FsRestrictionsInterface $restrictions): FsRestrictionsInterface
+    public static function ensureRestrictions(?PhoRestrictionsInterface $restrictions): PhoRestrictionsInterface
     {
         if (static::$restrictions) {
-            return FsRestrictions::getRestrictionsOrDefault($restrictions, static::$restrictions);
+            return PhoRestrictions::getRestrictionsOrDefault($restrictions, static::$restrictions);
         }
 
-        return FsRestrictions::getRestrictionsOrDefault($restrictions);
+        return PhoRestrictions::getRestrictionsOrDefault($restrictions);
     }
 }

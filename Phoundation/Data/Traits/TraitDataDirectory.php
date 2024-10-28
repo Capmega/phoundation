@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 
 
 trait TraitDataDirectory
@@ -27,13 +27,13 @@ trait TraitDataDirectory
     /**
      * Sets the directory
      *
-     * @param FsDirectoryInterface|null $directory
-     * @param string|null               $prefix
-     * @param bool                      $must_exist
+     * @param PhoDirectoryInterface|null $directory
+     * @param string|null                $prefix
+     * @param bool                       $must_exist
      *
      * @return static
      */
-    public function setDirectory(?FsDirectoryInterface $directory, string $prefix = null, bool $must_exist = true): static
+    public function setDirectory(?PhoDirectoryInterface $directory, string $prefix = null, bool $must_exist = true): static
     {
         $this->directory = $directory?->makeAbsolute($prefix, $must_exist);
 

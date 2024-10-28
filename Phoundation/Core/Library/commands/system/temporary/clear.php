@@ -16,9 +16,9 @@ declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Strings;
 
 
@@ -37,7 +37,7 @@ ARGUMENTS
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->select('path')->isOptional()->sanitizeFile(FsDirectory::newDataTmpObject(true))
+                     ->select('path')->isOptional()->sanitizeFile(PhoDirectory::newDataTmpObject(true))
                      ->select('-p,--public')->isOptional()->isBoolean()
                      ->validate();
 
@@ -47,7 +47,7 @@ $argv['path'] = Strings::from($argv['path'], ($argv['public'] ? DIRECTORY_PUBTMP
 
 
 // Clear the specified temporary directory and we're done
-FsFile::new(
+PhoFile::new(
     ($argv['public'] ? DIRECTORY_PUBTMP : DIRECTORY_TMP) . $argv['path'],
-    FsRestrictions::newWritable($argv['public'] ? DIRECTORY_PUBTMP : DIRECTORY_TMP)
+    PhoRestrictions::newWritable($argv['public'] ? DIRECTORY_PUBTMP : DIRECTORY_TMP)
 )->delete();

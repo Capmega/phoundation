@@ -138,30 +138,35 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
     /**
      * Automatically apply current filters to the query builder
      *
-     * @param QueryBuilderInterface $query_builder
+     * @param QueryBuilderInterface $builder
      *
      * @return $this
      */
-    public function applyFiltersToQueryBuilder(QueryBuilderInterface $query_builder): static
+    public function applyFiltersToQueryBuilder(QueryBuilderInterface $builder): static
     {
-        if ($this->get('rights_id')) {
-            $query_builder
-                ->addJoin('JOIN  `accounts_roles_rights` AS `accounts_roles_rights_filter`
-                           ON    `accounts_roles_rights_filter`.`rights_id` = :rights_id
-                             AND `accounts_roles_rights_filter`.`roles_id`  = `accounts_roles`.`id` ', [
-                    ':rights_id' => $this->get('rights_id'),
-                ]);
+        if ($this->apply_filters->keyExists('roles_id')) {
+            if ($this->getRolesId()) {
+                $builder->addJoin('JOIN  `accounts_users_roles` AS `accounts_users_roles_filter`
+                                   ON    `accounts_users_roles_filter`.`roles_id` = :roles_id
+                                     AND `accounts_users_roles_filter`.`users_id`  = `accounts_users`.`id` ', [
+                                         ':roles_id' => $this->getRolesId()]);
+            }
         }
 
-        if ($this->get('roles_id')) {
-            $query_builder
-                ->addJoin('JOIN  `accounts_roles_rights` AS `accounts_roles_rights_filter`
-                           ON    `accounts_roles_rights_filter`.`roles_id`  = :roles_id
-                             AND `accounts_roles_rights_filter`.`rights_id` = `accounts_rights`.`id` ', [
-                    ':roles_id' => $this->get('roles_id'),
-                ]);
+        if ($this->apply_filters->keyExists('rights_id')) {
+            if ($this->getRightsId()) {
+                $builder->addJoin('JOIN  `accounts_users_rights` AS `accounts_users_rights_filter`
+                                   ON    `accounts_users_rights_filter`.`rights_id` = :rights_id
+                                     AND `accounts_users_rights_filter`.`users_id`  = `accounts_users`.`id` ', [
+                                         ':rights_id' => $this->getRightsId()]);
+            }
         }
 
-        return parent::applyFiltersToQueryBuilder($query_builder);
+        $this->apply_filters->removeKeys([
+            'roles_id',
+            'rights_id',
+        ]);
+
+        return parent::applyFiltersToQueryBuilder($builder);
     }
 }

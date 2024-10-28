@@ -20,10 +20,10 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
-use Phoundation\Date\DateTime;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsPath;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Date\PhoDateTime;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoPath;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Commands\Interfaces\MysqlDumpInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
@@ -395,18 +395,18 @@ class MysqlDump extends Command implements MysqlDumpInterface
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
-     * @param FsFileInterface|null       $file
-     * @param EnumExecuteMethod $method
+     * @param PhoFileInterface|null $file
+     * @param EnumExecuteMethod     $method
      *
      * @return string
      */
-    public function dump(?FsFileInterface $file, EnumExecuteMethod $method = EnumExecuteMethod::passthru): string
+    public function dump(?PhoFileInterface $file, EnumExecuteMethod $method = EnumExecuteMethod::passthru): string
     {
         if (!$file) {
             // Generate default file
             $file  = Core::getProjectSeoName() . '/mysql/' . Core::getProjectSeoName();
-            $file .= DateTime::new()->format('Ymd-His') . '.sql' . ($this->gzip ? '.gz' : null);
-            $file  = new FsFile($file);
+            $file .= PhoDateTime::new()->format('Ymd-His') . '.sql' . ($this->gzip ? '.gz' : null);
+            $file  = new PhoFile($file);
 
         } elseif ($this->gzip) {
             // If we're making a gzipped file, make sure it has the .gz extension
@@ -414,8 +414,8 @@ class MysqlDump extends Command implements MysqlDumpInterface
         }
 
         // TODO Improve this, we make a file object a string and a file object again
-        $file = FsPath::absolutePath($file, DIRECTORY_DATA . 'sources/', false);
-        $file = FsFile::new($file, $this->restrictions)->ensureParentDirectory();
+        $file = PhoPath::absolutePath($file, DIRECTORY_DATA . 'sources/', false);
+        $file = PhoFile::new($file, $this->restrictions)->ensureParentDirectory();
 
         // Build the process parameters, then execute
         $this->setCommand('mysqldump')

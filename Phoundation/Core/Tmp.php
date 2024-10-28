@@ -17,8 +17,8 @@ declare(strict_types=1);
 namespace Phoundation\Core;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Utils\Config;
 
@@ -35,12 +35,12 @@ class Tmp
         Log::action(tr('Clearing all temporary files'), 3);
 
         // Delete all private temporary files
-        FsDirectory::new(DIRECTORY_TMP, FsRestrictions::newWritable(DIRECTORY_TMP))
+        PhoDirectory::new(DIRECTORY_TMP, PhoRestrictions::newWritable(DIRECTORY_TMP))
                    ->delete()
                    ->ensure();
 
         // Delete all public temporary files
-        FsDirectory::new(DIRECTORY_PUBTMP, FsRestrictions::newWritable(DIRECTORY_PUBTMP))
+        PhoDirectory::new(DIRECTORY_PUBTMP, PhoRestrictions::newWritable(DIRECTORY_PUBTMP))
                    ->delete()
                    ->ensure();
 

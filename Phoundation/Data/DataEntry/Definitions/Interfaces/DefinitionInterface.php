@@ -22,8 +22,8 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
@@ -1347,41 +1347,42 @@ interface DefinitionInterface
     /**
      * Returns the in_directories restrictions for this definition
      *
-     * @return FsDirectoryInterface|array|null
+     * @return PhoDirectoryInterface|array|null
      */
-    public function getInDirectories(): FsDirectoryInterface|array|null;
+    public function getInDirectories(): PhoDirectoryInterface|array|null;
 
     /**
      * Sets the in_directories restrictions for this definition
      *
-     * @param FsDirectoryInterface|array|null $in_directories
+     * @param PhoDirectoryInterface|array|null $in_directories
+     *
      * @return static
      */
-    public function setInDirectories(FsDirectoryInterface|array|null $in_directories): static;
+    public function setInDirectories(PhoDirectoryInterface|array|null $in_directories): static;
 
     /**
      * Returns the server restrictions
      *
-     * @return FsRestrictionsInterface
+     * @return PhoRestrictionsInterface
      */
-    public function getRestrictions(): FsRestrictionsInterface;
+    public function getRestrictions(): PhoRestrictionsInterface;
 
     /**
      * Sets the server and filesystem restrictions for this object
      *
-     * @param FsRestrictionsInterface|array|string|null $restrictions The file restrictions to apply to this object
-     * @param bool                                      $write        If $restrictions is not specified as a
+     * @param PhoRestrictionsInterface|array|string|null $restrictions The file restrictions to apply to this object
+     * @param bool                                       $write        If $restrictions is not specified as a
      *                                                                FsRestrictions class, but as a path string, or
      *                                                                array of path strings, then this method will
      *                                                                convert that into a FsRestrictions object and this
      *                                                                is the $write modifier for that object
-     * @param string|null                               $label        If $restrictions is not specified as a
+     * @param string|null                                $label        If $restrictions is not specified as a
      *                                                                FsRestrictions class, but as a path string, or
      *                                                                array of path strings, then this method will
      *                                                                convert that into a FsRestrictions object and this
      *                                                                is the $label modifier for that object
      */
-    public function setRestrictions(FsRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
+    public function setRestrictions(PhoRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
 
     /**
      * Returns if this column is forced processed or not
@@ -1432,4 +1433,82 @@ interface DefinitionInterface
      * @return static
      */
     #[ReturnTypeWillChange] public function set(mixed $value, Stringable|string|float|int $key): static;
+
+    /**
+     * Returns if this column contains data that should be processed
+     *
+     * @note Defaults to true
+     * @return bool|null
+     * @see  Definition::getVirtual()
+     */
+    public function getContainsData(): ?bool;
+
+    /**
+     * Sets if this column contains data that should be processed
+     *
+     * @note Defaults to true
+     *
+     * @param bool $value
+     *
+     * @return static
+     * @see  Definition::setVirtual()
+     */
+    public function setContainsData(bool $value): static;
+
+    /**
+     * Returns the pre_render_functions for this column
+     *
+     * @return array|null
+     */
+    public function getPreRenderFunctions(): ?array;
+
+    /**
+     * Sets the pre_render_functions for this column
+     *
+     * @param array|callable|null $value
+     *
+     * @return static
+     */
+    public function setPreRenderFunctions(array|callable|null $value): static;
+    /**
+     * Adds the pre_render_functions for this column
+     *
+     * @param array|callable|null $value
+     *
+     * @return static
+     */
+    public function addPreRenderFunctions(array|callable|null $value): static;
+
+    /**
+     * Clears the pre_render_functions for this column
+     *
+     * @param callable|null $value
+     *
+     * @return static
+     */
+    public function clearPreRenderFunctions($value): static;
+
+    /**
+     * Sets if this column is linked_to another column
+     * *
+     * * If this column is linked_to a different column, it will NOT try to use its data if this column is NULL and the
+     * * other column has a value
+     *
+     * @return string|null
+     * @see  Definition::getRender()
+     */
+    public function getLinkedTo(): ?string;
+
+    /**
+     * Sets if this column is linked_to another column
+     *
+     * If this column is linked_to a different column, it will NOT try to use its data if this column is NULL and the
+     * other column has a value
+     *
+     * @param string|null $linked_to
+     *
+     * @return static
+     * @see  Definition::setRender()
+     */
+    public function setLinkedTo(?string $linked_to = null): static;
 }

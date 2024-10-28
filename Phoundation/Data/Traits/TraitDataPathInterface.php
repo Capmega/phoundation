@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 
 
 trait TraitDataPathInterface
@@ -24,17 +24,17 @@ trait TraitDataPathInterface
     /**
      * The path to use
      *
-     * @var FsPathInterface|null $path
+     * @var PhoPathInterface|null $path
      */
-    protected ?FsPathInterface $path = null;
+    protected ?PhoPathInterface $path = null;
 
 
     /**
      * Returns the path
      *
-     * @return FsPathInterface|null
+     * @return PhoPathInterface|null
      */
-    public function getPath(): ?FsPathInterface
+    public function getPath(): ?PhoPathInterface
     {
         return $this->path;
     }
@@ -43,11 +43,11 @@ trait TraitDataPathInterface
     /**
      * Sets the path
      *
-     * @param FsPathInterface|null $path
+     * @param PhoPathInterface|null $path
      *
      * @return static
      */
-    public function setPath(FsPathInterface|null $path): static
+    public function setPath(PhoPathInterface|null $path): static
     {
         $this->path = $path;
 

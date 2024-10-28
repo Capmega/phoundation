@@ -16,9 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Notifications\Exception;
 
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 
 
-class NotificationsException extends Exception
+class NotificationsException extends PhoException
 {
 }

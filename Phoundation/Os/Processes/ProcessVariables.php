@@ -21,16 +21,16 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataLogLevel;
-use Phoundation\Date\DateTime;
-use Phoundation\Date\Interfaces\DateTimeInterface;
-use Phoundation\Date\Time;
+use Phoundation\Date\PhoDateTime;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
+use Phoundation\Date\PhoTime;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Os\Packages\Interfaces\PackagesInterface;
 use Phoundation\Os\Packages\Packages;
@@ -213,16 +213,16 @@ trait ProcessVariables
     /**
      * If specified, output from this command will be piped to the next command
      *
-     * @var ProcessInterface|FsFileInterface|string|null $pipe
+     * @var ProcessInterface|PhoFileInterface|string|null $pipe
      */
-    protected ProcessInterface|FsFileInterface|string|null $pipe = null;
+    protected ProcessInterface|PhoFileInterface|string|null $pipe = null;
 
     /**
      * If specified, will pipe the string or process output into this command
      *
-     * @var ProcessInterface|FsFileInterface|string|null $pipe
+     * @var ProcessInterface|PhoFileInterface|string|null $pipe
      */
-    protected ProcessInterface|FsFileInterface|string|null $pipe_from = null;
+    protected ProcessInterface|PhoFileInterface|string|null $pipe_from = null;
 
     /**
      * Stores the data on where to redirect input channels
@@ -277,9 +277,9 @@ trait ProcessVariables
     /**
      * If set, the process will first CD to this directory before continuing
      *
-     * @var FsDirectoryInterface|null $execution_directory
+     * @var PhoDirectoryInterface|null $execution_directory
      */
-    protected ?FsDirectoryInterface $execution_directory = null;
+    protected ?PhoDirectoryInterface $execution_directory = null;
 
     /**
      * If true, commands will be printed and logged
@@ -340,9 +340,9 @@ trait ProcessVariables
     /**
      * Tracks when this command executed
      *
-     * @var DateTime|null $executed_on
+     * @var PhoDateTime|null $executed_on
      */
-    protected ?DateTime $executed_on = null;
+    protected ?PhoDateTime $executed_on = null;
 
     /**
      * Tracks if this process runs as a stand-alone service or not.
@@ -356,16 +356,16 @@ trait ProcessVariables
     /**
      * Process class constructor
      *
-     * @param FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory_or_restrictions
+     * @param PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory_or_restrictions
      */
-    public function __construct(FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory_or_restrictions = null)
+    public function __construct(PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory_or_restrictions = null)
     {
         // Ensure that the run files directory is available
         // Set server filesystem restrictions
-        $this->setUseRunFile(FsDirectory::getWriteEnabled());
+        $this->setUseRunFile(PhoDirectory::getWriteEnabled());
 
         if ($execution_directory_or_restrictions) {
-            if ($execution_directory_or_restrictions instanceof FsRestrictions) {
+            if ($execution_directory_or_restrictions instanceof PhoRestrictions) {
                 $this->setRestrictions($execution_directory_or_restrictions);
 
             } else {
@@ -383,13 +383,13 @@ trait ProcessVariables
      *
      * @note NULL means this local server
      *
-     * @param FsRestrictionsInterface|array|string|null $restrictions
-     * @param bool                                      $write
-     * @param string|null                               $label
+     * @param PhoRestrictionsInterface|array|string|null $restrictions
+     * @param bool                                       $write
+     * @param string|null                                $label
      *
      * @return static
      */
-    public function setRestrictions(FsRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static
+    public function setRestrictions(PhoRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static
     {
         $this->cached_command_line = null;
         return $this->___setRestrictions($restrictions, $write, $label);
@@ -580,7 +580,7 @@ trait ProcessVariables
      */
     public function getExecutionTimeHumanReadable(bool $require_stop = true, int $decimals = 5): string
     {
-        return Time::difference($this->start, $this->getStopTime($require_stop), 'auto', $decimals);
+        return PhoTime::difference($this->start, $this->getStopTime($require_stop), 'auto', $decimals);
     }
 
 
@@ -797,9 +797,9 @@ trait ProcessVariables
     /**
      * Returns if the process will first CD to this directory before continuing
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public function getExecutionDirectory(): FsDirectoryInterface
+    public function getExecutionDirectory(): PhoDirectoryInterface
     {
         return $this->execution_directory;
     }
@@ -808,15 +808,15 @@ trait ProcessVariables
     /**
      * Sets if the process will first CD to this directory before continuing
      *
-     * @param FsDirectoryInterface|null $execution_directory
+     * @param PhoDirectoryInterface|null $execution_directory
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function setExecutionDirectory(FsDirectoryInterface|null $execution_directory): static
+    public function setExecutionDirectory(PhoDirectoryInterface|null $execution_directory): static
     {
         $this->cached_command_line = null;
         $this->execution_directory = $execution_directory;
-        $this->restrictions        = $execution_directory?->getRestrictions() ?? FsRestrictions::new();
+        $this->restrictions        = $execution_directory?->getRestrictions() ?? PhoRestrictions::new();
 
         return $this;
     }
@@ -831,7 +831,7 @@ trait ProcessVariables
      */
     public function setExecutionDirectoryToTemp(bool $public = false): static
     {
-        return $this->setExecutionDirectory(FsDirectory::newTemporaryObject($public));
+        return $this->setExecutionDirectory(PhoDirectory::newTemporaryObject($public));
     }
 
 
@@ -880,7 +880,7 @@ trait ProcessVariables
 
         if ($this->use_run_file) {
             // Make sure the run file directory exists
-            FsDirectory::new(static::$run_directory, FsRestrictions::newSystem(true))->ensure();
+            PhoDirectory::new(static::$run_directory, PhoRestrictions::newSystem(true))->ensure();
         }
 
         return $this;
@@ -895,7 +895,7 @@ trait ProcessVariables
     public static function deleteRunDirectory(): void
     {
         if (static::$run_directory) {
-            FsDirectory::new(static::$run_directory, FsRestrictions::newSystem(true))->delete(false, use_run_file: false);
+            PhoDirectory::new(static::$run_directory, PhoRestrictions::newSystem(true))->delete(false, use_run_file: false);
         }
     }
 
@@ -907,7 +907,7 @@ trait ProcessVariables
      */
     public function getRunFile(): ?string
     {
-        if ($this->use_run_file and FsFile::getWriteEnabled()) {
+        if ($this->use_run_file and PhoFile::getWriteEnabled()) {
             return $this->run_file;
         }
 
@@ -1228,7 +1228,7 @@ trait ProcessVariables
                                 ]));
                             }
 
-                            if (!Command::checkSudoAvailable('apt-get', FsRestrictions::new('/bin,/usr/bin,/sbin,/usr/sbin'))) {
+                            if (!Command::checkSudoAvailable('apt-get', PhoRestrictions::new('/bin,/usr/bin,/sbin,/usr/sbin'))) {
                                 throw new ProcessesException(tr('Specified command ":command" does not exist and this process does not have sudo access to apt-get', [
                                     ':command' => $command,
                                 ]));
@@ -1693,7 +1693,7 @@ trait ProcessVariables
             return 'echo -n ' . escapeshellarg($this->pipe_from);
         }
 
-        if ($this->pipe_from instanceof FsFileInterface) {
+        if ($this->pipe_from instanceof PhoFileInterface) {
             return 'cat ' . escapeshellarg($this->pipe_from);
         }
 
@@ -1704,9 +1704,9 @@ trait ProcessVariables
     /**
      * Returns the process where the output of this command will be piped to, IF specified
      *
-     * @return ProcessInterface|FsFileInterface|string|null
+     * @return ProcessInterface|PhoFileInterface|string|null
      */
-    public function getPipe(): ProcessInterface|FsFileInterface|string|null
+    public function getPipe(): ProcessInterface|PhoFileInterface|string|null
     {
         return $this->pipe;
     }
@@ -1715,11 +1715,11 @@ trait ProcessVariables
     /**
      * Sets the process where the output of this command will be piped to, IF specified
      *
-     * @param ProcessInterface|FsFileInterface|string|null $pipe
+     * @param ProcessInterface|PhoFileInterface|string|null $pipe
      *
      * @return static
      */
-    public function setPipe(ProcessInterface|FsFileInterface|string|null $pipe): static
+    public function setPipe(ProcessInterface|PhoFileInterface|string|null $pipe): static
     {
         $this->cached_command_line = null;
         $this->pipe                = $pipe;
@@ -1736,9 +1736,9 @@ trait ProcessVariables
     /**
      * Returns the process or string that will be piped into this process
      *
-     * @return ProcessInterface|FsFileInterface|string|null
+     * @return ProcessInterface|PhoFileInterface|string|null
      */
-    public function getPipeFrom(): ProcessInterface|FsFileInterface|string|null
+    public function getPipeFrom(): ProcessInterface|PhoFileInterface|string|null
     {
         return $this->pipe_from;
     }
@@ -1747,11 +1747,11 @@ trait ProcessVariables
     /**
      * Sets the process or string that will be piped into this process*
      *
-     * @param ProcessInterface|FsFileInterface|string|null $pipe
+     * @param ProcessInterface|PhoFileInterface|string|null $pipe
      *
      * @return static
      */
-    public function setPipeFrom(ProcessInterface|FsFileInterface|string|null $pipe): static
+    public function setPipeFrom(ProcessInterface|PhoFileInterface|string|null $pipe): static
     {
         $this->cached_command_line = null;
         $this->pipe_from           = $pipe;
@@ -1812,7 +1812,7 @@ trait ProcessVariables
 
             } else {
                 // Redirect output to a file
-                FsDirectory::new(dirname($redirect), $this->restrictions->getParent())
+                PhoDirectory::new(dirname($redirect), $this->restrictions->getParent())
                          ->ensure('output redirect file');
                 $this->output_redirect[$channel] = ($append ? '>>' : '> ') . $redirect;
             }
@@ -1883,7 +1883,7 @@ trait ProcessVariables
         $this->cached_command_line = null;
 
         if ($redirect) {
-            FsFile::new($redirect, $this->restrictions)->checkReadable();
+            PhoFile::new($redirect, $this->restrictions)->checkReadable();
             $this->input_redirect[$channel] = $redirect;
         }
 
@@ -2106,7 +2106,7 @@ trait ProcessVariables
             }
 
             // Delete the run file but don't clean up as when the process terminates, cleanup will happen automatically
-            FsFile::new($this->run_file, FsRestrictions::new(DIRECTORY_SYSTEM . 'run/pids/', true))
+            PhoFile::new($this->run_file, PhoRestrictions::new(DIRECTORY_SYSTEM . 'run/pids/', true))
                   ->delete(false, use_run_file: false);
 
         } elseif ($this->wasExecutedInBackground()) {
@@ -2177,7 +2177,7 @@ trait ProcessVariables
             return $this;
         }
 
-        $this->executed_on = DateTime::new();
+        $this->executed_on = PhoDateTime::new();
         $this->method      = $method;
         return $this;
     }
@@ -2186,9 +2186,9 @@ trait ProcessVariables
     /**
      * Returns the datetime when this command executed, or null if it has not yet executed
      *
-     * @return DateTimeInterface|null
+     * @return PhoDateTimeInterface|null
      */
-    public function getExecutedOn(): ?DateTimeInterface
+    public function getExecutedOn(): ?PhoDateTimeInterface
     {
         return $this->executed_on;
     }

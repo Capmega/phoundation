@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Uploads\Interfaces;
 
-use Phoundation\Filesystem\Interfaces\FsUploadedFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoUploadedFileInterface;
 
 
 interface UploadHandlerInterface
@@ -65,11 +65,11 @@ interface UploadHandlerInterface
     /**
      * Have this handler process the specified uploaded file
      *
-     * @param FsUploadedFileInterface $file
+     * @param PhoUploadedFileInterface $file
      *
-     * @return FsUploadedFileInterface
+     * @return PhoUploadedFileInterface
      */
-    public function process(FsUploadedFileInterface $file): FsUploadedFileInterface;
+    public function process(PhoUploadedFileInterface $file): PhoUploadedFileInterface;
 
     /**
      * Returns true if the file in this handler has been validated
@@ -81,9 +81,9 @@ interface UploadHandlerInterface
     /**
      * Have this handler process the specified uploaded file
      *
-     * @param FsUploadedFileInterface $file
+     * @param PhoUploadedFileInterface $file
      *
-     * @return FsUploadedFileInterface
+     * @return PhoUploadedFileInterface
      */
-    public function validate(FsUploadedFileInterface $file): FsUploadedFileInterface;
+    public function validate(PhoUploadedFileInterface $file): PhoUploadedFileInterface;
 }

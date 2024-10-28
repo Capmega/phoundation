@@ -20,11 +20,11 @@ use Phoundation\Core\Libraries\Interfaces\UpdatesInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug;
 use Phoundation\Developer\Exception\DoubleVersionException;
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnexpectedValueException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Utils\Strings;
 
 
@@ -47,9 +47,9 @@ abstract class Updates implements UpdatesInterface
     /**
      * The $file for this library
      *
-     * @var FsFileInterface|null $file
+     * @var PhoFileInterface|null $file
      */
-    protected ?FsFileInterface $file = null;
+    protected ?PhoFileInterface $file = null;
 
     /**
      * The code version for this library
@@ -116,7 +116,7 @@ abstract class Updates implements UpdatesInterface
             ]));
         }
 
-        $this->file         = FsDirectory::newRootObject()->addFile(str_replace('\\', '/', get_class($this)) . '.php');
+        $this->file         = PhoDirectory::newRootObject()->addFile(str_replace('\\', '/', get_class($this)) . '.php');
         $this->vendor       = $vendor;
         $this->library      = $library;
         $this->code_version = $code_version;
@@ -142,9 +142,9 @@ abstract class Updates implements UpdatesInterface
     /**
      * Returns the file for this library
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function getFile(): FsFileInterface
+    public function getFile(): PhoFileInterface
     {
         return $this->file;
     }
@@ -228,7 +228,7 @@ abstract class Updates implements UpdatesInterface
 
             unset($this->versions_exists);
 
-        } catch (Exception $e) {
+        } catch (PhoException $e) {
             // In init mode, we don't do warnings, only full exceptions
             $e->setWarning(false);
             throw $e;

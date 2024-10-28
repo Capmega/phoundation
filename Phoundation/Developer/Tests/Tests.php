@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Tests;
 
 use Phoundation\Core\Libraries\Libraries;
-use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Process;
@@ -40,7 +40,7 @@ class Tests
 
         try {
             Process::new(DIRECTORY_ROOT . 'vendor/bin/phpunit')
-                   ->setExecutionDirectory(FsDirectory::newRootObject())
+                   ->setExecutionDirectory(PhoDirectory::newRootObject())
                    ->execute(EnumExecuteMethod::passthru);
 
         } catch (ProcessFailedException $e) {

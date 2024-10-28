@@ -18,7 +18,7 @@ namespace Phoundation\Core;
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Log\Log;
-use Phoundation\Date\Time;
+use Phoundation\Date\PhoTime;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Numbers;
@@ -294,7 +294,7 @@ class ProcessControlSignals
         Core::exit($exit_code, tr('Command ":script" was terminated because of signal ":signal" with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
             ':signal'   => $signal,
             ':script'   => Core::getExecutedPath(),
-            ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+            ':time'     => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
             ':usage'    => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
             ':exitcode' => $exit_code,
         ]));

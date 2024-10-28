@@ -19,9 +19,9 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Versioning\Git\Git;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 
@@ -46,20 +46,20 @@ CliDocumentation::setUsage('./pho development mdb repositories sync
 
 
 // Setup restrictions
-$source_restrictions = FsRestrictions::new('data/sources', true);
-$target_restrictions = FsRestrictions::new('~', true);
+$source_restrictions = PhoRestrictions::new('data/sources', true);
+$target_restrictions = PhoRestrictions::new('~', true);
 
 
 // Get arguments
 $argv = ArgvValidator::new()
-                     ->select('-s,--source')->isOptional('data/sources/mdb/repositories')->sanitizeFile(FsDirectory::newDataSourcesObject())
-                     ->select('-t,--target')->isOptional('~/projects/mdb')->sanitizeDirectory(FsDirectory::new('~/projects/mdb', FsRestrictions::newReadonly('~/projects/mdb')))
+                     ->select('-s,--source')->isOptional('data/sources/mdb/repositories')->sanitizeFile(PhoDirectory::newDataSourcesObject())
+                     ->select('-t,--target')->isOptional('~/projects/mdb')->sanitizeDirectory(PhoDirectory::new('~/projects/mdb', PhoRestrictions::newReadonly('~/projects/mdb')))
                      ->validate();
 
 
 // Get repositories and target path
-$repositories = FsFile::new($argv['source'], $source_restrictions);
-$target       = FsDirectory::new($argv['target'], $target_restrictions);
+$repositories = PhoFile::new($argv['source'], $source_restrictions);
+$target       = PhoDirectory::new($argv['target'], $target_restrictions);
 $repositories = $repositories->getContentsAsIterator();
 
 Log::information(tr('About to sync ":count" repositories, this might take a while...', [
@@ -91,5 +91,5 @@ foreach ($repositories as $repository) {
 }
 
 Log::success(tr('Finished MDB repository sync, MDB repositories size is now ":size"', [
-    ':size' => Numbers::getHumanReadableBytes(FsDirectory::new($argv['target'])->getSize()),
+    ':size' => Numbers::getHumanReadableBytes(PhoDirectory::new($argv['target'])->getSize()),
 ]));

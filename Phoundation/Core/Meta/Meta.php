@@ -228,7 +228,7 @@ class Meta implements MetaInterface
     {
         Validate::new($limit)->isMoreThan(0);
 
-        $before = \Phoundation\Date\DateTime::new($before)->format('mysql');
+        $before = \Phoundation\Date\PhoDateTime::new($before)->format('mysql');
 
         sql()->list('DELETE FROM `meta_history` WHERE `created_on` < :created_on' . ($limit ? ' LIMIT ' . $limit : null), [
             ':created_on' => $before,

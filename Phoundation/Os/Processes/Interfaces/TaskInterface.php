@@ -6,10 +6,10 @@ namespace Phoundation\Os\Processes\Interfaces;
 
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Date\Interfaces\DateTimeInterface;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 
 interface TaskInterface extends DataEntryInterface
 {
@@ -34,55 +34,55 @@ interface TaskInterface extends DataEntryInterface
     /**
      * Returns the datetime after which this task should be executed
      *
-     * @return DateTimeInterface|null
+     * @return PhoDateTimeInterface|null
      */
-    public function getExecuteAfter(): ?DateTimeInterface;
+    public function getExecuteAfter(): ?PhoDateTimeInterface;
 
 
     /**
      * Sets the datetime after which this task should be executed
      *
-     * @param DateTimeInterface|string|null $execute_after
+     * @param PhoDateTimeInterface|string|null $execute_after
      *
      * @return static
      */
-    public function setExecuteAfter(DateTimeInterface|string|null $execute_after): static;
+    public function setExecuteAfter(PhoDateTimeInterface|string|null $execute_after): static;
 
 
     /**
      * Returns the datetime after which this task should be executed
      *
-     * @return DateTimeInterface|null
+     * @return PhoDateTimeInterface|null
      */
-    public function getStart(): ?DateTimeInterface;
+    public function getStart(): ?PhoDateTimeInterface;
 
 
     /**
      * Sets the datetime after which this task should be executed
      *
-     * @param DateTimeInterface|string|null $start
+     * @param PhoDateTimeInterface|string|null $start
      *
      * @return static
      */
-    public function setStart(DateTimeInterface|string|null $start): static;
+    public function setStart(PhoDateTimeInterface|string|null $start): static;
 
 
     /**
      * Returns the datetime after which this task should be executed
      *
-     * @return DateTimeInterface|null
+     * @return PhoDateTimeInterface|null
      */
-    public function getStop(): ?DateTimeInterface;
+    public function getStop(): ?PhoDateTimeInterface;
 
 
     /**
      * Sets the datetime after which this task should be executed
      *
-     * @param DateTimeInterface|string|null $stop
+     * @param PhoDateTimeInterface|string|null $stop
      *
      * @return static
      */
-    public function setStop(DateTimeInterface|string|null $stop): static;
+    public function setStop(PhoDateTimeInterface|string|null $stop): static;
 
 
     /**
@@ -488,19 +488,19 @@ interface TaskInterface extends DataEntryInterface
     /**
      * Returns execution_directory for this task
      *
-     * @return FsDirectoryInterface|null
+     * @return PhoDirectoryInterface|null
      */
-    public function getExecutionDirectory(): ?FsDirectoryInterface;
+    public function getExecutionDirectory(): ?PhoDirectoryInterface;
 
 
     /**
      * Sets execution_directory for this task
      *
-     * @param FsDirectoryInterface|null $execution_directory
+     * @param PhoDirectoryInterface|null $execution_directory
      *
      * @return static
      */
-    public function setExecutionDirectory(?FsDirectoryInterface $execution_directory): static;
+    public function setExecutionDirectory(?PhoDirectoryInterface $execution_directory): static;
 
 
     /**

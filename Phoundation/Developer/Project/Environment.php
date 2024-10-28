@@ -20,8 +20,8 @@ use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\EnvironmentException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Config;
 use Throwable;
 
@@ -207,7 +207,7 @@ class Environment
             Config::setEnvironment('');
         }
         // delete the environment configuration file
-        FsFile::new(static::getConfigurationFile($this->name), FsRestrictions::new(DIRECTORY_ROOT . 'config/', true))
+        PhoFile::new(static::getConfigurationFile($this->name), PhoRestrictions::new(DIRECTORY_ROOT . 'config/', true))
             ->delete();
 
         return true;

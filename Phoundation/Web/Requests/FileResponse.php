@@ -25,16 +25,16 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\Traits\TraitPathConstructor;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Http\Exception;
 use Stringable;
 
 
-class FileResponse extends FsFile
+class FileResponse extends PhoFile
 {
     use TraitPathConstructor {
         __construct as protected ___construct;
@@ -64,9 +64,9 @@ class FileResponse extends FsFile
     /**
      * The file (locally on this server)
      *
-     * @var FsFileInterface|null
+     * @var PhoFileInterface|null
      */
-    protected ?FsFileInterface $file = null;
+    protected ?PhoFileInterface $file = null;
 
     /**
      * The name of the file so that the client knows with what name to save it
@@ -102,11 +102,11 @@ class FileResponse extends FsFile
     /**
      * FileResponse class constructor
      *
-     * @param Stringable|string|null $source            $source
-     * @param FsRestrictionsInterface|array|string|null $restrictions
-     * @param Stringable|string|bool|null               $absolute_prefix
+     * @param Stringable|string|null                     $source            $source
+     * @param PhoRestrictionsInterface|array|string|null $restrictions
+     * @param Stringable|string|bool|null                $absolute_prefix
      */
-    public function __construct(Stringable|string|null $source = null, FsRestrictionsInterface|array|string|null $restrictions = null, Stringable|string|bool|null $absolute_prefix = false)
+    public function __construct(Stringable|string|null $source = null, PhoRestrictionsInterface|array|string|null $restrictions = null, Stringable|string|bool|null $absolute_prefix = false)
     {
         throw new UnderConstructionException(tr('Rebuild the Web\Http\File class, now extending Filesystem\File'));
 
@@ -203,9 +203,9 @@ class FileResponse extends FsFile
     /**
      * Returns the file (locally on this server)
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function getFile(): FsFileInterface
+    public function getFile(): PhoFileInterface
     {
         return $this->file;
     }
@@ -214,18 +214,18 @@ class FileResponse extends FsFile
     /**
      * Sets the file (locally on this server)
      *
-     * @param FsFileInterface $file
+     * @param PhoFileInterface $file
      *
      * @return static
      */
-    public function setFile(FsFileInterface $file): static
+    public function setFile(PhoFileInterface $file): static
     {
         if ($this->data) {
             throw new OutOfBoundsException(tr('Cannot set the file property, file data has already been specified'));
         }
 
         // Ensure the specified file is valid and readable
-        FsFile::new($file, $this->restrictions)->checkReadable();
+        PhoFile::new($file, $this->restrictions)->checkReadable();
 
         $this->restrictions->check($file, false);
 
@@ -423,9 +423,9 @@ class FileResponse extends FsFile
      * @param callable|null $callback If specified, download will execute this callback with either the filename or file
      *                                contents (depending on $section)
      *
-     * @return FsFileInterface|null     The path to the downloaded file or NULL if a callback was specified
+     * @return PhoFileInterface|null     The path to the downloaded file or NULL if a callback was specified
      */
-    public function download(string $url, callable $callback = null): FsFileInterface|null
+    public function download(string $url, callable $callback = null): PhoFileInterface|null
     {
         // Set temp file and download data
         $file = FileResponse::getTemporaryObject()->getSource();
@@ -435,13 +435,13 @@ class FileResponse extends FsFile
         file_put_contents($file, $data);
 
         if (!$callback) {
-            return FsFile::new($file, $this->restrictions);
+            return PhoFile::new($file, $this->restrictions);
         }
 
         // Execute the callbacks before returning the data, delete the temporary file after
         $file = $callback($file);
 
-        FsFile::new($file, $this->restrictions)->delete();
+        PhoFile::new($file, $this->restrictions)->delete();
 
         return $file;
     }

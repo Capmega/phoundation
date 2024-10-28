@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Core\Hooks\Interfaces;
 
 use Phoundation\Core\Interfaces\ArrayableInterface;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Stringable;
 
 
@@ -35,7 +35,7 @@ interface HookInterface extends ArrayableInterface, Stringable
      *
      * @return mixed
      */
-    public function getFile(?string $hook = null): FsFileInterface;
+    public function getFile(?string $hook = null): PhoFileInterface;
 
     /**
      * Attempts to execute the specified hooks

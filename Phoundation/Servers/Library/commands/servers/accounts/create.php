@@ -19,9 +19,9 @@ use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Servers\SshAccount;
 
 
@@ -37,7 +37,7 @@ CliDocumentation::setHelp('This command allows you to create SSH accounts.
 $argv = ArgvValidator::new()
             ->select('-n,--name', true)->isName()
             ->select('-u,--username', true)->isVariable()
-            ->select('-i,--ssh-key-file', true)->isOptional()->sanitizeFile(FsDirectory::newFilesystemRootObject())
+            ->select('-i,--ssh-key-file', true)->isOptional()->sanitizeFile(PhoDirectory::newFilesystemRootObject())
             ->validate();
 
 
@@ -47,9 +47,9 @@ SshAccount::notExists(['name' => $argv['username']], null, true);
 
 // Add password for this account
 if ($argv['ssh_key_file']) {
-    $argv['ssh_key'] = FsFile::new($argv['ssh_key_file'], FsRestrictions::newReadonly('/'))
-                             ->ensureReadable()
-                             ->getContentsAsString();
+    $argv['ssh_key'] = PhoFile::new($argv['ssh_key_file'], PhoRestrictions::newReadonly('/'))
+                              ->ensureReadable()
+                              ->getContentsAsString();
 
 } elseif(CliCommand::hasStdInStream()) {
     // Get the SSH key from the STDIN stream

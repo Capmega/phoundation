@@ -18,20 +18,20 @@ use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoRestrictions;
 
 
-$restrictions = FsRestrictions::newReadonly('/');
+$restrictions = PhoRestrictions::newReadonly('/');
 
 CliDocumentation::setAutoComplete([
     'positions' => [
         '0' => [
             'word'   => function ($word) use ($restrictions) {
-                return FsDirectory::new(FsDirectory::newFilesystemRootObject())->scan($word . '*');
+                return PhoDirectory::new(PhoDirectory::newFilesystemRootObject())->scan($word . '*');
             },
             'noword' => function () use ($restrictions) {
-                return FsDirectory::new(FsDirectory::newFilesystemRootObject())->scan('*');
+                return PhoDirectory::new(PhoDirectory::newFilesystemRootObject())->scan('*');
             },
         ],
     ]
@@ -61,14 +61,14 @@ PATH                                    The path that should be scanned
 
 // Get arguments
 $argv = ArgvValidator::new()
-    ->select('path')->sanitizeDirectory(FsDirectory::newFilesystemRootObject())
+    ->select('path')->sanitizeDirectory(PhoDirectory::newFilesystemRootObject())
     ->select('-r,--recursive', true)->isOptional(0)->isInteger()->isPositive()
     ->select('-m,--max-size', true)->isOptional(1_073_741_824)->sanitizeBytes()
     ->validate();
 
 
 // Scan for duplicates and display them
-$duplicates = FsDirectory::new($argv['path'], $restrictions)->getDuplicateFiles($argv['recursive'], $argv['max_size']);
+$duplicates = PhoDirectory::new($argv['path'], $restrictions)->getDuplicateFiles($argv['recursive'], $argv['max_size']);
 
 if ($duplicates->getCount()) {
     Log::success(tr('Found ":count" duplicate files', [

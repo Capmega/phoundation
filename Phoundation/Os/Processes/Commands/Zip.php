@@ -18,12 +18,12 @@ namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Data\Traits\TraitDataCompressionLevel;
 use Phoundation\Data\Traits\TraitDataSourcePath;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsPath;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoPath;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Interfaces\ZipInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Utils\Config;
@@ -39,11 +39,11 @@ class Zip extends Command implements ZipInterface
     /**
      * Zip class constructor
      *
-     * @param FsDirectoryInterface|FsRestrictionsInterface|null $execution_directory
-     * @param Stringable|string|null                            $operating_system
-     * @param string|null                                       $packages
+     * @param PhoDirectoryInterface|PhoRestrictionsInterface|null $execution_directory
+     * @param Stringable|string|null                              $operating_system
+     * @param string|null                                         $packages
      */
-    public function __construct(FsDirectoryInterface|FsRestrictionsInterface|null $execution_directory = null, Stringable|string|null $operating_system = null, ?string $packages = null)
+    public function __construct(PhoDirectoryInterface|PhoRestrictionsInterface|null $execution_directory = null, Stringable|string|null $operating_system = null, ?string $packages = null)
     {
         parent::__construct($execution_directory, $operating_system, $packages);
 
@@ -55,11 +55,11 @@ class Zip extends Command implements ZipInterface
     /**
      * Unzips the specified file
      *
-     * @param FsDirectoryInterface $target
+     * @param PhoDirectoryInterface $target
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public function unzip(FsDirectoryInterface $target): FsDirectoryInterface
+    public function unzip(PhoDirectoryInterface $target): PhoDirectoryInterface
     {
         try {
             $this->setSourcePath($target)
@@ -72,7 +72,7 @@ class Zip extends Command implements ZipInterface
         } catch (ProcessFailedException $e) {
             // The command unzip failed, most of the time either $file doesn't exist, or we don't have access
             static::handleException('unzip', $e, function () use ($target) {
-                FsFile::new($target)->checkReadable();
+                PhoFile::new($target)->checkReadable();
             });
         }
     }
@@ -81,16 +81,16 @@ class Zip extends Command implements ZipInterface
     /**
      * Zips the specified path
      *
-     * @param FsFileInterface|null $target
+     * @param PhoFileInterface|null $target
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function zip(?FsFileInterface $target = null): FsFileInterface
+    public function zip(?PhoFileInterface $target = null): PhoFileInterface
     {
         try {
             if (!$target) {
                 $parent = $this->source_path->getParentDirectory();
-                $target = new FsFile($parent . $this->source_path->getBasename() . '.zip', $parent->getRestrictions());
+                $target = new PhoFile($parent . $this->source_path->getBasename() . '.zip', $parent->getRestrictions());
             }
 
             $this->setCommand('zip')
@@ -104,7 +104,7 @@ class Zip extends Command implements ZipInterface
         } catch (ProcessFailedException $e) {
             // The command zip failed, most of the time either $file doesn't exist, or we don't have access
             static::handleException('zip', $e, function ($e) {
-                FsPath::new($this->source_path)->checkReadable('zip', $e);
+                PhoPath::new($this->source_path)->checkReadable('zip', $e);
             });
         }
     }

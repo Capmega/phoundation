@@ -750,13 +750,13 @@ class FsMimetypesInit
             $mimetype  = trim($type[1]);
             $priority  = (int) trim((string) isset_get($type[2], 0));
 
-            if (FsMimetype::notExists(['extension' => $extension, 'mimetype' => $mimetype])) {
-                FsMimetype::new()
-                    ->setExtension($extension)
-                    ->setName($mimetype)
-                    ->setMimetype($mimetype)
-                    ->setPriority($priority)
-                    ->save();
+            if (PhoMimetype::notExists(['extension' => $extension, 'mimetype' => $mimetype])) {
+                PhoMimetype::new()
+                           ->setExtension($extension)
+                           ->setName($mimetype)
+                           ->setMimetype($mimetype)
+                           ->setPriority($priority)
+                           ->save();
 
                 $count++;
                 Log::dot();

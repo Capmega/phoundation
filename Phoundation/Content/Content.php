@@ -18,12 +18,12 @@ namespace Phoundation\Content;
 
 use Phoundation\Content\Exception\ContentException;
 use Phoundation\Content\Interfaces\ContentInterfaceFsFileInterface;
-use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\PhoFile;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Strings;
 
 
-class Content extends FsFile implements ContentInterfaceFsFileInterface
+class Content extends PhoFile implements ContentInterfaceFsFileInterface
 {
     /**
      * View the object file
@@ -32,7 +32,7 @@ class Content extends FsFile implements ContentInterfaceFsFileInterface
      */
     public function view(): void
     {
-        $file     = FsFile::new($this->source)->checkReadable('image');
+        $file     = PhoFile::new($this->source)->checkReadable('image');
         $mimetype = $file->getMimetype();
         $primary  = Strings::until($mimetype, '/');
 

@@ -21,7 +21,7 @@ use Phoundation\Developer\Project\Interfaces\ProjectInterface;
 use Phoundation\Developer\Project\Vendors\Interfaces\ProjectVendorInterface;
 use Phoundation\Developer\Traits\TraitDataProject;
 use Phoundation\Developer\Vendor;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 
 
 class ProjectVendor extends Vendor implements ProjectVendorInterface
@@ -33,10 +33,10 @@ class ProjectVendor extends Vendor implements ProjectVendorInterface
      * ProjectVendor class constructor
      *
      * @param ProjectInterface|null $project
-     * @param FsDirectoryInterface  $directory
+     * @param PhoDirectoryInterface $directory
      * @param EnumRepositoryType    $type
      */
-    public function __construct(?ProjectInterface $project, EnumRepositoryType $type, FsDirectoryInterface $directory)
+    public function __construct(?ProjectInterface $project, EnumRepositoryType $type, PhoDirectoryInterface $directory)
     {
         $this->project = $project;
         parent::__construct($directory, $type);
@@ -47,12 +47,12 @@ class ProjectVendor extends Vendor implements ProjectVendorInterface
      * Returns a new ProjectVendor object
      *
      * @param ProjectInterface|null $project
-     * @param FsDirectoryInterface  $directory
+     * @param PhoDirectoryInterface $directory
      * @param EnumRepositoryType    $type
      *
      * @return static
      */
-    public static function new(?ProjectInterface $project, EnumRepositoryType $type, FsDirectoryInterface $directory): static
+    public static function new(?ProjectInterface $project, EnumRepositoryType $type, PhoDirectoryInterface $directory): static
     {
         return new static($project, $type, $directory);
     }

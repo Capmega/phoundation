@@ -20,7 +20,7 @@ use Phoundation\Content\Content;
 use Phoundation\Content\Images\Interfaces\ConvertInterface;
 use Phoundation\Content\Images\Interfaces\ImageInterface;
 use Phoundation\Core\Exception\ImagesException;
-use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\PhoFile;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Img;
 
@@ -99,7 +99,7 @@ class Image extends Content implements ImageInterface
         }
 
         if ($return['size']) {
-            $return['mimetype'] = FsFile::new($this->source, $this->restrictions)->getMimetype();
+            $return['mimetype'] = PhoFile::new($this->source, $this->restrictions)->getMimetype();
         }
 
         if (Strings::until($return['mimetype'], '/') === 'image') {

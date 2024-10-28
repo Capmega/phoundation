@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Data\Traits\TraitDataFile;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 
 
@@ -36,7 +36,7 @@ class Mpg123 extends Command
     {
         // Build the process parameters, then execute
         $this->clearArguments()
-             ->setRestrictions(FsRestrictions::getRestrictionsOrDefault($this->restrictions, FsRestrictions::new(DIRECTORY_DATA . 'mpg123', true, 'audio')))
+             ->setRestrictions(PhoRestrictions::getRestrictionsOrDefault($this->restrictions, PhoRestrictions::new(DIRECTORY_DATA . 'mpg123', true, 'audio')))
              ->setCommand('mpg123')
              ->addArgument($this->file)
              ->execute($background ? EnumExecuteMethod::background : EnumExecuteMethod::noReturn);

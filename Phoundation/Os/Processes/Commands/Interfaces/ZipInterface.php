@@ -2,9 +2,9 @@
 
 namespace Phoundation\Os\Processes\Commands\Interfaces;
 
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 
 
 interface ZipInterface
@@ -12,20 +12,20 @@ interface ZipInterface
     /**
      * Unzips the specified file
      *
-     * @param FsDirectoryInterface $target The directory to which to unzip
+     * @param PhoDirectoryInterface $target The directory to which to unzip
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public function unzip(FsDirectoryInterface $target): FsDirectoryInterface;
+    public function unzip(PhoDirectoryInterface $target): PhoDirectoryInterface;
 
     /**
      * Zips the specified path
      *
-     * @param FsFileInterface|null $target
+     * @param PhoFileInterface|null $target
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function zip(?FsFileInterface $target = null): FsFileInterface;
+    public function zip(?PhoFileInterface $target = null): PhoFileInterface;
 
     /**
      * Returns the source
@@ -46,16 +46,16 @@ interface ZipInterface
     /**
      * Returns the target object
      *
-     * @return FsPathInterface
+     * @return PhoPathInterface
      */
-    public function getSourcePath(): FsPathInterface;
+    public function getSourcePath(): PhoPathInterface;
 
     /**
      * Sets the target object
      *
-     * @param FsPathInterface|null $source_path
+     * @param PhoPathInterface|null $source_path
      *
      * @return static
      */
-    public function setSourcePath(?FsPathInterface $source_path): static;
+    public function setSourcePath(?PhoPathInterface $source_path): static;
 }

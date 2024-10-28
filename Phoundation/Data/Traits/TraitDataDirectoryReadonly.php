@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 
 
 trait TraitDataDirectoryReadonly
@@ -24,17 +24,17 @@ trait TraitDataDirectoryReadonly
     /**
      * The directory for this object
      *
-     * @var FsDirectoryInterface|null $directory
+     * @var PhoDirectoryInterface|null $directory
      */
-    protected ?FsDirectoryInterface $directory = null;
+    protected ?PhoDirectoryInterface $directory = null;
 
 
     /**
      * Returns the directory
      *
-     * @return FsDirectoryInterface|null
+     * @return PhoDirectoryInterface|null
      */
-    public function getDirectory(): ?FsDirectoryInterface
+    public function getDirectory(): ?PhoDirectoryInterface
     {
         return $this->directory;
     }

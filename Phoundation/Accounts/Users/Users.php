@@ -28,8 +28,8 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\SqlQueries;
+use Phoundation\Developer\Debug;
 use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
-use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -41,8 +41,6 @@ use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Components\Widgets\Badge;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Html;
-use Phoundation\Web\Http\Url;
-use Plugins\Medinet\Packages\Package;
 use Stringable;
 
 
@@ -544,11 +542,24 @@ class Users extends DataIterator implements UsersInterface
     public function loadForRole(RoleInterface|Stringable|string $role): static
     {
         $role = Role::load($role);
+
         $this->getQueryBuilder()
-             ->addSelect('`accounts_users`.*')
+             ->addSelect('`accounts_users`.`id` AS `key`,
+                          COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `accounts_users`.`first_names`, `accounts_users`.`last_names`)), ""), `accounts_users`.`nickname`, `accounts_users`.`username`, `accounts_users`.`email`, "System") AS `display_name`,
+                          `accounts_users`.*')
              ->addJoin('JOIN `accounts_users_roles` ON `accounts_users_roles`.`users_id` = `accounts_users`.`id`')
              ->addWhere('`accounts_users_roles`.`roles_id` = :roles_id', [':roles_id' => $role->getId()])
-             ->addWhere('`accounts_users`.`status`   IS NULL');
+             ->addWhere('`accounts_users`.`status`   IS NULL')
+             ->addOrderBy('`display_name` ASC');
+
+        if (Debug::isEnabled()) {
+            // Filter out test, developer, and demo users
+            $this->getQueryBuilder()
+                 ->addJoin('LEFT JOIN `accounts_users_rights`
+                            ON        `accounts_users_rights`.`name` IN ("developer", "test", "demo")
+                              AND     `accounts_users_rights`.`users_id` = `accounts_users`.`id`')
+                ->addWhere('`accounts_users_rights`.`name` IS NULL');
+        }
 
         return $this->load();
     }

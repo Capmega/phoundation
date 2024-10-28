@@ -3,7 +3,7 @@
 namespace Phoundation\Core\Modes\Interfaces;
 
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
-use Phoundation\Date\Interfaces\DateTimeInterface;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 
 
 interface ModeInterface
@@ -27,7 +27,7 @@ interface ModeInterface
     /**
      * Returns the date/time when this mode was set
      *
-     * @return DateTimeInterface|null
+     * @return PhoDateTimeInterface|null
      */
-    public function getDateTime(): ?DateTimeInterface;
+    public function getDateTime(): ?PhoDateTimeInterface;
 }

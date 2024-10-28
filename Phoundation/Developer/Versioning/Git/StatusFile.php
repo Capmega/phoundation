@@ -19,27 +19,27 @@ namespace Phoundation\Developer\Versioning\Git;
 use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFileInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusInterface;
-use Phoundation\Filesystem\FsFileCore;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
+use Phoundation\Filesystem\PhoFileCore;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 
 
-class StatusFile extends FsFileCore implements StatusFileInterface
+class StatusFile extends PhoFileCore implements StatusFileInterface
 {
     /**
      * The file that has a change
      *
-     * @var FsFileInterface $file
+     * @var PhoFileInterface $file
      */
-    protected FsFileInterface $file;
+    protected PhoFileInterface $file;
 
     /**
      * The target in case a file was renamed
      *
-     * @var FsFileInterface|null $git_target
+     * @var PhoFileInterface|null $git_target
      */
-    protected ?FsFileInterface $git_target = null;
+    protected ?PhoFileInterface $git_target = null;
 
     /**
      * The status for this file
@@ -53,10 +53,10 @@ class StatusFile extends FsFileCore implements StatusFileInterface
      * ChangedFile class constructor
      *
      * @param StatusInterface|string $status
-     * @param FsFileInterface        $file
-     * @param FsFileInterface        $git_target
+     * @param PhoFileInterface       $file
+     * @param PhoFileInterface       $git_target
      */
-    public function __construct(StatusInterface|string $status, FsFileInterface $file, FsFileInterface $git_target)
+    public function __construct(StatusInterface|string $status, PhoFileInterface $file, PhoFileInterface $git_target)
     {
         $this->file       = $file;
         $this->git_target = $git_target;
@@ -68,12 +68,12 @@ class StatusFile extends FsFileCore implements StatusFileInterface
      * Returns a new StatusFile object
      *
      * @param StatusInterface|string $status
-     * @param FsFileInterface        $file
-     * @param FsFileInterface        $git_target
+     * @param PhoFileInterface       $file
+     * @param PhoFileInterface       $git_target
      *
      * @return static
      */
-    public static function new(StatusInterface|string $status, FsFileInterface $file, FsFileInterface $git_target): static
+    public static function new(StatusInterface|string $status, PhoFileInterface $file, PhoFileInterface $git_target): static
     {
         return new static($status, $file, $git_target);
     }
@@ -82,9 +82,9 @@ class StatusFile extends FsFileCore implements StatusFileInterface
     /**
      * Returns the file name
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function getFile(): FsFileInterface
+    public function getFile(): PhoFileInterface
     {
         return $this->file;
     }
@@ -93,9 +93,9 @@ class StatusFile extends FsFileCore implements StatusFileInterface
     /**
      * Returns the target file
      *
-     * @return FsFileInterface|null
+     * @return PhoFileInterface|null
      */
-    public function getGitTarget(): ?FsFileInterface
+    public function getGitTarget(): ?PhoFileInterface
     {
         return $this->git_target;
     }
@@ -126,11 +126,11 @@ class StatusFile extends FsFileCore implements StatusFileInterface
     /**
      * Applies the patch for this file on the specified target file
      *
-     * @param FsPathInterface $target_path
+     * @param PhoPathInterface $target_path
      *
      * @return static
      */
-    public function patch(FsPathInterface $target_path): static
+    public function patch(PhoPathInterface $target_path): static
     {
         try {
             // Create the patch file, apply it, delete it, done
@@ -165,9 +165,9 @@ class StatusFile extends FsFileCore implements StatusFileInterface
     /**
      * Generates a diff patch file for this file and returns the file name for the patch file
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function getPatchFile(): FsFileInterface
+    public function getPatchFile(): PhoFileInterface
     {
         if ($this->git_target) {
             return Git::new($this->git_target->getParentDirectory())

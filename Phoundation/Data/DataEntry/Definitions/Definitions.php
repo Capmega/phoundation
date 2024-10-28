@@ -19,6 +19,7 @@ namespace Phoundation\Data\DataEntry\Definitions;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\Exception\IteratorKeyExistsException;
 use Phoundation\Data\IteratorCore;
 use Phoundation\Data\Traits\TraitDataDataEntry;
 use Phoundation\Data\Traits\TraitDataPrefix;
@@ -102,12 +103,28 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      * @param bool                             $exception
      *
      * @return static
+     *
+     * @throws IteratorKeyExistsException
      */
     public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
+        $key = $key ?? $value->getColumn();
+
+        if (in_array($key, ['connector'], true)) {
+            throw new OutOfBoundsException(tr('The DataEntry ":class" class column / definition name ":column" is reserved and cannot be used for DataEntry columns', [
+                ':class'  => ($this->data_entry ? $this->data_entry::class : '-'),
+                ':column' => $key
+            ]));
+        }
+
         $this->ensureValueAndPrefix($value);
 
-        return parent::append($value, $key ?? $value->getColumn(), $skip_null_values, $exception);
+        try {
+            return parent::append($value, $key, $skip_null_values, $exception);
+
+        } catch (IteratorKeyExistsException $e) {
+            throw $e->addData(['keys' => $this->getSourceKeys()]);
+        }
     }
 
 

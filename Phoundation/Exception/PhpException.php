@@ -16,6 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Exception;
 
-class PhpException extends Exception
+class PhpException extends PhoException
 {
 }

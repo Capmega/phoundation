@@ -25,10 +25,10 @@ use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Developer\Exception\SyncConfigurationException;
 use Phoundation\Developer\Exception\SyncEnvironmentDoesNotExistsException;
 use Phoundation\Developer\Exception\SyncException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Os\Processes\Commands\Interfaces\PhoInterface;
 use Phoundation\Os\Processes\Commands\Pho;
 use Phoundation\Os\Processes\Commands\Rsync;
@@ -108,9 +108,9 @@ class Sync
     /**
      * The target temp path
      *
-     * @var FsDirectoryInterface|null $target_temp_path
+     * @var PhoDirectoryInterface|null $target_temp_path
      */
-    protected ?FsDirectoryInterface $target_temp_path = null;
+    protected ?PhoDirectoryInterface $target_temp_path = null;
 
     /**
      * Tracks the dump files to sync
@@ -126,7 +126,7 @@ class Sync
     public function __construct()
     {
         $this->timeout          = 3600;
-        $this->target_temp_path = FsDirectory::newTemporaryObject();
+        $this->target_temp_path = PhoDirectory::newTemporaryObject();
     }
 
 
@@ -297,7 +297,7 @@ class Sync
     protected function getPhoCommand(?ServerInterface $server, array|string|null $pho_commands = null): PhoInterface
     {
         if ($server) {
-            return Pho::new(null, FsFile::new($this->configuration['path'] . 'pho', FsRestrictions::newReadonly($this->configuration['path'])))
+            return Pho::new(null, PhoFile::new($this->configuration['path'] . 'pho', PhoRestrictions::newReadonly($this->configuration['path'])))
                       ->setPhoCommands($pho_commands)
                       ->setEnvironment($this->environment)
                       ->setServer($server)
@@ -386,7 +386,7 @@ class Sync
      */
     public function importConnector(?ServerInterface $server, string $file, ConnectorInterface $connector): static
     {
-        $file = FsFile::new($this->target_temp_path . $file, $this->target_temp_path->getRestrictions());
+        $file = PhoFile::new($this->target_temp_path . $file, $this->target_temp_path->getRestrictions());
 
         Log::action(tr('Importing ":driver" database with connector ":connector" for environment ":environment" from file ":file"', [
             ':driver'      => $connector->getDriver(),
@@ -513,7 +513,7 @@ class Sync
                  ->setRemoteSudo((bool) $this->configuration['sudo'])
                  ->execute();
 
-            $file = FsFile::new($target, $this->target_temp_path->getRestrictions());
+            $file = PhoFile::new($target, $this->target_temp_path->getRestrictions());
 
             if ($file->exists()){
                 Log::success(tr('Received target file ":file" with size ":size"', [

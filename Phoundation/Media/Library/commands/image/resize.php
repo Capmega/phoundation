@@ -18,7 +18,7 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Content\Images\ImageFile;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\PhoDirectory;
 
 
 CliDocumentation::setUsage('./pho image resize IMAGE_FILE_NAME -x 500 -y 500 -m scale');
@@ -40,7 +40,7 @@ $argv = ArgvValidator::new()
                      ->select('-m,--method', true)->isOptional('scale')->isName()
                      ->select('-x,--width', true)->isInteger()
                      ->select('-y,--height', true)->isInteger()
-                     ->select('file')->sanitizeFile(FsDirectory::newFilesystemRootObject())
+                     ->select('file')->sanitizeFile(PhoDirectory::newFilesystemRootObject())
                      ->validate();
 
 

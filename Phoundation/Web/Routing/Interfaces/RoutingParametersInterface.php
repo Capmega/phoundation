@@ -6,7 +6,7 @@ namespace Phoundation\Web\Routing\Interfaces;
 
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Rights\Rights;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
 
 interface RoutingParametersInterface
@@ -150,19 +150,19 @@ interface RoutingParametersInterface
     /**
      * Returns the server restrictions
      *
-     * @return FsRestrictionsInterface
+     * @return PhoRestrictionsInterface
      */
-    public function getRestrictions(): FsRestrictionsInterface;
+    public function getRestrictions(): PhoRestrictionsInterface;
 
 
     /**
      * Sets the server restrictions
      *
-     * @param FsRestrictionsInterface|array|string|null $restrictions
+     * @param PhoRestrictionsInterface|array|string|null $restrictions
      *
      * @return static
      */
-    public function setRestrictions(FsRestrictionsInterface|array|string|null $restrictions): static;
+    public function setRestrictions(PhoRestrictionsInterface|array|string|null $restrictions): static;
 
 
     /**

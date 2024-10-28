@@ -17,8 +17,8 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Phoundation\Repositories\Repositories;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoRestrictions;
 
 
 CliDocumentation::setAutoComplete([
@@ -57,7 +57,7 @@ ARGUMENTS
 $argv = ArgvValidator::new()
                      ->select('-a,--allow-changes')->isOptional(false)->isBoolean()
                      ->select('-b,--branch', true)->isOptional()->isVariableName()
-                     ->selectAll('files')->isOptional()->eachField()->sanitizePath(FsDirectory::newRootObject(false))
+                     ->selectAll('files')->isOptional()->eachField()->sanitizePath(PhoDirectory::newRootObject(false))
                      ->validate();
 
 

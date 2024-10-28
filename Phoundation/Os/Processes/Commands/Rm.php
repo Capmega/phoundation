@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 
@@ -53,8 +53,8 @@ class Rm extends Command
                 $empty = true;
                 while ($empty) {
                     $file  = dirname($file);
-                    $empty = FsDirectory::new($file, $this->restrictions)
-                                        ->isEmpty();
+                    $empty = PhoDirectory::new($file, $this->restrictions)
+                                         ->isEmpty();
                     if ($empty) {
                         static::delete($file, $recurse_down, false, 1);
                     }

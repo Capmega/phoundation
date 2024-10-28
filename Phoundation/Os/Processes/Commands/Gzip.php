@@ -19,8 +19,8 @@ namespace Phoundation\Os\Processes\Commands;
 use Phoundation\Filesystem\Exception\AlredyCompressedException;
 use Phoundation\Filesystem\Exception\FileExistsException;
 use Phoundation\Filesystem\Exception\InvalidFileType;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Utils\Strings;
 
@@ -30,11 +30,11 @@ class Gzip extends Command
     /**
      * Gzips the specified file
      *
-     * @param FsFileInterface $file The file to be gzipped.
+     * @param PhoFileInterface $file The file to be gzipped.
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function gzip(FsFileInterface $file): FsFileInterface
+    public function gzip(PhoFileInterface $file): PhoFileInterface
     {
         try {
             if ($file->isCompressed()) {
@@ -55,12 +55,12 @@ class Gzip extends Command
                  ->setTimeout(120)
                  ->executeNoReturn();
 
-            return new FsFile($file . '.gz');
+            return new PhoFile($file . '.gz');
 
         } catch (ProcessFailedException $e) {
             // The gzip tar failed, most of the time either $file doesn't exist, or we don't have access
             static::handleException('gzip', $e, function () use ($file) {
-                FsFile::new($file, $this->restrictions)->checkReadable();
+                PhoFile::new($file, $this->restrictions)->checkReadable();
             });
         }
     }
@@ -69,15 +69,15 @@ class Gzip extends Command
     /**
      * Gunzips the specified file
      *
-     * @param FsFileInterface $file The file to be gunzipped.
+     * @param PhoFileInterface $file The file to be gunzipped.
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function gunzip(FsFileInterface $file): FsFileInterface
+    public function gunzip(PhoFileInterface $file): PhoFileInterface
     {
         try {
             $target = Strings::until(Strings::until((string) $file, '.tgz'), '.gz');
-            $target = FsFile::new($target);
+            $target = PhoFile::new($target);
 
             if ($file->getMimetype() !== 'application/gzip') {
                 throw new InvalidFileType(tr('Cannot gunzip file ":file", it is not a gzip file', [
@@ -102,7 +102,7 @@ class Gzip extends Command
         } catch (ProcessFailedException $e) {
             // The command gunzip failed, most of the time either $file doesn't exist, or we don't have access
             static::handleException('gunzip', $e, function () use ($file) {
-                FsFile::new($file)
+                PhoFile::new($file)
                     ->checkReadable();
             });
         }

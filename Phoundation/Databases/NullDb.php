@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Databases;
 
 use Phoundation\Databases\Interfaces\DatabaseInterface;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 
 class NullDb implements DatabaseInterface
 {
@@ -78,22 +78,22 @@ class NullDb implements DatabaseInterface
 
 
     /**
-     * @param FsFileInterface $file
+     * @param PhoFileInterface $file
      *
      * @return $this
      */
-    public function import(FsFileInterface $file): static
+    public function import(PhoFileInterface $file): static
     {
         return $this;
     }
 
 
     /**
-     * @param FsFileInterface $file
+     * @param PhoFileInterface $file
      *
      * @return $this
      */
-    public function export(FsFileInterface $file): static
+    public function export(PhoFileInterface $file): static
     {
         return $this;
     }

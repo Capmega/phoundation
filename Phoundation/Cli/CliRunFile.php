@@ -27,25 +27,25 @@ use Phoundation\Cli\Interfaces\CliRunFileInterface;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\Exception\FilesystemException;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsFileCore;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoFileCore;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Os\Processes\Commands\Ps;
 use Phoundation\Utils\Strings;
 
 
-class CliRunFile extends FsFileCore implements CliRunFileInterface
+class CliRunFile extends PhoFileCore implements CliRunFileInterface
 {
     /**
      * The directory where all run files are located
      *
-     * @var FsDirectoryInterface $directory
+     * @var PhoDirectoryInterface $directory
      */
-    protected static FsDirectoryInterface $directory;
+    protected static PhoDirectoryInterface $directory;
 
     /**
      * The command for which we are creating a run file
@@ -57,9 +57,9 @@ class CliRunFile extends FsFileCore implements CliRunFileInterface
     /**
      * The exact run file for this command
      *
-     * @var FsFileInterface $file
+     * @var PhoFileInterface $file
      */
-    protected FsFileInterface $file;
+    protected PhoFileInterface $file;
 
     /**
      * The pid for which we are creating a runfile
@@ -77,9 +77,9 @@ class CliRunFile extends FsFileCore implements CliRunFileInterface
     public function __construct(string $command)
     {
         $this->setAutoMount(false)
-             ->restrictions = FsRestrictions::new(DIRECTORY_SYSTEM . 'run/', true);
+             ->restrictions = PhoRestrictions::new(DIRECTORY_SYSTEM . 'run/', true);
 
-        static::$directory = FsDirectory::new(
+        static::$directory = PhoDirectory::new(
             DIRECTORY_SYSTEM . 'run/',
             $this->restrictions
         )->setAutoMount(false);
@@ -146,7 +146,7 @@ class CliRunFile extends FsFileCore implements CliRunFileInterface
 
         try {
             // Yay, a directory for this command exists! Return the first run file (PID file) we can find.
-            return (int) FsDirectory::new($directory)->getSingleFile('/\d+/');
+            return (int) PhoDirectory::new($directory)->getSingleFile('/\d+/');
 
         } catch (FilesystemException) {
             // No run file found
@@ -189,7 +189,7 @@ class CliRunFile extends FsFileCore implements CliRunFileInterface
     public static function purge(): void
     {
         // Purge orphaned run files
-        FsDirectory::new(static::$directory)
+        PhoDirectory::new(static::$directory)
                    ->execute()
                    ->setRecurse(true)
                    ->onFiles(function (string $file) {
@@ -218,15 +218,15 @@ showdie($cmd);
 
                         if ($cmd !== $command) {
                             // The PID exists, but its a different command. Remove the runfile and all PID files
-                            FsFile::new($runfile, static::$directory->getRestrictions())
+                            PhoFile::new($runfile, static::$directory->getRestrictions())
                                   ->delete(DIRECTORY_SYSTEM . 'run/');
-                            FsFile::new(static::$directory . 'pids/' . $pid, static::$directory->getRestrictions())
+                            PhoFile::new(static::$directory . 'pids/' . $pid, static::$directory->getRestrictions())
                                   ->delete(DIRECTORY_SYSTEM . 'run/pids/');
                         }
                    });
 
         // Purge orphaned PID files
-        FsDirectory::new(static::$directory)
+        PhoDirectory::new(static::$directory)
                  ->execute()
                  ->setRecurse(true)
                  ->onDirectoryOnly(function (string $directory) {
@@ -254,7 +254,7 @@ showdie($cmd);
             ':pid' => $pid,
         ]));
 
-        FsFile::new($file, static::$directory->getRestrictions())->delete(DIRECTORY_SYSTEM . 'run/');
+        PhoFile::new($file, static::$directory->getRestrictions())->delete(DIRECTORY_SYSTEM . 'run/');
 
         return false;
     }
@@ -325,9 +325,9 @@ showdie($cmd);
     /**
      * Returns the directory where all run files are located
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public function getDirectory(): FsDirectoryInterface
+    public function getDirectory(): PhoDirectoryInterface
     {
         return static::$directory;
     }
@@ -336,9 +336,9 @@ showdie($cmd);
     /**
      * Returns the run file for this process
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function getFile(): FsFileInterface
+    public function getFile(): PhoFileInterface
     {
         return $this->file;
     }
@@ -372,7 +372,7 @@ showdie($cmd);
         }
 
         // Yay, a directory for this command exists! Return all the run files (PID files) we can find.
-        $pids   = FsDirectory::new($directory)->scanRegex('/\d+/');
+        $pids   = PhoDirectory::new($directory)->scanRegex('/\d+/');
         $return = [];
 
         // Build PID > MTIME array
@@ -397,7 +397,7 @@ showdie($cmd);
     public function delete(bool|string $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static
     {
         // Delete all subprocess run files for this PID, then delete this run file
-        FsDirectory::new(DIRECTORY_SYSTEM . 'run/pids/' . Core::getProcessUid(), FsRestrictions::newSystem(true))->delete();
+        PhoDirectory::new(DIRECTORY_SYSTEM . 'run/pids/' . Core::getProcessUid(), PhoRestrictions::newSystem(true))->delete();
 
         return parent::delete($clean_path, $sudo, $escape, $use_run_file);
     }

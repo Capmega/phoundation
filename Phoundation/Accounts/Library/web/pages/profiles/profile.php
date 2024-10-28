@@ -44,11 +44,11 @@ $user = User::load($get['id']);
 Response::setHeaderTitle(tr('Profile'));
 Response::setHeaderSubTitle($user->getDisplayName());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/'                        => tr('Home'),
-                                                           '/profiles.html'           => tr('Profiles'),
-                                                           '/profiles/employees.html' => tr('Employees'),
-                                                           ''                         => $user->getDisplayName(),
-                                                       ]));
+    '/'                        => tr('Home'),
+    '/profiles.html'           => tr('Profiles'),
+    '/profiles/employees.html' => tr('Employees'),
+    ''                         => $user->getDisplayName(),
+]));
 
 
 if (Session::getUserObject()->hasAllRights(['accounts'])) {
@@ -151,19 +151,19 @@ if (Session::getUserObject()->hasAllRights(['accounts'])) {
 
                         <p class="text-muted text-center"><?= '-' ?></p>
 
-                        <ul class="list-group list-group-unbordered mb-3">
-                            <li class="list-group-item">
-                                <b>Followers</b> <a class="float-right">1,322</a>
-                            </li>
-                            <li class="list-group-item">
-                                <b>Following</b> <a class="float-right">543</a>
-                            </li>
-                            <li class="list-group-item">
-                                <b>Friends</b> <a class="float-right">13,287</a>
-                            </li>
-                        </ul>
-
                         <?=
+//                        <ul class="list-group list-group-unbordered mb-3">
+//                            <li class="list-group-item">
+//                                <b>Followers</b> <a class="float-right">1,322</a>
+//                            </li>
+//                            <li class="list-group-item">
+//                                <b>Following</b> <a class="float-right">543</a>
+//                            </li>
+//                            <li class="list-group-item">
+//                                <b>Friends</b> <a class="float-right">13,287</a>
+//                            </li>
+//                        </ul>
+
                         Form::new()
                             ->setRequestMethod(EnumHttpRequestMethod::post)
                             ->setContent(Buttons::new()

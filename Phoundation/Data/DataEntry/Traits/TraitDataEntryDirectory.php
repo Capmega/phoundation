@@ -16,10 +16,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsPath;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoPath;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 
 
 trait TraitDataEntryDirectory
@@ -27,23 +27,23 @@ trait TraitDataEntryDirectory
     /**
      * Returns the path for this object
      *
-     * @return FsDirectoryInterface|null
+     * @return PhoDirectoryInterface|null
      */
-    public function getDirectory(): ?FsDirectoryInterface
+    public function getDirectory(): ?PhoDirectoryInterface
     {
-        return $this->getTypesafe(FsDirectoryInterface::class, 'directory');
+        return $this->getTypesafe(PhoDirectoryInterface::class, 'directory');
     }
 
 
     /**
      * Sets the path for this object
      *
-     * @param FsDirectoryInterface|string|null $directory
+     * @param PhoDirectoryInterface|string|null $directory
      *
      * @return static
      */
-    public function setDirectory(FsDirectoryInterface|string|null $directory, ?FsRestrictionsInterface $restrictions = null): static
+    public function setDirectory(PhoDirectoryInterface|string|null $directory, ?PhoRestrictionsInterface $restrictions = null): static
     {
-        return $this->set(is_string($directory) ? new FsDirectory($directory, $restrictions) : $directory, 'directory');
+        return $this->set(is_string($directory) ? new PhoDirectory($directory, $restrictions) : $directory, 'directory');
     }
 }

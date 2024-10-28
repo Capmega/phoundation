@@ -17,8 +17,8 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 use DateTimeZone;
-use Phoundation\Date\DateTime;
-use Phoundation\Date\Interfaces\DateTimeInterface;
+use Phoundation\Date\PhoDateTime;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 
 
 trait TraitDataDate
@@ -26,17 +26,17 @@ trait TraitDataDate
     /**
      * The date to use
      *
-     * @var DateTimeInterface|null $date
+     * @var PhoDateTimeInterface|null $date
      */
-    protected ?DateTimeInterface $date = null;
+    protected ?PhoDateTimeInterface $date = null;
 
 
     /**
      * Returns the date
      *
-     * @return DateTimeInterface|null
+     * @return PhoDateTimeInterface|null
      */
-    public function getDate(): ?DateTimeInterface
+    public function getDate(): ?PhoDateTimeInterface
     {
         return $this->date;
     }
@@ -45,21 +45,21 @@ trait TraitDataDate
     /**
      * Sets the date
      *
-     * @param DateTime|DateTimeInterface|string|null $date
-     * @param DateTimeZone|string|null               $timezone
+     * @param PhoDateTime|PhoDateTimeInterface|string|null $date
+     * @param DateTimeZone|string|null                     $timezone
      *
      * @return static
      */
-    public function setDate(DateTime|DateTimeInterface|string|null $date, DateTimeZone|string|null $timezone = null): static
+    public function setDate(PhoDateTime|PhoDateTimeInterface|string|null $date, DateTimeZone|string|null $timezone = null): static
     {
-        if ($date instanceof DateTime) {
-            $this->date = new DateTime($date->format('Y-m-d'), $timezone ?? $date->getTimezone());
+        if ($date instanceof PhoDateTime) {
+            $this->date = new PhoDateTime($date->format('Y-m-d'), $timezone ?? $date->getTimezone());
         } else {
             if ($date === null) {
                 $this->date = null;
 
             } else {
-                $this->date = new DateTime((string) $date, $timezone);
+                $this->date = new PhoDateTime((string) $date, $timezone);
             }
         }
 

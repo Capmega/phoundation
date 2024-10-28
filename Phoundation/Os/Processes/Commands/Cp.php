@@ -19,7 +19,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 
 
@@ -28,13 +28,13 @@ class Cp extends Command
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
-     * @param FsPathInterface   $source
-     * @param FsPathInterface   $target
+     * @param PhoPathInterface  $source
+     * @param PhoPathInterface  $target
      * @param EnumExecuteMethod $method
      *
      * @return void
      */
-    public function archive(FsPathInterface $source, FsPathInterface $target, EnumExecuteMethod $method = EnumExecuteMethod::noReturn): void
+    public function archive(PhoPathInterface $source, PhoPathInterface $target, EnumExecuteMethod $method = EnumExecuteMethod::noReturn): void
     {
         $source->checkRestrictions(false);
         $target->checkRestrictions(true)

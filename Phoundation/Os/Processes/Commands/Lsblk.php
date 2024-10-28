@@ -18,7 +18,7 @@ namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 
@@ -70,11 +70,11 @@ class Lsblk extends Command
     /**
      * Returns true if the specified device is a storage device
      *
-     * @param FsFileInterface|string $device
+     * @param PhoFileInterface|string $device
      *
      * @return bool
      */
-    public function isStorageDevice(FsFileInterface|string $device): bool
+    public function isStorageDevice(PhoFileInterface|string $device): bool
     {
         return $this->getStorageDevices()
                     ->keyExists(Strings::ensureStartsNotWith($device, '/dev/'));

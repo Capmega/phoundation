@@ -18,7 +18,7 @@ namespace Phoundation\Data\Traits;
 
 use DateTimeInterface;
 use DateTimeZone;
-use Phoundation\Date\DateTime;
+use Phoundation\Date\PhoDateTime;
 
 
 trait TraitDataStartDateTime
@@ -26,17 +26,17 @@ trait TraitDataStartDateTime
     /**
      * The start date time to use
      *
-     * @var \Phoundation\Date\Interfaces\DateTimeInterface|null $start_datetime
+     * @var \Phoundation\Date\Interfaces\PhoDateTimeInterface|null $start_datetime
      */
-    protected ?\Phoundation\Date\Interfaces\DateTimeInterface $start_datetime = null;
+    protected ?\Phoundation\Date\Interfaces\PhoDateTimeInterface $start_datetime = null;
 
 
     /**
      * Returns the start date time
      *
-     * @return \Phoundation\Date\Interfaces\DateTimeInterface|null
+     * @return \Phoundation\Date\Interfaces\PhoDateTimeInterface|null
      */
-    public function getStartDateTime(): ?\Phoundation\Date\Interfaces\DateTimeInterface
+    public function getStartDateTime(): ?\Phoundation\Date\Interfaces\PhoDateTimeInterface
     {
         return $this->start_datetime;
     }
@@ -56,7 +56,7 @@ trait TraitDataStartDateTime
             $this->start_datetime = null;
 
         } else {
-            $this->start_datetime = DateTime::new($start_datetime, $timezone);
+            $this->start_datetime = PhoDateTime::new($start_datetime, $timezone);
         }
 
         return $this;

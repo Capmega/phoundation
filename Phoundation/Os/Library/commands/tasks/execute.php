@@ -19,9 +19,8 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Os\Processes\Exception\NoTasksPendingExceptions;
 use Phoundation\Os\Processes\Exception\TaskAlreadyExecutedException;
-use Phoundation\Os\Processes\Task;
-use Phoundation\Os\Processes\Tasks;
-
+use Phoundation\Os\Tasks\Task;
+use Phoundation\Os\Tasks\Tasks;
 
 CliDocumentation::setUsage('./pho workers execute');
 

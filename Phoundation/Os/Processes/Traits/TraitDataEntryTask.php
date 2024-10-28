@@ -17,8 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes\Traits;
 
 use Phoundation\Os\Processes\Interfaces\TaskInterface;
-use Phoundation\Os\Processes\Task;
-
+use Phoundation\Os\Tasks\Task;
 
 trait TraitDataEntryTask
 {

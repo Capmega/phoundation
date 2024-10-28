@@ -43,7 +43,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryUrl;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryUser;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Exception\NotificationBusyException;
 use Phoundation\Notifications\Exception\NotificationsException;
@@ -204,7 +204,7 @@ class Notification extends DataEntry implements NotificationInterface
      */
     public function setException(Throwable $e): static
     {
-        if ($e instanceof Exception) {
+        if ($e instanceof PhoException) {
             if ($e->isWarning()) {
                 $mode = EnumDisplayMode::warning;
 
@@ -213,7 +213,7 @@ class Notification extends DataEntry implements NotificationInterface
             }
 
         } else {
-            $e    = new Exception($e);
+            $e    = new PhoException($e);
             $mode = EnumDisplayMode::exception;
         }
 
@@ -500,18 +500,18 @@ FILES variables:
 
             foreach (Arrays::force($details) as $key => $value) {
                 if (is_scalar($value)) {
-                    Log::write(Strings::size(Strings::capitalize($key), 12) . ': ', 'debug', clean: false, echo_newline: false);
+                    Log::write(Strings::size(Strings::capitalize((string) $key), 12) . ': ', 'debug', clean: false, echo_newline: false);
                     Log::write(Strings::log($value), echo_prefix: false);
 
                 } else {
                     switch ($key) {
                         case 'trace':
-                            Log::write(Strings::size(Strings::capitalize($key), 12) . ': ', 'debug', clean: false);
+                            Log::write(Strings::size(Strings::capitalize((string) $key), 12) . ': ', 'debug', clean: false);
                             Log::backtrace(backtrace: $value);
                             break;
 
                         default:
-                            Log::write(Strings::size(Strings::capitalize($key), 12) . ': ', 'debug', clean: false, echo_newline: false);
+                            Log::write(Strings::size(Strings::capitalize((string) $key), 12) . ': ', 'debug', clean: false, echo_newline: false);
                             Log::printr($value, echo_prefix: false, echo_header: false);
                     }
                 }
@@ -607,7 +607,7 @@ FILES variables:
         $user = User::load($user);
 
         if (!Core::isProductionEnvironment()) {
-            if ($user->hasAllRights('developer,test,admin')) {
+            if (!$user->hasAllRights('developer,test,admin')) {
                 // We're not in production environment, don't send any notifications!
                 Log::warning(tr('Not sending notification ":title" to user ":user" because we are not in production environment', [
                     ':title' => $this->getTitle(),
@@ -751,7 +751,7 @@ FILES variables:
                                     ->setReadonly(true)
                                     ->setElement(EnumElement::textarea)
                                     ->setLabel(tr('Message'))
-                                    ->setMaxlength(65_535)
+                                    ->setMaxlength(16_777_215)
                                     ->setSize(12)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isPrintable();
@@ -770,7 +770,7 @@ FILES variables:
                                     ->setOptional(true)
                                     ->setElement(EnumElement::textarea)
                                     ->setLabel(tr('Details'))
-                                    ->setMaxlength(65_535)
+                                    ->setMaxlength(16_777_215)
                                     ->setRows(10)
                                     ->setSize(12)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {

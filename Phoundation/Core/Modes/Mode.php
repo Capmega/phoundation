@@ -21,9 +21,9 @@ use Phoundation\Accounts\Users\SystemUser;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Modes\Interfaces\ModeInterface;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
-use Phoundation\Date\DateTime;
-use Phoundation\Date\Interfaces\DateTimeInterface;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Date\PhoDateTime;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 
 
 class Mode implements ModeInterface
@@ -45,21 +45,21 @@ class Mode implements ModeInterface
     /**
      * The date/time when this mode was enabled
      *
-     * @var DateTimeInterface|null $datetime
+     * @var PhoDateTimeInterface|null $datetime
      */
-    protected ?DateTimeInterface $datetime;
+    protected ?PhoDateTimeInterface $datetime;
 
 
     /**
      * Mode class constructor
      *
-     * @param string               $mode
-     * @param FsFileInterface|null $mode_file
+     * @param string                $mode
+     * @param PhoFileInterface|null $mode_file
      */
-    public function __construct(string $mode, ?FsFileInterface $mode_file = null)
+    public function __construct(string $mode, ?PhoFileInterface $mode_file = null)
     {
         $this->mode     = $mode;
-        $this->datetime = $mode_file?->getMtime() ?? new DateTime();
+        $this->datetime = $mode_file?->getMtime() ?? new PhoDateTime();
 
         try {
             $this->user = $mode_file ? User::new(['email' => $mode_file->getBasename()]) : new SystemUser();
@@ -95,9 +95,9 @@ class Mode implements ModeInterface
     /**
      * Returns the date/time when this mode was set
      *
-     * @return DateTimeInterface|null
+     * @return PhoDateTimeInterface|null
      */
-    public function getDateTime(): ?DateTimeInterface
+    public function getDateTime(): ?PhoDateTimeInterface
     {
         return $this->datetime;
     }

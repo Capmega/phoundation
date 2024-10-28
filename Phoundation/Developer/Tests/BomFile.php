@@ -20,15 +20,15 @@ namespace Phoundation\Developer\Tests;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Mtime;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
-use Phoundation\Filesystem\FsPath;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
+use Phoundation\Filesystem\PhoPath;
 use Stringable;
 
 
-class BomFile extends FsFile
+class BomFile extends PhoFile
 {
-    public function __construct(FsPath|Stringable|string|null $file = null, FsRestrictionsInterface|array|string|null $restrictions = null)
+    public function __construct(PhoPath|Stringable|string|null $file = null, PhoRestrictionsInterface|array|string|null $restrictions = null)
     {
         parent::__construct($file, $restrictions);
 

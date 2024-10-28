@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\Mounts\FsMount;
+use Phoundation\Filesystem\Mounts\PhoMount;
 use Phoundation\Filesystem\Mounts\FsMounts;
 
 
@@ -41,4 +41,4 @@ $argv = ArgvValidator::new()
 
 
 // FsMount the specified mount
-FsMount::new($argv['mount'])->mount();
+PhoMount::new($argv['mount'])->mount();

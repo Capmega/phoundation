@@ -31,9 +31,9 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryFile;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryUsersId;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Img;
 use Phoundation\Web\Html\Components\Interfaces\ImgInterface;
@@ -61,7 +61,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
     {
         parent::__construct($identifier, $meta_enabled, $init);
 
-        $this->restrictions = FsRestrictions::newWritable([DIRECTORY_TMP, DIRECTORY_CDN]);
+        $this->restrictions = PhoRestrictions::newWritable([DIRECTORY_TMP, DIRECTORY_CDN]);
     }
 
 
@@ -259,8 +259,8 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                     $user = User::load($user);
                 }
 
-                $cdn_directory = FsDirectory::newCdnObject(true, '/img/files/profile/' . $user->getId())
-                                            ->ensure();
+                $cdn_directory = PhoDirectory::newCdnObject(true, '/img/files/profile/' . $user->getId())
+                                             ->ensure();
 
                 Log::action(tr('Adding image ":file" to profile images for user ":user"', [
                     ':file' => $this->getFile()->getRootname(),
@@ -289,8 +289,8 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                 if ($user) {
                     // This profile image is currently assigned to a user and, as such, in its user directory. Move the file
                     // to a generic profile image directory
-                    $cdn_directory = FsDirectory::newCdnObject(true, '/img/files/profile/' . $this->getUsersId())
-                                                ->ensure();
+                    $cdn_directory = PhoDirectory::newCdnObject(true, '/img/files/profile/' . $this->getUsersId())
+                                                 ->ensure();
 
                     if (!$file->isInDirectory($cdn_directory)) {
                         Log::warning(tr('Profile image ":image" is linked to user ":user" and should be in ":path" but, well, its not...', [
@@ -300,8 +300,8 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                         ]));
                     }
 
-                    $cdn_directory = FsDirectory::newCdnObject(true, '/img/files/profile/0')
-                                                ->ensure();
+                    $cdn_directory = PhoDirectory::newCdnObject(true, '/img/files/profile/0')
+                                                 ->ensure();
 
                     Log::action(tr('Moving file ":file" to general users profile image directory ":directory"', [
                         ':file'      => $file->getRootname(),
@@ -322,11 +322,11 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
     /**
      * Sets the file for this profile image
      *
-     * @param FsFileInterface|string|null $file
+     * @param PhoFileInterface|string|null $file
      *
      * @return static
      */
-    public function setFile(FsFileInterface|string|null $file): static
+    public function setFile(PhoFileInterface|string|null $file): static
     {
         if ($file) {
             if (is_string($file)) {
@@ -337,7 +337,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
 
             } else {
                 if ($file->isAbsolute()) {
-                    $file->makeRelative(FsDirectory::newCdnObject(true));
+                    $file->makeRelative(PhoDirectory::newCdnObject(true));
                 }
             }
         }
@@ -387,10 +387,10 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isFile(
                                                    [
-                                                       FsDirectory::newDataTmpObject(),
-                                                       FsDirectory::newCdnObject(true, '/img/files/profile/' . $this->getUserObject()->getId() . '/')
+                                                       PhoDirectory::newDataTmpObject(),
+                                                       PhoDirectory::newCdnObject(true, '/img/files/profile/' . $this->getUserObject()->getId() . '/')
                                                    ],
-                                                   prefix: FsDirectory::newCdnObject());
+                                                   prefix: PhoDirectory::newCdnObject());
                                            }))
 
                     ->add(DefinitionFactory::newDescription($this));

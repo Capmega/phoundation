@@ -18,15 +18,15 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Project\Project;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsRestrictions;$restrictions = FsRestrictions::newReadonly([DIRECTORY_ROOT . 'config/deploy/']));
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoRestrictions;$restrictions = PhoRestrictions::newReadonly([DIRECTORY_ROOT . 'config/deploy/']));
 
 
 CliDocumentation::setAutoComplete([
                                       'positions' => [
                                           0 => [
-                                              'word'   => function ($word) use ($restrictions) { return FsDirectory::new(DIRECTORY_ROOT . 'config/deploy/', $restrictions)->scan($word . '*.yaml'); },
-                                              'noword' => function ()      use ($restrictions) { return FsDirectory::new(DIRECTORY_ROOT . 'config/deploy/', $restrictions)->scan('*.yaml'); },
+                                              'word'   => function ($word) use ($restrictions) { return PhoDirectory::new(DIRECTORY_ROOT . 'config/deploy/', $restrictions)->scan($word . '*.yaml'); },
+                                              'noword' => function ()      use ($restrictions) { return PhoDirectory::new(DIRECTORY_ROOT . 'config/deploy/', $restrictions)->scan('*.yaml'); },
                                           ],
                                       ],
                                       'arguments' => [

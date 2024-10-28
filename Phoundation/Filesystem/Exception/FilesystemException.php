@@ -16,9 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Exception;
 
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 
 
-class FilesystemException extends Exception
+class FilesystemException extends PhoException
 {
 }

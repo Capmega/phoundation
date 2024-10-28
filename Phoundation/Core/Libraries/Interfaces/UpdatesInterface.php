@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace Phoundation\Core\Libraries\Interfaces;
 
 use Phoundation\Core\Libraries\Updates;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 
 interface UpdatesInterface
 {
     /**
      * Returns the file for this library
      *
-     * @return FsFileInterface
+     * @return PhoFileInterface
      */
-    public function getFile(): FsFileInterface;
+    public function getFile(): PhoFileInterface;
 
 
     /**

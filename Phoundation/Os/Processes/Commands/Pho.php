@@ -16,28 +16,17 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Core\Core;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\TraitDataEnvironment;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Os\Processes\Commands\Interfaces\PhoInterface;
-use Phoundation\Os\Processes\Exception\ProcessException;
-use Phoundation\Os\Processes\WorkersCore;
-use Phoundation\Utils\Arrays;
-
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 
 class Pho extends PhoCore
 {
     /**
      * Pho class constructor.
      *
-     * @param array|string|null    $commands
-     * @param FsFileInterface|null $pho
+     * @param array|string|null     $commands
+     * @param PhoFileInterface|null $pho
      */
-    public function __construct(array|string|null $commands, ?FsFileInterface $pho = null)
+    public function __construct(array|string|null $commands, ?PhoFileInterface $pho = null)
     {
         $this->init($commands, $pho);
     }
@@ -46,12 +35,12 @@ class Pho extends PhoCore
     /**
      * Create a new process factory for a specific Phoundation command
      *
-     * @param string|null          $pho_command
-     * @param FsFileInterface|null $pho
+     * @param string|null           $pho_command
+     * @param PhoFileInterface|null $pho
      *
      * @return static
      */
-    public static function new(?string $pho_command = null, ?FsFileInterface $pho = null): static
+    public static function new(?string $pho_command = null, ?PhoFileInterface $pho = null): static
     {
         return new static($pho_command, $pho);
     }

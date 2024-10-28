@@ -5,6 +5,10 @@
  *
  *
  *
+ * @see https://datatables.net/examples/datetime/auto-locale-moment.html
+ * @see https://momentjs.com/docs/#/displaying/format/ for JavaScript datetime formatting
+ * @todo Switch from moment.js to Luxon as moment.js is deprecated and will be replaced with Luxon
+ *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -18,8 +22,8 @@ namespace Phoundation\Web\Html\Components\Tables;
 
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Date\DateFormats;
-use Phoundation\Date\DateTime;
+use Phoundation\Date\PhoDateFormats;
+use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
@@ -236,9 +240,9 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
              ])
              ->addRowCallback(function (IteratorInterface|array &$row, EnumTableRowType $type, &$params) {
                  if (isset($row['created_on'])) {
-                     $row['created_on'] = DateTime::new($row['created_on'])
-                                                  ->setTimezone('user')
-                                                  ->format($this->php_date_format);
+                     $row['created_on'] = PhoDateTime::new($row['created_on'])
+                                                     ->setTimezone('user')
+                                                     ->format($this->php_date_format);
                  }
              })
              ->setLengthMenu([
@@ -497,7 +501,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setJsDateFormat(?string $date_format): static
     {
         $this->js_date_format  = $date_format;
-        $this->php_date_format = DateFormats::convertJsToPhp($date_format);
+        $this->php_date_format = PhoDateFormats::convertJsToPhp($date_format);
 
         return $this;
     }
@@ -527,7 +531,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setPhpDateFormat(?string $php_date_format): static
     {
         $this->php_date_format = $php_date_format;
-        $this->js_date_format  = DateFormats::convertPhpToJs($php_date_format);
+        $this->js_date_format  = PhoDateFormats::convertPhpToJs($php_date_format);
 
         return $this;
     }

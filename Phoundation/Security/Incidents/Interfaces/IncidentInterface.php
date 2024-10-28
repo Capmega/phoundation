@@ -68,11 +68,11 @@ interface IncidentInterface
     /**
      * Sets the severity for this object
      *
-     * @param EnumSeverity|string $severity
+     * @param EnumSeverity|string|null $severity
      *
      * @return static
      */
-    public function setSeverity(EnumSeverity|string $severity): static;
+    public function setSeverity(EnumSeverity|string|null $severity): static;
 
 
     /**

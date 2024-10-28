@@ -45,7 +45,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
@@ -192,10 +192,10 @@ class Incident extends DataEntry implements IncidentInterface
         if ($e) {
             if (is_string($e)) {
                 // This is (presumably) a JSON encoded exception data source. Import it into a new exception
-                $e = Exception::newFromImport($e);
+                $e = PhoException::newFromImport($e);
             }
 
-            if ($e instanceof Exception) {
+            if ($e instanceof PhoException) {
                 $this->setTitle(tr('Encountered exception: :e', [':e' => $e->getMessage()]))
                      ->setType('exception')
                      ->setUrl(PLATFORM_WEB ? Route::getRequest() : CliCommand::getRequest())
@@ -281,17 +281,17 @@ class Incident extends DataEntry implements IncidentInterface
     /**
      * Sets the severity for this object
      *
-     * @param EnumSeverity|string $severity
+     * @param EnumSeverity|string|null $severity
      *
      * @return static
      */
-    public function setSeverity(EnumSeverity|string $severity): static
+    public function setSeverity(EnumSeverity|string|null $severity): static
     {
         if (is_string($severity)) {
             $severity = EnumSeverity::from($severity);
         }
 
-        return $this->set($severity->value, 'severity');
+        return $this->set($severity?->value, 'severity');
     }
 
 

@@ -16,10 +16,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use Phoundation\Filesystem\FsPath;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\PhoPath;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 
 
 trait TraitDataEntryPathObject
@@ -27,22 +27,22 @@ trait TraitDataEntryPathObject
     /**
      * Returns the path for this object
      *
-     * @return FsPathInterface|null
+     * @return PhoPathInterface|null
      */
-    public function getPathObject(): ?FsPathInterface
+    public function getPathObject(): ?PhoPathInterface
     {
-        return $this->getTypesafe(FsPathInterface::class, 'path');
+        return $this->getTypesafe(PhoPathInterface::class, 'path');
     }
 
 
     /**
      * Sets the path for this object
      *
-     * @param FsPathInterface|null $path
+     * @param PhoPathInterface|null $path
      *
      * @return static
      */
-    public function setPathObject(?FsPathInterface $path): static
+    public function setPathObject(?PhoPathInterface $path): static
     {
         return $this->set($path, 'path');
     }

@@ -21,7 +21,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Developer\Debug;
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Enums\EnumJsonAfterReply;
@@ -238,8 +238,8 @@ class JsonPage implements JsonPageInterface
     /**
      * Send a JSON message from an HTTP code
      *
-     * @param string|int|Exception $code
-     * @param mixed                $data
+     * @param string|int|PhoException $code
+     * @param mixed                   $data
      *
      * @return void
      */
@@ -372,7 +372,7 @@ class JsonPage implements JsonPageInterface
             $data = tr('Something went wrong, please try again later');
 
         } elseif ($data instanceof Throwable) {
-            if ($data instanceof Exception) {
+            if ($data instanceof PhoException) {
                 if ($data->isWarning()) {
                     $data = $data->getMessage();
 

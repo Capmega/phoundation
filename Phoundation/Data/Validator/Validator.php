@@ -27,17 +27,17 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
-use Phoundation\Date\DateFormats;
-use Phoundation\Date\DateTime;
-use Phoundation\Date\DateTimeFormats;
+use Phoundation\Date\PhoDateFormats;
+use Phoundation\Date\PhoDateTime;
+use Phoundation\Date\PhoDateTimeFormats;
 use Phoundation\Date\Exception\UnsupportedDateFormatException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsPath;
-use Phoundation\Filesystem\FsRestrictions;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoPath;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\JsonException;
@@ -506,6 +506,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                         if ($value !== null) {
                             $this->addFailure(tr('must have an integer value'));
                         }
+
                         $value = 0;
                     }
                 }
@@ -1991,7 +1992,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             }
 
             // Ensure we have formats to work with, default to a number of acceptable formats
-            $formats = $formats ?? DateFormats::getSupportedPhp();
+            $formats = $formats ?? PhoDateFormats::getSupportedPhp();
             $formats = Arrays::force($formats, null);
 
             // We must be able to create a date object using the given formats without failure, and the resulting date
@@ -2050,7 +2051,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
                 foreach ($dates as $date) {
                     // Ensure we have formats to work with, default to a number of acceptable formats
-                    $formats = $formats ?? DateFormats::getSupportedPhp();
+                    $formats = $formats ?? PhoDateFormats::getSupportedPhp();
                     $formats = Arrays::force($formats, null);
 
                     // We must be able to create a date object using the given formats without failure, and the resulting date
@@ -2082,17 +2083,17 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     {
         // We must be able to create a date object using the given formats without failure, and the resulting date
         // must be the same as the specified date
-        $given = DateFormats::normalizeDate($date);
+        $given = PhoDateFormats::normalizeDate($date);
 
         foreach ($formats as $format) {
             try {
                 // Create DateTime object
-                $format = DateFormats::normalizeDateFormat($format);
-                $value  = DateTime::createFromFormat($format, $given);
+                $format = PhoDateFormats::normalizeDateFormat($format);
+                $value  = PhoDateTime::createFromFormat($format, $given);
 
                 if ($value) {
                     // DateTime object created successfully! Now get a dateformat, and normalize it
-                    $test = DateFormats::normalizeDate($value->format($format));
+                    $test = PhoDateFormats::normalizeDate($value->format($format));
 
                     // Test the normalized test DateTime against the specified normalized date time string
                     if ($test === $given) {
@@ -2151,7 +2152,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
             // Validate the user time against all allowed formats
             foreach ($formats as $format) {
-                if (is_object(DateTime::createFromFormat($format, $value))) {
+                if (is_object(PhoDateTime::createFromFormat($format, $value))) {
                     // The specified time matches one of the allowed formats
                     return;
                 }
@@ -2190,7 +2191,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             // Ensure we have formats to work with
             if (!$formats) {
                 // Default to a number of acceptable formats
-                $formats = DateTimeFormats::getSupportedPhp();
+                $formats = PhoDateTimeFormats::getSupportedPhp();
             }
 
             $formats = Arrays::force($formats, null);
@@ -2207,11 +2208,11 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * Validates that the selected field is in the past
      *
-     * @param DateTime|null $before
+     * @param PhoDateTime|null $before
      *
      * @return static
      */
-    public function isBefore(?DateTime $before): static
+    public function isBefore(?PhoDateTime $before): static
     {
         $this->test_count++;
 
@@ -2225,7 +2226,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                 return;
             }
 
-            $value = new DateTime($value);
+            $value = new PhoDateTime($value);
 
             if ($value > $before) {
                 $this->addFailure(tr('must be a valid date before ":date"', [
@@ -2239,11 +2240,11 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * Validates that the selected field is in the past
      *
-     * @param DateTime|null $after
+     * @param PhoDateTime|null $after
      *
      * @return static
      */
-    public function isAfter(?DateTime $after): static
+    public function isAfter(?PhoDateTime $after): static
     {
         $this->test_count++;
 
@@ -2256,7 +2257,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                 return;
             }
 
-            $value = new DateTime($value);
+            $value = new PhoDateTime($value);
 
             if ($value > $after) {
                 $this->addFailure(tr('must be a valid date after ":date"', [
@@ -2787,27 +2788,27 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      * Checks if the specified path exists in one the required directories or not, and if its of the correct type
      *
      * @param string                      $path
-     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool                        $must_be_directory
      * @param bool|null                   $require_exist
      * @param Stringable|string|bool|null $prefix
      *
-     * @return FsPathInterface
+     * @return PhoPathInterface
      */
-    protected function validatePath(string $path, FsDirectoryInterface|array $exists_in_directories, ?bool $must_be_directory, ?bool $require_exist, Stringable|string|bool|null $prefix = null): FsPathInterface
+    protected function validatePath(string $path, PhoDirectoryInterface|array $exists_in_directories, ?bool $must_be_directory, ?bool $require_exist, Stringable|string|bool|null $prefix = null): PhoPathInterface
     {
         // Determine filetype, if any
         if ($must_be_directory) {
             $type  = 'directory';
-            $class = FsDirectory::class;
+            $class = PhoDirectory::class;
 
         } elseif (is_bool($must_be_directory)) {
             $type = 'file';
-            $class = FsFile::class;
+            $class = PhoFile::class;
 
         } else {
             $type  = null;
-            $class = FsPath::class;
+            $class = PhoPath::class;
         }
 
         // Was a path specified? We need a path here!
@@ -2822,7 +2823,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         if (is_array($exists_in_directories)) {
             // We need the restrictions from $exists_in_directories.
             // If multiple directories were specified, get restrictions from them all
-            $restrictions = new FsRestrictions();
+            $restrictions = new PhoRestrictions();
 
             foreach ($exists_in_directories as $exists_in_directory) {
                 $restrictions->addRestrictions($exists_in_directory->getRestrictions());
@@ -2833,12 +2834,12 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         }
 
         // Get the absolute "path", "file" does not need to exist here, we'll check that later
-        $path = FsPath::new($path, $restrictions)
-                      ->makeReal($prefix, false)
-                      ->getSource();
+        $path = PhoPath::new($path, $restrictions)
+                       ->makeReal($prefix, false)
+                       ->getSource();
 
         foreach (Arrays::force($exists_in_directories) as $exists_in_directory) {
-            if (!$exists_in_directory instanceof FsDirectoryInterface) {
+            if (!$exists_in_directory instanceof PhoDirectoryInterface) {
                 throw new OutOfBoundsException(tr('Cannot validate if path ":path", the specified "$exists_in_directory" value ":value" must be an FsDirectoryInterface object or an array with FsDirectoryInterface objects', [
                     ':path'  => $path,
                     ':value' => $exists_in_directory
@@ -2910,13 +2911,13 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * Validates if the selected field is a valid file path
      *
-     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
      * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function isPath(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
+    public function isPath(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
     {
         $this->test_count++;
 
@@ -2937,13 +2938,13 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * Validates if the selected field is a valid directory
      *
-     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
      * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function isDirectory(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
+    public function isDirectory(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
     {
         $this->test_count++;
 
@@ -2964,13 +2965,13 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * Validates if the selected field is a valid file
      *
-     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
      * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function isFile(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
+    public function isFile(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
     {
         $this->test_count++;
 
@@ -2991,13 +2992,13 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * Validates if the selected field is a valid file path and converts the value into FsPath object
      *
-     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
      * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function sanitizePath(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
+    public function sanitizePath(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
     {
         $this->test_count++;
 
@@ -3018,13 +3019,13 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * Validates if the selected field is a valid directory and converts the value into FsDirectory object
      *
-     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
      * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function sanitizeDirectory(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
+    public function sanitizeDirectory(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
     {
         $this->test_count++;
 
@@ -3045,13 +3046,13 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * Validates if the selected field is a valid file and converts the value into an FsFile object
      *
-     * @param FsDirectoryInterface|array  $exists_in_directories
+     * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
      * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function sanitizeFile(FsDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
+    public function sanitizeFile(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
     {
         $this->test_count++;
 

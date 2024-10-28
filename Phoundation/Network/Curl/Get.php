@@ -21,10 +21,10 @@ use Phoundation\Cli\CliColor;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Network\Curl\Exception\Curl404Exception;
 use Phoundation\Network\Curl\Exception\CurlGetException;
 use Phoundation\Network\Curl\Exception\CurlNon200Exception;
@@ -145,7 +145,7 @@ class Get extends Curl
         if ($this->close) {
             // Close this cURL session
             if (!empty($this->cookie_file)) {
-                FsFile::new($this->cookie_file, FsRestrictions::newWritable(DIRECTORY_DATA . 'curl/'))
+                PhoFile::new($this->cookie_file, PhoRestrictions::newWritable(DIRECTORY_DATA . 'curl/'))
                       ->delete();
             }
 
@@ -239,9 +239,9 @@ class Get extends Curl
 
         // Log cURL request?
         if ($this->log_directory) {
-            curl_setopt($this->curl, CURLOPT_STDERR, FsFile::new($this->log_directory . getmypid(), $this->log_restrictions)
-                                                           ->open(EnumFileOpenMode::writeOnlyAppend)
-                                                           ->getStream());
+            curl_setopt($this->curl, CURLOPT_STDERR, PhoFile::new($this->log_directory . getmypid(), $this->log_restrictions)
+                                                            ->open(EnumFileOpenMode::writeOnlyAppend)
+                                                            ->getStream());
             Log::action(tr('Preparing ":method" cURL request to ":url"', [
                 ':method' => $this->method,
                 ':url'    => $this->url,
@@ -255,12 +255,12 @@ class Get extends Curl
         // Use cookies?
         if (isset_get($this->cookies)) {
             if (!isset_get($this->cookie_file)) {
-                $this->cookie_file = FsFile::getTemporaryObject()
-                                           ->getSource();
+                $this->cookie_file = PhoFile::getTemporaryObject()
+                                            ->getSource();
             }
 
             // Make sure the specified cookie path exists
-            FsDirectory::new(dirname($this->cookie_file))->ensure();
+            PhoDirectory::new(dirname($this->cookie_file))->ensure();
 
             // Set cookie options
             curl_setopt($this->curl, CURLOPT_COOKIEJAR    , $this->cookie_file);

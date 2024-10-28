@@ -18,11 +18,11 @@ namespace Phoundation\Content\Images;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\PhoFile;
 use Phoundation\Os\Processes\Process;
 
 
-class Resize extends FsFile
+class Resize extends PhoFile
 {
     /**
      * If the resize command should be executed in the background or not

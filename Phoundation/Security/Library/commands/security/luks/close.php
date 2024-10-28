@@ -15,7 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Security\Luks\Device;
 
 
@@ -38,4 +38,4 @@ CliDocumentation::setAutoComplete([
 
 
 // Close the LUKS file
-$device = Device::new($argv['file'], FsRestrictions::newWritable($argv['file']))->luksClose(FORCE);
+$device = Device::new($argv['file'], PhoRestrictions::newWritable($argv['file']))->luksClose(FORCE);

@@ -17,7 +17,7 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\PhoDirectory;
 
 
 CliDocumentation::setUsage('./pho system temporary get PATH [OPTIONS]
@@ -40,4 +40,4 @@ $argv = ArgvValidator::new()
 
 
 // Get persistent temporary directory and we're done
-Log::cli(FsDirectory::newTemporaryObject($argv['public'], true)->getSource());
+Log::cli(PhoDirectory::newTemporaryObject($argv['public'], true)->getSource());

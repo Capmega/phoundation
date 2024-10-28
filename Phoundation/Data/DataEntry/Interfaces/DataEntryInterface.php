@@ -15,7 +15,7 @@ use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
-use Phoundation\Date\Interfaces\DateTimeInterface;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
@@ -74,11 +74,12 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      *
      * @param array|DataEntryInterface|string|int|null $identifier
      * @param bool                                     $meta_enabled
+     * @param bool                                     $init
      * @param bool                                     $ignore_deleted
      *
      * @return DataEntryInterface
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $ignore_deleted = false): static;
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): static;
 
     /**
      * Returns if this DataEntry validates data before saving
@@ -289,9 +290,9 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * Returns the object that created this data entry
      *
      * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
-     * @return DateTimeInterface|null
+     * @return PhoDateTimeInterface|null
      */
-    public function getCreatedOnDateTimeObject(): ?DateTimeInterface;
+    public function getCreatedOnDateTimeObject(): ?PhoDateTimeInterface;
 
     /**
      * Returns the meta-information for this entry

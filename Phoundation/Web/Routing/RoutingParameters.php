@@ -20,9 +20,9 @@ use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
-use Phoundation\Filesystem\FsPath;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
+use Phoundation\Filesystem\PhoPath;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
@@ -51,9 +51,9 @@ class RoutingParameters implements RoutingParametersInterface
     /**
      * Server restrictions indicating what the router can access
      *
-     * @var FsRestrictions|array|string|null $restrictions
+     * @var PhoRestrictions|array|string|null $restrictions
      */
-    protected FsRestrictions|array|string|null $restrictions = null;
+    protected PhoRestrictions|array|string|null $restrictions = null;
 
     /**
      * Sets the default base URL for all links generated
@@ -215,7 +215,7 @@ class RoutingParameters implements RoutingParametersInterface
                 $directory = [];
 
             } else {
-                $directory = explode(FsPath::DIRECTORY_SEPARATOR, $directory);
+                $directory = explode(PhoPath::DIRECTORY_SEPARATOR, $directory);
             }
 
             // Merge with the already specified rights
@@ -386,24 +386,24 @@ class RoutingParameters implements RoutingParametersInterface
     /**
      * Returns the server restrictions
      *
-     * @return FsRestrictionsInterface
+     * @return PhoRestrictionsInterface
      */
-    public function getRestrictions(): FsRestrictionsInterface
+    public function getRestrictions(): PhoRestrictionsInterface
     {
-        return $this->restrictions ?? FsRestrictions::newWeb(false, 'RoutingParameter::setRestrictions()');
+        return $this->restrictions ?? PhoRestrictions::newWeb(false, 'RoutingParameter::setRestrictions()');
     }
 
 
     /**
      * Sets the server restrictions
      *
-     * @param FsRestrictionsInterface|array|string|null $restrictions
+     * @param PhoRestrictionsInterface|array|string|null $restrictions
      *
      * @return static
      */
-    public function setRestrictions(FsRestrictionsInterface|array|string|null $restrictions): static
+    public function setRestrictions(PhoRestrictionsInterface|array|string|null $restrictions): static
     {
-        $this->restrictions = $restrictions ?? FsRestrictions::newWeb(false, 'RoutingParameter::setRestrictions()');
+        $this->restrictions = $restrictions ?? PhoRestrictions::newWeb(false, 'RoutingParameter::setRestrictions()');
 
         return $this;
     }

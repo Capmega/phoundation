@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Libraries\Interfaces;
 
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 
 interface LibraryInterface
 {
@@ -63,9 +63,9 @@ interface LibraryInterface
     /**
      * Returns the library path
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public function getDirectory(): FsDirectoryInterface;
+    public function getDirectory(): PhoDirectoryInterface;
 
 
     /**

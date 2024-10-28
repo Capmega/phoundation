@@ -16,9 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Exception;
 
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 
 
-class VersioningException extends Exception
+class VersioningException extends PhoException
 {
 }

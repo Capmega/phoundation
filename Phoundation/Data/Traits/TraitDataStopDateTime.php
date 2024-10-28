@@ -18,7 +18,7 @@ namespace Phoundation\Data\Traits;
 
 use DateTimeInterface;
 use DateTimeZone;
-use Phoundation\Date\DateTime;
+use Phoundation\Date\PhoDateTime;
 
 
 trait TraitDataStopDateTime
@@ -56,7 +56,7 @@ trait TraitDataStopDateTime
             $this->stop_datetime = null;
 
         } else {
-            $this->stop_datetime = DateTime::new($stop_datetime, $timezone);
+            $this->stop_datetime = PhoDateTime::new($stop_datetime, $timezone);
         }
 
         return $this;

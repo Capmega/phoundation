@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Network\Curl\Interfaces;
 
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
@@ -130,9 +130,9 @@ interface CurlInterface
     /**
      * Returns the restrictions for curl output logging
      *
-     * @return FsRestrictions|null
+     * @return PhoRestrictions|null
      */
-    public function getLogRestrictions(): ?FsRestrictions;
+    public function getLogRestrictions(): ?PhoRestrictions;
 
 
     /**

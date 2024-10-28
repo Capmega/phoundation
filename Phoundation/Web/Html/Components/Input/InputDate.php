@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Date\DateTime;
+use Phoundation\Date\PhoDateTime;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Stringable;
 
@@ -38,14 +38,14 @@ class InputDate extends InputText
     /**
      * Sets the value for the input element
      *
-     * @param DateTime|Stringable|string|float|int|null $value
-     * @param bool                                      $make_safe
+     * @param PhoDateTime|Stringable|string|float|int|null $value
+     * @param bool                                         $make_safe
      *
      * @return static
      */
-    public function setValue(DateTime|Stringable|string|float|int|null $value, bool $make_safe = true): static
+    public function setValue(PhoDateTime|Stringable|string|float|int|null $value, bool $make_safe = true): static
     {
-        if ($value instanceof DateTime) {
+        if ($value instanceof PhoDateTime) {
             $value = $value->format('Y-m-d');
         }
 
@@ -67,13 +67,13 @@ class InputDate extends InputText
     /**
      * Sets the maximum numeric value for this numeric input
      *
-     * @param DateTime|Stringable|string|null $max
+     * @param PhoDateTime|Stringable|string|null $max
      *
      * @return static
      */
-    public function setMax(DateTime|Stringable|string|null $max): static
+    public function setMax(PhoDateTime|Stringable|string|null $max): static
     {
-        if ($max instanceof DateTime) {
+        if ($max instanceof PhoDateTime) {
             $max = $max->format('Y-m-d');
         }
 
@@ -95,13 +95,13 @@ class InputDate extends InputText
     /**
      * Sets the minimum numeric value for this numeric input
      *
-     * @param DateTime|Stringable|string|null $min
+     * @param PhoDateTime|Stringable|string|null $min
      *
      * @return static
      */
-    public function setMin(DateTime|Stringable|string|null $min): static
+    public function setMin(PhoDateTime|Stringable|string|null $min): static
     {
-        if ($min instanceof DateTime) {
+        if ($min instanceof PhoDateTime) {
             $min = $min->format('Y-m-d');
         }
 

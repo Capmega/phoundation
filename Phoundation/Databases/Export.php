@@ -29,9 +29,9 @@ use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Os\Processes\Commands\Databases\MysqlDump;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
@@ -130,11 +130,11 @@ class Export
     /**
      * Exporter class constructor
      *
-     * @param FsRestrictionsInterface|null $restrictions
+     * @param PhoRestrictionsInterface|null $restrictions
      */
-    public function __construct(?FsRestrictionsInterface $restrictions = null)
+    public function __construct(?PhoRestrictionsInterface $restrictions = null)
     {
-        $this->restrictions = FsRestrictions::getRestrictionsOrDefault($restrictions, FsRestrictions::newWritable('/'));
+        $this->restrictions = PhoRestrictions::getRestrictionsOrDefault($restrictions, PhoRestrictions::newWritable('/'));
     }
 
 
@@ -389,13 +389,13 @@ class Export
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *
-     * @param FsFileInterface|null       $file
-     * @param EnumExecuteMethod $method
+     * @param PhoFileInterface|null $file
+     * @param EnumExecuteMethod     $method
      *
      * @return string
      * @throws SqlExceptionInterface
      */
-    public function dump(?FsFileInterface $file, EnumExecuteMethod $method = EnumExecuteMethod::passthru): string
+    public function dump(?PhoFileInterface $file, EnumExecuteMethod $method = EnumExecuteMethod::passthru): string
     {
         switch ($this->driver ?? $this->o_connector->getDriver()) {
             case null:
@@ -479,11 +479,11 @@ class Export
     /**
      * Returns a new Export object
      *
-     * @param FsRestrictionsInterface|null $restrictions
+     * @param PhoRestrictionsInterface|null $restrictions
      *
      * @return static
      */
-    public static function new(?FsRestrictionsInterface $restrictions = null): static
+    public static function new(?PhoRestrictionsInterface $restrictions = null): static
     {
         return new static($restrictions);
     }

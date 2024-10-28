@@ -18,14 +18,14 @@ namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Core\Hooks\Hook;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Filesystem\FsDirectory;
+use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\Exception\FilesystemDriverMissingException;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\Mounts\Exception\NotMountedException;
 use Phoundation\Filesystem\Mounts\FsMounts;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Strings;
@@ -37,11 +37,11 @@ class Mount extends Command
     /**
      * FsMount class constructor
      *
-     * @param FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory
-     * @param string|null                                       $operating_system
-     * @param string|null                                       $packages
+     * @param PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory
+     * @param string|null                                         $operating_system
+     * @param string|null                                         $packages
      */
-    public function __construct(FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory = null, ?string $operating_system = null, ?string $packages = null)
+    public function __construct(PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory = null, ?string $operating_system = null, ?string $packages = null)
     {
         parent::__construct($execution_directory, $operating_system, $packages);
         $this->packages->addForOperatingSystem('debian', 'nfs-utils,cifs-utils,psmisc');
@@ -76,8 +76,8 @@ class Mount extends Command
      */
     public static function isSource(Stringable|string $path, bool $exception = true): ?bool
     {
-        $path      = FsDirectory::new($path, FsRestrictions::new('/'))
-                                ->getSource(true);
+        $path      = PhoDirectory::new($path, PhoRestrictions::new('/'))
+                                 ->getSource(true);
         $sources   = FsMounts::listMountSources();
         $targets   = FsMounts::listMountTargets();
         $is_source = $sources->keyExists($path);
@@ -116,8 +116,8 @@ class Mount extends Command
      */
     public static function isMounted(Stringable|string $path): bool
     {
-        $path = FsDirectory::new($path, FsRestrictions::new('/'))
-                           ->getSource(true);
+        $path = PhoDirectory::new($path, PhoRestrictions::new('/'))
+                            ->getSource(true);
 
         return FsMounts::listMountTargets()
                      ->keyExists($path);
@@ -137,7 +137,7 @@ class Mount extends Command
      */
     public function mount(Stringable|string $source, Stringable|string $target, ?string $filesystem = null, Stringable|array|string|null $options = null, ?int $timeout = null): void
     {
-        FsDirectory::new($target, $this->restrictions)
+        PhoDirectory::new($target, $this->restrictions)
                  ->ensure();
         Hook::new('phoundation')
             ->execute('file-system/mount', [
@@ -201,11 +201,11 @@ class Mount extends Command
     /**
      * Returns a list of all current mount points
      *
-     * @param FsFileInterface|string $device
+     * @param PhoFileInterface|string $device
      *
      * @return bool
      */
-    public function deviceIsMounted(FsFileInterface|string $device): bool
+    public function deviceIsMounted(PhoFileInterface|string $device): bool
     {
         return (bool) $this->deviceMountCount($device);
     }
@@ -214,11 +214,11 @@ class Mount extends Command
     /**
      * Returns the number of times this device is mounted
      *
-     * @param FsFileInterface|string $device
+     * @param PhoFileInterface|string $device
      *
      * @return int
      */
-    public function deviceMountCount(FsFileInterface|string $device): int
+    public function deviceMountCount(PhoFileInterface|string $device): int
     {
         return $this->deviceMountList($device)
                     ->getCount();
@@ -228,11 +228,11 @@ class Mount extends Command
     /**
      * Returns a list of all directories where the specified device is mounted
      *
-     * @param FsFileInterface|string $device
+     * @param PhoFileInterface|string $device
      *
      * @return IteratorInterface
      */
-    public function deviceMountList(FsFileInterface|string $device): IteratorInterface
+    public function deviceMountList(PhoFileInterface|string $device): IteratorInterface
     {
         return $this->clearArguments()
                     ->setCommand('mount')

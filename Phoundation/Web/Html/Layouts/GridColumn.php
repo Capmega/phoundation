@@ -30,6 +30,7 @@ class GridColumn extends Layout
     use TraitUsesSize;
     use TraitUsesTier;
 
+
     /**
      * GridColumn class constructor
      */

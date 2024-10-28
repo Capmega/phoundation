@@ -19,7 +19,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\Mounts\Exception\NotMountedException;
 use Phoundation\Filesystem\Mounts\Exception\UnmountBusyException;
-use Phoundation\Filesystem\Mounts\FsMount;
+use Phoundation\Filesystem\Mounts\PhoMount;
 use Phoundation\Filesystem\Mounts\FsMounts;
 
 
@@ -45,7 +45,7 @@ $argv = ArgvValidator::new()
 
 // Unmount the specified mount
 try {
-    FsMount::new($argv['mount'])->unmount();
+    PhoMount::new($argv['mount'])->unmount();
 
 } catch (NotMountedException) {
     Log::warning(tr('Cannot unmount ":path", it is not mounted', [

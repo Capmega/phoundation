@@ -18,7 +18,7 @@ namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Filesystem\FsPath;
+use Phoundation\Filesystem\PhoPath;
 use Phoundation\Utils\Strings;
 
 
@@ -27,11 +27,11 @@ class Lsof extends Command
     /**
      * Returns information about what processes have the specified file open
      *
-     * @param FsPath|string $file
+     * @param PhoPath|string $file
      *
      * @return IteratorInterface
      */
-    public function getForFile(FsPath|string $file): IteratorInterface
+    public function getForFile(PhoPath|string $file): IteratorInterface
     {
         $return    = [];
         $processes = $this->clearArguments()

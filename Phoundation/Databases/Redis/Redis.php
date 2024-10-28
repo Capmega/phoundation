@@ -27,7 +27,7 @@ use Phoundation\Databases\Redis\Interfaces\RedisInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\P;
@@ -739,11 +739,11 @@ class Redis implements DatabaseInterface, RedisInterface
     /**
      * Import the data dump from the specified file into the current corrected Redis database
      *
-     * @param FsFileInterface $file
+     * @param PhoFileInterface $file
      *
      * @return $this
      */
-    public function import(FsFileInterface $file): static
+    public function import(PhoFileInterface $file): static
     {
         // TODO: Implement import() method.
         throw new UnderConstructionException();
@@ -753,11 +753,11 @@ class Redis implements DatabaseInterface, RedisInterface
     /**
      * Export the current Redis database into a dump file
      *
-     * @param FsFileInterface $file
+     * @param PhoFileInterface $file
      *
      * @return $this
      */
-    public function export(FsFileInterface $file): static
+    public function export(PhoFileInterface $file): static
     {
         // TODO: Implement export() method.
         throw new UnderConstructionException();

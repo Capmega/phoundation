@@ -41,15 +41,15 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
-use Phoundation\Date\Time;
+use Phoundation\Date\PhoTime;
 use Phoundation\Exception\EnvironmentException;
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\ScriptException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Databases\MySql;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Arrays;
@@ -243,7 +243,7 @@ class CliCommand
 
         // Execute the command and finish execution
         try {
-            Request::setRestrictions(FsRestrictions::newRoot());
+            Request::setRestrictions(PhoRestrictions::newRoot());
             Request::execute(static::$command . '.php');
 
         } catch (SqlNoTimezonesException $e) {
@@ -350,7 +350,7 @@ class CliCommand
 
         // UID mismatch, stop logging to file as that likely won't be possible at all. Also stop all file access
         Log::disableFile();
-        FsFile::disable();
+        PhoFile::disable();
     }
 
 
@@ -504,13 +504,13 @@ class CliCommand
 
         // Did we encounter an exception?
         if (isset($e)) {
-            if (($e instanceof Exception) and $e->isWarning()) {
+            if (($e instanceof PhoException) and $e->isWarning()) {
                 $exit_code = $exit_code ?? 1;
 
                 Log::warning($e->getMessage());
                 Log::warning(tr('Command ":command" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
                     ':command'  => static::getCommandsString(),
-                    ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                    ':time'     => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'    => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                     ':exitcode' => $exit_code,
                 ]), 10);
@@ -521,7 +521,7 @@ class CliCommand
                 Log::error($e->getMessage());
                 Log::error(tr('Command ":command" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
                     ':command'  => static::getCommandsString(),
-                    ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                    ':time'     => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'    => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                     ':exitcode' => $exit_code,
                 ]), 10);
@@ -536,7 +536,7 @@ class CliCommand
                     // Script ended with warning
                     Log::warning(tr('Command ":command" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
                         ':command'  => static::getCommandsString(),
-                        ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                        ':time'     => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
                         ':usage'    => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code,
                     ]), 8);
@@ -550,7 +550,7 @@ class CliCommand
                     // Script ended with error
                     Log::error(tr('Command ":command" failed with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
                         ':command'  => static::getCommandsString(),
-                        ':time'     => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                        ':time'     => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
                         ':usage'    => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code,
                     ]), 8);
@@ -571,7 +571,7 @@ class CliCommand
                 Log::success(tr('Finished command ":command" with PID ":pid" in ":time" with ":usage" peak memory usage', [
                     ':command' => static::getCommandsString(),
                     ':pid'     => getmypid(),
-                    ':time'    => Time::difference(STARTTIME, microtime(true), 'auto', 5),
+                    ':time'    => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'   => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                 ]), 8);
             }
@@ -764,6 +764,7 @@ class CliCommand
     /**
      * Either finds the command to execute, or executes documentation
      *
+     * @param array $parameters
      * @return void
      */
     protected static function setCommandOrExecuteDocumentation(array $parameters): void
@@ -1139,9 +1140,9 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
         global $argv;
 
         if ($argv['usage']) {
-            $results = FsFile::new(
+            $results = PhoFile::new(
                 static::$command . '.php',
-                FsRestrictions::newCommands(false, 'CliCommand::checkUsage()')
+                PhoRestrictions::newCommands(false, 'CliCommand::checkUsage()')
             )->grep(['CliDocumentation::setUsage('], 100);
 
             if (empty($results)) {
@@ -1163,8 +1164,8 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
         global $argv;
 
         if ($argv['help']) {
-            $results = FsFile::new(static::$command . '.php', FsRestrictions::newCommands(false))
-                             ->grep(['CliDocumentation::setHelp('], 100);
+            $results = PhoFile::new(static::$command . '.php', PhoRestrictions::newCommands(false))
+                              ->grep(['CliDocumentation::setHelp('], 100);
 
             if (empty($results)) {
                 throw CliCommandException::new(tr('The command ":command" has no help information available', [
@@ -1184,7 +1185,7 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
      */
     protected static function fixMysqlTimezoneException(Throwable $e): void
     {
-        $e = Exception::new($e);
+        $e = PhoException::new($e);
 
         Log::warning(tr('MySQL does not yet have the required timezones loaded on connector ":connector". Attempting to load them now. If this is not what you want, please configure the configuration path ":config" to false', [
             ':connector' => $e->getDataKey('connector'),
@@ -1263,7 +1264,7 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
             }
 
             $return = null;
-            $stdin  = FsFile::new(STDIN);
+            $stdin  = PhoFile::new(STDIN);
 
             while (!$stdin->isEof()) {
                 if ($binary_safe) {

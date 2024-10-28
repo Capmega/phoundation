@@ -18,8 +18,8 @@ namespace Phoundation\Filesystem\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Interfaces\FsPathInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Stringable;
 
 
@@ -28,11 +28,11 @@ trait TraitResourceConstructor
     /**
      * TraitResourceConstructor class constructor
      *
-     * @param FsPathInterface|Stringable|string         $source
-     * @param FsRestrictionsInterface|array|string|null $restrictions
-     * @param Stringable|string|bool|null               $absolute_prefix
+     * @param PhoPathInterface|Stringable|string         $source
+     * @param PhoRestrictionsInterface|array|string|null $restrictions
+     * @param Stringable|string|bool|null                $absolute_prefix
      */
-    public function __construct(mixed $source, FsRestrictionsInterface|array|string|null $restrictions = null, Stringable|string|bool|null $absolute_prefix = false)
+    public function __construct(mixed $source, PhoRestrictionsInterface|array|string|null $restrictions = null, Stringable|string|bool|null $absolute_prefix = false)
     {
         throw new UnderConstructionException();
         if (is_resource($source)) {

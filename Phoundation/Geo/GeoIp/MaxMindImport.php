@@ -17,12 +17,12 @@ declare(strict_types=1);
 namespace Phoundation\Geo\GeoIp;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
-use Phoundation\Filesystem\FsPath;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
+use Phoundation\Filesystem\PhoPath;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Wget;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
@@ -55,9 +55,9 @@ class MaxMindImport extends GeoIpImport
      *       https://www.maxmind.com/en/accounts/YOUR_ACCOUNT_ID/license-key and configured in the configuration path
      *       geo.ip.max-mind.api-key
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public static function download(): FsDirectoryInterface
+    public static function download(): PhoDirectoryInterface
     {
         $license_key = Config::getString('geo.ip.max-mind.api-key');
         $wget        = Wget::new();
@@ -119,18 +119,18 @@ class MaxMindImport extends GeoIpImport
     /**
      * Process downloaded GeoIP files
      *
-     * @param FsDirectoryInterface      $source_directory
-     * @param FsDirectoryInterface|null $target_directory
+     * @param PhoDirectoryInterface      $source_directory
+     * @param PhoDirectoryInterface|null $target_directory
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public static function process(FsDirectoryInterface $source_directory, FsDirectoryInterface|null $target_directory = null): FsDirectoryInterface
+    public static function process(PhoDirectoryInterface $source_directory, PhoDirectoryInterface|null $target_directory = null): PhoDirectoryInterface
     {
         // Determine what target path to use
         if (empty($target_directory)) {
             $configured       = Config::getString('geo.ip.max-mind.path', DIRECTORY_DATA . 'sources/geoip/maxmind/');
-            $configured       = FsDirectory::absolutePath($configured, DIRECTORY_ROOT, false);
-            $target_directory = FsDirectory::new($configured, FsRestrictions::newWritable($configured));
+            $configured       = PhoDirectory::absolutePath($configured, DIRECTORY_ROOT, false);
+            $target_directory = PhoDirectory::new($configured, PhoRestrictions::newWritable($configured));
         }
 
         $target_directory->ensure();
@@ -142,8 +142,8 @@ class MaxMindImport extends GeoIpImport
 
         try {
             // Clean source path GeoLite2 directories and garbage path and move the current data files to the garbage
-            FsFile::new(DIRECTORY_DATA . 'garbage/maxmind', FsRestrictions::newData(true))->delete();
-            FsFile::new(
+            PhoFile::new(DIRECTORY_DATA . 'garbage/maxmind', PhoRestrictions::newData(true))->delete();
+            PhoFile::new(
                 $source_directory . 'GeoLite2-*',
                 $source_directory->getRestrictions()
             )->delete(false, false, false);
@@ -160,9 +160,9 @@ show($garbage->getSource());
             foreach (static::getMaxMindFiles(true) as $file => $url) {
                 if (str_ends_with($file, 'sha256')) {
                     // Get the required sha256 code for the following file
-                    $sha = FsFile::new($source_directory . $file, $source_directory->getRestrictions())
-                                 ->checkReadable()
-                                 ->getContentsAsString();
+                    $sha = PhoFile::new($source_directory . $file, $source_directory->getRestrictions())
+                                  ->checkReadable()
+                                  ->getContentsAsString();
 
                     $sha = Strings::until($sha, ' ');
                     $shas[Strings::until($file, '.sha256')] = $sha;
@@ -173,11 +173,11 @@ show($garbage->getSource());
 
                 // Take the downloaded file, check sha256, untar it, and move the datafile from the resulting directory
                 // to the target
-                $directory = FsFile::new($source_directory . $file, $source_directory->getRestrictions())
-                                   ->checkReadable()
-                                   ->checkSha256($shas[$file])
-                                   ->untar()
-                                   ->getSingleDirectory('/GeoLite2.+?/i');
+                $directory = PhoFile::new($source_directory . $file, $source_directory->getRestrictions())
+                                    ->checkReadable()
+                                    ->checkSha256($shas[$file])
+                                    ->untar()
+                                    ->getSingleDirectory('/GeoLite2.+?/i');
 
                 // Move the file to the target path and delete the source path
                 $source = clone $directory;

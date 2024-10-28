@@ -18,8 +18,8 @@ namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Core\Hooks\Hook;
 use Phoundation\Data\Traits\TraitDataForce;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\FsRestrictionsInterface;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\Mounts\Exception\NotMountedException;
 use Phoundation\Filesystem\Mounts\Exception\UnmountBusyException;
 use Phoundation\Filesystem\Mounts\FsMounts;
@@ -42,11 +42,11 @@ class UnMount extends Command
     /**
      * FsMount class constructor
      *
-     * @param FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory
-     * @param string|null                                       $operating_system
-     * @param string|null                                       $packages
+     * @param PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory
+     * @param string|null                                         $operating_system
+     * @param string|null                                         $packages
      */
-    public function __construct(FsRestrictionsInterface|FsDirectoryInterface|null $execution_directory = null, ?string $operating_system = null, ?string $packages = null)
+    public function __construct(PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory = null, ?string $operating_system = null, ?string $packages = null)
     {
         parent::__construct($execution_directory, $operating_system, $packages);
         $this->packages->addForOperatingSystem('debian', 'nfs-utils,cifs-utils,psmisc');

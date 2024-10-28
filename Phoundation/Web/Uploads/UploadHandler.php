@@ -18,9 +18,9 @@ namespace Phoundation\Web\Uploads;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Filesystem\FsFiles;
-use Phoundation\Filesystem\Interfaces\FsFilesInterface;
-use Phoundation\Filesystem\Interfaces\FsUploadedFileInterface;
+use Phoundation\Filesystem\PhoFiles;
+use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
+use Phoundation\Filesystem\Interfaces\PhoUploadedFileInterface;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Http\Url;
@@ -46,9 +46,9 @@ class UploadHandler implements UploadHandlerInterface
     /**
      * The files that have been processed by this upload handler
      *
-     * @var FsFilesInterface $files
+     * @var PhoFilesInterface $files
      */
-    protected FsFilesInterface $files;
+    protected PhoFilesInterface $files;
 
     /**
      * Tracks if the file in this handler has been validated or not
@@ -87,13 +87,13 @@ class UploadHandler implements UploadHandlerInterface
     /**
      * Returns a list of all processed files
      *
-     * @return FsFilesInterface
+     * @return PhoFilesInterface
      */
-    public function getFiles(): FsFilesInterface
+    public function getFiles(): PhoFilesInterface
     {
         if (empty($this->files)) {
-            $this->files = new FsFiles();
-            $this->files->setAcceptedDataTypes(FsUploadedFileInterface::class)
+            $this->files = new PhoFiles();
+            $this->files->setAcceptedDataTypes(PhoUploadedFileInterface::class)
                         ->getRestrictions()
                             ->addDirectory(DIRECTORY_TMP, true)
                             ->addDirectory('/tmp/', true);
@@ -199,11 +199,11 @@ class UploadHandler implements UploadHandlerInterface
     /**
      * Have this handler process the specified uploaded file
      *
-     * @param FsUploadedFileInterface $file
+     * @param PhoUploadedFileInterface $file
      *
-     * @return FsUploadedFileInterface
+     * @return PhoUploadedFileInterface
      */
-    public function process(FsUploadedFileInterface $file): FsUploadedFileInterface
+    public function process(PhoUploadedFileInterface $file): PhoUploadedFileInterface
     {
         // Check if somehow we already processed more than the maximum indicated
         if ($this->getFiles()->getCount() > $this->getDropZoneObject()->getMaxFiles()) {
@@ -251,11 +251,11 @@ class UploadHandler implements UploadHandlerInterface
     /**
      * Have this handler process the specified uploaded file
      *
-     * @param FsUploadedFileInterface $file
+     * @param PhoUploadedFileInterface $file
      *
-     * @return FsUploadedFileInterface
+     * @return PhoUploadedFileInterface
      */
-    public function validate(FsUploadedFileInterface $file): FsUploadedFileInterface
+    public function validate(PhoUploadedFileInterface $file): PhoUploadedFileInterface
     {
         // Ensure the file has the correct extension
         $file->ensureExtensionMatchesMimetype();

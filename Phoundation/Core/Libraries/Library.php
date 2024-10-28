@@ -26,12 +26,12 @@ use Phoundation\Core\Libraries\Interfaces\LibraryInterface;
 use Phoundation\Core\Libraries\Interfaces\UpdatesInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Plugins\Interfaces\PluginInterface;
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsFile;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
-use Phoundation\Filesystem\FsRestrictions;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Cp;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
@@ -57,9 +57,9 @@ class Library implements LibraryInterface
     /**
      * The library path
      *
-     * @var FsDirectoryInterface $directory
+     * @var PhoDirectoryInterface $directory
      */
-    protected FsDirectoryInterface $directory;
+    protected PhoDirectoryInterface $directory;
 
     /**
      * The Updates object for this library
@@ -86,12 +86,12 @@ class Library implements LibraryInterface
     /**
      * Library constructor
      *
-     * @param FsDirectoryInterface $directory
+     * @param PhoDirectoryInterface $directory
      */
-    public function __construct(FsDirectoryInterface $directory)
+    public function __construct(PhoDirectoryInterface $directory)
     {
         // Extract vendor and library names
-        $this->directory = new FsDirectory($directory, FsRestrictions::new([
+        $this->directory = new PhoDirectory($directory, PhoRestrictions::new([
             DIRECTORY_WEB,
             LIBRARIES::CLASS_DIRECTORY_SYSTEM,
             LIBRARIES::CLASS_DIRECTORY_PLUGINS,
@@ -168,7 +168,7 @@ class Library implements LibraryInterface
                 ':library' => $this->getName(),
             ]));
 
-            Exception::new($e)
+            PhoException::new($e)
                      ->log()
                      ->registerIncident()
                      ->getNotificationObject()
@@ -188,20 +188,20 @@ class Library implements LibraryInterface
      */
     public static function getClassPath(string $file): string
     {
-        $restrictions = FsRestrictions::newReadonly([
+        $restrictions = PhoRestrictions::newReadonly([
             DIRECTORY_ROOT . 'Phoundation',
             DIRECTORY_ROOT . 'Plugins',
             DIRECTORY_ROOT . 'Templates'
         ], 'Library::getClassPath()');
 
-        if (!FsFile::new($file, $restrictions)->isPhp()) {
+        if (!PhoFile::new($file, $restrictions)->isPhp()) {
             throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
         }
 
         // Scan for namespace and class lines
         $namespace = null;
         $class     = null;
-        $results   = FsFile::new($file, $restrictions)->grep([
+        $results   = PhoFile::new($file, $restrictions)->grep([
             'namespace ',
             'class ',
         ], 100);
@@ -324,7 +324,7 @@ class Library implements LibraryInterface
         $file = DIRECTORY_ROOT . $file . '.php';
 
         if ($check_php) {
-            if (!FsFile::new($file, FsRestrictions::newReadonly([DIRECTORY_ROOT . 'Phoundation', DIRECTORY_ROOT . 'Plugins', DIRECTORY_ROOT . 'Templates']))->isPhp()) {
+            if (!PhoFile::new($file, PhoRestrictions::newReadonly([DIRECTORY_ROOT . 'Phoundation', DIRECTORY_ROOT . 'Plugins', DIRECTORY_ROOT . 'Templates']))->isPhp()) {
                 throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
             }
         }
@@ -359,10 +359,10 @@ class Library implements LibraryInterface
 
         // Copy the library from the TemplateLibrary and run a search / replace
         Cp::new()
-          ->archive(DIRECTORY_ROOT . 'Phoundation/.TemplateLibrary', FsRestrictions::new(DIRECTORY_ROOT . 'Phoundation/'), DIRECTORY_ROOT . $type->value . $name, FsRestrictions::new(DIRECTORY_ROOT . $type->value, true));
+          ->archive(DIRECTORY_ROOT . 'Phoundation/.TemplateLibrary', PhoRestrictions::new(DIRECTORY_ROOT . 'Phoundation/'), DIRECTORY_ROOT . $type->value . $name, PhoRestrictions::new(DIRECTORY_ROOT . $type->value, true));
 
         foreach (['Updates.php'] as $file) {
-            FsFile::new(DIRECTORY_ROOT . $type->value . $name . '/Library/' . $file, FsRestrictions::new(DIRECTORY_ROOT . $type->value, true))
+            PhoFile::new(DIRECTORY_ROOT . $type->value . $name . '/Library/' . $file, PhoRestrictions::new(DIRECTORY_ROOT . $type->value, true))
                 ->replace([
                     ':type' => $type,
                     ':name' => $name,
@@ -645,9 +645,9 @@ class Library implements LibraryInterface
     /**
      * Returns the library path
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public function getDirectory(): FsDirectoryInterface
+    public function getDirectory(): PhoDirectoryInterface
     {
         return $this->directory;
     }
@@ -717,21 +717,21 @@ class Library implements LibraryInterface
     /**
      * Ensure that the Library/commands is symlinked
      *
-     * @param FsDirectoryInterface $cache
-     * @param FsDirectoryInterface $tmp
+     * @param PhoDirectoryInterface $cache
+     * @param PhoDirectoryInterface $tmp
      *
      * @return void
      * @todo Add support for command sharing!
      */
-    public function rebuildCommandsCache(FsDirectoryInterface $cache, FsDirectoryInterface $tmp): void
+    public function rebuildCommandsCache(PhoDirectoryInterface $cache, PhoDirectoryInterface $tmp): void
     {
         Log::action(tr('Rebuilding command cache for library ":library"', [
             ':library' => $this->getName(),
         ]), 3);
 
         $path         = Strings::slash($this->directory) . 'Library/commands/';
-        $restrictions = FsRestrictions::newWritable([$path, DIRECTORY_TMP]);
-        $path         = FsDirectory::new($path, $restrictions);
+        $restrictions = PhoRestrictions::newWritable([$path, DIRECTORY_TMP]);
+        $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
             // This library does not have a commands/ directory, we're fine
@@ -745,21 +745,21 @@ class Library implements LibraryInterface
     /**
      * Ensure that the Library/hooks is symlinked
      *
-     * @param FsDirectoryInterface $cache
-     * @param FsDirectoryInterface $tmp
+     * @param PhoDirectoryInterface $cache
+     * @param PhoDirectoryInterface $tmp
      *
      * @return void
      * @todo Add support for hook sharing!
      */
-    public function rebuildHooksCache(FsDirectoryInterface $cache, FsDirectoryInterface $tmp): void
+    public function rebuildHooksCache(PhoDirectoryInterface $cache, PhoDirectoryInterface $tmp): void
     {
         Log::action(tr('Rebuilding hooks cache for library ":library"', [
             ':library' => $this->getName(),
         ]), 3);
 
         $path         = Strings::slash($this->directory) . 'Library/hooks/';
-        $restrictions = FsRestrictions::newWritable([$path, DIRECTORY_TMP]);
-        $path         = FsDirectory::new($path, $restrictions);
+        $restrictions = PhoRestrictions::newWritable([$path, DIRECTORY_TMP]);
+        $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
             // This library does not have a hooks/ directory, we're fine
@@ -773,21 +773,21 @@ class Library implements LibraryInterface
     /**
      * Ensures that the Library/web directory contents are symlinked in DIRECTORY_WEB
      *
-     * @param FsDirectoryInterface $cache
-     * @param FsDirectoryInterface $tmp
+     * @param PhoDirectoryInterface $cache
+     * @param PhoDirectoryInterface $tmp
      *
      * @return void
      * @todo Add support for command sharing!
      */
-    public function rebuildWebCache(FsDirectoryInterface $cache, FsDirectoryInterface $tmp): void
+    public function rebuildWebCache(PhoDirectoryInterface $cache, PhoDirectoryInterface $tmp): void
     {
         Log::action(tr('Rebuilding web page cache for library ":library"', [
             ':library' => $this->getName(),
         ]), 3);
 
         $path         = Strings::slash($this->directory) . 'Library/web/';
-        $restrictions = FsRestrictions::newWritable([$path, DIRECTORY_TMP]);
-        $path         = FsDirectory::new($path, $restrictions);
+        $restrictions = PhoRestrictions::newWritable([$path, DIRECTORY_TMP]);
+        $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
             // This library does not have a web/ directory, we're fine
@@ -801,21 +801,21 @@ class Library implements LibraryInterface
     /**
      * Ensures that the Library/tests directory contents are symlinked in DIRECTORY_SYSTEM/cache/system/tests
      *
-     * @param FsDirectoryInterface $cache
-     * @param FsDirectoryInterface $tmp
+     * @param PhoDirectoryInterface $cache
+     * @param PhoDirectoryInterface $tmp
      *
      * @return void
      * @todo Add support for command sharing!
      */
-    public function rebuildTestsCache(FsDirectoryInterface $cache, FsDirectoryInterface $tmp): void
+    public function rebuildTestsCache(PhoDirectoryInterface $cache, PhoDirectoryInterface $tmp): void
     {
         Log::action(tr('Rebuilding tests cache for library ":library"', [
             ':library' => $this->getName(),
         ]), 3);
 
         $path         = Strings::slash($this->directory) . 'Library/tests/';
-        $restrictions = FsRestrictions::newWritable([$path, DIRECTORY_TMP]);
-        $path         = FsDirectory::new($path, $restrictions);
+        $restrictions = PhoRestrictions::newWritable([$path, DIRECTORY_TMP]);
+        $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
             // This library does not have a tests/ directory, we're fine
@@ -829,21 +829,21 @@ class Library implements LibraryInterface
     /**
      * Ensures that the Library/cron directory contents are symlinked in DIRECTORY_SYSTEM/cache/system/cron
      *
-     * @param FsDirectoryInterface $cache
-     * @param FsDirectoryInterface $tmp
+     * @param PhoDirectoryInterface $cache
+     * @param PhoDirectoryInterface $tmp
      *
      * @return void
      * @todo Add support for command sharing!
      */
-    public function rebuildCronCache(FsDirectoryInterface $cache, FsDirectoryInterface $tmp): void
+    public function rebuildCronCache(PhoDirectoryInterface $cache, PhoDirectoryInterface $tmp): void
     {
         Log::action(tr('Rebuilding cron cache for library ":library"', [
             ':library' => $this->getName(),
         ]), 3);
 
         $path         = Strings::slash($this->directory) . 'Library/cron/';
-        $restrictions = FsRestrictions::newWritable([$path, DIRECTORY_TMP]);
-        $path         = FsDirectory::new($path, $restrictions);
+        $restrictions = PhoRestrictions::newWritable([$path, DIRECTORY_TMP]);
+        $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
             // This library does not have a cron/ directory, we're fine

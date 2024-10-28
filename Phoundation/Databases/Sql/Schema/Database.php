@@ -24,7 +24,7 @@ use Phoundation\Databases\Sql\Schema\Interfaces\DatabaseInterface;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\PhoFile;
 use Phoundation\Web\Html\Components\P;
 
 
@@ -246,7 +246,7 @@ class Database extends SchemaAbstract implements DatabaseInterface
     public function copy(string $database_name, int $timeout = 3600): static
     {
         // Export current database
-        $file   = FsFile::getTemporaryObject();
+        $file   = PhoFile::getTemporaryObject();
         $target = Database::new($database_name, $this->sql, $this->parent);
 
         if ($target->exists()) {

@@ -19,9 +19,9 @@ namespace Phoundation\Developer\Versioning\Git\Traits;
 use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\FsDirectory;
-use Phoundation\Filesystem\FsPath;
-use Phoundation\Filesystem\Interfaces\FsDirectoryInterface;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoPath;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Stringable;
 
 
@@ -30,9 +30,9 @@ trait TraitGit
     /**
      * The path that will be checked
      *
-     * @var FsDirectoryInterface $directory
+     * @var PhoDirectoryInterface $directory
      */
-    protected FsDirectoryInterface $directory;
+    protected PhoDirectoryInterface $directory;
 
     /**
      * The git process
@@ -45,9 +45,9 @@ trait TraitGit
     /**
      * GitPath class constructor
      *
-     * @param FsDirectoryInterface $directory
+     * @param PhoDirectoryInterface $directory
      */
-    public function __construct(FsDirectoryInterface $directory)
+    public function __construct(PhoDirectoryInterface $directory)
     {
         $this->setDirectory($directory);
     }
@@ -80,9 +80,9 @@ trait TraitGit
     /**
      * Returns the path for this ChangedFiles object
      *
-     * @return FsDirectoryInterface
+     * @return PhoDirectoryInterface
      */
-    public function getDirectory(): FsDirectoryInterface
+    public function getDirectory(): PhoDirectoryInterface
     {
         return $this->directory;
     }
@@ -91,11 +91,11 @@ trait TraitGit
     /**
      * Returns the path for this ChangedFiles object
      *
-     * @param FsDirectoryInterface $directory
+     * @param PhoDirectoryInterface $directory
      *
      * @return static
      */
-    public function setDirectory(FsDirectoryInterface $directory): static
+    public function setDirectory(PhoDirectoryInterface $directory): static
     {
         $this->directory = $directory->makeAbsolute()->checkWritable();
         $this->git       = Git::new($this->directory);

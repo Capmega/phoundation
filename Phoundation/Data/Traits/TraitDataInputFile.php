@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Filesystem\Interfaces\FsFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 
 
 trait TraitDataInputFile
@@ -24,17 +24,17 @@ trait TraitDataInputFile
     /**
      * The input_file for this object
      *
-     * @var FsFileInterface|null $input_file
+     * @var PhoFileInterface|null $input_file
      */
-    protected ?FsFileInterface $input_file = null;
+    protected ?PhoFileInterface $input_file = null;
 
 
     /**
      * Returns the input file
      *
-     * @return FsFileInterface|null
+     * @return PhoFileInterface|null
      */
-    public function getInputFile(): ?FsFileInterface
+    public function getInputFile(): ?PhoFileInterface
     {
         return $this->input_file;
     }
@@ -43,11 +43,11 @@ trait TraitDataInputFile
     /**
      * Sets the input file
      *
-     * @param FsFileInterface|null $input_file
+     * @param PhoFileInterface|null $input_file
      *
      * @return static
      */
-    public function setInputFile(?FsFileInterface $input_file): static
+    public function setInputFile(?PhoFileInterface $input_file): static
     {
         $this->input_file = $input_file;
 
