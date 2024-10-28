@@ -43,7 +43,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryUrl;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryUser;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Exception\NotificationBusyException;
 use Phoundation\Notifications\Exception\NotificationsException;
@@ -204,7 +204,7 @@ class Notification extends DataEntry implements NotificationInterface
      */
     public function setException(Throwable $e): static
     {
-        if ($e instanceof Exception) {
+        if ($e instanceof PhoException) {
             if ($e->isWarning()) {
                 $mode = EnumDisplayMode::warning;
 
@@ -213,7 +213,7 @@ class Notification extends DataEntry implements NotificationInterface
             }
 
         } else {
-            $e    = new Exception($e);
+            $e    = new PhoException($e);
             $mode = EnumDisplayMode::exception;
         }
 

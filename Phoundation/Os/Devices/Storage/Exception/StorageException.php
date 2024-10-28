@@ -16,9 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Devices\Storage\Exception;
 
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 
 
-class StorageException extends Exception
+class StorageException extends PhoException
 {
 }

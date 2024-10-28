@@ -16,9 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Security\Exception;
 
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 
 
-class SecurityException extends Exception
+class SecurityException extends PhoException
 {
 }

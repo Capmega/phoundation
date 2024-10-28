@@ -22,7 +22,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Traits\TraitDataRestrictions;
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Filesystem\Exception\DirectoryException;
@@ -359,7 +359,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
             // Remove this entry and continue;
             try {
                 $this->delete(false, $sudo, use_run_file: $use_run_file);
-            } catch (Exception $e) {
+            } catch (PhoException $e) {
                 // The directory WAS empty, but cannot be removed
                 // In all probability, a parallel process added a new content in this directory, so it's no longer empty.
                 // Just register the event and leave it be.

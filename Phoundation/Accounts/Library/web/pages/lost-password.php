@@ -120,7 +120,7 @@ if (Request::isPostRequestMethod()) {
         $mail->setFrom('no-reply@phoundation.org', 'Phoundation no-reply');
 
         if (!$mail->send()) {
-            throw new \Phoundation\Exception\Exception($mail->ErrorInfo);
+            throw new \Phoundation\Exception\PhoException($mail->ErrorInfo);
         }
 
         // Register a security incident

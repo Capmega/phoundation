@@ -16,9 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Exception;
 
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 
 
-class ProcessesException extends Exception
+class ProcessesException extends PhoException
 {
 }

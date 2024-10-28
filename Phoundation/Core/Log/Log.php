@@ -30,7 +30,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Developer\Debug;
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 use Phoundation\Exception\Interfaces\ExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
@@ -732,7 +732,7 @@ class Log
                         foreach ($trace as $step)
                         static::toAlternateLog('Phoundation: exception trace    : ' . $step);
 
-                        if ($message instanceof Exception) {
+                        if ($message instanceof PhoException) {
                             static::toAlternateLog('Phoundation: exception data     : ' . Strings::force($message->getData()));
                         }
 
@@ -1186,7 +1186,7 @@ class Log
      */
     protected static function logExceptionData(Throwable $exception, int $threshold = 10, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): void
     {
-        if ($exception instanceof Exception) {
+        if ($exception instanceof PhoException) {
             $data = $exception->getData();
 
             if ($data) {
@@ -1512,7 +1512,7 @@ class Log
         if (!is_scalar($messages)) {
             if (is_object($messages) and $messages instanceof Throwable) {
                 // Convert exception in readable message
-                if ($messages instanceof Exception) {
+                if ($messages instanceof PhoException) {
                     $messages = [
                         'exception' => get_class($messages),
                         'code'      => $messages->getCode(),

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces;
 
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Stringable;
@@ -14,75 +14,75 @@ interface FlashMessagesInterface extends ElementsBlockInterface
     /**
      * Add a "Success!" flash message
      *
-     * @param FlashMessageInterface|Exception|string|null $message
-     * @param string|null                                 $icon
-     * @param int|null                                    $auto_close
+     * @param FlashMessageInterface|PhoException|string|null $message
+     * @param string|null                                    $icon
+     * @param int|null                                       $auto_close
      *
      * @return static
      */
-    public function addSuccess(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static;
+    public function addSuccess(FlashMessageInterface|PhoException|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static;
 
 
     /**
      * Add a "Warning!" flash message
      *
-     * @param FlashMessageInterface|Exception|string|null $message
-     * @param string|null                                 $icon
-     * @param int|null                                    $auto_close
+     * @param FlashMessageInterface|PhoException|string|null $message
+     * @param string|null                                    $icon
+     * @param int|null                                       $auto_close
      *
      * @return static
      */
-    public function addWarning(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 0): static;
+    public function addWarning(FlashMessageInterface|PhoException|string|null $message = null, string $icon = null, ?int $auto_close = 0): static;
 
 
     /**
      * Add a "Validation failed" flash message
      *
-     * @param FlashMessageInterface|Exception|string|null $message
-     * @param string|null                                 $icon
-     * @param int|null                                    $auto_close
+     * @param FlashMessageInterface|PhoException|string|null $message
+     * @param string|null                                    $icon
+     * @param int|null                                       $auto_close
      *
      * @return static
      */
-    public function addValidationFailed(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static;
+    public function addValidationFailed(FlashMessageInterface|PhoException|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static;
 
 
     /**
      * Add an "Error!" flash message
      *
-     * @param FlashMessageInterface|Exception|string|null $message
-     * @param string|null                                 $icon
-     * @param int|null                                    $auto_close
+     * @param FlashMessageInterface|PhoException|string|null $message
+     * @param string|null                                    $icon
+     * @param int|null                                       $auto_close
      *
      * @return static
      */
-    public function addException(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 0): static;
+    public function addException(FlashMessageInterface|PhoException|string|null $message = null, string $icon = null, ?int $auto_close = 0): static;
 
 
     /**
      * Add a "Notice!" flash message
      *
-     * @param FlashMessageInterface|Exception|string|null $message
-     * @param string|null                                 $icon
-     * @param int|null                                    $auto_close
+     * @param FlashMessageInterface|PhoException|string|null $message
+     * @param string|null                                    $icon
+     * @param int|null                                       $auto_close
      *
      * @return static
      */
-    public function addNoticeMessage(FlashMessageInterface|Exception|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static;
+    public function addNoticeMessage(FlashMessageInterface|PhoException|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static;
 
 
     /**
      * Add a flash message
      *
-     * @param FlashMessageInterface|Exception|Stringable|string|null $message
-     * @param string|null                                            $title
-     * @param EnumDisplayMode|null                                   $mode
-     * @param string|null                                            $icon
-     * @param int|null                                               $auto_close
+     * @param FlashMessageInterface|PhoException|Stringable|string|null $message
+     * @param string|null                                               $title
+     * @param EnumDisplayMode|null                                      $mode
+     * @param string|null                                               $icon
+     * @param int|null                                                  $auto_close
      *
      * @return static
      */
-    public function addMessage(FlashMessageInterface|Exception|Stringable|string|null $message, ?string $title = null, ?EnumDisplayMode $mode = EnumDisplayMode::error, string $icon = null, ?int $auto_close = 5000): static;
+    public function addMessage(FlashMessageInterface|PhoException|Stringable|string|null $message, ?string $title = null, ?EnumDisplayMode $mode = EnumDisplayMode::error, string $icon = null, ?int $auto_close = 5000): static;
 
 
     /**

@@ -20,7 +20,7 @@ use Phoundation\Core\Libraries\Interfaces\UpdatesInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug;
 use Phoundation\Developer\Exception\DoubleVersionException;
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnexpectedValueException;
 use Phoundation\Filesystem\PhoDirectory;
@@ -228,7 +228,7 @@ abstract class Updates implements UpdatesInterface
 
             unset($this->versions_exists);
 
-        } catch (Exception $e) {
+        } catch (PhoException $e) {
             // In init mode, we don't do warnings, only full exceptions
             $e->setWarning(false);
             throw $e;

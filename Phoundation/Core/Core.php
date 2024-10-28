@@ -54,7 +54,7 @@ use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\EnvironmentException;
 use Phoundation\Exception\EnvironmentNotDefinedException;
 use Phoundation\Exception\EnvironmentNotExistsException;
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Exception\UnderConstructionException;
@@ -1048,7 +1048,7 @@ class Core implements CoreInterface
         static::playUncaughtExceptionAudio($e);
 
         // Ensure the exception is a Phoundation exception
-        $e = Exception::ensurePhoundationException($e);
+        $e = PhoException::ensurePhoundationException($e);
 
         // When in CLI auto complete mode, log and display a standard exception message
         if (CliAutoComplete::isActive()) {
@@ -3114,7 +3114,7 @@ class Core implements CoreInterface
         if (!defined('PLATFORM_CLI') or PLATFORM_CLI) {
             try {
                 if (defined('ENVIRONMENT')) {
-                    if ($e instanceof Exception) {
+                    if ($e instanceof PhoException) {
                         if ($e->isWarning()) {
                             Audio::new('warning.mp3')->playLocal(true);
 
@@ -3193,7 +3193,7 @@ class Core implements CoreInterface
             Core::exit(255);
         }
 
-        if (($e instanceof Exception) and $e->isWarning()) {
+        if (($e instanceof PhoException) and $e->isWarning()) {
             // This is just a simple general warning, no backtrace and such needed, only show the
             // principal message
             Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]), 10);
@@ -3256,7 +3256,7 @@ class Core implements CoreInterface
 
             static::executeUncaughtExceptionSystemPage(400, $e);
 
-        } elseif (($e instanceof Exception) and ($e->isWarning())) {
+        } elseif (($e instanceof PhoException) and ($e->isWarning())) {
             // This is just a simple general warning, no backtrace and such needed, only show the principal message
             Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]), 10);
 
@@ -3470,7 +3470,7 @@ class Core implements CoreInterface
 
         echo $return;
 
-        if ($e instanceof Exception) {
+        if ($e instanceof PhoException) {
             // Clean data
             $e->addData(Arrays::hideSensitive(Arrays::force($e->getData()), 'GLOBALS,%pass,ssh_key'));
         }
@@ -3694,7 +3694,7 @@ class Core implements CoreInterface
             ];
 
         } catch (Throwable $e) {
-            $e = Exception::ensurePhoundationException($e);
+            $e = PhoException::ensurePhoundationException($e);
 
             Log::error(tr('Failed to generate exception detail, see following details'));
             Log::error($e);

@@ -16,9 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Cache\Exception;
 
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 
 
-class CacheNotFoundException extends Exception
+class CacheNotFoundException extends PhoException
 {
 }

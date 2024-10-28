@@ -16,9 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Devices\Exception;
 
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 
 
-class DevicesException extends Exception
+class DevicesException extends PhoException
 {
 }

@@ -16,9 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Exception;
 
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 
 
-class VirtualizationException extends Exception
+class VirtualizationException extends PhoException
 {
 }

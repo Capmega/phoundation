@@ -20,6 +20,6 @@ namespace Phoundation\Exception;
 use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 
 
-class OutOfBoundsException extends Exception implements OutOfBoundsExceptionInterface
+class OutOfBoundsException extends PhoException implements OutOfBoundsExceptionInterface
 {
 }

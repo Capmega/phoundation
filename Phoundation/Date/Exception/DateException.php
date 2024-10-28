@@ -16,9 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Date\Exception;
 
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 
 
-class DateException extends Exception
+class DateException extends PhoException
 {
 }

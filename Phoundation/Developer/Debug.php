@@ -34,7 +34,7 @@ use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Developer\Interfaces\FunctionCallInterface;
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
@@ -739,7 +739,7 @@ class Debug
         $return = $prefix . tr('":type" Exception', [':type' => get_class($e)]) . '<br><br>';
         $return .= $prefix . tr('Message: :message', [':message' => $e->getMessage()]) . '<br>';
         $return .= $prefix . tr('Additional messages:') . '<br>';
-        if ($e instanceof Exception) {
+        if ($e instanceof PhoException) {
             $messages = $e->getMessages();
             if ($messages) {
                 foreach ($messages as $message) {
@@ -761,7 +761,7 @@ class Debug
             $return .= $prefix . htmlspecialchars((string) $line) . '<br>';
         }
         $return .= '<br><br>' . $prefix . tr('Data: ') . '<br>';
-        if ($e instanceof Exception) {
+        if ($e instanceof PhoException) {
             $return .= $prefix . htmlspecialchars((string) str_replace(PHP_EOL, PHP_EOL . $prefix, print_r(not_empty($e->getData(), '-'), true))) . '<br>';
 
         } else {

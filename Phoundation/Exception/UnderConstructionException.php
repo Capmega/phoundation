@@ -20,7 +20,7 @@ use Phoundation\Developer\Debug;
 use Throwable;
 
 
-class UnderConstructionException extends Exception
+class UnderConstructionException extends PhoException
 {
     public function __construct(Throwable|array|string|null $messages = null, ?Throwable $previous = null)
     {

@@ -36,7 +36,7 @@ use Phoundation\Date\Interfaces\DateTimeInterface;
 use Phoundation\Date\Interfaces\DateTimeZoneInterface;
 use Phoundation\Developer\Debug;
 use Phoundation\Developer\FunctionCall;
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Utils\Arrays;
@@ -51,7 +51,7 @@ function is_version(string $version): bool
     $return = preg_match('/\d{1,4}\.\d{1,4}\.\d{1,4}/', $version);
 
     if ($return === false) {
-        throw new Exception(tr('Failed to determine if ":version" is a valid version or not', [
+        throw new PhoException(tr('Failed to determine if ":version" is a valid version or not', [
             ':version' => $version,
         ]));
     }
@@ -1134,7 +1134,7 @@ function variable_zts_safe(mixed $variable, int $level = 0): mixed
         $variable = print_r($variable, true);
     }
 
-    if (is_array($variable) or (is_object($variable) and (($variable instanceof Exception) or ($variable instanceof Error)))) {
+    if (is_array($variable) or (is_object($variable) and (($variable instanceof PhoException) or ($variable instanceof Error)))) {
         foreach ($variable as $key => &$value) {
             if ($key === 'object') {
                 $value = print_r($value, true);

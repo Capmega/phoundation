@@ -26,7 +26,7 @@ use Phoundation\Core\Libraries\Interfaces\LibraryInterface;
 use Phoundation\Core\Libraries\Interfaces\UpdatesInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Plugins\Interfaces\PluginInterface;
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;
@@ -168,7 +168,7 @@ class Library implements LibraryInterface
                 ':library' => $this->getName(),
             ]));
 
-            Exception::new($e)
+            PhoException::new($e)
                      ->log()
                      ->registerIncident()
                      ->getNotificationObject()

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Exception\Interfaces;
 
 use Phoundation\Core\Interfaces\ArrayableInterface;
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Throwable;
@@ -44,7 +44,7 @@ interface ExceptionInterface extends Throwable, ArrayableInterface
      *
      * @param array|string|null $messages
      *
-     * @return Exception
+     * @return PhoException
      */
     public function addMessages(array|string|null $messages): static;
 
@@ -82,7 +82,7 @@ interface ExceptionInterface extends Throwable, ArrayableInterface
      *
      * @param string|int|null $code
      *
-     * @return Exception
+     * @return PhoException
      */
     public function setCode(string|int|null $code = null): static;
 
@@ -94,7 +94,7 @@ interface ExceptionInterface extends Throwable, ArrayableInterface
      *
      * @param bool $warning True if this exception is a warning, false if not
      *
-     * @return Exception
+     * @return PhoException
      */
     public function setWarning(bool $warning): static;
 
@@ -103,7 +103,7 @@ interface ExceptionInterface extends Throwable, ArrayableInterface
      * Sets that this exception is a warning. If an exception is a warning, its message may be displayed completely
      *
      * @note This method returns $this, allowing chaining
-     * @return Exception
+     * @return PhoException
      */
     public function makeWarning(): static;
 
@@ -130,7 +130,7 @@ interface ExceptionInterface extends Throwable, ArrayableInterface
     /**
      * Write this exception to the log file
      *
-     * @return Exception
+     * @return PhoException
      */
     public function log(): static;
 

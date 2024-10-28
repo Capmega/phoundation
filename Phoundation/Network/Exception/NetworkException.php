@@ -16,9 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Network\Exception;
 
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 
 
-class NetworkException extends Exception
+class NetworkException extends PhoException
 {
 }

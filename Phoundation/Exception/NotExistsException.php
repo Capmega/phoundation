@@ -16,6 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Exception;
 
-class NotExistsException extends Exception
+class NotExistsException extends PhoException
 {
 }

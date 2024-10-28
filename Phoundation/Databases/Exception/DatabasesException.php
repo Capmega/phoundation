@@ -18,10 +18,10 @@ namespace Phoundation\Databases\Exception;
 
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Exception\Interfaces\DatabasesExceptionInterface;
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 
 
-class DatabasesException extends Exception implements DatabasesExceptionInterface
+class DatabasesException extends PhoException implements DatabasesExceptionInterface
 {
     /**
      * Returns the connector interface or null if it is not found

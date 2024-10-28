@@ -43,7 +43,7 @@ use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
 use Phoundation\Date\PhoTime;
 use Phoundation\Exception\EnvironmentException;
-use Phoundation\Exception\Exception;
+use Phoundation\Exception\PhoException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\ScriptException;
 use Phoundation\Exception\UnderConstructionException;
@@ -504,7 +504,7 @@ class CliCommand
 
         // Did we encounter an exception?
         if (isset($e)) {
-            if (($e instanceof Exception) and $e->isWarning()) {
+            if (($e instanceof PhoException) and $e->isWarning()) {
                 $exit_code = $exit_code ?? 1;
 
                 Log::warning($e->getMessage());
@@ -1185,7 +1185,7 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
      */
     protected static function fixMysqlTimezoneException(Throwable $e): void
     {
-        $e = Exception::new($e);
+        $e = PhoException::new($e);
 
         Log::warning(tr('MySQL does not yet have the required timezones loaded on connector ":connector". Attempting to load them now. If this is not what you want, please configure the configuration path ":config" to false', [
             ':connector' => $e->getDataKey('connector'),

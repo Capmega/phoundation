@@ -54,7 +54,7 @@ if (Request::isPostRequestMethod()) {
                         ':connector' => $connector->getDisplayName(),
                     ]));
 
-                } catch (\Phoundation\Exception\Exception $e) {
+                } catch (\Phoundation\Exception\PhoException $e) {
                     Log::error($e);
 
                     Response::getFlashMessagesObject()->addWarning(tr('The connector ":connector" test failed, please check the logs', [

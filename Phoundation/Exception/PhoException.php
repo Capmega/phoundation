@@ -62,7 +62,7 @@ use RuntimeException;
 use Throwable;
 
 
-class Exception extends RuntimeException implements Interfaces\ExceptionInterface
+class PhoException extends RuntimeException implements Interfaces\ExceptionInterface
 {
     /**
      * Exception data, if available
@@ -340,7 +340,7 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
                 $source = Json::decode($source);
             }
 
-            $source['class'] = isset_get($source['class'], Exception::class);
+            $source['class'] = isset_get($source['class'], PhoException::class);
 
             // Import data
             $e = new $source['class']($source['message']);
@@ -352,8 +352,8 @@ class Exception extends RuntimeException implements Interfaces\ExceptionInterfac
             return $e;
 
         } catch (Throwable $e) {
-            throw Exception::new(tr('Failed to generate exception object from import data'), $e)
-                           ->setData(['data' => $source]);
+            throw PhoException::new(tr('Failed to generate exception object from import data'), $e)
+                              ->setData(['data' => $source]);
         }
     }
 

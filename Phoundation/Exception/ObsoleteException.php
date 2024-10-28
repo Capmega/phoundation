@@ -21,7 +21,7 @@ use Phoundation\Developer\FunctionCall;
 use Throwable;
 
 
-class ObsoleteException extends Exception
+class ObsoleteException extends PhoException
 {
     public function __construct(Throwable|array|string|null $messages = null, ?Throwable $previous = null)
     {

@@ -17,6 +17,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Exception;
 
-class NotSupportedException extends Exception
+class NotSupportedException extends PhoException
 {
 }
