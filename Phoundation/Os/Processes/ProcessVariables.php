@@ -22,7 +22,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataLogLevel;
 use Phoundation\Date\PhoDateTime;
-use Phoundation\Date\Interfaces\DateTimeInterface;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoTime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoDirectory;
@@ -2186,9 +2186,9 @@ trait ProcessVariables
     /**
      * Returns the datetime when this command executed, or null if it has not yet executed
      *
-     * @return DateTimeInterface|null
+     * @return PhoDateTimeInterface|null
      */
-    public function getExecutedOn(): ?DateTimeInterface
+    public function getExecutedOn(): ?PhoDateTimeInterface
     {
         return $this->executed_on;
     }

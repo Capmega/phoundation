@@ -22,7 +22,7 @@ use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Modes\Interfaces\ModeInterface;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Date\PhoDateTime;
-use Phoundation\Date\Interfaces\DateTimeInterface;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 
 
@@ -45,9 +45,9 @@ class Mode implements ModeInterface
     /**
      * The date/time when this mode was enabled
      *
-     * @var DateTimeInterface|null $datetime
+     * @var PhoDateTimeInterface|null $datetime
      */
-    protected ?DateTimeInterface $datetime;
+    protected ?PhoDateTimeInterface $datetime;
 
 
     /**
@@ -95,9 +95,9 @@ class Mode implements ModeInterface
     /**
      * Returns the date/time when this mode was set
      *
-     * @return DateTimeInterface|null
+     * @return PhoDateTimeInterface|null
      */
-    public function getDateTime(): ?DateTimeInterface
+    public function getDateTime(): ?PhoDateTimeInterface
     {
         return $this->datetime;
     }

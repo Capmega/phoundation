@@ -17,12 +17,12 @@ declare(strict_types=1);
 namespace Phoundation\Date;
 
 use Phoundation\Data\Iterator;
-use Phoundation\Date\Interfaces\DateRangePickerRangesInterface;
+use Phoundation\Date\Interfaces\PhoDateRangePickerRangesInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Stringable;
 
 
-class PhoDateRangePickerRanges extends Iterator implements DateRangePickerRangesInterface
+class PhoDateRangePickerRanges extends Iterator implements PhoDateRangePickerRangesInterface
 {
     /**
      * Set the default daterangepicker ranges

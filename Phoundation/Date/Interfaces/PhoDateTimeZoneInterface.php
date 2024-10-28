@@ -6,7 +6,7 @@ namespace Phoundation\Date\Interfaces;
 
 use DateTimeZone;
 
-interface DateTimeZoneInterface
+interface PhoDateTimeZoneInterface
 {
     /**
      * Returns a PHP DateTimeZone object from this Phoundation DateTimeZone object

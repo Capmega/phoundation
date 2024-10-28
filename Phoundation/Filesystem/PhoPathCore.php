@@ -31,7 +31,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Date\PhoDateTime;
-use Phoundation\Date\Interfaces\DateTimeInterface;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Exception\UnderConstructionException;
@@ -4451,9 +4451,9 @@ class PhoPathCore implements PhoPathInterface
     /**
      * Returns the mtime (file access time) for this path
      *
-     * @return DateTimeInterface
+     * @return PhoDateTimeInterface
      */
-    public function getAtime(): DateTimeInterface
+    public function getAtime(): PhoDateTimeInterface
     {
         return PhoDateTime::new()->setTimestamp($this->getStat('atime'));
     }
@@ -4462,9 +4462,9 @@ class PhoPathCore implements PhoPathInterface
     /**
      * Returns the mtime (file modification time) for this path
      *
-     * @return DateTimeInterface
+     * @return PhoDateTimeInterface
      */
-    public function getMtime(): DateTimeInterface
+    public function getMtime(): PhoDateTimeInterface
     {
         return PhoDateTime::new()->setTimestamp(filemtime($this->source));
     }
@@ -4473,9 +4473,9 @@ class PhoPathCore implements PhoPathInterface
     /**
      * Returns the ctime (inode change time of file) for this path
      *
-     * @return DateTimeInterface
+     * @return PhoDateTimeInterface
      */
-    public function getCtime(): DateTimeInterface
+    public function getCtime(): PhoDateTimeInterface
     {
         return PhoDateTime::new()->setTimestamp(filemtime($this->source));
     }

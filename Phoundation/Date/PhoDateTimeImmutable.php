@@ -21,7 +21,7 @@ use Exception;
 use Stringable;
 
 
-class PhoDateTimeImmutable extends \DateTimeImmutable implements Stringable, Interfaces\DateTimeInterface
+class PhoDateTimeImmutable extends \DateTimeImmutable implements Stringable, Interfaces\PhoDateTimeInterface
 {
     /**
      * Returns a new DateTime object for today

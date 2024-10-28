@@ -15,7 +15,7 @@ use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
-use Phoundation\Date\Interfaces\DateTimeInterface;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
@@ -290,9 +290,9 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * Returns the object that created this data entry
      *
      * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
-     * @return DateTimeInterface|null
+     * @return PhoDateTimeInterface|null
      */
-    public function getCreatedOnDateTimeObject(): ?DateTimeInterface;
+    public function getCreatedOnDateTimeObject(): ?PhoDateTimeInterface;
 
     /**
      * Returns the meta-information for this entry

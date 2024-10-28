@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem\Interfaces;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Date\Interfaces\DateTimeInterface;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
 use Phoundation\Filesystem\Exception\FileActionFailedException;
 use Phoundation\Filesystem\Exception\FileInvalidFormatException;
@@ -1165,23 +1165,23 @@ interface PhoPathInterface extends Stringable
     /**
      * Returns the mtime (file access time) for this path
      *
-     * @return DateTimeInterface
+     * @return PhoDateTimeInterface
      */
-    public function getAtime(): DateTimeInterface;
+    public function getAtime(): PhoDateTimeInterface;
 
     /**
      * Returns the mtime (file modification time) for this path
      *
-     * @return DateTimeInterface
+     * @return PhoDateTimeInterface
      */
-    public function getMtime(): DateTimeInterface;
+    public function getMtime(): PhoDateTimeInterface;
 
     /**
      * Returns the ctime (inode change time of file) for this path
      *
-     * @return DateTimeInterface
+     * @return PhoDateTimeInterface
      */
-    public function getCtime(): DateTimeInterface;
+    public function getCtime(): PhoDateTimeInterface;
 
     /**
      * @param string $algo

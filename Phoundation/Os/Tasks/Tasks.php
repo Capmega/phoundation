@@ -19,7 +19,7 @@ namespace Phoundation\Os\Tasks;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataIterator;
-use Phoundation\Date\Interfaces\DateTimeInterface;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Os\Processes\Commands\Pho;
 use Phoundation\Os\Processes\Exception\NoTasksPendingExceptions;
@@ -41,9 +41,9 @@ class Tasks extends DataIterator implements TasksInterface
     /**
      * Tracks if tasks execution has started
      *
-     * @var DateTimeInterface $executing
+     * @var PhoDateTimeInterface $executing
      */
-    protected static DateTimeInterface $executing;
+    protected static PhoDateTimeInterface $executing;
 
 
     /**
@@ -84,9 +84,9 @@ class Tasks extends DataIterator implements TasksInterface
     /**
      * Returns the date since when this object is executing tasks, or false instead
      *
-     * @return DateTimeInterface|false
+     * @return PhoDateTimeInterface|false
      */
-    public function getExecuting(): DateTimeInterface|false
+    public function getExecuting(): PhoDateTimeInterface|false
     {
         if (isset(static::$executing)) {
             return static::$executing;

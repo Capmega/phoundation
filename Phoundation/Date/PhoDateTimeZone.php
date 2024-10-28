@@ -19,12 +19,12 @@ namespace Phoundation\Date;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Date\Exception\DateTimeException;
 use Phoundation\Date\Exception\DateTimeZoneException;
-use Phoundation\Date\Interfaces\DateTimeZoneInterface;
+use Phoundation\Date\Interfaces\PhoDateTimeZoneInterface;
 use Phoundation\Utils\Config;
 use Throwable;
 
 
-class PhoDateTimeZone extends \DateTimeZone implements DateTimeZoneInterface
+class PhoDateTimeZone extends \DateTimeZone implements PhoDateTimeZoneInterface
 {
     /**
      * Ensures we have a valid DateTimeZone object, even when "system" or "user" or a timezone name string was specified

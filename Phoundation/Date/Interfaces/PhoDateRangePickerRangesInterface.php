@@ -6,7 +6,7 @@ namespace Phoundation\Date\Interfaces;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 
-interface DateRangePickerRangesInterface extends IteratorInterface
+interface PhoDateRangePickerRangesInterface extends IteratorInterface
 {
     /**
      * Set the default daterangepicker ranges

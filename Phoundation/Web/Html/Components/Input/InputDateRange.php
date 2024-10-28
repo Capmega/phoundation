@@ -21,7 +21,7 @@ use Phoundation\Data\Traits\TraitDataStartDate;
 use Phoundation\Data\Traits\TraitDataStopDate;
 use Phoundation\Date\PhoDateFormats;
 use Phoundation\Date\PhoDateRangePickerRanges;
-use Phoundation\Date\Interfaces\DateRangePickerRangesInterface;
+use Phoundation\Date\Interfaces\PhoDateRangePickerRangesInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Enums\EnumInputType;
@@ -46,9 +46,9 @@ class InputDateRange extends InputText
     /**
      * Date ranges
      *
-     * @var DateRangePickerRangesInterface $ranges
+     * @var PhoDateRangePickerRangesInterface $ranges
      */
-    protected DateRangePickerRangesInterface $ranges;
+    protected PhoDateRangePickerRangesInterface $ranges;
 
 
     /**
@@ -118,9 +118,9 @@ class InputDateRange extends InputText
     /**
      * Returns the date ranges object
      *
-     * @return DateRangePickerRangesInterface
+     * @return PhoDateRangePickerRangesInterface
      */
-    public function getRanges(): DateRangePickerRangesInterface
+    public function getRanges(): PhoDateRangePickerRangesInterface
     {
         if (empty($this->ranges)) {
             $this->ranges = new PhoDateRangePickerRanges();

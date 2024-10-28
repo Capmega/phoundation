@@ -24,7 +24,7 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Date\Enums\DateTimeSegment;
 use Phoundation\Date\Exception\DateIntervalException;
 use Phoundation\Date\Exception\DateTimeException;
-use Phoundation\Date\Interfaces\DateTimeZoneInterface;
+use Phoundation\Date\Interfaces\PhoDateTimeZoneInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Arrays;
@@ -33,7 +33,7 @@ use Stringable;
 use Throwable;
 
 
-class PhoDateTime extends \DateTime implements Stringable, Interfaces\DateTimeInterface
+class PhoDateTime extends \DateTime implements Stringable, Interfaces\PhoDateTimeInterface
 {
     /**
      * Returns a new DateTime object

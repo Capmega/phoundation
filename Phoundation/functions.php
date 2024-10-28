@@ -32,8 +32,8 @@ use Phoundation\Databases\Mongo;
 use Phoundation\Databases\NullDb;
 use Phoundation\Databases\Redis\Redis;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
-use Phoundation\Date\Interfaces\DateTimeInterface;
-use Phoundation\Date\Interfaces\DateTimeZoneInterface;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
+use Phoundation\Date\Interfaces\PhoDateTimeZoneInterface;
 use Phoundation\Developer\Debug;
 use Phoundation\Developer\FunctionCall;
 use Phoundation\Exception\PhoException;
@@ -1350,11 +1350,11 @@ function in_range(float|int $value, float|int $begin, float|int $end, bool $allo
 /**
  * Returns a DateTime object for NOW
  *
- * @param DateTimeZoneInterface|string|null $timezone
+ * @param PhoDateTimeZoneInterface|string|null $timezone
  *
- * @return DateTimeInterface
+ * @return PhoDateTimeInterface
  */
-function now(DateTimeZoneInterface|string|null $timezone = 'system'): DateTimeInterface
+function now(PhoDateTimeZoneInterface|string|null $timezone = 'system'): PhoDateTimeInterface
 {
     return new \Phoundation\Date\PhoDateTime('now', $timezone);
 }

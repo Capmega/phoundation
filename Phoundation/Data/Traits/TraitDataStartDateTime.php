@@ -26,17 +26,17 @@ trait TraitDataStartDateTime
     /**
      * The start date time to use
      *
-     * @var \Phoundation\Date\Interfaces\DateTimeInterface|null $start_datetime
+     * @var \Phoundation\Date\Interfaces\PhoDateTimeInterface|null $start_datetime
      */
-    protected ?\Phoundation\Date\Interfaces\DateTimeInterface $start_datetime = null;
+    protected ?\Phoundation\Date\Interfaces\PhoDateTimeInterface $start_datetime = null;
 
 
     /**
      * Returns the start date time
      *
-     * @return \Phoundation\Date\Interfaces\DateTimeInterface|null
+     * @return \Phoundation\Date\Interfaces\PhoDateTimeInterface|null
      */
-    public function getStartDateTime(): ?\Phoundation\Date\Interfaces\DateTimeInterface
+    public function getStartDateTime(): ?\Phoundation\Date\Interfaces\PhoDateTimeInterface
     {
         return $this->start_datetime;
     }

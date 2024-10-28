@@ -33,7 +33,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryStop;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryValues;
 use Phoundation\Data\Traits\TraitDataEntryRestrictions;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Date\Interfaces\DateTimeInterface;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
@@ -127,11 +127,11 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Sets the datetime after which this task should be executed
      *
-     * @param DateTimeInterface|string|null $execute_after
+     * @param PhoDateTimeInterface|string|null $execute_after
      *
      * @return static
      */
-    public function setExecuteAfter(DateTimeInterface|string|null $execute_after): static
+    public function setExecuteAfter(PhoDateTimeInterface|string|null $execute_after): static
     {
         return $this->set($execute_after ? new PhoDateTime($execute_after, 'system') : null, 'execute_after');
     }
@@ -140,11 +140,11 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns the number of time in seconds spent on this task
      *
-     * @param DateTimeInterface|string|null $execute_after
+     * @param PhoDateTimeInterface|string|null $execute_after
      *
      * @return float
      */
-    public function getTimeSpent(DateTimeInterface|string|null $execute_after): float
+    public function getTimeSpent(PhoDateTimeInterface|string|null $execute_after): float
     {
         if (!$this->getStart()) {
             throw new TasksException(tr('Cannot calculate time spent on task, it has not yet started'));
@@ -162,9 +162,9 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns the datetime after which this task should be executed
      *
-     * @return DateTimeInterface|null
+     * @return PhoDateTimeInterface|null
      */
-    public function getStart(): ?DateTimeInterface
+    public function getStart(): ?PhoDateTimeInterface
     {
         return $this->getTypesafe('datetime', 'start');
     }
@@ -173,9 +173,9 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns the datetime after which this task should be executed
      *
-     * @return DateTimeInterface|null
+     * @return PhoDateTimeInterface|null
      */
-    public function getStop(): ?DateTimeInterface
+    public function getStop(): ?PhoDateTimeInterface
     {
         return $this->getTypesafe('datetime', 'stop');
     }
@@ -506,9 +506,9 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns the datetime after which this task should be executed
      *
-     * @return DateTimeInterface|null
+     * @return PhoDateTimeInterface|null
      */
-    public function getExecuteAfter(): ?DateTimeInterface
+    public function getExecuteAfter(): ?PhoDateTimeInterface
     {
         return $this->getTypesafe('int', 'execute_after');
     }
@@ -1138,11 +1138,11 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Sets the datetime after which this task should be executed
      *
-     * @param DateTimeInterface|string|null $start
+     * @param PhoDateTimeInterface|string|null $start
      *
      * @return static
      */
-    public function setStart(DateTimeInterface|string|null $start): static
+    public function setStart(PhoDateTimeInterface|string|null $start): static
     {
         return $this->set($start ? new PhoDateTime($start, 'system') : null, 'start');
     }
@@ -1203,11 +1203,11 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Sets the datetime after which this task should be executed
      *
-     * @param DateTimeInterface|string|null $stop
+     * @param PhoDateTimeInterface|string|null $stop
      *
      * @return static
      */
-    public function setStop(DateTimeInterface|string|null $stop): static
+    public function setStop(PhoDateTimeInterface|string|null $stop): static
     {
         return $this->set($stop ? new PhoDateTime($stop, 'system') : null, 'stop');
     }

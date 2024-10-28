@@ -23,7 +23,7 @@ use Phoundation\Core\Meta\Interfaces\MetaInterface;
 use Phoundation\Data\Traits\TraitDataSourceArray;
 use Phoundation\Data\Traits\TraitMethodHasRendered;
 use Phoundation\Date\PhoDateTime;
-use Phoundation\Date\Interfaces\DateTimeInterface;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
@@ -49,9 +49,9 @@ class Activity implements ActivityInterface, RenderInterface
     /**
      * Caches the DateTime object for when this activity was created
      *
-     * @var DateTimeInterface $date
+     * @var PhoDateTimeInterface $date
      */
-    protected DateTimeInterface $date;
+    protected PhoDateTimeInterface $date;
 
 
     /**

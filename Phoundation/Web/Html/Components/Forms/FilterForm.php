@@ -33,7 +33,7 @@ use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Date\PhoDateFormats;
 use Phoundation\Date\PhoDateTime;
-use Phoundation\Date\Interfaces\DateTimeInterface;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
@@ -301,7 +301,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
         }
 
         foreach ($date_range_default as $date) {
-            if (($date instanceof DateTimeInterface) or is_string($date)) {
+            if (($date instanceof PhoDateTimeInterface) or is_string($date)) {
                 $date = PhoDateTime::new($date)->format('m/d/Y');
                 continue;
             }
@@ -366,9 +366,9 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      *
      * @param string|null $timezone
      *
-     * @return DateTimeInterface|null
+     * @return PhoDateTimeInterface|null
      */
-    public function getStartDate(?string $timezone = 'user'): ?DateTimeInterface
+    public function getStartDate(?string $timezone = 'user'): ?PhoDateTimeInterface
     {
         static $return;
 
@@ -393,9 +393,9 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      *
      * @param string|null $timezone
      *
-     * @return DateTimeInterface|null
+     * @return PhoDateTimeInterface|null
      */
-    public function getStopDate(?string $timezone = 'user'): ?DateTimeInterface
+    public function getStopDate(?string $timezone = 'user'): ?PhoDateTimeInterface
     {
         static $return;
 

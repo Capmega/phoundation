@@ -8,7 +8,7 @@ use Phoundation\Date\PhoDateInterval;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\PhoDateTimeZone;
 
-interface DateTimeInterface extends \DateTimeInterface
+interface PhoDateTimeInterface extends \DateTimeInterface
 {
     /**
      * Returns the difference between two DateTime objects
@@ -29,7 +29,7 @@ interface DateTimeInterface extends \DateTimeInterface
      *
      * @param \DateTimeZone|PhoDateTimeZone|string $timezone
      *
-     * @return DateTimeInterface
+     * @return PhoDateTimeInterface
      */
     public function setTimezone(\DateTimeZone|PhoDateTimeZone|string $timezone): static;
 

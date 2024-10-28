@@ -73,7 +73,7 @@ use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\SqlDataEntry;
 use Phoundation\Date\PhoDateTime;
-use Phoundation\Date\Interfaces\DateTimeInterface;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
@@ -3051,9 +3051,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      * Returns the object that created this data entry
      *
      * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
-     * @return DateTimeInterface|null
+     * @return PhoDateTimeInterface|null
      */
-    public function getCreatedOnDateTimeObject(): ?DateTimeInterface
+    public function getCreatedOnDateTimeObject(): ?PhoDateTimeInterface
     {
         $created_on = $this->getTypesafe('string', 'created_on');
 
