@@ -394,7 +394,7 @@ class Redis implements DatabaseInterface, RedisInterface
             $result = $this->client->rPush('queue_' . $queue, Json::encode($value));
 
         if ($result === false) {
-            throw new RedisException(tr('PHP driver Redis::rPush() returned false'));
+            throw new RedisException(tr('PHP driver Redis rPush() returned false'));
         }
 
         return $this;
