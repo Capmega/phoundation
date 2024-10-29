@@ -15,8 +15,8 @@
 declare(strict_types=1);
 
 use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Utils\Json;
 use Phoundation\Web\Http\Json\AutoSuggestRequest;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\JsonPage;
 
 
@@ -30,4 +30,4 @@ $get = GetValidator::new()
 
 
 // Reply
-JsonPage::new()->reply(['/force-password-update.html']);
+JsonPage::new()->reply([(string) Url::getWww('/force-password-update.html')]);

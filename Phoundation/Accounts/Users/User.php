@@ -472,7 +472,7 @@ class User extends DataEntry implements UserInterface
                         'account' => $hook->getArgument('identifier'),
                         'hook'    => $hook->__toArray()
                     ])
-                    ->notifyRoles('accounts')
+                    ->setNotifyRoles('accounts')
                     ->save()
                     ->throw(OutOfBoundsException::class);
             }
@@ -507,7 +507,7 @@ class User extends DataEntry implements UserInterface
                     ':status' => $user->getStatus(),
                 ]))
                 ->setDetails(['user' => $user->getLogId()])
-                ->notifyRoles('accounts')
+                ->setNotifyRoles('accounts')
                 ->save()
                 ->throw(AuthenticationException::class);
         }
@@ -582,7 +582,7 @@ class User extends DataEntry implements UserInterface
                     ':user'   => Json::encode($identifier, JSON_OBJECT_AS_ARRAY),
                 ]))
                 ->setDetails(['user' => $identifier])
-                ->notifyRoles('accounts')
+                ->setNotifyRoles('accounts')
                 ->save()
                 ->throw(AuthenticationException::class);
         }
@@ -615,7 +615,7 @@ class User extends DataEntry implements UserInterface
                 ':user'   => $user->getLogId(),
             ]))
             ->setDetails(['user' => $user->getLogId()])
-            ->notifyRoles('accounts')
+            ->setNotifyRoles('accounts')
             ->save()
             ->throw(AuthenticationException::class);
     }
@@ -656,7 +656,7 @@ class User extends DataEntry implements UserInterface
                             'user'   => $user,
                             'domain' => $domain,
                         ])
-                        ->notifyRoles('accounts')
+                        ->setNotifyRoles('accounts')
                         ->save();
                 }
 
@@ -722,7 +722,7 @@ class User extends DataEntry implements UserInterface
                             ':user'   => Session::getUserObject()
                                                 ->getSource(),
                         ])
-                        ->notifyRoles('accounts')
+                        ->setNotifyRoles('accounts')
                         ->save()
                         ->throw();
             }
@@ -744,7 +744,7 @@ class User extends DataEntry implements UserInterface
                                 ':meta_id' => $meta_id,
                             ]))
                             ->setDetails(['user' => $this->getLogId()])
-                            ->notifyRoles('accounts')
+                            ->setNotifyRoles('accounts')
                             ->save();
 
                 } else {
@@ -755,7 +755,7 @@ class User extends DataEntry implements UserInterface
                                 ':user' => $this->getLogId(),
                             ]))
                             ->setDetails(['user' => $this->getLogId()])
-                            ->notifyRoles('accounts')
+                            ->setNotifyRoles('accounts')
                             ->save();
                 }
             }
@@ -1824,7 +1824,7 @@ class User extends DataEntry implements UserInterface
 
         // Is the password not the same as the current password?
         if (!$permit_same_password) {
-            if (!$this->hasPassword($password)) {
+            if ($this->hasPassword($password)) {
                 throw new PasswordNotChangedException(tr('The specified password is the same as the current password'));
             }
         }

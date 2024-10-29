@@ -552,7 +552,7 @@ class Users extends DataIterator implements UsersInterface
              ->addWhere('`accounts_users`.`status`   IS NULL')
              ->addOrderBy('`display_name` ASC');
 
-        if (Debug::isEnabled()) {
+        if (!Debug::isEnabled()) {
             // Filter out test, developer, and demo users
             $this->getQueryBuilder()
                  ->addJoin('LEFT JOIN `accounts_users_rights`

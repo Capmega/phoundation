@@ -22,6 +22,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\AccessDeniedException;
+use Phoundation\Exception\PhoException;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Utils\Config;
@@ -66,13 +67,12 @@ if (Request::isPostRequestMethod()) {
                                      'user'   => $user->getLogId(),
                                      'status' => $user->getStatus(),
                                  ])
-                    ->notifyRoles('security')
+                    ->setNotifyRoles('security')
                     ->save()
                     ->throw(AccessDeniedException::class);
         }
 
         $key = $user->getSigninKey()->generate(Url::getWww('/update-lost-password.html'));
-
         $mail = new PHPMailer();
         $mail->isSMTP();
         $mail->isHTML(true);
@@ -113,6 +113,7 @@ if (Request::isPostRequestMethod()) {
 
         if (Core::isProductionEnvironment()) {
             $mail->addBCC('sven@phoundation.org', 'Sven Olaf Oostenbrink');
+
         } else {
             $mail->addAddress($user->getEmail(), $user->getDisplayName());
         }
@@ -120,7 +121,7 @@ if (Request::isPostRequestMethod()) {
         $mail->setFrom('no-reply@phoundation.org', 'Phoundation no-reply');
 
         if (!$mail->send()) {
-            throw new \Phoundation\Exception\PhoException($mail->ErrorInfo);
+            throw new PhoException($mail->ErrorInfo);
         }
 
         // Register a security incident
@@ -131,8 +132,9 @@ if (Request::isPostRequestMethod()) {
                     ':user' => Session::getUserObject()->getLogId(),
                 ]))
                 ->setDetails([
-                                 ':user' => Session::getUserObject()->getLogId(),
-                             ])
+                    ':user' => Session::getUserObject()->getLogId(),
+                ])
+                ->setNotifyRoles('security')
                 ->save();
 
         Response::getFlashMessagesObject()->addSuccess(tr('We sent a lost password email to the specified address if it exists'));
@@ -140,9 +142,21 @@ if (Request::isPostRequestMethod()) {
     } catch (ValidationFailedException) {
         Response::getFlashMessagesObject()->addWarning(tr('Please specify a valid email'));
 
-    } catch (DataEntryNotExistsException|AccessDeniedException $e) {
-        // Specified email does not exist. Just ignore it because we don't want to give away if the email exists or
-        // not
+    } catch (DataEntryNotExistsException | AccessDeniedException $e) {
+        // Specified email does not exist, register a security incident
+        Incident::new()
+                ->setSeverity(EnumSeverity::low)
+                ->setType(tr('Non existing user lost password request'))
+                ->setTitle(tr('A lost password request was made for email ":email" but this account does not exist on this system for the environment ":environment"', [
+                    ':email'       => isset_get($post['email']),
+                    ':environment' => ENVIRONMENT,
+                ]))
+                ->setDetails([
+                    'email'       => isset_get($post['email']),
+                    'environment' => ENVIRONMENT,
+                ])
+                ->setNotifyRoles('security')
+                ->save();
     }
 }
 

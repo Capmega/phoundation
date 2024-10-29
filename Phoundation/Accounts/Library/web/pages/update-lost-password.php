@@ -55,32 +55,16 @@ if (Request::isPostRequestMethod()) {
         if ($user->hasPassword($post['password'])) {
             // User used the same password, don't update
             Response::getFlashMessagesObject()->addSuccess(tr('You supplied your actual password, password was not updated'));
-            $updated = true;
+            $updated = false;
 
         } else {
             // Update the password
             $user->changePassword($post['password'], $post['passwordv'], true)
                  ->save();
 
-            // Register a security incident
-            Incident::new()
-                    ->setSeverity(EnumSeverity::medium)
-                    ->setType(tr('User lost password update'))
-                    ->setTitle(tr('The user ":user" updated their lost password using UUID key ":key"', [
-                        ':key'  => Session::getSignInKey(),
-                        ':user' => Session::getUserObject()->getLogId(),
-                    ]))
-                    ->setDetails([
-                        ':key'  => Session::getSignInKey(),
-                        ':user' => Session::getUserObject()->getLogId(),
-                    ])
-                    ->save();
-
-            // Yay, the password was updated! Now, auto sign-in so that the user won't have to sign in manually
-            Session::signIn($user->getEmail(), $post['password']);
-
             // Add a flash message and redirect to the original target
             Response::getFlashMessagesObject()->addSuccess(tr('Your password has been updated'));
+
             $updated = true;
         }
 
@@ -91,9 +75,6 @@ if (Request::isPostRequestMethod()) {
 
     } catch (ValidationFailedException $e) {
         Response::getFlashMessagesObject()->addMessage($e);
-
-    } catch (PasswordNotChangedException $e) {
-        Response::getFlashMessagesObject()->addWarning(tr('You provided your current password. Please update your account to have a new and secure password'));
     }
 }
 
@@ -102,6 +83,23 @@ if (Request::isPostRequestMethod()) {
 Response::setRenderMainWrapper(false);
 
 if (isset($updated)) {
+    // Register a security incident
+    Incident::new()
+            ->setSeverity(EnumSeverity::medium)
+            ->setType(tr('User lost password update'))
+            ->setTitle(tr('The user ":user" updated their lost password using UUID key ":key"', [
+                ':key'  => Session::getSignInKey(),
+                ':user' => Session::getUserObject()->getLogId(),
+            ]))
+            ->setDetails([
+                ':key'  => Session::getSignInKey(),
+                ':user' => Session::getUserObject()->getLogId(),
+            ])
+            ->save();
+
+    // Yay, the password was updated! Now, auto sign-in so that the user won't have to sign in manually
+    Session::signIn($user->getEmail(), $post['password']);
+
     // Set page meta data
     Response::setPageTitle(tr('Your password has been updated, please go to the sign-in page in to continue...'));
 
