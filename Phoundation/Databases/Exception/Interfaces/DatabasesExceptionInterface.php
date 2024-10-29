@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Exception\Interfaces;
 
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
-use Phoundation\Exception\Interfaces\ExceptionInterface;
+use Phoundation\Exception\Interfaces\PhoExceptionInterface;
 
-interface DatabasesExceptionInterface extends ExceptionInterface
+interface DatabasesExceptionInterface extends PhoExceptionInterface
 {
     /**
      * Returns the connector interface or null if it is not found
