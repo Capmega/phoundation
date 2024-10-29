@@ -229,26 +229,6 @@ class Incident extends DataEntry implements IncidentInterface
 
 
     /**
-     * Sets who will be notified about this incident directly without accessing the roles object
-     *
-     * @param IteratorInterface|array|string|null $roles
-     *
-     * @return Incident
-     */
-    public function notifyRoles(IteratorInterface|array|string|null $roles): static
-    {
-        if (is_string($roles)) {
-            // Ensure the source is not a string, at least an array
-            $roles = Arrays::force($roles);
-        }
-
-        $this->getNotifyRoles()->addSource($roles);
-
-        return $this;
-    }
-
-
-    /**
      * Returns the roles iterator containing who will be notified about this incident
      *
      * @return IteratorInterface
@@ -266,12 +246,20 @@ class Incident extends DataEntry implements IncidentInterface
     /**
      * Sets the roles iterator containing who will be notified about this incident
      *
-     * @param IteratorInterface|array $notify_roles
+     * @param IteratorInterface|array|string $notify_roles
      *
      * @return static
      */
-    public function setNotifyRoles(IteratorInterface|array $notify_roles): static
+    public function setNotifyRoles(IteratorInterface|array|string $notify_roles): static
     {
+        if (is_string($notify_roles)) {
+            $notify_roles = [$notify_roles];
+        }
+
+        if (is_array($notify_roles)) {
+            $notify_roles = new Iterator($notify_roles);
+        }
+
         $this->notify_roles = $notify_roles;
 
         return $this;

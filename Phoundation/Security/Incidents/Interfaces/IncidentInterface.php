@@ -30,16 +30,6 @@ interface IncidentInterface
 
 
     /**
-     * Sets who will be notified about this incident directly without accessing the roles object
-     *
-     * @param IteratorInterface|array|string|null $roles
-     *
-     * @return Incident
-     */
-    public function notifyRoles(IteratorInterface|array|string|null $roles): static;
-
-
-    /**
      * Returns the roles iterator containing who will be notified about this incident
      *
      * @return IteratorInterface
@@ -50,11 +40,11 @@ interface IncidentInterface
     /**
      * Sets the roles iterator containing who will be notified about this incident
      *
-     * @param IteratorInterface|array $notify_roles
+     * @param IteratorInterface|array|string $notify_roles
      *
      * @return static
      */
-    public function setNotifyRoles(IteratorInterface|array $notify_roles): static;
+    public function setNotifyRoles(IteratorInterface|array|string $notify_roles): static;
 
 
     /**
