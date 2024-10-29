@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace Phoundation\Servers;
 
 use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Business\Customers\Customers;
+use Plugins\Phoundation\Business\Customers\Customers;
 use Phoundation\Business\Providers\Providers;
 use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\DataEntry;
