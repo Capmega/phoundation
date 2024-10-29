@@ -88,9 +88,10 @@ for ($i = 1; $i <= $argv['repeat']; ++$i) {
     ]));
     $client->send($argv['message']);
 
-    Log::action(tr('Server responded: ":message"',[
-        ':message' => $client->receive()
-    ]));
+    //TODO: fix so it only calls receive() if there is something to receive
+//    Log::action(tr('Server responded: ":message"',[
+//        ':message' => $client->receive()
+//    ]));
 
     if ($i < $argv['repeat']){
         usleep($argv['interval'] * 1000);

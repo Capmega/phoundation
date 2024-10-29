@@ -77,13 +77,6 @@ class PhoSocket implements Stringable
      */
     protected array $options;
 
-    /**
-     * Int that stores the maximum block size to write to the socket
-     *
-     * @var int $block_size
-     */
-    public int $block_size;
-
 
     /**
      * Sets up the Socket Resource and stores it in the local map.
@@ -101,10 +94,10 @@ class PhoSocket implements Stringable
         $this->open       = true;
         $this->options    = [];
         $this->resource   = $resource;
-        $this->block_size = 4;      //TODO: debug!!!
 
         static::$source[$this->__toString()] = $this;
     }
+
 
     /**
      * Cleans up the Socket and dereferences the internal resource.
@@ -114,6 +107,7 @@ class PhoSocket implements Stringable
         $this->close(1, true);
         unset($this->resource);
     }
+
 
     /**
      * Return the php socket resource name.
@@ -173,6 +167,7 @@ class PhoSocket implements Stringable
         return new static($result);
     }
 
+
     /**
      * Binds a name to a socket.`
      *
@@ -202,19 +197,6 @@ class PhoSocket implements Stringable
         return $this->setAddress($address)->setPort($port);
     }
 
-            if ($result === true) {
-                return true;
-
-            } elseif ($result === false) {
-    //            $errorCode = socket_last_error($this->resource);
-    //            $errorMessage = socket_strerror($errorCode);
-                throw new SocketException("Failed to bind socket: !!!TODO");
-            }
-        } catch(\Throwable $e) {
-            throw new SocketException("Failed to bind socket: !!!TODO");
-        }
-        return false;
-    }
 
     /**
      * Closes a PhoSocket and unsets it from the source array
@@ -260,6 +242,7 @@ class PhoSocket implements Stringable
         return $this;
     }
 
+
     /**
      * Connect to a socket.
      *
@@ -301,19 +284,6 @@ class PhoSocket implements Stringable
         return $this;
     }
 
-            if ($result === true) {
-                return true;
-
-            } elseif ($result === false) {
-                throw new SocketException('!!!TODO');
-            }
-
-        } catch (\Throwable $e) {
-            throw new SocketException("Failed to connect to socket: {$e->getMessage()}");
-        }
-
-        return false;
-    }
 
     /**
      * Returns the Domain property of this PhoSocket
@@ -336,31 +306,6 @@ class PhoSocket implements Stringable
     public function setDomain(int $domain): static
     {
         $this->domain = $domain;
-        return $this;
-    }
-
-
-    /**
-     * Returns the block_size property of this PhoSocket
-     *
-     * @return int
-     */
-    public function getBlockSize(): int
-    {
-        return $this->block_size;
-    }
-
-
-    /**
-     * Sets the block_size property of this PhoSocket
-     *
-     * @param int $block_size
-     *
-     * @return static
-     */
-    public function setBlockSize(int $block_size): static
-    {
-        $this->block_size = $block_size;
         return $this;
     }
 
@@ -521,12 +466,6 @@ class PhoSocket implements Stringable
         return $sockets;
     }
 
-            return $sockets;
-
-        } catch (\Throwable $e) {
-            throw new SocketException("Failed to construct from socket: !!!TODO");
-        }
-    }
 
     /**
      * Create a socket.
@@ -587,6 +526,7 @@ class PhoSocket implements Stringable
         return $socket;
     }
 
+
     /**
      * Opens a socket on port to accept connections.
      *
@@ -605,7 +545,7 @@ class PhoSocket implements Stringable
      * @see PhoSocket::listen()
      * @see PhoSocket::create()
      */
-    public static function createListen(int $port, int $backlog = 128): self
+    public static function createListen(int $port, int $backlog = 128): static
     {
         $result = socket_create_listen($port, $backlog);
 
@@ -619,6 +559,7 @@ class PhoSocket implements Stringable
 
         return $socket;
     }
+
 
     /**
      * Creates a pair of indistinguishable sockets and stores them in an array.
@@ -664,6 +605,7 @@ class PhoSocket implements Stringable
 
         return $sockets;
     }
+
 
     /**
      * Gets socket options.
@@ -750,16 +692,6 @@ class PhoSocket implements Stringable
         return $return;
     }
 
-        $return = socket_get_option($this->resource, $level, $optname);
-
-        if ($return === false) {
-            throw new SocketException(tr('Failed to set socket option ":option"', [
-                ':option' => $optname,
-            ]));
-        }
-
-        return $return;
-    }
 
     /**
      * Queries the remote side of the given socket which may either result in host/port or in a Unix filesystem
@@ -776,7 +708,7 @@ class PhoSocket implements Stringable
      *
      * @return PhoSocket Returns nothing, but will set byref the $address and $port variables
      */
-    public function getPeerName(string &$address, int &$port): void
+    public function getPeerName(string &$address, int &$port): static
     {
         $this->checkSocketOpen();
 
@@ -790,11 +722,7 @@ class PhoSocket implements Stringable
                 ->addMessages(socket_strerror(socket_last_error($this->resource)));
         }
 
-        $return = socket_getpeername($this->resource, $address, $port);
-
-        if ($return === false) {
-            throw new SocketException(tr('Failed to get peer name'));
-        }
+        return $this;
     }
 
 
@@ -836,6 +764,7 @@ class PhoSocket implements Stringable
         return $this;
     }
 
+
     /**
      * Imports a stream.
      *
@@ -848,7 +777,7 @@ class PhoSocket implements Stringable
      * @throws SocketException If the import of the stream is not successful.
      *
      */
-    public static function importStream($stream): self
+    public static function importStream($stream): static
     {
         if (get_resource_type($stream) === 'Unknown') {
             throw new SocketException(tr('Invalid stream type: ":stream"', [
@@ -864,6 +793,7 @@ class PhoSocket implements Stringable
 
         return new static($result);
     }
+
 
     /**
      * Listens for a connection on a socket.
@@ -893,6 +823,7 @@ class PhoSocket implements Stringable
 
         return $this;
     }
+
 
     /**
      * Reads a maximum of length bytes from a socket.
@@ -931,6 +862,7 @@ class PhoSocket implements Stringable
 
         return $return;
     }
+
 
     /**
      * Receives data from a connected socket.
@@ -1071,6 +1003,7 @@ class PhoSocket implements Stringable
         return $result;
     }
 
+
     /**
      * Write to a socket.
      *
@@ -1096,51 +1029,43 @@ class PhoSocket implements Stringable
             return 0;
         }
 
-        $total_transferred = 0;
-
-    show("Message size: " . $length . ", block_size: " . $this->block_size);
-
-    show("resource send buffer size: " . $this->getOption(1, SO_SNDBUF));
-    show("resource rec buffer size: " . $this->getOption(1, SO_RCVBUF));
+        $totalWritten = 0;
+        $originalLength = $length;
 
         try {
-            for ($i = 0; $i < $length; $i += $this->getBlockSize()) {
-        show("i: " . $i);
-        show("buffer: " . $buffer);
+            while ($length > 0) {
+                $written = socket_write($this->resource, $buffer, $length);
 
-                $part        = substr($buffer, $i, $this->getBlockSize());
-
-        show("part: " . $part);
-
-
-                try {
-                    $transferred = socket_write($this->resource, $part, strlen($part));
-                } catch (Throwable $e) {
-showdie("PHP SOCKET WRITE FAILED");
+                if ($written === false) {
+                    throw SocketException::new(tr('PHP socket socket_write failed'));
                 }
 
-                if ($transferred === false) {
-                    throw SocketException::new(tr('PHP socket_write() failed'));
+                $totalWritten += $written;
+
+                if ($totalWritten >= $originalLength) {
+                    break;
                 }
 
-                $total_transferred += $transferred;
+                $buffer = substr($buffer, $written);
+                $length -= $written;
             }
 
-            if ($total_transferred < $length) {
-                throw SocketException::new(tr('Incomplete transfer'));
+            if ($totalWritten !== $originalLength) {
+                throw SocketException::new(tr('incomplete write'));
             }
 
         } catch (Throwable $e) {
             throw SocketException::new(tr('Failed to write to socket with buffer ":buffer" and length ":length"', [
                 ':buffer' => $buffer,
                 ':length' => $length
-            ]))
+            ]), $e)
                                  ->setCode(socket_last_error($this->resource))
                                  ->addMessages(socket_strerror(socket_last_error($this->resource)));
         }
 
-        return $total_transferred;
+        return $totalWritten;
     }
+
 
     /**
      * Sends data to a connected socket.
@@ -1188,6 +1113,7 @@ showdie("PHP SOCKET WRITE FAILED");
 
         return $return;
     }
+
 
     /**
      *

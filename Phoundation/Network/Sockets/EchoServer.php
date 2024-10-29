@@ -33,7 +33,7 @@ class EchoServer extends PhoSocketServer
     /**
      * This is the port used for the server
      */
-    const int DEFAULT_PORT = 4097;
+    const int DEFAULT_PORT = 4096;
 
 
     /**

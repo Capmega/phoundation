@@ -32,7 +32,7 @@ class Client
      *
      * @var int
      */
-    protected int $max_send = 10;
+    protected int $max_send = 1024;
 
 
     /**
