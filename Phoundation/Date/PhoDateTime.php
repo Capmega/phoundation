@@ -96,7 +96,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public function __toString()
     {
-        return $this->format('Y-m-d H:i:s.u');
+        return $this->format('Y-m-d H:i:s');
     }
 
 
