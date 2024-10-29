@@ -423,7 +423,7 @@ class Url implements UrlInterface
             'sign-in'  , 'signin'  => Config::getString('web.pages.sign-in' , '/sign-in'),
             'sign-up'  , 'signup'  => Config::getString('web.pages.sign-up' , '/sign-up'),
             'sign-out' , 'signout' => Config::getString('web.pages.sign-out', '/sign-out') . (Session::isUser() ? '?redirect=' . urlencode(Url::getCurrent()->getSource()) : null),
-            'sign-key' , 'signkey' => Config::getString('web.pages.sign-key', '/sign-key/:key'),
+            'sign-key' , 'signkey' => Config::getString('web.pages.sign-key', '/sign-key+:key'),
             'profile'              => Config::getString('web.pages.profile' , '/my/profile'),
             'settings'             => Config::getString('web.pages.settings', '/my/settings'),
             default                => Config::getString('web.pages.' . $url , '')

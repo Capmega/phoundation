@@ -286,6 +286,10 @@ class JsonPage implements JsonPageInterface
                 $this->setResponse(EnumJsonResponse::error)
                      ->reply(['message' => $data ?? tr('bad request')]);
 
+            case 401:
+                $this->setResponse(EnumJsonResponse::error)
+                     ->reply(['message' => $data ?? tr('unauthorized')]);
+
             case 403:
                 $this->setResponse(EnumJsonResponse::error)
                      ->reply(['message' => $data ?? tr('forbidden')]);
@@ -344,7 +348,7 @@ class JsonPage implements JsonPageInterface
                     ->setCode('unknown')
                     ->setRoles('developer')
                     ->setTitle('Unknown message specified')
-                    ->setMessage(tr('Json::message(): Unknown code ":code" specified', [':code' => $code]))
+                    ->setMessage(tr('Json::\message(): Unknown code ":code" specified', [':code' => $code]))
                     ->setDetails([
                         'code' => $code,
                         'data' => $data

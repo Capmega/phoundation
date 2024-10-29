@@ -1205,7 +1205,7 @@ class Request implements RequestInterface
                         'rights'         => $rights,
                         'missing_rights' => Rights::getNotExist($rights),
                     ])
-                    ->notifyRoles('accounts')
+                    ->setNotifyRoles('accounts')
                     ->save();
 
         } else {
@@ -1231,7 +1231,7 @@ class Request implements RequestInterface
                         'real_target' => static::$main_target->getSource('web'),
                         'rights'      => Session::getUserObject()->getMissingRights($rights),
                     ])
-                    ->notifyRoles('accounts')
+                    ->setNotifyRoles('accounts')
                     ->save();
         }
 
@@ -1415,10 +1415,12 @@ class Request implements RequestInterface
 
             case EnumRequestTypes::api:
                 // These are JSON type requests, reply with JSON instead of HTML
-                Incident::new()
-                        ->setException($e)
-                        ->setLog(true)
-                        ->save();
+                if ($e) {
+                    Incident::new()
+                            ->setException($e)
+                            ->setLog(true)
+                            ->save();
+                }
 
                 JsonPage::new()->replyWithHttpCode($http_code);
         }
