@@ -16,32 +16,31 @@ declare(strict_types=1);
 
 namespace Phoundation\Date;
 
+use DateInterval;
+use DateTime;
 use DateTimeInterface;
-use MongoDB\Exception\UnsupportedException;
-use Phoundation\Core\Log\Log;
+use DateTimeZone;
 use Phoundation\Core\Sessions\SessionConfig;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Date\Enums\DateTimeSegment;
 use Phoundation\Date\Exception\DateIntervalException;
 use Phoundation\Date\Exception\DateTimeException;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeZoneInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Stringable;
 use Throwable;
 
 
-class PhoDateTime extends \DateTime implements Stringable, Interfaces\PhoDateTimeInterface
+class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTimeInterface
 {
     /**
      * Returns a new DateTime object
      *
-     * @param PhoDateTime|string|int|null $datetime
-     * @param \DateTimeZone|string|null   $timezone
+     * @param PhoDateTimeInterface|string|int|null $datetime
+     * @param DateTimeZone|string|null   $timezone
      */
-    public function __construct(PhoDateTime|string|int|null $datetime = 'now', \DateTimeZone|string|null $timezone = null)
+    public function __construct(PhoDateTimeInterface|string|int|null $datetime = 'now', DateTimeZone|string|null $timezone = null)
     {
         // Ensure we have NULL or timezone object for parent constructor
         $timezone = get_null($timezone);
@@ -73,6 +72,109 @@ class PhoDateTime extends \DateTime implements Stringable, Interfaces\PhoDateTim
                 ':e'        => $e->getMessage(),
             ]), $e);
         }
+    }
+
+
+    /**
+     * Returns a new DateTime object
+     *
+     * @param PhoDateTimeInterface|string|int|null $datetime
+     * @param DateTimeZone|string|null   $timezone
+     *
+     * @return static
+     */
+    public static function new(PhoDateTimeInterface|string|int|null $datetime = 'now', DateTimeZone|string|null $timezone = null): static
+    {
+        return new static($datetime, $timezone);
+    }
+
+
+    /**
+     * Returns this DateTime object as a string in ISO 8601 format without switching timezone
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->format('Y-m-d H:i:s.u');
+    }
+
+
+    /**
+     * Returns a new DateTime object
+     *
+     * @param DateTimeZone|string|null $timezone
+     *
+     * @return static
+     */
+    public static function getToday(DateTimeZone|string|null $timezone = null): static
+    {
+        return new static('today', PhoDateTimeZone::new($timezone));
+    }
+
+
+    /**
+     * Returns a new DateTime object for tomorrow
+     *
+     * @param DateTimeZone|string|null $timezone
+     *
+     * @return static
+     */
+    public static function getTomorrow(DateTimeZone|string|null $timezone = null): static
+    {
+        return new static('tomorrow', PhoDateTimeZone::new($timezone));
+    }
+
+
+    /**
+     * Returns a new DateTime object for yesterday
+     *
+     * @param DateTimeZone|string|null $timezone
+     *
+     * @return static
+     */
+    public static function getYesterday(DateTimeZone|string|null $timezone = null): static
+    {
+        return new static('yesterday', PhoDateTimeZone::new($timezone));
+    }
+
+
+    /**
+     * Returns a new DateTime object for the first day of this week
+     *
+     * @param DateTimeZone|string|null $timezone
+     *
+     * @return static
+     */
+    public static function getFirstDayOfWeek(DateTimeZone|string|null $timezone = null): static
+    {
+        return new static(SessionConfig::getString('datetime.week.start', 'monday') . ' this week', PhoDateTimeZone::new($timezone));
+    }
+
+
+    /**
+     * Returns a new DateTime object for the last day of this week
+     *
+     * @param DateTimeZone|string|null $timezone
+     *
+     * @return static
+     */
+    public static function getLastDayOfWeek(DateTimeZone|string|null $timezone = null): static
+    {
+        return new static(SessionConfig::getString('datetime.week.stop', 'sunday') . ' this week', PhoDateTimeZone::new($timezone));
+    }
+
+
+    /**
+     * Wrapper around the PHP Datetime but with support for named formats, like "mysql"
+     *
+     * @param string|null $format
+     *
+     * @return string
+     */
+    public function format(?string $format = null): string
+    {
+        return parent::format(static::parseFormat($format));
     }
 
 
@@ -118,16 +220,24 @@ class PhoDateTime extends \DateTime implements Stringable, Interfaces\PhoDateTim
 
 
     /**
-     * Wrapper around the PHP Datetime but with support for named formats, like "mysql"
+     * Will return the specified timezone, or if that is null, the timezone from the specified datetime.
      *
-     * @param string|null $format
+     * If the specified datetime is a string (and as such, contains no timezone information) NULL will be returned
+     * instead
      *
-     * @return string
+     * @param PhoDateTimeInterface|string|null $datetime
+     * @param DateTimeZone|string|null         $timezone
+     *
+     * @return PhoDateTimeZoneInterface|null
      */
-    public function format(?string $format = null): string
+    protected static function selectTimezone(PhoDateTimeInterface|string|null $datetime = 'now', DateTimeZone|string|null $timezone = null): ?PhoDateTimeZoneInterface
     {
-        return parent::format(static::parseFormat($format));
-    }
+        if ($datetime instanceof PhoDateTimeInterface) {
+            $timezone = new PhoDateTimeZone($timezone ?? $datetime->getTimezone());
+        }
+
+        return new PhoDateTimeZone($timezone);
+   }
 
 
     /**
@@ -153,198 +263,157 @@ class PhoDateTime extends \DateTime implements Stringable, Interfaces\PhoDateTim
 
 
     /**
-     * Returns a new DateTime object for the end of the day of the specified date
+     * Returns a new DateTime object for the end of the day for the specified date
      *
-     * @param PhoDateTime|string|null   $datetime
-     * @param \DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null $timezone
      *
      * @return static
      */
-    public static function getBeginningOfDay(PhoDateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): static
+    public function getBeginningOfDay(DateTimeZone|string|null $timezone = null): static
     {
-        return new static(static::new($datetime)->format('Y-m-d 00:00:00'), PhoDateTimeZone::new($timezone));
+        return new static(
+            $this->format('Y-m-d 00:00:00'),
+            static::selectTimezone($this, $timezone)
+        );
     }
 
 
     /**
-     * Returns a new DateTime object
+     * Returns a new DateTime object for the end of the day for the specified date
      *
-     * @param PhoDateTime|string|int|null $datetime
-     * @param \DateTimeZone|string|null   $timezone
-     *
-     * @return static
-     */
-    public static function new(PhoDateTime|string|int|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): static
-    {
-        return new static($datetime, $timezone);
-    }
-
-
-    /**
-     * Returns a new DateTime object for the end of the day of the specified date
-     *
-     * @param PhoDateTime|string|null   $datetime
-     * @param \DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null $timezone
      *
      * @return static
      */
-    public static function getEndOfDay(PhoDateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): static
+    public function getEndOfDay(DateTimeZone|string|null $timezone = null): static
     {
-        return new static(static::new($datetime)->format('Y-m-d 23:59:59.999999'), PhoDateTimeZone::new($timezone));
-    }
-
-
-    /**
-     * Returns a new DateTime object
-     *
-     * @param \DateTimeZone|string|null $timezone
-     *
-     * @return static
-     */
-    public static function getToday(\DateTimeZone|string|null $timezone = null): static
-    {
-        return new static('today', PhoDateTimeZone::new($timezone));
-    }
-
-
-    /**
-     * Returns a new DateTime object for tomorrow
-     *
-     * @param \DateTimeZone|string|null $timezone
-     *
-     * @return static
-     */
-    public static function getTomorrow(\DateTimeZone|string|null $timezone = null): static
-    {
-        return new static('tomorrow', PhoDateTimeZone::new($timezone));
-    }
-
-
-    /**
-     * Returns a new DateTime object for yesterday
-     *
-     * @param \DateTimeZone|string|null $timezone
-     *
-     * @return static
-     */
-    public static function getYesterday(\DateTimeZone|string|null $timezone = null): static
-    {
-        return new static('yesterday', PhoDateTimeZone::new($timezone));
+        return new static(
+            $this->format('Y-m-d 23:59:59.999999'),
+            static::selectTimezone($this, $timezone)
+        );
     }
 
 
     /**
      * Returns a new DateTime object for the first day of this year
      *
-     * @param \DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null  $timezone
      *
      * @return static
      */
-    public static function getFirstDayOfYear(\DateTimeZone|string|null $timezone = null): static
+    public function getFirstDayOfYear(DateTimeZone|string|null $timezone = null): static
     {
-        return new static('Y-01-01', PhoDateTimeZone::new($timezone));
+        return new static(
+            $this->format('Y-01-01'),
+            static::selectTimezone($this, $timezone)
+        );
     }
 
 
     /**
      * Returns a new DateTime object for the last day of this year
      *
-     * @param \DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null $timezone
      *
      * @return static
      */
-    public static function getLastDayOfYear(\DateTimeZone|string|null $timezone = null): static
+    public function getLastDayOfYear(DateTimeZone|string|null $timezone = null): static
     {
-        return new static('Y-12-31', PhoDateTimeZone::new($timezone));
-    }
-
-
-    /**
-     * Returns a new DateTime object for the last day of this month
-     *
-     * @param \DateTimeZone|string|null $timezone
-     *
-     * @return static
-     */
-    public static function getLastDayOfMonth(\DateTimeZone|string|null $timezone = null): static
-    {
-        return new static('Y-m-t', PhoDateTimeZone::new($timezone));
-    }
-
-
-    /**
-     * Returns a new DateTime object for the first day of this week
-     *
-     * @param \DateTimeZone|string|null $timezone
-     *
-     * @return static
-     */
-    public static function getFirstDayOfWeek(\DateTimeZone|string|null $timezone = null): static
-    {
-        return new static(SessionConfig::getString('datetime.week.start', 'monday') . ' this week', PhoDateTimeZone::new($timezone));
-    }
-
-
-    /**
-     * Returns a new DateTime object for the last day of this week
-     *
-     * @param \DateTimeZone|string|null $timezone
-     *
-     * @return static
-     */
-    public static function getLastDayOfWeek(\DateTimeZone|string|null $timezone = null): static
-    {
-        return new static(SessionConfig::getString('datetime.week.stop', 'sunday') . ' this week', PhoDateTimeZone::new($timezone));
-    }
-
-
-    /**
-     * Returns a new DateTime object for the first day of this week
-     *
-     * @param \DateTimeZone|string|null $timezone
-     *
-     * @return static
-     */
-    public static function getFirstPeriodStart(\DateTimeZone|string|null $timezone = null): static
-    {
-        return static::getFirstDayOfMonth();
+        return new static(
+            $this->format('Y-12-31'),
+            static::selectTimezone($this, $timezone)
+        );
     }
 
 
     /**
      * Returns a new DateTime object for the first day of this month
      *
-     * @param \DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null $timezone
      *
      * @return static
      */
-    public static function getFirstDayOfMonth(\DateTimeZone|string|null $timezone = null): static
+    public function getFirstDayOfMonth(DateTimeZone|string|null $timezone = null): static
     {
-        return new static('Y-m-01', PhoDateTimeZone::new($timezone));
+        return new static(
+            $this->format('Y-m-01'),
+            static::selectTimezone($this, $timezone)
+        );
     }
 
 
     /**
-     * Returns a new DateTime object for the last day of this week
+     * Returns a new DateTime object for the last day of this month
      *
-     * @param \DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null $timezone
      *
      * @return static
      */
-    public static function getLastPeriodStart(\DateTimeZone|string|null $timezone = null): static
+    public function getLastDayOfMonth(DateTimeZone|string|null $timezone = null): static
     {
-        return new static('Y-m-15', PhoDateTimeZone::new($timezone));
+        return new static(
+            $this->format('Y-m-t'),
+            static::selectTimezone($this, $timezone)
+        );
     }
 
 
     /**
-     * Returns this DateTime object as a string in ISO 8601 format without switching timezone
+     * Returns a new DateTime object for the first
      *
-     * @return string
+     * @param DateTimeZone|string|null $timezone
+     *
+     * @return static
      */
-    public function __toString()
+    public function getFirstPeriodStart(DateTimeZone|string|null $timezone = null): static
     {
-        return $this->format('Y-m-d H:i:s.u');
+        return $this->getFirstDayOfMonth($timezone);
+    }
+
+
+    /**
+     * Returns a new DateTime object for
+     *
+     * @param DateTimeZone|string|null $timezone
+     *
+     * @return static
+     */
+    public function getLastPeriodStart(DateTimeZone|string|null $timezone = null): static
+    {
+        return new static(
+            $this->format('Y-m-16'),
+            PhoDateTimeZone::new($timezone)
+        );
+    }
+
+
+    /**
+     * Adds a number of days, months, years, hours, minutes and seconds to a DateTime object
+     *
+     * @link https://secure.php.net/manual/en/datetime.diff.php
+     *
+     * @param DateInterval $interval
+     *
+     * @return DateTime
+     */
+    public function add(DateInterval $interval): DateTime
+    {
+        return new PhoDateTime(parent::add($interval));
+    }
+
+
+    /**
+     * Subtracts a number of days, months, years, hours, minutes and seconds from a DateTime object
+     *
+     * @link https://secure.php.net/manual/en/datetime.diff.php
+     *
+     * @param DateInterval $interval
+     *
+     * @return DateTime
+     */
+    public function sub(DateInterval $interval): DateTime
+    {
+        return new PhoDateTime(parent::sub($interval));
     }
 
 
@@ -408,21 +477,6 @@ class PhoDateTime extends \DateTime implements Stringable, Interfaces\PhoDateTim
 
 
     /**
-     * Subtracts an number of days, months, years, hours, minutes and seconds from a DateTime object
-     *
-     * @link https://secure.php.net/manual/en/datetime.diff.php
-     *
-     * @param \DateInterval $interval
-     *
-     * @return \DateTime
-     */
-    public function sub(\DateInterval $interval): \DateTime
-    {
-        return new PhoDateTime(parent::sub($interval));
-    }
-
-
-    /**
      * Returns a new DateTime object for the first day of the next monthly period
      *
      * @return static
@@ -441,21 +495,6 @@ class PhoDateTime extends \DateTime implements Stringable, Interfaces\PhoDateTim
 
         // 16 - 3(0|1) this month
         return PhoDateTime::new($datetime->format('Y-m-16 00:00:00'), $datetime->getTimezone());
-    }
-
-
-    /**
-     * Adds an number of days, months, years, hours, minutes and seconds to a DateTime object
-     *
-     * @link https://secure.php.net/manual/en/datetime.diff.php
-     *
-     * @param \DateInterval $interval
-     *
-     * @return \DateTime
-     */
-    public function add(\DateInterval $interval): \DateTime
-    {
-        return new PhoDateTime(parent::add($interval));
     }
 
 
@@ -557,11 +596,11 @@ class PhoDateTime extends \DateTime implements Stringable, Interfaces\PhoDateTim
     /**
      * Returns true if the current date is today
      *
-     * @param \DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null $timezone
      *
      * @return bool
      */
-    public function isToday(\DateTimeZone|string|null $timezone = null): bool
+    public function isToday(DateTimeZone|string|null $timezone = null): bool
     {
         $today = static::new('today', PhoDateTimeZone::new($timezone ?? $this->getTimezone()))
                        ->format('y-m-d');
@@ -573,11 +612,11 @@ class PhoDateTime extends \DateTime implements Stringable, Interfaces\PhoDateTim
     /**
      * Returns true if the current date is tomorrow
      *
-     * @param \DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null $timezone
      *
      * @return bool
      */
-    public function isTomorrow(\DateTimeZone|string|null $timezone = null): bool
+    public function isTomorrow(DateTimeZone|string|null $timezone = null): bool
     {
         $tomorrow = static::new('tomorrow', PhoDateTimeZone::new($timezone ?? $this->getTimezone()))
                           ->format('y-m-d');
@@ -589,11 +628,11 @@ class PhoDateTime extends \DateTime implements Stringable, Interfaces\PhoDateTim
     /**
      * Returns true if the current date is yesterday
      *
-     * @param \DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null $timezone
      *
      * @return bool
      */
-    public function isYesterday(\DateTimeZone|string|null $timezone = null): bool
+    public function isYesterday(DateTimeZone|string|null $timezone = null): bool
     {
         $yesterday = static::new('yesterday', PhoDateTimeZone::new($timezone ?? $this->getTimezone()))
                            ->format('y-m-d');
@@ -605,11 +644,11 @@ class PhoDateTime extends \DateTime implements Stringable, Interfaces\PhoDateTim
     /**
      * Returns a new DateTime object with the specified timezone
      *
-     * @param \DateTimeZone|PhoDateTimeZone|string $timezone
+     * @param DateTimeZone|PhoDateTimeZone|string $timezone
      *
      * @return static
      */
-    public function setTimezone(\DateTimeZone|PhoDateTimeZone|string $timezone): static
+    public function setTimezone(DateTimeZone|PhoDateTimeZone|string $timezone): static
     {
         if (!$timezone) {
             throw new OutOfBoundsException(tr('Cannot set timezone, no timezone specified'));
@@ -721,9 +760,11 @@ class PhoDateTime extends \DateTime implements Stringable, Interfaces\PhoDateTim
     /**
      * Makes this date have the current time
      *
+     * @param DateTimeZone|PhoDateTimeZone|string|null $timezone
+     *
      * @return static
      */
-    public function makeCurrentTime(\DateTimeZone|PhoDateTimeZone|string|null $timezone = null): static
+    public function makeCurrentTime(DateTimeZone|PhoDateTimeZone|string|null $timezone = null): static
     {
         $time = PhoDateTime::new('now', $timezone ?? $this->getTimezone())->format('H i s u');
         $time = explode(' ', $time);
@@ -737,56 +778,52 @@ class PhoDateTime extends \DateTime implements Stringable, Interfaces\PhoDateTim
     /**
      * Returns the current year
      *
-     * @param PhoDateTime|string|null   $datetime
-     * @param \DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null $timezone
      *
      * @return int
      */
-    public static function getYear(PhoDateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    public function getYear(DateTimeZone|string|null $timezone = null): int
     {
-        return (int) PhoDateTime::new($datetime, $timezone)->format('Y');
+        return (int) PhoDateTime::new($this, $timezone)->format('Y');
     }
 
 
     /**
      * Returns the current month of the year
      *
-     * @param PhoDateTime|string|null   $datetime
-     * @param \DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null $timezone
      *
      * @return int
      */
-    public static function getMonth(PhoDateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    public function getMonth(DateTimeZone|string|null $timezone = null): int
     {
-        return (int) PhoDateTime::new($datetime, $timezone)->format('m');
+        return (int) PhoDateTime::new($this, $timezone)->format('m');
     }
 
 
     /**
      * Returns the current week of the year
      *
-     * @param PhoDateTime|string|null   $datetime
-     * @param \DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null $timezone
      *
      * @return int
      */
-    public static function getWeek(PhoDateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    public function getWeek(DateTimeZone|string|null $timezone = null): int
     {
-        return (int) PhoDateTime::new($datetime, $timezone)->format('W');
+        return (int) PhoDateTime::new($this, $timezone)->format('W');
     }
 
 
     /**
      * Returns the current day of the month
      *
-     * @param PhoDateTime|string|null   $datetime
-     * @param \DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null $timezone
      *
      * @return int
      */
-    public static function getDay(PhoDateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    public function getDay(DateTimeZone|string|null $timezone = null): int
     {
-        return (int) PhoDateTime::new($datetime, $timezone)->format('d');
+        return (int) PhoDateTime::new($this, $timezone)->format('d');
     }
 
 
@@ -795,82 +832,77 @@ class PhoDateTime extends \DateTime implements Stringable, Interfaces\PhoDateTim
      *
      * @note will return the hour in 24 hours format
      *
-     * @param PhoDateTime|string|null   $datetime
-     * @param \DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null $timezone
      *
      * @return int
      */
-    public static function getHour(PhoDateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    public function getHour(DateTimeZone|string|null $timezone = null): int
     {
-        return (int) PhoDateTime::new($datetime, $timezone)->format('H');
+        return (int) PhoDateTime::new($this, $timezone)->format('H');
     }
 
 
     /**
      * Returns the current minute of the hour
      *
-     * @param PhoDateTime|string|null   $datetime
-     * @param \DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null $timezone
      *
      * @return int
      */
-    public static function getMinute(PhoDateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    public function getMinute(DateTimeZone|string|null $timezone = null): int
     {
-        return (int) PhoDateTime::new($datetime, $timezone)->format('i');
+        return (int) PhoDateTime::new($this, $timezone)->format('i');
     }
 
 
     /**
      * Returns the current second of the minute
      *
-     * @param PhoDateTime|string|null   $datetime
-     * @param \DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null $timezone
      *
      * @return int
      */
-    public static function getSecond(PhoDateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    public function getSecond(DateTimeZone|string|null $timezone = null): int
     {
-        return (int) PhoDateTime::new($datetime, $timezone)->format('s');
+        return (int) PhoDateTime::new($this, $timezone)->format('s');
     }
 
 
     /**
      * Returns the current millisecond of the second
      *
-     * @param PhoDateTime|string|null   $datetime
-     * @param \DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null $timezone
      *
      * @return int
      */
-    public static function getMillisecond(PhoDateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    public function getMillisecond(DateTimeZone|string|null $timezone = null): int
     {
-        return (int) PhoDateTime::new($datetime, $timezone)->format('v');
+        return (int) PhoDateTime::new($this, $timezone)->format('v');
     }
 
 
     /**
      * Returns the current microsecond of the second
      *
-     * @param PhoDateTime|string|null   $datetime
-     * @param \DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null $timezone
      *
      * @return int
      */
-    public static function getMicroSecond(PhoDateTime|string|null $datetime = 'now', \DateTimeZone|string|null $timezone = null): int
+    public function getMicroSecond(DateTimeZone|string|null $timezone = null): int
     {
-        return (int) PhoDateTime::new($datetime, $timezone)->format('u');
+        return (int) PhoDateTime::new($this, $timezone)->format('u');
     }
 
 
     /**
      * Returns a string representation of how long ago the specified date was, from now
      *
-     * @param PhoDate|PhoDateTime|string|int|null $date
+     * @param PhoDate|PhoDateTimeInterface|string|int|null $date
      * @param bool                                $microseconds
      *
      * @return string
      */
-    public function getAge(PhoDate|PhoDateTime|string|int|null $date = null, bool $microseconds = false): string
+    public function getAge(PhoDate|PhoDateTimeInterface|string|int|null $date = null, bool $microseconds = false): string
     {
         if (!is_object($date)) {
             if (is_integer($date)) {
