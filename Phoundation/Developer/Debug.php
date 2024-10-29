@@ -1289,7 +1289,7 @@ class Debug
     {
         $offset = 0;
 
-        // We'll use function call caching here, make sure cache is cleared before we start
+        // We'll use function call caching here, make sure the cache is cleared before we start
         FunctionCall::clearCache();
 
         while (true) {

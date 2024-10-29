@@ -340,7 +340,7 @@ trait ProcessVariables
     /**
      * Tracks when this command executed
      *
-     * @var PhoDateTime|null $executed_on
+     * @var PhoDateTimeInterface|null $executed_on
      */
     protected ?PhoDateTime $executed_on = null;
 
