@@ -377,7 +377,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
             $split = parent::get('date_range_split', false);
 
             if ($range and $split) {
-                $return = PhoDateTime::getBeginningOfDay($split[0], $timezone);
+                $return = PhoDateTime::new($split[0], $timezone)->getBeginningOfDay();
 
             } else {
                 $return = null;
@@ -404,7 +404,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
             $split = parent::get('date_range_split', false);
 
             if ($range and $split) {
-                $return = PhoDateTime::getEndOfDay($split[1], $timezone);
+                $return = PhoDateTime::new($split[1], $timezone)->getEndOfDay();
 
             } else {
                 $return = null;

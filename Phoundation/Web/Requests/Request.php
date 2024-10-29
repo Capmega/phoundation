@@ -1188,7 +1188,7 @@ class Request implements RequestInterface
                     ->setType('Non existing rights')
                     ->setSeverity(in_array('admin', Session::getUserObject()
                                                            ->getMissingRights($rights)) ? EnumSeverity::high : EnumSeverity::medium)
-                    ->setTitle(tr('Requested rights ":rights" do not exist on this system and was not automatically created', [
+                    ->setTitle(tr('The requested rights ":rights" do not exist on this system and was not automatically created', [
                         ':rights'      => Strings::force(Rights::getNotExist($rights), ', '),
                     ]))
                     ->setBody(tr('The requested rights ":rights" for target page ":target" (real target ":real_target") do not exist on this system and was not automatically created. Redirecting to ":redirect"', [
