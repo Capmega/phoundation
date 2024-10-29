@@ -2896,7 +2896,7 @@ class Definition implements DefinitionInterface
                                 'column' => $column,
                                 'data'   => $validator->getSource()
                             ])
-                            ->notifyRoles('security')
+                            ->setNotifyRoles('security')
                             ->save();
 
                     $validator->addFailure(tr('The field ":field" is unknown', [':field' => $column]));

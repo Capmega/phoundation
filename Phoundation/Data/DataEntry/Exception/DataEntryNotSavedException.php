@@ -17,6 +17,6 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Exception;
 
 
-class DataEntryNotSavedException extends DataEntryException
+class DataEntryNotSavedException extends DataEntryNotExistsException
 {
 }
