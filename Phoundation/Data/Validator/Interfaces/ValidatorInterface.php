@@ -22,6 +22,7 @@ use Phoundation\Data\Interfaces\IteratorBaseInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Stringable;
@@ -545,23 +546,24 @@ interface ValidatorInterface extends IteratorBaseInterface
      */
     public function isDateTime(): static;
 
-    /**
-     * Validates that the selected field is in the past
-     *
-     * @param PhoDateTime|null $before
-     *
-     * @return static
-     */
-    public function isBefore(?PhoDateTime $before): static;
 
     /**
      * Validates that the selected field is in the past
      *
-     * @param PhoDateTime|null $after
+     * @param PhoDateTimeInterface|null $before
      *
      * @return static
      */
-    public function isAfter(?PhoDateTime $after): static;
+    public function isBefore(?PhoDateTimeInterface $before): static;
+
+    /**
+     * Validates that the selected field is in the past
+     *
+     * @param PhoDateTimeInterface|null $after
+     *
+     * @return static
+     */
+    public function isAfter(?PhoDateTimeInterface $after): static;
 
     /**
      * Validates that the selected field is a credit card

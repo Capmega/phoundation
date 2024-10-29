@@ -20,6 +20,7 @@ use DateTimeZone;
 use Exception;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Date\Exception\DateException;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Arrays;
@@ -226,7 +227,7 @@ class PhoDate
      *
      * So for now we have this barf solution
      *
-     * @param PhoDateTime|string $date
+     * @param PhoDateTimeInterface|string $date
      *
      * @return string The result
      * @example When executed with LANGUAGE "es"
@@ -243,7 +244,7 @@ class PhoDate
      * @todo    REIMPLEMENT
      * @version 2.8.15: Added function and documentation
      */
-    public static function translate(DateTime|string $date): string
+    public static function translate(PhoDateTimeInterface|string $date): string
     {
         // First check if there are any translatable words in the specified date
         if (!is_string($date)) {
@@ -371,7 +372,7 @@ class PhoDate
      * @param PhoDateInterval $interval
      * @param string|null     $format
      *
-     * @return array|PhoDateTime|string|string[]
+     * @return array|PhoDateTimeInterface|string|string[]
      * @throws Exception
      */
     public static function interval(DateTime $date, DateInterval $interval, ?string $format = null)
@@ -394,7 +395,7 @@ class PhoDate
     /**
      * Returns a string representation of how long ago the specified date was, from now
      *
-     * @param PhoDate|PhoDateTime|string|int $date
+     * @param PhoDate|PhoDateTimeInterface|string|int $date
      * @param bool                           $microseconds
      *
      * @return string

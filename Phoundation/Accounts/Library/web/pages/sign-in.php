@@ -52,23 +52,16 @@ if (Request::isPostRequestMethod()) {
 
             Response::redirect(Url::getRedirect($redirect, $user->getDefaultPage()));
 
-        } catch (PasswordTooShortException | NoPasswordSpecifiedException | ValidationFailedException $e) {
-            Response::getFlashMessagesObject()->addWarning(tr('Please specify a valid email and password'));
-            break;
-
-        } catch (AuthenticationException $e) {
+        } catch (AuthenticationException | PasswordTooShortException | NoPasswordSpecifiedException | ValidationFailedException $e) {
             Response::getFlashMessagesObject()->addWarning(tr('The specified email and/or password were incorrect'));
+            $post = PostValidator::new()->getSource();
         }
-    }
-
-    if (empty($get['email'])) {
-        GetValidator::new()->set(PostValidator::new()->get('email'), 'email');
     }
 }
 
 
 // Email might be specified by GET or POST
-$get['email'] = PostValidator::new()->get('email') ?? $get['email'];
+$get['email'] = isset_get($post['email']) ?? $get['email'];
 
 
 // Display the sign-in page

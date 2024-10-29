@@ -46,31 +46,19 @@ $authentication = Authentication::load($get['id']);
 if (Request::isPostRequestMethod()) {
     try {
         switch (PostValidator::new()->getSubmitButton()) {
-            case tr('Save'):
-                // Update authentication
-                $authentication
-                    ->apply()
-                    ->save();
-
-// TODO Implement timers
-//showdie(Timers::get('query'));
-
-                Response::getFlashMessagesObject()->addSuccess(tr('Authentication ":authentication" has been saved', [':authentication' => $authentication->getName()]));
-                Response::redirect('referer');
-
             case tr('Delete'):
                 $authentication->delete();
-                Response::getFlashMessagesObject()->addSuccess(tr('The authentication ":authentication" has been deleted', [':authentication' => $authentication->getName()]));
+                Response::getFlashMessagesObject()->addSuccess(tr('The authentication ":authentication" has been deleted', [':authentication' => $authentication->getId()]));
                 Response::redirect();
 
             case tr('Undelete'):
                 $authentication->undelete();
-                Response::getFlashMessagesObject()->addSuccess(tr('The authentication ":authentication" has been undeleted', [':authentication' => $authentication->getName()]));
+                Response::getFlashMessagesObject()->addSuccess(tr('The authentication ":authentication" has been undeleted', [':authentication' => $authentication->getId()]));
                 Response::redirect();
         }
 
     } catch (IncidentsException | ValidationFailedException $e) {
-        // Oops! Show validation errors and remain on page
+        // Oops! Show validation errors and remain on the page
         Response::getFlashMessagesObject()->addMessage($e);
         $authentication->forceApply();
     }
@@ -101,7 +89,6 @@ $card = Card::new()
             ->setTitle(tr('Edit data for authentication :id', [':id' => $authentication->getId()]))
             ->setContent($form)
             ->setButtons(Buttons::new()
-                                ->addButton(tr('Save'))
                                 ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/accounts/authentications.html'), true)
                                 ->addButton(isset_get($delete))
                                 ->addButton(isset_get($audit)));

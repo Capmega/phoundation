@@ -146,7 +146,7 @@ interface DataIteratorInterface extends IteratorInterface
      *
      * @return int
      */
-    public function updateStatus(?string $status, ?string $comments = null): int;
+    public function setStatus(?string $status, ?string $comments = null): int;
 
 
     /**

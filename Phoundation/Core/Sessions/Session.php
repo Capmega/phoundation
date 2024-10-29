@@ -966,6 +966,7 @@ class Session implements SessionInterface
             // Update the users sign-in and last sign-in information
             static::clear();
             static::updateSignInTracking();
+            static::clearSignInKey();
 
             Incident::new()
                     ->setType(tr('User sign in'))
@@ -991,7 +992,7 @@ class Session implements SessionInterface
                                     ':user' => $user
                                 ]))
                                 ->setDetails(['user' => $user])
-                                ->notifyRoles('accounts')
+                                ->setNotifyRoles('accounts')
                                 ->save()
                                 ->throw(AuthenticationException::class);
                 }
@@ -1280,7 +1281,7 @@ class Session implements SessionInterface
                         'impersonating'       => User::load($_SESSION['user']['impersonate_id'])->getLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
-                    ->notifyRoles('accounts')
+                    ->setNotifyRoles('accounts')
                     ->save()
                     ->throw();
         }
@@ -1304,7 +1305,7 @@ class Session implements SessionInterface
                         'user'                => static::getUserObject()->getLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
-                    ->notifyRoles('accounts')
+                    ->setNotifyRoles('accounts')
                     ->save()
                     ->throw();
         }
@@ -1328,7 +1329,7 @@ class Session implements SessionInterface
                         'user'                => static::getUserObject()->getLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
-                    ->notifyRoles('accounts')
+                    ->setNotifyRoles('accounts')
                     ->save()
                     ->throw();
         }
@@ -1352,7 +1353,7 @@ class Session implements SessionInterface
                         'user'                => static::getUserObject()->getLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
-                    ->notifyRoles('accounts')
+                    ->setNotifyRoles('accounts')
                     ->save()
                     ->throw();
         }
@@ -1382,7 +1383,7 @@ class Session implements SessionInterface
                     'user'        => $original_user->getLogId(),
                     'impersonate' => $user->getLogId(),
                 ])
-                ->notifyRoles('accounts')
+                ->setNotifyRoles('accounts')
                 ->save();
 
         // Notify the target user
@@ -1497,6 +1498,18 @@ class Session implements SessionInterface
 
 
     /**
+     * This method will clear the users sign in key
+     *
+     * @return void
+     */
+    public static function clearSignInKey(): void
+    {
+        unset($_SESSION['sign-key']);
+        static::$key = null;
+    }
+
+
+    /**
      * Destroy the current user session
      *
      * @return void
@@ -1544,7 +1557,7 @@ class Session implements SessionInterface
                             'user'        => User::load($users_id)->getLogId(),
                             'impersonate' => User::load($impersonate_id)->getLogId(),
                         ])
-                        ->notifyRoles('accounts')
+                        ->setNotifyRoles('accounts')
                         ->save();
 
                     Response::getFlashMessagesObject()
@@ -1617,7 +1630,7 @@ class Session implements SessionInterface
                     'user' => static::getUserObject()->getLogId(),
                 ])
                 ->save()
-                ->notifyRoles('developers');
+                ->setNotifyRoles('developers');
         }
 
         // Attempt sign-out

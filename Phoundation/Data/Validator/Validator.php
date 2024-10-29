@@ -27,6 +27,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDateFormats;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\PhoDateTimeFormats;
@@ -1007,8 +1008,12 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             if (!$this->checkIsOptional($value)) {
                 if (!is_string($value)) {
                     if ($value instanceof Stringable) {
-                        // Force value to be string from here
+                        // Force object to be string from here
                         $value = (string) $value;
+
+                    } elseif (is_enum($value)) {
+                        // Force enum to be string from here
+                        $value = (string) $value->value;
 
                     } elseif (!is_numeric($value)) {
                         if ($value !== null) {
@@ -2196,6 +2201,11 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
             $formats = Arrays::force($formats, null);
 
+            // If the datetime has milliseconds or microseconds, then remove those
+            if (preg_match('/\.\d+$/', $value)) {
+                $value = Strings::untilReverse($value, '.');
+            }
+
             // We must be able to create a date object using the given formats without failure, and the resulting date
             // must be the same as the specified date
             if (!static::dateMatchesFormats($value, $formats)) {
@@ -2208,11 +2218,11 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * Validates that the selected field is in the past
      *
-     * @param PhoDateTime|null $before
+     * @param PhoDateTimeInterface|null $before
      *
      * @return static
      */
-    public function isBefore(?PhoDateTime $before): static
+    public function isBefore(?PhoDateTimeInterface $before): static
     {
         $this->test_count++;
 
@@ -2240,11 +2250,11 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * Validates that the selected field is in the past
      *
-     * @param PhoDateTime|null $after
+     * @param PhoDateTimeInterface|null $after
      *
      * @return static
      */
-    public function isAfter(?PhoDateTime $after): static
+    public function isAfter(?PhoDateTimeInterface $after): static
     {
         $this->test_count++;
 

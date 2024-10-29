@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 
-trait TraitDataStatus
+trait TraitDataStatusFilter
 {
     /**
      * The status to use

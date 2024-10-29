@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class DataEntryDeletedException
+ * Class DataEntryNotSavedException
  *
- * This exception is thrown when a data entry is loaded that has been deleted
+ * This exception is thrown when a DataEntry object is destroyed while still having unsaved modifications
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -17,6 +17,6 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Exception;
 
 
-class DataEntryDeletedException extends DataEntryNotExistsException
+class DataEntryNotSavedException extends DataEntryNotExistsException
 {
 }

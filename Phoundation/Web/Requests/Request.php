@@ -1188,7 +1188,7 @@ class Request implements RequestInterface
                     ->setType('Non existing rights')
                     ->setSeverity(in_array('admin', Session::getUserObject()
                                                            ->getMissingRights($rights)) ? EnumSeverity::high : EnumSeverity::medium)
-                    ->setTitle(tr('Requested rights ":rights" do not exist on this system and was not automatically created', [
+                    ->setTitle(tr('The requested rights ":rights" do not exist on this system and was not automatically created', [
                         ':rights'      => Strings::force(Rights::getNotExist($rights), ', '),
                     ]))
                     ->setBody(tr('The requested rights ":rights" for target page ":target" (real target ":real_target") do not exist on this system and was not automatically created. Redirecting to ":redirect"', [
@@ -1205,7 +1205,7 @@ class Request implements RequestInterface
                         'rights'         => $rights,
                         'missing_rights' => Rights::getNotExist($rights),
                     ])
-                    ->notifyRoles('accounts')
+                    ->setNotifyRoles('accounts')
                     ->save();
 
         } else {
@@ -1231,7 +1231,7 @@ class Request implements RequestInterface
                         'real_target' => static::$main_target->getSource('web'),
                         'rights'      => Session::getUserObject()->getMissingRights($rights),
                     ])
-                    ->notifyRoles('accounts')
+                    ->setNotifyRoles('accounts')
                     ->save();
         }
 
@@ -1415,10 +1415,12 @@ class Request implements RequestInterface
 
             case EnumRequestTypes::api:
                 // These are JSON type requests, reply with JSON instead of HTML
-                Incident::new()
-                        ->setException($e)
-                        ->setLog(true)
-                        ->save();
+                if ($e) {
+                    Incident::new()
+                            ->setException($e)
+                            ->setLog(true)
+                            ->save();
+                }
 
                 JsonPage::new()->replyWithHttpCode($http_code);
         }

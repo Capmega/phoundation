@@ -25,6 +25,7 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Exception\DataEntryAlreadySavedException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
@@ -447,17 +448,20 @@ class Authentication extends DataEntry implements AuthenticationInterface
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
         // Ensure status will be limited to the defined possible states
-        $definitions->get('status')->setDataSource(static::getStatuses());
+        $definitions->removeKeys('new-divider')
+                    ->get('status')->setDataSource(static::getStatuses());
 
         $definitions->add(DefinitionFactory::newCreatedBy($this)
                                            ->setOptional(true))
+
+                    ->add(DefinitionFactory::newDivider($this, 'new-divider'))
 
                     ->add(Definition::new($this, 'account')
                                     ->setLabel(tr('Used user account'))
                                     ->setOptional(true)
                                     ->setDisabled(true)
                                     ->setMaxlength(128)
-                                    ->setSize(6))
+                                    ->setSize(3))
 
                     ->add(DefinitionFactory::newNumber($this, 'ip_address_binary')
                                            ->setRender(false))
@@ -470,14 +474,14 @@ class Authentication extends DataEntry implements AuthenticationInterface
                                            ->setLabel(tr('IP address'))
                                            ->setDisabled(true)
                                            ->setOptional(true)
-                                           ->setSize(4))
+                                           ->setSize(3))
 
                     ->add(Definition::new($this, 'user_agent')
                                     ->setLabel(tr('User agent'))
                                     ->setDisabled(true)
                                     ->setOptional(true)
                                     ->setMaxlength(2040)
-                                    ->setSize(8))
+                                    ->setSize(6))
 
                     ->add(Definition::new($this, 'action')
                                     ->setLabel(tr('Action'))
@@ -499,18 +503,6 @@ class Authentication extends DataEntry implements AuthenticationInterface
                                     ->setOptional(true)
                                     ->setSize(4)
                                     ->setDataSource(static::getMethods()))
-
-                    ->add(DefinitionFactory::newNumber($this, 'latitude')
-                                           ->setLabel(tr('Latitude'))
-                                           ->setDisabled(true)
-                                           ->setOptional(true)
-                                           ->setSize(6))
-
-                    ->add(DefinitionFactory::newNumber($this, 'longitude')
-                                    ->setLabel(tr('Longitude'))
-                                    ->setDisabled(true)
-                                    ->setOptional(true)
-                                    ->setSize(6))
 
                     ->add(DefinitionFactory::newDatabaseId($this, 'timezones_id')
                                            ->setLabel(tr('Timezone'))
@@ -536,6 +528,18 @@ class Authentication extends DataEntry implements AuthenticationInterface
                                            ->setOptional(true)
                                            ->setSize(3))
 
+                    ->add(DefinitionFactory::newNumber($this, 'latitude')
+                                           ->setLabel(tr('Latitude'))
+                                           ->setDisabled(true)
+                                           ->setOptional(true)
+                                           ->setSize(3))
+
+                    ->add(DefinitionFactory::newNumber($this, 'longitude')
+                                           ->setLabel(tr('Longitude'))
+                                           ->setDisabled(true)
+                                           ->setOptional(true)
+                                           ->setSize(3))
+
                     ->add(DefinitionFactory::newBoolean($this, 'captcha_required')
                                            ->setLabel(tr('Required CAPTCHA'))
                                            ->setDisabled(true)
@@ -547,6 +551,6 @@ class Authentication extends DataEntry implements AuthenticationInterface
                                     ->setDisabled(true)
                                     ->setOptional(true)
                                     ->setMaxlength(4090)
-                                    ->setSize(10));
+                                    ->setSize(4));
     }
 }

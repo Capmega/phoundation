@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Stringable;
@@ -38,12 +39,12 @@ class InputDate extends InputText
     /**
      * Sets the value for the input element
      *
-     * @param PhoDateTime|Stringable|string|float|int|null $value
+     * @param PhoDateTimeInterface|Stringable|string|float|int|null $value
      * @param bool                                         $make_safe
      *
      * @return static
      */
-    public function setValue(PhoDateTime|Stringable|string|float|int|null $value, bool $make_safe = true): static
+    public function setValue(PhoDateTimeInterface|Stringable|string|float|int|null $value, bool $make_safe = true): static
     {
         if ($value instanceof PhoDateTime) {
             $value = $value->format('Y-m-d');
@@ -67,11 +68,11 @@ class InputDate extends InputText
     /**
      * Sets the maximum numeric value for this numeric input
      *
-     * @param PhoDateTime|Stringable|string|null $max
+     * @param PhoDateTimeInterface|Stringable|string|null $max
      *
      * @return static
      */
-    public function setMax(PhoDateTime|Stringable|string|null $max): static
+    public function setMax(PhoDateTimeInterface|Stringable|string|null $max): static
     {
         if ($max instanceof PhoDateTime) {
             $max = $max->format('Y-m-d');
@@ -95,11 +96,11 @@ class InputDate extends InputText
     /**
      * Sets the minimum numeric value for this numeric input
      *
-     * @param PhoDateTime|Stringable|string|null $min
+     * @param PhoDateTimeInterface|Stringable|string|null $min
      *
      * @return static
      */
-    public function setMin(PhoDateTime|Stringable|string|null $min): static
+    public function setMin(PhoDateTimeInterface|Stringable|string|null $min): static
     {
         if ($min instanceof PhoDateTime) {
             $min = $min->format('Y-m-d');

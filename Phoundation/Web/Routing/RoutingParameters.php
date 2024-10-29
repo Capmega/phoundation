@@ -21,10 +21,11 @@ use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
-use Phoundation\Filesystem\PhoPath;
+use Phoundation\Filesystem\PhoPathCore;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Exception\RouteException;
 use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Url;
@@ -201,21 +202,28 @@ class RoutingParameters implements RoutingParametersInterface
 
         // Check defined rights and directory rights, both have to pass
         if ($this->require_directory_rights) {
-            // First cut to WWW directory
-            // Then the rest, as the directory may be partial
-            // Then remove the file name to only have the directory parts
-            // Ensure it doesn't start with a slash to avoid empty right entries
-            // Then explode to array
-            $directory = Strings::from($target, $this->require_directory_rights);
+            // First cut to WWW directory.
+            // Then the rest, as the directory may be partial.
+            // Then remove the file name to only have the directory parts.
+            // Ensure it doesn't start with a slash to avoid empty right entries.
+            // Then explode to array.
+            $directory = Strings::from($target, $this->require_directory_rights, needle_required: true);
             $directory = Strings::ensureStartsNotWith($directory, '/');
             $directory = dirname($directory);
+
+            if (!$directory) {
+                throw new RouteException(tr('Cannot apply auto directory rights for target ":target", the target does not start with the root directory ":root"', [
+                    ':target' => Strings::from($target, DIRECTORY_ROOT),
+                    ':root'   => Strings::from($this->require_directory_rights, DIRECTORY_ROOT),
+                ]));
+            }
 
             if ($directory === '.') {
                 // Current directory, there is no directory
                 $directory = [];
 
             } else {
-                $directory = explode(PhoPath::DIRECTORY_SEPARATOR, $directory);
+                $directory = explode(PhoPathCore::DIRECTORY_SEPARATOR, $directory);
             }
 
             // Merge with the already specified rights
@@ -256,7 +264,7 @@ class RoutingParameters implements RoutingParametersInterface
      */
     public function setRequireDirectoryRights(string $require_directory_rights, array|string|null $rights_exceptions = null): static
     {
-        $this->require_directory_rights = DIRECTORY_WEB . 'pages' . Strings::slash($require_directory_rights);
+        $this->require_directory_rights = DIRECTORY_WEB . Strings::ensureStartsNotWith($require_directory_rights, '/');
 
         if ($rights_exceptions) {
             $this->rights_exceptions = get_null(Arrays::force($rights_exceptions));

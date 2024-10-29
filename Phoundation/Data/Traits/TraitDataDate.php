@@ -45,12 +45,12 @@ trait TraitDataDate
     /**
      * Sets the date
      *
-     * @param PhoDateTime|PhoDateTimeInterface|string|null $date
-     * @param DateTimeZone|string|null                     $timezone
+     * @param PhoDateTimeInterface|string|null $date
+     * @param DateTimeZone|string|null         $timezone
      *
      * @return static
      */
-    public function setDate(PhoDateTime|PhoDateTimeInterface|string|null $date, DateTimeZone|string|null $timezone = null): static
+    public function setDate(PhoDateTimeInterface|string|null $date, DateTimeZone|string|null $timezone = null): static
     {
         if ($date instanceof PhoDateTime) {
             $this->date = new PhoDateTime($date->format('Y-m-d'), $timezone ?? $date->getTimezone());

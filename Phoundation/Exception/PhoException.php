@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class Exception
+ * Class PhoException
  *
  * This is the most basic Phoundation Exception class, expanding the PHP Exception class with a variety of new functions
  *
@@ -48,7 +48,7 @@ use Phoundation\Core\Exception\LogException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 use Phoundation\Developer\Debug;
-use Phoundation\Exception\Interfaces\ExceptionInterface;
+use Phoundation\Exception\Interfaces\PhoExceptionInterface;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\EnumSeverity;
@@ -62,7 +62,7 @@ use RuntimeException;
 use Throwable;
 
 
-class PhoException extends RuntimeException implements Interfaces\ExceptionInterface
+class PhoException extends RuntimeException implements Interfaces\PhoExceptionInterface
 {
     /**
      * Exception data, if available
@@ -114,6 +114,13 @@ class PhoException extends RuntimeException implements Interfaces\ExceptionInter
      */
     protected bool $has_been_logged = false;
 
+    /**
+     * Tracks if one of these exceptions has ever been generated
+     *
+     * @var bool $has_been_created
+     */
+    protected static bool $has_been_created = false;
+
 
     /**
      * Exception constructor
@@ -123,11 +130,13 @@ class PhoException extends RuntimeException implements Interfaces\ExceptionInter
      */
     public function __construct(Throwable|array|string|null $messages, ?Throwable $previous = null)
     {
+        static::$has_been_created = true;
+
         if (is_object($messages)) {
             // The message actually is an Exception! Extract data and make this exception the previous
             $previous = $messages;
 
-            if ($messages instanceof ExceptionInterface) {
+            if ($messages instanceof PhoExceptionInterface) {
                 // This is a Phoundation exception, get more information
                 $message = $messages->getMessage();
 
@@ -186,7 +195,7 @@ class PhoException extends RuntimeException implements Interfaces\ExceptionInter
 
                     $this->has_been_logged = false;
 
-                    if ($previous instanceof ExceptionInterface) {
+                    if ($previous instanceof PhoExceptionInterface) {
                         $previous->hasBeenLogged(false);
                     }
                 }
@@ -194,6 +203,17 @@ class PhoException extends RuntimeException implements Interfaces\ExceptionInter
         }
 
         parent::__construct($message, 0, $previous);
+    }
+
+
+    /**
+     * Returns true if an PhoException object has ever been created
+     *
+     * @return bool
+     */
+    public static function hasBeenCreated(): bool
+    {
+        return static::$has_been_created;
     }
 
 
@@ -305,7 +325,7 @@ class PhoException extends RuntimeException implements Interfaces\ExceptionInter
     {
         if ($messages) {
             if (is_array($messages)) {
-                // Add multiple message
+                // Add multiple messages
                 foreach ($messages as $message) {
                     $this->messages[] = trim($message);
                 }
@@ -342,7 +362,11 @@ class PhoException extends RuntimeException implements Interfaces\ExceptionInter
 
             $source['class'] = isset_get($source['class'], PhoException::class);
 
-            // Import data
+            // Import data, check for old Phoundation\Exception\Exception class!
+            if ($source['class'] === 'Phoundation\Exception\Exception') {
+                $source['class'] = PhoException::class;
+            }
+
             $e = new $source['class']($source['message']);
             $e->setCode(isset_get($source['code']));
             $e->setData(isset_get($source['data']));
@@ -409,7 +433,7 @@ class PhoException extends RuntimeException implements Interfaces\ExceptionInter
         $previous = $this->getPrevious();
 
         if ($previous) {
-            if ($previous instanceof ExceptionInterface) {
+            if ($previous instanceof PhoExceptionInterface) {
                 $return['previous'] = $previous->__toArray();
 
             } else {
@@ -782,15 +806,15 @@ class PhoException extends RuntimeException implements Interfaces\ExceptionInter
      *
      * @return static
      */
-    public static function ensurePhoundationException(Throwable $e, string $exception_class = PhpException::class): ExceptionInterface
+    public static function ensurePhoundationException(Throwable $e, string $exception_class = PhpException::class): PhoExceptionInterface
     {
-        if ($e instanceof ExceptionInterface) {
+        if ($e instanceof PhoExceptionInterface) {
             return $e;
         }
 
         $e = new $exception_class($e);
 
-        if ($e instanceof ExceptionInterface) {
+        if ($e instanceof PhoExceptionInterface) {
             return $e;
         }
 

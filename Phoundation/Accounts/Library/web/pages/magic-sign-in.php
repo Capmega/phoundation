@@ -22,6 +22,7 @@ use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Exception\PhoException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Csrf;
@@ -103,7 +104,7 @@ if (Request::isPostRequestMethod()) {
             $mail->setFrom('no-reply@phoundation.org', 'Phoundation no-reply');
 
             if (!$mail->send()) {
-                throw new \Phoundation\Exception\PhoException($mail->ErrorInfo);
+                throw new PhoException($mail->ErrorInfo);
             }
 
         } catch (DataEntryNotExistsException $e) {

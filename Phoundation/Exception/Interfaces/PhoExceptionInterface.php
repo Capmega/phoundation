@@ -10,7 +10,7 @@ use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Throwable;
 
-interface ExceptionInterface extends Throwable, ArrayableInterface
+interface PhoExceptionInterface extends Throwable, ArrayableInterface
 {
     /**
      * Return the exception-related data
