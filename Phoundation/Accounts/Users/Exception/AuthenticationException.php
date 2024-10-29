@@ -18,7 +18,7 @@ namespace Phoundation\Accounts\Users\Exception;
 
 use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInterface;
 use Phoundation\Data\Traits\TraitDataNewTarget;
-use Phoundation\Data\Traits\TraitDataStatus;
+use Phoundation\Data\Traits\TraitDataStatusFilter;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
 use Throwable;
@@ -27,7 +27,7 @@ use Throwable;
 class AuthenticationException extends UsersException implements AuthenticationExceptionInterface
 {
     use TraitDataNewTarget;
-    use TraitDataStatus;
+    use TraitDataStatusFilter;
 
 
     /**

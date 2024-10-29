@@ -2362,6 +2362,7 @@ class User extends DataEntry implements UserInterface
 
         // No profile image was set, return the default
         return ProfileImage::new()
+                           ->setReadonly(true)
                            ->setUserObject($this)
                            ->setFile(DIRECTORY_CDN . LANGUAGE . '/img/profiles/default.png');
     }
