@@ -69,6 +69,17 @@ trait TraitDataReadonly
      *
      * @return bool
      */
+    public function isReadonly(): bool
+    {
+        return $this->readonly;
+    }
+
+
+    /**
+     * Returns if this object is readonly or not
+     *
+     * @return bool
+     */
     public function getReadonly(): bool
     {
         return $this->readonly;

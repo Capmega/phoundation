@@ -112,8 +112,9 @@ trait TraitIterator
             // However... This will still fail if some clever dipshit decides to use an array with an empty key with
             // a null value, like [null => null, 'a' => 'a'] or [null, 'a' => 'a']
             $exists = current($this->source) === $this->source[null];
+
             if (!$exists) {
-                // Yay, the current value doesn't match the empty key value, we're out of range
+                // Yay, the current value doesn't match the empty key value; we're out of range
                 return false;
             }
 

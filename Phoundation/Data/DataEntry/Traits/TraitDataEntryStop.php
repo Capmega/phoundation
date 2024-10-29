@@ -42,6 +42,17 @@ trait TraitDataEntryStop
      */
     public function setStop(PhoDateTimeInterface|string|null $stop): static
     {
-        return $this->set(new PhoDateTime($stop, 'system'), 'stop');
+        return $this->set($stop ? new PhoDateTime($stop, 'system') : null, 'stop');
+    }
+
+
+    /**
+     * Returns true if stop has a value
+     *
+     * @return bool
+     */
+    public function isStopped(): bool
+    {
+        return $this->getStop() !== null;
     }
 }

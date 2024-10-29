@@ -45,6 +45,7 @@ use Phoundation\Data\DataEntry\Exception\DataEntryBadException;
 use Phoundation\Data\DataEntry\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntry\Exception\DataEntryException;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntry\Exception\DataEntryNotSavedException;
 use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntry\Exception\DataEntryStateMismatchException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
@@ -75,9 +76,11 @@ use Phoundation\Databases\Sql\SqlDataEntry;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\PhoException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
+use Phoundation\Utils\Exception\ConfigurationInvalidException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
@@ -86,6 +89,7 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Input\InputText;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
+use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Stringable;
 use Throwable;
@@ -234,6 +238,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     protected array|DataEntryInterface|string|int|null $identifier;
 
+    /**
+     * Tracks if this DataEntry object may be destroyed with unsaved modifications
+     *
+     * @var bool|null $allow_modified_destruct
+     */
+    protected ?bool $allow_modified_destruct = null;
+
 
     /**
      * DataEntry class constructor
@@ -260,6 +271,66 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         if ($init) {
             $this->init(false, false);
         }
+    }
+
+
+    /**
+     * DataEntry destructor
+     *
+     * @todo For now this check is only performed when enabled with configuration as this can cause a lot of unexpected behaviour. Improve this later
+     */
+    public function __destruct()
+    {
+        if ($this->is_modified and !$this->readonly) {
+            $enabled = Config::getBoolean('development.dataentries.destruct.modified.check', false);
+
+            if ($enabled) {
+                // Cannot destroy a modified DataEntry object without either resetting it or saving it
+                if (!Core::getErrorState() and !PhoException::hasBeenCreated()) {
+                    throw DataEntryNotSavedException::new(tr('Cannot destroy the ":class" object, it has unsaved modifications', [
+                        ':class' => $this::class
+                    ]));
+                }
+
+                // Core was handling an uncaught exception, the exception likely caused this state
+                Log::warning(tr('Object of class ":class" is destroyed while still having unsaved modifications, this is likely due to the (uncaught) exception that occurred', [
+                    ':class' => $this::class
+                ]));
+            }
+        }
+    }
+
+
+    /**
+     * Returns true if this DataEntry object may be destroyed with unsaved modifications
+     *
+     * @note There is a variety of reasons why a DataEntry object would be destroyed without saving first, though most
+     *       of these reasons involve exception conditions. An DataEntry::apply() might fail with an exception, leaving
+     *       the object in a modified state, which would cause a secondary exception by itself.
+     *
+     * @return bool
+     */
+    public function getAllowModifiedDestruct(): bool
+    {
+        if ($this->allow_modified_destruct === null) {
+            return Config::getBoolean('development.data-entries.modified-destruct.allow', false);
+        }
+
+        return $this->allow_modified_destruct;
+    }
+
+
+    /**
+     * Returns true if this DataEntry object may be destroyed without
+     *
+     * @param bool|null $allow_modified_destruct
+     *
+     * @return DataEntryCore
+     */
+    public function setAllowModifiedDestruct(?bool $allow_modified_destruct): static
+    {
+        $this->allow_modified_destruct = $allow_modified_destruct;
+        return $this;
     }
 
 
@@ -601,7 +672,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
                     break;
 
                 case 'status':
-                    $definitions->add(DefinitionFactory::newStatus($this));
+                    $definitions->add(DefinitionFactory::newStatus($this)
+                                                       ->setNullDefault(tr('Ok')));
                     break;
 
                 case 'meta_state':
@@ -615,7 +687,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             }
         }
 
-        $this->definitions = $definitions->add(DefinitionFactory::newDivider($this)
+        $this->definitions = $definitions->add(DefinitionFactory::newDivider($this, 'new-divider')
                                                                 ->addPreRenderFunctions(function(DefinitionInterface $definition, array $source, mixed $value) {
             // Only render this when displaying meta-elements
             $definition->setRender(!$this->isNew() and $this->getDefinitionsObject()->getMetaVisible());
@@ -1123,7 +1195,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         // Load data with object init
         $this->setMetaData($source)->copyValuesToSource($source, false);
 
-        $this->is_modified = true;
+        $this->is_modified = false;
         $this->is_loading  = false;
         $this->is_saved    = false;
 
@@ -2168,8 +2240,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
                     continue;
                 }
 
-                return true;
+                return false;
             }
+
+            return true;
         }
 
         return false;
@@ -2192,7 +2266,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             return null;
         }
 
-        return static::load($identifiers, $meta_enabled, $init);
+        return static::new($identifiers, $meta_enabled, $init);
     }
 
 

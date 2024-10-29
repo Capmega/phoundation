@@ -31,7 +31,7 @@ use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Data\Traits\TraitDataFilterForm;
 use Phoundation\Data\Traits\TraitDataMetaEnabled;
 use Phoundation\Data\Traits\TraitDataReadonly;
-use Phoundation\Data\Traits\TraitDataStatus;
+use Phoundation\Data\Traits\TraitDataStatusFilter;
 use Phoundation\Data\Traits\TraitMethodBuildManualQuery;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
@@ -54,7 +54,7 @@ use Stringable;
 
 class DataIteratorCore extends IteratorCore implements DataIteratorInterface
 {
-    use TraitDataStatus;
+    use TraitDataStatusFilter;
     use TraitDataConfigPath;
     use TraitDataConnector;
     use TraitDataDebug;
@@ -635,7 +635,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
      */
     public function delete(?string $comments = null): int
     {
-        return $this->updateStatus('deleted', $comments);
+        return $this->setStatus('deleted', $comments);
     }
 
 
@@ -647,7 +647,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
      *
      * @return int
      */
-    public function updateStatus(?string $status, ?string $comments = null): int
+    public function setStatus(?string $status, ?string $comments = null): int
     {
         foreach ($this->source as $entry) {
             $entry->setStatus($status, $comments);
@@ -670,6 +670,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
         // Delete the meta data entries
         foreach ($this->source as $id => $entry) {
             $ids[] = $id;
+
             if (is_array($entry)) {
                 $meta[] = $entry['meta_id'];
 
@@ -702,7 +703,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
      */
     public function undelete(?string $comments = null): int
     {
-        return $this->updateStatus(null, $comments);
+        return $this->setStatus(null, $comments);
     }
 
 

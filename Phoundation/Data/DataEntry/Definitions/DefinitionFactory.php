@@ -20,7 +20,7 @@ use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Business\Companies\Companies;
-use Phoundation\Business\Customers\Customers;
+use Plugins\Phoundation\Business\Customers\Customers;
 use Phoundation\Business\Providers\Providers;
 use Phoundation\Core\CoreLocale;
 use Phoundation\Core\Locale\Language\Languages;

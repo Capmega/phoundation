@@ -44,4 +44,15 @@ trait TraitDataEntryStart
     {
         return $this->set($start ? new PhoDateTime($start, 'system') : null, 'start');
     }
+
+
+    /**
+     * Returns true if start has a value
+     *
+     * @return bool
+     */
+    public function isStarted(): bool
+    {
+        return $this->getStart() !== null;
+    }
 }
