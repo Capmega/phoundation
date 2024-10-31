@@ -132,7 +132,6 @@ class User extends DataEntry implements UserInterface
     use TraitDataEntryVerificationCode;
     use TraitDataEntryVerifiedOn;
 
-
     /**
      * The extra email addresses for this user
      *
@@ -202,17 +201,17 @@ class User extends DataEntry implements UserInterface
             ];
         }
 
-
         // Process system users. Possible identifiers for system users are "system" or "guest"
         switch ($identifier) {
             case 'guest':
                 parent::__construct('guest', false, true);
                 $this->initGuestUser();
-                return;
 
+                return;
             case 'system':
                 parent::__construct('system', false, false);
                 $this->initSystemUser();
+
                 return;
         }
 
@@ -348,7 +347,7 @@ class User extends DataEntry implements UserInterface
                                     FROM   `accounts_emails` 
                                     WHERE  `email` = :email 
                                       AND  `status` IS NULL', [
-                                          ':email' => $identifier['email'],
+                    ':email' => $identifier['email'],
                 ]);
 
                 if ($user) {
@@ -397,8 +396,7 @@ class User extends DataEntry implements UserInterface
             // This is a system type user, either system or guest
             return Strings::log($this->getId()) . ' / ' . $this->getNickname();
         }
-
-        $id    = $this->getTypesafe('int'       , $this->getIdColumn());
+        $id    = $this->getTypesafe('int', $this->getIdColumn());
         $label = $this->getTypesafe('string|int', static::getUniqueColumn() ?? 'id');
 
         return Strings::log($id) . ' / ' . $label;
@@ -433,7 +431,6 @@ class User extends DataEntry implements UserInterface
         $authentication = Authentication::new()
                                         ->setAccount(Json::encode($identifier, JSON_OBJECT_AS_ARRAY))
                                         ->setAction($action);
-
         // Try authentication through hook
         $user = $hook->execute('authenticate', [
             'identifier'     => $identifier,
@@ -463,22 +460,22 @@ class User extends DataEntry implements UserInterface
                 $authentication->setStatus('no-hook-data')->save();
 
                 Incident::new()
-                    ->setType('Authentication hook returned no data')
-                    ->setSeverity(EnumSeverity::high)
-                    ->setTitle(tr('Cannot perform user authentication, hook script ":hook" returned no data', [
-                        ':hook'  => $hook->getFile('authenticate')->getRootname(),
-                    ]))
-                    ->setDetails([
-                        'account' => $hook->getArgument('identifier'),
-                        'hook'    => $hook->__toArray()
-                    ])
-                    ->setNotifyRoles('accounts')
-                    ->save()
-                    ->throw(OutOfBoundsException::class);
+                        ->setType('Authentication hook returned no data')
+                        ->setSeverity(EnumSeverity::high)
+                        ->setTitle(tr('Cannot perform user authentication, hook script ":hook" returned no data', [
+                            ':hook' => $hook->getFile('authenticate')->getRootname(),
+                        ]))
+                        ->setDetails([
+                            'account' => $hook->getArgument('identifier'),
+                            'hook'    => $hook->__toArray()
+                        ])
+                        ->setNotifyRoles('accounts')
+                        ->save()
+                        ->throw(OutOfBoundsException::class);
             }
 
             Log::warning(tr('Authentication hook ":hook" does not exist, attempting default internal authentication instead', [
-                ':hook'  => $hook->getFile('authenticate')->getRootname(),
+                ':hook' => $hook->getFile('authenticate')->getRootname(),
             ]));
 
             // The hook file doesn't exist, try internal authentication
@@ -488,10 +485,9 @@ class User extends DataEntry implements UserInterface
             $authentication->setStatus('bad-hook-data')->save();
 
             throw new OutOfBoundsException(tr('Cannot perform user authentication, the hook script ":hook" returned a non UserInterface value ":value"', [
-                ':hook' => $hook->getFile('authenticate')->getRootname(),
+                ':hook'  => $hook->getFile('authenticate')->getRootname(),
                 ':value' => $user,
             ]));
-
         }
 
         // Check user status, only NULL is allowed!
@@ -499,24 +495,24 @@ class User extends DataEntry implements UserInterface
             $authentication->setStatus('locked')->save();
 
             Incident::new()
-                ->setCreatedBy($user->getId())
-                ->setType('User attempted to authenticate on locked account')
-                ->setSeverity(EnumSeverity::high)
-                ->setTitle(tr('Cannot authenticate user ":user", the user has the status ":status" which is not allowed', [
-                    ':user'   => $user->getLogId(),
-                    ':status' => $user->getStatus(),
-                ]))
-                ->setDetails(['user' => $user->getLogId()])
-                ->setNotifyRoles('accounts')
-                ->save()
-                ->throw(AuthenticationException::class);
+                    ->setCreatedBy($user->getId())
+                    ->setType('User attempted to authenticate on locked account')
+                    ->setSeverity(EnumSeverity::high)
+                    ->setTitle(tr('Cannot authenticate user ":user", the user has the status ":status" which is not allowed', [
+                        ':user'   => $user->getLogId(),
+                        ':status' => $user->getStatus(),
+                    ]))
+                    ->setDetails(['user' => $user->getLogId()])
+                    ->setNotifyRoles('accounts')
+                    ->save()
+                    ->throw(AuthenticationException::class);
         }
 
         $authentication->setCreatedBy($user->getId())->save();
 
         Log::warning(tr('Authenticated user ":user" with account authentication hook ":hook"', [
-            ':user'  => $user->getLogId(),
-            ':hook'  => $hook->getFile('authenticate')->getRootname(),
+            ':user' => $user->getLogId(),
+            ':hook' => $hook->getFile('authenticate')->getRootname(),
         ]));
 
         return $user;
@@ -558,10 +554,8 @@ class User extends DataEntry implements UserInterface
     {
         try {
             $user = static::load($identifier);
-
             if ($user->passwordMatch($password)) {
                 static::authenticateDomain($identifier, $user, $authentication, $domain, $test);
-
                 Hook::new('phoundation/accounts/authentication')
                     ->execute('success', [
                         'user'     => $user,
@@ -570,21 +564,20 @@ class User extends DataEntry implements UserInterface
 
                 return $user;
             }
-
         } catch (DataEntryNotExistsException $e) {
             $authentication->setStatus('user-not-exist')->save();
 
             Incident::new()
-                ->setType('User does not exist')
-                ->setSeverity(EnumSeverity::low)
-                ->setTitle(tr('Cannot perform ":action" user ":user", the user does not exist', [
-                    ':action' => $authentication->getAction(),
-                    ':user'   => Json::encode($identifier, JSON_OBJECT_AS_ARRAY),
-                ]))
-                ->setDetails(['user' => $identifier])
-                ->setNotifyRoles('accounts')
-                ->save()
-                ->throw(AuthenticationException::class);
+                    ->setType('User does not exist')
+                    ->setSeverity(EnumSeverity::low)
+                    ->setTitle(tr('Cannot perform ":action" user ":user", the user does not exist', [
+                        ':action' => $authentication->getAction(),
+                        ':user'   => Json::encode($identifier, JSON_OBJECT_AS_ARRAY),
+                    ]))
+                    ->setDetails(['user' => $identifier])
+                    ->setNotifyRoles('accounts')
+                    ->save()
+                    ->throw(AuthenticationException::class);
         }
 
         if ($test) {
@@ -601,23 +594,23 @@ class User extends DataEntry implements UserInterface
                 'status'   => 'password-incorrect',
                 'user'     => $user,
                 'password' => $password
-            ]);
+        ]);
 
         $authentication->setCreatedBy($user->getId())
                        ->setStatus('password-incorrect')
                        ->save();
 
         Incident::new()
-            ->setType('Incorrect password for account detected')
-            ->setSeverity(EnumSeverity::low)
-            ->setTitle(tr('Cannot perform ":action" user ":user", the specified password is incorrect', [
-                ':action' => $authentication->getAction(),
-                ':user'   => $user->getLogId(),
-            ]))
-            ->setDetails(['user' => $user->getLogId()])
-            ->setNotifyRoles('accounts')
-            ->save()
-            ->throw(AuthenticationException::class);
+                ->setType('Incorrect password for account detected')
+                ->setSeverity(EnumSeverity::low)
+                ->setTitle(tr('Cannot perform ":action" user ":user", the specified password is incorrect', [
+                    ':action' => $authentication->getAction(),
+                    ':user'   => $user->getLogId(),
+                ]))
+                ->setDetails(['user' => $user->getLogId()])
+                ->setNotifyRoles('accounts')
+                ->save()
+                ->throw(AuthenticationException::class);
     }
 
 
@@ -645,19 +638,19 @@ class User extends DataEntry implements UserInterface
                     $authentication->setStatus('domain-not-allowed')->save();
 
                     Incident::new()
-                        ->setCreatedBy($user->getId())
-                        ->setType('Domain access disallowed')
-                        ->setSeverity(EnumSeverity::medium)
-                        ->setTitle(tr('The user ":user" is not allowed to have access to domain ":domain"', [
-                            ':user'   => $user->getLogId(),
-                            ':domain' => $domain,
-                        ]))
-                        ->setDetails([
-                            'user'   => $user,
-                            'domain' => $domain,
-                        ])
-                        ->setNotifyRoles('accounts')
-                        ->save();
+                            ->setCreatedBy($user->getId())
+                            ->setType('Domain access disallowed')
+                            ->setSeverity(EnumSeverity::medium)
+                            ->setTitle(tr('The user ":user" is not allowed to have access to domain ":domain"', [
+                                ':user'   => $user->getLogId(),
+                                ':domain' => $domain,
+                            ]))
+                            ->setDetails([
+                                'user'   => $user,
+                                'domain' => $domain,
+                            ])
+                            ->setNotifyRoles('accounts')
+                            ->save();
                 }
 
                 throw new AuthenticationException(tr('The specified user ":user" is not allowed to access the domain ":domain"', [
@@ -691,6 +684,7 @@ class User extends DataEntry implements UserInterface
      * Save the user to database
      *
      * @param bool        $force
+     * @param bool        $skip_validation
      * @param string|null $comments
      *
      * @return static
@@ -728,37 +722,14 @@ class User extends DataEntry implements UserInterface
             }
         }
 
-        $meta_id = $this->getMetaId();
-
         parent::save();
 
-        // Send out Account change notification, but not during init states.
         if ($this->isSaved()) {
-            if (!Core::inInitState()) {
-                if ($meta_id) {
-                    Incident::new()
-                            ->setType('Accounts change')
-                            ->setSeverity(EnumSeverity::low)
-                            ->setTitle(tr('The user ":user" was modified, see audit ":meta_id" for more information', [
-                                ':user'    => $this->getLogId(),
-                                ':meta_id' => $meta_id,
-                            ]))
-                            ->setDetails(['user' => $this->getLogId()])
-                            ->setNotifyRoles('accounts')
-                            ->save();
-
-                } else {
-                    Incident::new()
-                            ->setType('Accounts change')
-                            ->setSeverity(EnumSeverity::low)
-                            ->setTitle(tr('The user ":user" was created', [
-                                ':user' => $this->getLogId(),
-                            ]))
-                            ->setDetails(['user' => $this->getLogId()])
-                            ->setNotifyRoles('accounts')
-                            ->save();
-                }
-            }
+            // Do we need to apply default rights?
+            // Send out Account write notifications, but not during init states.
+            $this->applyDefaultRoles()
+                 ->notifyUserAboutWrite()
+                 ->notifyRoleAccountsAboutWrite();
         }
 
         // Save was successful! If we're saving the current user, then update the session
@@ -766,9 +737,124 @@ class User extends DataEntry implements UserInterface
             Log::action(tr('Current session user ":user" changed in database, refreshing session user data', [
                 ':user' => $this->getLogId(),
             ]));
-
             Session::reloadUser();
         }
+
+        return $this;
+    }
+
+
+    /**
+     * Ensures that a new user has a number of default rights that apply to all users
+     *
+     * @return static
+     */
+    protected function applyDefaultRoles(): static
+    {
+        if ($this->isCreated()) {
+            // Get user default roles and the user roles object
+            $roles   = Config::get('security.accounts.roles.default', '');
+            $o_roles = $this->getRolesObject();
+
+            if ($roles) {
+                // Add all default roles one by one
+                foreach (Arrays::force($roles) as $role) {
+                    $o_roles->add(Role::load($role));
+                }
+
+                // Write the default roles to the database
+                $o_roles->save();
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Notifies the "accounts" role about a change in this user
+     *
+     * @return void
+     */
+    protected function notifyRoleAccountsAboutWrite(): void
+    {
+        if (!Core::inInitState()) {
+            if ($this->isCreated()) {
+                Incident::new()
+                        ->setType('Accounts change')
+                        ->setSeverity(EnumSeverity::low)
+                        ->setTitle(tr('The user ":user" was modified, see audit ":meta_id" for more information', [
+                            ':user'    => $this->getLogId(),
+                            ':meta_id' => $this->getMetaId(),
+                        ]))
+                        ->setDetails(['user' => $this->getLogId()])
+                        ->setNotifyRoles('accounts')
+                        ->save();
+
+            } else {
+                Incident::new()
+                        ->setType('Accounts change')
+                        ->setSeverity(EnumSeverity::low)
+                        ->setTitle(tr('The user ":user" was created', [
+                            ':user' => $this->getLogId(),
+                        ]))
+                        ->setDetails(['user' => $this->getLogId()])
+                        ->setNotifyRoles('accounts')
+                        ->save();
+            }
+        }
+    }
+
+
+    /**
+     * Notifies the user that either this account was created or modified
+     *
+     * @return $this
+     */
+    protected function notifyUserAboutWrite(): static
+    {
+        if ($this->isCreated()) {
+            // Notify the user that their account was created, accompanied by a login link
+            $key = $this->getSigninKey()->generate(Url::getWww('/force-password-update.html'));
+
+            Notification::new()
+                        ->setUser($this)
+                        ->setTitle(tr('An account has been created for you on :project', [
+                            ':project' => Config::getString('project.name', 'Phoundation')
+                        ]))
+                        ->setMessage(tr('An account has been created on :project by :user. To enter the system, you can click the link :link or copy/paste the :url in your browser. This will immediately take you to your account where you only have to enter your desired password', [
+                            ':url'     => $key->getUrl(),
+                            ':link'    => '<a href="' . $key->getUrl() . '">' . tr('here') . '</a>',
+                            ':user'    => Session::getUserObject()->getDisplayName(),
+                            ':project' => Config::getString('project.name', 'Phoundation'),
+                        ]))
+                        ->save()
+                        ->send();
+
+            return $this;
+        }
+
+
+        // Notify user that their account was modified
+        if (Session::getUserObject()->getId() === $this->getId()) {
+            $message = tr('Your account has been updated by you from IP address :ip. If you did not make this change, please notify your IT department immediately', [
+                ':ip' => Session::getIpAddress(),
+            ]);
+
+        } else {
+            $message = tr('Your account has been updated by :user. If this was unexpected, please contact this person to ensure your account is still safe.', [
+                ':user' => Session::getUserObject()->getDisplayName(),
+            ]);
+        }
+
+        Notification::new()
+                    ->setUser($this)
+                    ->setTitle(tr('Your :project account has been modified', [
+                        ':project' => Config::getString('project.name', 'Phoundation')
+                    ]))
+                    ->setMessage($message)
+                    ->save()
+                    ->send();
 
         return $this;
     }
@@ -782,7 +868,7 @@ class User extends DataEntry implements UserInterface
      *
      * @return string
      */
-    function getDisplayName(bool $official = false, bool $clean = false): string
+    public function getDisplayName(bool $official = false, bool $clean = false): string
     {
         if ($clean) {
             $postfix = null;
@@ -856,6 +942,10 @@ class User extends DataEntry implements UserInterface
             return true;
         }
 
+        if (empty($this->rights) and $this->isNew()) {
+            return false;
+        }
+
         $contains = $this->getRightsObject()->containsKeys($rights, false, 'god');
 
         if (!$contains) {
@@ -885,6 +975,10 @@ class User extends DataEntry implements UserInterface
     {
         if (!$rights) {
             return true;
+        }
+
+        if (empty($this->rights) and $this->isNew()) {
+            return false;
         }
 
         $contains = $this->getRightsObject()->containsKeys($rights, true, 'god');
@@ -921,7 +1015,7 @@ class User extends DataEntry implements UserInterface
             ]));
         }
 
-        if (!isset($this->rights) or $reload) {
+        if (empty($this->rights) or $reload) {
             if ($this->getId()) {
                 $this->rights = RightsBySeoName::new()
                                                ->setParentObject($this)
@@ -2007,6 +2101,8 @@ class User extends DataEntry implements UserInterface
     public function getRolesHtmlDataEntryFormObject(string $name = 'roles_id[]'): DataEntryFormInterface
     {
         // Get a list of all roles for this user
+        $selected = [];
+
         foreach ($this->getRolesObject() as $role) {
             $selected[] = $role->getId();
         }
@@ -2635,10 +2731,16 @@ class User extends DataEntry implements UserInterface
                                                $validator->isUnique(tr('already exists as a primary phone number'));
                                            }))
 
+                    ->add(DefinitionFactory::newLanguage($this)
+                                           ->setHelpGroup(tr('Location information'))
+                                           ->setHelpText(tr('The display language for this user')))
+
+                    ->add(DefinitionFactory::newLanguagesId($this))
+
                     ->add(Definition::new($this, 'address')
                                     ->setOptional(true)
                                     ->setMaxlength(255)
-                                    ->setSize(6)
+                                    ->setSize(3)
                                     ->setCliColumn('-a,--address')
                                     ->setCliAutoComplete(true)
                                     ->setLabel(tr('Address'))
@@ -2652,7 +2754,7 @@ class User extends DataEntry implements UserInterface
                                     ->setOptional(true)
                                     ->setMinlength(4)
                                     ->setMaxlength(8)
-                                    ->setSize(3)
+                                    ->setSize(1)
                                     ->setCliColumn('-z,--zipcode')
                                     ->setCliAutoComplete(true)
                                     ->setLabel(tr('Zip code'))
@@ -2663,22 +2765,36 @@ class User extends DataEntry implements UserInterface
                                     }))
 
                     ->add(DefinitionFactory::newCountry($this)
+                                           ->setSize(2)
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The country where this user resides')))
 
-                    ->add(DefinitionFactory::newCountriesId($this))
+                    ->add(DefinitionFactory::newCountriesId($this)
+                                           ->setSize(2))
 
                     ->add(DefinitionFactory::newState($this)
+                                           ->setSize(2)
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The state where this user resides')))
 
-                    ->add(DefinitionFactory::newStatesId($this))
+                    ->add(DefinitionFactory::newStatesId($this)
+                                           ->setSize(2))
 
                     ->add(DefinitionFactory::newCity($this)
+                                           ->setSize(2)
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The city where this user resides')))
 
-                    ->add(DefinitionFactory::newCitiesId($this))
+                    ->add(DefinitionFactory::newCitiesId($this)
+                                           ->setSize(2))
+
+                    ->add(DefinitionFactory::newTimezone($this)
+                                           ->setSize(2)
+                                           ->setHelpGroup(tr('Location information'))
+                                           ->setHelpText(tr('The timezone where this user resides')))
+
+                    ->add(DefinitionFactory::newTimezonesId($this)
+                                           ->setSize(2))
 
                     ->add(Definition::new($this, 'latitude')
                                     ->setOptional(true)
@@ -2754,18 +2870,6 @@ class User extends DataEntry implements UserInterface
                                         $validator->isName();
                                     }))
 
-                    ->add(DefinitionFactory::newTimezone($this)
-                                           ->setHelpGroup(tr('Location information'))
-                                           ->setHelpText(tr('The timezone where this user resides')))
-
-                    ->add(DefinitionFactory::newTimezonesId($this))
-
-                    ->add(DefinitionFactory::newLanguage($this)
-                                           ->setHelpGroup(tr('Location information'))
-                                           ->setHelpText(tr('The display language for this user')))
-
-                    ->add(DefinitionFactory::newLanguagesId($this))
-
                     ->add(Definition::new($this, 'keywords')
                                     ->setOptional(true)
                                     ->setMaxlength(255)
@@ -2780,17 +2884,8 @@ class User extends DataEntry implements UserInterface
                                         //$validator->sanitizeForceArray(' ')->eachField()->isWord()->sanitizeForceString()
                                     }))
 
-                    ->add(DefinitionFactory::newDateTime($this, 'verified_on')
-                                           ->setDisabled(true)
-                                           ->setDbNullInputType(EnumInputType::text)
-                                           ->setNullDefault(tr('Not verified'))
-                                           ->addClasses('text-center')
-                                           ->setLabel(tr('Account verified on'))
-                                           ->setHelpGroup(tr('Account information'))
-                                           ->setHelpText(tr('The date when this user was email verified. Empty if not yet verified')))
-
                     ->add(DefinitionFactory::newUrl($this, 'redirect')
-                                           ->setSize(6)
+                                           ->setSize(4)
                                            ->setDataSource(Url::getAjax('system/accounts/users/redirect/autosuggest.json'))
                                            ->setInputType(EnumInputType::auto_suggest)
                                            ->setInitialDefault(Config::getString('security.accounts.users.new.defaults.redirect', '/force-password-update.html'))
@@ -2799,7 +2894,7 @@ class User extends DataEntry implements UserInterface
                                            ->setHelpText(tr('The URL where this user will be forcibly redirected to upon sign in')))
 
                     ->add(DefinitionFactory::newUrl($this, 'default_page')
-                                           ->setSize(3)
+                                           ->setSize(2)
                                            ->setDataSource(Url::getAjax('system/accounts/users/redirect/autosuggest.json'))
                                            ->setInputType(EnumInputType::auto_suggest)
                                            ->setLabel(tr('Default page'))
@@ -2807,13 +2902,23 @@ class User extends DataEntry implements UserInterface
                                            ->setHelpText(tr('The user configurable default page where this user will be redirected to upon sign in')))
 
                     ->add(Definition::new($this, 'url')
-                                    ->setSize(12)
+                                    ->setSize(4)
                                     ->setOptional(true)
                                     ->setMaxlength(2048)
                                     ->setCliColumn('--url')
                                     ->setLabel(tr('Website URL'))
                                     ->setHelpGroup(tr('Account information'))
                                     ->setHelpText(tr('A URL specified by the user, usually containing more information about the user')))
+
+                    ->add(DefinitionFactory::newDateTime($this, 'verified_on')
+                                           ->setSize(2)
+                                           ->setDisabled(true)
+                                           ->setDbNullInputType(EnumInputType::text)
+                                           ->setNullDefault(tr('Not verified'))
+                                           ->addClasses('text-center')
+                                           ->setLabel(tr('Account verified on'))
+                                           ->setHelpGroup(tr('Account information'))
+                                           ->setHelpText(tr('The date when this user was email verified. Empty if not yet verified')))
 
                     ->add(DefinitionFactory::newDescription($this)
                                            ->setSize(6)

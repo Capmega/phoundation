@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Users\Interfaces;
 
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
 
 interface SignInKeyInterface extends DataEntryInterface
@@ -108,4 +109,20 @@ interface SignInKeyInterface extends DataEntryInterface
      * @return bool
      */
     public function signKeyAllowsUrl(Stringable|string $url, string $target): bool;
+
+    /**
+     * Returns the url
+     *
+     * @return string|null
+     */
+    public function getUrl(): ?string;
+
+    /**
+     * Sets the url
+     *
+     * @param UrlInterface|string|null $url
+     *
+     * @return static
+     */
+    public function setUrl(UrlInterface|string|null $url): static;
 }

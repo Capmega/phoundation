@@ -215,10 +215,14 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
     public function setUserObject(UserInterface $user): static
     {
         if ($user->isNew()) {
-            throw new OutOfBoundsException(tr('Cannot assign profile image ":image" to user ":user", the user is new and does not yet have a database id', [
-                ':image' => $this->getSource(),
-                ':user'  => $user->getLogId()
-            ]));
+            if (!$this->isReadonly()) {
+                throw new OutOfBoundsException(tr('Cannot assign profile image ":image" to user ":user", the user is new and does not yet have a database id', [
+                    ':image' => $this->getSource(),
+                    ':user'  => $user->getLogId()
+                ]));
+            }
+
+            // This profile image is readonly and cannot be saved anyway, so likely is a default image for a new user
         }
 
         return $this->___setUsersId($user);

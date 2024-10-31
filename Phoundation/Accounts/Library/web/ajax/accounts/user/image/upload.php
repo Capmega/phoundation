@@ -38,7 +38,7 @@ use Phoundation\Web\Uploads\UploadHandler;
 
 // Validate GET and get the requested user
 $get = GetValidator::new()
-                   ->select('id')->isOptional()->isDbId()
+                   ->select('id')->isDbId()
                    ->validate();
 
 $user = User::load($get['id']);

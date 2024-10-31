@@ -36,7 +36,7 @@ use Phoundation\Web\Requests\Response;
 
 // Validate GET and get requested user and password
 $get = GetValidator::new()
-                   ->select('id')->isOptional()->isDbId()
+                   ->select('id')->isDbId()
                    ->validate();
 
 $user     = User::load($get['id']);

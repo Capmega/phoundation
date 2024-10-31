@@ -167,8 +167,9 @@ Response::setPageTitle(tr('Request a new password'));
                         </div>
                         <div class="row">
                             <div class="col-12">
-                                <a class="btn btn-outline-secondary btn-block"
-                                   href="<?= Url::getWww('/sign-in.html')->addQueries(isset_get($get['email']) ? 'email=' . $get['email'] : '', isset_get($get['redirect']) ? 'redirect=' . $get['redirect'] : '') ?>"><?= tr('Back to sign in') ?></a>
+                                <a class="btn btn-outline-secondary btn-block" href="<?= Url::getWww('/sign-in.html')->addRedirect(isset_get($get['redirect']))->addQuery(isset_get($get['email']), 'email') ?>">
+                                    <?= tr('Back to sign in') ?>
+                                </a>
                             </div>
                         </div>
                         <?php

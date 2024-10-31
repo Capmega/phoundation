@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Page accounts/user.php
+ * Page accounts/user
  *
  * This is the primary user management page where we can manage all the basic information about a user account
  *
@@ -19,7 +19,6 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
-use Phoundation\Web\Html\Components\Img;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
@@ -35,12 +34,24 @@ use Phoundation\Web\Requests\Response;
 use Phoundation\Web\Uploads\UploadHandler;
 
 
-// Validate GET and get the requested user
+// Validate GET arguments
 $get = GetValidator::new()
                    ->select('id')->isOptional()->isDbId()
                    ->validate();
 
-$user = User::load($get['id']);
+
+// Get the requested user and modify form design
+$user = User::new($get['id']);
+$user->getDefinitionsObject()->setRender('latitude'        , false)
+                             ->setRender('longitude'       , false)
+                             ->setRender('offset_latitude' , false)
+                             ->setRender('offset_longitude', false)
+                             ->setRender('accuracy'        , false)
+                             ->setRender('type'            , false)
+                             ->setRender('keywords'        , false)
+                             ->setRender('is_leader'       , false)
+                             ->setRender('priority'        , false)
+                             ->setRender('data'            , false);
 
 
 // Define the drag/drop upload selector
@@ -70,12 +81,15 @@ if (Request::isPostRequestMethod()) {
                 $user->getEmailsObject()->apply(false)->save();
                 $user->getPhonesObject()->apply()->save();
 
-// TODO Implement timers
-//showdie(Timers::get('query'));
-
                 Response::getFlashMessagesObject()->addSuccess(tr('The account for user ":user" has been saved', [
                     ':user' => $user->getDisplayName(),
                 ]));
+
+                if ($user->isCreated()) {
+                    Response::getFlashMessagesObject()->addSuccess(tr('A welcome email has been sent to ":user"', [
+                        ':user' => $user->getDisplayName(),
+                    ]));
+                }
 
                 // Redirect away from POST
                 Response::redirect(Url::getWww('/accounts/user+' . $user->getId() . '.html'));
@@ -288,8 +302,7 @@ $relevant_card = Card::new()
                                                           <a href="' . Url::getWww('/accounts/password+' . $user->getId() . '.html') . '">' . tr('Change password for this user') . '</a><br>
                                                           <a href="' . Url::getWww('/security/authentications.html')->addQueries('users_id=' . $user->getId()) . '">' . tr('Authentications for this user') . '</a><br>
                                                           <a href="' . Url::getWww('/security/incidents.html')->addQueries('users_id=' . $user->getId()) . '">' . tr('Security incidents for this user') . '</a>
-                                                          <hr>') .
-                                  '
+                                                          <hr>') . '
                                    <a href="' . Url::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
                                    <a href="' . Url::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>' );
 

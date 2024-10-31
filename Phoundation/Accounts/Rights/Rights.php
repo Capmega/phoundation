@@ -56,13 +56,14 @@ class Rights extends DataIterator implements RightsInterface
                                 ->addWhere('`accounts_rights`.`status` IS NULL')
                                 ->addGroupBy('`accounts_rights`.`name`')
                                 ->addOrderBy('`accounts_rights`.`name`');
+        $this->getQueryBuilder()->setDebug(true);
 
         parent::__construct();
 
         // Set the default columns to use
         $this->setColumns([
             'id'          => tr('Id'),
-            'role'        => tr('Right'),
+            'right'       => tr('Right'),
             'roles'       => tr('Roles having this right'),
             'description' => tr('Description')
         ]);
@@ -560,102 +561,102 @@ class Rights extends DataIterator implements RightsInterface
     }
 
 
-    /**
-     * Load the data for this right list
-     *
-     * @param array|string|null $columns
-     * @param array             $filters
-     * @param array             $order_by
-     *
-     * @return array
-     */
-    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
-    {
-        // Default columns
-        if (!$columns) {
-            $columns = 'id,name,roles';
-        }
-
-        // Default ordering
-        if (!$order_by) {
-            $order_by = ['name' => false];
-        }
-
-        // Get column information
-        $columns = Arrays::force($columns);
-        $users   = Arrays::replaceIfExists($columns, 'users', '1 AS `users`');
-        $roles   = Arrays::replaceIfExists($columns, 'roles', '1 AS `roles`');
-        $columns = Strings::force($columns);
-
-        // Build query
-        $builder = new QueryBuilder();
-        $builder->addSelect($columns);
-        $builder->addFrom('`accounts_rights`');
-
-        // Add ordering
-        foreach ($order_by as $column => $direction) {
-            $builder->addOrderBy('`' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
-        }
-
-        // Build filters
-        foreach ($filters as $key => $value) {
-            switch ($key) {
-                case 'users':
-                    $builder->addJoin('JOIN  `accounts_users` 
-                                       ON    `accounts_users`.`email` ' . $builder->compareQuery('email', $value) . ' 
-                                       JOIN  `accounts_users_rights` 
-                                       ON    `accounts_users_rights`.`users_id`  = `accounts_users`.`id` 
-                                         AND `accounts_users_rights`.`rights_id` = `accounts_rights`.`id`');
-                    break;
-
-                case 'roles':
-                    $builder->addJoin('JOIN  `accounts_roles` 
-                                       ON    `accounts_roles`.`name` ' . $builder->compareQuery('role', $value) . ' 
-                                       JOIN  `accounts_roles_rights` 
-                                       ON    `accounts_roles_rights`.`roles_id`  = `accounts_roles`.`id` 
-                                         AND `accounts_roles_rights`.`rights_id` = `accounts_rights`.`id`');
-                    break;
-            }
-        }
-
-        $return = sql()->list($builder->getQuery(), $builder->getExecute());
-
-        if ($users) {
-            // Add "roles" information to each user.
-            foreach ($return as $id => &$item) {
-                $item['users'] = sql()->list('SELECT `email`
-                                              FROM   `accounts_users`
-                                              JOIN   `accounts_users_rights`
-                                              ON     `accounts_users_rights`.`rights_id` = :rights_id
-                                              AND    `accounts_users_rights`.`users_id` = `accounts_users`.`id`', [
-                    ':rights_id' => $id,
-                ]);
-
-                $item['users'] = implode(', ', $item['users']);
-            }
-
-            unset($item);
-        }
-
-        if ($roles) {
-            // Add "roles" information to each user.
-            foreach ($return as $id => &$item) {
-                $item['roles'] = sql()->list('SELECT `name`
-                                               FROM   `accounts_roles`
-                                               JOIN   `accounts_roles_rights`
-                                               ON     `accounts_roles_rights`.`rights_id`  = :rights_id
-                                               AND    `accounts_roles_rights`.`roles_id` = `accounts_roles`.`id`', [
-                    ':rights_id' => $id,
-                ]);
-
-                $item['roles'] = implode(', ', $item['roles']);
-            }
-
-            unset($item);
-        }
-
-        return $return;
-    }
+//    /**
+//     * Load the data for this right list
+//     *
+//     * @param array|string|null $columns
+//     * @param array             $filters
+//     * @param array             $order_by
+//     *
+//     * @return array
+//     */
+//    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
+//    {
+//        // Default columns
+//        if (!$columns) {
+//            $columns = 'id,name,roles';
+//        }
+//
+//        // Default ordering
+//        if (!$order_by) {
+//            $order_by = ['name' => false];
+//        }
+//
+//        // Get column information
+//        $columns = Arrays::force($columns);
+//        $users   = Arrays::replaceIfExists($columns, 'users', '1 AS `users`');
+//        $roles   = Arrays::replaceIfExists($columns, 'roles', '1 AS `roles`');
+//        $columns = Strings::force($columns);
+//
+//        // Build query
+//        $builder = new QueryBuilder();
+//        $builder->addSelect($columns);
+//        $builder->addFrom('`accounts_rights`');
+//
+//        // Add ordering
+//        foreach ($order_by as $column => $direction) {
+//            $builder->addOrderBy('`' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
+//        }
+//
+//        // Build filters
+//        foreach ($filters as $key => $value) {
+//            switch ($key) {
+//                case 'users':
+//                    $builder->addJoin('JOIN  `accounts_users`
+//                                       ON    `accounts_users`.`email` ' . $builder->compareQuery('email', $value) . '
+//                                       JOIN  `accounts_users_rights`
+//                                       ON    `accounts_users_rights`.`users_id`  = `accounts_users`.`id`
+//                                         AND `accounts_users_rights`.`rights_id` = `accounts_rights`.`id`');
+//                    break;
+//
+//                case 'roles':
+//                    $builder->addJoin('JOIN  `accounts_roles`
+//                                       ON    `accounts_roles`.`name` ' . $builder->compareQuery('role', $value) . '
+//                                       JOIN  `accounts_roles_rights`
+//                                       ON    `accounts_roles_rights`.`roles_id`  = `accounts_roles`.`id`
+//                                         AND `accounts_roles_rights`.`rights_id` = `accounts_rights`.`id`');
+//                    break;
+//            }
+//        }
+//
+//        $return = sql()->list($builder->getQuery(), $builder->getExecute());
+//
+//        if ($users) {
+//            // Add "roles" information to each user.
+//            foreach ($return as $id => &$item) {
+//                $item['users'] = sql()->list('SELECT `email`
+//                                              FROM   `accounts_users`
+//                                              JOIN   `accounts_users_rights`
+//                                              ON     `accounts_users_rights`.`rights_id` = :rights_id
+//                                              AND    `accounts_users_rights`.`users_id` = `accounts_users`.`id`', [
+//                    ':rights_id' => $id,
+//                ]);
+//
+//                $item['users'] = implode(', ', $item['users']);
+//            }
+//
+//            unset($item);
+//        }
+//
+//        if ($roles) {
+//            // Add "roles" information to each user.
+//            foreach ($return as $id => &$item) {
+//                $item['roles'] = sql()->list('SELECT `name`
+//                                               FROM   `accounts_roles`
+//                                               JOIN   `accounts_roles_rights`
+//                                               ON     `accounts_roles_rights`.`rights_id`  = :rights_id
+//                                               AND    `accounts_roles_rights`.`roles_id` = `accounts_roles`.`id`', [
+//                    ':rights_id' => $id,
+//                ]);
+//
+//                $item['roles'] = implode(', ', $item['roles']);
+//            }
+//
+//            unset($item);
+//        }
+//
+//        return $return;
+//    }
 
 
     /**

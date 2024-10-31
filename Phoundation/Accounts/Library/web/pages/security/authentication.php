@@ -33,7 +33,7 @@ use Phoundation\Web\Requests\Response;
 
 // Validate
 $get = GetValidator::new()
-                   ->select('id')->isOptional()->isDbId()
+                   ->select('id')->isDbId()
                    ->select('date_range')->isOptional()->isDateRange()
                    ->validate();
 

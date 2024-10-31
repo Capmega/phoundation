@@ -38,7 +38,7 @@ $get = GetValidator::new()
 
 
 // Build the page content
-$right = Right::load($get['id']);
+$right = Right::new($get['id']);
 
 
 // Validate POST and submit
@@ -55,7 +55,7 @@ if (Request::isPostRequestMethod()) {
 //showdie(Timers::get('query'));
 
                 Response::getFlashMessagesObject()->addSuccess(tr('Right ":right" has been saved', [':right' => $right->getName()]));
-                Response::redirect('referer');
+                Response::redirect(Url::getWww('/accounts/right+' . $right->getId() . '.html'));
 
             case tr('Delete'):
                 $right->delete();

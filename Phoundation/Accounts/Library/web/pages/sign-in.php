@@ -3,7 +3,7 @@
 /**
  * Page sign-in
  *
- *
+ * Displays a sign-in page, and allows a user to sign in to a user session
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -46,11 +46,19 @@ if (Request::isPostRequestMethod()) {
     // Try to authenticate against UserRec first. If that fails, authenticate against User.
     foreach ([User::class] as $user_class) {
         try {
-            $redirect = $get['redirect'];
-            $post     = Session::validateSignIn();
-            $user     = Session::signIn($post['email'], $post['password'], $user_class);
+            $post = Session::validateSignIn();
+            $user = Session::signIn($post['email'], $post['password'], $user_class);
 
-            Response::redirect(Url::getRedirect($redirect, $user->getDefaultPage()));
+            // If the signed-in user has the same email as the GET specified email, try to execute the specified redirect.
+            if (empty($get['email']) or ($user->getEmail() === $get['email'])) {
+                $get['redirect'] = Url::filter($get['redirect'], ['sign-out', 'sign-in']);
+                $get['redirect'] = Url::getRedirect($get['redirect'], $user->getDefaultPage());
+
+                Response::redirect($get['redirect']);
+            }
+
+            // GET email didn't match, redirect the default page for this user
+            Response::redirect($user->getDefaultPage() ?? Url::getWww('index'));
 
         } catch (AuthenticationException | PasswordTooShortException | NoPasswordSpecifiedException | ValidationFailedException $e) {
             Response::getFlashMessagesObject()->addWarning(tr('The specified email and/or password were incorrect'));
