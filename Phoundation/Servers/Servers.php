@@ -128,46 +128,46 @@ class Servers extends DataIterator
     }
 
 
-    /**
-     * Load the data for this right list
-     *
-     * @param array|string|null $columns
-     * @param array             $filters
-     *
-     * @return array
-     */
-    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
-    {
-        // Default columns
-        if (!$columns) {
-            $columns = 'id,hostname,port,created_on';
-        }
-        // Default ordering
-        if (!$order_by) {
-            $order_by = ['hostname' => false];
-        }
-        // Get column information
-        $columns = Arrays::force($columns);
-        $columns = Strings::force($columns);
-        // Build query
-        $builder = new QueryBuilder();
-        $builder->addSelect($columns);
-        $builder->addFrom('`servers`');
-        // Add ordering
-        foreach ($order_by as $column => $direction) {
-            $builder->addOrderBy('`' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
-        }
-        // Build filters
-        foreach ($filters as $key => $value) {
-            switch ($key) {
-                case 'deleted':
-                    $no_delete = true;
-            }
-        }
-        if (isset($no_delete)) {
-            $builder->addWhere('`status` IS NULL');
-        }
-
-        return sql()->list($builder->getQuery(), $builder->getExecute());
-    }
+//    /**
+//     * Load the data for this right list
+//     *
+//     * @param array|string|null $columns
+//     * @param array             $filters
+//     *
+//     * @return array
+//     */
+//    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
+//    {
+//        // Default columns
+//        if (!$columns) {
+//            $columns = 'id,hostname,port,created_on';
+//        }
+//        // Default ordering
+//        if (!$order_by) {
+//            $order_by = ['hostname' => false];
+//        }
+//        // Get column information
+//        $columns = Arrays::force($columns);
+//        $columns = Strings::force($columns);
+//        // Build query
+//        $builder = new QueryBuilder();
+//        $builder->addSelect($columns);
+//        $builder->addFrom('`servers`');
+//        // Add ordering
+//        foreach ($order_by as $column => $direction) {
+//            $builder->addOrderBy('`' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
+//        }
+//        // Build filters
+//        foreach ($filters as $key => $value) {
+//            switch ($key) {
+//                case 'deleted':
+//                    $no_delete = true;
+//            }
+//        }
+//        if (isset($no_delete)) {
+//            $builder->addWhere('`status` IS NULL');
+//        }
+//
+//        return sql()->list($builder->getQuery(), $builder->getExecute());
+//    }
 }
