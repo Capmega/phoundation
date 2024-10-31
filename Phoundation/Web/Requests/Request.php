@@ -484,7 +484,7 @@ class Request implements RequestInterface
 
                 // None of the requested languages are supported! Oh noes! Go for default language.
                 Notification::new()
-                            ->setUrl('developer/incidents.html')
+                            ->setUrl(Url::getWww('developer/incidents.html'))
                             ->setMode(EnumDisplayMode::warning)
                             ->setCode('unsupported-languages-requested')
                             ->setRoles('developer')
@@ -1141,7 +1141,7 @@ class Request implements RequestInterface
 
             $current        = Response::getRedirect(Url::getCurrent());
             $guest_redirect = Url::getWww($guest_redirect)
-                                 ->addQueries($current ? 'redirect=' . urlencode($current) : null);
+                                 ->addRedirect($current);
 
             Incident::new()
                     ->setType('401 - Unauthorized')

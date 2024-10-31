@@ -29,6 +29,7 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Throwable;
@@ -229,7 +230,7 @@ class Bundler
                          ]), 3);
                          if (!file_exists($file)) {
                              Notification::new()
-                                         ->setUrl('developer/incidents.html')
+                                         ->setUrl(Url::getWww('developer/incidents.html'))
                                          ->setMode(EnumDisplayMode::exception)
                                          ->setCode('not-exists')
                                          ->setRoles('developer')
@@ -286,7 +287,7 @@ class Bundler
                     $import = Strings::cut($match, '"', '"');
                     if (!file_exists($this->directory . $import)) {
                         Notification::new()
-                                    ->setUrl('developer/incidents.html')
+                                    ->setUrl(Url::getWww('developer/incidents.html'))
                                     ->setMode(EnumDisplayMode::exception)
                                     ->setCode('not-exists')
                                     ->setRoles('developer')
@@ -310,7 +311,7 @@ class Bundler
                     $import = Strings::slash(dirname($file)) . Strings::unslash($import);
                     if (!file_exists($import)) {
                         Notification::new()
-                                    ->setUrl('developer/incidents.html')
+                                    ->setUrl(Url::getWww('developer/incidents.html'))
                                     ->setMode(EnumDisplayMode::exception)
                                     ->setCode('not-exists')
                                     ->setRoles('developer')
