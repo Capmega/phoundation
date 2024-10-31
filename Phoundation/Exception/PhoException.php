@@ -901,22 +901,26 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
     /**
      * Returns the backtrace as a string with nicely formatted lines
      *
+     * @param int $indent
+     *
      * @return string
      */
-    public function getTraceAsFormattedString(): string
+    public function getTraceAsFormattedString(int $indent = 0): string
     {
-        return implode(PHP_EOL, static::getTraceAsFormattedArray());
+        return implode(PHP_EOL, static::getTraceAsFormattedArray($indent));
     }
 
 
     /**
      * Returns the backtrace as an array with nicely formatted lines
      *
+     * @param int $indent
+     *
      * @return array
      */
-    public function getTraceAsFormattedArray(): array
+    public function getTraceAsFormattedArray(int $indent = 0): array
     {
-        return Debug::formatBackTrace($this->getTrace());
+        return Debug::formatBackTrace($this->getTrace(), $indent);
     }
 
 
