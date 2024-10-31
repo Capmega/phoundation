@@ -32,8 +32,8 @@ use Phoundation\Web\Requests\Response;
 
 // Validate GET
 $get = GetValidator::new()
-    ->select('id')->isOptional()->isDbId()
-    ->validate();
+                   ->select('id')->isDbId()
+                   ->validate();
 
 
 // Get notification and update status to read

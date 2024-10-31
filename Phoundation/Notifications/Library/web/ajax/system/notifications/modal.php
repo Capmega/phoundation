@@ -24,7 +24,8 @@ use Phoundation\Web\Requests\JsonPage;
 
 // Validate the ID
 $get = GetValidator::new()
-                   ->select('id')->isDbId()->validate();
+                   ->select('id')->isDbId()
+                   ->validate();
 
 
 // Update notification status to READ and build modal information and send reply

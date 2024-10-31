@@ -42,7 +42,9 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryTrace;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryUrl;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryUser;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Traits\TraitDataOverrideNonProductionLockout;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Developer\Debug;
 use Phoundation\Exception\PhoException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Exception\NotificationBusyException;
@@ -76,6 +78,7 @@ class Notification extends DataEntry implements NotificationInterface
     use TraitDataEntryDetails;
     use TraitDataEntrySetCreatedBy;
     use TraitDataEntryTrace;
+    use TraitDataOverrideNonProductionLockout;
 
 
     /**
@@ -226,10 +229,28 @@ class Notification extends DataEntry implements NotificationInterface
              ->setTrace($e->getTraceAsJson())
              ->setCode('E-' . $e->getCode())
              ->addRole('developer')
-             ->setTitle(tr('Phoundation project ":project" encountered an exception', [
-                 ':project' => $details['project'],
+             ->setTitle(tr('Phoundation project ":project (:environment)" encountered an exception', [
+                 ':project'     => $details['project'],
+                 ':environment' => ENVIRONMENT,
              ]))
-             ->setMessage(tr('<html>
+             ->setMessage($this->generateExceptionHtmlMessage($e, $details))
+             ->e = $e;
+
+        return $this;
+    }
+
+
+    /**
+     * Generates an HTML message for the given exception
+     *
+     * @param Throwable $e
+     * @param array     $details
+     *
+     * @return string
+     */
+    protected function generateExceptionHtmlMessage(Throwable $e, array $details): string
+    {
+        return tr('<html>
 <body>
 <pre style="font: monospace">
 Phoundation project ":project" encountered the following :class class exception:
@@ -241,19 +262,7 @@ Environment            : :environment
 Platform               : :platform
 :request: :url
 Command line arguments : :_argv
-Exception location     : :file@:line
-Exception class        : :class
-Exception code         : :code
-Message                : :message
-
-Additional messages:
-:all_messages
-
-Trace:
-:trace
-
-Data:
-:data
+:exception
 
 User:
 :user
@@ -275,31 +284,75 @@ FILES variables:
 </pre>
 </body>
 </html>', [
-                 ':url'              =>  (($details['platform'] === 'web') ? '[' . $details['method'] . '] ' . $this->getUrl() : $details['command']),
-                 ':request'          =>  (($details['platform'] === 'web') ? Strings::size('Requested URL', 23) : Strings::size('Executed command', 23)),
-                 ':file'             =>  Strings::from($e->getFile(), DIRECTORY_ROOT),
-                 ':line'             =>  $e->getLine(),
-                 ':code'             =>  $e->getCode(),
-                 ':class'            =>  get_class($e),
-                 ':trace'            =>  $e->getTraceAsFormattedString(),
-                 ':message'          =>  $e->getMessage(),
-                 ':all_messages'     =>  $e->getMessages() ? Strings::force($e->getMessages(), PHP_EOL) : '-',
-                 ':data'             =>  ($e->getData() ? print_r($e->getData(), true) : '-'),
-                 ':project'          =>  $details['project'],
-                 ':version_project'  =>  $details['project_version'],
-                 ':version_database' =>  $details['database_version'],
-                 ':environment'      =>  $details['environment'],
-                 ':platform'         =>  $details['platform'],
-                 ':user'             =>  $details['user'],
-                 ':_session'         =>  Json::encode($details['session']),
-                 ':_env'             => ($details['environment_variables'] ? print_r($details['environment_variables'], true) : '-'),
-                 ':_argv'            =>  $details['argv']  ? Strings::force($details['argv'], ' ') : '-',
-                 ':_get'             =>  $details['get']   ? Json::encode($details['get'])         : '-',
-                 ':_post'            =>  $details['post']  ? Json::encode($details['post'])        : '-',
-                 ':_files'           =>  $details['files'] ? Json::encode($details['files'])       : '-',
-             ], clean: false))->e = $e;
+            ':class'            =>   get_class($e),
+            ':url'              => (($details['platform'] === 'web') ? '[' . $details['method'] . '] ' . $this->getUrl() : $details['command']),
+            ':request'          => (($details['platform'] === 'web') ? Strings::size('Requested URL', 23) : Strings::size('Executed command', 23)),
+            ':exception'        =>   $this->generateExceptionHtmlSection($e, tr('Exception:')),
+            ':project'          =>   $details['project'],
+            ':version_project'  =>   $details['project_version'],
+            ':version_database' =>   $details['database_version'],
+            ':environment'      =>   $details['environment'],
+            ':platform'         =>   $details['platform'],
+            ':user'             =>   $details['user'],
+            ':_session'         =>   Json::encode($details['session']),
+            ':_env'             =>  ($details['environment_variables'] ? print_r($details['environment_variables'], true) : '-'),
+            ':_argv'            =>   $details['argv']  ? Strings::force($details['argv'], ' ') : '-',
+            ':_get'             =>   $details['get']   ? Json::encode($details['get'])         : '-',
+            ':_post'            =>   $details['post']  ? Json::encode($details['post'])        : '-',
+            ':_files'           =>   $details['files'] ? Json::encode($details['files'])       : '-',
+        ], clean: false);
+    }
 
-        return $this;
+
+    /**
+     * Generates an HTML message section for the given exception
+     *
+     * @param Throwable $e
+     * @param string    $title
+     * @param int       $indent
+     *
+     * @return string
+     */
+    protected function generateExceptionHtmlSection(Throwable $e, string $title, int $indent = 0): string
+    {
+        $indent_string = str_repeat(' ', $indent);
+
+        // Fetch data from exception, be it either a PHP exception or Phoundation exception
+        if ($e instanceof PhoException) {
+            $data     = ($e->getData() ? print_r($e->getData(), true) : '-');
+            $trace    = $e->getTraceAsFormattedString($indent + 4);
+            $messages = $e->getMessages() ? Strings::force($e->getMessages(), PHP_EOL) : '-';
+
+        } else {
+            $data     = '-';
+            $trace    = implode(PHP_EOL, Debug::formatBackTrace((array) $this->getTrace(), $indent));
+            $messages = '-';
+        }
+
+        return PHP_EOL . $indent_string . $title . PHP_EOL . tr(':indent    Exception location     : :file@:line
+:indent    Exception class        : :class
+:indent    Exception code         : :code
+:indent    Message                : :message
+
+:indent    Additional exception messages:
+:indent    :all_messages
+
+:indent    Trace:
+:trace
+
+:indent    Exception data:
+:indent    :data :additional', [
+                ':indent'       =>  $indent_string,
+                ':file'         =>  Strings::from($e->getFile(), DIRECTORY_ROOT),
+                ':line'         =>  $e->getLine(),
+                ':code'         =>  $e->getCode(),
+                ':class'        =>  get_class($e),
+                ':trace'        =>  $trace,
+                ':message'      =>  $e->getMessage(),
+                ':all_messages' =>  $messages,
+                ':data'         =>  $data,
+                ':additional'   => ($e->getPrevious() ? PHP_EOL . $this->generateExceptionHtmlSection($e->getPrevious(), tr('Previous exception:'), $indent + 4) : null)
+        ], clean: false);
     }
 
 
@@ -395,8 +448,8 @@ FILES variables:
 
             // Save and send this notification to all users that are members of the specified roles
             foreach ($this->getRolesObject() as $role) {
-                $users = Role::load($role)
-                             ->getUsersObject();
+                $users = Role::load($role)->getUsersObject();
+
                 foreach ($users as $user) {
                     try {
                         $this->saveFor($user->getId())
@@ -416,8 +469,8 @@ FILES variables:
 
         } catch (Throwable $e) {
             Log::error(tr('Failed to send the following notification with the following exception'));
-            Log::write(tr('Code    : ":code"', [':code' => $this->getCode()]), 'debug', 10, false);
-            Log::write(tr('Title   : ":title"', [':title' => $this->getTitle()]), 'debug', 10, false);
+            Log::write(tr('Code    : ":code"'   , [':code'    => $this->getCode()])   , 'debug', 10, false);
+            Log::write(tr('Title   : ":title"'  , [':title'   => $this->getTitle()])  , 'debug', 10, false);
             Log::write(tr('Message : ":message"', [':message' => $this->getMessage()]), 'debug', 10, false);
             Log::write(tr('Data :'), 'debug', 10, false);
 
@@ -606,10 +659,10 @@ FILES variables:
 
         $user = User::load($user);
 
-        if (!Core::isProductionEnvironment()) {
-            if (!$user->hasAllRights('developer,test,admin')) {
+        if (Config::getBoolean('notifications.send.disable', false) and !$this->override_non_production_lockout) {
+            if (!$user->hasSomeRights('developer,test,admin')) {
                 // We're not in production environment, don't send any notifications!
-                Log::warning(tr('Not sending notification ":title" to user ":user" because we are not in production environment', [
+                Log::warning(tr('Not sending notification ":title" to user ":user" because notifications sending has been disabled', [
                     ':title' => $this->getTitle(),
                     ':user'  => $user->getEmail()
                 ]));
