@@ -28,6 +28,7 @@ use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Network\Network;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Config;
+use Phoundation\Web\Http\Url;
 use Throwable;
 
 
@@ -98,7 +99,7 @@ class MaxMind extends GeoIp
         } catch (InvalidDatabaseException $e) {
             // For the moment, just log the failure and continue
             Notification::new()
-                        ->setUrl('developer/incidents.html')
+                        ->setUrl(Url::getWww('developer/incidents.html'))
                         ->setTitle(tr('Failed to do GeoIP lookup'))
                         ->setMessage(tr('Failed to do GeoIP lookup with the following error. Most likely, the MaxMind GeoIP data files have not yet been imported. Please refer to ":command"', [
                             ':command' => './pho geo ip import -H',
