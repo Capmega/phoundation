@@ -28,7 +28,7 @@ use Phoundation\Web\Requests\Response;
 
 // Validate GET
 $get = GetValidator::new()
-                   ->select('id')->isOptional()->isDbId()
+                   ->select('id')->isDbId()
                    ->validate();
 
 $plugin = Plugin::load($get['id']);

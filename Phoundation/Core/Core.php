@@ -446,10 +446,11 @@ class Core implements CoreInterface
             }
 
             define('PROJECT', $project);
+
         } catch (Throwable $e) {
             static::$failed = true;
 
-            define('PROJECT', 'UNKNOWN');
+            define('PROJECT'          , 'UNKNOWN');
             define('DIRECTORY_PROJECT', DIRECTORY_DATA . 'sources/' . PROJECT . '/');
 
             if ($e instanceof OutOfBoundsException) {
@@ -476,7 +477,7 @@ class Core implements CoreInterface
             }
 
             // Unknown error
-            throw ProjectException(tr('Failed to get project name, please ensure that the file "' . DIRECTORY_ROOT . 'config/project" is readable'), $e);
+            throw new ProjectException(tr('Failed to get project name, please ensure that the file "' . DIRECTORY_ROOT . 'config/project" is readable'), $e);
         }
     }
 

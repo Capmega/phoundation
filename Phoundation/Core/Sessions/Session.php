@@ -1512,9 +1512,9 @@ class Session implements SessionInterface
     /**
      * Destroy the current user session
      *
-     * @return void
+     * @return UserInterface|null
      */
-    public static function signOut(): void
+    public static function signOut(): ?UserInterface
     {
         if (!session_id()) {
             Incident::new()
@@ -1523,7 +1523,7 @@ class Session implements SessionInterface
                 ->setTitle(tr('User sign out requested on non existing session'))
                 ->save();
 
-            return;
+            return null;
         }
 
         try {
@@ -1637,12 +1637,16 @@ class Session implements SessionInterface
         static::$user_changed = !static::getUserObject()->isGuest();
 
         // Destroy all in the session but the flash messages
+        $users_id = $_SESSION['user']['id'];
         $messages = isset_get($_SESSION['flash_messages']);
         $_SESSION = [];
 
         if ($messages) {
             $_SESSION['flash_messages'] = $messages;
         }
+
+        // Return the user that signed out
+        return new User($users_id);
     }
 
 
