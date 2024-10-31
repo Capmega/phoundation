@@ -82,7 +82,6 @@ trait TraitDataEntryTimezone
      */
     public function setTimezonesName(?string $timezones_name): static
     {
-
         return $this->set($timezones_name, 'timezones_name');
     }
 }

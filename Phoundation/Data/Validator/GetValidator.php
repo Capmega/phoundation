@@ -27,6 +27,7 @@ use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Debug;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Http\Url;
 use Stringable;
 
 
@@ -249,6 +250,11 @@ class GetValidator extends Validator
 
         } else {
             $redirect = null;
+        }
+
+        // Ensure all query variables are URL encoded!
+        if ($redirect) {
+            $redirect = Url::ensureQueriesUrlEncoding($redirect);
         }
 
         return $redirect;

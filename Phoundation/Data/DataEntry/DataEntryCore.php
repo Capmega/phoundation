@@ -3332,7 +3332,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         $this->list?->save();
 
         // Done!
-        $this->previous_id = $this->getId();
         $this->is_modified = false;
         $this->is_saved    = true;
 
