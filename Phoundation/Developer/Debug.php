@@ -42,6 +42,7 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Html;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
@@ -343,7 +344,7 @@ class Debug
             if (Core::isProductionEnvironment()) {
                 // This is not usually something you want to happen!
                 Notification::new()
-                            ->setUrl('developer/incidents.html')
+                            ->setUrl(Url::getWww('developer/incidents.html'))
                             ->setMode(EnumDisplayMode::exception)
                             ->setTitle('Debug mode enabled on production environment!')
                             ->setMessage('Debug mode enabled on production environment, with this all internal debug information can be visible to everybody!')
@@ -656,6 +657,7 @@ class Debug
                             'class'    => get_class($value),
                             'contents' => $value->__toArray(),
                         ];
+
                     } else {
                         $value = [
                             ''         => 'Entry object',
@@ -694,6 +696,7 @@ class Debug
                 if ($sort) {
                     ksort($value);
                 }
+
                 foreach ($value as $subkey => $subvalue) {
                     $return .= static::showHtmlRow($subvalue, (string) $subkey, $sort, $full_backtrace);
                 }
@@ -713,13 +716,14 @@ class Debug
                                 </table>
                             </td>
                         </tr>';
+
             default:
                 return '<tr>
-                    <td>' . $key . '</td>
-                    <td>' . tr('Unknown') . '</td>
-                    <td>???</td>
-                    <td class="value">' . htmlspecialchars((string) $value) . '</td>
-                </tr>';
+                            <td>' . $key . '</td>
+                            <td>' . tr('Unknown') . '</td>
+                            <td>???</td>
+                            <td class="value">' . htmlspecialchars((string) $value) . '</td>
+                        </tr>';
         }
     }
 
@@ -735,38 +739,48 @@ class Debug
      */
     protected static function displayException(Throwable $e, bool $full_backtrace, int $indent): string
     {
-        $prefix = str_repeat(' ', $indent);
-        $return = $prefix . tr('":type" Exception', [':type' => get_class($e)]) . '<br><br>';
+        $prefix  = str_repeat(' ', $indent);
+        $return  = $prefix . tr('":type" Exception', [':type' => get_class($e)]) . '<br><br>';
         $return .= $prefix . tr('Message: :message', [':message' => $e->getMessage()]) . '<br>';
         $return .= $prefix . tr('Additional messages:') . '<br>';
+
         if ($e instanceof PhoException) {
             $messages = $e->getMessages();
+
             if ($messages) {
                 foreach ($messages as $message) {
                     $return .= $prefix . htmlspecialchars((string) $message) . '<br>';
                 }
+
             } else {
                 $return .= $prefix . '-<br>';
             }
+
         } else {
             $return .= $prefix . '-<br>';
         }
+
         $return .= '<br>' . $prefix . tr('Location: ') . htmlspecialchars($e->getFile()) . '@' . $e->getLine() . '<br><br>' . $prefix . tr('Backtrace: ') . '<br>';
+
         foreach (Debug::formatBacktrace($e->getTrace()) as $line) {
             if (!$full_backtrace) {
                 if (str_contains($line, 'Phoundation/functions.php@') and str_contains($line, 'include()')) {
                     break;
                 }
             }
+
             $return .= $prefix . htmlspecialchars((string) $line) . '<br>';
         }
+
         $return .= '<br><br>' . $prefix . tr('Data: ') . '<br>';
+
         if ($e instanceof PhoException) {
             $return .= $prefix . htmlspecialchars((string) str_replace(PHP_EOL, PHP_EOL . $prefix, print_r(not_empty($e->getData(), '-'), true))) . '<br>';
 
         } else {
             $return .= $prefix . htmlspecialchars('-') . '<br>';
         }
+
         if ($e->getPrevious()) {
             $return .= tr('Previous exception: ') . '<br>';
             $return .= static::displayException($e->getPrevious(), $full_backtrace, $indent + 4);
@@ -780,21 +794,25 @@ class Debug
      * Dump the specified backtrace data
      *
      * @param array $backtrace The backtrace data
+     * @param int   $indent
      *
      * @return array The backtrace lines
      */
-    public static function formatBackTrace(array $backtrace): array
+    public static function formatBackTrace(array $backtrace, int $indent = 0): array
     {
         $lines   = static::renderBackTrace($backtrace);
         $longest = Arrays::getLongestValueLength($lines, 'call');
         $return  = [];
+        $indent  = str_repeat(' ', $indent);
+
         // format and write the lines
         foreach ($lines as $line) {
             if (isset($line['call'])) {
                 // Resize the call lines to all have the same size for easier log reading
                 $line['call'] = Strings::size($line['call'], $longest);
             }
-            $return[] = trim(($line['call'] ?? null) . (isset($line['location']) ? (isset($line['call']) ? ' in ' : null) . $line['location'] : null));
+
+            $return[] = $indent . trim(($line['call'] ?? null) . (isset($line['location']) ? (isset($line['call']) ? ' in ' : null) . $line['location'] : null));
         }
 
         return $return;
