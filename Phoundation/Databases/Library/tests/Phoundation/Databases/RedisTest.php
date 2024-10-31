@@ -1,7 +1,14 @@
 <?php
 
 /**
- * \Phoundation\Databases\Redis test class
+ * Class RedisTest
+ *
+ * This PHPUnit test class will test the \Phoundation\Databases\Redis Object
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Databases
  */
 
 
@@ -10,13 +17,10 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Library\tests\Phoundation\Databases;
 
 use Phoundation\Databases\Connectors\Connector;
-use Phoundation\Databases\Exception\RedisConnectionFailedException;
 use Phoundation\Databases\Exception\RedisException;
 use Phoundation\Databases\Redis\Interfaces\RedisInterface;
 use Phoundation\Databases\Redis\Redis;
-use Phoundation\Databases\Redis\RedisQueue;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Strings;
 use PHPUnit\Framework\TestCase;
 
 
@@ -29,7 +33,7 @@ class RedisTest extends TestCase
 
 
     /**
-     * Returns a (new) Redis connection
+     * Returns Redis::new()
      *
      * @param bool $force
      *
@@ -46,7 +50,7 @@ class RedisTest extends TestCase
 
 
     /**
-     * Closes the Redis connection
+     * Closes Redis::close()
      *
      * @return void
      */
@@ -58,7 +62,7 @@ class RedisTest extends TestCase
 
 
     /**
-     * Test the constructor method for the Redis class
+     * Test Redis::__construct()
      *
      * @return void
      */
@@ -73,7 +77,7 @@ class RedisTest extends TestCase
 
 
     /**
-     * Test the constructor method for the Redis class
+     * Test Redis::close()
      *
      * @return void
      */
@@ -87,7 +91,7 @@ class RedisTest extends TestCase
 
 
     /**
-     * Test the constructor method for the Redis class
+     * Test Redis::ping()
      *
      * @return void
      */
@@ -116,19 +120,19 @@ class RedisTest extends TestCase
 
     /**
      * ???
-     * 
+     *
      * @return void
      */
     public function testCreateList()
     {
         $this->redis = Redis::new(Connector::new('redis-test'))->setDatabase(0);
-        
+
         $this->redis->set(null, 'key1');
         $this->assertNull($this->redis->get('key1'), '"Get" on key1 should return null');
-        
+
         $this->redis->set(['value1','value2'], 'key2');
         $this->assertEquals(['value1','value2'],$this->redis->get('key2'), '"get" on key2 should return values');
-        
+
         $this->redis->delValue('key2');
         $this->assertNull($this->redis->get('key2'), '"get" on key2 should return null');
 
@@ -140,7 +144,7 @@ class RedisTest extends TestCase
 
 
     /**
-     * Test flushing (clearing) a whole database
+     * Test Redis::flush()
      *
      * @return void
      */
@@ -160,7 +164,7 @@ class RedisTest extends TestCase
 
 
     /**
-     * Test pushing a value to a queue
+     * Test Redis::push()
      *
      * @return void
      */
@@ -189,7 +193,7 @@ class RedisTest extends TestCase
 
 
     /**
-     * Test popping a value from a queue
+     * Test Redis::pop()
      *
      * @return void
      */
@@ -216,7 +220,7 @@ class RedisTest extends TestCase
 
 
     /**
-     * Test getQueue method
+     * Test Redis::getQueue()
      *
      * @return void
      */
@@ -242,7 +246,7 @@ class RedisTest extends TestCase
 
 
     /**
-     * tests queueExists method
+     * Tests Redis::queueExists()
      *
      * @return void
      */
@@ -263,14 +267,15 @@ class RedisTest extends TestCase
 
 
     /**
-     * Tests queuePeek method
+     * Tests Redis::queuePeek()
      *
      * @return void
+     * @todo Rename this method, should be static::testQueuePeek()?
      */
     public function testPeek()
     {
         $this->redis = Redis::new(Connector::new('redis-test'))->setDatabase(0);
-        
+
         $this->redis->push('test-value', 'test-queue');
         $result = $this->redis->queuePeek('test-queue');
 
@@ -289,8 +294,9 @@ class RedisTest extends TestCase
 
 
     /**
-     * Tests the getQueueLength method
+     * Tests Redis::getQueueLength()
      *
+     * @todo Rename this method, should be static::testGetQueueLength()?  Should there be a static::testGetCount() too?
      * @return void
      */
     public function testGetCount()
@@ -315,7 +321,7 @@ class RedisTest extends TestCase
 
 
     /**
-     * Tests getQueueLength method
+     * Tests Redis::getQueueLength()
      *
      * @return void
      */
@@ -338,15 +344,13 @@ class RedisTest extends TestCase
 
         $this->expectException(RedisException::class); //Non-existent queue should throw exception.
         $this->redis->clearQueue('test-queue-2');
-
-
         $this->redis->clearAll();
         $this->redis->close();
     }
 
 
     /**
-     * Tests showAll() method
+     * Tests Redis::showAll()
      *
      * @return void
      */
@@ -360,13 +364,11 @@ class RedisTest extends TestCase
         $this->redis->push('value-3', 'test-queue-2');
         $this->redis->push('value-4', 'test-queue-3');
 
-        $result = array();
+        $result = [];
         array_push($result, 'queue_test-queue-3','queue_test-queue-2', 'queue_test-queue');
 
         $this->assertEquals($result, $this->redis->showAll(), 'The result array should equal the sample array');
         $this->redis->clearAll();
         $this->redis->close();
     }
-
-
 }

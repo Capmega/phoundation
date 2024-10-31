@@ -714,7 +714,6 @@ class Connector extends DataEntry implements ConnectorInterface
 
                     ->add(DefinitionFactory::newTimezonesId($this, 'timezones_id')
                                            ->setLabel(tr('Timezone'))
-                                           ->setVirtual(true)
                                            ->setSize(2)
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->orColumn('timezones_name')
@@ -725,6 +724,7 @@ class Connector extends DataEntry implements ConnectorInterface
                     ->add(DefinitionFactory::newTimezone($this, 'timezones_name')
                                            ->setLabel(tr('Timezone'))
                                            ->setDefault('UTC')
+                                           ->setVirtual(false)
                                            ->setRender(false)
                                            ->setSize(2)
                                            ->addValidationFunction(function (ValidatorInterface $validator) {

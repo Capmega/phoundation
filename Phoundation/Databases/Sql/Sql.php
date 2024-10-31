@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql;
 
+use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use PDO;
 use PDOStatement;
@@ -200,7 +201,7 @@ class Sql implements SqlInterface
      * @param ConnectorInterface|string $connector
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function readConfiguration(ConnectorInterface|string $connector): array
     {
@@ -687,7 +688,7 @@ class Sql implements SqlInterface
 //        global $argv;
 //
 //        Notification::new()
-//            ->setUrl('developer/incidents.html')
+//            ->setUrl(Url::getWww('developer/incidents.html'))
 //            ->setMode(EnumDisplayMode::exception)
 //            ->setCode('SQL_QUERY_ERROR')->setRoles('developer')->setTitle('SQL Query error')->setMessage('
 //                SQL STATE ERROR : "' . $error[0] . '"

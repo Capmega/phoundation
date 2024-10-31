@@ -29,6 +29,7 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Exception\ConfigurationInvalidException;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Http\Url;
 use Throwable;
 
 
@@ -196,7 +197,7 @@ class Mc implements DatastoreInterface
                     // We haven't been able to connect to any memcached server at all!
                     Log::warning(tr('Failed to connect to any memcached server'), 10);
                     Notification::new()
-                                ->setUrl('developer/incidents.html')
+                                ->setUrl(Url::getWww('developer/incidents.html'))
                                 ->setMode(EnumDisplayMode::warning)
                                 ->setCode('not-available')
                                 ->addRole('developer')
