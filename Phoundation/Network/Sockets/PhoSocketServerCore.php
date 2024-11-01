@@ -21,10 +21,11 @@ use Phoundation\Core\Core;
 use Phoundation\Data\Traits\TraitDataUSleep;
 use Phoundation\Network\Sockets\Exception\SocketException;
 use Phoundation\Network\Sockets\Exception\SocketServerException;
+use Phoundation\Network\Sockets\Interfaces\PhoSocketServerInterface;
 use Throwable;
 
 
-class PhoSocketServerCore
+class PhoSocketServerCore implements PhoSocketServerInterface
 {
     use TraitDataUSleep;
 

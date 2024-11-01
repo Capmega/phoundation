@@ -1,24 +1,10 @@
 <?php
 
-/**
- * Interface PhoSocketServerInterface
- *
- * Interface for PhoSocket Server
- *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @author    Harrison Macey <harrison@medinet.ca>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Network
- */
-
-
-declare(strict_types=1);
-
-namespace Phoundation\Network\Sockets;
+namespace Phoundation\Network\Sockets\Interfaces;
 
 use Phoundation\Network\Sockets\Exception\SocketException;
-
+use Phoundation\Network\Sockets\PhoSocket;
+use Phoundation\Network\Sockets\PhoSocketServerCore;
 
 interface PhoSocketServerInterface
 {
@@ -33,18 +19,11 @@ interface PhoSocketServerInterface
 
 
     /**
-     * Called when object destroyed
-     */
-    public function __destruct();
-
-
-    /**
      * Checks if the master socket is started,
      *
      * @return $this
      */
     public function ensureMasterSocketStarted(): static;
-
 
 
     /**
@@ -53,55 +32,6 @@ interface PhoSocketServerInterface
      * @throws SocketException
      */
     public function run(): void;
-
-
-    /**
-     * Processes server operations for one iteration of the main loop, including handling new connections and
-     * client inputs.
-     *
-     * @return bool Returns false if the server should shut down, true otherwise.
-     *
-     * @throws SocketException
-     */
-    protected function processServerIteration(): bool;
-
-
-    /**
-     * Check if the master socket is started, throw exception if now
-     *
-     * @return void
-     */
-    protected function validateSocket(): void;
-
-
-    /**
-     * Accepts a new connection in the Master Socket
-     *
-     * @param array $read
-     *
-     * @return void
-     */
-    protected function acceptNewConnection(array &$read): void;
-
-
-    /**
-     * Handle Client Input
-     *
-     * @param $client
-     *
-     * @return bool
-     */
-    protected function handleClientInput($client): bool;
-
-
-    /**
-     * Read Functionality.
-     *
-     * @param PhoSocket $client
-     *
-     * @return string
-     */
-    protected function read(PhoSocket $client): string;
 
 
     /**
@@ -114,17 +44,6 @@ interface PhoSocketServerInterface
      */
     public function disconnect(PhoSocket $client, string $message = ''): void;
 
-
-    /**
-     * Triggers the hooks for the supplied command.
-     *
-     * @param string      $command Hook to listen for (e.g. HOOK_CONNECT, HOOK_INPUT, HOOK_DISCONNECT, HOOK_TIMEOUT)
-     * @param PhoSocket   $client
-     * @param string|null $input   Message Sent along with the Trigger
-     *
-     * @return bool Whether or not to continue running the server (true: continue, false: shutdown)
-     */
-    protected function triggerHooks(string $command, PhoSocket $client, ?string $input = null): bool;
 
     /**
      * Attach a Listener to a Hook.
@@ -150,19 +69,12 @@ interface PhoSocketServerInterface
 
 
     /**
-     * Disconnect all the Clients and shut down the server.
-     *
-     * @return void
-     */
-    private function shutDownEverything(): void;
-
-
-    /**
      * Returns the hooks property of this PhoSocketServer
-     * 
+     *
      * @return callable[][]
      */
     public function getHooks(): array;
+
 
     /**
      * Sets the hooks property of this PhoSocketServer
@@ -191,7 +103,7 @@ interface PhoSocketServerInterface
      */
     public function setAddress($address): static;
 
-    
+
     /**
      * Returns the port property of this PhoSocketServer
      *
@@ -209,13 +121,14 @@ interface PhoSocketServerInterface
      */
     public function setPort($port): static;
 
-    
+
     /**
      * Returns the timeout property of this PhoSocketServer
      *
      * @return int|null
      */
     public function getTimeout(): ?int;
+
 
     /**
      * Sets the timeout property of this PhoSocketServer
