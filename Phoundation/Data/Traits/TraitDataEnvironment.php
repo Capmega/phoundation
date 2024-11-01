@@ -24,7 +24,7 @@ trait TraitDataEnvironment
      *
      * @var string|null $environment
      */
-    protected ?string $environment;
+    protected ?string $environment = null;
 
 
     /**
