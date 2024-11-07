@@ -18,13 +18,63 @@ declare(strict_types=1);
 namespace Phoundation\Utils;
 
 use Exception;
-use Phoundation\Core\Exception\NumbersException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
-
+use Phoundation\Utils\Exception\NumbersException;
+use Phoundation\Utils\Exception\NumberTooBigException;
 
 class Numbers
 {
+    /**
+     * Converts the given string into its binary interpretation in ASCII and then returns the int that that binary value represents
+     *
+     * @param string $source
+     *
+     * @return int
+     */
+    public static function binaryToInt(string $source): int
+    {
+        $return = '';
+
+        for ($i = 0; $i < strlen($source); $i++) {
+            $ord_char     = ord($source[$i]);
+            $decbin_char  = decbin($ord_char);
+            $binary_char  = str_pad($decbin_char, 8, '0', STR_PAD_LEFT);
+            $return      .= $binary_char;
+        }
+
+        if (strlen($return) > 64) {
+            throw NumberTooBigException::new(tr('The value ":source" is too big to convert, ensure it is 8 bytes or less', [
+                ':source' => $source
+            ]));
+        }
+
+        return bindec($return);
+    }
+
+
+    /**
+     * Converts the given integer to its binary interpretation and then returns the character in ASCII that this binary value represents
+     *
+     * @param int $source
+     *
+     * @return string
+     */
+    public static function intToBinary(int $source): string
+    {
+        $return        = '';
+        $binary_char   = decbin($source);
+        $binary_string = str_pad($binary_char, 32, '0', STR_PAD_LEFT);
+
+        for ($i = 0; $i < strlen($binary_string); $i++) {
+            $byte_string = substr($binary_string, $i * 8, 8);
+            $return     .= chr(bindec($byte_string));
+        }
+
+        return $return;
+    }
+
+
     /**
      * Ensure that the specified number is within the specified range
      *

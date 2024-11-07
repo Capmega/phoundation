@@ -29,7 +29,6 @@ use StephenHill\Base58;
 use Stringable;
 use Throwable;
 
-
 class Strings extends Utils
 {
     /**
@@ -1456,7 +1455,7 @@ throw new UnderConstructionException();
      *
      * @see Strings::truncate()
      */
-    public static function log(mixed $source, int $truncate = 65536, bool $ensure_visible = false): string
+    public static function log(mixed $source, int $truncate = 65536, bool $ensure_visible = false,bool $clean = true): string
     {
         if ($source === null) {
             if ($ensure_visible) {
@@ -1493,13 +1492,7 @@ throw new UnderConstructionException();
                 'ssh_key',
             ]);
 
-            foreach ($source as $key => &$value) {
-                $value = static::log($value);
-            }
-
-            unset($value);
-
-            $source = 'array: ' . trim(Json::encode($source));
+            $source = 'array: ' . trim(Json::encode($source, JSON_PRETTY_PRINT));
 
         } elseif ($source instanceof Stringable) {
             $source = (string) $source;
@@ -1520,7 +1513,11 @@ throw new UnderConstructionException();
             $source = (string) $source;
         }
 
-        return static::replaceDouble(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', str_replace('  ', ' ', str_replace("\n", ' ', static::truncate($source, $truncate, ' ... ', 'center')))), '\1', ' ');
+        if ($clean) {
+            return static::replaceDouble(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', str_replace('  ', ' ', str_replace("\n", ' ', static::truncate($source, $truncate, ' ... ', 'center')))), '\1', ' ');
+        }
+
+        return static::truncate($source, $truncate, ' ... ', 'center');
     }
 
 
