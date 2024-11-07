@@ -238,8 +238,8 @@ class CliCommand
         static::addExecutedPath(static::$command);
 
         // Should we execute usage or help documentation instead?
-        static::checkUsage();
-        static::checkHelp();
+        static::showUsage();
+        static::showHelp();
 
         // Execute the command and finish execution
         try {
@@ -275,6 +275,9 @@ class CliCommand
         if (static::$started_up) {
             throw new CliCommandException(tr('Cannot startup the CliCommand class, it has already been started up'));
         }
+
+        // Enable the garbage collector
+        gc_enable();
 
         static::detectProcessUidMatchesPhoundationOwner();
 
@@ -347,10 +350,6 @@ class CliCommand
 
         // UID does NOT match, disable logging for now to avoid issues
         static::$pho_uid_match = false;
-
-        // UID mismatch, stop logging to file as that likely won't be possible at all. Also stop all file access
-        Log::disableFile();
-        PhoFile::disable();
     }
 
 
@@ -359,11 +358,12 @@ class CliCommand
      *
      * @note Returns NULL if the UID match check has not yet been executed
      *
+     * @param bool $root_matches
      * @return bool|null
      */
-    public static function phoUidMatch(): ?bool
+    public static function phoUidMatch(bool $root_matches = false): ?bool
     {
-        return static::$pho_uid_match;
+        return static::$pho_uid_match or !Core::getProcessUid();
     }
 
 
@@ -375,7 +375,7 @@ class CliCommand
      *
      * @return void
      */
-    protected static function ensureProcessUidMatchesPhoundationOwner(bool $auto_switch = true, bool $permit_root = false): void
+    protected static function ensureProcessUidMatchesPhoundationOwner(bool $auto_switch = true, bool $permit_root = true): void
     {
         if (static::$pho_uid_match) {
             // Correct user, yay!
@@ -386,6 +386,10 @@ class CliCommand
             // This command is run as root and the user root is authorized!
             return;
         }
+
+        // UID mismatch, stop logging to file as that likely won't be possible at all. Also stop all file access
+        Log::disableFile();
+        PhoFile::disable();
 
         if (!Config::getBoolean('cli.security.require-same-uid', true)) {
             // According to configuration, we don't need to have the same UID.
@@ -399,6 +403,27 @@ class CliCommand
             ]));
         }
 
+        $user = posix_getpwuid(static::$pho_uid);
+
+        if ($user) {
+            // Restart the process using the correct user
+            CliCommand::restartAsUser($user['name']);
+        }
+
+        throw new OutOfBoundsException(tr('Failed to fetch user information for user id ":id"', [
+            ':id' => static::$pho_uid,
+        ]));
+    }
+
+
+    /**
+     * Restarts this command as the specified user
+     *
+     * @param string $user
+     * @return never
+     */
+    #[NoReturn] public static function restartAsUser(string $user): never
+    {
         // From here we will restart the process using SUDO with the correct user
         // Start building the argument list
         $command   = escapeshellcmd(DIRECTORY_ROOT . 'pho');
@@ -421,15 +446,14 @@ class CliCommand
         unset($argument);
 
         // As what user should we execute this? Build the sudo command to be executed
-        $user    = posix_getpwuid(static::$pho_uid);
-        $command = 'sudo -Esu ' . escapeshellarg($user['name']) . ' ' . $command . ' ' . implode(' ', $arguments);
+        $command = 'sudo -Esu ' . escapeshellarg($user) . ' ' . $command . ' ' . implode(' ', $arguments);
 
         if (!CliAutoComplete::isActive() and !QUIET) {
             if (VERBOSE) {
-                echo 'Re-executing ./pho command as user "' . $user['name'] . '" with command:' . $command . PHP_EOL;
+                echo 'Re-executing ./pho command as user "' . $user . '" with command:' . $command . PHP_EOL;
 
             } else {
-                echo 'Re-executing ./pho command as user "' . $user['name'] . '"' . PHP_EOL;
+                echo 'Re-executing ./pho command as user "' . $user . '"' . PHP_EOL;
             }
         }
 
@@ -438,6 +462,17 @@ class CliCommand
 
         // We likely won't be able to log here (nor should we), so disable logging
         Core::exit($result_code, direct_exit: true);
+    }
+
+
+    /**
+     * Restarts the current process as the user "root"
+     *
+     * @return never
+     */
+    public static function restartAsRoot(): never
+    {
+        CliCommand::restartAsUser('root');
     }
 
 
@@ -678,7 +713,7 @@ class CliCommand
 //            $run_dir = DIRECTORY_ROOT . 'data/system/run/';
 //            $command = $core->register['command'];
 //
-//            FsDirectory::ensure(dirname($run_dir . $command));
+//            PhoDirectory::ensure(dirname($run_dir . $command));
 //
 //            if ($close) {
 //                if (!$executed) {
@@ -738,7 +773,7 @@ class CliCommand
 //                        }
 //                    }
 //                }
-//                // FsFile exists, or contains invalid data, but PID either doesn't exist, or is used by a different
+//                // PhoFile exists, or contains invalid data, but PID either doesn't exist, or is used by a different
 //                // process. Remove the PID file
 //                Log::warning(tr('cli_run_once_local(): Cleaning up stale run file ":file"', [':file' => $run_dir . $command]));
 //                file_delete([
@@ -1135,15 +1170,13 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
      *
      * @return void
      */
-    protected static function checkUsage(): void
+    protected static function showUsage(): void
     {
         global $argv;
 
         if ($argv['usage']) {
-            $results = PhoFile::new(
-                static::$command . '.php',
-                PhoRestrictions::newCommands(false, 'CliCommand::checkUsage()')
-            )->grep(['CliDocumentation::setUsage('], 100);
+            $results = PhoFile::new(static::$command . '.php', PhoRestrictions::newFilesystemRoot())
+                              ->grep(['CliDocumentation::setUsage('], 100);
 
             if (empty($results)) {
                 throw CliCommandException::new(tr('The command ":command" has no usage information available', [
@@ -1159,12 +1192,12 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
      *
      * @return void
      */
-    protected static function checkHelp(): void
+    protected static function showHelp(): void
     {
         global $argv;
 
         if ($argv['help']) {
-            $results = PhoFile::new(static::$command . '.php', PhoRestrictions::newCommands(false))
+            $results = PhoFile::new(static::$command . '.php', PhoRestrictions::newFilesystemRoot())
                               ->grep(['CliDocumentation::setHelp('], 100);
 
             if (empty($results)) {

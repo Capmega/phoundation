@@ -20,15 +20,22 @@
  *     ],
  *     'arguments' => [
  *         '--file' => [
- *             'word'   => function ($word) { return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA .
- *             'sources/')->scandir($word . '*.csv'); },
- *             'noword' => function ()      { return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA .
- *             'sources/')->scandir('*.csv'); },
+ *             'word'   => function ($word) {
+ *                             return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')
+ *                                             ->scandir('/^' . $word . '.*?\.csv$/');
+ *                         },
+ *             'noword' => function ($word) {
+ *                             return Directory::new(DIRECTORY_DATA . 'sources/', DIRECTORY_DATA . 'sources/')
+ *                                             ->scandir('/^' . $word . '.*?\.csv$/);
+ *                         },
  *         ],
  *         '--user' => [
- *             'word'   => function ($word) { return Arrays::match(Users::new()->load()->getSourceColumn('email'),
- *             $word); },
- *             'noword' => function ()      { return Users::new()->load()->getSourceColumn('email'); },
+ *             'word'   => function ($word) {
+ *                             return Arrays::keepMatchingValues(Users::new()->load()->getSourceColumn('email'), $word);
+ *                         },
+ *             'noword' => function ($word) {
+ *                             return Users::new()->load()->getSourceColumn('email');
+ *                         },
  *         ]
  *     ]
  * ]);
@@ -44,10 +51,15 @@
  * @see       https://iridakos.com/programming/2018/03/01/bash-programmable-completion-tutorial
  * @see       https://serverfault.com/questions/506612/standard-place-for-user-defined-bash-completion-d-scripts
  * @see       https://stackoverflow.com/questions/1146098/properly-handling-spaces-and-quotes-in-bash-completion#11536437
+ * @see       https://opensource.com/article/18/3/creating-bash-completion-script
+ * @see       https://unix.stackexchange.com/questions/148497/how-to-customize-bash-command-completion
+ * @see       https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion-Builtins.html
  *
  * @todo      Fix known issues with "foo" and "foo-bar", the second item won't ever be shown
  * @todo      Fix known issues with result set having entries containing spaces, "foo bar" will be shown as "foo" and
  *            "bar"
+ * @todo      Fix known issue that when only one result is returned, it should add a space to automatically go to the
+ *            next argument but instead it sticks with that last item.
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -154,7 +166,7 @@ class CliAutoComplete
                 'word'   => function ($word) {
                     return Languages::new()->keepMatchingKeys($word);
                 },
-                'noword' => function () {
+                'noword' => function ($word) {
                     return Languages::new()->getSource();
                 },
             ],
@@ -165,7 +177,7 @@ class CliAutoComplete
                 'word'   => function ($word) {
                     return Timezones::new()->keepMatchingKeys($word);
                 },
-                'noword' => function () {
+                'noword' => function ($word) {
                     return Timezones::new()->getSource();
                 },
             ],
@@ -228,12 +240,10 @@ class CliAutoComplete
             } else {
                 if (empty($data['commands'])) {
                     Log::warning(tr('Auto complete could not find any available cached root commands. try ./pho -Z to rebuild system caches'));
-                    echo tr('no-commands-available-see-logs') . PHP_EOL;
+                    Log::error(tr('no-commands-available-see-logs'), 10);
 
                 } else {
-                    foreach ($data['commands'] as $command) {
-                        echo $command . PHP_EOL;
-                    }
+                    CliAutoComplete::showResults($data['commands']);
                 }
             }
 
@@ -244,7 +254,7 @@ class CliAutoComplete
                 ':count'    => count($cli_commands),
             ]), echo_screen: false);
 
-            echo 'Invalid-auto-complete-arguments' . PHP_EOL;
+            Log::error('Invalid-auto-complete-arguments', 10);
             exit(1);
 
         } elseif ($data['position'] > static::$position) {
@@ -263,7 +273,7 @@ class CliAutoComplete
 
                 default:
                     // Multiple options available, still, show all!
-                    static::displayMultipleMatches($matches);
+                    static::showResults($matches);
             }
 
         } else {
@@ -294,29 +304,10 @@ class CliAutoComplete
                     }
                 }
 
-                $matches = static::getCommandsStartingWith($data['commands'], $argument_command);
-
-                switch (count($matches)) {
-                    case 0:
-                        break;
-
-                    case 1:
-                        // We found a single command that contains the word we have, we'll use that
-                        echo array_shift($matches);
-                        break;
-
-                    default:
-                        static::displayMultipleMatches($matches);
-                }
+                CliAutoComplete::showResults(static::getCommandsStartingWith($data['commands'], $argument_command));
 
             } else {
-                foreach ($data['commands'] as $command) {
-                    if (empty($command)) {
-                        continue;
-                    }
-
-                    echo $command . PHP_EOL;
-                }
+                CliAutoComplete::showResults($data['commands']);
             }
         }
 
@@ -338,7 +329,7 @@ class CliAutoComplete
         if (static::$position >= 0) {
             $previous_word = isset_get(ArgvValidator::getArguments()[static::$position - 1]);
             $word          = isset_get(ArgvValidator::getArguments()[static::$position]);
-            $word          = strtolower(trim((string) $word));
+            $word          = trim((string) $word);
 
             // Check if the previous key was a modifier argument that requires a value
             foreach ($argument_definitions as $key => $value) {
@@ -365,6 +356,7 @@ class CliAutoComplete
                     if (array_keys($requires_value) === ['word', 'noword']) {
                         // The $requires_value contains queries for if there is a partial word, or when there is no
                         // partial word
+
                         if ($word) {
                             if (array_key_exists('word', $requires_value)) {
                                 $results = static::processDefinition('argument ' . isset_get($previous_word, 'unknown'), $requires_value['word'], $word);
@@ -399,12 +391,66 @@ class CliAutoComplete
 
         // Process results only if we have any
         if (isset($results)) {
-            foreach ($results as $result) {
-                echo $result . PHP_EOL;
-            }
+            CliAutoComplete::showResults($results, $word);
 
             // Die here as we have echoed results!
             exit();
+        }
+    }
+
+
+    /**
+     * Shows the auto complete results
+     *
+     * @param IteratorInterface|array|string $results
+     * @param string|null $word
+     * @return void
+     */
+    protected static function showResults(IteratorInterface|array|string $results, ?string $word = null): void
+    {
+        // Sort the results, either array or Iterator
+        if (is_array($results)) {
+            $single = (count($results) === 1);
+            asort($results);
+
+        } elseif ($results instanceof IteratorInterface) {
+            $single = ($results->hasSingleEntry());
+            $results->sort();
+
+        } else {
+            // The given result is neither array nor Iterator
+            throw new OutOfBoundsException(tr('Invalid ":word" auto completion results specified', [
+                ':word' => $word ? 'word' : 'noword',
+            ]));
+        }
+
+        foreach ($results as $result) {
+            if ($result) {
+                if (!is_scalar($result)) {
+                    if ($result instanceof DataEntryInterface) {
+                        $result = $result->getAutoCompleteValue();
+
+                    } elseif ($result instanceof Stringable) {
+                        $result = (string) $result;
+
+                    } else {
+                        throw OutOfBoundsException::new(tr('Invalid ":word" auto completion results ":result" specified (from results list ":results")', [
+                            ':word'    => $word ? 'word' : 'noword',
+                            ':result'  => $result,
+                            ':results' => $results,
+                        ]))->addData([
+                            'results' => $results,
+                        ])->makeWarning();
+                    }
+                }
+            }
+
+            if ($single) {
+                echo ((string) $result) . ' ' . PHP_EOL;
+
+            } else {
+                echo ((string) $result) . PHP_EOL;
+            }
         }
     }
 
@@ -427,7 +473,7 @@ class CliAutoComplete
 
         // If the given definition was a function, we can just return the result
         if (is_callable($definition)) {
-            $results = $definition($word, ArgvValidator::getArguments());
+            $results = $definition((string) $word, ArgvValidator::getArguments());
 
             if (is_array($results)) {
                 // Limit the number of results
@@ -435,7 +481,7 @@ class CliAutoComplete
 
             } elseif (!is_string($results) and !($results instanceof IteratorInterface)) {
                 throw OutOfBoundsException::new(tr('Executed auto complete callback ":name" with word ":word" returned invalid value with datatype ":results", it should be either null, string, array, or IteratorInterface', [
-                    ':results' => get_class_or_data_type($results),
+                    ':results' =>  get_datatype_or_class($results),
                     ':word'    => $word,
                     ':name'    => $name,
                 ]))->setData([
@@ -447,9 +493,7 @@ class CliAutoComplete
         }
 
         if (is_string($definition)) {
-            $definition = trim($definition);
-
-            if (str_starts_with($definition, 'SELECT ')) {
+            if (str_starts_with(trim($definition), 'SELECT ')) {
                 if ($word) {
                     // Execute the query filtering on the specified word and limit the results
                     return static::limit(sql()->listScalar($definition, [':word' => '%' . $word . '%']));
@@ -531,22 +575,6 @@ class CliAutoComplete
 
 
     /**
-     * Displays multiple auto complete matches on screen
-     *
-     * @param array $matches
-     *
-     * @return void
-     */
-    protected static function displayMultipleMatches(array $matches): void
-    {
-        // We have multiple matches. Check if any of the matches
-        foreach ($matches as $command) {
-            echo $command . PHP_EOL;
-        }
-    }
-
-
-    /**
      * Process auto complete for this command from the definitions specified by the command
      *
      * @param IteratorInterface|array|null $definitions
@@ -566,7 +594,7 @@ class CliAutoComplete
 
         // Get the word where we're <TAB>bing on
         $word = isset_get(ArgvValidator::getArguments()[static::$position]);
-        $word = strtolower(trim((string) $word));
+        $word = trim((string) $word);
 
         // First check position!
         static::processCommandPosition($definitions, $word, static::$position);
@@ -591,8 +619,11 @@ class CliAutoComplete
             // Get position specific data
             $position_data = $definitions[$position];
 
-            // We may have a word or not, check if position_data allows word (or not) and process
-            if ($word) {
+            if ($position_data === true) {
+                // Argument is required but we cannot autocomplete it
+
+            } elseif ($word) {
+                // We may have a word or not, check if position_data allows word (or not) and process
                 if (array_key_exists('word', $position_data)) {
                     $results = static::processDefinition('position ' . $position, $position_data['word'], $word);
                 }
@@ -605,45 +636,7 @@ class CliAutoComplete
 
             // Process results only if we have any
             if (isset($results)) {
-                // Sort the results, either array or Iterator
-                if (is_array($results)) {
-                    asort($results);
-
-                } elseif ($results instanceof IteratorInterface) {
-                    $results->sort();
-
-                } else {
-                    // The given result is neither array nor Iterator
-                    throw new OutOfBoundsException(tr('Invalid ":word" auto completion results specified', [
-                        ':word' => $word ? 'word' : 'noword',
-                    ]));
-                }
-
-                foreach ($results as $result) {
-                    if (!$result) {
-                        continue;
-                    }
-
-                    if (!is_scalar($result)) {
-                        if ($result instanceof DataEntryInterface) {
-                            $result = $result->getAutoCompleteValue();
-
-                        } elseif ($result instanceof Stringable) {
-                            $result = (string) $result;
-
-                        } else {
-                            throw OutOfBoundsException::new(tr('Invalid ":word" auto completion results ":result" specified (from results list ":results")', [
-                                ':word'    => $word ? 'word' : 'noword',
-                                ':result'  => $result,
-                                ':results' => $results,
-                            ]))->addData([
-                                'results' => $results,
-                            ])->makeWarning();
-                        }
-                    }
-
-                    echo ((string) $result) . PHP_EOL;
-                }
+                CliAutoComplete::showResults($results, $word);
 
                 // Die here as we have echoed the results!
                 exit();
@@ -659,7 +652,7 @@ class CliAutoComplete
      *
      * @return void
      */
-    #[NoReturn] public static function processCommandArguments(IteratorInterface|array|null $definitions): void
+    public static function processCommandArguments(IteratorInterface|array|null $definitions): void
     {
         if ($definitions) {
             if ($definitions instanceof IteratorInterface) {
@@ -722,7 +715,7 @@ class CliAutoComplete
             // Check if it contains the setup for Phoundation
             // TODO Check if this is an issue with huge bash_completion files, are there huge files out there?
             $results = Grep::new($file->getParentDirectory())
-                           ->setValue('complete -F _phoundation pho')
+                           ->setValue('_phoundation pho')
                            ->setFile($file)
                            ->grep(EnumExecuteMethod::returnArray);
 
@@ -744,11 +737,12 @@ PHO=$(./pho --auto-complete "${COMP_CWORD} ${COMP_LINE}");
 COMPREPLY+=($(compgen -W "$PHO"));
 }
 
-complete -F _phoundation pho' . PHP_EOL);
+complete -o nospace -F _phoundation pho' . PHP_EOL);
 
         // Source the .bash_completion file
-        Process::new('source')
-               ->setArgument('~/.bash_completion')
+        Process::new('source', which_command: false)
+               ->setExecuteBash(true)
+               ->setArgument('~/.bash_completion', false)
                ->executePassthru();
 
         Log::success('Setup auto complete for Phoundation in ~/.bash_completion');
