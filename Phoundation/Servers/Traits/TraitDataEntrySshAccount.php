@@ -23,9 +23,11 @@ use Phoundation\Servers\SshAccount;
 trait TraitDataEntrySshAccount
 {
     /**
-     * @var SshAccountInterface|null
+     * SshAccount object cache
+     *
+     * @var SshAccountInterface|null $o_ssh_account
      */
-    protected ?SshAccountInterface $ssh_account = null;
+    protected ?SshAccountInterface $o_ssh_account;
 
 
     /**
@@ -48,56 +50,54 @@ trait TraitDataEntrySshAccount
      */
     public function setSshAccountsId(?int $ssh_accounts_id): static
     {
-        if ($ssh_accounts_id) {
-            $this->ssh_account = new SshAccount($ssh_accounts_id);
-
-        } else {
-            $this->ssh_account = null;
-        }
-
+        $this->o_ssh_account = null;
         return $this->set($ssh_accounts_id, 'ssh_accounts_id');
     }
 
 
     /**
-     * Returns the ssh_accounts_id for this user
+     * Returns the SshAccount for this object
      *
-     * @return SshAccount|null
+     * @return SshAccountInterface|null
      */
-    public function getSshAccount(): ?SshAccountInterface
+    public function getSshAccountObject(): ?SshAccountInterface
     {
-        return $this->ssh_account;
+        if (empty($this->o_ssh_account)) {
+            $this->o_ssh_account = SshAccount::loadOrNull($this->getTypesafe('int', 'ssh_accounts_id'));
+        }
+
+        return $this->o_ssh_account;
     }
 
 
     /**
-     * Sets the ssh_accounts_name for this user
+     * Sets the SshAccount for this object
      *
-     * @param SshAccountInterface|null $account
-     *
-     * @return static
+     * @param SshAccountInterface|null $o_SshAccount
+     * @return TraitDataEntrySshAccount
      */
-    public function setSshAccount(SshAccountInterface|null $account): static
+    public function setSshAccountObject(?SshAccountInterface $o_SshAccount): static
     {
-        $this->ssh_account = $account;
+        $this->setSshAccountsId($o_SshAccount?->getId());
 
-        return $this->set($account?->getId(), 'ssh_accounts_id');
+        $this->o_ssh_account = $o_SshAccount;
+        return $this;
     }
 
 
     /**
-     * Returns the ssh_accounts_name for this user
+     * Returns the ssh_accounts_name for this object
      *
      * @return string|null
      */
     public function getSshAccountsName(): ?string
     {
-        return $this->getTypesafe('string', 'ssh_accounts_name');
+        return $this->getSshAccountObject()->getName();
     }
 
 
     /**
-     * Sets the ssh_accounts_name for this object
+     * Returns the ssh_accounts_name for this object
      *
      * @param string|null $ssh_accounts_name
      *
@@ -105,14 +105,6 @@ trait TraitDataEntrySshAccount
      */
     public function setSshAccountsName(?string $ssh_accounts_name): static
     {
-        if ($ssh_accounts_name) {
-            $this->ssh_account = SshAccount::load($ssh_accounts_name);
-
-            return $this->set($this->ssh_account->getId(), 'ssh_accounts_id');
-
-        }
-        $this->ssh_account = null;
-
-        return $this->set(null, 'ssh_accounts_id');
+        return $this->setSshAccountObject(SshAccount::loadOrNull(['name' => $ssh_accounts_name]));
     }
 }
