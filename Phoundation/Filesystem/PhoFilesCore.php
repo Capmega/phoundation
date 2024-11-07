@@ -43,12 +43,32 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
      */
     protected PhoDirectoryInterface|null $parent_directory = null;
 
+    /**
+     * Tracks if this files object has empty entries added
+     *
+     * @var bool $added_empty
+     */
+    protected bool $added_empty = false;
+
+
+    /**
+     * Adds an empty entry to the files list
+     *
+     * @return static
+     */
+    public function addEmpty(): static
+    {
+        $this->added_empty  = true;
+        $this->source[null] = null;
+        return $this;
+    }
+
 
     /**
      * @param IteratorInterface|array|string|PDOStatement|null $source
      * @param array|null                                       $execute
      *
-     * @return $this
+     * @return static
      */
     public function setSource(IteratorInterface|array|string|PDOStatement|null $source = null, ?array $execute = null): static
     {
@@ -171,7 +191,46 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
 
 
     /**
-     * Initializes the source files, ensures all files are FsPathInterface objects
+     * Returns if the current pointer is valid or not
+     *
+     * Since PhoFiles classes skip the "." and ".." directories, valid will ensure these get skipped too
+     *
+     * @return bool
+     */
+    public function valid(): bool
+    {
+        $valid = parent::valid();
+
+        if ($valid) {
+            $current = current($this->source);
+
+            while (true) {
+                switch ($current) {
+                    case '':
+                        return $this->added_empty;
+
+                    case '.':
+                        // No break
+
+                    case '..':
+                        // Skip the "." and ".." directories
+                        parent::next();
+                        $current = current($this->source);
+                        break;
+
+                    default:
+                        break 2;
+                }
+            }
+
+        }
+
+        return $valid;
+    }
+
+
+    /**
+     * Initializes the source files, ensures all files are PhoPathInterface objects
      *
      * @return static
      */
@@ -226,51 +285,12 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
 
 
     /**
-     * Returns if the current pointer is valid or not
-     *
-     * Since FsFiles classes skip the "." and ".." directories, valid will ensure these get skipped too
-     *
-     * @return bool
-     */
-    public function valid(): bool
-    {
-        $valid = parent::valid();
-
-        if ($valid) {
-            $current = current($this->source);
-
-            while (true) {
-                switch ($current) {
-                    case '':
-                        return false;
-
-                    case '.':
-                        // No break
-
-                    case '..':
-                        // Skip the "." and ".." directories
-                        parent::next();
-                        $current = current($this->source);
-                        break;
-
-                    default:
-                        break 2;
-                }
-            }
-
-        }
-
-        return $valid;
-    }
-
-
-    /**
      * Returns all files that match the specified mimetype
      *
      * @param string $mimetype
      * @param bool   $remove
      *
-     * @return $this
+     * @return static
      */
     public function getFilesWithMimetype(string $mimetype, bool $remove = false): static
     {
@@ -314,11 +334,11 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
 
 
     /**
-     * Will delete all files in this FsFiles object
+     * Will delete all files in this PhoFiles object
      *
-     * @note This will remove the files from this FsFiles object
+     * @note This will remove the files from this PhoFiles object
      *
-     * @return $this
+     * @return static
      */
     public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static
     {
@@ -338,7 +358,7 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
      * @param bool $randomized
      * @param int  $block_size
      *
-     * @return $this
+     * @return static
      *
      * @todo Implement support for $simultaneously
      */
@@ -374,8 +394,8 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
             }
         }
 
-        // specified value must match FsPathInterface::class
-        $this->checkDataType($value);
+        // specified value must match PhoPathInterface::class
+        $this->checkDataTypeAndContent($value);
 
         if ($key === null) {
             $key = $value->getSource();

@@ -20,7 +20,7 @@ interface PhoFilesInterface extends IteratorInterface
     public function getRestrictions(): PhoRestrictionsInterface;
 
     /**
-     * Sets the server and filesystem restrictions for this FsFile object
+     * Sets the server and filesystem restrictions for this PhoFile object
      *
      * @param PhoRestrictionsInterface|array|string|null $restrictions The file restrictions to apply to this object
      * @param bool                                       $write        If $restrictions is not specified as a
@@ -98,7 +98,7 @@ interface PhoFilesInterface extends IteratorInterface
     /**
      * Returns if the current pointer is valid or not
      *
-     * Since FsFiles classes skip the "." and ".." directories, valid will ensure these get skipped too
+     * Since PhoFiles classes skip the "." and ".." directories, valid will ensure these get skipped too
      *
      * @return bool
      */
@@ -111,16 +111,16 @@ interface PhoFilesInterface extends IteratorInterface
      * @param string $mimetype
      * @param bool   $remove
      *
-     * @return $this
+     * @return static
      */
     public function getFilesWithMimetype(string $mimetype, bool $remove = false): static;
 
     /**
-     * Will delete all files in this FsFiles object
+     * Will delete all files in this PhoFiles object
      *
-     * @note This will remove the files from this FsFiles object
+     * @note This will remove the files from this PhoFiles object
      *
-     * @return $this
+     * @return static
      */
     public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static;
 
@@ -130,7 +130,7 @@ interface PhoFilesInterface extends IteratorInterface
      * @param bool $randomized
      * @param int  $block_size
      *
-     * @return $this
+     * @return static
      *
      * @todo Implement support for $simultaneously
      */
@@ -150,4 +150,11 @@ interface PhoFilesInterface extends IteratorInterface
      * @inheritDoc
      */
     #[ReturnTypeWillChange] public function getLastValue(): ?PhoPathInterface;
+
+    /**
+     * Adds an empty entry to the files list
+     *
+     * @return static
+     */
+    public function addEmpty(): static;
 }

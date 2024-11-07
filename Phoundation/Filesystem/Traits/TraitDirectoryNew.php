@@ -3,7 +3,7 @@
 /**
  * Trait TraitDirectoryNew
  *
- * This trait contains the ::new() method for FsDirectory, FsFiles, and FsPath classes
+ * This trait contains the ::new() method for PhoDirectory, PhoFiles, and PhoPath classes
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

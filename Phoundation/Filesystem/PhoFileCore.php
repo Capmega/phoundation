@@ -106,7 +106,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
 //            $real = basename($source);
 //        }
 //        is_file($source);
-//        FsDirectory::new($destination)
+//        PhoDirectory::new($destination)
 //                 ->ensure();
 //        // Ensure we're not overwriting anything!
 //        if (file_exists($destination . $real)) {
@@ -227,10 +227,10 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
      *
      * @return static
      *
-     * @todo Remove the second "restrictions" parameter, those should be included in the $target, which should be just FsPathInterface
+     * @todo Remove the second "restrictions" parameter, those should be included in the $target, which should be just PhoPathInterface
      *
      * @example:
-     * FsFile::new($source)->copy($target, $restrictions, function ($notification_code, $severity, $message,
+     * PhoFile::new($source)->copy($target, $restrictions, function ($notification_code, $severity, $message,
      * $message_code, $bytes_transferred, $bytes_max) { if ($notification_code == STREAM_Notification_PROGRESS) {
      *          // save $bytes_transferred and $bytes_max to file or database
      *      }
@@ -612,7 +612,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
 //        if (isset($upload) and $copy) {
 //            throw new FilesystemException(tr('Copy option has been set, but object file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', [':file' => $this->source]));
 //        }
-//        $directory      = FsDirectory::new($directory, $this->restrictions)
+//        $directory      = PhoDirectory::new($directory, $this->restrictions)
 //                                     ->ensure();
 //        $this->filename = basename($this->source);
 //        if (!$this->filename) {
@@ -664,7 +664,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
 //                } else {
 //                    rename($target);
 //
-//                    FsDirectory::new(dirname($this->source))->clearDirectory();
+//                    PhoDirectory::new(dirname($this->source))->clearDirectory();
 //                }
 //            }
 //        }
@@ -1485,7 +1485,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
      * @param callable $callback
      * @param int|null $buffer
      *
-     * @return $this
+     * @return static
      */
     public function eachLine(callable $callback, ?int $buffer = null): static
     {
@@ -1513,7 +1513,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
      * @param string   $enclosure
      * @param string   $escape
      *
-     * @return $this
+     * @return static
      */
     public function eachCsvLine(callable $callback, ?int $buffer = null, string $separator = ',', string $enclosure = '"', string $escape = '\\'): static
     {

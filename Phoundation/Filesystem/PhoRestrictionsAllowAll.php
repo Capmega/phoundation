@@ -4,7 +4,7 @@
  * Class PhoRestrictionsAllowAll
  *
  * This class extends the FsRestrictions class, but allows everything, always. Currently only used by
- * FsPathCore::realPath() to avoid endless loops with FsRestrictions, and that method requires
+ * PhoPathCore::realPath() to avoid endless loops with FsRestrictions, and that method requires
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

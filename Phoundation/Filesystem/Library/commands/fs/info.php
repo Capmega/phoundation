@@ -25,12 +25,8 @@ $restrictions = PhoRestrictions::newReadonly('/');
 CliDocumentation::setAutoComplete([
     'positions' => [
         '0' => [
-            'word'   => function ($word) use ($restrictions) {
-                return PhoDirectory::new(PhoDirectory::newFilesystemRootObject())->scan($word . '*');
-            },
-            'noword' => function () use ($restrictions) {
-                return PhoDirectory::new(PhoDirectory::newFilesystemRootObject())->scan('*');
-            },
+            'word'   => function ($word) use ($restrictions) { return PhoDirectory::newFilesystemRootObject()->scan($word, '/.*?$/'); },
+            'noword' => function ($word) use ($restrictions) { return PhoDirectory::newFilesystemRootObject()->scan($word, '/.*?$/'); },
         ],
     ]
 ]);

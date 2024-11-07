@@ -36,7 +36,7 @@ trait TraitPathConstructor
     public function __construct(Stringable|string $source, PhoRestrictionsInterface|bool|null $restrictions = null, Stringable|string|bool|null $absolute_prefix = false)
     {
         if ($source instanceof PhoPathInterface) {
-            // The Specified file was actually a FsPathInterface object, get the file from there
+            // The Specified file was actually a PhoPathInterface object, get the file from there
             $this->setSource($source, $absolute_prefix)
                  ->setTarget($source->getTarget())
                  ->setRestrictions($restrictions ?? $source->getRestrictions());
@@ -63,7 +63,7 @@ trait TraitPathConstructor
                 );
             }
 
-            // The Specified file was actually a FsPathInterface or Directory object, get the file from there
+            // The Specified file was actually a PhoPathInterface or Directory object, get the file from there
             if (strlen($source) > 2048) {
                 throw new OutOfBoundsException(
                     tr('Specified path ":path" is invalid, the path string should be no longer than 2048 characters', [

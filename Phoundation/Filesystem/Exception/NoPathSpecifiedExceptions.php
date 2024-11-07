@@ -3,7 +3,7 @@
 /**
  * Class NoPathSpecifiedExceptions
  *
- * This exception is thrown when a Filesystem object like FsPath, FsFile, or FsDirectory is created with no path
+ * This exception is thrown when a Filesystem object like PhoPath, PhoFile, or PhoDirectory is created with no path
  * specified
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>

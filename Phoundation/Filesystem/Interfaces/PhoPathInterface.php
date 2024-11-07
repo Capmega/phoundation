@@ -599,7 +599,7 @@ interface PhoPathInterface extends Stringable
     /**
      * Creates a symlink $target that points to this file.
      *
-     * @note Will return a NEW Path object (FsFileInterface or FsDirectory, basically) for the specified target
+     * @note Will return a NEW Path object (PhoFileInterface or PhoDirectory, basically) for the specified target
      *
      * @param PhoPathInterface             $target
      * @param PhoPathInterface|string|bool $make_relative
@@ -611,7 +611,7 @@ interface PhoPathInterface extends Stringable
     /**
      * Makes this path a symlink that points to the specified target.
      *
-     * @note Will return a NEW Path object (FsFile or FsDirectory, basically) for the specified target
+     * @note Will return a NEW Path object (PhoFile or PhoDirectory, basically) for the specified target
      *
      * @param PhoPathInterface|string      $target
      * @param PhoPathInterface|string|bool $make_relative
@@ -885,7 +885,7 @@ interface PhoPathInterface extends Stringable
     public function checkSymlink(Stringable|string $target): static;
 
     /**
-     * Returns a FsPathInterface object with the specified path appended to this path
+     * Returns a PhoPathInterface object with the specified path appended to this path
      *
      * @param PhoPathInterface|string     $path
      * @param Stringable|string|bool|null $absolute_prefix
@@ -895,7 +895,7 @@ interface PhoPathInterface extends Stringable
     public function appendPath(PhoPathInterface|string $path, Stringable|string|bool|null $absolute_prefix = false): PhoPathInterface;
 
     /**
-     * Returns a FsPathInterface object with the specified path prepended to this path
+     * Returns a PhoPathInterface object with the specified path prepended to this path
      *
      * @param PhoPathInterface|string     $path
      * @param Stringable|string|bool|null $absolute_prefix
@@ -905,7 +905,7 @@ interface PhoPathInterface extends Stringable
     public function prependPath(PhoPathInterface|string $path, Stringable|string|bool|null $absolute_prefix = false): PhoPathInterface;
 
     /**
-     * Returns a FsFilesInterface object that will contain all the files under this current path
+     * Returns a PhoFilesInterface object that will contain all the files under this current path
      *
      * @param bool $reload
      *
@@ -943,7 +943,7 @@ interface PhoPathInterface extends Stringable
     public function getRestrictions(): PhoRestrictionsInterface;
 
     /**
-     * Sets the server and filesystem restrictions for this FsPath object
+     * Sets the server and filesystem restrictions for this PhoPath object
      *
      * @param PhoRestrictionsInterface|array|string|null $restrictions     The file restrictions to apply to this object
      * @param bool                                       $write            If $restrictions is not specified as a
@@ -1205,7 +1205,7 @@ interface PhoPathInterface extends Stringable
     /**
      * Checks that this file is a binary file or throws a FileInvalidFormatException
      *
-     * @return $this
+     * @return static
      *
      * @throws FileInvalidFormatException
      */
@@ -1214,7 +1214,7 @@ interface PhoPathInterface extends Stringable
     /**
      * Checks that this file is a text file or throws a FileInvalidFormatException
      *
-     * @return $this
+     * @return static
      *
      * @throws FileInvalidFormatException
      */
@@ -1225,7 +1225,7 @@ interface PhoPathInterface extends Stringable
      *
      * @param string $extension
      *
-     * @return $this
+     * @return static
      */
     public function ensureExtension(string $extension): static;
 
@@ -1258,4 +1258,11 @@ interface PhoPathInterface extends Stringable
      * @return bool
      */
     public function getExists(bool $check_dead_symlink = false, bool $auto_mount = true): bool;
+
+    /**
+     * Returns a PhoMimetypeInterface object for this file
+     *
+     * @return PhoMimetypeInterface
+     */
+    public function getMimetypeObject(): PhoMimetypeInterface;
 }
