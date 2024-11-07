@@ -56,7 +56,6 @@ class Rights extends DataIterator implements RightsInterface
                                 ->addWhere('`accounts_rights`.`status` IS NULL')
                                 ->addGroupBy('`accounts_rights`.`name`')
                                 ->addOrderBy('`accounts_rights`.`name`');
-        $this->getQueryBuilder()->setDebug(true);
 
         parent::__construct();
 

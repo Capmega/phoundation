@@ -31,7 +31,7 @@ CliDocumentation::setHelp('This command allows you to add rights to the specifie
 ARGUMENTS
 
 
-NAME                                    The identifier name of the role to which the rights shoudl be added
+NAME                                    The identifier name of the role to which the rights should be added
 
 RIGHT[,RIGHT,RIGHT,...]                 The rights linked with the role. Each user that gets this role assigned will 
                                         also get these rights assigned');
@@ -40,7 +40,7 @@ RIGHT[,RIGHT,RIGHT,...]                 The rights linked with the role. Each us
 // Validate arguments
 $argv = ArgvValidator::new()
                      ->select('role', true)->isName()
-                     ->select('rights', true)->isOptional(null)->sanitizeForceArray()->eachField()->isName()
+                     ->select('rights', true)->isOptional()->sanitizeForceArray()->eachField()->isName()
                      ->validate();
 
 

@@ -15,7 +15,6 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Roles\Role;
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -64,7 +63,7 @@ if (Request::isPostRequestMethod()) {
 //showdie(Timers::get('query'));
 
                 Response::getFlashMessagesObject()->addSuccess(tr('Role ":role" has been saved', [':role' => $role->getName()]));
-                Response::redirect('referer');
+                Response::redirect('accounts/role+' . $role->getId() . '.html');
 
             case tr('Delete'):
                 $role->delete();
@@ -78,7 +77,7 @@ if (Request::isPostRequestMethod()) {
         }
 
     } catch (IncidentsException | ValidationFailedException $e) {
-        // Oops! Show validation errors and remain on page
+        // Oops! Show validation errors and remain on the page
         Response::getFlashMessagesObject()->addMessage($e);
         $role->forceApply();
     }

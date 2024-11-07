@@ -105,8 +105,12 @@ class Role extends DataEntry implements RoleInterface
     public function getRightsHtmlDataEntryForm(string $name = 'rights_id[]'): DataEntryFormInterface
     {
         // Get a list of all rights for this role
-        foreach ($this->getRightsObject() as $right) {
-            $selected[] = $right->getId();
+        $selected = [];
+
+        if (!$this->isNew()) {
+            foreach ($this->getRightsObject() as $right) {
+                $selected[] = $right->getId();
+            }
         }
 
         // Build up the rights select object

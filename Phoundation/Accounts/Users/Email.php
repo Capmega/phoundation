@@ -184,7 +184,7 @@ class Email extends DataEntry implements EmailInterface
                                                 tr('Other'),
                                             ], $word);
                                         },
-                                        'noword' => function () {
+                                        'noword' => function ($word) {
                                             return [
                                                 tr('Business'),
                                                 tr('Personal'),
