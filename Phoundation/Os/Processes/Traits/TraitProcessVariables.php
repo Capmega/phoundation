@@ -14,42 +14,44 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Os\Processes;
+namespace Phoundation\Os\Processes\Traits;
 
 use Phoundation\Cache\InstanceCache;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataLogLevel;
-use Phoundation\Date\PhoDateTime;
+use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
+use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\PhoTime;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\PhoDirectory;
-use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
+use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
-use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Os\Packages\Interfaces\PackagesInterface;
 use Phoundation\Os\Packages\Packages;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Commands\Which;
-use Phoundation\Os\Processes\Enum\EnumIoNiceClass;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
+use Phoundation\Os\Processes\Enum\EnumIoNiceClass;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Phoundation\Os\Processes\Exception\ProcessException;
 use Phoundation\Os\Processes\Interfaces\ProcessInterface;
+use Phoundation\Os\Processes\Process;
+use Phoundation\Os\Processes\Signals;
 use Phoundation\Servers\Traits\TraitDataServer;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Stringable;
 
 
-trait ProcessVariables
+trait TraitProcessVariables
 {
     use TraitDataLogLevel;
     use TraitDataServer;
@@ -352,6 +354,13 @@ trait ProcessVariables
      */
     protected bool $service = false;
 
+    /**
+     * Tracks if only the basic command should be executed, without any of the timeout, sleep, sudo, bash -c, etc..
+     *
+     * @var bool $execute_bash
+     */
+    protected bool $execute_bash = false;
+
 
     /**
      * Process class constructor
@@ -476,6 +485,31 @@ trait ProcessVariables
     {
         $this->service = $service;
 
+        return $this;
+    }
+
+
+    /**
+     * Returns if only the basic command should be executed, without any of the timeout, sleep, sudo, bash -c, etc..
+     *
+     * @return bool
+     */
+    public function getExecuteBash(): bool
+    {
+        return $this->execute_bash;
+    }
+
+
+    /**
+     * Sets if only the basic command should be executed, without any of the timeout, sleep, sudo, bash -c, etc..
+     *
+     * @param bool $execute_bash
+     *
+     * @return static
+     */
+    public function setExecuteBash(bool $execute_bash): static
+    {
+        $this->execute_bash = $execute_bash;
         return $this;
     }
 
@@ -976,7 +1010,7 @@ trait ProcessVariables
 //
 //        // Ensure the path ends with a slash and that it is writable
 //        $directory = Strings::slash($directory);
-//        $directory = FsFile::new($directory)->ensureWritable();
+//        $directory = PhoFile::new($directory)->ensureWritable();
 //        $this->log_file = $directory;
 //
 //        return $this;
@@ -1031,7 +1065,7 @@ trait ProcessVariables
 //
 //        // Ensure the path ends with a slash and that it is writable
 //        $directory = Strings::slash($directory);
-//        $directory = FsFile::new($directory)->ensureWritable();
+//        $directory = PhoFile::new($directory)->ensureWritable();
 //        $this->run_file = $directory;
 //
 //        return $this;
@@ -1484,12 +1518,14 @@ trait ProcessVariables
      * @note All arguments will be automatically escaped, but variable arguments ($variablename$) will NOT be escaped!
      *
      * @param string|null $argument
+     * @param bool        $escape_arguments
+     * @param bool        $escape_quotes
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function setArgument(?string $argument): static
+    public function setArgument(?string $argument, bool $escape_arguments = true, bool $escape_quotes = true): static
     {
-        return $this->setArguments([$argument]);
+        return $this->setArguments([$argument], $escape_arguments, $escape_quotes);
     }
 
 
@@ -1767,7 +1803,7 @@ trait ProcessVariables
     /**
      * Increases the number of times quotes should be escaped
      *
-     * @return ProcessVariables
+     * @return TraitProcessVariables
      */
     public function increaseQuoteEscapes(): static
     {
@@ -2080,7 +2116,7 @@ trait ProcessVariables
         }
 
         // Get the PID and remove the run file
-        if ($this->use_run_file) {
+        if (!$this->execute_bash and $this->use_run_file) {
             // Get PID info from run_file
             if (!$this->run_file) {
                 throw new ProcessException(tr('Failed to set process PID, no PID specified and run_file has not been set'));
@@ -2107,7 +2143,7 @@ trait ProcessVariables
 
             // Delete the run file but don't clean up as when the process terminates, cleanup will happen automatically
             PhoFile::new($this->run_file, PhoRestrictions::new(DIRECTORY_SYSTEM . 'run/pids/', true))
-                  ->delete(false, use_run_file: false);
+                   ->delete(false, use_run_file: false);
 
         } elseif ($this->wasExecutedInBackground()) {
             // The command was executed in the background, PID was returned as output
@@ -2127,7 +2163,8 @@ trait ProcessVariables
             }
 
         } else {
-            // Run files were disabled for normal execution. We can't know the PID
+            // Run files were disabled for normal execution, or a command was executed using basic execution.
+            // Either way, we can't know the PID
             $pid = -1;
         }
 

@@ -52,6 +52,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Http\Url;
 
 class Task extends DataEntry implements TaskInterface
 {
@@ -626,7 +627,7 @@ class Task extends DataEntry implements TaskInterface
             if ($this->getRolesId()) {
                 // Notify the specified role!
                 Notification::new()
-                            ->setUrl('/tasks/task+' . $this->getId() . '.html')
+                            ->setUrl(Url::getWww('/tasks/task+' . $this->getId() . '.html'))
                             ->setMode(EnumDisplayMode::info)
                             ->setRoles($this->getRolesId())
                             ->setTitle(tr('A task has been completed'))
@@ -668,7 +669,7 @@ class Task extends DataEntry implements TaskInterface
             if ($this->getRolesId()) {
                 // Notify the specified role!
                 Notification::new()
-                            ->setUrl('/tasks/task+' . $this->getId() . '.html')
+                            ->setUrl(Url::getWww('/tasks/task+' . $this->getId() . '.html'))
                             ->setMode(EnumDisplayMode::info)
                             ->setRoles($this->getRolesId())
                             ->setTitle(tr('A task has failed'))

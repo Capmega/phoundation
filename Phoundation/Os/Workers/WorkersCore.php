@@ -9,7 +9,7 @@
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
- * @uses      ProcessVariables
+ * @uses      TraitProcessVariables
  */
 
 
@@ -27,6 +27,7 @@ use Phoundation\Os\Processes\Exception\WorkersException;
 use Phoundation\Os\Processes\Interfaces\WorkersCoreInterface;
 use Phoundation\Os\Processes\ProcessCore;
 use Phoundation\Utils\Strings;
+
 
 class WorkersCore extends ProcessCore implements WorkersCoreInterface
 {

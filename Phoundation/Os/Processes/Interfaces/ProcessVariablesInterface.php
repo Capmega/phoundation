@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Interfaces;
 
-use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Os\Packages\Interfaces\PackagesInterface;
 use Phoundation\Os\Processes\Exception\ProcessException;
-use Phoundation\Os\Processes\ProcessVariables;
 use Stringable;
 
 interface ProcessVariablesInterface

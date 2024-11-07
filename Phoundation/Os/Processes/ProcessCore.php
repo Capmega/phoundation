@@ -20,9 +20,9 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
-use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Commands\Exception\NoSudoException;
@@ -33,6 +33,7 @@ use Phoundation\Os\Processes\Exception\ProcessException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Os\Processes\Interfaces\ProcessVariablesInterface;
+use Phoundation\Os\Processes\Traits\TraitProcessVariables;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Throwable;
@@ -40,7 +41,7 @@ use Throwable;
 
 abstract class ProcessCore implements ProcessVariablesInterface, ProcessInterface
 {
-    use ProcessVariables;
+    use TraitProcessVariables;
 
 
     /**
@@ -136,8 +137,8 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessInterfac
             case EnumExecuteMethod::log:
                 $results = $this->executeReturnArray();
                 Log::notice($results, 4);
-
                 return null;
+
             case EnumExecuteMethod::background:
                 return $this->executeBackground();
 
@@ -271,6 +272,13 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessInterfac
 
         // Build up the basic command line
         $this->cached_command_line = $this->getBasicCommandLine();
+
+        if ($this->execute_bash) {
+            // Execute command as an internal BaSH command
+            $this->cached_command_line = 'bash -c "' . $this->cached_command_line . '"';
+
+            return $this->cached_command_line;
+        }
 
         // Add sudo
         if (!$this->server and $this->sudo) {
@@ -550,6 +558,12 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessInterfac
      */
     public function executeBackground(): int
     {
+        if ($this->execute_bash) {
+            throw new OutOfBoundsException(tr('Cannot execute command ":command" in background mode, it was set to execute the basic command only which does not support background execution', [
+                ':command' => $this->getFullCommandLine(),
+            ]));
+        }
+
         // Background execution will NOT use a runfile.
         $this->setExecutionMethod(EnumExecuteMethod::background)
              ->use_run_file = false;

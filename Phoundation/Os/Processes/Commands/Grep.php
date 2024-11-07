@@ -48,6 +48,7 @@ class Grep extends Command
         // Return results
         return $this->clearArguments()
                     ->setCommand('grep')
+                    ->setAcceptedExitCodes([0, 1])
                     ->addArgument($this->value)
                     ->addArgument($this->directory ?? $this->file)
                     ->addArgument($this->directory ? '-R' : null)

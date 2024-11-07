@@ -37,7 +37,7 @@ CliDocumentation::setAutoComplete([
                                       'arguments' => [
                                           '-t,--task' => [
                                               'word'   => function ($word) { return Tasks::new()->autoCompleteFind($word); },
-                                              'noword' => function () { return Tasks::new()->autoCompleteFind(); },
+                                              'noword' => function ($word) { return Tasks::new()->autoCompleteFind(); },
                                           ],
                                       ],
                                   ]);

@@ -31,15 +31,17 @@ class Proc
      */
     public static function getSupportedFiletypes(): Iterator
     {
-        $types = PhoFile::new('/proc/filesystems', PhoRestrictions::newReadonly('/proc/filesystems'))
-                        ->getContentsAsArray();
+        $types = PhoFile::new(
+            '/proc/filesystems',
+            PhoRestrictions::newReadonly('/proc/filesystems')
+        )->getContentsAsArray();
+
         foreach ($types as &$type) {
             $type = Strings::from($type, 'nodev');
             $type = trim($type);
         }
-        unset($trim);
 
-        return Iterator::new()
-                       ->setSource($types);
+        unset($trim);
+        return Iterator::new($types);
     }
 }

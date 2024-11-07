@@ -150,7 +150,7 @@ class Find extends Command implements FindInterface
     protected bool $depth = false;
 
     /**
-     * Do not apply any tests or actions at levels less than levels (a non‐negative integer).  Using -mindepth 1 means
+     * Do not apply any Tests or actions at levels less than levels (a non‐negative integer).  Using -mindepth 1 means
      * process all files except the starting‐points.
      *
      * @var int|null $min_depth
@@ -159,7 +159,7 @@ class Find extends Command implements FindInterface
 
     /**
      * Descend  at  most levels (a non‐negative integer) levels of directories below the starting‐points.  Using
-     * maxdepth 0 means only apply the tests and actions to the start‐ing‐points themselves.
+     * maxdepth 0 means only apply the Tests and actions to the start‐ing‐points themselves.
      *
      * @var int|null $max_depth
      */
@@ -210,7 +210,7 @@ class Find extends Command implements FindInterface
      *
      * @return static
      */
-    public function setPath(PhoPathInterface|null $path): static
+    public function setPath(?PhoPathInterface $path): static
     {
         $this->__setPath($path);
 
@@ -759,7 +759,7 @@ class Find extends Command implements FindInterface
 
 
     /**
-     * Returns a FsFiles-object containing the found files
+     * Returns a PhoFiles-object containing the found files
      *
      * @return PhoFilesInterface
      */
@@ -770,7 +770,7 @@ class Find extends Command implements FindInterface
 
 
     /**
-     * Returns a FsFiles-object containing the found files
+     * Returns a PhoFiles-object containing the found files
      *
      * @return PhoFilesInterface
      */
