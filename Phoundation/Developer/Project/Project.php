@@ -636,7 +636,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
             'data',
             'Phoundation',
             'Plugins',
-            'tests',
+            'Tests',
             'pho',
         ];
         foreach ($files as $file) {

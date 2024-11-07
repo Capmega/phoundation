@@ -33,7 +33,7 @@ CliDocumentation::setAutoComplete([
                                           '-a,--allow-changes' => false,
                                           '-b,--branch'        => [
                                               'word'   => function ($word) { return Phoundation::new()->getPhoundationBranches()->keepMatchingKeysStartingWith($word); },
-                                              'noword' => function ()      { return Phoundation::new()->getPhoundationBranches()->getSourceKeys(); },
+                                              'noword' => function ($word) { return Phoundation::new()->getPhoundationBranches()->getSourceKeys(); },
                                           ],
                                           '-m,--message'       => true,
                                           '-c,--no-checkout'   => false,

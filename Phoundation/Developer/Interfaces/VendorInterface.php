@@ -25,7 +25,7 @@ interface VendorInterface
     public function getIdentifier(): string;
 
     /**
-     * Returns the files for this vendor in a FsFilesInterface object
+     * Returns the files for this vendor in a PhoFilesInterface object
      *
      * @return PhoFilesInterface
      */

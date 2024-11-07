@@ -417,7 +417,7 @@ class Repositories extends IteratorCore implements RepositoriesInterface
         }
 
         // Remove double and or empty paths
-        $directories->removeEmptyValues()->unique(SORT_STRING);
+        $directories->removeEmptyValues()->makeValuesUnique(SORT_STRING);
 
         // Convert to directory objects
         foreach ($directories as $directory) {

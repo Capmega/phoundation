@@ -189,7 +189,7 @@ class Deploy implements DeployInterface
             }
             static::executeHook('post-test-syntax,pre-test-unit');
             if ($env_config['test_unit']) {
-                Log::action(tr('Executing unit tests'));
+                Log::action(tr('Executing unit Tests'));
 
             }
             static::executeHook('post-test-unit,pre-sync');
@@ -583,7 +583,7 @@ class Deploy implements DeployInterface
 
 
     /**
-     * Sets if unit tests will be executed before deployment or not
+     * Sets if unit Tests will be executed before deployment or not
      *
      * @param bool|null $do
      * @param bool|null $dont

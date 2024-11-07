@@ -17,21 +17,24 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Tests;
 
 use Phoundation\Core\Libraries\Libraries;
+use Phoundation\Core\Log\Log;
+use Phoundation\Developer\Testers\HttpTester;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Process;
+use Phoundation\Web\Http\Url;
 
 class Tests
 {
     /**
-     * Start running PHPUnit tests
+     * Start running PHPUnit Tests
      *
      * @return void
      */
-    public static function start(): void
+    public static function unit(): void
     {
-        // No update unit tests cache
+        // No update unit Tests cache
         static::rebuildCache();
 
         // First try loading all classes, plugins, and templates to see if there are any syntax errors
@@ -46,6 +49,19 @@ class Tests
         } catch (ProcessFailedException $e) {
             throw $e->makeWarning();
         }
+    }
+
+
+    /**
+     * Starts the HTTP tests
+     *
+     * @return void
+     */
+    public static function http(): void
+    {
+        Log::information('Starting HTTP tests');
+
+        HttpTester::new(Url::getWww())->execute();
     }
 
 

@@ -3,7 +3,7 @@
 /**
  * Class StatusFile
  *
- * FsFile extended object containing git status information about that file
+ * PhoFile extended object containing git status information about that file
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

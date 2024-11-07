@@ -1013,12 +1013,10 @@ class Sync
 
         // Setup SSH account
         try {
-            $account = null;
-
             if ($this->configuration['ssh_accounts_name']) {
                 // Ignore the default SSH account for this server, use the one from configuration
                 $account = Config::get('ssh.accounts.' . $this->configuration['ssh_accounts_name']);
-                $this->server->setSshAccount($account);
+                $this->server->setSshAccountsName($account);
             }
 
         } catch (ConfigPathDoesNotExistsException) {
@@ -1027,13 +1025,15 @@ class Sync
                 ':account'     => $this->configuration['ssh_accounts_name']
             ]))->makeWarning();
         }
-
+show($this->server->getSource());
+show($this->server->getSshAccountObject()?->getSource());
+showdie();
         // Does this server have an SSH account after all this?
-        if (!$this->server->getSshAccount()) {
+        if (!$this->server->getSshAccountObject()) {
             // The server has no SSH account configured, and no SSH account was configured
             throw SyncException::new(tr('Cannot sync with server ":server" for environment ":environment", server has no SSH account configured and no SSH account was specified', [
                 ':environment' => $environment,
-                ':server'      => $this->server->getId(),
+                ':server'      => $this->server->getLogId(),
             ]))->makeWarning();
         }
 
