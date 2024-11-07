@@ -332,6 +332,20 @@ class Definitions extends IteratorCore implements DefinitionsInterface
 
 
     /**
+     * Direct method to return weather the specified column renders or not
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $exception
+     *
+     * @return bool
+     */
+    public function isRendered(Stringable|string|float|int $key, bool $exception = true): bool
+    {
+        return $this->get($key, $exception)->getRender();
+    }
+
+
+    /**
      * Direct method to render or not render entries
      *
      * @param Stringable|string|float|int $key

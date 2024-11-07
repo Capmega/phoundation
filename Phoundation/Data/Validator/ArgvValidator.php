@@ -26,7 +26,6 @@ use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ArgvValidatorInterface;
-use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -80,12 +79,15 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     {
         // NOTE: ArgValidator does NOT pass $argv to the parent constructor, the $argv values are manually copied to
         // static::source!
-        $this->construct();
+        // TODO Fix this crap! The byref causes serious weird behaviour that right now I don't have the time to fix
+        $this->construct(null, static::$argv);
     }
 
 
     /**
      * Returns if the ArgvValidator object is in test mode or not
+     *
+     * @warning When test mode is set, ArgvValidator will NOT remove validated keys from its source!
      *
      * @return bool
      */
@@ -97,6 +99,8 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
     /**
      * Sets if the ArgvValidator object is in test mode or not
+     *
+     * @warning When test mode is set, ArgvValidator will NOT remove validated keys from its source!
      *
      * @param bool $test
      *
@@ -122,7 +126,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         // Remove anything before "./pho"
         if (!empty($argv)) {
             foreach ($argv as $value) {
-                if (str_ends_with(isset_get($argv[0]), '/' . Strings::fromReverse($_SERVER['PHP_SELF'], '/'))) {
+                if (str_ends_with($value, '/pho')) {
                     // This is the ./pho command. Strip it and continue
                     array_shift($argv);
                     break;
@@ -140,7 +144,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         static::$argv   = $argv;
         static::$backup = $argv;
 
-        $argv = [];
+        $argv = null;
     }
 
 
@@ -268,7 +272,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      */
     public static function removeCommand(string $method): void
     {
-        $key = array_search($method, static::$argv);
+        $key = array_search($method, static::$argv, true);
 
         if ($key === false) {
             throw new ValidatorException(tr('Cannot remove method ":method", it does not exist', [
@@ -277,6 +281,9 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         }
 
         unset(static::$argv[$key]);
+
+        // Renumber the $argv array so that key gaps are gone
+        static::$argv = array_values(static::$argv);
     }
 
 
@@ -302,7 +309,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         static $method = [];
 
         if (isset($method[$index])) {
-            $reappeared = array_search($method[$index], $argv);
+            $reappeared = array_search($method[$index], $argv, true);
 
             if (is_numeric($reappeared)) {
                 // The argument has been re-added to $argv. This is very likely happened by safe_exec() that included
@@ -376,8 +383,8 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         }
 
         // Get the value from the argument list
-        $value        = static::$argv;
-        static::$argv = [];
+        $value        = $this->source;
+        $this->source = [];
 
         // Add the cleaned field to the source array
         $this->source[$clean_field] = $value;
@@ -450,8 +457,8 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         $fields = Strings::until($fields, ' ');
 
         // Unset various values first to ensure the byref link is broken
-        unset($this->process_value);
         unset($this->process_values);
+        unset($this->process_value);
         unset($this->selected_value);
 
         $this->test_count           = 0;
@@ -481,6 +488,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         // Initialize select
         $fields      = $this->initSelect($fields, $next);
         $clean_field = null;
+        $field       = null;
 
         // Determine the correct clean field name for the specified argument field
         foreach (Arrays::force($fields, ',') as $field) {
@@ -517,7 +525,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
         // Get the value from the argument list
         try {
-            $value = static::argument($fields, $next, $this->test);
+            $value = $this->argument($fields, $next, $this->test);
 
         } catch (OutOfBoundsException) {
             // The field was not specified
@@ -534,7 +542,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             // TODO Improve argument handling here. We should be able to mix "--modifier modifiervalue value" with "value --modifier modifiervalue" but with this design we currently can't
             // We're looking not for a modifier, but for a command or value. This is a modifier, so don't use it. Put
             // the value back on the arguments list
-            static::$argv[] = $value;
+            $this->source[] = $value;
             $value          = null;
         }
 
@@ -542,11 +550,11 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         $this->source[$clean_field] = $value;
 
         // Select the field.
-        $this->selected_field    = $clean_field;
-        $this->selected_fields[] = $clean_field;
+        $this->selected_field    =  $clean_field;
+        $this->selected_fields[] =  $clean_field;
         $this->selected_value    = &$this->source[$clean_field];
         $this->process_values    = [null => &$this->selected_value];
-        $this->selected_optional = null;
+        $this->selected_optional =  null;
 
         return $this;
     }
@@ -558,15 +566,16 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      * This function will REMOVE and then return the argument when its found
      * If the argument is not found, $default will be returned
      *
-     * @param array|string|int|null $keys   (NOTE: See $next for what will be returned) If set to a numeric value, the
-     *                                      value from $argv[$key] will be selected. If set as a string value, the $argv
-     *                                      key where the value is equal to $key will be selected. If set specified as
-     *                                      an array, all entries in the specified array will be selected.
-     * @param string|bool           $next   When set to true, it REQUIRES that the specified key contains a next
+     * @param array|string|int|null $arguments (NOTE: See $next for what will be returned) If set to a numeric value,
+     *                                         the value from $argv[$key] will be selected. If set as a string value,
+     *                                         the $argv key where the value is equal to $key will be selected. If set
+     *                                         specified as an array, all entries in the specified array will be
+     *                                         selected.
+     * @param string|bool           $next      When set to true, it REQUIRES that the specified key contains a next
      *                                      argument, and this will be returned. If set to "all", it will return all
      *                                      following arguments. If set to "optional", a next argument will be returned,
      *                                      if available.
-     * @param bool                  $test   If true, will not remove the variable from the internal $argv, it will just
+     * @param bool                  $test      If true, will not remove the variable from the internal $argv, it will just
      *                                      return the values to test them
      *
      * @return mixed                        If $next is null, it will return a boolean value, true if the specified key
@@ -575,19 +584,19 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      *                                      was not specified, boolean FALSE will be returned instead. If $next is
      *                                      specified as all, all subsequent values will be returned in an array
      */
-    protected static function argument(array|string|int|null $keys = null, string|bool $next = false, bool $test = false): mixed
+    protected function argument(array|string|int|null $arguments = null, string|bool $next = false, bool $test = false): mixed
     {
-        if (is_integer($keys)) {
+        if (is_integer($arguments)) {
             // Get arguments by index
             if ($next === 'all') {
-                foreach (static::$argv as $argv_key => $argv_value) {
-                    if ($argv_key < $keys) {
+                foreach ($this->source as $argv_key => $argv_value) {
+                    if ($argv_key < $arguments) {
                         continue;
                     }
 
-                    if ($argv_key == $keys) {
+                    if ($argv_key == $arguments) {
                         if (!$test) {
-                            unset(static::$argv[$keys]);
+                            unset($this->source[$arguments]);
                         }
 
                         continue;
@@ -602,18 +611,18 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                     $value[] = $argv_value;
 
                     if (!$test) {
-                        unset(static::$argv[$argv_key]);
+                        unset($this->source[$argv_key]);
                     }
                 }
 
                 return isset_get($value);
             }
 
-            if (isset(static::$argv[$keys++])) {
-                $argument = static::$argv[$keys - 1];
+            if (isset($this->source[$arguments++])) {
+                $argument = $this->source[$arguments - 1];
 
                 if (!$test) {
-                    unset(static::$argv[$keys - 1]);
+                    unset($this->source[$arguments - 1]);
                 }
 
                 return $argument;
@@ -623,26 +632,26 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             return null;
         }
 
-        if ($keys === null) {
+        if ($arguments === null) {
             // Get the next argument?
             if ($test) {
-                return static::$argv[array_key_first(static::$argv)];
+                return $this->source[array_key_first($this->source)];
             }
 
-            return array_shift(static::$argv);
+            return array_shift($this->source);
         }
 
         // Detect multiple key options for the same command, but ensure only one is specified
-        if (is_array($keys) or (is_string($keys) and str_contains($keys, ','))) {
-            $keys       = Arrays::force($keys);
-            $return_key = static::getReturnKey($keys);
+        if (is_array($arguments) or (is_string($arguments) and str_contains($arguments, ','))) {
+            $arguments  = Arrays::force($arguments);
+            $return_key = static::getReturnKey($arguments);
             $results    = [];
 
-            foreach ($keys as $key) {
+            foreach ($arguments as $argument) {
                 if ($next === 'all') {
                     // We're requesting all values for all specified keys. It will return null in case the specified key
                     // does not exist
-                    $value = static::argument($key, 'all', $test);
+                    $value = $this->argument($argument, 'all', $test);
 
                     if (is_array($value)) {
                         $found   = true;
@@ -650,7 +659,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                     }
 
                 } else {
-                    $value = static::argument($key, $next, $test);
+                    $value = $this->argument($argument, $next, $test);
 
                     if ($value) {
                         $results[$return_key] = $value;
@@ -672,7 +681,8 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             };
         }
 
-        if (($key = array_search($keys, static::$argv)) === false) {
+        // Find the location of the specified singular key. If not found, we're done, return null
+        if (($argument_array_key = array_search($arguments, $this->source, true)) === false) {
             return null;
         }
 
@@ -681,13 +691,13 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                 // Return all following arguments, if available, until the next option
                 $value = [];
 
-                foreach (static::$argv as $argv_key => $argv_value) {
+                foreach ($this->source as $argv_key => $argv_value) {
                     if (empty($start)) {
-                        if ($argv_value == $keys) {
+                        if ($argv_value == $arguments) {
                             $start = true;
 
                             if (!$test) {
-                                unset(static::$argv[$argv_key]);
+                                unset($this->source[$argv_key]);
                             }
                         }
 
@@ -703,7 +713,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                     $value[] = $argv_value;
 
                     if (!$test) {
-                        unset(static::$argv[$argv_key]);
+                        unset($this->source[$argv_key]);
                     }
                 }
 
@@ -712,18 +722,18 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
             try {
                 // Return next argument, if available
-                $value = Arrays::nextValue(static::$argv, $keys, !$test);
+                $value = Arrays::nextValue($this->source, $arguments, !$test);
 
             } catch (OutOfBoundsException $e) {
-                // This argument requires another parameter. Make it an arguments exception!
+                // This argument requires another parameter. Make it a CliArgumentsException
                 throw CliArgumentsException::new($e)->makeWarning();
             }
 
             if (str_starts_with((string) $value, '-')) {
                 throw CliArgumentsException::new(tr('Argument ":keys" has no assigned value. It is immediately followed by argument ":value"', [
-                    ':keys'  => $keys,
+                    ':keys'  => $arguments,
                     ':value' => $value,
-                ]))->addData(['keys' => $keys])
+                ]))->addData(['keys' => $arguments])
                    ->makeWarning();
             }
 
@@ -731,7 +741,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         }
 
         if (!$test) {
-            unset(static::$argv[$key]);
+            unset($this->source[$argument_array_key]);
         }
 
         return true;
@@ -809,7 +819,6 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     public function getArgv(): array
     {
         global $argv;
-
         return $argv;
     }
 
@@ -818,9 +827,9 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      * This method will make sure that either this field OR the other specified field will have a value
      *
      * @note: This or works slightly different form the ValidatorBasics::xor(). If the specified field data is not found
-     *        initially, it will check the static::$argv to see if it might be there, ready and waiting. This is because
-     *        in the ArgvValidator key values may not be detected until static::$argv has passed through
-     *        static::argument(). It first needs to detect one of the requested keys, then the corresponding value
+     *        initially, it will check the $this->source to see if it might be there, ready and waiting. This is because
+     *        in the ArgvValidator key values may not be detected until $this->source has passed through
+     *        $this->argument(). It first needs to detect one of the requested keys, then the corresponding value
      *        (for example: -u,--users USEREMAIL is detected by first finding --user then the email)
      *
      * @param string $field
@@ -843,7 +852,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
         if (isset_get($this->source[$this->selected_field])) {
             // The currently selected field exists, the specified field cannot exist
-            if (isset_get($this->source[$field]) or static::argument($this->cli_fields, $this->next, true)) {
+            if (isset_get($this->source[$field]) or $this->argument($this->cli_fields, $this->next, true)) {
                 $this->addFailure(tr('Both fields ":field" and ":selected_field" were set, where only either one of them are allowed', [
                     ':field'          => $field,
                     ':selected_field' => $this->selected_field,
@@ -857,7 +866,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
         } else {
             // The currently selected field does not exist, the specified field MUST exist
-            if (!isset_get($this->source[$field]) and !static::argument($this->cli_fields, $this->next, true)) {
+            if (!isset_get($this->source[$field]) and !$this->argument($this->cli_fields, $this->next, true)) {
                 $this->addFailure(tr('nor ":field" were set, where either one of them is required', [
                     ':field' => $field,
                 ]));
@@ -876,9 +885,9 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      * This method will make sure that either this field OR the other specified field optionally will have a value
      *
      * @note: This or works slightly different form the ValidatorBasics::or(). If the specified field data is not found
-     *        initially, it will check the static::$argv to see if it might be there, ready and waiting. This is because
+     *        initially, it will check the $this->source to see if it might be there, ready and waiting. This is because
      *        in the ArgvValidator key values may not be detected until static::$argv has passed through
-     *        static::argument(). It first needs to detect one of the requested keys, then the corresponding value
+     *        $this->argument(). It first needs to detect one of the requested keys, then the corresponding value
      *        (for example: -u,--users USEREMAIL is detected by first finding --user then the email)
      *
      * @param string $field
@@ -901,7 +910,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         if (!isset_get($this->source[$this->selected_field])) {
             if (!$this->selected_is_optional) {
                 // The currently selected field is required but does not exist, so the other must exist
-                if (!isset_get($this->source[$field]) and !static::argument($this->cli_fields, $this->next, true)) {
+                if (!isset_get($this->source[$field]) and !$this->argument($this->cli_fields, $this->next, true)) {
                     $this->addFailure(tr('nor ":field" field were set, where at least one of them is required', [
                         ':field' => $field,
                     ]));
@@ -931,11 +940,13 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      */
     public function validate(bool $require_clean_source = true): array
     {
-        if ($require_clean_source) {
-            $this->noArgumentsLeft();
-        }
+        // Extract the selected and validated fields
+        $return = parent::validate($require_clean_source);
 
-        return parent::validate();
+        // Renumber the source from 0 to remove any key gaps, sync up the static $argv
+        $this->source = array_values($this->source);
+
+        return $return;
     }
 
 
@@ -952,12 +963,12 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             return $this;
         }
 
-        if (empty(static::$argv)) {
+        if (empty($this->source)) {
             return $this;
         }
 
         throw CliInvalidArgumentsException::new(tr('Invalid command line arguments ":arguments" encountered', [
-            ':arguments' => Strings::force(static::$argv, ', '),
+            ':arguments' => Strings::force($this->source, ', '),
         ]))->makeWarning();
     }
 
@@ -967,6 +978,9 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      *
      * @note If the key already exists in the internal argv source, then an exception will be thrown
      *
+     * @note The specified key will be tested against backup command line arguments to ensure the key can't be added
+     *       from STDIN AND be specified on the command line
+     *
      * @param string $key
      *
      * @return static
@@ -974,14 +988,14 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     public function addStdInStreamAsKey(string $key): static
     {
         if (CliCommand::hasStdInStream()) {
-            if (in_array($key, static::$argv)) {
-                throw new ValidationFailedException(tr('Cannot add STDIN stream as key ":key", the key already exists', [
+            if (in_array($key, static::$backup)) {
+                throw new ValidationFailedException(tr('Cannot add STDIN stream as key ":key", the key was also specified on the command line', [
                     ':key' => $key,
                 ]));
             }
 
-            static::$argv[] = $key;
-            static::$argv[] = CliCommand::getStdInStream();
+            $this->source[] = $key;
+            $this->source[] = CliCommand::getStdInStream();
         }
 
         return $this;

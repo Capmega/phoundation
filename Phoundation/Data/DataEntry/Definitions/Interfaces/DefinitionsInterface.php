@@ -195,4 +195,14 @@ interface DefinitionsInterface extends IteratorInterface
      * @return static
      */
     public function modify(Stringable|string|float|int $key, array $key_values, bool $exception = true): static;
+
+    /**
+     * Direct method to return weather the specified column renders or not
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $exception
+     *
+     * @return bool
+     */
+    public function isRendered(Stringable|string|float|int $key, bool $exception = true): bool;
 }

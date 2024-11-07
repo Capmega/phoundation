@@ -1058,9 +1058,9 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
      *
      * @return DataEntryInterface|null
      */
-    #[ReturnTypeWillChange] public function shift(): ?DataEntryInterface
+    #[ReturnTypeWillChange] public function extractFirstValue(): ?DataEntryInterface
     {
-        return $this->ensureObject(parent::shift());
+        return $this->ensureObject(parent::extractFirstValue());
     }
 
 
@@ -1069,19 +1069,19 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
      *
      * @return mixed
      */
-    public function unshift(mixed ...$values): static
+    public function extractLastValue(mixed ...$values): static
     {
         foreach ($values as $value) {
             if (($value !== null) and !($value instanceof DataEntryInterface)) {
                 throw OutOfBoundsException::new(tr('Cannot unshift value ":value" to this iterator, the value must be an DataEntryInterface object', [
-                    ':value' => get_class_or_data_type($value)
+                    ':value' =>  get_datatype_or_class($value)
                 ]))->setData([
                     'value' => $value
                 ]);
             }
         }
 
-        return parent::unshift($values);
+        return parent::extractLastValue($values);
     }
 
 

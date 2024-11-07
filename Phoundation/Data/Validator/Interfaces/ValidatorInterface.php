@@ -32,7 +32,7 @@ use UnitEnum;
 interface ValidatorInterface extends IteratorBaseInterface
 {
     /**
-     * Returns the number of tests performed on the current column
+     * Returns the number of Tests performed on the current column
      *
      * @return int
      */
@@ -728,7 +728,7 @@ interface ValidatorInterface extends IteratorBaseInterface
 
 
     /**
-     * Validates if the selected field is a valid path and converts the value into FsPath object
+     * Validates if the selected field is a valid path and converts the value into PhoPath object
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
@@ -740,7 +740,7 @@ interface ValidatorInterface extends IteratorBaseInterface
 
 
     /**
-     * Validates if the selected field is a valid directory and converts the value into FsDirectory object
+     * Validates if the selected field is a valid directory and converts the value into PhoDirectory object
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
@@ -752,7 +752,7 @@ interface ValidatorInterface extends IteratorBaseInterface
 
 
     /**
-     * Validates if the selected field is a valid file and converts the value into FsFile object
+     * Validates if the selected field is a valid file and converts the value into PhoFile object
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
@@ -1285,7 +1285,7 @@ interface ValidatorInterface extends IteratorBaseInterface
      *
      * @param int|string $field
      *
-     * @return $this
+     * @return static
      */
     public function requiresField(int|string $field): static;
 

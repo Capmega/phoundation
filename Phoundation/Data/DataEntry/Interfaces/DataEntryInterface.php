@@ -588,14 +588,14 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * @param string|null                  $comments
      * @param Stringable|array|string|null $data
      *
-     * @return $this
+     * @return static
      */
     public function addMetaAction(?string $action, ?string $comments = null, Stringable|array|string|null $data = null): static;
 
     /**
      * Reload the contents for this DataEntry object
      *
-     * @return $this
+     * @return static
      */
     public function reload(bool $ignore_deleted = false): static;
 
@@ -664,4 +664,25 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * @return SpreadSheetInterface
      */
     public function getSpreadSheet(): SpreadSheetInterface;
+
+    /**
+     * Returns an array containing all the DataEntry state variables
+     *
+     * @return array
+     */
+    public function getObjectState(): array;
+
+    /**
+     * Returns the previous ID
+     *
+     * @return int|null
+     */
+    public function getPreviousId(): ?int;
+
+    /**
+     * Returns true if this entry is new or WAS new before it was written
+     *
+     * @return bool
+     */
+    public function isCreated(): bool;
 }
