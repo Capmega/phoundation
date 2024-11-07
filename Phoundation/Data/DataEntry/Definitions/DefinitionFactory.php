@@ -1535,7 +1535,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function newData(?DataEntryInterface $data_entry, string $column): DefinitionInterface
+    public static function newData(?DataEntryInterface $data_entry, string $column = 'data'): DefinitionInterface
     {
         return Definition::new($data_entry, $column)
                          ->setOptional(true)
