@@ -292,11 +292,11 @@ class Redis implements DatabaseInterface, RedisInterface
 
         } elseif ($database === 0) {
             //TODO: PUT BACK OUT OF TESTING MODE
-//            if (!Core::getUnitTestMode()) {
-//                throw new OutOfBoundsException(tr('Redis database "0" is reserved for testing and may not be used', [
-//                    ':database' => $database
-//                ]));
-//            }
+            if (!Core::getUnitTestMode()) {
+                throw new OutOfBoundsException(tr('Redis database "0" is reserved for testing and may not be used', [
+                    ':database' => $database
+                ]));
+            }
 
         } elseif ($database > 1024) {
             throw new OutOfBoundsException(tr('Redis database ":database" is not a valid database id for Redis, the database must be an integer between 1 and 1024', [
@@ -399,7 +399,7 @@ class Redis implements DatabaseInterface, RedisInterface
             $result = $this->client->rPush('queue_' . $queue, Json::encode($value));
 
         if ($result === false) {
-            throw new RedisException(tr('PHP driver Redis::rPush() returned false'));
+            throw new RedisException(tr('PHP driver Redis rPush() returned false'));
         }
 
         return $this;
@@ -620,24 +620,33 @@ class Redis implements DatabaseInterface, RedisInterface
     {
         try {
             if ($this->queueExists($queue)) {
-                $result = $this->connect()->client->set('queue_' . $queue, []);
+                $this->connect();
+
+                if (empty($this->getQueue($queue))) {
+                    return $this;
+                }
+
+                $result = $this->client->set('queue_' . $queue, []);
 
                 if ($result) {
                     return $this;
                 }
+
+                throw RedisException::new(tr('PHP Redis driver failed to run "set" to clear queue'));
             }
 
-            throw RedisException::new(tr('Failed find queue ":queue"', [
+            throw RedisException::new(tr('Failed to find queue ":queue"', [
                 ':queue' => $queue
-            ]))
-            ->setDatabase($this->getDatabase())
-            ->setConnectorObject($this->getConnectorObject());
+            ]));
 
         } catch (Throwable $e) {
             throw RedisException::new(tr('Failed to clear queue ":queue" with connector ":connector"', [
                 ':connector' => $this->getConnectorObject()->getName(),
                 ':queue'     => $queue
             ]), $e)
+            ->setData([
+                'queue' => $queue
+            ])
             ->setDatabase($this->getDatabase())
             ->setConnectorObject($this->getConnectorObject());
         }

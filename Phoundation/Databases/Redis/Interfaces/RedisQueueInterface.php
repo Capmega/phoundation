@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Interface RedisQueueInterface
+ *
+ * Interface for RedisQueue
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @author    Harrison Macey <harrison@medinet.ca>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Network
+ */
+
 namespace Phoundation\Databases\Redis\Interfaces;
 
 interface RedisQueueInterface
@@ -76,4 +88,11 @@ interface RedisQueueInterface
      * @return bool|string
      */
     public function ping(): bool|string;
+
+    /**
+     * Returns the database of this RedisQueue's redis object
+     *
+     * @return int
+     */
+    public function showDatabase(): int;
 }

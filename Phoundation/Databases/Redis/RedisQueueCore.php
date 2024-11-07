@@ -16,13 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Redis;
 
-use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
-use Phoundation\Databases\Exception\RedisException;
 use Phoundation\Databases\Redis\Interfaces\RedisInterface;
 use Phoundation\Databases\Redis\Interfaces\RedisQueueInterface;
-use Phoundation\Databases\Redis\Redis;
-use Phoundation\Utils\Json;
-use Throwable;
 
 
 class RedisQueueCore implements RedisQueueInterface
@@ -150,5 +145,16 @@ class RedisQueueCore implements RedisQueueInterface
     public function ping(): bool|string
     {
         return $this->redis->ping();
+    }
+
+
+    /**
+     * Returns the database of this RedisQueue's redis object
+     *
+     * @return int
+     */
+    public function showDatabase(): int
+    {
+        return $this->redis->getDatabase();
     }
 }

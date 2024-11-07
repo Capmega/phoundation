@@ -4,11 +4,11 @@
  * Class RedisQueue
  *
  *
- *
+ * @author    Harrison Macey <harrison@medinet.ca>
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Databases
+ * @package   Phoundation\Databases
  */
 
 
@@ -35,7 +35,7 @@ class RedisQueue extends RedisQueueCore
     public function __construct(ConnectorInterface $connector, string $queue)
     {
         $this->redis = Redis::new($connector);
-        $this->redis->setDatabase(1);
+        $this->redis->setDatabase($connector->getDatabase());
         $this->queue = $queue;
     }
 
