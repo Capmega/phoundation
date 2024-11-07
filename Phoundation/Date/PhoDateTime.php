@@ -107,7 +107,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      *
      * @return static
      */
-    public static function getToday(DateTimeZone|string|null $timezone = null): static
+    public static function newToday(DateTimeZone|string|null $timezone = null): static
     {
         return new static('today', PhoDateTimeZone::new($timezone));
     }
@@ -120,7 +120,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      *
      * @return static
      */
-    public static function getTomorrow(DateTimeZone|string|null $timezone = null): static
+    public static function newTomorrow(DateTimeZone|string|null $timezone = null): static
     {
         return new static('tomorrow', PhoDateTimeZone::new($timezone));
     }
@@ -133,7 +133,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      *
      * @return static
      */
-    public static function getYesterday(DateTimeZone|string|null $timezone = null): static
+    public static function newYesterday(DateTimeZone|string|null $timezone = null): static
     {
         return new static('yesterday', PhoDateTimeZone::new($timezone));
     }
@@ -146,7 +146,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      *
      * @return static
      */
-    public static function getFirstDayOfWeek(DateTimeZone|string|null $timezone = null): static
+    public static function newFirstDayOfWeek(DateTimeZone|string|null $timezone = null): static
     {
         return new static(SessionConfig::getString('datetime.week.start', 'monday') . ' this week', PhoDateTimeZone::new($timezone));
     }
@@ -159,7 +159,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      *
      * @return static
      */
-    public static function getLastDayOfWeek(DateTimeZone|string|null $timezone = null): static
+    public static function newLastDayOfWeek(DateTimeZone|string|null $timezone = null): static
     {
         return new static(SessionConfig::getString('datetime.week.stop', 'sunday') . ' this week', PhoDateTimeZone::new($timezone));
     }
