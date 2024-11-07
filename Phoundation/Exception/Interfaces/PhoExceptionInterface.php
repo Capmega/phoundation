@@ -226,4 +226,11 @@ interface PhoExceptionInterface extends Throwable, ArrayableInterface
      * @return bool
      */
     public function hasBeenLogged(?bool $set = null): bool;
+
+    /**
+     * Returns true if this exception has data attached
+     *
+     * @return bool
+     */
+    public function hasData(): bool;
 }

@@ -44,6 +44,7 @@ declare(strict_types=1);
 namespace Phoundation\Exception;
 
 use Phoundation\Cli\CliAutoComplete;
+use Phoundation\Core\Core;
 use Phoundation\Core\Exception\LogException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
@@ -255,6 +256,17 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
         $this->messages = $messages;
 
         return $this;
+    }
+
+
+    /**
+     * Returns true if this exception has data attached
+     *
+     * @return bool
+     */
+    public function hasData(): bool
+    {
+        return (bool) count($this->data);
     }
 
 
@@ -684,7 +696,7 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
             $warning = false;
         }
 
-        if (!Config::getBoolean('debug.exceptions.warnings', true)) {
+        if (Core::inBootState() or !Config::getBoolean('debug.exceptions.warnings', true)) {
             // No warnings allowed from the configuration
             $warning = false;
         }
