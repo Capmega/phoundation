@@ -87,7 +87,7 @@ class Get extends Curl
             if ($data) {
                 $this->result_data    = Strings::from($data , "\r\n\r\n");
                 $data                 = Strings::until($data, "\r\n\r\n");
-                $this->result_headers = explode(PHP_EOL, $data);
+                $this->response_headers = explode(PHP_EOL, $data);
             }
 
             $this->result_status = curl_getinfo($this->curl);
@@ -100,7 +100,7 @@ class Get extends Curl
                     ':error' => curl_error($this->curl),
                 ]))
                 ->addData([
-                    'headers' => $this->result_headers,
+                    'headers' => $this->response_headers,
                     'data'    => $this->result_data,
                     'info'    => $this->result_status,
                 ])
@@ -165,7 +165,7 @@ class Get extends Curl
                 'created_by' => Session::getUserObject()->getId(),
                 'url'        => $this->url,
                 'data'       => Json::encode($this->result_data),
-                'headers'    => Json::encode($this->result_headers),
+                'headers'    => Json::encode($this->response_headers),
             ]);
         }
 
@@ -359,7 +359,7 @@ class Get extends Curl
             'url'             => $this->url,
             'output'          => $this->result_data,
             'request_headers' => $this->request_headers,
-            'result_headers'  => $this->result_headers,
+            'result_headers'  => $this->response_headers,
             'result_coookies' => $this->result_cookies,
             'result_status'   => $this->result_status
         ]);

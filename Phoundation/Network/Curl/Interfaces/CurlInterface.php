@@ -549,7 +549,7 @@ interface CurlInterface
      *
      * @return array|null
      */
-    public function getResultHeaders(): ?array;
+    public function getResponseHeaders(): ?array;
 
 
     /**
@@ -563,7 +563,7 @@ interface CurlInterface
     /**
      * Returns the result data
      *
-     * @return array|null
+     * @return string|null
      */
     public function getResultData(): ?string;
 

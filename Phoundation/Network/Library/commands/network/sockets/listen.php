@@ -32,11 +32,11 @@ CliDocumentation::setAutoComplete([
         '-e,--execute'   => true,
         '-o,--protocol'  => [
             'word'   => function (string $word) { return Arrays::keepMatchingValuesStartingWith(['tcp', 'udp'], $word, Utils::MATCH_CASE_INSENSITIVE); },
-            'noword' => function ()             { return ['tcp', 'udp']; },
+            'noword' => function ($word)             { return ['tcp', 'udp']; },
         ],
         '-d,--domain'  => [
             'word'   => function (string $word) use ($domains) { return Arrays::keepMatchingValuesStartingWith($domains, $word, Utils::MATCH_CASE_INSENSITIVE); },
-            'noword' => function ()             use ($domains) { return $domains; },
+            'noword' => function ($word)             use ($domains) { return $domains; },
         ],
     ]
 ]);
