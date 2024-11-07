@@ -21,6 +21,7 @@ use Phoundation\Cli\CliColor;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
+use Phoundation\Data\IteratorBase;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
@@ -990,9 +991,9 @@ throw new UnderConstructionException();
      * /code
      *
      */
-    public static function cut(Stringable|string|int|null $source, Stringable|string|int $start, Stringable|string|int $stop, bool $needles_required = true): string
+    public static function cut(Stringable|string|int|null $source, Stringable|string|int $start, Stringable|string|int $stop, bool $needles_required = true, bool $case_insensitive = false): string
     {
-        return static::until(static::from($source, $start, needle_required: $needles_required), $stop, needle_required: $needles_required);
+        return static::until(static::from($source, $start, needle_required: $needles_required, case_insensitive: $case_insensitive), $stop, needle_required: $needles_required, case_insensitive: $case_insensitive);
     }
 
 
@@ -1005,12 +1006,13 @@ throw new UnderConstructionException();
      * @param int|null                   $more
      * @param int|null                   $offset
      * @param bool                       $needle_required
+     * @param bool                       $case_insensitive
      *
      * @return string
      */
-    public static function until(Stringable|string|int|null $source, Stringable|string|int $needle, int $instance = 1, ?int $more = null, ?int $offset = null, bool $needle_required = false): string
+    public static function until(Stringable|string|int|null $source, Stringable|string|int $needle, int $instance = 1, ?int $more = null, ?int $offset = null, bool $needle_required = false, bool $case_insensitive = false): string
     {
-        if (!$needle or !$source) {
+        if (!$source or (!$needle and !$needle_required)) {
             return (string) $source;
         }
 
@@ -1019,7 +1021,13 @@ throw new UnderConstructionException();
         $source = (string) $source;
 
         for ($count = 1; $count <= $instance; $count++) {
-            $pos = mb_strpos($source, $needle, $pos + 1);
+            if ($case_insensitive) {
+                $pos = mb_stripos($source, $needle, $pos + 1);
+
+            } else {
+                $pos = mb_strpos($source, $needle, $pos + 1);
+            }
+
             if ($pos === false) {
                 // The needle wasn't found (anymore)
                 break;
@@ -1047,12 +1055,13 @@ throw new UnderConstructionException();
      * @param int|null                   $more
      * @param int|null                   $offset
      * @param bool                       $needle_required
+     * @param bool                       $case_insensitive
      *
      * @return string
      */
-    public static function from(Stringable|string|int|null $source, Stringable|string|int|null $needle, int $instance = 1, ?int $more = null, ?int $offset = null, bool $needle_required = false): string
+    public static function from(Stringable|string|int|null $source, Stringable|string|int|null $needle, int $instance = 1, ?int $more = null, ?int $offset = null, bool $needle_required = false, bool $case_insensitive = false): string
     {
-        if (!$needle or !$source) {
+        if (!$source or (!$needle and !$needle_required)) {
             return (string) $source;
         }
 
@@ -1061,7 +1070,13 @@ throw new UnderConstructionException();
         $source = (string) $source;
 
         for ($count = 1; $count <= $instance; $count++) {
-            $pos = mb_strpos($source, $needle, $pos + 1);
+            if ($case_insensitive) {
+                $pos = mb_stripos($source, $needle, $pos + 1);
+
+            } else {
+                $pos = mb_strpos($source, $needle, $pos + 1);
+            }
+
             if ($pos === false) {
                 // The needle wasn't found (anymore)
                 break;
@@ -1112,10 +1127,11 @@ throw new UnderConstructionException();
      * @param Stringable|string|int      $needle
      * @param int                        $count
      * @param bool                       $required
+     * @param bool                       $case_insensitive
      *
      * @return string
      */
-    public static function skip(Stringable|string|int|null $source, Stringable|string|int $needle, int $count, bool $required = false): string
+    public static function skip(Stringable|string|int|null $source, Stringable|string|int $needle, int $count, bool $required = false, bool $case_insensitive = false): string
     {
         if (!$needle) {
             return $source;
@@ -1129,7 +1145,7 @@ throw new UnderConstructionException();
         $source = (string) $source;
 
         for ($i = 0; $i < $count; $i++) {
-            $source = Strings::from($source, $needle, needle_required: $required);
+            $source = Strings::from($source, $needle, needle_required: $required, case_insensitive: $case_insensitive);
         }
 
         return $source;
@@ -1144,10 +1160,11 @@ throw new UnderConstructionException();
      * @param Stringable|string|int      $needle
      * @param int                        $count
      * @param int                        $more
+     * @param bool                       $case_insensitive
      *
      * @return string
      */
-    public static function skipReverse(Stringable|string|int|null $source, Stringable|string|int $needle, int $count, int $more = 0): string
+    public static function skipReverse(Stringable|string|int|null $source, Stringable|string|int $needle, int $count, int $more = 0, bool $case_insensitive = false): string
     {
         if (!$needle) {
             return $source;
@@ -1162,8 +1179,8 @@ throw new UnderConstructionException();
         $result = [];
 
         for ($i = 0; $i <= $count; $i++) {
-            $result[] = Strings::fromReverse($source, $needle, more: $more);
-            $source   = Strings::untilReverse($source, $needle, more: $more);
+            $result[] = Strings::fromReverse($source, $needle, more: $more, case_insensitive: $case_insensitive);
+            $source   = Strings::untilReverse($source, $needle, more: $more, case_insensitive: $case_insensitive);
         }
 
         $result = array_reverse($result);
@@ -1184,9 +1201,9 @@ throw new UnderConstructionException();
      *
      * @return string
      */
-    public static function fromReverse(Stringable|string|int|null $source, Stringable|string|int $needle, int $instance = 1, ?int $more = null, ?int $offset = null, bool $needle_required = false): string
+    public static function fromReverse(Stringable|string|int|null $source, Stringable|string|int $needle, int $instance = 1, ?int $more = null, ?int $offset = null, bool $needle_required = false, bool $case_insensitive = false): string
     {
-        if (!$needle or !$source) {
+        if (!$source or (!$needle and !$needle_required)) {
             return (string) $source;
         }
 
@@ -1196,7 +1213,13 @@ throw new UnderConstructionException();
         $source = (string) $source;
 
         for ($count = 1; $count <= $instance; $count++) {
-            $pos = mb_strrpos($source, $needle, -($len - ($pos - 1)));
+            if ($case_insensitive) {
+                $pos = mb_strirpos($source, $needle, -($len - ($pos - 1)));
+
+            } else {
+                $pos = mb_strrpos($source, $needle, -($len - ($pos - 1)));
+            }
+
             if ($pos === false) {
                 // The needle wasn't found (anymore)
                 break;
@@ -1224,12 +1247,13 @@ throw new UnderConstructionException();
      * @param int|null                   $more
      * @param int|null                   $offset
      * @param bool                       $needle_required
+     * @param bool                       $case_insensitive
      *
      * @return string
      */
-    public static function untilReverse(Stringable|string|int|null $source, Stringable|string|int $needle, int $instance = 1, ?int $more = null, ?int $offset = null, bool $needle_required = false): string
+    public static function untilReverse(Stringable|string|int|null $source, Stringable|string|int $needle, int $instance = 1, ?int $more = null, ?int $offset = null, bool $needle_required = false, bool $case_insensitive = false): string
     {
-        if (!$needle or !$source) {
+        if (!$source or (!$needle and !$needle_required)) {
             return (string) $source;
         }
 
@@ -1239,7 +1263,13 @@ throw new UnderConstructionException();
         $source = (string) $source;
 
         for ($count = 1; $count <= $instance; $count++) {
-            $pos = mb_strrpos($source, $needle, -($len - ($pos - 1)));
+            if ($case_insensitive) {
+                $pos = mb_strrpos($source, $needle, -($len - ($pos - 1)));
+
+            } else {
+                $pos = mb_strrpos($source, $needle, -($len - ($pos - 1)));
+            }
+
             if ($pos === false) {
                 // The needle wasn't found (anymore)
                 break;
@@ -1493,13 +1523,13 @@ throw new UnderConstructionException();
                 'ssh_key',
             ]);
 
-            foreach ($source as $key => &$value) {
+            foreach ($source as &$value) {
                 $value = static::log($value);
             }
 
             unset($value);
 
-            $source = 'array: ' . trim(Json::encode($source));
+            $source = trim(Json::encode($source));
 
         } elseif ($source instanceof Stringable) {
             $source = (string) $source;
@@ -1512,11 +1542,11 @@ throw new UnderConstructionException();
             $source = $source->value;
 
         } elseif (is_object($source)) {
-            // Return the objects class name
-            $source = 'object: ' . get_class($source);
+            // Return the object's class name
+            $source = get_class($source);
 
         } else {
-            // Anything else just cast
+            // Anything else we cast to string
             $source = (string) $source;
         }
 
@@ -2321,6 +2351,10 @@ throw new UnderConstructionException();
                 }
 
                 if (is_object($source)) {
+                    if ($source instanceof IteratorBase) {
+                        return static::force($source->getSource(), $separator);
+                    }
+
                     if ($source instanceof Stringable) {
                         return (string) $source;
                     }

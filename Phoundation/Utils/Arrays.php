@@ -771,15 +771,15 @@ class Arrays extends Utils
     /**
      * Return the source array with the specified values kept, all else removed.
      *
-     * @param IteratorInterface|array $source
-     * @param string|array            $needles
-     * @param string|null             $column
-     * @param int                     $flags
+     * @param IteratorInterface|array                             $source
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param string|null                                         $column
+     * @param int                                                 $flags
      *
-     * @todo Rename this to better reflect what it does.
      * @return array
+     * @todo Rename this to better reflect what it does.
      */
-    public static function listKeepValues(IteratorInterface|array $source, string|array $needles, ?string $column = null, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): array
+    public static function listKeepValues(IteratorInterface|array $source, ArrayableInterface|Stringable|array|string|int|null $needles, ?string $column = null, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): array
     {
         $needles = Arrays::force($needles);
 
@@ -806,7 +806,7 @@ class Arrays extends Utils
      *
      * @return array
      */
-    public static function keepKeys(IteratorInterface|array $source, IteratorInterface|Stringable|array|string|int|null $needles, bool $strict = false): array
+    public static function keepKeys(IteratorInterface|array $source, ArrayableInterface|Stringable|array|string|int|null $needles, bool $strict = false): array
     {
         $return  = [];
         $needles = Arrays::force($needles);
@@ -872,14 +872,14 @@ class Arrays extends Utils
     /**
      * Return the source array with the specified values removed.
      *
-     * @param IteratorInterface|array             $source
-     * @param IteratorInterface|array|string|null $needles
-     * @param string|null                         $column
-     * @param bool                                $strict
+     * @param IteratorInterface|array                             $source
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param string|null                                         $column
+     * @param bool                                                $strict
      *
      * @return array
      */
-    public static function keepValues(IteratorInterface|array $source, IteratorInterface|array|string|null $needles, ?string $column = null, bool $strict = false): array
+    public static function keepValues(IteratorInterface|array $source, ArrayableInterface|Stringable|array|string|int|null $needles, ?string $column = null, bool $strict = false): array
     {
         $return  = [];
         $needles = Arrays::force($needles);
@@ -899,14 +899,14 @@ class Arrays extends Utils
     /**
      * Return the source array with the specified values removed.
      *
-     * @param IteratorInterface|array             $source
-     * @param IteratorInterface|array|string|null $needles
-     * @param string|null                         $column
-     * @param bool                                $strict
+     * @param IteratorInterface|array                             $source
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param string|null                                         $column
+     * @param bool                                                $strict
      *
      * @return array
      */
-    public static function removeValues(IteratorInterface|array $source, IteratorInterface|array|string|null $needles, ?string $column = null, bool $strict = false): array
+    public static function removeValues(IteratorInterface|array $source, ArrayableInterface|Stringable|array|string|int|null $needles, ?string $column = null, bool $strict = false): array
     {
         $return  = [];
         $needles = Arrays::force($needles);
@@ -973,14 +973,14 @@ class Arrays extends Utils
     /**
      * Return the source array with the specified values removed.
      *
-     * @param IteratorInterface|array             $source
-     * @param IteratorInterface|array|string|null $needles
-     * @param string|null                         $column
-     * @param int                                 $flags
+     * @param IteratorInterface|array                             $source
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param int                                                 $flags
+     * @param string|null                                         $column
      *
      * @return array
      */
-    public static function removeMatchingValues(IteratorInterface|array $source, IteratorInterface|array|string|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): array
+    public static function removeMatchingValues(IteratorInterface|array $source, ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): array
     {
         return static::matchValues(Utils::MATCH_ACTION_RETURN_NOT_VALUES, $source, $needles, $flags, $column);
     }
@@ -2604,14 +2604,14 @@ class Arrays extends Utils
     /**
      * Returns true if any of the array values matches the specified needles using the specified match options
      *
-     * @param IteratorInterface|array             $haystack
-     * @param IteratorInterface|array|string|null $needles
-     * @param string|null                         $column
-     * @param int                                 $flags
+     * @param IteratorInterface|array                             $haystack
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param string|null                                         $column
+     * @param int                                                 $flags
      *
      * @return bool
      */
-    public static function valuesMatch(IteratorInterface|array $haystack, IteratorInterface|array|string|null $needles, ?string $column, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): bool
+    public static function valuesMatch(IteratorInterface|array $haystack, ArrayableInterface|Stringable|array|string|int|null $needles, ?string $column = null, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): bool
     {
         return (bool) static::keepMatchingValues($haystack, $needles, $flags, $column);
     }
