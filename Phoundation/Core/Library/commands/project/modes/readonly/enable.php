@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Command system modes readonly disable
+ * Command project modes readonly enable
  *
- * This command will disable readonly mode
+ * This command will enable readonly mode
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -19,9 +19,9 @@ use Phoundation\Core\Core;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
-CliDocumentation::setUsage('./pho system modes readonly disable');
+CliDocumentation::setUsage('./pho project modes readonly enable');
 
-CliDocumentation::setHelp('This command will disable readonly mode
+CliDocumentation::setHelp('This command will enable readonly mode
 
 When readonly mode is enabled, all POST requests will ignore all POST data until readonly mode has been disabled.
 Database requests will refuse to write, as will Filesystem commands.
@@ -34,10 +34,10 @@ for example:
 
 ./pho databases import
 ./pho databases export
-./pho system deploy
-./pho system sync
+./pho project deploy
+./pho project sync
 
-Enable readonly mode manually with ./pho system modes readonly enable
+Disable readonly mode manually with ./pho project modes readonly disable
 
 
 ARGUMENTS
@@ -48,4 +48,4 @@ ARGUMENTS
 
 // Validate arguments
 ArgvValidator::new()->validate();
-Core::setReadonlyMode(false);
+Core::setReadonlyMode(true);

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system log rotate
+ * Command project log rotate
  *
  * This script can be used to test the authentication for the specified user
  *
@@ -20,7 +20,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\Exception\FileExistsException;
 
 
-CliDocumentation::setUsage('./pho system log rotate
+CliDocumentation::setUsage('./pho project log rotate
 ');
 
 CliDocumentation::setHelp('This command will rotate the current log file to a zipped backup file

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system update
+ * Command project update
  *
  * This script can be used to test the authentication for the specified user
  *
@@ -22,33 +22,33 @@ use Phoundation\Developer\Phoundation\Exception\PhoundationBranchNotExistExcepti
 use Phoundation\Developer\Phoundation\Phoundation;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Filesystem\PhoDirectory;
-
+use Phoundation\Filesystem\PhoRestrictions;
 
 CliDocumentation::setAutoComplete([
-                                      'arguments' => [
-                                          '-b,--branch'      => [
-                                              'word'   => function ($word) { return Phoundation::new()->getPhoundationBranches()->keepMatchingKeysStartingWith($word); },
-                                              'noword' => function () { return Phoundation::new()->getPhoundationBranches()->getSourceKeys(); },
-                                          ],
-                                          '-p,--phoundation' => [
-                                              'word'   => function ($word) { return PhoDirectory::new('/var/www/html', '/var/www/html')->scan($word . '*'); },
-                                              'noword' => function () { return PhoDirectory::new('/var/www/html', '/var/www/html')->scan(); },
-                                          ],
-                                          '-c,--check'       => false,
-                                          '-l,--local'       => false,
-                                          '-m,--message'     => true,
-                                          '--no-commit'      => false,
-                                          '--no-phoundation' => false,
-                                          '-n,--no-plugins'  => false,
-                                          '-s,--signed'      => false,
-                                          '--no-caching'     => false,
-                                      ],
-                                  ]);
+  'arguments' => [
+      '-b,--branch'      => [
+          'word'   => function ($word) { return Phoundation::new()->getPhoundationBranches()->keepMatchingKeysStartingWith($word); },
+          'noword' => function ($word) { return Phoundation::new()->getPhoundationBranches()->getSourceKeys();                     },
+      ],
+      '-p,--phoundation' => [
+          'word'   => function ($word) { return PhoDirectory::new('/var/www/html', PhoRestrictions::newReadonly('/var/www/html'))->scan($word, '/.*?$/'); },
+          'noword' => function ($word) { return PhoDirectory::new('/var/www/html', PhoRestrictions::newReadonly('/var/www/html'))->scan($word, '/.*?$/'); },
+      ],
+      '-c,--check'       => false,
+      '-l,--local'       => false,
+      '-m,--message'     => true,
+      '--no-commit'      => false,
+      '--no-phoundation' => false,
+      '-n,--no-plugins'  => false,
+      '-s,--signed'      => false,
+      '--no-caching'     => false,
+  ],
+]);
 
-CliDocumentation::setUsage('./pho system update [OPTIONS]
-./pho system update -b BRANCH
-./pho system update -b  BRANCH --check
-./pho system update -l --branch BRANCH
+CliDocumentation::setUsage('./pho project update [OPTIONS]
+./pho project update -b BRANCH
+./pho project update -b  BRANCH --check
+./pho project update -l --branch BRANCH
 ');
 
 CliDocumentation::setHelp('This command will update your Phoundation libraries and list
@@ -69,7 +69,7 @@ ARGUMENTS
                                         to avoid loading incomplete library classes against each other during and after
                                         the update has been finished. This may want to be skipped if a current library
                                         has a bug, or a new functionality executing during the finishing phase of the
-                                        update system actually is expected or required.
+                                        update project actually is expected or required.
 
 [--no-commit]                           If specified, will not commit after updating.
 

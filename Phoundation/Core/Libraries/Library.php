@@ -799,7 +799,7 @@ class Library implements LibraryInterface
 
 
     /**
-     * Ensures that the Library/tests directory contents are symlinked in DIRECTORY_SYSTEM/cache/system/tests
+     * Ensures that the Library/Tests directory contents are symlinked in DIRECTORY_SYSTEM/cache/system/Tests
      *
      * @param PhoDirectoryInterface $cache
      * @param PhoDirectoryInterface $tmp
@@ -809,16 +809,16 @@ class Library implements LibraryInterface
      */
     public function rebuildTestsCache(PhoDirectoryInterface $cache, PhoDirectoryInterface $tmp): void
     {
-        Log::action(tr('Rebuilding tests cache for library ":library"', [
+        Log::action(tr('Rebuilding Tests cache for library ":library"', [
             ':library' => $this->getName(),
         ]), 3);
 
-        $path         = Strings::slash($this->directory) . 'Library/tests/';
+        $path         = Strings::slash($this->directory) . 'Library/Tests/';
         $restrictions = PhoRestrictions::newWritable([$path, DIRECTORY_TMP]);
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
-            // This library does not have a tests/ directory, we're fine
+            // This library does not have a Tests/ directory, we're fine
             return;
         }
 

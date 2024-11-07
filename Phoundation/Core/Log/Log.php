@@ -1195,7 +1195,7 @@ class Log
                 if ($exception->isWarning()) {
                     // Log warning data as individual lines for easier read
                     foreach (Arrays::force($data, null) as $line) {
-                        static::write(print_r($line, true), 'warning', $threshold, false, $echo_newline, $echo_prefix, $echo_screen);
+                        static::write(get_null(print_r($line, true)) ?? '-', 'warning', $threshold, false, $echo_newline, $echo_prefix, $echo_screen);
                     }
 
                 } else {
@@ -1210,13 +1210,13 @@ class Log
                             }
                         }
 
-                        static::write($key . ': '          , 'debug', $threshold, false, false, $echo_prefix, $echo_screen);
-                        static::write(print_r($value, true), 'debug', $threshold, false, true , $echo_prefix, $echo_screen);
+                        static::write($key . ': '                           , 'debug', $threshold, false, false, $echo_prefix, $echo_screen);
+                        static::write(get_null(print_r($value, true)) ?? '-', 'debug', $threshold, false, true , $echo_prefix, $echo_screen);
                     }
                 }
 
             } else {
-                static::write(tr('Data      : '), 'information', $threshold, false, echo_newline: false, echo_screen: $echo_screen);
+                static::write(tr('Data : '), 'information', $threshold, false, echo_newline: false, echo_screen: $echo_screen);
                 static::write('-', 'debug', $threshold, false, $echo_newline, false, $echo_screen);
             }
         }

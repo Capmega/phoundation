@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system sync from
+ * Command project sync from
  *
  * This command will synchronize either the specified environment to your local environment or vice versa.
  *
@@ -27,7 +27,7 @@ CliDocumentation::setAutoComplete([
     'positions' => [
         0 => [
             'word'   => function ($word) { return Project::getEnvironments()->keepMatchingValuesStartingWith($word); },
-            'noword' => function () { return Project::getEnvironments(); },
+            'noword' => function ($word) { return Project::getEnvironments(); },
         ],
     ],
     'arguments' => [
@@ -37,8 +37,8 @@ CliDocumentation::setAutoComplete([
     ],
 ]);
 
-CliDocumentation::setUsage('./pho system sync from ENVIRONMENT
-./pho system sync -l -i --to ENVIRONMENT');
+CliDocumentation::setUsage('./pho project sync from ENVIRONMENT
+./pho project sync -l -i --to ENVIRONMENT');
 
 CliDocumentation::setHelp('This command will synchronize either the specified environment to your local environment 
 or vice versa. With this, a production environment can easily be tested locally, for example
@@ -53,7 +53,7 @@ ENVIRONMENT                             The single source environment to which t
 OPTIONAL ARGUMENTS
 
 
-[-i / --no-init]                        If specified, will NOT execute the system initialization right after the sync
+[-i / --no-init]                        If specified, will NOT execute the project initialization right after the sync
                                         process has finished
 
 [-l / --lock]                           If specified, will readonly lock the target environment until sync has

@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Command system import
+ * Command project import
  *
- * This command will import all data to get your system going. Currently this script will import:
+ * This command will import all data to get your project going. Currently this script will import:
  *
  * languages
  * geo data (continents, countries, states, counties, cities, etc) (under construction)
@@ -24,7 +24,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Project\Project;
 
 
-CliDocumentation::setUsage('./pho system import');
+CliDocumentation::setUsage('./pho project import');
 
 CliDocumentation::setHelp('This command allows you to import all project data with one command
 
@@ -37,7 +37,7 @@ Currently this script will import:
 ARGUMENTS
 
 
-[-d / --demo]                           If specified, will load demo data into the database tables so the system can
+[-d / --demo]                           If specified, will load demo data into the database tables so the project can
                                         quickly show actual functionality
 
 [--min] (10)                            If demo mode is enabled, this will specified the minimum number of records added

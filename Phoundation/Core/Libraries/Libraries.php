@@ -38,6 +38,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Tables\HtmlTable;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Http\Url;
 use Throwable;
 
 
@@ -178,7 +179,7 @@ class Libraries
         if (Core::isProductionEnvironment()) {
             // Notification developers
             Notification::new()
-                        ->setUrl('/system/information.html')
+                        ->setUrl(Url::getWww('/system/information.html'))
                         ->setMode(EnumDisplayMode::info)
                         ->setRoles('developer')
                         ->setTitle(tr('System initialization'))
@@ -389,7 +390,7 @@ class Libraries
      * @param string $directory
      * @param bool   $has_vendors
      *
-     * @todo Should receive an FsDirectory object instead of a string
+     * @todo Should receive an PhoDirectory object instead of a string
      * @return array
      */
     protected static function listLibraryDirectories(string $directory, bool $has_vendors = false): array
@@ -859,7 +860,7 @@ class Libraries
 
 
     /**
-     * Rebuilds the tests cache
+     * Rebuilds the Tests cache
      *
      * @return void
      */
@@ -867,14 +868,14 @@ class Libraries
     {
         static::clearTestsCache();
 
-        Log::action(tr('Rebuilding tests cache'), 4);
+        Log::action(tr('Rebuilding Tests cache'), 4);
 
         // Get temporary directory to build cache and the current cache directory
         $temporary = PhoDirectory::newTemporaryObject();
-        $cache     = PhoDirectory::new(DIRECTORY_SYSTEM . 'cache/system/tests', PhoRestrictions::newWritable([
-                                                                                         DIRECTORY_SYSTEM . 'cache/system/tests',
+        $cache     = PhoDirectory::new(DIRECTORY_SYSTEM . 'cache/system/Tests', PhoRestrictions::newWritable([
+                                                                                         DIRECTORY_SYSTEM . 'cache/system/Tests',
                                                                                          DIRECTORY_TMP,
-                                                                                         DIRECTORY_ROOT . 'tests/'
+                                                                                         DIRECTORY_ROOT . 'Tests/'
                                                                                      ], 'Libraries::rebuildTestsCache() 1'));
 
         if ($cache->exists()) {
@@ -887,18 +888,18 @@ class Libraries
             $library->rebuildTestsCache($cache, $temporary);
         }
 
-        $target = PhoFile::new(DIRECTORY_ROOT . 'tests', PhoRestrictions::newRoot(true))->delete();
+        $target = PhoFile::new(DIRECTORY_ROOT . 'Tests', PhoRestrictions::newRoot(true))->delete();
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
               ->symlinkTargetFromThis($target);
 
-        Log::success(tr('Finished rebuilding tests cache'));
+        Log::success(tr('Finished rebuilding Tests cache'));
     }
 
 
     /**
-     * Deletes the tests cache
+     * Deletes the Tests cache
      *
      * @return void
      */
@@ -977,7 +978,7 @@ class Libraries
                 }
 
                 // Don't load the following specific files
-                if (str_ends_with($test, 'tests/bootstrap.php')) {
+                if (str_ends_with($test, 'Tests/bootstrap.php')) {
                     return;
                 }
 
@@ -1034,7 +1035,7 @@ class Libraries
                     }
 
                     // Don't load the following specific files
-                    if (str_ends_with($test, 'tests/bootstrap.php')) {
+                    if (str_ends_with($test, 'Tests/bootstrap.php')) {
                         return;
                     }
 

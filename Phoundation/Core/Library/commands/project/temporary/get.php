@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system temporary get
+ * Command project temporary get
  *
  * This script can be used to test the authentication for the specified user
  *
@@ -20,9 +20,9 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\PhoDirectory;
 
 
-CliDocumentation::setUsage('./pho system temporary get PATH [OPTIONS]
-./pho system temporary get PATH --public
-./pho system temporary get PATH ');
+CliDocumentation::setUsage('./pho project temporary get PATH [OPTIONS]
+./pho project temporary get PATH --public
+./pho project temporary get PATH ');
 
 CliDocumentation::setHelp('This command will create and a private temporary path
 

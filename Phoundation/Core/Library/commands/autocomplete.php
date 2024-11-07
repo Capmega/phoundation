@@ -20,7 +20,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Date\DateTime;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\FsFile;
+use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\FsRestrictions;
 
 

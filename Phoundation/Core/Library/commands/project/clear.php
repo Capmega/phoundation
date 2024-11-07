@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system clear
+ * Command project clear
  *
  * This script can be used to test the authentication for the specified user
  *
@@ -23,12 +23,12 @@ use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
 
 
-CliDocumentation::setUsage('./pho system clear [OPTIONS]
+CliDocumentation::setUsage('./pho project clear [OPTIONS]
 ');
 
 CliDocumentation::setHelp('This command will clear the caches and temporary files
 
-This should normally not be necessary as the system cleans up its temporary files and caches automatically whenever need
+This should normally not be necessary as the project cleans up its temporary files and caches automatically whenever need
 be but in case of crashes, some files may be left lying around
 
 

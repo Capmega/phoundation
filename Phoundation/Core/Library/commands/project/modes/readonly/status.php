@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system modes readonly status
+ * Command project modes readonly status
  *
  * This command will display the current readonly mode status
  *
@@ -20,7 +20,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
-CliDocumentation::setUsage('./pho system modes readonly status');
+CliDocumentation::setUsage('./pho project modes readonly status');
 
 CliDocumentation::setHelp('This command will display the current readonly mode status
 
@@ -35,10 +35,10 @@ for example:
 
 ./pho databases import
 ./pho databases export
-./pho system deploy
-./pho system sync
+./pho project deploy
+./pho project sync
 
-Enable readonly mode manually with ./pho system modes readonly enable or reset all modes with ./pho system modes reset
+Enable readonly mode manually with ./pho project modes readonly enable or reset all modes with ./pho project modes reset
 
 
 ARGUMENTS
@@ -55,12 +55,12 @@ ArgvValidator::new()->validate();
 $mode = Core::getReadonlyMode();
 
 if ($mode) {
-    Log::warning(tr('The system is in ":mode" mode, set by ":user" on ":date"', [
+    Log::warning(tr('The project is in ":mode" mode, set by ":user" on ":date"', [
         ':mode' => $mode->getMode(),
         ':user' => $mode->getUserObject()?->getLogId(),
         ':date' => $mode->getDateTime()->format('Y-m-d H:i:s')
     ]));
 
 } else {
-    Log::success(tr('The system is NOT in readonly mode'));
+    Log::success(tr('The project is NOT in readonly mode'));
 }

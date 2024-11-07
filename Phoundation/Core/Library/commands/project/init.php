@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system init
+ * Command project init
  *
  * This is the init script for the project. Run this script to ensure that the database is running with the same version
  * as the code
@@ -39,10 +39,10 @@ CliDocumentation::setAutoComplete([
     ]
 ]);
 
-CliDocumentation::setUsage('./pho system init [OPTIONS]
-./pho system init --drop
-./pho system init --import
-./pho system init --version "core/0.0.5,"');
+CliDocumentation::setUsage('./pho project init [OPTIONS]
+./pho project init --drop
+./pho project init --import
+./pho project init --version "core/0.0.5,"');
 
 CliDocumentation::setHelp('This command allows you to setup a new project
 
@@ -50,7 +50,7 @@ CliDocumentation::setHelp('This command allows you to setup a new project
 ARGUMENTS
 
 
-[--drop]                                Drops the system database and start init from version 0.0.0
+[--drop]                                Drops the project database and start init from version 0.0.0
 
 [--force]                               (SYSTEM FLAG) If set, will run import (That is, truncate old data and import
                                         new) even if data was already available
@@ -68,12 +68,12 @@ ARGUMENTS
 [--max NUMBER (1000)]                   If demo mode is enabled, this will specified the maximum number of records added
                                         in each library
 
-[-d / --demo]                           If specified, will load demo data into the database tables so the system can
+[-d / --demo]                           If specified, will load demo data into the database tables so the project can
                                         quickly show actual functionality
 
 [-p, --no-plugins]                      Do NOT initalize plugin libraries
 
-[-s, --no-system]                       Do NOT initialize system libraries
+[-s, --no-system]                       Do NOT initialize project libraries
 
 [-t, --no-templates]                    Do NOT initialize template libraries
 

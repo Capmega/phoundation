@@ -29,7 +29,7 @@ interface HookInterface extends ArrayableInterface, Stringable
 
 
     /**
-     * Returns the FsFileInterface file object for the specified hook
+     * Returns the PhoFileInterface file object for the specified hook
      *
      * @param string|null $hook
      *

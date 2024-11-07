@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Command system modes maintenance status
+ * Command project modes maintenance enable
  *
- * This command will display the current maintenance mode status
+ * This command will enable maintenance mode
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -16,14 +16,12 @@ declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Core;
-use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
-CliDocumentation::setUsage('./pho system modes maintenance status');
+CliDocumentation::setUsage('./pho project modes maintenance enable');
 
-CliDocumentation::setHelp('This command will display the current maintenance mode status
+CliDocumentation::setHelp('This command will enable maintenance mode
 
 When maintenance mode is enabled, all web requests will immediately be blocked until maintenance mode has been disabled.
 Most CLI commands will too be blocked. The only commands available will be commands under ./pho system
@@ -36,11 +34,10 @@ for example:
 
 ./pho databases import
 ./pho databases export
-./pho system deploy
-./pho system sync
+./pho project deploy
+./pho project sync
 
-Enable readonly mode manually with ./pho system modes maintenance enable or reset all modes with 
-./pho system modes reset
+Disable maintenance mode manually with ./pho project modes maintenance disable
 
 
 ARGUMENTS
@@ -53,16 +50,5 @@ ARGUMENTS
 ArgvValidator::new()->validate();
 
 
-// Get maintenance mode data
-$mode = Core::getMaintenanceMode();
-
-if ($mode) {
-    Log::warning(tr('The system is in ":mode" mode, set by ":user" on ":date"', [
-        ':mode' => $mode->getMode(),
-        ':user' => $mode->getUserObject()?->getLogId(),
-        ':date' => $mode->getDateTime()->format('Y-m-d H:i:s')
-    ]));
-
-} else {
-    Log::success(tr('The system is NOT in maintenance mode'));
-}
+// Disable maintenance mode
+Core::setMaintenanceMode(true);

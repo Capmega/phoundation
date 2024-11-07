@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system temporary clear
+ * Command project temporary clear
  *
  * This script can be used to test the authentication for the specified user
  *
@@ -22,9 +22,9 @@ use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Strings;
 
 
-CliDocumentation::setUsage('./pho system temporary clear PATH [OPTIONS]
-./pho system temporary clear PATH --public
-./pho system temporary clear PATH ');
+CliDocumentation::setUsage('./pho project temporary clear PATH [OPTIONS]
+./pho project temporary clear PATH --public
+./pho project temporary clear PATH ');
 
 CliDocumentation::setHelp('This command will clear the specified temporary directory
 

@@ -19,14 +19,12 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Filesystem\PhoDirectory;
-use Phoundation\Filesystem\PhoRestrictions;$restrictions = PhoRestrictions::newReadonly([DIRECTORY_ROOT . 'config/deploy/']));
-
 
 CliDocumentation::setAutoComplete([
                                       'positions' => [
                                           0 => [
-                                              'word'   => function ($word) use ($restrictions) { return PhoDirectory::new(DIRECTORY_ROOT . 'config/deploy/', $restrictions)->scan($word . '*.yaml'); },
-                                              'noword' => function ()      use ($restrictions) { return PhoDirectory::new(DIRECTORY_ROOT . 'config/deploy/', $restrictions)->scan('*.yaml'); },
+                                              'word'   => function ($word) { return PhoDirectory::newRootObject(false, 'config/deploy/')->scan($word, '/.*?\.yaml$/'); },
+                                              'noword' => function ($word) { return PhoDirectory::newRootObject(false, 'config/deploy/')->scan($word, '/.*?\.yaml$/'); },
                                           ],
                                       ],
                                       'arguments' => [
@@ -56,8 +54,8 @@ CliDocumentation::setAutoComplete([
                                       ],
                                   ]);
 
-CliDocumentation::setUsage('./pho system deploy TARGET
-./pho system deploy TARGET --no-init
+CliDocumentation::setUsage('./pho project deploy TARGET
+./pho project deploy TARGET --no-init
 ');
 
 CliDocumentation::setHelp('This command will deploy your project from this machine to the target environment
@@ -130,9 +128,9 @@ TARGET                                  - The target name to which to deploy
 
 [-F / --force]                          - Force a deploy, even when it should be stopped due to (for example) git changes
 
-[--test-syntax]                         - Do PHP syntax tests
+[--test-syntax]                         - Do PHP syntax Tests
 
-[--test-unit]                           - Do PHP unit tests ');
+[--test-unit]                           - Do PHP unit Tests ');
 
 
 // Validate arguments

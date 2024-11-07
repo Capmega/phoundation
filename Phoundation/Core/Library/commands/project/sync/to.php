@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system sync
+ * Command project sync
  *
  * This command will synchronize either the specified environment to your local environment or vice versa.
  *
@@ -22,8 +22,8 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Sync;
 
 
-CliDocumentation::setUsage('./pho system sync ENVIRONMENT
-./pho system sync -l -i --to ENVIRONMENT');
+CliDocumentation::setUsage('./pho project sync ENVIRONMENT
+./pho project sync -l -i --to ENVIRONMENT');
 
 CliDocumentation::setHelp('This command will synchronize either the specified environment to your local environment or vice versa.
 With this, a production environment can easily be tested locally, for example
@@ -34,7 +34,7 @@ ARGUMENTS
 
 ENVIRONMENT                             The single source environment from which the data will be synced
 
-[-i / --no-init]                        If specified, will NOT execute the system initialization right after the sync
+[-i / --no-init]                        If specified, will NOT execute the project initialization right after the sync
                                         process has finished
 
 [-l / --lock]                           If specified, will readonly lock the target environment until sync has

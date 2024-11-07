@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system modes maintenance status
+ * Command project modes maintenance status
  *
  * This command will display the current maintenance mode status
  *
@@ -21,7 +21,7 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
-CliDocumentation::setUsage('./pho system modes maintenance status');
+CliDocumentation::setUsage('./pho project modes maintenance status');
 
 CliDocumentation::setHelp('This command will display the current maintenance mode status
 
@@ -36,11 +36,11 @@ for example:
 
 ./pho databases import
 ./pho databases export
-./pho system deploy
-./pho system sync
+./pho project deploy
+./pho project sync
 
-Enable readonly mode manually with ./pho system modes maintenance enable or reset all modes with 
-./pho system modes reset
+Enable readonly mode manually with ./pho project modes maintenance enable or reset all modes with 
+./pho project modes reset
 
 
 ARGUMENTS
@@ -57,14 +57,14 @@ ArgvValidator::new()->validate();
 $mode = Core::getMaintenanceMode();
 
 if ($mode) {
-    Log::warning(tr('The system is in ":mode" mode, set by ":user" on ":date"', [
+    Log::warning(tr('The project is in ":mode" mode, set by ":user" on ":date"', [
         ':mode' => $mode->getMode(),
         ':user' => $mode->getUserObject()?->getLogId(),
         ':date' => $mode->getDateTime()->format('Y-m-d H:i:s')
     ]));
 
 } else {
-    Log::success(tr('The system is NOT in maintenance mode'));
+    Log::success(tr('The project is NOT in maintenance mode'));
 }
 
 
@@ -72,12 +72,12 @@ if ($mode) {
 $mode = Core::getReadonlyMode();
 
 if ($mode) {
-    Log::warning(tr('The system is in ":mode" mode, set by ":user" on ":date"', [
+    Log::warning(tr('The project is in ":mode" mode, set by ":user" on ":date"', [
         ':mode' => $mode->getMode(),
         ':user' => $mode->getUserObject()?->getLogId(),
         ':date' => $mode->getDateTime()->format('Y-m-d H:i:s')
     ]));
 
 } else {
-    Log::success(tr('The system is NOT in readonly mode'));
+    Log::success(tr('The project is NOT in readonly mode'));
 }

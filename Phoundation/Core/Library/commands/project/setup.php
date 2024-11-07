@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system setup
+ * Command project setup
  *
  * This is the setup script for the project. This script will be the first script to be run to set up your system
  *
@@ -25,9 +25,9 @@ use Phoundation\Developer\Project\Project;
 use Phoundation\Exception\OutOfBoundsException;
 
 
-CliDocumentation::setUsage('./pho system setup [OPTIONS]
-./pho system setup --no-password-validation
-./pho system setup --force');
+CliDocumentation::setUsage('./pho project setup [OPTIONS]
+./pho project setup --no-password-validation
+./pho project setup --force');
 
 CliDocumentation::setHelp('This command allows you to setup a new project
 
@@ -41,7 +41,7 @@ ARGUMENTS
 
 [--project]                             Setup the entire project
 
-[--no-validation]                       (System argument) If specified, the validation system will not cause any
+[--no-validation]                       (System argument) If specified, the validation project will not cause any
                                         validation errors and all data will be accepted. Please note that this may cause
                                         unpredictable behaviour and errors depending on input. Use only for testing!
 

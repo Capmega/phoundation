@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system modes reset
+ * Command project modes readonly disable
  *
  * This command will disable readonly mode
  *
@@ -19,12 +19,9 @@ use Phoundation\Core\Core;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
-CliDocumentation::setUsage('./pho system modes reset');
+CliDocumentation::setUsage('./pho project modes readonly disable');
 
-CliDocumentation::setHelp('This command will disable both readonly and maintenance mode
-
-When maintenance mode is enabled, all web requests will immediately be blocked until readonly mode has been disabled.
-Most CLI commands will too be blocked. The only commands available will be commands under ./pho system
+CliDocumentation::setHelp('This command will disable readonly mode
 
 When readonly mode is enabled, all POST requests will ignore all POST data until readonly mode has been disabled.
 Database requests will refuse to write, as will Filesystem commands.
@@ -32,13 +29,15 @@ Database requests will refuse to write, as will Filesystem commands.
 Readonly mode is enabled by generating the file ROOT/data/system/readonly/USEREMAIL. If the path
 ROOT/data/system/readonly exists, readonly mode has been enabled
 
-Maintenance mode is enabled by generating the file ROOT/data/system/maintenance/USEREMAIL. If the path
-ROOT/data/system/maintenance exists, maintenance mode has been enabled
+Readonly mode is enabled (and disabled when finished) automatically by a number of scripts and library calls, like
+for example:
 
-This command will disable both maintenance and readonly modes
+./pho databases import
+./pho databases export
+./pho project deploy
+./pho project sync
 
-Enable maintenance mode manually with ./pho system modes maintenance enable
-Enable readonly mode manually with ./pho system modes readonly enable
+Enable readonly mode manually with ./pho project modes readonly enable
 
 
 ARGUMENTS
@@ -49,4 +48,4 @@ ARGUMENTS
 
 // Validate arguments
 ArgvValidator::new()->validate();
-Core::resetModes();
+Core::setReadonlyMode(false);

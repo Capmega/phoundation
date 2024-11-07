@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system modes maintenance disable
+ * Command project modes maintenance disable
  *
  * This command will disable maintenance mode
  *
@@ -19,7 +19,7 @@ use Phoundation\Core\Core;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
-CliDocumentation::setUsage('./pho system modes maintenance disable');
+CliDocumentation::setUsage('./pho project modes maintenance disable');
 
 CliDocumentation::setHelp('This command will disable maintenance mode
 
@@ -34,10 +34,10 @@ for example:
 
 ./pho databases import
 ./pho databases export
-./pho system deploy
-./pho system sync
+./pho project deploy
+./pho project sync
 
-Enable maintenance mode manually with ./pho system modes maintenance enable
+Enable maintenance mode manually with ./pho project modes maintenance enable
 
 
 ARGUMENTS

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command system translate
+ * Command project translate
  *
  * This is the translation control script for the project.
  *
@@ -23,10 +23,10 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Translator\Translations;
 
 
-CliDocumentation::setUsage('./pho system translate [OPTIONS]
-./pho system translate --all
-./pho system translate --language LANGUAGES
-./pho system translate --clear');
+CliDocumentation::setUsage('./pho project translate [OPTIONS]
+./pho project translate --all
+./pho project translate --language LANGUAGES
+./pho project translate --clear');
 
 CliDocumentation::setHelp('This is the translation control script for the project.
 
