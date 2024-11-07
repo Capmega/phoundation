@@ -48,15 +48,41 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `created_by` bigint DEFAULT NULL,
                     `url` varchar(2048) DEFAULT NULL,
                     `headers` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                    `data` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-                ')->setIndices('
+                    `data` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,')
+                 ->setIndices('
                     PRIMARY KEY (`id`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
                     KEY `url` (`url`),')
                  ->setForeignKeys('
-                    CONSTRAINT `fk_network_curl_cache_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
-              ')
+                    CONSTRAINT `fk_network_curl_cache_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT')
+                 ->create();
+
+        })->addUpdate('0.1.0', function () {
+            sql()->getSchemaObject()->getTableObject('network_meta')->drop()->define()
+                 ->setColumns('
+                    `id` bigint NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` bigint NULL DEFAULT NULL,
+                    `meta_id` bigint NULL DEFAULT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `global_id` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
+                    `local_id` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
+                    `version` int NULL DEFAULT NULL,
+                    `data` mediumtext DEFAULT NULL,')
+                 ->setIndices('
+                    PRIMARY KEY (`id`),
+                    KEY `created_on` (`created_on`),
+                    KEY `created_by` (`created_by`),
+                    KEY `status` (`status`),
+                    KEY `meta_id` (`meta_id`),
+                    KEY `global_id` (`global_id`),
+                    KEY `local_id` (`local_id`),
+                    KEY `version` (`version`),')
+                 ->setForeignKeys('
+                    CONSTRAINT `fk_network_meta_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_network_meta_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,')
                  ->create();
         });
     }

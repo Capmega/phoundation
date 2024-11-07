@@ -30,8 +30,8 @@ CliDocumentation::setAutoComplete(User::getAutoComplete([
         '-p,--port'     => true,
         '-m,--message'  => true,
         '-f,--file' => [
-            'word'   => function ($word) { return PhoDirectory::new(DIRECTORY_DATA . 'sources/medinet/', PhoRestrictions::newReadonly(DIRECTORY_DATA . 'sources/medinet/'))->scan($word . '*.txt'); },
-            'noword' => function ()      { return PhoDirectory::new(DIRECTORY_DATA . 'sources/medinet/', PhoRestrictions::newReadonly(DIRECTORY_DATA . 'sources/medinet/'))->scan('*.txt'); },
+            'word'   => function ($word) { return PhoDirectory::new(DIRECTORY_DATA . 'sources/medinet-mediweb/', PhoRestrictions::newReadonly(DIRECTORY_DATA . 'sources/medinet-mediweb/'))->scan($word . '*.txt'); },
+            'noword' => function ()      { return PhoDirectory::new(DIRECTORY_DATA . 'sources/medinet-mediweb/', PhoRestrictions::newReadonly(DIRECTORY_DATA . 'sources/medinet-mediweb/'))->scan('*.txt'); },
         ],
         '-r,--repeat'   => true,
         '-i,--interval' => true,
@@ -99,10 +99,8 @@ if ($argv['message']) {
 } else {
     // Send from file
     $file = fopen($argv['file'], 'r');
-show(fread($file, filesize($argv['file'])));
+    $message = fread($file, filesize($argv['file']));
     fclose($file);
-
-    $message = "";
 }
 
 

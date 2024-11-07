@@ -60,7 +60,6 @@ class Client
      */
     public function connect(string $ip, int $port): static
     {
-        show("client created");
         $this->socket->connect($ip, $port);
         return $this;
     }
