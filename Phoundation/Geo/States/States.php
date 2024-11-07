@@ -18,12 +18,13 @@ declare(strict_types=1);
 namespace Phoundation\Geo\States;
 
 use Phoundation\Data\DataEntry\DataIterator;
+use Phoundation\Geo\States\Interfaces\StatesInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 
 
-class States extends DataIterator
+class States extends DataIterator implements StatesInterface
 {
     /**
      * States class constructor

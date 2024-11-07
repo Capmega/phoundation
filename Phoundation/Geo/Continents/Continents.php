@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Countries class
+ * Class Continents
  *
  *
  *
@@ -15,25 +15,26 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Geo\Countries;
+namespace Phoundation\Geo\Continents;
 
 use Phoundation\Data\DataEntry\DataIterator;
-use Phoundation\Geo\Countries\Interfaces\CountriesInterface;
+use Phoundation\Geo\Counties\County;
+use Phoundation\Geo\Counties\Interfaces\CountiesInterface;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 
 
-class Countries extends DataIterator implements CountriesInterface
+class Continents extends DataIterator implements CountiesInterface
 {
     /**
-     * Countries class constructor
+     * Counties class constructor
      */
     public function __construct()
     {
         $this->setQuery('SELECT   `id`, `name`, `status`, `created_on` 
-                               FROM     `geo_countries` 
+                               FROM     `geo_counties` 
                                WHERE    `status` IS NULL 
                                ORDER BY `name`');
         parent::__construct();
@@ -47,7 +48,7 @@ class Countries extends DataIterator implements CountriesInterface
      */
     public static function getTable(): ?string
     {
-        return 'geo_countries';
+        return 'geo_counties';
     }
 
 
@@ -58,7 +59,7 @@ class Countries extends DataIterator implements CountriesInterface
      */
     public static function getDefaultContentDataType(): ?string
     {
-        return Country::class;
+        return County::class;
     }
 
 
@@ -90,22 +91,22 @@ class Countries extends DataIterator implements CountriesInterface
 
 
     /**
-     * Returns an HTML <select> object with all states available in this country
+     * Returns an HTML <select> object with all states available in this county
      *
      * @param string $name
      *
      * @return InputSelect
      */
-    public static function getHtmlCountriesSelect(string $name = 'countries_id'): InputSelect
+    public static function getHtmlCountiesSelect(string $name = 'counties_id'): InputSelect
     {
         return InputSelect::new()
                           ->setConnectorObject(static::getDefaultConnectorObject())
                           ->setSourceQuery('SELECT `id`, `name` 
-                                            FROM  `geo_countries` 
+                                            FROM  `geo_counties` 
                                             WHERE `status` IS NULL ORDER BY `name`')
                           ->setName($name)
-                          ->setNotSelectedLabel(tr('Select a country'))
-                          ->setComponentEmptyLabel(tr('No countries available'));
+                          ->setNotSelectedLabel(tr('Select a county'))
+                          ->setComponentEmptyLabel(tr('No counties available'));
     }
 
 
@@ -123,8 +124,8 @@ class Countries extends DataIterator implements CountriesInterface
     public function getHtmlSelect(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
-                     ->setName('countries_id')
-                     ->setNotSelectedLabel(tr('Select a country'))
-                     ->setComponentEmptyLabel(tr('No countries available'));
+                     ->setName('counties_id')
+                     ->setNotSelectedLabel(tr('Select a county'))
+                     ->setComponentEmptyLabel(tr('No counties available'));
     }
 }

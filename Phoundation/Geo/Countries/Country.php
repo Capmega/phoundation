@@ -21,13 +21,17 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 use Phoundation\Geo\Continents\Continent;
+use Phoundation\Geo\Continents\Interfaces\ContinentInterface;
+use Phoundation\Geo\Countries\Interfaces\CountryInterface;
+use Phoundation\Geo\Timezones\Interfaces\TimezoneInterface;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 
 
-class Country extends DataEntry
+class Country extends DataEntry implements CountryInterface
 {
     use TraitDataEntryNameDescription;
+
 
     /**
      * Returns the table name used by this object
@@ -65,9 +69,9 @@ class Country extends DataEntry
     /**
      * Returns the general timezone for this country
      *
-     * @return Timezone
+     * @return TimezoneInterface
      */
-    public function getTimezone(): Timezone
+    public function getTimezone(): TimezoneInterface
     {
         return new Timezone($this->getTypesafe('int', 'timezones_id'));
     }
@@ -76,9 +80,9 @@ class Country extends DataEntry
     /**
      * Returns the continent for this country
      *
-     * @return Continent
+     * @return ContinentInterface
      */
-    public function getContinent(): Continent
+    public function getContinent(): ContinentInterface
     {
         return new Continent($this->getTypesafe('int', 'continents_id'));
     }

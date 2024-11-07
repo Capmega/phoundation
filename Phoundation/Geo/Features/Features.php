@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Countries class
+ * Class Features
  *
  *
  *
@@ -15,17 +15,18 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Geo\Countries;
+namespace Phoundation\Geo\Features;
 
 use Phoundation\Data\DataEntry\DataIterator;
-use Phoundation\Geo\Countries\Interfaces\CountriesInterface;
+use Phoundation\Geo\Countries\Country;
+use Phoundation\Geo\Features\Interfaces\FeaturesInterface;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 
 
-class Countries extends DataIterator implements CountriesInterface
+class Features extends DataIterator implements FeaturesInterface
 {
     /**
      * Countries class constructor

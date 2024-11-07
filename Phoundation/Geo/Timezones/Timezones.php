@@ -18,13 +18,14 @@ declare(strict_types=1);
 namespace Phoundation\Geo\Timezones;
 
 use Phoundation\Data\DataEntry\DataIterator;
+use Phoundation\Geo\Timezones\Interfaces\TimezonesInterface;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 
 
-class Timezones extends DataIterator
+class Timezones extends DataIterator implements TimezonesInterface
 {
     /**
      * Timezones class constructor
