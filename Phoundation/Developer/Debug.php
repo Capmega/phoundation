@@ -408,7 +408,7 @@ class Debug
                             ':file' => static::currentFile($trace_offset),
                             ':line' => static::currentLine($trace_offset),
                             ':size' => strlen((string) $value),
-                        ])) . Strings::log($value, ensure_visible: true) . PHP_EOL;
+                        ])) . Strings::log($value, ensure_visible: true, clean: false) . PHP_EOL;
 
                 } else {
                     // Sort if is array for easier reading
