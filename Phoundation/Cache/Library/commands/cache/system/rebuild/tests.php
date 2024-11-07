@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Command cache system rebuild tests
+ * Command cache system rebuild Tests
  *
- * This command will rebuild the system tests cache
+ * This command will rebuild the system Tests cache
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -20,14 +20,14 @@ use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
-CliDocumentation::setUsage('./pho cache system rebuild tests [OPTIONS]
-./pho cache system rebuild tests
-./pho cache system rebuild tests --commit
-./pho cache system rebuild tests --sign
+CliDocumentation::setUsage('./pho cache system rebuild Tests [OPTIONS]
+./pho cache system rebuild Tests
+./pho cache system rebuild Tests --commit
+./pho cache system rebuild Tests --sign
 ');
 
-CliDocumentation::setHelp('This command will rebuild the system tests caches and automatically commit the 
-updated tests caches to git
+CliDocumentation::setHelp('This command will rebuild the system Tests caches and automatically commit the 
+updated Tests caches to git
 
 
 ARGUMENTS
@@ -56,9 +56,9 @@ $argv = ArgvValidator::new()
     ->validate();
 
 
-// Rebuild tests cache
+// Rebuild Tests cache
 Libraries::rebuildTestsCache();
 
 
 // Try to auto commit the cache rebuild
-Cache::systemAutoGitCommit('tests', $argv['auto_commit'], $argv['sign'], $argv['message']);
+Cache::systemAutoGitCommit('Tests', $argv['auto_commit'], $argv['sign'], $argv['message']);
