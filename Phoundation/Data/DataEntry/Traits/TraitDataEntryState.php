@@ -16,13 +16,23 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use Phoundation\Geo\States\State;
 
+
+use Phoundation\Geo\States\Interfaces\StateInterface;
+use Phoundation\Geo\States\State;
 
 trait TraitDataEntryState
 {
     /**
-     * Returns the states_id for this user
+     * State object cache
+     *
+     * @var StateInterface|null $o_state
+     */
+    protected ?StateInterface $o_state;
+
+
+    /**
+     * Returns the states_id for this object
      *
      * @return int|null
      */
@@ -33,7 +43,7 @@ trait TraitDataEntryState
 
 
     /**
-     * Sets the states_id for this user
+     * Sets the states_id for this object
      *
      * @param int|null $states_id
      *
@@ -41,39 +51,54 @@ trait TraitDataEntryState
      */
     public function setStatesId(?int $states_id): static
     {
+        $this->o_state = null;
         return $this->set($states_id, 'states_id');
     }
 
 
     /**
-     * Returns the state for this user
+     * Returns the state for this object
      *
-     * @return State|null
+     * @return StateInterface|null
      */
-    public function getState(): ?State
+    public function getStateObject(): ?StateInterface
     {
-        $states_id = $this->getTypesafe('int', 'states_id');
-        if ($states_id) {
-            return new State($states_id);
+        if (empty($this->o_state)) {
+            $this->o_state = State::loadOrNull($this->getTypesafe('int', 'states_id'));
         }
 
-        return null;
+        return $this->o_state;
     }
 
 
     /**
-     * Returns the states_name for this user
+     * Sets the state for this object
+     *
+     * @param StateInterface|null $o_state
+     * @return TraitDataEntryState
+     */
+    public function setStateObject(?StateInterface $o_state): static
+    {
+        $this->setStatesId($o_state?->getId());
+
+        $this->o_state = $o_state;
+        return $this;
+    }
+
+
+    /**
+     * Returns the states_name for this object
      *
      * @return string|null
      */
     public function getStatesName(): ?string
     {
-        return $this->getTypesafe('string', 'states_name');
+        return $this->getStateObject()->getName();
     }
 
 
     /**
-     * Sets the states_name for this user
+     * Returns the states_name for this object
      *
      * @param string|null $states_name
      *
@@ -81,6 +106,6 @@ trait TraitDataEntryState
      */
     public function setStatesName(?string $states_name): static
     {
-        return $this->set($states_name, 'states_name');
+        return $this->setStateObject(State::loadOrNull(['name' => $states_name]));
     }
 }

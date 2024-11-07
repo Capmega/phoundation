@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 use Phoundation\Cli\Cli;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\ArrayValidator;
@@ -140,7 +141,7 @@ trait TraitValidatorCore
     protected mixed $process_value;
 
     /**
-     * Registers when the single value being tested failed during multiple tests or not
+     * Registers when the single value being tested failed during multiple Tests or not
      *
      * @var bool $process_value_failed
      */
@@ -202,7 +203,7 @@ trait TraitValidatorCore
     protected bool $clear_failed_fields = false;
 
     /**
-     * Tracks the number of tests performed on the currently selected field
+     * Tracks the number of Tests performed on the currently selected field
      *
      * @var int $test_count
      */
@@ -654,7 +655,7 @@ trait TraitValidatorCore
      *
      * @param int|string $field
      *
-     * @return $this
+     * @return static
      */
     public function requiresField(int|string $field): static
     {
@@ -866,7 +867,10 @@ trait TraitValidatorCore
                         // These fields were never selected, so we don't know them. Are they meta-columns? If so, ignore
                         // them because they will have been set manually (DataEntry::apply() will ignore meta columns)
                         if (empty($this->meta_columns) or !in_array($field, $this->meta_columns)) {
-                            $unclean[$field] = tr('The field ":field" is unknown', [':field' => $field]);
+                            $unclean[$field] = tr('The field ":field" with value ":value" is unknown', [
+                                ':field' => $field,
+                                ':value' => $value,
+                            ]);
 
                             unset($this->source[$field]);
                             continue;
@@ -899,7 +903,7 @@ trait TraitValidatorCore
         if ($this->failures) {
             $values = Arrays::keepKeys($this->source, array_keys($this->failures));
 
-            if (Config::getBoolean('security.validation.enabled', true)) {
+            if (Core::inBootState() or Config::getBoolean('security.validation.enabled', true)) {
                 throw ValidationFailedException::new(tr('Data validation failed with the following issues:'))
                                                ->addData([
                                                    'failures' => $this->failures,

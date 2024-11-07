@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Trait TraitDataEntryPort
+ * Trait TraitDataEntryWeek
  *
- * This trait contains methods for DataEntry objects that requires a IP port
+ * This trait contains methods for DataEntry objects that require a week
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -17,28 +17,28 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 
-trait TraitDataEntryPort
+trait TraitDataEntryWeek
 {
     /**
-     * Returns the port for this object
+     * Returns the week for this object
      *
      * @return int|null
      */
-    public function getPort(): ?int
+    public function getWeek(): ?int
     {
-        return $this->getTypesafe('int', 'port');
+        return $this->getTypesafe('int', 'week');
     }
 
 
     /**
-     * Sets the port for this object
+     * Sets the week for this object
      *
-     * @param int|null $port
+     * @param int|null $week
      *
      * @return static
      */
-    public function setPort(?int $port): static
+    public function setWeek(?int $week): static
     {
-        return $this->set($port, 'port');
+        return $this->set(get_null($week), 'week');
     }
 }

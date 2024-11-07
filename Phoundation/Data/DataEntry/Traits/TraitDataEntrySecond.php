@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Trait TraitDataEntryPort
+ * Trait TraitDataEntrySecond
  *
- * This trait contains methods for DataEntry objects that requires a IP port
+ * This trait contains methods for DataEntry objects that require a second
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -17,28 +17,28 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 
-trait TraitDataEntryPort
+trait TraitDataEntrySecond
 {
     /**
-     * Returns the port for this object
+     * Returns the second for this object
      *
      * @return int|null
      */
-    public function getPort(): ?int
+    public function getSecond(): ?int
     {
-        return $this->getTypesafe('int', 'port');
+        return $this->getTypesafe('int', 'second');
     }
 
 
     /**
-     * Sets the port for this object
+     * Sets the second for this object
      *
-     * @param int|null $port
+     * @param int|null $second
      *
      * @return static
      */
-    public function setPort(?int $port): static
+    public function setSecond(?int $second): static
     {
-        return $this->set($port, 'port');
+        return $this->set(get_null($second), 'second');
     }
 }

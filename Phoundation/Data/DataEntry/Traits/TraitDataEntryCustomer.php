@@ -16,11 +16,20 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use Plugins\Phoundation\Business\Customers\Customer;
+use Phoundation\Business\Customers\Customer;
+use Phoundation\Business\Customers\Interfaces\CustomerInterface;
 
 
 trait TraitDataEntryCustomer
 {
+    /**
+     * Customer object cache
+     *
+     * @var CustomerInterface|null $o_customer
+     */
+    protected ?CustomerInterface $o_customer;
+
+
     /**
      * Returns the customers_id for this object
      *
@@ -41,46 +50,61 @@ trait TraitDataEntryCustomer
      */
     public function setCustomersId(?int $customers_id): static
     {
+        $this->o_customer = null;
         return $this->set($customers_id, 'customers_id');
     }
 
 
     /**
-     * Returns the customers_id for this user
+     * Returns the customer for this object
      *
-     * @return Customer|null
+     * @return CustomerInterface|null
      */
-    public function getCustomer(): ?Customer
+    public function getCustomerObject(): ?CustomerInterface
     {
-        $customers_id = $this->getTypesafe('int', 'customers_id');
-        if ($customers_id) {
-            return new Customer($customers_id);
+        if (empty($this->o_customer)) {
+            $this->o_customer = Customer::loadOrNull($this->getTypesafe('int', 'customers_id'));
         }
 
-        return null;
+        return $this->o_customer;
     }
 
 
     /**
-     * Returns the customers_name for this user
+     * Sets the customer for this object
+     *
+     * @param CustomerInterface|null $o_customer
+     * @return static
+     */
+    public function setCustomerObject(?CustomerInterface $o_customer): static
+    {
+        $this->setCustomersId($o_customer?->getId());
+
+        $this->o_customer = $o_customer;
+        return $this;
+    }
+
+
+    /**
+     * Returns the customers_name for this object
      *
      * @return string|null
      */
     public function getCustomersName(): ?string
     {
-        return $this->getTypesafe('string', 'customers_name');
+        return $this->getCustomerObject()->getName();
     }
 
 
     /**
-     * Sets the customers_name for this user
+     * Returns the customers_name for this object
      *
-     * @param string|null $customer_name
+     * @param string|null $customers_name
      *
      * @return static
      */
-    public function setCustomersName(?string $customer_name): static
+    public function setCustomersName(?string $customers_name): static
     {
-        return $this->set($customer_name, 'customers_name');
+        return $this->setCustomerObject(Customer::loadOrNull(['name' => $customers_name]));
     }
 }

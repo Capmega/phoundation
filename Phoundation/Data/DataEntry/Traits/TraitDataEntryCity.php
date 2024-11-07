@@ -17,53 +17,21 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Geo\Cities\City;
+use Phoundation\Geo\Cities\Interfaces\CityInterface;
 
 
 trait TraitDataEntryCity
 {
     /**
-     * Sets the cities_id for this user
+     * City object cache
      *
-     * @param int|null $cities_id
-     *
-     * @return static
+     * @var CityInterface|null $o_city
      */
-    public function setCitiesId(?int $cities_id): static
-    {
-        return $this->set($cities_id, 'cities_id');
-    }
+    protected ?CityInterface $o_city;
 
 
     /**
-     * Returns the cities_id for this user
-     *
-     * @return City|null
-     */
-    public function getCity(): ?City
-    {
-        $cities_id = $this->getTypesafe('int', 'cities_id');
-        if ($cities_id) {
-            return new City($cities_id);
-        }
-
-        return null;
-    }
-
-
-    /**
-     * Returns the cities_name for this user
-     *
-     * @return string|null
-     */
-    public function getCitiesName(): ?string
-    {
-        return $this->getTypesafe('string', 'cities_name') ?? City::new($this->getCitiesId(), 'id')
-                                                                       ?->getName();
-    }
-
-
-    /**
-     * Returns the cities_id for this user
+     * Returns the cities_id for this object
      *
      * @return int|null
      */
@@ -74,7 +42,62 @@ trait TraitDataEntryCity
 
 
     /**
-     * Sets the cities_name for this user
+     * Sets the cities_id for this object
+     *
+     * @param int|null $cities_id
+     *
+     * @return static
+     */
+    public function setCitiesId(?int $cities_id): static
+    {
+        $this->o_city = null;
+        return $this->set($cities_id, 'cities_id');
+    }
+
+
+    /**
+     * Returns the city for this object
+     *
+     * @return CityInterface|null
+     */
+    public function getCityObject(): ?CityInterface
+    {
+        if (empty($this->o_city)) {
+            $this->o_city = City::loadOrNull($this->getTypesafe('int', 'cities_id'));
+        }
+
+        return $this->o_city;
+    }
+
+
+    /**
+     * Sets the city for this object
+     *
+     * @param CityInterface|null $o_city
+     * @return TraitDataEntryCity
+     */
+    public function setCityObject(?CityInterface $o_city): static
+    {
+        $this->setCitiesId($o_city?->getId());
+
+        $this->o_city = $o_city;
+        return $this;
+    }
+
+
+    /**
+     * Returns the cities_name for this object
+     *
+     * @return string|null
+     */
+    public function getCitiesName(): ?string
+    {
+        return $this->getCityObject()->getName();
+    }
+
+
+    /**
+     * Returns the cities_name for this object
      *
      * @param string|null $cities_name
      *
@@ -82,6 +105,6 @@ trait TraitDataEntryCity
      */
     public function setCitiesName(?string $cities_name): static
     {
-        return $this->set($cities_name, 'cities_name');
+        return $this->setCityObject(City::loadOrNull(['name' => $cities_name]));
     }
 }

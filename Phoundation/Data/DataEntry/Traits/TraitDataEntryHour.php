@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Trait TraitDataEntryPort
+ * Trait TraitDataEntryHour
  *
- * This trait contains methods for DataEntry objects that requires a IP port
+ * This trait contains methods for DataEntry objects that require a hour
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -17,28 +17,28 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 
-trait TraitDataEntryPort
+trait TraitDataEntryHour
 {
     /**
-     * Returns the port for this object
+     * Returns the hour for this object
      *
      * @return int|null
      */
-    public function getPort(): ?int
+    public function getHour(): ?int
     {
-        return $this->getTypesafe('int', 'port');
+        return $this->getTypesafe('int', 'hour');
     }
 
 
     /**
-     * Sets the port for this object
+     * Sets the hour for this object
      *
-     * @param int|null $port
+     * @param int|null $hour
      *
      * @return static
      */
-    public function setPort(?int $port): static
+    public function setHour(?int $hour): static
     {
-        return $this->set($port, 'port');
+        return $this->set(get_null($hour), 'hour');
     }
 }

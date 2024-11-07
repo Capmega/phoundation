@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Trait TraitDataEntryPort
+ * Trait TraitDataEntryDay
  *
- * This trait contains methods for DataEntry objects that requires a IP port
+ * This trait contains methods for DataEntry objects that require a day
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -17,28 +17,28 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 
-trait TraitDataEntryPort
+trait TraitDataEntryDay
 {
     /**
-     * Returns the port for this object
+     * Returns the day for this object
      *
      * @return int|null
      */
-    public function getPort(): ?int
+    public function getDay(): ?int
     {
-        return $this->getTypesafe('int', 'port');
+        return $this->getTypesafe('int', 'day');
     }
 
 
     /**
-     * Sets the port for this object
+     * Sets the day for this object
      *
-     * @param int|null $port
+     * @param int|null $day
      *
      * @return static
      */
-    public function setPort(?int $port): static
+    public function setDay(?int $day): static
     {
-        return $this->set($port, 'port');
+        return $this->set(get_null($day), 'day');
     }
 }
