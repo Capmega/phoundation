@@ -255,19 +255,20 @@ interface DropzoneInterface
      */
     public function setUploadMultiple(?bool $upload_multiple): static;
 
-    /**
-     * Returns the mimetype
-     *
-     * @return string|null
-     */
-    public function getMimetype(): ?string;
 
     /**
-     * Sets the mimetype
+     * Returns the mimetypes
      *
-     * @param string|null $mimetype
+     * @return IteratorInterface|null
+     */
+    public function getMimetypes(): IteratorInterface|null;
+
+    /**
+     * Sets the mimetypes
+     *
+     * @param IteratorInterface|array|string|null $mimetypes
      *
      * @return static
      */
-    public function setMimetype(string|null $mimetype): static;
+    public function setMimetypes(IteratorInterface|array|string|null $mimetypes): static;
 }

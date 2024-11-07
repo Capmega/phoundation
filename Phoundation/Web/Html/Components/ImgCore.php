@@ -217,8 +217,8 @@ class ImgCore extends SpanCore implements ImgInterface
 //        $this->external = Url::isExternal($src);
 //
 //        if ($this->external) {
-//            // Download external images local so that we can perform tests, changes, upgrades, etc.
-//            $file_src = \Phoundation\Web\Http\FsFile::new($this->restrictions)->download($src);
+//            // Download external images local so that we can perform Tests, changes, upgrades, etc.
+//            $file_src = \Phoundation\Web\Http\PhoFile::new($this->restrictions)->download($src);
 //        } else {
 //            // This is a local image (either with or without domain specified) Locate the file
 //            $file_src = Strings::from($src     , $domain . '/');
@@ -603,7 +603,7 @@ class ImgCore extends SpanCore implements ImgInterface
 //                            log_file(tr('Resized version of ":src" does not yet exist, converting', array(':src' => $params['src'])), 'html', 'VERBOSE/cyan');
 //                            load_libs('image');
 //
-//                            FsFile::new()->executeMode(dirname($file_src), 0770, function() use ($file_src, $file_target, $params) {
+//                            PhoFile::new()->executeMode(dirname($file_src), 0770, function() use ($file_src, $file_target, $params) {
 //                                global $_CONFIG;
 //
 //                                image_convert(array('method' => 'resize',
@@ -690,7 +690,7 @@ class ImgCore extends SpanCore implements ImgInterface
 //                        $file = download('https://github.com/eisbehr-/jquery.lazy/archive/master.zip');
 //                        $directory = cli_unzip($file);
 //
-//                        FsFile::new()->executeMode(DIRECTORY_ROOT.'www/en/pub/js', 0770, function() use ($directory) {
+//                        PhoFile::new()->executeMode(DIRECTORY_ROOT.'www/en/pub/js', 0770, function() use ($directory) {
 //                            file_delete(DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/');
 //                            rename($directory.'jquery.lazy-master/', DIRECTORY_ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy');
 //                        });

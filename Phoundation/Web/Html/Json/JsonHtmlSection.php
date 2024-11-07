@@ -63,7 +63,7 @@ class JsonHtmlSection implements JsonHtmlSectionInterface
      *
      * @param string|null $selector
      *
-     * @return $this
+     * @return static
      */
     public static function new(?string $selector = null): static
     {

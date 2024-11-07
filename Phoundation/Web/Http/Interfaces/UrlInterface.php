@@ -144,7 +144,7 @@ interface UrlInterface
     /**
      * Ensures the queries this URL object are properly URL-encoded
      *
-     * @return $this
+     * @return static
      */
     public function ensureQueriesEncoded(): static;
 
@@ -168,7 +168,7 @@ interface UrlInterface
     /**
      * Removes all queries from this URL
      *
-     * @return $this
+     * @return static
      */
     public function removeAllQueries(): static;
 }

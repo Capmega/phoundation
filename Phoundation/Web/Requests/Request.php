@@ -666,7 +666,7 @@ class Request implements RequestInterface
             return $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . static::getUri($no_queries);
         }
 
-        // This is a command line process, things like request scheme are not available!
+        // This is a command line process, things like the request scheme are not available!
         $url = Config::getString('web.domains.primary.web');
         $url = str_replace(':LANGUAGE', Session::getLanguage(), $url);
 
@@ -696,11 +696,15 @@ class Request implements RequestInterface
      */
     public static function getRootUri(): string
     {
-        $uri = static::getRootUrl();
-        $uri = Strings::from($uri, '://');
-        $uri = Strings::from($uri, '/');
+        if (PLATFORM_WEB) {
+            $url = static::getRootUrl();
+            $url = Strings::from($url, '://');
+            $url = Strings::from($url, '/');
 
-        return $uri;
+            return $url;
+        }
+
+        return '/';
     }
 
 

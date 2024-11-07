@@ -18,22 +18,17 @@ namespace Phoundation\Web\Uploads;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Data\Traits\TraitDataMimetype;
+use Phoundation\Data\Traits\TraitDataMimetypes;
 use Phoundation\Data\Traits\TraitDataRequestMethod;
 use Phoundation\Data\Traits\TraitDataTimeout;
 use Phoundation\Data\Traits\TraitDataUrl;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
-use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpConfigurationException;
-use Phoundation\Filesystem\Interfaces\PhoUploadedFileInterface;
-use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Numbers;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
-use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\Url;
-use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Phoundation\Web\Uploads\Interfaces\DropzoneInterface;
 use Phoundation\Web\Uploads\Interfaces\UploadHandlerInterface;
@@ -43,7 +38,7 @@ class Dropzone implements DropzoneInterface
 {
     use TraitStaticMethodNew;
     use TraitDataUrl;
-    use TraitDataMimetype;
+    use TraitDataMimetypes;
     use TraitDataRequestMethod {
         setRequestMethod as protected __setRequestMethod;
     }

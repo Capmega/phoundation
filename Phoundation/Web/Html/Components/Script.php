@@ -272,7 +272,7 @@ class Script extends Element implements ScriptInterface
     /**
      * Attached this Javascript Script object to the page
      *
-     * @return $this
+     * @return static
      */
     public function attach(): static
     {
@@ -518,7 +518,7 @@ class Script extends Element implements ScriptInterface
 //                    } elseif (($_CONFIG['cdn']['cache_max_age'] > 60) and ((filemtime($file.'.js') + $_CONFIG['cdn']['cache_max_age']) < time())) {
 //                        // External cached file is too old
 //                        Log::warning(tr('Deleting externally cached javascript file ":file" because the file cache time expired', [':file' => $file.'.js']));
-//                        FsFile::new([$file.'.js', $file.'.min.js'], FsRestrictions::new(DIRECTORY_CDN . LANGUAGE . 'js', true))->delete();
+//                        PhoFile::new([$file.'.js', $file.'.min.js'], FsRestrictions::new(DIRECTORY_CDN . LANGUAGE . 'js', true))->delete();
 //                    }
 //                }
 //

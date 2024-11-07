@@ -728,7 +728,7 @@ trait TraitElementAttributes
         // The specified variable cannot be rendered
         if ($exception) {
             throw new OutOfBoundsException(tr('Specified variable with datatype ":class" is not a class that implements :interface', [
-                ':class'     => get_class_or_data_type($class),
+                ':class'     =>  get_datatype_or_class($class),
                 ':interface' => RenderInterface::class,
             ]));
         }

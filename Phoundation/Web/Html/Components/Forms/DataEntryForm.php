@@ -638,7 +638,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                         throw new WebRenderException(tr('Failed to render DataEntryForm ":class", the column ":column" setContent method should return a RenderInterface object but returns a ":type" instead', [
                                             ':class'  => get_class($this->data_entry),
                                             ':column' => $column,
-                                            ':type'   => get_class_or_data_type($component),
+                                            ':type'   =>  get_datatype_or_class($component),
                                         ]));
                                     }
                                 }
@@ -669,7 +669,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 throw new WebRenderException(tr('Failed to render DataEntryForm ":class", the column ":column" setContent method should return a RenderInterface object but returns a ":type" instead', [
                                     ':class'  => get_class($this->data_entry),
                                     ':column' => $column,
-                                    ':type'   => get_class_or_data_type($component),
+                                    ':type'   =>  get_datatype_or_class($component),
                                 ]));
                             }
 

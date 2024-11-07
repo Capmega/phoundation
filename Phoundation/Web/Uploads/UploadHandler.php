@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Uploads;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Filesystem\PhoFiles;
 use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
@@ -68,9 +69,9 @@ class UploadHandler implements UploadHandlerInterface
     /**
      * UploadHandler class constructor
      */
-    public function __construct(?string $mimetype = null)
+    public function __construct(IteratorInterface|array|string|null $mimetypes = null)
     {
-        $this->getDropZoneObject()->setMimetype($mimetype)
+        $this->getDropZoneObject()->setMimetypes($mimetypes)
                                   ->setUrl(Url::getWww());
     }
 
@@ -78,7 +79,7 @@ class UploadHandler implements UploadHandlerInterface
     /**
      * Returns a new UploadHandler class
      */
-    public static function new(?string $mimetype = null)
+    public static function new(IteratorInterface|array|string|null $mimetype = null)
     {
         return new static($mimetype);
     }
@@ -207,15 +208,15 @@ class UploadHandler implements UploadHandlerInterface
     {
         // Check if somehow we already processed more than the maximum indicated
         if ($this->getFiles()->getCount() > $this->getDropZoneObject()->getMaxFiles()) {
-            throw ValidationFailedException::new(tr('This mimetype ":mimetype" upload handler already processed the maximum amount of files ":count" that it is allowed to process', [
-                ':count'    => $this->getDropZoneObject()->getMaxFiles(),
-                ':mimetype' => $this->getDropZoneObject()->getMimetype()
+            throw ValidationFailedException::new(tr('The mimetype ":mimetypes" upload handler already processed the maximum amount of files ":count" that it is allowed to process', [
+                ':count'     => $this->getDropZoneObject()->getMaxFiles(),
+                ':mimetypes' => $this->getDropZoneObject()->getMimetypes()
             ]))->registerIncident(EnumSeverity::medium);
         }
 
-        Log::action(tr('About to process ":count" files with mimetype ":mimetype"', [
-            ':count'    => $this->getDropZoneObject()->getMaxFiles(),
-            ':mimetype' => $this->getDropZoneObject()->getMimetype()
+        Log::action(tr('About to process ":count" files with mimetypes handler ":mimetypes"', [
+            ':count'     => $this->getDropZoneObject()->getMaxFiles(),
+            ':mimetypes' => $this->getDropZoneObject()->getMimetypes()
         ]));
 
         $this->validate($file);

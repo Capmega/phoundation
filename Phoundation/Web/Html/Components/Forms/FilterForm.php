@@ -180,7 +180,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
     /**
      * Sets a default value of GET for the request method of these filter forms
      *
-     * @return $this
+     * @return static
      */
     protected function defaultRequestMethod(): static
     {
@@ -438,7 +438,13 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      */
     public function getStatus(): string|false|null
     {
-        return get_null((string) $this->get('status'));
+        $status = $this->get('status');
+
+        if ($status === false) {
+            return false;
+        }
+
+        return get_null((string) $status);
     }
 
 
@@ -523,11 +529,11 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      *
      * @param QueryBuilderInterface $builder
      *
-     * @return $this
+     * @return static
      */
     public function applyFiltersToQueryBuilder(QueryBuilderInterface $builder): static
     {
-        if ($this->apply_filters->keyExists('status')) {
+        if ($this->apply_filters->keyExists('status') and $this->definitions->isRendered('status')) {
             // Is the status filter rendered and available?
             if ($this->getStatus() !== false) {
                 // Is the status filter not set to "All"?
@@ -539,7 +545,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
             }
         }
 
-        if ($this->apply_filters->keyExists('date_range')) {
+        if ($this->apply_filters->keyExists('date_range') and $this->definitions->isRendered('date_range')) {
             if ($this->getStartDate()) {
                 $builder->addWhere(
                     '`' . $builder->getFromTable() . '`.`created_on` >= :start', [':start' => $this->getStartDate()->format('mysql')]
@@ -553,7 +559,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
             }
         }
 
-        if ($this->apply_filters->keyExists('users_id')) {
+        if ($this->apply_filters->keyExists('users_id') and $this->definitions->isRendered('users_id')) {
             if ($this->getUsersId()) {
                 $builder->addWhere(
                     '`' . $builder->getFromTable() . '`.`created_by` = :created_by', [':created_by' => $this->getUsersId()]
