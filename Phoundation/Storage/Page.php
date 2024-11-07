@@ -109,7 +109,7 @@ class Page extends DataEntry implements PageInterface
                                                    return Categories::new()
                                                                     ->keepMatchingKeys($word);
                                                },
-                                               'noword' => function () {
+                                               'noword' => function ($word) {
                                                    return Categories::new()
                                                                     ->getSource();
                                                },

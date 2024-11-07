@@ -28,7 +28,7 @@ CliDocumentation::setHelp('This command will display basic information about the
 
 // Validate arguments
 $argv = ArgvValidator::new()
-                     ->select('file', true)->sanitizeFile(FsDirectory::getFilesystemRoot())
+                     ->select('file', true)->sanitizeFile(PhoDirectory::newFilesystemRootObject())
                      ->validate();
 
 
