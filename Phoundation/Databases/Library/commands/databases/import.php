@@ -24,11 +24,6 @@ use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
 
 
-$restrictions = PhoRestrictions::newReadonly( [
-                                           DIRECTORY_DATA . 'sources/',
-                                           DIRECTORY_TMP,
-                                       ], tr('Import'));
-
 CliDocumentation::setUsage('./pho databases import -d mysql -b system -f system.sql');
 
 CliDocumentation::setHelp('This command will import the specified database dump file into the specified database
@@ -59,18 +54,8 @@ ARGUMENTS
 CliDocumentation::setAutoComplete([
     'arguments' => [
         '--file'         => [
-            'word'   => function ($word) use ($restrictions) {
-                return PhoDirectory::new(
-                    DIRECTORY_DATA . 'sources/',
-                    $restrictions
-                )->scan($word . '*[.sql|.gz]');
-            },
-            'noword' => function () use ($restrictions) {
-                return PhoDirectory::new(
-                    DIRECTORY_DATA . 'sources/',
-                    $restrictions
-                )->scan('*[.sql|.gz]');
-            },
+            'word'   => function ($word) { return PhoDirectory::newDataSourcesObject()->scan('/^' . $word . '.*?[.sql|.gz]$/'); },
+            'noword' => function ($word) { return PhoDirectory::newDataSourcesObject()->scan('/^' . $word . '.*?[.sql|.gz]$/'); },
         ],
         '-c,--connector' => [
             'word'   => function ($word) {
@@ -78,7 +63,7 @@ CliDocumentation::setAutoComplete([
                                  ->load(null, true, true)
                                  ->keepMatchingValuesStartingWith($word, column: 'name');
             },
-            'noword' => function () {
+            'noword' => function ($word) {
                 return Connectors::new()
                                  ->load(null, true, true)
                                  ->getAllRowsSingleColumn('name');
@@ -88,7 +73,7 @@ CliDocumentation::setAutoComplete([
             'word'   => function ($word) {
                 return sql()->listScalar('SHOW DATABASES LIKE :word', [':word' => '%' . $word . '%']);
             },
-            'noword' => function () {
+            'noword' => function ($word) {
                 return sql()->listScalar('SHOW DATABASES');
             },
         ],

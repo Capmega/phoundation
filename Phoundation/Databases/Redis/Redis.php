@@ -152,7 +152,7 @@ class Redis implements DatabaseInterface, RedisInterface
     /**
      * Closes the Redis database connection
      *
-     * @return $this
+     * @return static
      */
     public function close(): static
     {
@@ -280,7 +280,7 @@ class Redis implements DatabaseInterface, RedisInterface
      *
      * @param int $database
      *
-     * @return $this
+     * @return static
      * @throws OutOfBoundsException|RedisException
      */
     public function setDatabase(int $database): static
@@ -388,7 +388,7 @@ class Redis implements DatabaseInterface, RedisInterface
      * @param mixed  $value
      * @param string $queue
      *
-     * @return $this
+     * @return static
      */
     public function push(mixed $value, string $queue): static
     {
@@ -614,7 +614,7 @@ class Redis implements DatabaseInterface, RedisInterface
     /**
      * Takes a queue and clears all values from it, leaving it as an empty array
      *
-     * @return $this
+     * @return static
      */
     public function clearQueue(string $queue): static
     {
@@ -757,7 +757,7 @@ class Redis implements DatabaseInterface, RedisInterface
      *
      * @param PhoFileInterface $file
      *
-     * @return $this
+     * @return static
      */
     public function import(PhoFileInterface $file): static
     {
@@ -771,7 +771,7 @@ class Redis implements DatabaseInterface, RedisInterface
      *
      * @param PhoFileInterface $file
      *
-     * @return $this
+     * @return static
      */
     public function export(PhoFileInterface $file): static
     {

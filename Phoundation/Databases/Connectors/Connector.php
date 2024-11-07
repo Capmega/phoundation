@@ -73,8 +73,9 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
     {
-        $this->configuration_path = 'databases.connectors';
-        $this->connector          = 'system';
+        $this->supports_seo_hostname = false;
+        $this->configuration_path    = 'databases.connectors';
+        $this->connector             = 'system';
 
         parent::__construct($identifier, $meta_enabled, $init);
 

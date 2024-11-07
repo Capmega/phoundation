@@ -178,12 +178,11 @@ class SqlDataEntry implements SqlDataEntryInterface
      * @note This method assumes that the specified rows are correct to the specified table. If columns not pertaining
      *       to this table are in the $row value, the query will automatically fail with an exception!
      *
-     * @param string|null $comments
-     * @param string|null $diff
+     * @param string|null $comments Optional comments that will be added to the meta history for the DataEntry
      *
-     * @return int
+     * @return array                Returns an array with the meta columns for the DataEntry
      */
-    public function write(?string $comments, ?string $diff): int
+    public function write(?string $comments): array
     {
         // New entry, insert
         $retry     = 0;
@@ -278,15 +277,15 @@ class SqlDataEntry implements SqlDataEntryInterface
      * @param string|null $diff
      * @param string      $meta_action
      *
-     * @return int|null
+     * @return array
      */
-    public function insertUpdate(array $insert_row, array $update_row, ?string $comments = null, ?string $diff = null, string $meta_action = 'update'): ?int
+    public function insertUpdate(array $insert_row, array $update_row, ?string $comments = null, ?string $diff = null, string $meta_action = 'update'): array
     {
         Core::checkReadonly('sql data-entry-insert-update');
 
         // Filter row and set meta fields for insert
-        $insert_row = static::initializeInsertRow($insert_row, $comments, $diff);
         $update_row = static::initializeUpdateRow($update_row, $comments, $diff, $meta_action);
+        $insert_row = static::initializeInsertRow($insert_row, $comments, $diff, $update_row['meta_state']);
 
         // Build variables for the insert part of the query
         $insert_columns = SqlQueries::getPrefixedColumns($insert_row, $this->data_entry->getColumnPrefix());
@@ -305,11 +304,11 @@ class SqlDataEntry implements SqlDataEntryInterface
 
         if (empty($insert_row[$this->id_column])) {
             // No row id specified, get the insert id from SQL driver
-            return $this->sql->getInsertId();
+            $insert_row[$this->id_column] = $this->sql->getInsertId();
         }
 
-        // Use the given row id
-        return $insert_row[$this->id_column];
+        // Return the meta-columns for this insert/update action
+        return Arrays::keepKeys($insert_row, $this->data_entry->getMetaColumns());
     }
 
 
@@ -319,10 +318,11 @@ class SqlDataEntry implements SqlDataEntryInterface
      * @param array       $row
      * @param string|null $comments
      * @param string|null $diff
+     * @param string|null $meta_state
      *
      * @return array
      */
-    protected function initializeInsertRow(array $row, ?string $comments, ?string $diff): array
+    protected function initializeInsertRow(array $row, ?string $comments, ?string $diff, ?string $meta_state = null): array
     {
         // Filter out non modified rows
         $row = Arrays::keepKeys($row, array_merge($this->data_entry->getChanges(), $this->data_entry->getMetaColumns()));
@@ -337,7 +337,7 @@ class SqlDataEntry implements SqlDataEntryInterface
         }
 
         if ($this->data_entry->isMetaColumn('meta_state')) {
-            $row['meta_state'] = Strings::getRandom(16);
+            $row['meta_state'] = $meta_state ?? Strings::getRandom(16);
         }
 
         // Created_on is always automatically set
@@ -401,10 +401,10 @@ class SqlDataEntry implements SqlDataEntryInterface
      * @param string|null $comments
      * @param string|null $diff
      *
-     * @return int
+     * @return array
      * @throws Exception
      */
-    public function insert(array $row, ?string $comments = null, ?string $diff = null): int
+    public function insert(array $row, ?string $comments = null, ?string $diff = null): array
     {
         Core::checkReadonly('sql data-entry-insert');
 
@@ -422,11 +422,11 @@ class SqlDataEntry implements SqlDataEntryInterface
 
         if (empty($row[$this->id_column])) {
             // No row id specified, get the insert id from SQL driver
-            return $this->sql->getInsertId();
+            $row[$this->id_column] = $this->sql->getInsertId();
         }
 
-        // Use the given row id
-        return $row[$this->id_column];
+        // Return the meta-columns for this insert action
+        return Arrays::keepKeys($row, $this->data_entry->getMetaColumns());
     }
 
 
@@ -435,7 +435,7 @@ class SqlDataEntry implements SqlDataEntryInterface
      *
      * This is a simplified insert method to speed up writing basic insert queries
      *
-     * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
+     * @note This method assumes that the specified rows are correct to the specified table. If columns not pertaining
      *       to this table are in the $row value, the query will automatically fail with an exception!
      *
      * @param array       $row
@@ -443,9 +443,9 @@ class SqlDataEntry implements SqlDataEntryInterface
      * @param string|null $diff
      * @param string      $meta_action
      *
-     * @return int
+     * @return array
      */
-    public function update(array $row, ?string $comments = null, ?string $diff = null, string $meta_action = 'update'): int
+    public function update(array $row, ?string $comments = null, ?string $diff = null, string $meta_action = 'update'): array
     {
         Core::checkReadonly('sql data-entry-update');
 
@@ -461,7 +461,8 @@ class SqlDataEntry implements SqlDataEntryInterface
                            SET     ' . $update . '
                            WHERE  `' . $this->id_column . '` = :' . $this->id_column, $values);
 
-        return $row[$this->id_column];
+        // Return the meta-columns for this update action
+        return Arrays::keepKeys($row, $this->data_entry->getMetaColumns());
     }
 
 

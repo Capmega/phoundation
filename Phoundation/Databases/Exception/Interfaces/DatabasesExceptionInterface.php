@@ -22,7 +22,7 @@ interface DatabasesExceptionInterface extends PhoExceptionInterface
      *
      * @param ConnectorInterface|null $connector
      *
-     * @return $this
+     * @return static
      */
     public function setConnectorObject(?ConnectorInterface $connector): static;
 

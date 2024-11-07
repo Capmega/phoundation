@@ -9,7 +9,7 @@ interface RedisQueueInterface
      *
      * @param mixed $value
      *
-     * @return $this
+     * @return static
      */
     public function push(mixed $value): static;
 
@@ -59,14 +59,14 @@ interface RedisQueueInterface
     /**
      * Takes the queue and clears all values from it
      *
-     * @return $this
+     * @return static
      */
     public function clear(): static;
 
     /**
      * Drops the current queue
      *
-     * @return $this
+     * @return static
      */
     public function drop(): static;
 
