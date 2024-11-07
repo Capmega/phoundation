@@ -624,6 +624,22 @@ class Connector extends DataEntry implements ConnectorInterface
 
 
     /**
+     * Returns the connector configuration in an array that can be understood by the Memcached driver
+     *
+     * @return array
+     */
+    public function getMemcachedConfiguration(): array
+    {
+        return [
+            'host'     => $this->getHostname(),
+            'port'     => $this->getPort() ?? 11211,
+            'options'  => null,
+            'database' => $this->getDatabase(),
+        ];
+    }
+
+
+    /**
      * @inheritDoc
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void

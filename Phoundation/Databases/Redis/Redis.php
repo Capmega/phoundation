@@ -31,7 +31,6 @@ use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Throwable;
 
-
 class Redis implements DatabaseInterface, RedisInterface
 {
     use TraitDataConnector;
@@ -635,18 +634,13 @@ class Redis implements DatabaseInterface, RedisInterface
                 throw RedisException::new(tr('PHP Redis driver failed to run "set" to clear queue'));
             }
 
-            throw RedisException::new(tr('Failed to find queue ":queue"', [
-                ':queue' => $queue
-            ]));
+            throw RedisException::new(tr('Could not find queue'));
 
         } catch (Throwable $e) {
             throw RedisException::new(tr('Failed to clear queue ":queue" with connector ":connector"', [
                 ':connector' => $this->getConnectorObject()->getName(),
                 ':queue'     => $queue
             ]), $e)
-            ->setData([
-                'queue' => $queue
-            ])
             ->setDatabase($this->getDatabase())
             ->setConnectorObject($this->getConnectorObject());
         }

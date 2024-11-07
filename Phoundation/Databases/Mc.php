@@ -3,7 +3,7 @@
 /**
  * Class Mc
  *
- * This is the default MemCached object
+ * This is the default memcached driver object
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -18,25 +18,26 @@ namespace Phoundation\Databases;
 
 use Memcached;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Interfaces\DatastoreInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Notifications\Notification;
-use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
-use Phoundation\Utils\Exception\ConfigurationInvalidException;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Url;
 use Throwable;
 
-
 class Mc implements DatastoreInterface
 {
+    use TraitDataConnector;
+
+
     /**
-     * PHP Memcached drivers
+     * PHP Memcached driver
      *
      * @var Memcached|null $memcached
      */
@@ -91,12 +92,10 @@ class Mc implements DatastoreInterface
         }
 
         // Get instance information and connect to memcached servers
-        $this->instance_name = $connector;
-        $this->memcached     = new Memcached();
-        $this->namespace     = new MemcachedNamespace($this);
+        $this->setConnectorObject($connector);
+        $this->memcached = new Memcached();
 
         try {
-            $this->readConfiguration();
             $this->setConnections($this->configuration['connections']);
             $this->connect();
 
@@ -108,52 +107,52 @@ class Mc implements DatastoreInterface
     }
 
 
-    /**
-     * Read the configuration for this instance
-     *
-     * @return void
-     */
-    protected function readConfiguration(): void
-    {
-        // Read the configuration
-        $this->configuration = Config::getArray('databases.connectors.' . $this->instance_name);
-
-        // Ensure that all required keys are available
-        Arrays::ensure($this->configuration, 'connections');
-        Arrays::default($this->configuration, 'expires', 86400);
-        Arrays::default($this->configuration, 'prefix', gethostname());
-
-        // Default connections to localhost if nothing was defined
-        if (empty($this->configuration['connections'])) {
-            throw ConfigPathDoesNotExistsException::new(tr('No memcached connections configured for instance ":instance"', [
-                ':instance' => $this->instance_name,
-            ]))->makeWarning();
-        }
-
-        if (!is_array($this->configuration['connections'])) {
-            throw new OutOfBoundsException(tr('Invalid memcached connections configured for instance ":instance", it should be an array but is an ":type"', [
-                ':instance' => $this->instance_name,
-                ':type'     => gettype($this->configuration['connections']),
-            ]));
-        }
-
-        // Ensure all connections are valid
-        foreach ($this->configuration['connections'] as $weight => &$connection) {
-            if (!is_array($connection)) {
-                if ($connection) {
-                    throw new ConfigurationInvalidException(tr('Configuration path ":path" contains invalid information', [
-                        ':path' => 'databases.connectors.' . $this->instance_name . '.connections.' . $weight,
-                    ]));
-                }
-
-                // Empty connector information, default to empty array and fill up below
-                $connection = [];
-            }
-
-            Arrays::default($connection, 'host', '127.0.0.1');
-            Arrays::default($connection, 'port', 11211);
-        }
-    }
+//    /**
+//     * Read the configuration for this instance
+//     *
+//     * @return void
+//     */
+//    protected function readConfiguration(): void
+//    {
+//        // Read the configuration
+//        $this->configuration = Config::getArray('databases.connectors.' . $this->instance_name);
+//
+//        // Ensure that all required keys are available
+//        Arrays::ensure($this->configuration, 'connections');
+//        Arrays::default($this->configuration, 'expires', 86400);
+//        Arrays::default($this->configuration, 'prefix', gethostname());
+//
+//        // Default connections to localhost if nothing was defined
+//        if (empty($this->configuration['connections'])) {
+//            throw ConfigPathDoesNotExistsException::new(tr('No memcached connections configured for instance ":instance"', [
+//                ':instance' => $this->instance_name,
+//            ]))->makeWarning();
+//        }
+//
+//        if (!is_array($this->configuration['connections'])) {
+//            throw new OutOfBoundsException(tr('Invalid memcached connections configured for instance ":instance", it should be an array but is an ":type"', [
+//                ':instance' => $this->instance_name,
+//                ':type'     => gettype($this->configuration['connections']),
+//            ]));
+//        }
+//
+//        // Ensure all connections are valid
+//        foreach ($this->configuration['connections'] as $weight => &$connection) {
+//            if (!is_array($connection)) {
+//                if ($connection) {
+//                    throw new ConfigurationInvalidException(tr('Configuration path ":path" contains invalid information', [
+//                        ':path' => 'databases.connectors.' . $this->instance_name . '.connections.' . $weight,
+//                    ]));
+//                }
+//
+//                // Empty connector information, default to empty array and fill up below
+//                $connection = [];
+//            }
+//
+//            Arrays::default($connection, 'host', '127.0.0.1');
+//            Arrays::default($connection, 'port', 11211);
+//        }
+//    }
 
 
     /**
