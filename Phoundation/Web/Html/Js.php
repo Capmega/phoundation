@@ -20,7 +20,7 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Exception\WebException;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
-
+use Phoundation\Web\Http\Url;
 
 class Js
 {
@@ -72,7 +72,7 @@ class Js
                     $file = substr($file, 0, -3);
 
                     Notification::new()
-                                ->setUrl('developer/incidents.html')
+                                ->setUrl(Url::getWww('developer/incidents.html'))
                                 ->setMode(EnumDisplayMode::exception)
                                 ->setCode('not-exists')
                                 ->setRoles('developer')
@@ -85,7 +85,7 @@ class Js
 
                     Notification::new()
                                 ->setMode(EnumDisplayMode::exception)
-                                ->setUrl('developer/incidents.html')
+                                ->setUrl(Url::getWww('developer/incidents.html'))
                                 ->setCode('not-exists')
                                 ->setRoles('developer')
                                 ->setTitle(tr('html_load_js() issue detected'))

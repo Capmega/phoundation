@@ -272,7 +272,7 @@ class JsonPage implements JsonPageInterface
                      ->reply([
                          'http_code' => 301,
                          'location'  => Url::getWww('sign-in')
-                                           ->addQueries('redirect=' . urlencode($_SERVER['HTTP_REFERER']))
+                                           ->addRedirect($_SERVER['HTTP_REFERER'])
                                            ->getSource()
                      ]);
         }

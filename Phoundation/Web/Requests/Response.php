@@ -997,7 +997,7 @@ class Response implements ResponseInterface
                         $redirect = Url::getWww($redirect);
 
                         if ((string) $redirect === (string) Url::getWww('sign-in')) {
-                            $redirect->addQueries('redirect=' . $current);
+                            $redirect->addRedirect($current);
                         }
 
                         static::redirect($redirect);

@@ -20,6 +20,7 @@ namespace Phoundation\Web\Http;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Traits\TraitStaticMethodNewWithSource;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
@@ -40,6 +41,9 @@ use Stringable;
 
 class Url implements UrlInterface
 {
+    use TraitStaticMethodNewWithSource;
+
+
     /**
      * Will be true if the current URL as-is is cloaked
      *
@@ -53,6 +57,13 @@ class Url implements UrlInterface
      * @var string $source
      */
     protected string $source;
+
+    /**
+     * Tracks if this URL is properly encoded, or not
+     *
+     * @var bool $encoded
+     */
+    protected bool $encoded = false;
 
 
     /**
@@ -73,6 +84,50 @@ class Url implements UrlInterface
             // This is a valid URL, continue.
             $this->source = $source;
         }
+    }
+
+
+    /**
+     * Returns the URL if it did not match any of the filter URL's
+     *
+     * @note Specified filters may be URL strings or UrlInterface objects. The filter will be converted to a URL object,
+     *       so it also may be a pre-defined URL like "sign-in" or "index"
+     *
+     * @param UrlInterface|string     $url             The URL to test
+     * @param IteratorInterface|array $filters         The URL's to test against
+     * @param bool                    $include_queries If true, will compare the complete URL with queries. If false,
+     *                                                 will only test the URI part, the queries stripped
+     *
+     * @return UrlInterface|null
+     */
+    public static function filter(UrlInterface|string $url, IteratorInterface|array $filters, bool $include_queries = false): ?UrlInterface
+    {
+        // Prepare test value
+        $url = Url::getWww($url);
+
+        if (!$include_queries) {
+            $test = $url->removeAllQueries()->getSource();
+
+        } else {
+            $test = $url->getSource();
+        }
+
+        // Go over all filters
+        foreach ($filters as $filter) {
+            // Prepare filter value
+            $filter = Url::getWww($filter);
+
+            if (!$include_queries) {
+                $filter = $filter->removeAllQueries();
+            }
+
+            // If test matches filter, return NULL
+            if ($test === $filter->getSource()) {
+                return null;
+            }
+        }
+
+        return $url;
     }
 
 
@@ -381,29 +436,31 @@ class Url implements UrlInterface
      * This will return either the $_GET[previous], $_GET[redirect], or $_SERVER[referer] URL. If none of these exist,
      * or if they are the current page, then the specified URL will be sent instead.
      *
-     * @param UrlInterface|string|null $or_else_url The URL to build if no valid previous page is available
-     * @param bool            $use_configured_root  If true, the builder will not use the root URI from the
-     *                                              routing parameters but from the static configuration
+     * @param UrlInterface|string|null $or_else_url         The URL to build if no valid previous page is available
+     * @param bool                     $use_configured_root If true, the builder will not use the root URI from the
+     *                                                      routing parameters but from the static configuration
+     * @param string|null              $strip_query_keys    If specified, will strip the specified keys from the URL
+     *                                                      queries
      *
      * @return static
      */
-    public static function getPrevious(UrlInterface|string|null $or_else_url = null, bool $use_configured_root = false): static
+    public static function getPrevious(UrlInterface|string|null $or_else_url = null, bool $use_configured_root = false, ?string $strip_query_keys = 'previous,redirect'): static
     {
         $url = GetValidator::getRedirectValue();
 
         if (!empty($url)) {
-            // We found an option, yay!
+            // We got a previous, redirect, or referer value
             $url     = static::getWww($url, $use_configured_root);
             $current = static::getWww(null, $use_configured_root);
 
             if ((string) $current !== (string) $url) {
-                // Option is not current page, return it!
-                return $url;
+                // Option is not current page, return it with previous and redirect keys stripped
+                return $url->removeQueryKeys($strip_query_keys);
             }
         }
 
         // No URL found in any of the options, or option was current page. Use the specified URL
-        return static::getWww($or_else_url, $use_configured_root);
+        return static::getWww($or_else_url, $use_configured_root)->removeQueryKeys($strip_query_keys);
     }
 
 
@@ -931,37 +988,46 @@ class Url implements UrlInterface
 
 
     /**
+     * Removes all queries from this URL
+     *
+     * @return $this
+     */
+    public function removeAllQueries(): static
+    {
+        $this->source = Strings::until($this->source, '?');
+        return $this;
+    }
+
+
+    /**
      * Remove specified queries from the specified URL and return
      *
-     * @param array|string|null ...$keys All the query keys to add to this URL
+     * @param IteratorInterface|array|string|null ...$keys
      *
      * @return static
      */
-    public function removeQueryKeys(array|string|null ...$keys): static
+    public function removeQueryKeys(IteratorInterface|array|string|null ...$keys): static
     {
         if (!$keys) {
             return $this;
         }
 
-        // Break the key up in multiple entries, if specified
-        if (is_string($keys)) {
-            if (str_contains($keys, ',')) {
-                return $this->removeQueryKeys(explode(',', $keys));
-            }
-
-            $keys = [$keys];
-        }
-
-        foreach ($keys as $key) {
-            if (!$key) {
+        // Remove all specified keys
+        foreach ($keys as $sub_keys) {
+            if (!$sub_keys) {
                 continue;
             }
 
-            $this->source .= '&';
-            $this->source  = preg_replace('/&'  . $key . '=.+?&/', '' , $this->source);
-            $this->source  = preg_replace('/\?' . $key . '=.+?&/', '?', $this->source);
-            $this->source  = Strings::ensureEndsNotWith($this->source, '&');
-            $this->source  = Strings::ensureEndsNotWith($this->source, '?');
+            // Keys may have been specified as string, Iterator, etc... Ensure we have an array
+            $sub_keys = Arrays::force($sub_keys);
+
+            foreach ($sub_keys as $key) {
+                $this->source .= '&';
+                $this->source  = preg_replace('/&'  . $key . '=.+?&/', '' , $this->source);
+                $this->source  = preg_replace('/\?' . $key . '=.+?&/', '?', $this->source);
+                $this->source  = Strings::ensureEndsNotWith($this->source, '&');
+                $this->source  = Strings::ensureEndsNotWith($this->source, '?');
+            }
         }
 
         return $this;
@@ -969,7 +1035,66 @@ class Url implements UrlInterface
 
 
     /**
+     * Adds a redirect=URL query to this URL
+     *
+     * @param Url|string|null $redirect                          The URL that should be added as "?redirect=URL" in this
+     *                                                           URL. If NULL, will not add anything. If empty string,
+     *                                                           will default to the current URL
+     * @param IteratorInterface|array|string|null $strip_queries If specified, will strip the specified query keys from
+     *                                                           the redirect URL before adding it to this URL
+     *
+     * @return static
+     */
+    public function addRedirect(Url|string|null $redirect = null, IteratorInterface|array|string|null $strip_queries = 'redirect'): static
+    {
+        // Use what URL?
+        if ($redirect === '') {
+            $redirect = Url::getCurrent();
+
+        } else {
+            $redirect = Url::getWww($redirect);
+        }
+
+        // Strip redirect?
+        if ($strip_queries) {
+            $redirect->removeQueryKeys($strip_queries);
+        }
+
+        // Done
+        return $this->addUrlQuery($redirect, 'redirect');
+    }
+
+
+    /**
+     * Add the specified key=URL to this URL safely
+     *
+     * @param UrlInterface|string|null $value
+     * @param string|int               $key
+     *
+     * @return static
+     */
+    public function addUrlQuery(UrlInterface|string|null $value, string|int $key): static
+    {
+        if ($value === null) {
+            return $this;
+        }
+
+        $key   = Url::ensureStringUrlEncoding((string) $key);
+        $value = Url::ensureStringUrlEncoding((string) $value, true);
+
+        return $this->addQueries($key . '=' . $value);
+    }
+
+
+    /**
      * Add the specified query / queries to the specified URL and return
+     *
+     * @note Do NOT add queries like key=URL (where URL is not URL encoded) in here, as URL may contain "=" and "&"
+     *       symbols which will be detected and cause exceptions as the system won't know where one query starts and the
+     *       other ends. Use Url::addUrlQuery() instead
+     *
+     * @note Do NOT add queries where either the key or value contains one of not URL encoded "? = + &"
+     *       (not counting the = in key=value) as these characters will cause problems
      *
      * @param array|string|bool|null ...$queries All the queries to add to this URL
      *
@@ -980,6 +1105,8 @@ class Url implements UrlInterface
         if (!$queries) {
             return $this;
         }
+
+        $this->ensureQueriesEncoded();
 
         foreach ($queries as $query) {
             if (!$query) {
@@ -1011,24 +1138,42 @@ class Url implements UrlInterface
                 $query = $_SERVER['QUERY_STRING'];
             }
 
+            // Clean the URL string
             $this->source = Strings::ensureEndsNotWith($this->source, '?');
+            $this->source = Strings::ensureEndsNotWith($this->source, '&');
 
             if (!preg_match('/^[a-z0-9-_]+?=.*?$/i', $query)) {
-                throw new OutOfBoundsException(tr('Invalid query ":query" specified. Please ensure it has the "key=value" format', [
+                throw new OutOfBoundsException(tr('Invalid query ":query" specified. Please ensure it has the "key=value" format and that key matches regex "[a-z0-9-_]+"', [
                     ':query' => $query,
                 ]));
             }
 
-            $key   = Strings::until($query, '=');
-            $value = Strings::from($query, '=');
-            $key   = urlencode($key);
-            $value = urlencode($value);
+            $this->addQuery(Strings::from($query , '='), Strings::until($query, '='));
+        }
 
-            if (!str_contains($this->source, '?')) {
-                // This URL has no query yet, begin one
-                $this->source .= '?' . $key . '=' . $value;
+        return $this;
+    }
 
-            } elseif (str_contains($this->source, $key . '=')) {
+
+    /**
+     * Adds the specified single key/value query to this URL
+     *
+     * @param mixed      $value
+     * @param string|int $key
+     *
+     * @return static
+     */
+    public function addQuery(mixed $value, string|int $key): static
+    {
+        if ($value === null) {
+            return $this;
+        }
+
+        $key   = Url::ensureStringUrlEncoding((string) $key);
+        $value = Url::ensureStringUrlEncoding((string) $value);
+
+        if (str_contains($this->source, '?')) {
+            if (str_contains($this->source, $key . '=')) {
                 // The query already exists in the specified URL, replace it.
                 $replace      = Strings::cut($this->source, $key . '=', '&', false);
                 $this->source = str_replace($key . '=' . $replace, $key . '=' . $value, $this->source);
@@ -1037,6 +1182,10 @@ class Url implements UrlInterface
                 // Append the query to the URL
                 $this->source .= '&' . $key . '=' . $value;
             }
+
+        } else {
+            // This URL has no queries yet, so we don't need to check anything, we can just attach the query
+            $this->source .= '?' . $key . '=' . $value;
         }
 
         return $this;
@@ -1187,5 +1336,144 @@ class Url implements UrlInterface
 
         // This is an external URL
         return null;
+    }
+
+
+    /**
+     * Ensures the specified URL queries are properly encoded
+     *
+     * @note  This method will not verify if the specified URL is valid, it will only encode the queries key/values
+     *
+     * @param string $url
+     * @param bool   $allow_encoded_plus
+     *
+     * @return string
+     */
+    public static function ensureQueriesUrlEncoding(string $url, bool $allow_encoded_plus = false): string
+    {
+        // Get queries from URL string
+        $queries = Strings::from($url, '?', needle_required: true);
+
+        if ($queries) {
+            // Get all individual queries and ensure they're encoded
+            $url     = Strings::until($url, '?', needle_required: true);
+            $queries = explode('&', $queries);
+
+            foreach ($queries as &$query) {
+                $query = static::ensureQueryUrlEncoding($query, $allow_encoded_plus);
+            }
+
+            // Rebuild the URL back together again
+            unset($query);
+            $queries = implode('&', $queries);
+            $url     = $url . '?' . $queries;
+        }
+
+        return $url;
+    }
+
+
+    /**
+     * Ensures the specified query is properly encoded
+     *
+     * @note This will forcibly allow + symbols, so GET queries may NOT contain %20B characters
+     *
+     * @param string $query
+     * @param bool   $allow_encoded_plus
+     *
+     * @return string
+     */
+    public static function ensureQueryUrlEncoding(string $query, bool $allow_encoded_plus = false): string
+    {
+        $parts = explode('=', $query);
+
+        switch (count($parts)) {
+            case 2:
+                // This is perfect
+                break;
+
+            case 1:
+                // Missing =, assume empty value string
+                $parts = [$parts[0], ''];
+                break;
+
+            default:
+                throw new OutOfBoundsException(tr('Cannot ensure query URL encoding, the specified query ":query" contains multiple "="', [
+                    ':query' => $query,
+                ]));
+        }
+
+        // Decode and encode again, this way we won't double-encode and can be sure the value is encoded
+        // This might mangle the + sign, so unmangle that manually
+        foreach ($parts as &$part) {
+            $part = Url::ensureStringUrlEncoding($part, $allow_encoded_plus);
+        }
+
+        // Return the query
+        unset($part);
+        return implode('=', $parts);
+    }
+
+
+    /**
+     * Ensures that the specified string is URL encoded
+     *
+     * @note This will forcibly allow + symbols, so GET queries may NOT contain %20B characters
+     *
+     * @param string $source
+     * @param bool   $allow_encoded_plus
+     *
+     * @return string
+     */
+    public static function ensureStringUrlEncoding(string $source, bool $allow_encoded_plus = false): string
+    {
+        $source = urldecode($source);
+        $source = urlencode($source);
+
+        if (!$allow_encoded_plus) {
+            $source = str_replace('%20b', '+', $source);
+        }
+
+        return $source;
+    }
+
+
+    /**
+     * Returns if the queries in this URL are properly encoded, or not
+     *
+     * @return bool
+     */
+    public function isEncoded(): bool
+    {
+        return $this->encoded;
+    }
+
+
+    /**
+     * Ensures the queries this URL object are properly URL-encoded
+     *
+     * @return $this
+     */
+    public function ensureQueriesEncoded(): static
+    {
+        if (!$this->encoded) {
+            $this->encodeQueries();
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * URL-encodes the URL queries in this object
+     *
+     * @return static
+     */
+    public function encodeQueries(): static
+    {
+        $this->source  = Url::ensureQueriesUrlEncoding($this->source);
+        $this->encoded = true;
+
+        return $this;
     }
 }
