@@ -34,9 +34,9 @@ class CookieValidator extends Validator
     /**
      * Internal $_COOKIE array until validation has been completed
      *
-     * @var array|null $cookies
+     * @var array $cookies
      */
-    protected static ?array $cookies = null;
+    protected static array $cookies = [];
 
 
     /**
