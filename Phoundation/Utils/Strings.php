@@ -715,7 +715,7 @@ class Strings extends Utils
      */
     public static function capsGuess(Stringable|string $string): string
     {
-throw new UnderConstructionException();
+        throw new UnderConstructionException();
         $return       = '';
         $posibilities = [
             'lowercase',
@@ -752,7 +752,7 @@ throw new UnderConstructionException();
      */
     public static function xor(Stringable|string $first, Stringable|string $second): string
     {
-throw new UnderConstructionException();
+        throw new UnderConstructionException();
         $first  = (string) $first;
         $second = (string) $second;
         $diff   = $first ^ $second;
@@ -855,7 +855,7 @@ throw new UnderConstructionException();
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-         * @package   strings
+     * @package   strings
      * @version   2.6.25: Added function and documentation
      * @example
      *            code
@@ -920,7 +920,7 @@ throw new UnderConstructionException();
      */
     public static function trimHtml(Stringable|string $source): string
     {
-throw new UnderConstructionException();
+        throw new UnderConstructionException();
         $source = (string) $source;
 
         if (!$source) {
@@ -975,7 +975,7 @@ throw new UnderConstructionException();
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-         * @package   str
+     * @package   str
      * @see       Strings::from()
      * @see       Strings::until()
      * @version   2.0.0: Moved to system library, added documentation
