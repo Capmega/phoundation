@@ -188,11 +188,7 @@ class Library implements LibraryInterface
      */
     public static function getClassPath(string $file): string
     {
-        $restrictions = PhoRestrictions::newReadonly([
-            DIRECTORY_ROOT . 'Phoundation',
-            DIRECTORY_ROOT . 'Plugins',
-            DIRECTORY_ROOT . 'Templates'
-        ], 'Library::getClassPath()');
+        $restrictions = PhoRestrictions::newFilesystemRoot();
 
         if (!PhoFile::new($file, $restrictions)->isPhp()) {
             throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
@@ -324,7 +320,7 @@ class Library implements LibraryInterface
         $file = DIRECTORY_ROOT . $file . '.php';
 
         if ($check_php) {
-            if (!PhoFile::new($file, PhoRestrictions::newReadonly([DIRECTORY_ROOT . 'Phoundation', DIRECTORY_ROOT . 'Plugins', DIRECTORY_ROOT . 'Templates']))->isPhp()) {
+            if (!PhoFile::new($file, PhoRestrictions::newFilesystemRoot())->isPhp()) {
                 throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
             }
         }
