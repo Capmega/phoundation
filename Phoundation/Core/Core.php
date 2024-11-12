@@ -374,11 +374,15 @@ class Core implements CoreInterface
     {
         if (PLATFORM_CLI) {
             // PHO_DIRECTORY MUST exist here, use that.
-            return PHO_DIRECTORY . '/';
+            $path = PHO_DIRECTORY;
+
+        } else {
+            // Web client here. Should ALWAYS go to web/index.php, return its grandparent directory
+            $path = dirname(dirname($_SERVER['SCRIPT_FILENAME']));
         }
 
-        // Web client here. Should ALWAYS go to web/index.php, return its grand parent directory
-        return dirname(dirname($_SERVER['SCRIPT_FILENAME'])) . '/';
+        // Return realpath ending with a slash so that we always base everything on real path
+        return realpath($path) . '/';
     }
 
 

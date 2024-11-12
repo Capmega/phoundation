@@ -551,7 +551,7 @@ class Libraries
     {
         Log::action(tr('Clearing commands caches (symlinks only)'), 3);
 
-        PhoDirectory::new(DIRECTORY_COMMANDS, PhoRestrictions::newRoot(true))
+        PhoDirectory::new(DIRECTORY_COMMANDS, PhoRestrictions::newFilesystemRoot(true))
             ->clearTreeSymlinks(true)
             ->ensure();
 
@@ -609,7 +609,7 @@ class Libraries
     {
         Log::action(tr('Clearing hooks caches (symlinks only)'), 3);
 
-        PhoDirectory::new(DIRECTORY_HOOKS, PhoRestrictions::newRoot(true))
+        PhoDirectory::new(DIRECTORY_HOOKS, PhoRestrictions::newFilesystemRoot(true))
                    ->clearTreeSymlinks(true)
                    ->ensure();
 
@@ -799,7 +799,7 @@ class Libraries
     {
         Log::action(tr('Clearing web caches (symlinks only)'), 3);
 
-        PhoDirectory::new(DIRECTORY_WEB, PhoRestrictions::newRoot(true))
+        PhoDirectory::new(DIRECTORY_WEB, PhoRestrictions::newFilesystemRoot(true))
                    ->clearTreeSymlinks(true)
                    ->ensure();
     }
@@ -853,7 +853,7 @@ class Libraries
     {
         Log::action(tr('Clearing cron caches (symlinks only)'), 3);
 
-        PhoDirectory::new(DIRECTORY_CRON, PhoRestrictions::newRoot(true))
+        PhoDirectory::new(DIRECTORY_CRON, PhoRestrictions::newFilesystemRoot(true))
             ->clearTreeSymlinks(true)
             ->ensure();
     }
@@ -907,7 +907,7 @@ class Libraries
     {
         Log::action(tr('Clearing test caches (symlinks only)'), 3);
 
-        PhoDirectory::new(DIRECTORY_TESTS, PhoRestrictions::newRoot(true))
+        PhoDirectory::new(DIRECTORY_TESTS, PhoRestrictions::newFilesystemRoot(true))
                    ->clearTreeSymlinks(true)
                    ->ensure();
     }

@@ -359,7 +359,7 @@ class Route
      */
     protected static function init(): void
     {
-        Request::setRestrictions(PhoRestrictions::newRoot());
+        Request::setRestrictions(PhoRestrictions::newFilesystemRoot());
         Response::initialize();
 
         if (Core::getMaintenanceMode()) {
