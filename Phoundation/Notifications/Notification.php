@@ -357,6 +357,25 @@ FILES variables:
 
 
     /**
+     * Set the status for this Notification
+     *
+     * @param string|null $status
+     * @param string|null $comments
+     *
+     * @return static
+     */
+    public function setStatus(?string $status, ?string $comments = null): static
+    {
+        // Setting Notification status is only allowed when not impersonating
+        if (!Session::isImpersonated()) {
+            return parent::setStatus($status, $comments);
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Will send this notification to the specified role
      *
      * @param string|null $role

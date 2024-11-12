@@ -18,13 +18,14 @@ declare(strict_types=1);
 namespace Phoundation\Geo\Countries;
 
 use Phoundation\Data\DataEntry\DataIterator;
+use Phoundation\Geo\Countries\Interfaces\CountriesInterface;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 
 
-class Countries extends DataIterator
+class Countries extends DataIterator implements CountriesInterface
 {
     /**
      * Countries class constructor

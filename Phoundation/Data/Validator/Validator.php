@@ -141,7 +141,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      *
      * @param string|float|int $to_key
      *
-     * @return $this
+     * @return static
      */
     public function copyToKey(string|float|int $to_key): static
     {
@@ -320,15 +320,15 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
 
     /**
-     * This method will allow the currently selected key to pass without performing any validation tests
+     * This method will allow the currently selected key to pass without performing any validation Tests
      *
      * @return static
      */
     public function doNotValidate(): static
     {
         if ($this->test_count) {
-            // Cannot NOT validate, validation tests have already been executed on it.
-            throw new OutOfBoundsException(tr('Cannot skip validation tests on key ":key", there have already been ":count" validation tests been executed on it', [
+            // Cannot NOT validate, validation Tests have already been executed on it.
+            throw new OutOfBoundsException(tr('Cannot skip validation Tests on key ":key", there have already been ":count" validation Tests been executed on it', [
                 ':key'   => $this->selected_field,
                 ':count' => $this->test_count
             ]));
@@ -381,7 +381,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             $this->ensureSelected();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // In the span of multiple tests on one value, one test failed, don't execute the rest of the tests
+                // In the span of multiple Tests on one value, one test failed, don't execute the rest of the Tests
                 return $this;
             }
 
@@ -389,7 +389,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                 // Process all process_values
                 $this->process_key   = $key;
                 $this->process_value = &$value;
-// TODO TEST THIS! IF next line is enabled then multiple tests after each other will continue, even if the previous failed!!
+// TODO TEST THIS! IF next line is enabled then multiple Tests after each other will continue, even if the previous failed!!
 //                $this->process_value_failed = false;
                 $this->selected_is_default = false;
 
@@ -2850,7 +2850,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
         foreach (Arrays::force($exists_in_directories) as $exists_in_directory) {
             if (!$exists_in_directory instanceof PhoDirectoryInterface) {
-                throw new OutOfBoundsException(tr('Cannot validate if path ":path", the specified "$exists_in_directory" value ":value" must be an FsDirectoryInterface object or an array with FsDirectoryInterface objects', [
+                throw new OutOfBoundsException(tr('Cannot validate if path ":path", the specified "$exists_in_directory" value ":value" must be an PhoDirectoryInterface object or an array with PhoDirectoryInterface objects', [
                     ':path'  => $path,
                     ':value' => $exists_in_directory
                 ]));
@@ -2859,7 +2859,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             $exists_in_directory->makeAbsolute(must_exist: false)
                                 ->checkRestrictions(false);
 
-            // The path should be an FsPath object with restrictions from the specified directory we're testing
+            // The path should be an PhoPath object with restrictions from the specified directory we're testing
             $path = new $class($path, $exists_in_directory->getRestrictions());
 
             if ($path->isInDirectory($exists_in_directory)) {
@@ -3000,7 +3000,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
 
     /**
-     * Validates if the selected field is a valid file path and converts the value into FsPath object
+     * Validates if the selected field is a valid file path and converts the value into PhoPath object
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
@@ -3020,14 +3020,14 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                 return;
             }
 
-            // Check the path and convert into FsPath object
+            // Check the path and convert into PhoPath object
             $value = $this->validatePath($value, $exists_in_directories, null, $require_exists, $prefix);
         });
     }
 
 
     /**
-     * Validates if the selected field is a valid directory and converts the value into FsDirectory object
+     * Validates if the selected field is a valid directory and converts the value into PhoDirectory object
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
@@ -3047,14 +3047,14 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                 return;
             }
 
-            // Check the directory and convert into FsDirectory object
+            // Check the directory and convert into PhoDirectory object
             $value = $this->validatePath($value, $exists_in_directories, true, $require_exists, $prefix);
         });
     }
 
 
     /**
-     * Validates if the selected field is a valid file and converts the value into an FsFile object
+     * Validates if the selected field is a valid file and converts the value into an PhoFile object
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
@@ -3074,7 +3074,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                 return;
             }
 
-            // Check the file and convert into FsFile object
+            // Check the file and convert into PhoFile object
             $value = $this->validatePath($value, $exists_in_directories, false, $require_exists, $prefix);
         });
     }
@@ -4471,7 +4471,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
 
     /**
-     * Returns the number of tests performed on the current column
+     * Returns the number of Tests performed on the current column
      *
      * @return int
      */
@@ -4561,17 +4561,12 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      * Constructor for all validator types
      *
      * @param ValidatorInterface|null $parent
-     * @param array|null              $source
+     * @param array                   $source
      *
      * @return void
      */
-    protected function construct(?ValidatorInterface $parent = null, ?array &$source = []): void
+    protected function construct(?ValidatorInterface $parent = null, array &$source = []): void
     {
-        // Ensure the source is an array
-        if ($source === null) {
-            $source = [];
-        }
-
         $this->source = &$source;
         $this->parent = $parent;
 

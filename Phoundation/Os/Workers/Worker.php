@@ -9,11 +9,13 @@
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
- * @uses      ProcessVariables
+ * @uses      TraitProcessVariables
  */
 
 
 declare(strict_types=1);
+
+use Phoundation\Os\Processes\Traits\TraitProcessVariables;
 
 namespace Phoundation\Os\Workers;
 

@@ -63,7 +63,7 @@ class Vendor implements VendorInterface
 
 
     /**
-     * Returns the files for this vendor in a FsFilesInterface object
+     * Returns the files for this vendor in a PhoFilesInterface object
      *
      * @return PhoFilesInterface
      */

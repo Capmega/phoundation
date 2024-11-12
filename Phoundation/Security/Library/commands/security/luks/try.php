@@ -24,8 +24,6 @@ use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Security\Luks\Device;
 
 
-$restrictions = PhoRestrictions::newReadonly('/'));
-
 CliDocumentation::setUsage('./pho security luks try -f FILE
 echo "SECTION SECTION SECTION" | ./pho security luks try -f FILE');
 
@@ -48,12 +46,8 @@ ARGUMENTS
 CliDocumentation::setAutoComplete([
       '-f,--file' => [
           'arguments' => [
-              'word'   => function ($word) use ($restrictions) {
-                 return PhoDirectory::new(PhoDirectory::newFilesystemRootObject())->scan($word . '*');
-              },
-              'noword' => function () use ($restrictions) {
-                  return PhoDirectory::new(PhoDirectory::newFilesystemRootObject())->scan('*');
-              },
+              'word'   => function ($word) { return PhoDirectory::newFilesystemRootObject()->scan($word, '/.*?$/'); },
+              'noword' => function ($word) { return PhoDirectory::newFilesystemRootObject()->scan($word, '/.*?$/'); },
           ],
       ],
 ]);

@@ -146,7 +146,7 @@ class Relay
         }
 
         $data    = $page->getResultData();
-        $headers = $page->getResultHeaders();
+        $headers = $page->getResponseHeaders();
 
         if ($this->page_replace) {
             // Search / replace the URL's

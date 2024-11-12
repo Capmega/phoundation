@@ -254,7 +254,7 @@ class Authentication extends DataEntry implements AuthenticationInterface
      * @param bool        $skip_validation
      * @param string|null $comments
      *
-     * @return $this
+     * @return static
      */
     public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {

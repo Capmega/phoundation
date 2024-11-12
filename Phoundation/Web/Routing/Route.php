@@ -393,8 +393,13 @@ class Route
             static::executeSystem(404);
         }
 
+        // Check for double GET variables
+        // If found, keep the last one, remove the rest, and redirect to the correct URL instead
+        static::ensureValidGetQueries();
+
         if (str_ends_with($_SERVER['HTTP_HOST'], '.')) {
-            // The specified domain ends with a "." like "phoundation.org." instead of "phoundation.org" so redirect
+            // The specified domain ends with a "." like "phoundation.org." instead of "phoundation.org".
+            // Redirect
             Response::redirect($_SERVER['REQUEST_SCHEME'] . '://' . Strings::ensureEndsNotWith($_SERVER['HTTP_HOST'], '.') . $_SERVER['REQUEST_URI']);
         }
 
@@ -406,6 +411,90 @@ class Route
             Request::setRoutingParameters(static::getParametersObject()->select('system/404', true), true);
             static::executeSystem(404);
         });
+    }
+
+
+    /**
+     * Checks for valid GET variables and redirects the request to the correct URL if required
+     *
+     * If multiple ? characters were found at the start of the request queries, they will be removed
+     *
+     * If stray ? characters are found in the queries, a 400 BAD REQUEST will be given
+     *
+     * If double GET query variables are found, the last one will be kept, and the rest will be removed
+     *
+     * If a GET query contains multiple assignments (multiple = symbols) only the last one will be kept
+     *
+     * @return void
+     */
+    protected static function ensureValidGetQueries(): void
+    {
+        $queries   = $_SERVER['QUERY_STRING'];
+        $variables = [];
+
+        if (str_contains($queries, '?')) {
+            if (str_starts_with($queries, '?')) {
+                // The URL contains multiple ? symbols at the start
+                $redirect = true;
+                $queries  = Strings::ensureStartsNotWith($queries, '?');
+            }
+
+            if (str_contains($queries, '?')) {
+                // The URL contains a ? symbol somewhere in the middle of the queries, which is an invalid request
+                Log::warning(tr('Query string ":queries" contains a double ? somewhere in the middle of the queries, rejecting request', [
+                    ':queries' => $_SERVER['QUERY_STRING'],
+                ]));
+
+                static::executeSystem(400);
+            }
+
+            Log::warning(tr('Query string ":queries" contains one or multiple ? characters right at the start of the queries. Removed duplicate characters in case of a correcting redirect', [
+                ':queries' => $_SERVER['QUERY_STRING'],
+            ]));
+        }
+
+        // Split up queries by & and register them individually
+        foreach (Arrays::force($queries, '&') as $query) {
+            $query = explode('=', $query);
+
+            // Check for multiple assignments on this variable (multiple = symbols)
+            if (count($query) > 2) {
+                $redirect = true;
+
+                $query = [
+                    $query[0],
+                    array_value_last($query)
+                ];
+
+                Log::warning(tr('Query string ":queries" variable ":variable" contains multiple assignments, using only the last one in case of a correcting redirect', [
+                    ':queries'  => $_SERVER['QUERY_STRING'],
+                    ':variable' => $query[0],
+                ]));
+            }
+
+            // Check for double variables
+            if (array_key_exists($query[0], $variables)) {
+                $redirect = true;
+
+                Log::warning(tr('Query string ":queries" contains multiple versions of the variable ":variable", using only the last one in case of a correcting redirect', [
+                    ':queries'  => $_SERVER['QUERY_STRING'],
+                    ':variable' => $query[0],
+                ]));
+            }
+
+            $variables[$query[0]] = isset_get($query[1]);
+        }
+
+        if (isset($redirect)) {
+            $correct = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . Strings::until($_SERVER['REQUEST_URI'], '?') . '?' . Arrays::implodeWithKeys($variables, '&', '=');
+
+            Log::warning(tr('Detected fixable issues with URL ":url", redirecting request to correct URL ":correct"', [
+                ':url'     => $_SERVER['REQUEST_URI'],
+                ':correct' => $correct,
+            ]));
+
+            Response::redirect($correct);
+        }
     }
 
 

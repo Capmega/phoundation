@@ -23,6 +23,14 @@ use Phoundation\Data\Categories\Interfaces\CategoryInterface;
 trait TraitDataEntryCategory
 {
     /**
+     * Category object cache
+     *
+     * @var CategoryInterface|null $o_category
+     */
+    protected ?CategoryInterface $o_category;
+
+
+    /**
      * Returns the categories_id for this object
      *
      * @return int|null
@@ -42,6 +50,7 @@ trait TraitDataEntryCategory
      */
     public function setCategoriesId(?int $categories_id): static
     {
+        $this->o_category = null;
         return $this->set($categories_id, 'categories_id');
     }
 
@@ -51,14 +60,28 @@ trait TraitDataEntryCategory
      *
      * @return CategoryInterface|null
      */
-    public function getCategory(): ?CategoryInterface
+    public function getCategoryObject(): ?CategoryInterface
     {
-        $categories_id = $this->getTypesafe('int', 'categories_id');
-        if ($categories_id) {
-            return new Category($categories_id);
+        if (empty($this->o_category)) {
+            $this->o_category = Category::loadOrNull($this->getTypesafe('int', 'categories_id'));
         }
 
-        return null;
+        return $this->o_category;
+    }
+
+
+    /**
+     * Sets the category for this object
+     *
+     * @param CategoryInterface|null $o_category
+     * @return TraitDataEntryCategory
+     */
+    public function setCategoryObject(?CategoryInterface $o_category): static
+    {
+        $this->setCategoriesId($o_category?->getId());
+
+        $this->o_category = $o_category;
+        return $this;
     }
 
 
@@ -69,7 +92,7 @@ trait TraitDataEntryCategory
      */
     public function getCategoriesName(): ?string
     {
-        return $this->getTypesafe('string', 'categories_name');
+        return $this->getCategoryObject()->getName();
     }
 
 
@@ -82,6 +105,6 @@ trait TraitDataEntryCategory
      */
     public function setCategoriesName(?string $categories_name): static
     {
-        return $this->set($categories_name, 'categories_name');
+        return $this->setCategoryObject(Category::loadOrNull(['name' => $categories_name]));
     }
 }

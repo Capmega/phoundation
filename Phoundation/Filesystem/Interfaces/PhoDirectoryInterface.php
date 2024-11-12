@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Interfaces;
 
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Filesystem\Exception\DirectoryNotMountedException;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Stringable;
@@ -258,13 +259,14 @@ interface PhoDirectoryInterface extends PhoPathInterface
     /**
      * Returns a list of all available files in this directory matching the specified (multiple) pattern(s)
      *
-     * @param string|null $file_patterns The single or multiple pattern(s) that should be matched
-     * @param int         $glob_flags    Flags for the internal glob() call
-     * @param int         $match_flags   Flags for the internal fnmatch() call
+     * @param Stringable|string|null         $path               The path to extend this directory with
+     * @param IteratorInterface|array|string $file_patterns      The regex pattern(s) to match files
+     * @param IteratorInterface|array|string $directory_patterns The regex pattern(s) to match directories
+     * @param int                            $glob_flags         Flags for the internal glob() call
      *
-     * @return PhoFilesInterface          The resulting directory files
+     * @return PhoFilesInterface                                 The resulting directory files
      */
-    public function scan(?string $file_patterns = null, int $glob_flags = GLOB_MARK, int $match_flags = FNM_PERIOD | FNM_CASEFOLD): PhoFilesInterface;
+    public function scan(Stringable|string|null $path, IteratorInterface|array|string $file_patterns = '.*', IteratorInterface|array|string $directory_patterns = '.*', int $glob_flags = GLOB_MARK): PhoFilesInterface;
 
     /**
      * Returns a list of all available files in this directory matching the specified (multiple) pattern(s)
@@ -356,7 +358,7 @@ interface PhoDirectoryInterface extends PhoPathInterface
      *
      * @return static
      * @example:
-     * FsFile::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code,
+     * PhoFile::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code,
      * $bytes_transferred, $bytes_max) { if ($notification_code == STREAM_Notification_PROGRESS) {
      *          // save $bytes_transferred and $bytes_max to file or database
      *      }

@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator\Exception;
 
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Traits\TraitDataDataEntry;
@@ -41,7 +42,7 @@ class ValidationFailedException extends ValidatorException implements Validation
         parent::__construct($messages, $previous);
         $this->makeWarning();
 
-        if (Config::getBoolean('security.validation.failures.log', true)) {
+        if (!Core::inBootState() and Config::getBoolean('security.validation.failures.log', true)) {
             // Automatically log validation failures, but only once!
             if (empty($previous)) {
                 Log::warning($this);

@@ -809,7 +809,7 @@ class User extends DataEntry implements UserInterface
     /**
      * Notifies the user that either this account was created or modified
      *
-     * @return $this
+     * @return static
      */
     protected function notifyUserAboutWrite(): static
     {
@@ -2646,7 +2646,7 @@ class User extends DataEntry implements UserInterface
                                                 tr('Other'),
                                             ], $word);
                                         },
-                                        'noword' => function () {
+                                        'noword' => function ($word) {
                                             return [
                                                 tr('Male'),
                                                 tr('Female'),
@@ -2719,7 +2719,7 @@ class User extends DataEntry implements UserInterface
                                            ->setHelpText(tr('The birthdate for this user'))
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isDate()
-                                                         ->isBefore(PhoDateTime::getTomorrow());
+                                                         ->isBefore(PhoDateTime::newTomorrow());
                                            }))
 
                     ->add(DefinitionFactory::newPhone($this)

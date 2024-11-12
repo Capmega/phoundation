@@ -7,9 +7,9 @@
  *
  * On relative, and absolute paths, paths with ./ and ../ and realpaths:
  *
- * FsPathCore::normalizePath() only normalizes this objects path
- * FsPathCore::absolutePath() normalizes and absolutes this objects path
- * FsPathCore::realPath() normalizes, absolutes, and "reals" the this objects path
+ * PhoPathCore::normalizePath() only normalizes this objects path
+ * PhoPathCore::absolutePath() normalizes and absolutes this objects path
+ * PhoPathCore::realPath() normalizes, absolutes, and "reals" the this objects path
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -63,10 +63,12 @@ use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
 use Phoundation\Filesystem\Interfaces\PhoFilesystemInterface;
 use Phoundation\Filesystem\Interfaces\PhoInfoInterface;
+use Phoundation\Filesystem\Interfaces\PhoMimetypeInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\Mimetypes\Exception\FilesystemMimetypeNotSupported;
 use Phoundation\Filesystem\Mimetypes\FsMimetypes;
+use Phoundation\Filesystem\Mimetypes\PhoMimetype;
 use Phoundation\Filesystem\Mounts\PhoMount;
 use Phoundation\Filesystem\Mounts\FsMounts;
 use Phoundation\Filesystem\Requirements\Interfaces\RequirementsInterface;
@@ -145,7 +147,7 @@ class PhoPathCore implements PhoPathInterface
     protected RequirementsInterface $requirements;
 
     /**
-     * FsFiles under this path. If the current path is a file, this Iterator will contain only one entry, THIS file.
+     * PhoFiles under this path. If the current path is a file, this Iterator will contain only one entry, THIS file.
      *
      * @var PhoFilesInterface $files
      */
@@ -203,7 +205,7 @@ class PhoPathCore implements PhoPathInterface
      *
      * @param bool $force_access
      *
-     * @return $this
+     * @return static
      */
     public function setForceAccess(bool $force_access): static
     {
@@ -340,7 +342,7 @@ class PhoPathCore implements PhoPathInterface
 
 
     /**
-     * Returns a FsPathInterface object with the specified path appended to this path
+     * Returns a PhoPathInterface object with the specified path appended to this path
      *
      * @param PhoPathInterface|string     $path
      * @param Stringable|string|bool|null $absolute_prefix
@@ -1566,6 +1568,17 @@ class PhoPathCore implements PhoPathInterface
 
 
     /**
+     * Returns a PhoMimetypeInterface object for this file
+     *
+     * @return PhoMimetypeInterface
+     */
+    public function getMimetypeObject(): PhoMimetypeInterface
+    {
+        return PhoMimetype::newFromPath($this);
+    }
+
+
+    /**
      * Returns the mimetype data for the object file
      *
      * @return string The mimetype data for the object file
@@ -2081,7 +2094,7 @@ class PhoPathCore implements PhoPathInterface
         }
 
         // Ensure that the parent directory exists to make the path real.
-        // Use FsRestrictionsAllowAll as FsRestrictions will use FsPathCore::realPath() and cause endless loops!
+        // Use FsRestrictionsAllowAll as FsRestrictions will use PhoPathCore::realPath() and cause endless loops!
         $base   = basename($real);
         $parent = dirname($real);
         $parent = PhoDirectory::new($parent, new PhoRestrictionsAllowAll())->ensure()->getSource();
@@ -2291,7 +2304,7 @@ class PhoPathCore implements PhoPathInterface
     /**
      * Creates a symlink $target that points to this file.
      *
-     * @note Will return a NEW Path object (FsPathInterface) for the specified target
+     * @note Will return a NEW Path object (PhoPathInterface) for the specified target
      *
      * @param PhoPathInterface             $target
      * @param PhoPathInterface|string|bool $make_relative
@@ -2675,7 +2688,7 @@ class PhoPathCore implements PhoPathInterface
 //     * Will create a hard link to the specified target
 //     *
 //     * @note The target may NOT cross filesystem boundaries (that is, source is on one filesystem, target on another).
-//     *       If this is required, use FsFile::symlink() instead. This is not a limitation of Phoundation, but of
+//     *       If this is required, use PhoFile::symlink() instead. This is not a limitation of Phoundation, but of
 //     *       filesystems in general. See
 //     * @param string $target
 //     * @return static
@@ -3632,7 +3645,7 @@ class PhoPathCore implements PhoPathInterface
 
 
     /**
-     * Returns a FsPathInterface object with the specified path prepended to this path
+     * Returns a PhoPathInterface object with the specified path prepended to this path
      *
      * @param PhoPathInterface|string     $path
      * @param Stringable|string|bool|null $absolute_prefix
@@ -3729,7 +3742,7 @@ class PhoPathCore implements PhoPathInterface
 
 
     /**
-     * Returns a FsFilesInterface object that will contain all the files under this current path
+     * Returns a PhoFilesInterface object that will contain all the files under this current path
      *
      * @param bool $reload
      *
@@ -3759,7 +3772,7 @@ class PhoPathCore implements PhoPathInterface
     /**
      * Makes this path a symlink that points to the specified target.
      *
-     * @note Will return a NEW Path object (FsFile or FsDirectory, basically) for the specified target
+     * @note Will return a NEW Path object (PhoFile or PhoDirectory, basically) for the specified target
      *
      * @param PhoPathInterface|string      $target
      * @param PhoPathInterface|string|bool $make_relative
@@ -4188,7 +4201,7 @@ class PhoPathCore implements PhoPathInterface
     /**
      * Checks that this file is a text file or throws a FileInvalidFormatException
      *
-     * @return $this
+     * @return static
      *
      * @throws FileInvalidFormatException
      */
@@ -4242,7 +4255,7 @@ class PhoPathCore implements PhoPathInterface
     /**
      * Checks that this file is a binary file or throws a FileInvalidFormatException
      *
-     * @return $this
+     * @return static
      *
      * @throws FileInvalidFormatException
      */
@@ -4535,7 +4548,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function getIcon(): string
     {
-        Log::warning('The FsPathCore::getIcon() method is still under construction and currently only returns PDF icons!');
+        Log::warning('The PhoPathCore::getIcon() method is still under construction and currently only returns PDF icons!');
         return 'far fa-fw fa-file-pdf';
     }
 
@@ -4594,7 +4607,7 @@ class PhoPathCore implements PhoPathInterface
      *
      * @param string $extension
      *
-     * @return $this
+     * @return static
      */
     public function ensureExtension(string $extension): static
     {

@@ -92,6 +92,13 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      */
     protected string $input_select_class = InputSelect::class;
 
+    /**
+     * Tracks validators that are required to pass to add values to this Iterator
+     *
+     * @var IteratorInterface $validators
+     */
+    protected IteratorInterface $validators;
+
 
     /**
      * Returns the first data type that is allowed and accepted for this data iterator, considered as the most important
@@ -215,7 +222,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        $this->checkDataType($value);
+        $this->checkDataTypeAndContent($value);
 
         // NULL keys will be added as numerical "next" entries
         if ($key === null) {
@@ -249,33 +256,64 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @return void
      */
-    protected function checkDataType(mixed $value): void
+    protected function checkDataTypeAndContent(mixed $value): void
     {
-        if (!$this->accepted_data_types) {
-            return;
+        $fail = false;
+
+        if ($this->accepted_data_types) {
+            $fail = !is_datatype_or_class($this->accepted_data_types, $value);
         }
 
-        foreach ($this->accepted_data_types as $data_type) {
-            if ($data_type === 'mixed') {
-                // This accepts everything
-                return;
+        if ($fail) {
+            // Failed data Tests
+            throw new OutOfBoundsException(tr('Iterator value argument is restricted to type(s) ":allowed", value ":value" has datatype ":type"', [
+                ':value'   => $value,
+                ':type'    => (is_object($value) ? get_class($value) : gettype($value)),
+                ':allowed' => Strings::force($this->accepted_data_types, ', '),
+            ]));
+        }
 
-            } elseif (str_contains($data_type, '\\')) {
-                if ($value instanceof $data_type) {
-                    return;
-                }
-
-            } else {
-                if (gettype($value) === $data_type) {
-                    return;
+        // Apply validators as well? Only if datatype test hasn't failed yet
+        if (isset($this->validators)) {
+            foreach ($this->validators as $name => $validator) {
+                if (!$validator($value)) {
+                    throw new OutOfBoundsException(tr('Iterator value argument ":value" failed to pass validator ":validator', [
+                        ':value'     => $value,
+                        ':validator' => $name,
+                    ]));
                 }
             }
         }
 
-        throw new OutOfBoundsException(tr('Value argument must be of type ":allowed", ":type" given', [
-            ':type'    => (is_object($value) ? get_class($value) : gettype($value)),
-            ':allowed' => Strings::force($this->accepted_data_types, ', '),
-        ]));
+        // Passed both datatype and validator Tests, yay!
+    }
+
+
+    /**
+     * Returns an Iterator object that contains callback functions that validates data before adding it to this Iterator
+     *
+     * @return IteratorInterface
+     */
+    public function getValidatorsObject(): IteratorInterface
+    {
+        if (empty($this->validators)) {
+            $this->validators = Iterator::new()->setAcceptedDataTypes('closure');
+        }
+
+        return $this->validators;
+    }
+
+
+    /**
+     * Adds a validator callback that must be passed for data to be added to this Iterator object
+     *
+     * @param callable $validator
+     * @return static
+     */
+    public function addValidator(callable $validator): static
+    {
+        $this->getValidatorsObject()->add($validator);
+        return $this;
     }
 
 
@@ -291,31 +329,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      */
     public static function force(mixed $source, ?string $separator = ','): IteratorInterface|DataIteratorInterface
     {
-        if (($source === '') or ($source === null)) {
-            return new Iterator();
-        }
-
-        if ($source instanceof IteratorInterface) {
-            // This already is an Iterator (or DataIterator) object
-            return $source;
-        }
-
-        if (is_string($source)) {
-            // Explode the string to an Iterator object, as we would to an array as well
-            return static::explode($separator, $source);
-        }
-
-        if ($source instanceof ArrayableInterface) {
-            // This is an object that can convert to array. Extract the array
-            $source = $source->__toArray();
-
-        } else {
-            // Unknown datatype, toss it into an array
-            $source = [$source];
-        }
-
-        // As of here, we have an array. Set it as an Iterator source and return
-        return Iterator::new()->setSource($source);
+        return static::new(Arrays::force($source, $separator));
     }
 
 
@@ -364,7 +378,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        $this->checkDataType($value);
+        $this->checkDataTypeAndContent($value);
 
         // NULL keys will be added as numerical "first" entries
         if ($key === null) {
@@ -407,7 +421,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        $this->checkDataType($value);
+        $this->checkDataTypeAndContent($value);
 
         // Ensure the before key exists
         if (!array_key_exists($before, $this->source)) {
@@ -481,7 +495,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        $this->checkDataType($value);
+        $this->checkDataTypeAndContent($value);
 
         // Ensure the after key exists
         if (!array_key_exists($after, $this->source)) {
@@ -530,7 +544,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        $this->checkDataType($value);
+        $this->checkDataTypeAndContent($value);
 
         // Ensure the before key exists
         $before_key = array_search($before, $this->source, $strict);
@@ -581,7 +595,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        $this->checkDataType($value);
+        $this->checkDataTypeAndContent($value);
 
         // Ensure the after value exists
         $after_key = array_search($after, $this->source, $strict);
@@ -847,8 +861,8 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
         foreach ($data_types as $data_type) {
             if ($data_type) {
-                if (!preg_match('/^mixed|bool|int|float|string|array|null|resource|object|(?:(?:(?:(?:[A-Z][a-z0-9]+)+\\\)+)+(?:[A-Z][a-z0-9]+)+)$/', $data_type)) {
-                    throw new OutOfBoundsException(tr('Invalid Iterator datatype restriction ":datatype" specified, must be one or multiple of "int|array|string|Class\Path"', [
+                if (!preg_match('/^mixed|bool|int|float|string|array|null|resource|object|closure|(?:(?:(?:(?:[A-Z][a-z0-9]+)+\\\)+)+(?:[A-Z][a-z0-9]+)+)$/', $data_type)) {
+                    throw new OutOfBoundsException(tr('Invalid Iterator datatype restriction ":datatype" specified, must be one or multiple of "mixed|bool|int|float|string|array|null|resource|object|closure|Class\Path"', [
                         ':datatype' => $data_type,
                     ]));
                 }
@@ -998,12 +1012,12 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Remove source keys on the specified needles with the specified match mode
      *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param int                                      $flags
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param int                                                 $flags
      *
      * @return static
      */
-    public function keepMatchingKeys(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static
+    public function keepMatchingKeys(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static
     {
         $this->source = Arrays::keepMatchingKeys($this->source, $needles, $flags);
         return $this;
@@ -1013,13 +1027,13 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Keep source values on the specified needles with the specified match mode
      *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param int                                      $flags
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param int                                                 $flags
      * @param string|null                              $column
      *
      * @return static
      */
-    public function keepMatchingValues(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): static
+    public function keepMatchingValues(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): static
     {
         $this->source = Arrays::keepMatchingValues($this->source, $needles, $flags, $column);
         return $this;
@@ -1029,12 +1043,12 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Remove source keys on the specified needles with the specified match mode
      *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param int                                      $flags
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param int                                                 $flags
      *
      * @return static
      */
-    public function removeMatchingKeys(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static
+    public function removeMatchingKeys(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static
     {
         $this->source = Arrays::removeMatchingKeys($this->source, $needles, $flags);
         return $this;
@@ -1044,13 +1058,13 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Remove source values on the specified needles with the specified match mode
      *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param int                                      $flags
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param int                                                 $flags
      * @param string|null                              $column
      *
      * @return static
      */
-    public function removeMatchingValues(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): static
+    public function removeMatchingValues(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): static
     {
         $this->source = Arrays::removeMatchingValues($this->source, $needles, $flags, $column);
         return $this;
@@ -1060,12 +1074,12 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Returns Iterator with the entries where the keys match the specified needles and flags
      *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param int                                      $flags
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param int                                                 $flags
      *
      * @return static
      */
-    public function getMatchingKeys(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): IteratorInterface
+    public function getMatchingKeys(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): IteratorInterface
     {
         return new Iterator(Arrays::keepMatchingKeys($this->source, $needles, $flags));
     }
@@ -1074,12 +1088,12 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Returns Iterator with the entries where the values match the specified needles and flags
      *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param int                                      $flags
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param int                                                 $flags
      *
      * @return static
      */
-    public function getMatchingValues(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): IteratorInterface
+    public function getMatchingValues(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): IteratorInterface
     {
         return new Iterator(Arrays::keepMatchingValues($this->source, $needles, $flags));
     }
@@ -1088,12 +1102,12 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Returns a list with all the values that match the specified value
      *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param int                                      $flags
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param int                                                 $flags
      *
      * @return IteratorInterface
      */
-    public function keepMatchingValuesStartingWith(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH, ?string $column = null): IteratorInterface
+    public function keepMatchingValuesStartingWith(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH, ?string $column = null): IteratorInterface
     {
         return new Iterator(Arrays::keepMatchingValuesStartingWith($this->source, $needles, $flags, $column));
     }
@@ -1102,12 +1116,12 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Returns a list with all the values that match the specified value
      *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param int                                      $flags
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param int                                                 $flags
      *
      * @return IteratorInterface
      */
-    public function keepMatchingKeysStartingWith(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH): IteratorInterface
+    public function keepMatchingKeysStartingWith(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH): IteratorInterface
     {
         return new Iterator(Arrays::keepMatchingKeysStartingWith($this->source, $needles, $flags));
     }
@@ -1300,7 +1314,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @return mixed
      */
-    #[ReturnTypeWillChange] public function shift(): mixed
+    #[ReturnTypeWillChange] public function extractFirstValue(): mixed
     {
         return array_shift($this->source);
     }
@@ -1311,9 +1325,9 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @return mixed
      */
-    public function unshift(mixed ...$values): static
+    public function extractLastValue(mixed ...$values): static
     {
-        array_unshift($this->source, $values);
+        array_pop($this->source, $values);
         return $this;
     }
 
@@ -1947,15 +1961,15 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Removes duplicate values from this Iterator
      *
-     * @param int|null $flags Sorting type flags:
-     *                        SORT_REGULAR - compare items normally (don't change types)
-     *                        SORT_NUMERIC - compare items numerically
-     *                        SORT_STRING - compare items as strings
-     *                        SORT_LOCALE_STRING - compare items as strings, based on the current locale
+     * @param int $flags Sorting type flags:
+     *                   SORT_REGULAR - compare items normally (don't change types)
+     *                   SORT_NUMERIC - compare items numerically
+     *                   SORT_STRING - compare items as strings
+     *                   SORT_LOCALE_STRING - compare items as strings, based on the current locale
      *
      * @return static
      */
-    public function unique(int $flags = null): static
+    public function makeValuesUnique(int $flags = SORT_STRING): static
     {
         $this->source = array_unique($this->source, $flags);
 
@@ -1981,7 +1995,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Ensures that all iterator entries are arrays
      *
-     * @return $this
+     * @return static
      */
     public function ensureObjects(): static
     {
@@ -2027,7 +2041,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Ensures that all iterator entries are arrays
      *
-     * @return $this
+     * @return static
      */
     public function ensureArrays(): static
     {

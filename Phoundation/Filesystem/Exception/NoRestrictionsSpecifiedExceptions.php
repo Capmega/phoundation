@@ -3,7 +3,7 @@
 /**
  * Class NoRestrictionsSpecifiedExceptions
  *
- * This exception is thrown when a Filesystem object like FsPath, FsFile, or FsDirectory is created but no restrictions
+ * This exception is thrown when a Filesystem object like PhoPath, PhoFile, or PhoDirectory is created but no restrictions
  * were specified
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>

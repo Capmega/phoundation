@@ -108,6 +108,17 @@ trait TraitDataSourceArray
 
 
     /**
+     * Returns true if this source contains a single entry
+     *
+     * @return bool
+     */
+    public function hasSingleEntry(): bool
+    {
+        return count($this->source) === 1;
+    }
+
+
+    /**
      * Returns the number of items contained in this object
      *
      * @return int
@@ -243,12 +254,12 @@ trait TraitDataSourceArray
     /**
      * Keep source keys on the specified needles with the specified match mode
      *
-     * @param ArrayableInterface|array|string|int|null $needles
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
      * @param bool                                     $strict
      *
      * @return static
      */
-    public function keepKeys(ArrayableInterface|array|string|int|null $needles, bool $strict = false): static
+    public function keepKeys(ArrayableInterface|Stringable|array|string|int|null $needles, bool $strict = false): static
     {
         $this->source = Arrays::keepKeys($this->source, $needles, $strict);
         return $this;
@@ -273,13 +284,13 @@ trait TraitDataSourceArray
     /**
      * Keep source values on the specified needles with the specified match mode
      *
-     * @param ArrayableInterface|array|string|int|null $needles
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
      * @param string|null                              $column
      * @param bool                                     $strict
      *
      * @return static
      */
-    public function keepValues(ArrayableInterface|array|string|int|null $needles, ?string $column = null, bool $strict = false): static
+    public function keepValues(ArrayableInterface|Stringable|array|string|int|null $needles, ?string $column = null, bool $strict = false): static
     {
         $this->source = Arrays::keepValues($this->source, $needles, $column, $strict);
         return $this;
@@ -289,13 +300,13 @@ trait TraitDataSourceArray
     /**
      * Remove source values on the specified needles with the specified match mode
      *
-     * @param ArrayableInterface|array|string|int|null $needles
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
      * @param string|null                              $column
      * @param bool                                     $strict
      *
      * @return static
      */
-    public function removeValues(ArrayableInterface|array|string|int|null $needles, ?string $column = null, bool $strict = false): static
+    public function removeValues(ArrayableInterface|Stringable|array|string|int|null $needles, ?string $column = null, bool $strict = false): static
     {
         $this->source = Arrays::removeValues($this->source, $needles, $column, $strict);
         return $this;

@@ -20,7 +20,7 @@ use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Business\Companies\Companies;
-use Plugins\Phoundation\Business\Customers\Customers;
+use Phoundation\Business\Customers\Customers;
 use Phoundation\Business\Providers\Providers;
 use Phoundation\Core\CoreLocale;
 use Phoundation\Core\Locale\Language\Languages;
@@ -120,7 +120,7 @@ class DefinitionFactory
                              'word'   => function ($word) {
                                  return Categories::new()->keepMatchingKeys($word);
                              },
-                             'noword' => function () {
+                             'noword' => function ($word) {
                                  return Categories::new()->getSource();
                              },
                          ])
@@ -195,7 +195,7 @@ class DefinitionFactory
                              'word'   => function ($word) {
                                  return Servers::new()->keepMatchingKeys($word);
                              },
-                             'noword' => function () {
+                             'noword' => function ($word) {
                                  return Servers::new()->getSource();
                              },
                          ])
@@ -306,7 +306,7 @@ class DefinitionFactory
                              'word'   => function ($word) {
                                  return Companies::new()->keepMatchingKeys($word);
                              },
-                             'noword' => function () {
+                             'noword' => function ($word) {
                                  return Companies::new()->getSource();
                              },
                          ])
@@ -381,7 +381,7 @@ class DefinitionFactory
                              'word'   => function ($word) {
                                  return Languages::new()->keepMatchingKeys($word);
                              },
-                             'noword' => function () {
+                             'noword' => function ($word) {
                                  return Languages::new()->getSource();
                              },
                          ])
@@ -455,7 +455,7 @@ class DefinitionFactory
                              'word'   => function ($word) {
                                  return Providers::new()->keepMatchingKeys($word);
                              },
-                             'noword' => function () {
+                             'noword' => function ($word) {
                                  return Providers::new()->getSource();
                              },
                          ])
@@ -529,7 +529,7 @@ class DefinitionFactory
                              'word'   => function ($word) {
                                  return Customers::new()->keepMatchingKeys($word);
                              },
-                             'noword' => function () {
+                             'noword' => function ($word) {
                                  return Customers::new()->getSource();
                              },
                          ])
@@ -604,7 +604,7 @@ class DefinitionFactory
                              'word'   => function ($word) {
                                  return Timezones::new()->keepMatchingKeys($word);
                              },
-                             'noword' => function () {
+                             'noword' => function ($word) {
                                  return Timezones::new()->getSource();
                              },
                          ])
@@ -681,7 +681,7 @@ class DefinitionFactory
                              'word'   => function ($word) {
                                  return Countries::new()->keepMatchingKeys($word);
                              },
-                             'noword' => function () {
+                             'noword' => function ($word) {
                                  return Countries::new()->getSource();
                              },
                          ])
@@ -760,7 +760,7 @@ class DefinitionFactory
                              'word'   => function ($word) {
                                  return States::new()->keepMatchingKeys($word);
                              },
-                             'noword' => function () {
+                             'noword' => function ($word) {
                                  return States::new()->getSource();
                              },
                          ])
@@ -841,7 +841,7 @@ class DefinitionFactory
                              'word'   => function ($word) {
                                  return Cities::new()->keepMatchingKeys($word);
                              },
-                             'noword' => function () {
+                             'noword' => function ($word) {
                                  return Cities::new()->getSource();
                              },
                          ])
@@ -939,7 +939,7 @@ class DefinitionFactory
                              'word'   => function ($word) {
                                  return Users::new()->keepMatchingKeys($word);
                              },
-                             'noword' => function () {
+                             'noword' => function ($word) {
                                  return Users::new()->getSource();
                              },
                          ])
@@ -1032,7 +1032,7 @@ class DefinitionFactory
                              'word'   => function ($word) {
                                  return Roles::new()->keepMatchingKeys($word);
                              },
-                             'noword' => function () {
+                             'noword' => function ($word) {
                                  return Roles::new()->getSource();
                              },
                          ])

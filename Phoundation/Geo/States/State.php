@@ -21,12 +21,16 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 use Phoundation\Geo\Continents\Continent;
+use Phoundation\Geo\Continents\Interfaces\ContinentInterface;
 use Phoundation\Geo\Countries\Country;
+use Phoundation\Geo\Countries\Interfaces\CountryInterface;
+use Phoundation\Geo\States\Interfaces\StateInterface;
+use Phoundation\Geo\Timezones\Interfaces\TimezoneInterface;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 
 
-class State extends DataEntry
+class State extends DataEntry implements StateInterface
 {
     use TraitDataEntryNameDescription;
 
@@ -66,9 +70,9 @@ class State extends DataEntry
     /**
      * Returns the general timezone for this state
      *
-     * @return Timezone
+     * @return TimezoneInterface
      */
-    public function getTimezone(): Timezone
+    public function getTimezone(): TimezoneInterface
     {
         return new Timezone($this->getTypesafe('int', 'timezones_id'));
     }
@@ -77,9 +81,9 @@ class State extends DataEntry
     /**
      * Returns the continent for this state
      *
-     * @return Continent
+     * @return ContinentInterface
      */
-    public function getContinent(): Continent
+    public function getContinent(): ContinentInterface
     {
         return new Continent($this->getTypesafe('int', 'continents_id'));
     }
@@ -88,9 +92,9 @@ class State extends DataEntry
     /**
      * Returns the country for this state
      *
-     * @return Country
+     * @return CountryInterface
      */
-    public function getCountry(): Country
+    public function getCountry(): CountryInterface
     {
         return new Country($this->getTypesafe('int', 'countries_id'));
     }

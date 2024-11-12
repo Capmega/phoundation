@@ -24,8 +24,11 @@ use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Network\Browsers\UserAgents;
 use Phoundation\Network\Curl\Interfaces\CurlInterface;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Exception\WebException;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
+use Phoundation\Web\Http\Url;
 use Stringable;
 
 
@@ -73,7 +76,7 @@ abstract class Curl implements CurlInterface
      *
      * @var array|null
      */
-    protected ?array $result_headers = null;
+    protected ?array $response_headers = null;
 
     /**
      * The result data from the request. NULL if the request has not yet been executed
@@ -1118,9 +1121,32 @@ abstract class Curl implements CurlInterface
      *
      * @return array|null
      */
-    public function getResultHeaders(): ?array
+    public function getResponseHeaders(): ?array
     {
-        return $this->result_headers;
+        return $this->response_headers;
+    }
+
+
+    /**
+     * Returns the result headers
+     *
+     * @return array|null
+     */
+    public function getRedirectLocation(): ?UrlInterface
+    {
+        foreach($this->response_headers as $header) {
+            $header = strtolower($header);
+
+            if (str_starts_with($header, 'location:')) {
+                $url = Strings::from($header, ':');
+                $url = trim($url);
+
+                return Url::getWww($url);
+            }
+        }
+
+        // No redirect location was specified
+        return null;
     }
 
 

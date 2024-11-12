@@ -3,7 +3,7 @@
 /**
  * Class PhoDuplicates
  *
- * This class adds duplicate file control functionalities to the FsFiles class
+ * This class adds duplicate file control functionalities to the PhoFiles class
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

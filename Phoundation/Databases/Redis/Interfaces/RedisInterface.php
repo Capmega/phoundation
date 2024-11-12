@@ -42,7 +42,7 @@ interface RedisInterface
      *
      * @param int $database
      *
-     * @return $this
+     * @return static
      * @throws OutOfBoundsException|RedisException
      */
     public function setDatabase(int $database): static;
@@ -74,7 +74,7 @@ interface RedisInterface
      * @param mixed  $value
      * @param string $queue
      *
-     * @return $this
+     * @return static
      */
     public function push(mixed $value, string $queue): static;
 
@@ -154,7 +154,7 @@ interface RedisInterface
     /**
      * Takes the queue and clears all values from it
      *
-     * @return $this
+     * @return static
      */
     public function clearQueue(string $queue): static;
 
@@ -191,7 +191,7 @@ interface RedisInterface
      *
      * @param PhoFileInterface $file
      *
-     * @return $this
+     * @return static
      */
     public function import(PhoFileInterface $file): static;
 
@@ -201,7 +201,7 @@ interface RedisInterface
      *
      * @param PhoFileInterface $file
      *
-     * @return $this
+     * @return static
      */
     public function export(PhoFileInterface $file): static;
 }

@@ -30,11 +30,11 @@ CliDocumentation::setAutoComplete([
                                       'arguments' => [
                                           '-f,--from' => [
                                               'word'   => function ($word) { return Users::new()->load()->keepMatchingKeys($word)->limitAutoComplete(); },
-                                              'noword' => function () { return Users::new()->load()->limitAutoComplete(); },
+                                              'noword' => function ($word) { return Users::new()->load()->limitAutoComplete(); },
                                           ],
                                           '-t,--to'   => [
                                               'word'   => function ($word) { return Users::new()->load()->keepMatchingKeys($word)->limitAutoComplete(); },
-                                              'noword' => function () { return Users::new()->load()->limitAutoComplete(); },
+                                              'noword' => function ($word) { return Users::new()->load()->limitAutoComplete(); },
                                           ],
                                           '-s,--to'   => true,
                                           '-b,--body' => true,

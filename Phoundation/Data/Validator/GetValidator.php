@@ -73,6 +73,7 @@ class GetValidator extends Validator
         static::$get    = $_GET;
         static::$backup = $_GET;
 
+        // ???
         foreach (static::$get as $key => &$value) {
             $test = trim($key);
 
@@ -88,8 +89,8 @@ class GetValidator extends Validator
 
         unset($value);
 
-        $_GET     = [];
-        $_REQUEST = [];
+        $_GET     = null;
+        $_REQUEST = null;
     }
 
 

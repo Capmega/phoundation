@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Trait TraitDataEntryHostnamePort
+ * Trait TraitDataEntryPort
  *
- * This trait contains methods for DataEntry objects that requires a url
+ * This trait contains methods for DataEntry objects that requires a IP port
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

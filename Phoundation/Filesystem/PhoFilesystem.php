@@ -127,7 +127,7 @@ class PhoFilesystem extends PhoFile implements PhoFilesystemInterface
      */
     public function isEncrypted(): bool
     {
-        throw new UnderConstructionException('FsFilesystem::isEncrypted() is under construction!');
+        throw new UnderConstructionException('PhoFilesystem::isEncrypted() is under construction!');
         return false;
     }
 }

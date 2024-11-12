@@ -157,17 +157,17 @@ interface ServerInterface extends DataEntryInterface
      *
      * @return bool
      */
-    public function getAllowSshdModifications(): bool;
+    public function getAllowSshdModification(): bool;
 
 
     /**
      * Sets the allow_sshd_modifications for this object
      *
-     * @param bool|null $allow_sshd_modifications
+     * @param bool|null $allow_sshd_modification
      *
      * @return static
      */
-    public function setAllowSshdModifications(?bool $allow_sshd_modifications): static;
+    public function setAllowSshdModification(?bool $allow_sshd_modification): static;
 
 
     /**
@@ -186,4 +186,20 @@ interface ServerInterface extends DataEntryInterface
      * @return string
      */
     public function getSshCommandLine(string $command_line): string;
+
+    /**
+     * Returns the allow_ssh_modification for this object
+     *
+     * @return string|null
+     */
+    public function getAllowSshModification(): ?string;
+
+    /**
+     * Sets the allow_ssh_modification for this object
+     *
+     * @param string|null $allow_ssh_modification
+     *
+     * @return static
+     */
+    public function setAllowSshModification(?string $allow_ssh_modification): static;
 }

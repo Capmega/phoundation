@@ -82,7 +82,7 @@ class Mongo implements DatabaseInterface
 //     */
 //    public function setDatabase(string $database): void
 //    {
-//        // TODO add tests on if this database exists?
+//        // TODO add Tests on if this database exists?
 //        $this->database = $database;
 //    }
 //
@@ -217,7 +217,7 @@ class Mongo implements DatabaseInterface
     /**
      * @param PhoFileInterface $file
      *
-     * @return $this
+     * @return static
      */
     public function import(PhoFileInterface $file): static
     {
@@ -229,7 +229,7 @@ class Mongo implements DatabaseInterface
     /**
      * @param PhoFileInterface $file
      *
-     * @return $this
+     * @return static
      */
     public function export(PhoFileInterface $file): static
     {

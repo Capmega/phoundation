@@ -218,6 +218,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     protected ?int $previous_id = null;
 
     /**
+     * Tracks if this DataEntry was just created with a DataEntry::save() call
+     */
+    protected bool $is_created = false;
+
+    /**
      * The lowest possible ID that will be auto generated
      *
      * @var int $id_lower_limit
@@ -881,9 +886,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         }
 
         // Update the column value
-        $this->changes[]    = $key;
-        $this->source[$key] = $value;
-        $this->is_validated = false;
+        $this->changes[]    =  $key;
+        $this->source[$key] =  $value;
+        $this->is_validated = (!$this->is_modified and $this->is_validated);
+        $this->is_created   = (!$this->is_modified and $this->is_created);
+        $this->is_saved     = (!$this->is_modified and $this->is_saved);
 
         return $this;
     }
@@ -909,7 +916,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     /**
      * Reload the contents for this DataEntry object
      *
-     * @return $this
+     * @return static
      */
     public function reload(bool $ignore_deleted = false): static
     {
@@ -2775,9 +2782,18 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     public function isCreated(): bool
     {
-        return !$this->isNew() and ($this->previous_id === null);
+        return $this->is_created;
     }
 
+    /**
+     * Returns the previous ID
+     *
+     * @return int|null
+     */
+    public function getPreviousId(): ?int
+    {
+        return $this->previous_id;
+    }
 
     /**
      * Returns the lowest possible ID that will be auto generated
@@ -3064,7 +3080,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      * @param string|null                  $comments
      * @param Stringable|array|string|null $data
      *
-     * @return $this
+     * @return static
      */
     public function addMetaAction(?string $action, ?string $comments = null, Stringable|array|string|null $data = null): static
     {
@@ -3266,7 +3282,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
         if ($this->saveBecauseModified($force)) {
-            // Object must ALWAYS be validated before writing! Validate data and write it to database.
+            // Object must ALWAYS be validated before writing! Validate data and write it to the database.
             return $this->validate($skip_validation)->write($comments);
         }
 
@@ -3320,9 +3336,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         }
 
         // Write the data and store the returned ID column
-        $this->source[static::getIdColumn()] = SqlDataEntry::new(sql($this->o_connector), $this)
-                                                           ->setDebug($this->debug)
-                                                           ->write($comments, $this->diff);
+        $this->source = array_replace($this->source, SqlDataEntry::new(sql($this->o_connector), $this)
+                                                                 ->setDebug($this->debug)
+                                                                 ->write($comments));
 
         if ($this->debug) {
             Log::information('SAVED DATA ENTRY "' . get_class($this) . '" WITH ID "' . $this->getId() . '"', 10);
@@ -3332,10 +3348,34 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         $this->list?->save();
 
         // Done!
-        $this->is_modified = false;
-        $this->is_saved    = true;
+        $this->is_modified =  false;
+        $this->is_saved    =  true;
+        $this->is_created  = ($this->previous_id === null);
+        $this->previous_id =  $this->getId();
 
         return $this;
+    }
+
+
+    /**
+     * Returns an array containing all the DataEntry state variables
+     *
+     * @return array
+     */
+    public function getObjectState(): array
+    {
+        return [
+            'id'             => $this->getId(),
+            'is_saved'       => $this->is_saved,
+            'is_new'         => $this->isNew(),
+            'is_created'     => $this->is_created,
+            'is_modified'    => $this->is_modified,
+            'is_validated'   => $this->is_validated,
+            'is_loading'     => $this->is_loading,
+            'previous_id'    => $this->previous_id,
+            'id_lower_limit' => $this->id_lower_limit,
+            'id_upper_limit' => $this->id_upper_limit,
+        ];
     }
 
 

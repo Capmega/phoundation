@@ -69,7 +69,7 @@ if (Request::isPostRequestMethod()) {
         }
 
     } catch (IncidentsException | ValidationFailedException $e) {
-        // Oops! Show validation errors and remain on page
+        // Oops! Show validation errors and remain on the page
         Response::getFlashMessagesObject()->addMessage($e);
         $right->forceApply();
     }

@@ -20,16 +20,23 @@ namespace Phoundation\Geo\Cities;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
+use Phoundation\Geo\Cities\Interfaces\CityInterface;
 use Phoundation\Geo\Continents\Continent;
+use Phoundation\Geo\Continents\Interfaces\ContinentInterface;
 use Phoundation\Geo\Counties\County;
+use Phoundation\Geo\Counties\Interfaces\CountyInterface;
 use Phoundation\Geo\Countries\Country;
+use Phoundation\Geo\Countries\Interfaces\CountryInterface;
+use Phoundation\Geo\States\Interfaces\StateInterface;
 use Phoundation\Geo\States\State;
+use Phoundation\Geo\Timezones\Interfaces\TimezoneInterface;
 use Phoundation\Geo\Timezones\Timezone;
 
 
-class City extends DataEntry
+class City extends DataEntry implements CityInterface
 {
     use TraitDataEntryNameDescription;
+
 
     /**
      * Returns the table name used by this object
@@ -67,9 +74,9 @@ class City extends DataEntry
     /**
      * Returns the general timezone for this city
      *
-     * @return Timezone
+     * @return TimezoneInterface
      */
-    public function getTimezone(): Timezone
+    public function getTimezone(): TimezoneInterface
     {
         return new Timezone($this->getTypesafe('int', 'timezones_id'));
     }
@@ -78,9 +85,9 @@ class City extends DataEntry
     /**
      * Returns the continent for this city
      *
-     * @return Continent
+     * @return ContinentInterface
      */
-    public function getContinent(): Continent
+    public function getContinent(): ContinentInterface
     {
         return new Continent($this->getTypesafe('int', 'continents_id'));
     }
@@ -89,9 +96,9 @@ class City extends DataEntry
     /**
      * Returns the country for this city
      *
-     * @return Country
+     * @return CountryInterface
      */
-    public function getCountry(): Country
+    public function getCountry(): CountryInterface
     {
         return new Country($this->getTypesafe('int', 'countries_id'));
     }
@@ -100,9 +107,9 @@ class City extends DataEntry
     /**
      * Returns the state for this city
      *
-     * @return State
+     * @return StateInterface
      */
-    public function getState(): State
+    public function getState(): StateInterface
     {
         return new State($this->getTypesafe('int', 'states_id'));
     }
@@ -111,9 +118,9 @@ class City extends DataEntry
     /**
      * Returns the county for this city
      *
-     * @return County
+     * @return CountyInterface
      */
-    public function getCounty(): County
+    public function getCounty(): CountyInterface
     {
         return new County($this->getTypesafe('int', 'counties_id'));
     }

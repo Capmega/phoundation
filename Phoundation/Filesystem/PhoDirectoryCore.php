@@ -21,6 +21,7 @@ namespace Phoundation\Filesystem;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Exception\PhoException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -28,7 +29,9 @@ use Phoundation\Exception\PhpException;
 use Phoundation\Filesystem\Exception\DirectoryException;
 use Phoundation\Filesystem\Exception\DirectoryNotMountedException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
+use Phoundation\Filesystem\Exception\FilesystemDoesNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
+use Phoundation\Filesystem\Exception\FilesystemInvalidPattern;
 use Phoundation\Filesystem\Exception\PathNotDirectoryException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
@@ -626,7 +629,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
      * Return all files in this directory
      *
      * @return PhoFilesInterface The files
-     *@todo Merge this with FsDirectoryCore::scan()
+     *@todo Merge this with PhoDirectoryCore::scan()
      */
     public function list(): PhoFilesInterface
     {
@@ -1150,7 +1153,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                 $file = $this->source . $file;
 
                 if (is_dir($file)) {
-                    // Count all files in this sub directory, minus the directory itself
+                    // Count all files in this subdirectory, minus the directory itself
                     $count += static::new($file, $this->restrictions)
                                     ->getCount($recursive) - 1;
                 }
@@ -1162,108 +1165,64 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
 
 
     /**
-     * Returns a list of all available files in this directory matching the specified (multiple) pattern(s)
+     * Checks if the  specified path matches the specified patterns
      *
-     * @param string|null $file_patterns The single or multiple pattern(s) that should be matched
-     * @param int         $glob_flags    Flags for the internal glob() call
-     * @param int         $match_flags   Flags for the internal fnmatch() call
+     * @param string                         $path
+     * @param IteratorInterface|array|string $patterns
      *
-     * @return PhoFilesInterface          The resulting directory files
+     * @return bool
      */
-    public function scan(?string $file_patterns = null, int $glob_flags = GLOB_MARK, int $match_flags = FNM_PERIOD | FNM_CASEFOLD): PhoFilesInterface
+    protected function pathMatchesPatterns(string $path, IteratorInterface|array|string $patterns): bool
+    {
+        foreach (Arrays::force($patterns, null) as $pattern) {
+            try {
+                if (preg_match($pattern, $path)) {
+                    return true;
+                }
+
+            } catch (Throwable $e) {
+                throw FilesystemInvalidPattern::new(tr('Specified pattern ":pattern" from patterns list ":patterns" is invalid', [
+                    ':patterns' => Strings::force($patterns, ', '),
+                    ':pattern'  => $pattern,
+                ]), $e)->setData([
+                    'patterns' => Strings::force($patterns, ', '),
+                    'pattern'  => $pattern,
+                ]);
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Returns a list of all available files in this directory matching the specified (multiple) regex pattern(s)
+     *
+     * @param Stringable|string|null         $path               The path to extend this directory with
+     * @param IteratorInterface|array|string $file_patterns      The regex pattern(s) to match files
+     * @param IteratorInterface|array|string $directory_patterns The regex pattern(s) to match directories
+     * @param int                            $glob_flags         Flags for the internal glob() call
+     *
+     * @return PhoFilesInterface                                 The resulting directory files
+     */
+    public function scan(Stringable|string|null $path, IteratorInterface|array|string $file_patterns = '/.*/', IteratorInterface|array|string $directory_patterns = '/.*/', int $glob_flags = GLOB_MARK): PhoFilesInterface
     {
         $this->restrictions->check($this->source, false);
 
-        // Get directory pattern part and file pattern part
-        if ($file_patterns) {
-            $file_patterns     = PhoFile::realPath($file_patterns, $this->getSource());
-            $file_patterns     = Strings::from($file_patterns, $this->source);
-            $directory_pattern = dirname($file_patterns);
-            $file_patterns     = basename($file_patterns);
+        $result = glob($this->getRealPath(true) . $path . '*', $glob_flags);
+        $return = [];
 
-            // Parse file patterns
-            switch (substr_count($file_patterns, '[')) {
-                case 0:
-                    $base_pattern  = '';
-                    $file_patterns = [$file_patterns];
-                    break;
-
-                case 1:
-                    switch (substr_count($file_patterns, ']')) {
-                        case 0:
-                            throw new OutOfBoundsException(tr('Invalid file patterns ":patterns" specified, the pattern should contain either one set of matching { and } or none', [
-                                ':patterns' => $file_patterns,
-                            ]));
-
-                        case 1:
-                            // Remove the [] and explode on ,
-                            $base_pattern  = Strings::until($file_patterns, '[');
-                            $file_patterns = Strings::cut($file_patterns, '[', ']');
-                            $file_patterns = explode(',', $file_patterns);
-                        break;
-
-                        default:
-                            throw new OutOfBoundsException(tr('Invalid file patterns ":patterns" specified, the pattern should contain either one set of matching [ and ] or none', [
-                                ':patterns' => $file_patterns,
-                            ]));
+        // Apply file and directory patterns on each result
+        if ($result) {
+            foreach ($result as $path) {
+                if (is_dir($path)) {
+                    if ($this->pathMatchesPatterns($path, $directory_patterns)) {
+                        $path          = $this->source . Strings::ensureStartsNotWith($path, '/');
+                        $return[$path] = $path;
                     }
-
-                    break;
-
-                default:
-                    throw new OutOfBoundsException(tr('Invalid file patterns ":patterns" specified, the pattern should contain either one set of matching [ and ] or none', [
-                        ':patterns' => $file_patterns,
-                    ]));
-            }
-
-            // Fix the directory pattern
-            if ($directory_pattern === '.') {
-                $directory_pattern = '';
-
-            } else {
-                $directory_pattern .= '/';
-            }
-
-        } else {
-            // All
-            $directory_pattern =  '';
-            $base_pattern      =  '';
-            $file_patterns     = [''];
-        }
-
-        // Get files
-        $directory_pattern = Strings::ensureStartsNotWith($directory_pattern, '/');
-        $return            = [];
-        $glob              = glob($this->getRealPath(true) . $directory_pattern . '*', $glob_flags);
-
-        // Check file patterns
-        if ($glob) {
-            foreach ($glob as $file) {
-                foreach ($file_patterns as $file_pattern) {
-                    $file_pattern = $base_pattern . '[' . $file_pattern . ']';
-                    $file         = Strings::from($file, $this->getRealPath());
-                    $test         = Strings::fromReverse(Strings::ensureEndsNotWith($file, '/'), '/');
-
-                    if ($file_pattern) {
-                        if (is_dir($this->source . $file)) {
-                            $directory_pattern = $base_pattern;
-
-                            if (!fnmatch($directory_pattern, $test, $match_flags)) {
-                                // This directory doesn't match the test pattern
-                                continue;
-                            }
-
-                        } elseif (!fnmatch($file_pattern, $test, $match_flags)) {
-                            // This file doesn't match the test pattern
-                            continue;
-                        }
-                    }
-
-                    // Add the file for the found match and continue to the next file
-                    $file          = $this->source . $file;
-                    $return[$file] = $file;
-
-                    break;
+                } elseif ($this->pathMatchesPatterns($path, $file_patterns)) {
+                    $path          = $this->source . Strings::ensureStartsNotWith($path, '/');
+                    $return[$path] = $path;
                 }
             }
         }
@@ -1516,7 +1475,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
      *
      * @return static
      * @example:
-     * FsFile::new($source)->copy($target, $restrictions, function ($notification_code, $severity, $message,
+     * PhoFile::new($source)->copy($target, $restrictions, function ($notification_code, $severity, $message,
      * $message_code, $bytes_transferred, $bytes_max) { if ($notification_code == STREAM_Notification_PROGRESS) {
      *          // save $bytes_transferred and $bytes_max to file or database
      *      }
@@ -1666,7 +1625,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
     /**
      * Scans for and returns a list of file sizes with the files matching that size
      *
-     * Used by FsDirectoryCore::getDuplicateFiles()
+     * Used by PhoDirectoryCore::getDuplicateFiles()
      *
      * @param PhoDirectoryInterface $path
      * @param int|null              $recurse_levels

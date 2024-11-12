@@ -9,7 +9,7 @@
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
- * @uses      ProcessVariables
+ * @uses      TraitProcessVariables
  */
 
 
@@ -17,30 +17,26 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Services;
 
-use Phoundation\Os\Processes\Interfaces\ProcessInterface;
+use Phoundation\Os\Services\Interfaces\ServiceInterface;
 
 
-class Service extends ServiceCore
+class Service extends ServiceCore implements ServiceInterface
 {
     /**
      * Service class constructor
-     *
-     * @param ProcessInterface $process
      */
-    public function __construct(ProcessInterface $process) {
-        $this->process = $process;
+    public function __construct() {
+        $this->setOsProcessName();
     }
 
 
     /**
      * Returns a new Service class object
      *
-     * @param ProcessInterface $process
-     *
      * @return static
      */
-    public static function new(ProcessInterface $process): static
+    public static function new(): static
     {
-        return new static($process);
+        return new static();
     }
 }

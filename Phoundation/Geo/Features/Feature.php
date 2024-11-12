@@ -20,9 +20,10 @@ namespace Phoundation\Geo\Features;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
+use Phoundation\Geo\Features\Interfaces\FeatureInterface;
 
 
-class Feature extends DataEntry
+class Feature extends DataEntry implements FeatureInterface
 {
     use TraitDataEntryNameDescription;
 

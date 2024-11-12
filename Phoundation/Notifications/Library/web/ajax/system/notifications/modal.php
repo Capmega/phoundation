@@ -14,6 +14,7 @@
 
 declare(strict_types=1);
 
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
@@ -28,10 +29,18 @@ $get = GetValidator::new()
                    ->validate();
 
 
-// Update notification status to READ and build modal information and send reply
-$notification = Notification::load($get['id'])
-                            ->setStatus('READ');
+// Get notification
+$notification = Notification::load($get['id']);
 
+
+// Update notification status to READ
+if (!Session::isImpersonated()) {
+    // This is not allowed while impersonating!
+    $notification->setStatus('READ');
+}
+
+
+// Build modal information
 if ($notification->getUrl()) {
     $button = Button::new()
                     ->setMode(EnumDisplayMode::primary)
@@ -40,6 +49,8 @@ if ($notification->getUrl()) {
                     ->render();
 }
 
+
+// Send reply
 $reply = [
     'title'   => $notification->getTitle(),
     'body'    => $notification->getMessage(),

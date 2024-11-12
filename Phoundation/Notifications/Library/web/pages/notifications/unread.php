@@ -17,6 +17,7 @@ declare(strict_types=1);
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Notifications\FilterForm;
 use Phoundation\Notifications\Notifications;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
@@ -50,6 +51,10 @@ $notifications = Notifications::new()->markSeverityColumn();
 // Process POST requests
 if (Request::isPostRequestMethod()) {
     if (Request::getSubmitButton() === tr('Mark all as read')) {
+        if (Session::isImpersonated()) {
+            throw new AccessDeniedException(tr('Marking all notifications as READ is not allowed when impersonating accounts'));
+        }
+
 //        $notifications->setStatus('READ');
 
         sql()->query('UPDATE `notifications`
@@ -71,8 +76,11 @@ $notifications_card = Card::new()
                           ->setContent($notifications->getHtmlDataTableObject()
                                                      ->setRowUrl('/notifications/notification+:ROW.html'))
                           ->useForm(true)
-                          ->setButtons(Buttons::new()
-                                              ->addButton(tr('Mark all as read'), EnumDisplayMode::warning, outline: true));
+                          ->setButtons(
+                                Session::isImpersonated()
+                              ? null
+                              : Buttons::new()->addButton(tr('Mark all as read'), EnumDisplayMode::warning, outline: true)
+                          );
 
 $notifications_card->getForm()
                    ->setAction(Url::getCurrent())

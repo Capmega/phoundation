@@ -112,8 +112,8 @@ class PostValidator extends Validator
         static::$post   = $_POST;
         static::$backup = $_POST;
 
-        $_POST    = [];
-        $_REQUEST = [];
+        $_POST    = null;
+        $_REQUEST = null;
     }
 
 
@@ -125,6 +125,8 @@ class PostValidator extends Validator
      */
     protected static function hideRawData(): void
     {
+        global $_POST;
+
         // Check for RAW input
         if(empty($_POST)){
             try{

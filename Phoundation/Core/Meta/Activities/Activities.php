@@ -104,7 +104,7 @@ class Activities extends IteratorCore
      * @param PhoDateTimeInterface $start
      * @param PhoDateTimeInterface $stop
      *
-     * @return $this
+     * @return static
      */
     public function loadForUserDateRange(UserInterface $user, PhoDateTimeInterface $start, PhoDateTimeInterface $stop): static
     {
@@ -137,7 +137,7 @@ class Activities extends IteratorCore
      * @param PhoDateTimeInterface|null $start
      * @param PhoDateTimeInterface|null $stop
      *
-     * @return $this
+     * @return static
      */
     public function loadForMetaId(DataEntryInterface|int $meta_id, ?PhoDateTimeInterface $start = null, ?PhoDateTimeInterface $stop = null): static
     {

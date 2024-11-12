@@ -667,7 +667,7 @@ class Url implements UrlInterface
      */
     public static function getPrimaryDomainRootUrl(): static
     {
-        return new static(Domains::getPrimaryWeb() . Request::getRootUri());
+        return Url::getWww(Config::getString('web.domains.primary.web'));
     }
 
 
@@ -990,7 +990,7 @@ class Url implements UrlInterface
     /**
      * Removes all queries from this URL
      *
-     * @return $this
+     * @return static
      */
     public function removeAllQueries(): static
     {
@@ -1452,7 +1452,7 @@ class Url implements UrlInterface
     /**
      * Ensures the queries this URL object are properly URL-encoded
      *
-     * @return $this
+     * @return static
      */
     public function ensureQueriesEncoded(): static
     {

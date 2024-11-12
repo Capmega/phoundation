@@ -45,7 +45,7 @@ interface PhoFileInterface extends PhoPathInterface
      *
      * @return static
      * @example:
-     * FsFile::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code,
+     * PhoFile::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code,
      * $bytes_transferred, $bytes_max) { if ($notification_code == STREAM_Notification_PROGRESS) {
      *          // save $bytes_transferred and $bytes_max to file or database
      *      }

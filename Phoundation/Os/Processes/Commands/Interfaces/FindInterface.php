@@ -345,7 +345,7 @@ interface FindInterface extends CommandInterface
 
 
     /**
-     * Returns a FsFiles-object containing the found files
+     * Returns a PhoFiles-object containing the found files
      *
      * @return PhoFilesInterface
      */
@@ -361,7 +361,7 @@ interface FindInterface extends CommandInterface
 
 
     /**
-     * Returns a FsFiles-object containing the found files
+     * Returns a PhoFiles-object containing the found files
      *
      * @return PhoFilesInterface
      */

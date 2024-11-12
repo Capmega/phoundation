@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Content\Images\Interfaces;
 
 use Phoundation\Content\Images\Convert;
-use Phoundation\Content\Interfaces\ContentInterfaceFsFileInterface;
+use Phoundation\Content\Interfaces\ContentInterface;
 use Phoundation\Web\Html\Components\Img;
 
-interface ImageInterface extends ContentInterfaceFsFileInterface
+interface ImageInterface extends ContentInterface
 {
     /**
      * Returns a Convert class to convert the specified image

@@ -227,7 +227,7 @@ class RequestMethodRestrictions implements RequestMethodRestrictionsInterface
     /**
      * Clears all request method restrictions
      *
-     * @return $this
+     * @return static
      */
     public function clear(): static
     {

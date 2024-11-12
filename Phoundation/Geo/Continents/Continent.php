@@ -20,12 +20,15 @@ namespace Phoundation\Geo\Continents;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
+use Phoundation\Geo\Continents\Interfaces\ContinentInterface;
+use Phoundation\Geo\Timezones\Interfaces\TimezoneInterface;
 use Phoundation\Geo\Timezones\Timezone;
 
 
-class Continent extends DataEntry
+class Continent extends DataEntry implements ContinentInterface
 {
     use TraitDataEntryNameDescription;
+
 
     /**
      * Returns the table name used by this object
@@ -63,9 +66,9 @@ class Continent extends DataEntry
     /**
      * Returns the general timezone for this continent
      *
-     * @return Timezone
+     * @return TimezoneInterface
      */
-    public function getTimezone(): Timezone
+    public function getTimezone(): TimezoneInterface
     {
         return new Timezone($this->getTypesafe('int', 'timezones_id'));
     }

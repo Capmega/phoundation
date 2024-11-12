@@ -1373,7 +1373,7 @@ class Session implements SessionInterface
 
         // Register an incident
         Incident::new()
-                ->setType('User impersonation')
+                ->setType('User impersonation stopped')
                 ->setSeverity(EnumSeverity::medium)
                 ->setTitle(tr('The user ":user" started impersonating user ":impersonate"', [
                     ':user'        => $original_user->getLogId(),
@@ -1388,7 +1388,7 @@ class Session implements SessionInterface
 
         // Notify the target user
         Notification::new()
-                    ->setUrl('profiles/profile+' . $original_user->getId() . '.html')
+                    ->setUrl(Url::getWww('profiles/profile+' . $original_user->getId() . '.html'))
                     ->setMode(EnumDisplayMode::warning)
                     ->setUsersId($_SESSION['user']['impersonate_id'])
                     ->setTitle(tr('Your account was impersonated'))
@@ -1547,7 +1547,7 @@ class Session implements SessionInterface
                        ->save();
 
                     Incident::new()
-                        ->setType('User impersonation')
+                        ->setType('User impersonation started')
                         ->setSeverity(EnumSeverity::low)
                         ->setTitle(tr('The user ":user" stopped impersonating user ":impersonate"', [
                             ':user'        => User::load($users_id)->getLogId(),

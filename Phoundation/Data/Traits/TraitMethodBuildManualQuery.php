@@ -76,7 +76,7 @@ trait TraitMethodBuildManualQuery
                 throw new OutOfBoundsException(tr('Invalid query value ":value / :type" specified for column ":column", must be a data scalar (either string, integer, float, or null)', [
                     ':column' => $column,
                     ':value'  => $value,
-                    ':type'   => get_class_or_data_type($value),
+                    ':type'   =>  get_datatype_or_class($value),
                 ]));
             }
 

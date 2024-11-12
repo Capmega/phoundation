@@ -17,12 +17,21 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Geo\Countries\Country;
+use Phoundation\Geo\Countries\Interfaces\CountryInterface;
 
 
 trait TraitDataEntryCountry
 {
     /**
-     * Returns the countries_id for this user
+     * Country object cache
+     *
+     * @var CountryInterface|null $o_country
+     */
+    protected ?CountryInterface $o_country;
+
+
+    /**
+     * Returns the countries_id for this object
      *
      * @return int|null
      */
@@ -33,7 +42,7 @@ trait TraitDataEntryCountry
 
 
     /**
-     * Sets the countries_id for this user
+     * Sets the countries_id for this object
      *
      * @param int|null $countries_id
      *
@@ -41,39 +50,54 @@ trait TraitDataEntryCountry
      */
     public function setCountriesId(?int $countries_id): static
     {
+        $this->o_country = null;
         return $this->set($countries_id, 'countries_id');
     }
 
 
     /**
-     * Returns the countries_id for this user
+     * Returns the country for this object
      *
-     * @return Country|null
+     * @return CountryInterface|null
      */
-    public function getCountry(): ?Country
+    public function getCountryObject(): ?CountryInterface
     {
-        $countries_id = $this->getTypesafe('int', 'countries_id');
-        if ($countries_id) {
-            return new Country($countries_id);
+        if (empty($this->o_country)) {
+            $this->o_country = Country::loadOrNull($this->getTypesafe('int', 'countries_id'));
         }
 
-        return null;
+        return $this->o_country;
     }
 
 
     /**
-     * Returns the countries_name for this user
+     * Sets the country for this object
+     *
+     * @param CountryInterface|null $o_country
+     * @return TraitDataEntryCountry
+     */
+    public function setCountryObject(?CountryInterface $o_country): static
+    {
+        $this->setCountriesId($o_country?->getId());
+
+        $this->o_country = $o_country;
+        return $this;
+    }
+
+
+    /**
+     * Returns the countries_name for this object
      *
      * @return string|null
      */
     public function getCountriesName(): ?string
     {
-        return $this->getTypesafe('string', 'countries_name');
+        return $this->getCountryObject()->getName();
     }
 
 
     /**
-     * Sets the countries_name for this user
+     * Returns the countries_name for this object
      *
      * @param string|null $countries_name
      *
@@ -81,6 +105,6 @@ trait TraitDataEntryCountry
      */
     public function setCountriesName(?string $countries_name): static
     {
-        return $this->set($countries_name, 'countries_name');
+        return $this->setCountryObject(Country::loadOrNull(['name' => $countries_name]));
     }
 }

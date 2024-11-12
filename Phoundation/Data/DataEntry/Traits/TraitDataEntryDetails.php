@@ -55,15 +55,20 @@ trait TraitDataEntryDetails
     public function setDetails(array|string|null $details): static
     {
         if ($this->is_loading) {
-            // Specified details will be a Json string at loading time as it comes from the DB
+            // Specified details will be a JSON string at loading time as it comes from the DB
             return $this->set($details, 'details');
         }
 
-        if (!is_array($details)) {
-            $details = [$details];
-        }
+        if ($details) {
+            if (!is_array($details)) {
+                $details = [$details];
+            }
 
-        $details = Json::encode($details);
+            $details = Json::encode($details);
+
+        } else {
+            $details = null;
+        }
 
         return $this->set($details, 'details');
     }
@@ -75,7 +80,7 @@ trait TraitDataEntryDetails
      * @param Stringable|ArrayableInterface|array|string|null $details
      * @param string|null                                     $key
      *
-     * @return $this
+     * @return static
      */
     public function addDetails(Stringable|ArrayableInterface|array|string|null $details, ?string $key = null): static
     {

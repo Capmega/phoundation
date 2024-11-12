@@ -62,7 +62,7 @@ CliDocumentation::setAutoComplete([
                                    ->load(null, true, true)
                                    ->keepMatchingValuesStartingWith($word, column: 'name');
               },
-              'noword' => function () {
+              'noword' => function ($word) {
                   return Connectors::new()
                                    ->load(null, true, true)
                                    ->getAllRowsSingleColumn('name');
@@ -72,7 +72,7 @@ CliDocumentation::setAutoComplete([
               'word'   => function ($word) {
                   return sql()->listScalar('SHOW DATABASES LIKE :word', [':word' => '%' . $word . '%']);
               },
-              'noword' => function () {
+              'noword' => function ($word) {
                   return sql()->listScalar('SHOW DATABASES');
               },
           ],
@@ -80,7 +80,7 @@ CliDocumentation::setAutoComplete([
               'word'   => function ($word) {
                   return sql()->getSchemaObject()->getDatabaseObject($database)->getColumns()->FilterOn($word);
               },
-              'noword' => function () {
+              'noword' => function ($word) {
                   return sql()->getSchemaObject()->getDatabaseObject($database)->getColumns();
               },
           ],
@@ -88,7 +88,7 @@ CliDocumentation::setAutoComplete([
               'word'   => function ($word) {
                   return sql()->getSchemaObject()->getDatabaseObject($database)->getTableObject($table)->getColumns()->FilterOn($word);
               },
-              'noword' => function () {
+              'noword' => function ($word) {
                   return sql()->getSchemaObject()->getDatabaseObject($database)->getTableObject($table)->getColumns();
               },
           ],

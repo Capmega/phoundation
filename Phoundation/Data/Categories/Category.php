@@ -164,7 +164,7 @@ class Category extends DataEntry implements CategoryInterface
                                             return Categories::new()
                                                              ->keepMatchingKeys($word);
                                         },
-                                        'noword' => function () {
+                                        'noword' => function ($word) {
                                             return Categories::new()
                                                              ->getSource();
                                         },

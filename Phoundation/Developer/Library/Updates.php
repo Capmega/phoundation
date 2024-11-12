@@ -26,7 +26,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.20';
+        return '0.1.0';
     }
 
 
@@ -37,12 +37,13 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function updates(): void
     {
-        $this->addUpdate('0.0.10', function () {
-            // Drop the tables to be sure we have a clean slate
+        $this->addUpdate('0.1.0', function () {
+            // Ensure the table developer_incidents is gone, it was an old table from an older version that is no longer
+            // supported
             sql()->getSchemaObject()->getTableObject('developer_incidents')->drop();
 
-            // Create the users table.
-            sql()->getSchemaObject()->getTableObject('developer_incidents')->define()
+            // Drop and create the developer_unittests table
+            sql()->getSchemaObject()->getTableObject('developer_unittests')->drop()->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -50,27 +51,24 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `type` varchar(16) DEFAULT NULL,
+                    `name` varchar(128) DEFAULT NULL,
+                    `seoname` varchar(128) DEFAULT NULL,
                     `url` varchar(2048) DEFAULT NULL,
-                    `title` varchar(255) DEFAULT NULL,
+                    `type` varchar(16) DEFAULT NULL,
                     `description` mediumtext DEFAULT NULL,
-                    `exception` mediumtext DEFAULT NULL,
-                    `details` mediumtext DEFAULT NULL
                 ')->setIndices('                
                     PRIMARY KEY (`id`),
                     KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
                     KEY `meta_id` (`meta_id`),
                     KEY `status` (`status`),
+                    UNIQUE KEY `name` (`name`),
+                    UNIQUE KEY `seoname` (`seoname`),
                     KEY `type` (`type`)
                 ')->setForeignKeys('
-                    CONSTRAINT `fk_developer_incidents_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
-                    CONSTRAINT `fk_developer_incidents_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_developer_unittests_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_developer_unittests_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                 ')->create();
-
-        })->addUpdate('0.0.20', function () {
-            sql()->getSchemaObject()->getTableObject('developer_incidents')->alter()
-                 ->changeColumn('details', 'data mediumtext DEFAULT NULL');
         });
     }
 }

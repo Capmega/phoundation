@@ -210,7 +210,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
      *
      * @param UserInterface $user
      *
-     * @return $this
+     * @return static
      */
     public function setUserObject(UserInterface $user): static
     {

@@ -1,0 +1,46 @@
+<?php
+
+/**
+ * Trait TraitDataEntryYear
+ *
+ * This trait contains methods for DataEntry objects that require a year
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Data
+ */
+
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntry\Traits;
+
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
+
+
+trait TraitDataEntryYear
+{
+    /**
+     * Returns the year for this object
+     *
+     * @return PhoDateTimeInterface|null
+     */
+    public function getYear(): ?PhoDateTimeInterface
+    {
+        return $this->getTypesafe('int', 'year');
+    }
+
+
+    /**
+     * Sets the year for this object
+     *
+     * @param int|null $year
+     *
+     * @return static
+     */
+    public function setYear(?int $year): static
+    {
+        return $this->set(get_null($year), 'year');
+    }
+}

@@ -125,12 +125,14 @@ class Card extends Widget
      */
     public function setButtons(ButtonsInterface|ButtonInterface|null $buttons): static
     {
-        if (is_object($buttons) and ($buttons instanceof ButtonInterface)) {
-            // This is a single button, store it in a buttons group
-            $buttons = Buttons::new()->addButton($buttons);
-        }
+        if ($buttons) {
+            if (is_object($buttons) and ($buttons instanceof ButtonInterface)) {
+                // This is a single button, store it in a buttons group
+                $buttons = Buttons::new()->addButton($buttons);
+            }
 
-        $this->buttons = $buttons;
+            $this->buttons = $buttons;
+        }
 
         return $this;
     }

@@ -332,27 +332,35 @@ class Incident extends DataEntry implements IncidentInterface
                         ':id'      => $this->getId(),
                         ':message' => $this->getTitle(),
                     ]));
+
                     break;
 
                 case 'high':
                     // no break
 
-                case 'severe':
-                    Log::error(tr('Security incident (:id / :severity): :message', [
-                        ':id'       => $this->getId(),
-                        ':severity' => $severity,
-                        ':message'  => $this->getTitle(),
-                    ]));
-                    Log::error(print_r($details, true));
-                    break;
-
-                default:
+                case 'warning':
                     Log::warning(tr('Security incident (:id / :severity): :message', [
                         ':id'       => $this->getId(),
                         ':severity' => $severity,
                         ':message'  => $this->getTitle(),
                     ]));
-                    Log::warning(print_r($details, true), clean: false);
+
+                    if ($details) {
+                        Log::warning(print_r($details, true), clean: false);
+                    }
+
+                    break;
+
+                default:
+                    Log::error(tr('Security incident (:id / :severity): :message', [
+                        ':id'       => $this->getId(),
+                        ':severity' => $severity,
+                        ':message'  => $this->getTitle(),
+                    ]));
+
+                    if ($details) {
+                        Log::error(print_r($details, true));
+                    }
             }
         }
 
@@ -470,6 +478,20 @@ class Incident extends DataEntry implements IncidentInterface
     {
         if (empty($exception)) {
             $exception = IncidentsException::class;
+
+        } elseif(!is_a($exception, Throwable::class, true)) {
+            // Specified class is NOT a Throwable exception class. Register incident and continue
+            Incident::new()
+                    ->setSeverity(EnumSeverity::severe)
+                    ->setTitle(tr('Invalid exception class ":class" specified', [
+                        ':class' => $exception
+                    ]))
+                    ->setBody(tr('The specified exception class ":class" is not a throwable exception that extends the PHP ":throwable" class', [
+                        ':class'     => $exception,
+                        ':throwable' => Throwable::class
+                    ]))
+                    ->save()
+                    ->throw(OutOfBoundsException::class);
         }
 
         throw $exception::new($this->getTitle())
@@ -531,6 +553,7 @@ class Incident extends DataEntry implements IncidentInterface
                     ->add(Definition::new($this, 'details')
                                     ->setElement(EnumElement::textarea)
                                     ->setLabel(tr('Details'))
+                                    ->setOptional(true)
                                     ->setReadonly(true)
                                     ->setSize(12)
                                     ->setRows(15)

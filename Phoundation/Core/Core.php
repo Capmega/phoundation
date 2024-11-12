@@ -28,6 +28,7 @@ use Phoundation\Cli\Exception\CliNoCommandSpecifiedException;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Exception\CoreStartupFailedException;
+use Phoundation\Core\Exception\ProcessRequiresRootException;
 use Phoundation\Core\Exception\ProjectException;
 use Phoundation\Core\Interfaces\CoreInterface;
 use Phoundation\Core\Libraries\Libraries;
@@ -268,7 +269,7 @@ class Core implements CoreInterface
     protected static bool $ignore_readonly = false;
 
     /**
-     * Tracks if we're running unit tests
+     * Tracks if we're running unit Tests
      *
      * @var bool $unit_test_mode
      */
@@ -313,7 +314,7 @@ class Core implements CoreInterface
         define('DIRECTORY_HOOKS'   , DIRECTORY_SYSTEM . 'cache/system/hooks/');
         define('DIRECTORY_WEB'     , DIRECTORY_SYSTEM . 'cache/system/web/');
         define('DIRECTORY_CRON'    , DIRECTORY_SYSTEM . 'cache/system/cron/');
-        define('DIRECTORY_TESTS'   , DIRECTORY_SYSTEM . 'cache/system/tests/');
+        define('DIRECTORY_TESTS'   , DIRECTORY_SYSTEM . 'cache/system/Tests/');
 
         // Load the system function files
         try {
@@ -1348,8 +1349,10 @@ class Core implements CoreInterface
      */
     protected static function startCli(): void
     {
+        global $argv;
+
         // Hide all command line arguments
-        ArgvValidator::hideData($GLOBALS['argv']);
+        ArgvValidator::hideData($argv);
 
         // USe global $argv ONLY if CliCommand::PhoUidMatch() is true because if it isn't we're going to restart and
         // we'll need the $argv as-is
@@ -1358,7 +1361,6 @@ class Core implements CoreInterface
         // Validate system modifier arguments. Ensure that these variables get stored in the global $argv array because
         // they may be used later down the line by (for example) Documenation class, for example!
         $argv = ArgvValidator::new()
-                             ->setTest(!CliCommand::phoUidMatch())
                              ->select('-A,--all')->isOptional(false)->isBoolean()
                              ->select('-C,--no-color')->isOptional(false)->isBoolean()
                              ->select('-D,--debug')->isOptional(false)->isBoolean()
@@ -1369,14 +1371,13 @@ class Core implements CoreInterface
                              ->select('-I,--json-input', true)->isOptional()->hasMaxCharacters(8192)
                              ->select('-J,--json-output')->isOptional()->isBoolean()
                              ->select('-L,--log-level', true)->isOptional()->isInteger()->isBetween(1, 10)
-                             ->select('-M,--very-quiet')->isOptional(false)->isBoolean()
                              ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
-                             ->select('-P,--page', true)->isOptional(1)->isDbId()
+                             ->select('-P,--page', true)->isOptional(1)->isNatural(false)
                              ->select('-Q,--quiet')->isOptional(false)->isBoolean()
                              ->select('-R,--rebuild-commands')->isOptional(false)->isBoolean()
                              ->select('-M,--timeout', true)->isOptional(false)->isInteger()
                              ->select('-N,--no-audio')->isOptional(false)->isBoolean()
-                             ->select('-S,--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
+                             ->select('-S,--sudo')->isOptional(false)->isBoolean()
                              ->select('-T,--test')->isOptional(false)->isBoolean()
                              ->select('-U,--usage')->isOptional(false)->isBoolean()
                              ->select('-V,--verbose')->isOptional(false)->isBoolean()
@@ -1387,6 +1388,8 @@ class Core implements CoreInterface
                              ->select('--language', true)->isOptional()->isCode()
                              ->select('--deleted')->isOptional(false)->isBoolean()
                              ->select('--version')->isOptional(false)->isBoolean()
+                             ->select('--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
+                             ->select('--very-quiet')->isOptional(false)->isBoolean()
                              ->select('--limit', true)->isOptional(0)->isNatural()
                              ->select('--timezone', true)->isOptional()->isString()
                              ->select('--auto-complete', true)->isOptional()->hasMaxCharacters(1024)
@@ -1431,6 +1434,7 @@ class Core implements CoreInterface
         if ($argv['environment']) {
             // The Environment was manually specified on the command line
             $env = $argv['environment'];
+
         } else {
             // Get environment variable from the shell environment
             $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
@@ -1730,6 +1734,11 @@ class Core implements CoreInterface
 
         if (static::$ignore_readonly) {
             Log::warning('Core is ignoring readonly mode!');
+        }
+
+        if ($argv['sudo']) {
+            // Try to execute the current command as root
+            CliCommand::restartAsRoot();
         }
 
         // Ensure any extra dashed arguments are "undashed"
@@ -2871,6 +2880,20 @@ class Core implements CoreInterface
 
 
     /**
+     * Checks if the current process is running as root, or throws a ProcessRequiresRootException
+     *
+     * @return void
+     * @throws ProcessRequiresRootException
+     */
+    public static function checkProcessIsRoot(): void
+    {
+        // This class requires running with root privileges
+        if (!Core::processIsRoot()) {
+            throw new ProcessRequiresRootException(tr('The SystemDService class requires root privileges to execute correctly.'));
+        }
+    }
+
+    /**
      * Returns the UID for the current process
      *
      * @return int The user id for this process
@@ -3253,7 +3276,10 @@ class Core implements CoreInterface
         if ($e instanceof ValidationFailedException) {
             // This is just a simple validation warning, show warning messages in the exception data
             Log::warning($e->getMessage());
-            Log::warning($e->getData());
+
+            if ($e->hasData()) {
+                Log::warning($e->getData());
+            }
 
             static::executeUncaughtExceptionSystemPage(400, $e);
 
@@ -3570,7 +3596,6 @@ class Core implements CoreInterface
      * @param Throwable $e
      *
      * @return void
-     * @throws Throwable
      */
     protected static function executeUncaughtExceptionSystemPage(int $page, Throwable $e): void
     {
@@ -3734,12 +3759,13 @@ class Core implements CoreInterface
     /**
      * This method will fork the current process
      *
+     * @see https://github.com/spatie/fork
      * @param callable $parent_callback
      * @param callable $child_callback
      *
      * @return void
      */
-    public function fork(callable $parent_callback, callable $child_callback): void
+    public static function fork(callable $parent_callback, callable $child_callback): void
     {
         $pid = pcntl_fork();
 

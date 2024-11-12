@@ -111,7 +111,7 @@ class Password extends DataEntry implements PasswordInterface
             if (static::isWeak($password, $email)) {
                 throw new ValidationFailedException(tr('This password is not secure enough'));
             }
-            // In setup mode, we won't have database access yet, so these 2 tests may be skipped in that case.
+            // In setup mode, we won't have database access yet, so these 2 Tests may be skipped in that case.
             if (!Core::isState('setup')) {
                 if (static::isCompromised($password)) {
                     throw new ValidationFailedException(tr('This password has been compromised'));

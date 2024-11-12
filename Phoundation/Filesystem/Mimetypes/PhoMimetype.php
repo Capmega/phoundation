@@ -22,8 +22,10 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryPriority;
+use Phoundation\Data\Traits\TraitDataPath;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Filesystem\Interfaces\PhoMimetypeInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
@@ -32,6 +34,9 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
 {
     use TraitDataEntryNameDescription;
     use TraitDataEntryPriority;
+    use TraitDataPath {
+        setPath as protected __setPath;
+    }
 
 
     /**
@@ -82,6 +87,40 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
     public static function getUniqueColumn(): ?string
     {
         return null;
+    }
+
+
+    /**
+     * Returns a new mimetype object
+     *
+     * @param PhoPathInterface $path
+     *
+     * @return static
+     */
+    public static function newFromPath(PhoPathInterface $path): static
+    {
+        return static::new()->setPath($path);
+    }
+
+
+    /**
+     * Sets the file property and reloads the mimetype data based off the path mimetype
+     *
+     * @param PhoPathInterface|null $path
+     *
+     * @return static
+     */
+    public function setPath(?PhoPathInterface $path): static
+    {
+        $this->identifier = [
+            'mimetype'  => $path->getMimetype(),
+            'extension' => $path->getExtension(),
+            'priority'  => 0
+        ];
+
+        $this->init();
+
+        return $this->__setPath($path);
     }
 
 
@@ -218,6 +257,89 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
         $this->setSecondaryPart(Strings::from($this->getMimetype(), '/'));
 
         return parent::write($comments);
+    }
+
+
+    /**
+     * Returns true if this file is a PDF file
+     *
+     * @return bool
+     */
+    public function isImage(): bool
+    {
+        return $this->getPrimaryPart() === 'image';
+    }
+
+
+    /**
+     * Returns true if this file is a JPG image file
+     *
+     * @return bool
+     */
+    public function isImageJpg(): bool
+    {
+        return $this->getMimetype() === 'image/jpeg';
+    }
+
+
+    /**
+     * Returns true if this file is a PNG image file
+     *
+     * @return bool
+     */
+    public function isImagePng(): bool
+    {
+        return $this->getPrimaryPart() === 'image/png';
+    }
+
+
+    /**
+     * Returns true if this file is a GIF image file
+     *
+     * @return bool
+     */
+    public function isImageGif(): bool
+    {
+        return $this->getPrimaryPart() === 'image/gif';
+    }
+
+
+    /**
+     * Returns true if this file is a PDF file
+     *
+     * @return bool
+     */
+    public function isPdf(): bool
+    {
+        return $this->getMimetype() === 'application/pdf';
+    }
+
+
+    /**
+     * Returns true if this file is an HTML file
+     *
+     * @return bool
+     */
+    public function isHtml(): bool
+    {
+        return $this->getMimetype() === 'text/html';
+    }
+
+
+    /**
+     * Returns true if this file is a spreadsheet file
+     *
+     * @return bool
+     */
+    public function isSpreadsheet(): bool
+    {
+        return in_array($this->getMimetype(), [
+            'application/x-excel',
+            'application/excel',
+            'application/x-msexcel',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        ]);
     }
 
 

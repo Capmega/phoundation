@@ -17,13 +17,13 @@ declare(strict_types=1);
 namespace Phoundation\Content;
 
 use Phoundation\Content\Exception\ContentException;
-use Phoundation\Content\Interfaces\ContentInterfaceFsFileInterface;
+use Phoundation\Content\Interfaces\ContentInterface;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Strings;
 
 
-class Content extends PhoFile implements ContentInterfaceFsFileInterface
+class Content extends PhoFile implements ContentInterface
 {
     /**
      * View the object file

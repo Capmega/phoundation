@@ -27,7 +27,7 @@ CliDocumentation::setAutoComplete([
     'positions' => [
         0 => [
             'word'   => function ($word) { return FsMounts::new()->load()->keepMatchingValuesStartingWith($word)->limitAutoComplete(); },
-            'noword' => function ()      { return FsMounts::new()->load()->limitAutoComplete(); }
+            'noword' => function ($word) { return FsMounts::new()->load()->limitAutoComplete(); }
         ]
     ]
 ]);

@@ -242,7 +242,7 @@ class Phone extends DataEntry implements PhoneInterface
                                                 tr('Other'),
                                             ], $word);
                                         },
-                                        'noword' => function () {
+                                        'noword' => function ($word) {
                                             return [
                                                 tr('Business'),
                                                 tr('Personal'),

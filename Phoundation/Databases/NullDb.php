@@ -80,7 +80,7 @@ class NullDb implements DatabaseInterface
     /**
      * @param PhoFileInterface $file
      *
-     * @return $this
+     * @return static
      */
     public function import(PhoFileInterface $file): static
     {
@@ -91,7 +91,7 @@ class NullDb implements DatabaseInterface
     /**
      * @param PhoFileInterface $file
      *
-     * @return $this
+     * @return static
      */
     public function export(PhoFileInterface $file): static
     {

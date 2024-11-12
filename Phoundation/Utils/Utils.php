@@ -19,7 +19,9 @@ namespace Phoundation\Utils;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Interfaces\EntryInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Stringable;
 use Throwable;
 
 
@@ -219,27 +221,31 @@ class Utils
     /**
      * Checks specified needles that they have content and will ensure they are specified as an array
      *
-     * @param DataIteratorInterface|array|string|null $needles
-     * @param array                                   $flags
+     * @param IteratorInterface|Stringable|array|string|int|null $needles
+     * @param array                                              $flags
      *
      * @return array
      */
-    protected static function prepareNeedles(DataIteratorInterface|array|string|null $needles, array $flags): array
+    protected static function prepareNeedles(IteratorInterface|Stringable|array|string|int|null $needles, array $flags): array
     {
         if (!$needles) {
             throw new OutOfBoundsException(tr('No needles specified'));
         }
+
         $needles = Arrays::force($needles);
+
         if ($flags['no_case'] or $flags['trim']) {
             // Trim and or make all needles lowercase strings?
             foreach ($needles as &$needle) {
                 if ($flags['trim']) {
                     $needle = trim((string) $needle);
                 }
+
                 if ($flags['no_case']) {
                     $needle = strtolower((string) $needle);
                 }
             }
+
             unset($needle);
         }
 
@@ -303,15 +309,15 @@ class Utils
     /**
      * Process the given array and matches the specified needles with the source values and return the requested result
      *
-     * @param int                                     $action
-     * @param DataIteratorInterface|array             $source
-     * @param DataIteratorInterface|array|string|null $needles
-     * @param int                                     $flags
-     * @param string|null                             $column
+     * @param int                                                $action
+     * @param DataIteratorInterface|array                        $source
+     * @param IteratorInterface|Stringable|array|string|int|null $needles
+     * @param int                                                $flags
+     * @param string|null                                        $column
      *
      * @return array
      */
-    protected static function matchValues(int $action, DataIteratorInterface|array $source, DataIteratorInterface|array|string|null $needles, int $flags, ?string $column = null): array
+    protected static function matchValues(int $action, DataIteratorInterface|array $source, IteratorInterface|Stringable|array|string|int|null $needles, int $flags, ?string $column = null): array
     {
         $flags   = static::decodeMatchFlags($flags, true);
         $needles = static::prepareNeedles($needles, $flags);

@@ -215,7 +215,7 @@ class Import
      * @param string      $connector
      * @param string|null $database
      *
-     * @return $this
+     * @return static
      */
     public function setConnector(string $connector, ?string $database = null): static
     {

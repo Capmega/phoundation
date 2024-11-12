@@ -232,7 +232,7 @@ class Debug
                 static::show($value, $sort, $trace_offset, $quiet, var_dump: $var_dump);
 
                 // Don't log within Log::write() or tr() to avoid endless loops
-                if (!function_called('Log::write()') and !function_called('tr()')) {
+                if (!function_was_called('Log::write()') and !function_was_called('tr()')) {
                     Core::setShutdownState();
 
                     Log::warning(tr('Reached showdie() call at :location', [

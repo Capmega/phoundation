@@ -145,11 +145,10 @@ interface SqlDataEntryInterface
      *       to this table are in the $row value, the query will automatically fail with an exception!
      *
      * @param string|null $comments
-     * @param string|null $diff
      *
-     * @return int
+     * @return array
      */
-    public function write(?string $comments, ?string $diff): int;
+    public function write(?string $comments): array;
 
 
     /**
@@ -165,9 +164,9 @@ interface SqlDataEntryInterface
      * @param string|null $comments
      * @param string|null $diff
      *
-     * @return int|null
+     * @return array
      */
-    public function insert(array $row, ?string $comments = null, ?string $diff = null): ?int;
+    public function insert(array $row, ?string $comments = null, ?string $diff = null): array;
 
 
     /**
@@ -184,9 +183,9 @@ interface SqlDataEntryInterface
      * @param string|null $comments
      * @param string|null $diff
      *
-     * @return int|null
+     * @return array
      */
-    public function insertUpdate(array $insert_row, array $update_row, ?string $comments = null, ?string $diff = null): ?int;
+    public function insertUpdate(array $insert_row, array $update_row, ?string $comments = null, ?string $diff = null): array;
 
 
     /**
@@ -202,9 +201,9 @@ interface SqlDataEntryInterface
      * @param string|null $comments
      * @param string|null $diff
      *
-     * @return int|null
+     * @return array
      */
-    public function update(array $row, ?string $comments = null, ?string $diff = null, string $meta_action = 'update'): ?int;
+    public function update(array $row, ?string $comments = null, ?string $diff = null, string $meta_action = 'update'): array;
 
 
     /**

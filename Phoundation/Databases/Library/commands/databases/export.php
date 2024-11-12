@@ -24,8 +24,6 @@ use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
 
 
-$restrictions = PhoRestrictions::newWritable([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP]);
-
 CliDocumentation::setUsage('./pho databases export -d mysql -b system -f system.sql');
 
 CliDocumentation::setHelp('This command will export the specified database to the specified database dump file
@@ -52,18 +50,8 @@ CliDocumentation::setAutoComplete([
           '-t,--timeout'   => true,
           '-g,--gzip'      => false,
           '--file'         => [
-              'word'   => function ($word) use ($restrictions) {
-                  return PhoDirectory::new(
-                      DIRECTORY_DATA . 'sources/',
-                      $restrictions
-                   )->scan($word . '*[.sql|.gz]');
-              },
-              'noword' => function () use ($restrictions) {
-                  return PhoDirectory::new(
-                      DIRECTORY_DATA . 'sources/',
-                      $restrictions
-                  )->scan('*[.sql|.gz]');
-              },
+              'word'   => function ($word) { return PhoDirectory::newDataSourcesObject()->scan('/^' . $word . '.*?[.sql|.gz]$/'); },
+              'noword' => function ($word) { return PhoDirectory::newDataSourcesObject()->scan('/^' . $word . '.*?[.sql|.gz]$/'); },
           ],
           '-c,--connector' => [
               'word'   => function ($word) {
@@ -71,7 +59,7 @@ CliDocumentation::setAutoComplete([
                                    ->load(null, true, true)
                                    ->keepMatchingValuesStartingWith($word, column: 'name');
               },
-              'noword' => function () {
+              'noword' => function ($word) {
                   return Connectors::new()
                                    ->load(null, true, true)
                                    ->getAllRowsSingleColumn('name');
@@ -81,7 +69,7 @@ CliDocumentation::setAutoComplete([
               'word'   => function ($word) {
                   return sql()->listScalar('SHOW DATABASES LIKE :word', [':word' => '%' . $word . '%']);
               },
-              'noword' => function () {
+              'noword' => function ($word) {
                   return sql()->listScalar('SHOW DATABASES');
               },
           ],
@@ -105,7 +93,7 @@ Export::new()
       ->setDatabase($argv['database'])
       ->setTimeout($argv['timeout'])
       ->setGzip($argv['gzip'])
-      ->dump(PhoFile::new($argv['file'], $restrictions));
+      ->dump(PhoFile::new($argv['file'], PhoRestrictions::newWritable([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP])));
 
 
 // Done!

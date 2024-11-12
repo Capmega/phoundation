@@ -22,6 +22,9 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Exception\NumbersException;
 use Phoundation\Utils\Exception\NumberTooBigException;
+use Phoundation\Security\Incidents\EnumSeverity;
+use Phoundation\Security\Incidents\Incident;
+
 
 class Numbers
 {
@@ -433,8 +436,12 @@ class Numbers
 
         } catch (Exception $e) {
             // random_int() crashed for ... reasons? Fall back on mt_rand()
-            Log::warning(tr('Failed to get result from random_int(), continuing process normally but with mt_rand(). See exception below for more information.'));
-            Log::error($e);
+            Incident::new()
+                    ->setSeverity(EnumSeverity::severe)
+                    ->setException($e)
+                    ->setTitle(tr('Failed to get result from random_int(), continuing process normally but with mt_rand(). See exception below for more information.'))
+                    ->setNotifyRoles('developer')
+                    ->save();
 
             return mt_rand($min, $max);
         }

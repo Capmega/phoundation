@@ -9,6 +9,7 @@ use Phoundation\Content\Documents\Interfaces\SpreadSheetInterface;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Forms\Interfaces\FilterFormInterface;
@@ -349,12 +350,12 @@ interface IteratorInterface extends IteratorBaseInterface
     /**
      * Keep source keys on the specified needles with the specified match mode
      *
-     * @param ArrayableInterface|array|string|int|null $needles
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
      * @param bool                                     $strict
      *
      * @return static
      */
-    public function keepKeys(ArrayableInterface|array|string|int|null $needles, bool $strict = false): static;
+    public function keepKeys(ArrayableInterface|Stringable|array|string|int|null $needles, bool $strict = false): static;
 
     /**
      * Remove source keys on the specified needles with the specified match mode
@@ -366,105 +367,115 @@ interface IteratorInterface extends IteratorBaseInterface
      */
     public function removeKeys(Stringable|array|string|int $keys, bool $strict = false): static;
 
-    /**
-     * Keep source values on the specified needles with the specified match mode
-     *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param bool                                     $strict
-     *
-     * @return static
-     */
-    public function keepValues(ArrayableInterface|array|string|int|null $needles, ?string $column = null, bool $strict = false): static;
-
-    /**
-     * Remove source values on the specified needles with the specified match mode
-     *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param bool                                     $strict
-     *
-     * @return static
-     */
-    public function removeValues(ArrayableInterface|array|string|int|null $needles, ?string $column = null, bool $strict = false): static;
-
-    /**
-     * Remove source keys on the specified needles with the specified match mode
-     *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param int                                      $flags
-     *
-     * @return static
-     */
-    public function keepMatchingKeys(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static;
 
     /**
      * Keep source values on the specified needles with the specified match mode
      *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param int                                      $flags
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param string|null                                         $column
+     * @param bool                                                $strict
      *
      * @return static
      */
-    public function keepMatchingValues(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): static;
+    public function keepValues(ArrayableInterface|Stringable|array|string|int|null $needles, ?string $column = null, bool $strict = false): static;
 
-    /**
-     * Remove source keys on the specified needles with the specified match mode
-     *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param int                                      $flags
-     *
-     * @return static
-     */
-    public function removeMatchingKeys(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static;
 
     /**
      * Remove source values on the specified needles with the specified match mode
      *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param int                                      $flags
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param string|null                                         $column
+     * @param bool                                                $strict
      *
      * @return static
      */
-    public function removeMatchingValues(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): static;
+    public function removeValues(ArrayableInterface|Stringable|array|string|int|null $needles, ?string $column = null, bool $strict = false): static;
+
+    /**
+     * Remove source keys on the specified needles with the specified match mode
+     *
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param int                                                 $flags
+     *
+     * @return static
+     */
+    public function keepMatchingKeys(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static;
+
+
+    /**
+     * Keep source values on the specified needles with the specified match mode
+     *
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param int                                                 $flags
+     * @param string|null                                         $column
+     *
+     * @return static
+     */
+    public function keepMatchingValues(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): static;
+
+    /**
+     * Remove source keys on the specified needles with the specified match mode
+     *
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param int                                                 $flags
+     *
+     * @return static
+     */
+    public function removeMatchingKeys(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static;
+
+
+    /**
+     * Remove source values on the specified needles with the specified match mode
+     *
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param int                                                 $flags
+     * @param string|null                                         $column
+     *
+     * @return static
+     */
+    public function removeMatchingValues(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): static;
 
     /**
      * Returns Iterator with the entries where the keys match the specified needles and flags
      *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param int                                      $flags
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param int                                                 $flags
      *
      * @return static
      */
-    public function getMatchingKeys(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): IteratorInterface;
+    public function getMatchingKeys(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): IteratorInterface;
 
     /**
      * Returns Iterator with the entries where the values match the specified needles and flags
      *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param int                                      $flags
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param int                                                 $flags
      *
      * @return static
      */
-    public function getMatchingValues(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): IteratorInterface;
+    public function getMatchingValues(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): IteratorInterface;
+
 
     /**
      * Returns a list with all the values that match the specified value
      *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param int                                      $flags
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param int                                                 $flags
+     * @param string|null                                         $column
      *
      * @return IteratorInterface
      */
-    public function keepMatchingValuesStartingWith(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH, ?string $column = null): IteratorInterface;
+    public function keepMatchingValuesStartingWith(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH, ?string $column = null): IteratorInterface;
 
     /**
      * Returns a list with all the values that match the specified value
      *
-     * @param ArrayableInterface|array|string|int|null $needles
-     * @param int                                      $flags
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param int                                                 $flags
      *
      * @return IteratorInterface
      */
-    public function keepMatchingKeysStartingWith(ArrayableInterface|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH): IteratorInterface;
+    public function keepMatchingKeysStartingWith(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH): IteratorInterface;
 
     /**
      * Returns the total amounts for all columns together
@@ -734,18 +745,19 @@ interface IteratorInterface extends IteratorBaseInterface
      */
     public function removeEmptyValues(): static;
 
+
     /**
      * Removes duplicate values from this Iterator
      *
-     * @param int|null $flags Sorting type flags:
-     *                        SORT_REGULAR - compare items normally (don't change types)
-     *                        SORT_NUMERIC - compare items numerically
-     *                        SORT_STRING - compare items as strings
-     *                        SORT_LOCALE_STRING - compare items as strings, based on the current locale
+     * @param int $flags Sorting type flags:
+     *                   SORT_REGULAR - compare items normally (don't change types)
+     *                   SORT_NUMERIC - compare items numerically
+     *                   SORT_STRING - compare items as strings
+     *                   SORT_LOCALE_STRING - compare items as strings, based on the current locale
      *
      * @return static
      */
-    public function unique(int $flags = null): static;
+    public function makeValuesUnique(int $flags): static;
 
     /**
      * Copies the value of the specified $from_key to the specified $to_key
@@ -814,7 +826,7 @@ interface IteratorInterface extends IteratorBaseInterface
      *
      * @return mixed
      */
-    #[ReturnTypeWillChange] public function shift(): mixed;
+    #[ReturnTypeWillChange] public function extractFirstValue(): mixed;
 
 
     /**
@@ -822,7 +834,7 @@ interface IteratorInterface extends IteratorBaseInterface
      *
      * @return mixed
      */
-    public function unshift(mixed ...$values): static;
+    public function extractLastValue(mixed ...$values): static;
 
     /**
      * Returns a SpreadSheet object with this object's source data in it
@@ -830,4 +842,19 @@ interface IteratorInterface extends IteratorBaseInterface
      * @return SpreadSheetInterface
      */
     public function getSpreadSheet(): SpreadSheetInterface;
+
+    /**
+     * Returns an Iterator object that contains callback functions that validates data before adding it to this Iterator
+     *
+     * @return IteratorInterface
+     */
+    public function getValidatorsObject(): IteratorInterface;
+
+    /**
+     * Adds a validator callback that must be passed for data to be added to this Iterator object
+     *
+     * @param callable $validator
+     * @return static
+     */
+    public function addValidator(callable $validator): static;
 }

@@ -17,10 +17,19 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Business\Companies\Company;
+use Phoundation\Business\Companies\Interfaces\CompanyInterface;
 
 
 trait TraitDataEntryCompany
 {
+    /**
+     * Company object cache
+     *
+     * @var CompanyInterface|null $o_company
+     */
+    protected ?CompanyInterface $o_company;
+
+
     /**
      * Returns the companies_id for this object
      *
@@ -41,23 +50,38 @@ trait TraitDataEntryCompany
      */
     public function setCompaniesId(?int $companies_id): static
     {
+        $this->o_company = null;
         return $this->set($companies_id, 'companies_id');
     }
 
 
     /**
-     * Returns the companies_id for this object
+     * Returns the company for this object
      *
-     * @return Company|null
+     * @return CompanyInterface|null
      */
-    public function getCompany(): ?Company
+    public function getCompanyObject(): ?CompanyInterface
     {
-        $companies_id = $this->getTypesafe('int', 'companies_id');
-        if ($companies_id) {
-            return new Company($companies_id);
+        if (empty($this->o_company)) {
+            $this->o_company = Company::loadOrNull($this->getTypesafe('int', 'companies_id'));
         }
 
-        return null;
+        return $this->o_company;
+    }
+
+
+    /**
+     * Sets the company for this object
+     *
+     * @param CompanyInterface|null $o_company
+     * @return TraitDataEntryCompany
+     */
+    public function setCompanyObject(?CompanyInterface $o_company): static
+    {
+        $this->setCompaniesId($o_company?->getId());
+
+        $this->o_company = $o_company;
+        return $this;
     }
 
 
@@ -68,12 +92,12 @@ trait TraitDataEntryCompany
      */
     public function getCompaniesName(): ?string
     {
-        return $this->getTypesafe('string', 'companies_name');
+        return $this->getCompanyObject()->getName();
     }
 
 
     /**
-     * Sets the companies_name for this object
+     * Returns the companies_name for this object
      *
      * @param string|null $companies_name
      *
@@ -81,6 +105,6 @@ trait TraitDataEntryCompany
      */
     public function setCompaniesName(?string $companies_name): static
     {
-        return $this->set($companies_name, 'companies_name');
+        return $this->setCompanyObject(Company::loadOrNull(['name' => $companies_name]));
     }
 }

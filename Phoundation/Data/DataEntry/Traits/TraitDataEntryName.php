@@ -35,6 +35,53 @@ trait TraitDataEntryName
 
 
     /**
+     * Returns the SEO name for this object
+     *
+     * @param string|null $seo_name
+     * @return TraitDataEntryName
+     */
+    protected function setSeoName(?string $seo_name): static
+    {
+        return $this->set($seo_name, 'seo_name', true);
+    }
+
+
+    /**
+     * Returns the SEO name for this object
+     *
+     * @param string|null $name
+     * @return TraitDataEntryName
+     */
+    protected function setSeoNameFromName(?string $name): static
+    {
+        // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
+        // the entry if it does!
+        try {
+            if ($name) {
+                $seo_name = Seo::unique(
+                    substr($name, 0, $this->definitions->get('name')->getMaxlength()),
+                    static::getTable(),
+                    $this->getId(),
+                    'seo_name'
+                );
+
+                return $this->setSeoName($seo_name);
+            }
+
+        } catch (SqlTableDoesNotExistException $e) {
+            // Crap, the table we're working on doesn't exist, WTF? No biggie, we're likely in init mode, and
+            // then we can ignore this issue as we're likely working from configuration instead
+            if (!Core::inInitState()) {
+                throw $e;
+            }
+
+        }
+
+        return $this->setSeoName(null);
+    }
+
+
+    /**
      * Returns the name for this object
      *
      * @return string|null
@@ -56,41 +103,9 @@ trait TraitDataEntryName
     public function setName(?string $name, bool $set_seo_name = true): static
     {
         if ($set_seo_name) {
-            if ($name === null) {
-                $this->set(null, 'seo_name', true);
-
-            } else {
-                // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
-                // the entry if it does!
-                try {
-                    $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')->getMaxlength()), static::getTable(), $this->getTypesafe('int', 'id'), 'seo_name');
-                    $this->set($seo_name, 'seo_name', true);
-
-                } catch (SqlTableDoesNotExistException $e) {
-                    // Crap, the table we're working on doesn't exist, WTF? No biggie, we're likely in init mode, and
-                    // then we can ignore this issue as we're likely working from configuration instead
-                    if (!Core::inInitState()) {
-                        throw $e;
-                    }
-                }
-            }
+            $this->setSeoNameFromName($name);
         }
 
         return $this->set($name, 'name');
-    }
-
-
-    /**
-     * Sets the seo_name for this object
-     *
-     * @note This method is protected because it should only be called from within DataEntry objects
-     *
-     * @param string|null $seo_name
-     *
-     * @return static
-     */
-    protected function setSeoName(?string $seo_name): static
-    {
-        return $this->set($seo_name, 'seo_name');
     }
 }

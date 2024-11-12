@@ -43,7 +43,7 @@ trait TraitResourceConstructor
 
         } else {
             throw new OutOfBoundsException(
-                tr('Invalid path ":path" specified. Must be one if FsPathInterface, Stringable, string, null, or resource', [
+                tr('Invalid path ":path" specified. Must be one if PhoPathInterface, Stringable, string, null, or resource', [
                     ':path' => $source,
                 ])
             );

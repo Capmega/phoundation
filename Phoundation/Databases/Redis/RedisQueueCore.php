@@ -42,7 +42,7 @@ class RedisQueueCore implements RedisQueueInterface
      *
      * @param mixed $value
      *
-     * @return $this
+     * @return static
      */
     public function push(mixed $value): static
     {
@@ -116,7 +116,7 @@ class RedisQueueCore implements RedisQueueInterface
     /**
      * Takes the queue and clears all values from it
      *
-     * @return $this
+     * @return static
      */
     public function clear(): static
     {
@@ -128,7 +128,7 @@ class RedisQueueCore implements RedisQueueInterface
     /**
      * Drops the current queue
      *
-     * @return $this
+     * @return static
      */
     public function drop(): static
     {

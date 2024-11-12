@@ -16,11 +16,45 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
+use Phoundation\Core\Core;
+use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Seo\Seo;
 
 
 trait TraitDataEntryHostname
 {
+    /**
+     * Tracks if this class supports SEO hostnames
+     *
+     * @var bool $supports_seo_hostname
+     */
+    protected bool $supports_seo_hostname = true;
+
+
+    /**
+     * Returns if this object supports SEO hostnames
+     *
+     * @return bool
+     */
+    public function getSupportsSeoHostname(): bool
+    {
+        return $this->supports_seo_hostname;
+    }
+
+
+    /**
+     * Sets if this object supports SEO hostnames
+     *
+     * @param bool $supports_seo_hostname
+     * @return static
+     */
+    public function setSupportsSeoHostname(bool $supports_seo_hostname): static
+    {
+        $this->supports_seo_hostname = $supports_seo_hostname;
+        return $this;
+    }
+
+
     /**
      * Returns the SEO hostname for this object
      *
@@ -29,6 +63,53 @@ trait TraitDataEntryHostname
     public function getSeoHostname(): ?string
     {
         return $this->getTypesafe('string', 'seo_hostname');
+    }
+
+
+    /**
+     * Sets the SEO hostname for this object
+     *
+     * @param string|null $seo_hostname
+     * @return static
+     */
+    public function setSeoHostname(?string $seo_hostname): static
+    {
+        return $this->set($seo_hostname, 'seo_hostname');
+    }
+
+
+    /**
+     * Sets the SEO hostname for this object
+     *
+     * @param string|null $hostname
+     * @return static
+     */
+    public function setSeoHostnameFromHostname(?string $hostname): static
+    {
+        // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
+        // the entry if it does!
+        try {
+            if ($hostname) {
+                $seo_hostname = Seo::unique(
+                    substr($hostname, 0, $this->definitions->get('hostname')->getMaxlength()),
+                    static::getTable(),
+                    $this->getId(),
+                    'seo_hostname'
+                );
+
+                return $this->setSeoHostname($seo_hostname);
+            }
+
+        } catch (SqlTableDoesNotExistException $e) {
+            // Crap, the table we're working on doesn't exist, WTF? No biggie, we're likely in init mode, and
+            // then we can ignore this issue as we're likely working from configuration instead
+            if (!Core::inInitState()) {
+                throw $e;
+            }
+
+        }
+
+        return $this->setSeoHostname(null);
     }
 
 
@@ -47,18 +128,17 @@ trait TraitDataEntryHostname
      * Sets the hostname for this object
      *
      * @param string|null $hostname
-     *
+     * @param bool $set_seo_name
      * @return static
      */
-    public function setHostname(?string $hostname): static
+    public function setHostname(?string $hostname, ?bool $set_seo_name = null): static
     {
-        if ($this->definitions->exists('seo_hostname')) {
-            if ($hostname === null) {
-                $this->set('seo_hostname', null);
-            } else {
-                $seo_hostname = Seo::unique($hostname, static::getTable(), $this->getTypesafe('int', 'id'), static::getUniqueField());
-                $this->set('seo_hostname', $seo_hostname);
-            }
+        if ($set_seo_name === null) {
+            $set_seo_name = $this->supports_seo_hostname;
+        }
+
+        if ($set_seo_name) {
+            $this->setSeoHostnameFromHostname($hostname);
         }
 
         return $this->set($hostname, 'hostname');

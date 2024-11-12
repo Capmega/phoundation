@@ -9,7 +9,7 @@
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
- * @uses      ProcessVariables
+ * @uses      TraitProcessVariables
  */
 
 
@@ -30,8 +30,9 @@ class Process extends ProcessCore
      * @param PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory_or_restrictions
      * @param string|null                                         $operating_system
      * @param string|null                                         $packages
+     * @param bool                                                $which_command
      */
-    public function __construct(?string $command = null, PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory_or_restrictions = null, ?string $operating_system = null, ?string $packages = null)
+    public function __construct(?string $command = null, PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory_or_restrictions = null, ?string $operating_system = null, ?string $packages = null, bool $which_command = true)
     {
         parent::__construct($execution_directory_or_restrictions);
 
@@ -40,7 +41,7 @@ class Process extends ProcessCore
         }
 
         if ($command) {
-            $this->setCommand($command);
+            $this->setCommand($command, $which_command);
         }
     }
 
@@ -52,11 +53,12 @@ class Process extends ProcessCore
      * @param PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory_or_restrictions
      * @param string|null                                         $operating_system
      * @param string|null                                         $packages
+     * @param bool                                                $which_command
      *
      * @return static
      */
-    public static function new(?string $command = null, PhoRestrictionsInterface|PhoDirectoryInterface $execution_directory_or_restrictions = null, ?string $operating_system = null, ?string $packages = null): static
+    public static function new(?string $command = null, PhoRestrictionsInterface|PhoDirectoryInterface $execution_directory_or_restrictions = null, ?string $operating_system = null, ?string $packages = null, bool $which_command = true): static
     {
-        return new static($command, $execution_directory_or_restrictions, $operating_system, $packages);
+        return new static($command, $execution_directory_or_restrictions, $operating_system, $packages, $which_command);
     }
 }

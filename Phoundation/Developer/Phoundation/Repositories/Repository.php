@@ -121,7 +121,7 @@ class Repository extends PhoDirectory implements RepositoryInterface
             'data',
             'Phoundation',
             'Plugins',
-            'tests',
+            'Tests',
             'pho',
         ];
 
@@ -190,7 +190,7 @@ class Repository extends PhoDirectory implements RepositoryInterface
             'data',
             'Phoundation',
             'Plugins',
-            'tests',
+            'Tests',
             'pho',
             'Templates',
             'config/project',

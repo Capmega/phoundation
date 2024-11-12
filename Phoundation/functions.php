@@ -46,6 +46,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Requests\Request;
 
+
 function is_version(string $version): bool
 {
     $return = preg_match('/\d{1,4}\.\d{1,4}\.\d{1,4}/', $version);
@@ -228,11 +229,8 @@ function is_enum(mixed $source)
 /**
  * Returns true if the specified needle is in the given Enum haystack
  *
- * @note Internally this function will convert the enum to an array and then use in_array()
- *
  * @param mixed  $needle
  * @param string $haystack
- * @param bool   $strict
  *
  * @return bool
  */
@@ -301,18 +299,23 @@ function array_get_safe(array $source, string|float|int|null $key, mixed $defaul
 
 
 /**
- * Return the value if it actually exists with the correct datatype, or NULL instead.
+ * Return the value (with corrected datatype) if it actually exists with the correct datatype, or $default instead.
  *
- * If (for example) a non-existing key from an array was specified, NULL will be returned instead of causing a variable
+ * If the variable partially matches a datatype, like the string "15" for datatype integer, the variable will be
+ * accepted and corrected
  *
- * @note IMPORTANT! After calling this function, $var will exist in the scope of the calling function!
+ * @note The variable is specified by reference, allowing non set variables to be used when calling this function, but
+ *       this causes it to disallow static values or function outputs to be passed
  *
- * @param array|string $types    If the data exists, it must have one of these data types. Can be specified as array or
- *                               | separated string
- * @param mixed        $variable The variable to test
- * @param mixed        $default  (optional) The value to return in case the specified $variable did not exist or was
- *                               NULL.
- * @param bool         $exception
+ * @note IMPORTANT! After calling this function, $variable will exist in the scope of the calling function!
+ *
+ * @param array|string $types     If the data exists, it must have one of these data types. Can be specified as array or
+ *                                | separated string
+ * @param mixed        $variable  The variable to test
+ * @param mixed        $default   (optional) The value to return in case the specified $variable did not exist or was
+ *                                NULL.
+ * @param bool         $exception If true, will throw an exception instead of returning $default if the specified value
+ *                                does not match the specified types
  *
  * @return mixed
  */
@@ -321,7 +324,6 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
     // The variable exists
     if (isset($variable)) {
         // Ensure datatype
-
         foreach (Arrays::force($types, '|') as $type) {
             switch ($type) {
                 case 'scalar':
@@ -439,7 +441,7 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
                     break;
 
                 case 'datetime':
-                    if ($variable instanceof \DateTimeInterface) {
+                    if ($variable instanceof DateTimeInterface) {
                         return $variable;
                     }
 
@@ -503,6 +505,179 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
 
 
 /**
+ * Returns true if the specified value matches one or multiple of the specified datatypes or classes
+ *
+ * @note The variable is specified by reference, allowing non set variables to be used when calling this function, but
+ *       this causes it to disallow static values or function outputs to be passed
+ *
+ * @note IMPORTANT! After calling this function, $variable will exist in the scope of the calling function!
+ *
+ * @param array|string $types     If the data exists, it must have one of these data types. Can be specified as array or
+ *                                | separated string
+ * @param mixed        $variable  The variable to test
+ *
+ * @return bool
+ */
+function is_datatype_or_class(array|string $types, mixed &$variable): bool
+{
+    // Ensure datatype
+    foreach (Arrays::force($types, '|') as $type) {
+        switch ($type) {
+            case 'scalar':
+                if (is_scalar($variable)) {
+                    return $variable;
+                }
+
+                break;
+
+            case 'string':
+                if (is_string($variable)) {
+                    return true;
+                }
+
+                if ($variable instanceof Stringable) {
+                    // This is fine, this object has __toString() implemented
+                    return true;
+                }
+
+                break;
+
+            case 'int':
+                // no break
+            case 'integer':
+                if (is_integer($variable)) {
+                    return true;
+                }
+
+                if (is_numeric($variable)) {
+                    // This is a number stored as a string, if it's an integer, then type cast it
+                    if ((int) $variable == $variable) {
+                        return true;
+                    }
+                }
+
+                break;
+
+            case 'double':
+                // no break
+            case 'float':
+                if (is_float($variable)) {
+                    return true;
+                }
+
+                if (is_numeric($variable)) {
+                    if (!is_integer($variable)) {
+                        // This is a float number stored as a string, convert it to integer
+                        return true;
+                    }
+                }
+
+                break;
+
+            case 'bool':
+                // no break
+            case 'boolean':
+                if (is_bool($variable)) {
+                    return true;
+                }
+
+                if (is_integer($variable)) {
+                    if ($variable === 1) {
+                        return true;
+                    }
+
+                    if ($variable === 0) {
+                        return true;
+                    }
+                }
+
+                if (is_string($variable)) {
+                    $variable = strtolower(trim($variable));
+
+                    if (($variable === 'true') or ($variable === '1')) {
+                        return true;
+                    }
+
+                    if (($variable === 'false') or ($variable === '0')) {
+                        return true;
+                    }
+                }
+
+                break;
+
+            case 'array':
+                if (is_array($variable)) {
+                    return true;
+                }
+
+                break;
+
+            case 'resource':
+                if (is_resource($variable)) {
+                    return true;
+                }
+
+                break;
+
+            case 'function':
+                // no break
+            case 'callable':
+                // no break
+            case 'closure':
+                if (is_callable($variable)) {
+                    return true;
+                }
+
+                break;
+
+            case 'null':
+                if (is_null($variable)) {
+                    return true;
+                }
+
+                break;
+
+            case 'datetime':
+                if ($variable instanceof DateTimeInterface) {
+                    return true;
+                }
+
+                break;
+
+            case 'object':
+                if (is_object($variable)) {
+                    return true;
+                }
+
+                break;
+
+            case 'enum':
+                if (is_enum($variable)) {
+                    return true;
+                }
+
+                break;
+
+            case 'mixed':
+                // This is always ok
+                return true;
+
+            default:
+                // This should be an object of the specified type
+                if ($variable instanceof $type) {
+                    return true;
+                }
+
+                break;
+        }
+    }
+
+    // No datatype was matched
+    return false;
+}
+
+
+/**
  * Ensures the specified variable exists. If the variable already exists with a non NULL value, it will not be touched.
  * If the variable does not exist, or has a NULL value, it will be set to the $initialization variable
  *
@@ -549,9 +724,9 @@ function force_natural(mixed $source, int $default = 1, int $start = 1): int
         return $default;
     }
 
-    if (!is_int($source)) {
+    if (is_int($source)) {
         // This is a nice integer
-        return (int) $source;
+        return $source;
     }
 
     // Natural numbers must be integer numbers. Round to the nearest integer
@@ -565,26 +740,22 @@ function force_natural(mixed $source, int $default = 1, int $start = 1): int
  * A natural number here is defined as one of the set of positive whole numbers; a positive integer and the number 1 and
  * any other number obtained by adding 1 to it repeatedly. For ease of use, the number one can be adjusted if needed.
  *
- * @param mixed $number
+ * @param mixed $source
  * @param int   $start
  *
  * @return bool
  */
-function is_natural(mixed $number, int $start = 1): bool
+function is_natural(mixed $source, int $start = 1): bool
 {
-    if (!is_numeric($number)) {
+    if (!is_numeric($source)) {
         return false;
     }
 
-    if ($number < $start) {
+    if ($source < $start) {
         return false;
     }
 
-    if ($number != (int) $number) {
-        return false;
-    }
-
-    return true;
+    return is_numeric_integer($source);
 }
 
 
@@ -602,39 +773,9 @@ function is_numeric_integer(mixed $source): bool
 
 
 /**
- * Returns TRUE if the specified data entry is new.
+ * Converts <br> to \n
  *
- * A data entry is considered new when the id is null, or _new
- *
- * @param DataEntryInterface|array $entry The entry to check
- *
- * @return boolean TRUE if the specified $entry is new
- * @version 2.5.46: Added function and documentation
- */
-function is_new(DataEntryInterface|array $entry): bool
-{
-    if (!is_array($entry)) {
-        if (!is_object($entry)) {
-            throw new CoreException(tr('Specified entry is not an array or object'));
-        }
-
-        return $entry->isNew();
-    }
-
-    if (isset_get($entry['status']) === '_new') {
-        return true;
-    }
-
-    if (isset_get($entry['id']) === null) {
-        return true;
-    }
-
-    return false;
-}
-
-
-/**
- * Correctly converts <br> to \n
+ * @note This is the opposite of PHP's nl2br() and adds the missing function
  *
  * @param string $source
  * @param string $nl
@@ -643,8 +784,8 @@ function is_new(DataEntryInterface|array $entry): bool
  */
 function br2nl(string $source, string $nl = "\n"): string
 {
-    $source = preg_replace("/(\r\n|\n|\r)/u", '', $source);
-    $source = preg_replace("/<br *\/?>/iu", $nl, $source);
+    $source = preg_replace("/(\r\n|\n|\r)/u", '' , $source);
+    $source = preg_replace("/<br *\/?>/iu"  , $nl, $source);
 
     return $source;
 }
@@ -1252,10 +1393,11 @@ function has_trait(string $trait, object|string $class): bool
  *
  * @param mixed|null $source
  * @param bool       $die
+ * @param bool       $sort
  *
  * @return mixed
  */
-#[NoReturn] function show_system(mixed $source = null, bool $die = true): mixed
+function show_system(mixed $source = null, bool $die = true, bool $sort = true): mixed
 {
     $do = false;
 
@@ -1269,18 +1411,24 @@ function has_trait(string $trait, object|string $class): bool
         $do = true;
     }
 
+    if ($sort) {
+        if (is_array($source)) {
+            ksort($source);
+        }
+    }
+
     if ($do) {
         if (php_sapi_name() !== 'cli') {
             // Only add this on browsers
-            echo '<pre>' . PHP_EOL . '"';
+            echo '<pre>' . PHP_EOL;
         }
 
-        echo 'message-' . Numbers::getRandomInt(1, 10000) . PHP_EOL . '"';
+        echo 'message-' . Numbers::getRandomInt(1, 1_000_000) . PHP_EOL . '"';
         print_r($source);
         echo '"' . PHP_EOL;
 
         if ($die) {
-            exit('die-' . Numbers::getRandomInt(1, 10000) . PHP_EOL);
+            exit('die-' . Numbers::getRandomInt(1, 1_000_000) . PHP_EOL);
         }
     }
 
@@ -1289,13 +1437,13 @@ function has_trait(string $trait, object|string $class): bool
 
 
 /**
- * Returns true if the specified function was called
+ * Returns true if the specified function was called in the current backtrace
  *
  * @param string $function
  *
  * @return bool
  */
-function function_called(string $function): bool
+function function_was_called(string $function): bool
 {
     // Clean requested function
     $function = trim($function);
@@ -1382,18 +1530,18 @@ function render(RenderInterface|callable|string|float|int|null $content): ?strin
 
 
 /**
- * Retuns getdata() type output, or if object, the class of the specified object
+ * Retuns the datatype of the value or, if the value is an object, the class of the specified object
  *
  * @param mixed $value
  *
  * @return string
  */
-function get_class_or_data_type(mixed $value): string
+function  get_datatype_or_class(mixed $value): string
 {
     $type = gettype($value);
 
     if ($type === 'object') {
-        return 'object[' . get_class($value) . ']';
+        return get_class($value);
     }
 
     return $type;
@@ -1543,14 +1691,15 @@ function get_numeric(mixed $source, bool $allow_null = true): float|int|null
  */
 function strip_extension(?string $filename, bool $all_extensions = false): ?string
 {
-    if (($filename === '.') or ($filename === '..')) {
+    if (empty($filename) or ($filename === '.') or ($filename === '..')) {
         return null;
     }
+
     if ($all_extensions) {
-        return Strings::until($filename, '.');
+        return $filename[0] . Strings::until(substr($filename, 1), '.');
     }
 
-    return Strings::untilReverse($filename, '.');
+    return $filename[0] . Strings::untilReverse(substr($filename, 1), '.');
 }
 
 
@@ -1609,6 +1758,33 @@ function datatype_is_class(string $datatype): bool
         default => true
     };
 }
+
+
+/**
+ * Returns the number of references to the specified variable
+ *
+ * @see https://www.php.net/manual/en/language.references.php#99644 <<< Taken from here
+ * @see https://www.php.net/manual/en/language.references.php
+ *
+ * @param mixed $variable
+ *
+ * @return int
+ */
+function get_reference_count(mixed $variable): int
+{
+    ob_start();
+    debug_zval_dump($variable);
+
+    $dump    = ob_get_clean();
+    $matches = [];
+
+    preg_match('/refcount\(([0-9]+)/', $dump, $matches);
+    $count = $matches[1];
+
+    //3 references are added, including when calling debug_zval_dump()
+    return $count - 3;
+}
+
 
 /**
  * Wrappers for PHP yaml_emit(), yaml_parse() if the PHP YAML extension is not installed

@@ -356,5 +356,5 @@ interface DataIteratorInterface extends IteratorInterface
      *
      * @return DataEntryInterface|null
      */
-    #[ReturnTypeWillChange] public function shift(): ?DataEntryInterface;
+    #[ReturnTypeWillChange] public function extractFirstValue(): ?DataEntryInterface;
 }
