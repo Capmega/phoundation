@@ -289,6 +289,9 @@ class Core implements CoreInterface
         static::setLocalId(substr(uniqid(), -8, 8));
         static::setGlobalId(substr(uniqid(), -8, 8));
 
+        // Set the platform constants
+        static::setPlatform();
+
         // Define a unique process request ID
         // Define project paths.
 
@@ -299,10 +302,9 @@ class Core implements CoreInterface
         // DIRECTORY_PUBTMP   is a public (accessible by web server) temporary directory
         // DIRECTORY_WEB      is the system cache location for all web pages
         // DIRECTORY_COMMANDS is the system cache location for all commands
-
         define('REQUEST', substr(uniqid(), 7));
         define('DIRECTORY_START'   , Strings::slash(getcwd()));
-        define('DIRECTORY_ROOT'    , realpath(__DIR__ . '/../..') . '/');
+        define('DIRECTORY_ROOT'    , static::getRootPath());
         define('DIRECTORY_DATA'    , DIRECTORY_ROOT . 'data/');
         define('DIRECTORY_SYSTEM'  , DIRECTORY_DATA . 'system/');
 
@@ -362,6 +364,25 @@ class Core implements CoreInterface
 
 
     /**
+     * Detects and returns the root path for this project
+     *
+     * Root path will be detected by determining the location of the executed script (pho) and returning its directory
+     *
+     * @return string
+     */
+    protected function getRootPath(): string
+    {
+        if (PLATFORM_CLI) {
+            // PHO_DIRECTORY MUST exist here, use that.
+            return PHO_DIRECTORY . '/';
+        }
+
+        // Web client here. Should ALWAYS go to web/index.php, return its grand parent directory
+        return dirname(dirname($_SERVER['SCRIPT_FILENAME'])) . '/';
+    }
+
+
+    /**
      * This method will start up the core class and with it the entire system
      *
      * @return void
@@ -380,7 +401,6 @@ class Core implements CoreInterface
             // project name, platform and request type
             static::getInstance();
             static::securePhpSettings();
-            static::setPlatform();
             static::setProject();
             static::startPlatform();
 
@@ -470,7 +490,6 @@ class Core implements CoreInterface
                 // The file doesn't exist, that is good. Go to setup mode
                 Log::toAlternateLog('Project file "config/project" does not exist, entering setup mode');
 
-                static::setPlatform();
                 static::startPlatform();
                 static::$state = 'setup';
 
@@ -490,19 +509,18 @@ class Core implements CoreInterface
      */
     protected static function setPlatform(): void
     {
-        // Check what platform we're in
         switch (php_sapi_name()) {
             case 'cli':
-                define('PLATFORM', 'cli');
+                define('PLATFORM'    , 'cli');
                 define('PLATFORM_WEB', false);
                 define('PLATFORM_CLI', true);
                 break;
 
             default:
-                define('PLATFORM', 'web');
+                define('PLATFORM'    , 'web');
                 define('PLATFORM_WEB', true);
                 define('PLATFORM_CLI', false);
-                define('NOCOLOR', (getenv('NOCOLOR') ? 'NOCOLOR' : null));
+                define('NOCOLOR'     , (getenv('NOCOLOR') ? 'NOCOLOR' : null));
                 break;
         }
     }
@@ -2373,7 +2391,6 @@ class Core implements CoreInterface
                     // The file doesn't exist, that is good. Go to setup mode
                     Log::toAlternateLog('Project version file "config/version" does not exist, entering setup mode');
 
-                    static::setPlatform();
                     static::startPlatform();
                     static::$state = 'setup';
 

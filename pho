@@ -21,11 +21,10 @@
 
 use Phoundation\Cli\CliCommand;
 
-// If your pho file is in /usr/bin then ensure this constant points to your Phoundation project directory
-const PHO_DIRECTORY = __DIR__;
-
 try {
     // Load the PHP autoloader and execute the static Script::execute() method that will execute the requested command
+    define('PHO_DIRECTORY', __DIR__);
+
     if (!@include(PHO_DIRECTORY . '/vendor/autoload.php')) {
         throw new Exception('Failed opening required \'./vendor/autoload.php\'');
     }
