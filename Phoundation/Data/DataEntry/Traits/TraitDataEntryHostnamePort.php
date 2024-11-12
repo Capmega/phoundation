@@ -16,11 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use Phoundation\Seo\Seo;
-
 
 trait TraitDataEntryHostnamePort
 {
-    use TraitDataEntryPort;
     use TraitDataEntryHostname;
+    use TraitDataEntryPort;
 }

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Trait TraitDataEntryHostnamePort
+ * Trait TraitDataEntryHostname
  *
  * This trait contains methods for DataEntry objects that requires a url
  *
