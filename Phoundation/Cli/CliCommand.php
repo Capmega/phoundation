@@ -243,7 +243,7 @@ class CliCommand
 
         // Execute the command and finish execution
         try {
-            Request::setRestrictions(PhoRestrictions::newRoot());
+            Request::setRestrictions(PhoRestrictions::newFilesystemRoot());
             Request::execute(static::$command . '.php');
 
         } catch (SqlNoTimezonesException $e) {
