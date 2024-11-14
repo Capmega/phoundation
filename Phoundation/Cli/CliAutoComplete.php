@@ -684,7 +684,7 @@ class CliAutoComplete
         $command          = explode('/', $command);
         static::$position = static::$position - count($command);
 
-        return !empty(PhoFile::new(static::$command . '.php', PhoRestrictions::newRoot())
+        return !empty(PhoFile::new(static::$command . '.php', PhoRestrictions::newFilesystemRoot())
                              ->grep(['Documentation::setAutoComplete('], 500));
     }
 
