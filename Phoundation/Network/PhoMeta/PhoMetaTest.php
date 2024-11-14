@@ -64,31 +64,31 @@ class PhoMetaTest extends EntryCore implements PhoMetaTestInterface
 
 
     /**
-     * Returns the service property for this PhoMetaTest object
+     * Returns the component property for this PhoMetaTest object
      *
      * @return string|null
      */
-    public function getService(): ?string
+    public function getComponent(): ?string
     {
-        return $this->get('service');
+        return $this->get('component');
     }
 
 
     /**
-     * Sets the service property for this PhoMetaTest object
+     * Sets the component property for this PhoMetaTest object
      *
-     * @param string|null $service
+     * @param string|null $component
      *
      * @return $this
      */
-    public function setService(?string $service): static
+    public function setComponent(?string $component): static
     {
-        Log::checkpoint("set service to " . $service);
-        if ($service == null) {
+        Log::checkpoint("set component to " . $component);
+        if ($component == null) {
             return $this;
         }
 
-        return $this->set($service, 'service');
+        return $this->set($component, 'component');
     }
 
 
@@ -211,7 +211,7 @@ class PhoMetaTest extends EntryCore implements PhoMetaTestInterface
      */
     public function recordTest(): static
     {
-        $service            = $this->getService();
+        $component          = $this->getComponent();
         $key                = get_null($this->getKey());
         $database_connector = get_null($this->getDatabaseConnector());
         $database_selector  = get_null($this->getDatabaseSelector());
@@ -227,16 +227,17 @@ class PhoMetaTest extends EntryCore implements PhoMetaTestInterface
         $connector   = Config::get('databases.connectors.' . $database_connector);
         $o_connector = Connector::new($connector)->setDatabase($database_selector);
 
-        Log::action(tr('Now recording key ":key" in ":connector" database at ":domain::port" db ":db_number" for service ":service"', [
+        Log::action(tr('Now recording key ":key" in ":connector" database at ":domain::port" db ":db_number" for component ":component"', [
             ':key' => $key,
             ':connector' => $database_connector,
             ':domain'    => $o_connector->getHostname(),
             ':port'      => (string) $o_connector->getPort(),
             ':db_number' => (string) $database_selector,
-            ':service'   => $service,
+            ':component' => $component,
 
         ]));
-//        Redis::new($o_connector)->set($service,$key);
+
+        Redis::new($o_connector)->set($component,$key)->close();
 
         return $this;
     }

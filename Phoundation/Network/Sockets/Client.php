@@ -51,6 +51,20 @@ class Client
 
 
     /**
+     * Returns a new client object
+     *
+     * @param string $ip
+     * @param int    $port
+     *
+     * @return static
+     */
+   public static function new(string $ip, int $port): static
+   {
+       return new static($ip, $port);
+   }
+
+
+    /**
      * Connects the client to the specified server
      *
      * @param string $ip

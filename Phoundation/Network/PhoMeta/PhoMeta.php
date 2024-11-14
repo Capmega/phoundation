@@ -5,7 +5,7 @@
  *
  * This class manages Phoundation object metadata.
  *
- * Objects can be any kind of information being sent to, or received from external parties, internal services, etc. The
+ * Objects can be any kind of information being sent to, or received from external parties, internal components, etc. The
  * metadata contains information about from the second the message was received all the way until it was stored in the
  * database. The meta information can travel over multiple processes, multiple servers, and still contain all
  * information
@@ -394,19 +394,19 @@ class PhoMeta extends DataEntry
 
 
     /**
-     * Removes the test object with a given service from this PhoMeta object
+     * Removes the test object with a given component from this PhoMeta object
      *
-     * @param string $service
+     * @param string $component
      *
      * @return static
      */
-    public function removeTest(string $service): static
+    public function removeTest(string $component): static
     {
         $object_data = $this->getData();
         $test_data   = [];
 
         foreach ($object_data['tests'] as $test) {
-            if ($test['service'] !== $service) {
+            if ($test['component'] !== $component) {
                 $test_data[] = $test;
             }
         }
@@ -474,14 +474,14 @@ class PhoMeta extends DataEntry
 
 
     /**
-     * Checks the source for PhoMetaTest info and if it matches a specified service. If it does, it will remove
+     * Checks the source for PhoMetaTest info and if it matches a specified component. If it does, it will remove
      * that PhoMetaTest, and have it record itself in its database. Returns static
      *
-     * @param string $service
+     * @param string $component
      *
      * @return PhoMeta
      */
-    public function processTestObjects(string $service): static
+    public function processTestObjects(string $component): static
     {
         $test_data = isset_get($this->getSource(true)['data']['tests']);
 
@@ -490,10 +490,10 @@ class PhoMeta extends DataEntry
         }
 
         foreach ($test_data as $test) {
-            if (isset_get($test['service']) == $service ) {
+            if (isset_get($test['component']) == $component ) {
 
                 PhoMetaTest::new($test)->recordTest();
-                $this->removeTest($service);
+                $this->removeTest($component);
             }
         }
 
@@ -502,20 +502,20 @@ class PhoMeta extends DataEntry
 
 
     /**
-     * Checks if there is PhoMetaTest information, and if so, if specified service is the terminal test. Terminal test
-     * refers to the only remaining test that matches the service name, which means this test is meant to end at
-     * the specified service without going any further
+     * Checks if there is PhoMetaTest information, and if so, if specified component is the terminal test. Terminal test
+     * refers to the only remaining test that matches the component name, which means this test is meant to end at
+     * the specified component without going any further
      *
-     * @param string $service
+     * @param string $component
      *
      * @return bool
      */
-    public function isTerminalTest(string $service): bool
+    public function isTerminalTest(string $component): bool
     {
         if ($this->getTestCount() === 0) {
             return false;
         }
-        $this->processTestObjects($service);
+        $this->processTestObjects($component);
 
         return (bool) ($this->getTestCount() === 0);
     }
