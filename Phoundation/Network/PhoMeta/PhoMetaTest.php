@@ -25,36 +25,41 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryHostnamePort;
 use Phoundation\Data\Entry;
+use Phoundation\Data\EntryCore;
 use Phoundation\Data\Interfaces\EntryInterface;
+use Phoundation\Data\Traits\TraitDataHostnamePort;
+use Phoundation\Databases\Connectors\Connector;
+use Phoundation\Databases\Redis\Redis;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Network\PhoMeta\Exceptions\PhoMetaTestNoDatabaseException;
+use Phoundation\Network\PhoMeta\Exceptions\PhoMetaTestNoUUIDException;
 use Phoundation\Network\PhoMeta\Interfaces\PhoMetaTestInterface;
+use Phoundation\Utils\Config;
 
-class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
+class PhoMetaTest extends EntryCore implements PhoMetaTestInterface
 {
-    use TraitDataEntryHostnamePort;
-
-
     /**
      * PhoMetaTest class constructor
      *
-     * @param int|array|string|DataEntryInterface|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
+     * @param ArrayableInterface|array|null $source
      */
-    public function __construct(int|array|string|DataEntryInterface|null $identifier = null, ?bool $meta_enabled = null, bool $init = true) {
+    public function __construct(ArrayableInterface|array|null $source = null) {
+        if (!empty($source)) {
+            $this->setSource($source);
+        }
+    }
 
-    Log::checkpoint();
 
-        parent::__construct($identifier, $meta_enabled, $init);
-
-    Log::checkpoint();
-
-        $this->setService("test1")
-            ->setDatabaseConnector("test2")
-            ->setDatabaseSelector("test3")
-            ->setHostname("test4")
-            ->setPort(5)
-            ->setKey("test6");
+    /**
+     * Returns a new PhoMetaTest object
+     *
+     * @param ArrayableInterface|array|null $source
+     *
+     * @return PhoMetaTestInterface
+     */
+    public static function new(ArrayableInterface|array|null $source = null): PhoMetaTestInterface
+    {
+        return new static($source);
     }
 
 
@@ -65,7 +70,7 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
      */
     public function getService(): ?string
     {
-        return $this->getTypesafe('string', 'service');
+        return $this->get('service');
     }
 
 
@@ -78,6 +83,7 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
      */
     public function setService(?string $service): static
     {
+        Log::checkpoint("set service to " . $service);
         if ($service == null) {
             return $this;
         }
@@ -93,7 +99,7 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
      */
     public function getDatabaseConnector(): ?string
     {
-        return $this->getTypesafe('string', 'database_connector');
+        return $this->get('database_connector');
     }
 
 
@@ -121,18 +127,18 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
      */
     public function getDatabaseSelector(): string|int|null
     {
-        return $this->getTypesafe('string', 'database_selector');
+        return $this->get('database_selector');
     }
 
 
     /**
      * Sets the database_selector property for this PhoMetaTest object
      *
-     * @param string|null $database_selector
+     * @param string|int|null $database_selector
      *
      * @return $this
      */
-    public function setDatabaseSelector(?string $database_selector): static
+    public function setDatabaseSelector(string|int|null $database_selector): static
     {
         if ($database_selector == null) {
             return $this;
@@ -149,7 +155,7 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
      */
     public function getAction(): ?string
     {
-        return $this->getTypesafe('string', 'action');
+        return $this->get('action');
     }
 
 
@@ -168,7 +174,7 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
 
         return $this->set($action, 'action');
     }
-    
+
 
     /**
      * Returns the key property for this PhoMetaTest object
@@ -177,7 +183,7 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
      */
     public function getKey(): ?string
     {
-        return $this->getTypesafe('string', 'key');
+        return $this->get('key');
     }
 
 
@@ -199,60 +205,39 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
 
 
     /**
-     * Returns the table name used by this object
+     * Records a test entry into a database, with all info specified in a PhoMetaTest object
      *
-     * @return string|null
+     * @return static
      */
-    public static function getTable(): ?string
+    public function recordTest(): static
     {
-        return 'network_meta_test_meta';
-    }
+        $service            = $this->getService();
+        $key                = get_null($this->getKey());
+        $database_connector = get_null($this->getDatabaseConnector());
+        $database_selector  = get_null($this->getDatabaseSelector());
 
+        if ($key == null) {
+            throw PhoMetaTestNoUUIDException::new(tr('UUID Missing from PhoMetaTest source'));
+        }
 
-    /**
-     * Returns the name of this DataEntry class
-     *
-     * @return string
-     */
-    public static function getDataEntryName(): string
-    {
-        return tr('Phoundation network test metadata');
-    }
+        if (($database_connector or $database_selector)  == null) {
+            throw PhoMetaTestNoDatabaseException::new(tr('Database Info Missing from PhoMetaTest source'));
+        }
 
+        $connector   = Config::get('databases.connectors.' . $database_connector);
+        $o_connector = Connector::new($connector)->setDatabase($database_selector);
 
-    /**
-     * Sets the available data keys for this entry
-     *
-     * @param DefinitionsInterface $definitions
-     */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
-    {
-        $definitions->add(DefinitionFactory::newCode($this, 'database_connector')
-                                           ->setMaxlength(32)
-                                           ->setLabel('Database connector driver'))
+        Log::action(tr('Now recording key ":key" in ":connector" database at ":domain::port" db ":db_number" for service ":service"', [
+            ':key' => $key,
+            ':connector' => $database_connector,
+            ':domain'    => $o_connector->getHostname(),
+            ':port'      => (string) $o_connector->getPort(),
+            ':db_number' => (string) $database_selector,
+            ':service'   => $service,
 
-                    ->add(DefinitionFactory::newCode($this, 'database_selector')
-                                           ->setMaxlength(32)
-                                           ->setLabel('Identify which database (int or string) to use'))
+        ]));
+//        Redis::new($o_connector)->set($service,$key);
 
-                    ->add(DefinitionFactory::newCode($this, 'hostname')
-                                          ->setMaxlength(32)
-                                          ->setLabel('The hostname to connect to the database on'))
-
-                    ->add(DefinitionFactory::newCode($this, 'port')
-                                           ->setMaxlength(32)
-                                           ->setLabel('The hostname to connect to the database on'))
-
-                    ->add(DefinitionFactory::newCode($this, 'service')
-                                           ->setMaxlength(32)
-                                           ->setLabel('Which service this test is meant to stop at'))
-
-                    ->add(DefinitionFactory::newCode($this, 'action')
-                                           ->setMaxlength(32)
-                                           ->setLabel('The action of this test'))
-
-                    ->add(DefinitionFactory::newCode($this, 'key')
-                                           ->setMaxlength(64)
-                                           ->setLabel('UUID for this test object. Will be used to check if test was successful'));
+        return $this;
     }
 }

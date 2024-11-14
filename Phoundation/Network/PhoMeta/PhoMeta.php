@@ -30,6 +30,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryData;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Network\PhoMeta\Exceptions\PhoMetaTestException;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaVersionNotSupportedException;
 use Phoundation\Network\PhoMeta\Exceptions\SourceNotPhoundationMetaException;
 use Phoundation\Network\PhoMeta\Interfaces\PhoMetaTestInterface;
@@ -38,6 +39,7 @@ use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Numbers;
+use Phoundation\Web\Html\Components\P;
 
 class PhoMeta extends DataEntry
 {
@@ -72,6 +74,20 @@ class PhoMeta extends DataEntry
         $this->setLocalId(Core::getLocalId())
              ->setGlobalId(Core::getGlobalId())
              ->setPhoundation(1);
+    }
+
+
+    /**
+     * @param bool $filter_meta
+     *
+     * @return array
+     */
+    public function getSource(bool $filter_meta = false): array
+    {
+        $array = parent::getSource(true);
+        $array['data'] = [Json::decode($array['data'])][0];
+
+        return $array;
     }
 
 
@@ -371,9 +387,33 @@ class PhoMeta extends DataEntry
      */
     public function addTest(PhoMetaTestInterface $test): static
     {
-        $this->addData('tests', $test->getSource(true));
-        $this->addData('mock key', ['v1','v2']);    //currently, values do not go into the key, they go into data[]
-//        return $this->addData('tests', $test->getSource());
+        $this->addData('tests', $test->getSource(), true);
+
+        return $this;
+    }
+
+
+    /**
+     * Removes the test object with a given service from this PhoMeta object
+     *
+     * @param string $service
+     *
+     * @return static
+     */
+    public function removeTest(string $service): static
+    {
+        $object_data = $this->getData();
+        $test_data   = [];
+
+        foreach ($object_data['tests'] as $test) {
+            if ($test['service'] !== $service) {
+                $test_data[] = $test;
+            }
+        }
+
+        $object_data['tests'] = $test_data;
+        $this->setData($object_data);
+
         return $this;
     }
 
@@ -383,20 +423,29 @@ class PhoMeta extends DataEntry
      *
      * @param string $key
      * @param array  $data
+     * @param bool   $data_is_sub_array     Whether the data is stored as a sub array. If it is, the data will be
+     *                                      stored inside the key=>value[], otherwise it will be stored as the
+     *                                      key=>value
      *
      * @return $this
      */
-    public function addData(string $key, array $data): static
+    public function addData(string $key, array $data, bool $data_is_sub_array = false): static
     {
-        if (empty($this->source['data'])){
-            $this->source['data'] = [];
+        $object_data = $this->getData() ?? [];
+
+        if ($data_is_sub_array) {
+
+            $object_data[$key][] = $data;
+        } else {
+
+            $object_data[$key] = empty($object_data[$key])
+                ? $data
+                : $this->mergeData($data, $object_data[$key]);
         }
 
-        if (empty($this->source['data'][$key])){
-            $this->source['data'][$key] = [];
-        }
+        $this->setData($object_data);
 
-        return $this->mergeData($data, $this->source['data'][$key]);
+        return $this;
     }
 
 
@@ -406,22 +455,86 @@ class PhoMeta extends DataEntry
      * @param array $data
      * @param array $source
      *
-     * @return $this
+     * @return array
      */
-    protected function mergeData(array $data, array $source): static
+    protected function mergeData(array $data, array $source): array
     {
-        show($data);
         foreach ($data as $key => $value) {
 
-            if (array_key_exists($key, $source)) {
+            if (array_key_exists($key, $source) and is_array($source[$key])) {
                 $source[$key] = $this->mergeData($value, $source[$key]);
 
             } else {
-                $this->source['data'][$key] = $value;
+                $source[$key] = $value;
+            }
+        }
+
+        return $source;
+    }
+
+
+    /**
+     * Checks the source for PhoMetaTest info and if it matches a specified service. If it does, it will remove
+     * that PhoMetaTest, and have it record itself in its database. Returns static
+     *
+     * @param string $service
+     *
+     * @return PhoMeta
+     */
+    public function processTestObjects(string $service): static
+    {
+        $test_data = isset_get($this->getSource(true)['data']['tests']);
+
+        if ($test_data === null) {
+            return $this;
+        }
+
+        foreach ($test_data as $test) {
+            if (isset_get($test['service']) == $service ) {
+
+                PhoMetaTest::new($test)->recordTest();
+                $this->removeTest($service);
             }
         }
 
         return $this;
+    }
+
+
+    /**
+     * Checks if there is PhoMetaTest information, and if so, if specified service is the terminal test. Terminal test
+     * refers to the only remaining test that matches the service name, which means this test is meant to end at
+     * the specified service without going any further
+     *
+     * @param string $service
+     *
+     * @return bool
+     */
+    public function isTerminalTest(string $service): bool
+    {
+        if ($this->getTestCount() === 0) {
+            return false;
+        }
+        $this->processTestObjects($service);
+
+        return (bool) ($this->getTestCount() === 0);
+    }
+
+
+    /**
+     * Returns the count of PhoMetaTest objects in the data array
+     *
+     * @return int
+     */
+    public function getTestCount(): int
+    {
+        $test_data = isset_get($this->getSource(true)['data']['tests']);
+
+        if (!$test_data) {
+            return 0;
+        }
+
+        return count($test_data);
     }
 
 
@@ -444,7 +557,7 @@ class PhoMeta extends DataEntry
                                            ->setMaxlength(64)
                                            ->setLabel('Message digest'))
 
-                    ->add(DefinitionFactory::newData($this)
+                    ->add(DefinitionFactory::newData($this, 'data')
                                            ->setLabel('Message meta data'))
 
                     ->add(DefinitionFactory::newCode($this, 'phoundation')
