@@ -133,7 +133,7 @@ class RedisTest extends TestCase
         $this->redis->set(['value1','value2'], 'key2');
         $this->assertEquals(['value1','value2'],$this->redis->get('key2'), '"get" on key2 should return values');
 
-        $this->redis->delValue('key2');
+        $this->redis->deleteValue('key2');
         $this->assertNull($this->redis->get('key2'), '"get" on key2 should return null');
 
         $this->assertNull($this->redis->get('key3'), '"get" on key3 should return null');
@@ -176,16 +176,16 @@ class RedisTest extends TestCase
         $this->redis->push($value1, 'test-queue');
 
         $this->assertContains($value1, $this->redis->getQueue('test-queue'), 'The pushed value should be in the queue.');
-        $this->assertEquals(1, $this->redis->getQueueLength('test-queue'), 'The queue count should be 1 after the first push.');
+        $this->assertEquals(1, $this->redis->getQueueCount('test-queue'), 'The queue count should be 1 after the first push.');
 
         $value2 = 'test-value-2';
         $this->redis->push($value2, 'test-queue');
 
-        $this->assertEquals(2, $this->redis->getQueueLength('test-queue'), 'The queue count should be 2 after both pushes.');
+        $this->assertEquals(2, $this->redis->getQueueCount('test-queue'), 'The queue count should be 2 after both pushes.');
         $this->assertEquals($value1, $this->redis->queuePeek('test-queue'), 'The first value in the queue should be the pushed value.');
 
         $this->redis->push(null, 'test-queue');
-        $this->assertEquals(2, $this->redis->getQueueLength('test-queue'), 'The queue count should still be 2 after pushing null.');
+        $this->assertEquals(2, $this->redis->getQueueCount('test-queue'), 'The queue count should still be 2 after pushing null.');
 
         $this->redis->clearAll();
         $this->redis->close();
@@ -207,7 +207,7 @@ class RedisTest extends TestCase
         $poppedValue1 = $this->redis->pop('test-queue');
 
         $this->assertEquals('test-value-1', $poppedValue1, 'The popped value should be the last value pushed.');
-        $this->assertEquals(1, $this->redis->getQueueLength('test-queue'), 'The queue count should decrease by 1 after a pop operation.');
+        $this->assertEquals(1, $this->redis->getQueueCount('test-queue'), 'The queue count should decrease by 1 after a pop operation.');
         $this->assertNotContains('test-value-1', $this->redis->getQueue('test-queue'), 'The popped value should no longer exist in the queue.');
 
         $this->assertEquals('test-value-2', $this->redis->pop('test-queue'), 'The next popped value should be the first value pushed.');
@@ -280,7 +280,7 @@ class RedisTest extends TestCase
         $result = $this->redis->queuePeek('test-queue');
 
         $this->assertEquals('test-value', $result, 'Peek should return the first value without removing it.');
-        $this->assertEquals(1, $this->redis->getQueueLength('test-queue'), 'The queue count should still be 1.');
+        $this->assertEquals(1, $this->redis->getQueueCount('test-queue'), 'The queue count should still be 1.');
 
         $this->assertNull($this->redis->queuePeek('test-queue', 10), 'Return null if out of bounds');
 
@@ -299,20 +299,20 @@ class RedisTest extends TestCase
      * @todo Rename this method, should be static::testGetQueueLength()?  Should there be a static::testGetCount() too?
      * @return void
      */
-    public function testGetCount()
+    public function testGetQueueCount()
     {
         $this->redis = Redis::new(Connector::new('redis-test'))->setDatabase(0);
         $this->redis->clearAll();
 
-        $result1 = $this->redis->getQueueLength('test-queue');
+        $result1 = $this->redis->getQueueCount('test-queue');
         $this->assertEquals(0, $result1, 'The queue should be empty at first.');
 
         $this->redis->push('test-value', 'test-queue');
-        $result2 = $this->redis->getQueueLength('test-queue');
+        $result2 = $this->redis->getQueueCount('test-queue');
         $this->assertEquals(1, $result2, 'The queue should have size 1 after push');
 
         $this->redis->pop('test-queue');
-        $result3 = $this->redis->getQueueLength('test-queue');
+        $result3 = $this->redis->getQueueCount('test-queue');
         $this->assertEquals(0, $result3, 'The queue should be empty after pop.');
 
         $this->redis->clearAll();
@@ -331,15 +331,15 @@ class RedisTest extends TestCase
         $this->redis->clearall();
 
         $this->redis->push('value1','test-queue');
-        $result1 = $this->redis->getQueueLength('test-queue');
+        $result1 = $this->redis->getQueueCount('test-queue');
         $this->assertEquals(1, $result1, 'The queue should have size 1 after push');
 
         $this->redis->clearQueue('test-queue');
-        $result2 = $this->redis->getQueueLength('test-queue');
+        $result2 = $this->redis->getQueueCount('test-queue');
         $this->assertEquals(0, $result2, 'The queue should be empty after clear.');
 
         $this->redis->clearQueue('test-queue');
-        $result3 = $this->redis->getQueueLength('test-queue');
+        $result3 = $this->redis->getQueueCount('test-queue');
         $this->assertEquals(0, $result3, 'The queue should still be empty after clear, no errors.');
 
         $this->expectException(RedisException::class); //Non-existent queue should throw exception.
@@ -367,7 +367,7 @@ class RedisTest extends TestCase
         $result = [];
         array_push($result, 'queue_test-queue-3','queue_test-queue-2', 'queue_test-queue');
 
-        $this->assertEquals($result, $this->redis->showAll(), 'The result array should equal the sample array');
+        $this->assertEquals($result, $this->redis->getAllKeys(), 'The result array should equal the sample array');
         $this->redis->clearAll();
         $this->redis->close();
     }

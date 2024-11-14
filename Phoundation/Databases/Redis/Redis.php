@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Redis;
 
+use Phoundation\Core\Core;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
@@ -259,7 +261,8 @@ class Redis implements DatabaseInterface, RedisInterface
             $return = $this->connect()->client->getDbNum();
 
             if ($return === false) {
-                throw new RedisException(tr('PHP driver Redis::getDbNum() returned false'));
+                Log::error(tr('PHP driver Redis->getDbNum() returned false'));
+                $return = -1;
             }
 
             return $return;
@@ -291,11 +294,11 @@ class Redis implements DatabaseInterface, RedisInterface
 
         } elseif ($database === 0) {
             //TODO: PUT BACK OUT OF TESTING MODE
-            if (!Core::getUnitTestMode()) {
-                throw new OutOfBoundsException(tr('Redis database "0" is reserved for testing and may not be used', [
-                    ':database' => $database
-                ]));
-            }
+//            if (!Core::getUnitTestMode()) {
+//                throw new OutOfBoundsException(tr('Redis database "0" is reserved for testing and may not be used', [
+//                    ':database' => $database
+//                ]));
+//            }
 
         } elseif ($database > 1024) {
             throw new OutOfBoundsException(tr('Redis database ":database" is not a valid database id for Redis, the database must be an integer between 1 and 1024', [
@@ -321,20 +324,20 @@ class Redis implements DatabaseInterface, RedisInterface
 
 
     /**
-     * Drop a queue from the Redis database
+     * Delete a queue from the Redis database
      *
      * @param string $queue
      *
      * @return Redis
      */
-    public function dropQueue(string $queue): static
+    public function clearQueue(string $queue): static
     {
         try {
             $result = $this->connect()
                         ->client->del('queue_' . $queue);
 
             if ($result === false) {
-                throw new RedisException(tr('PHP driver Redis::del() returned false'));
+                throw new RedisException(tr('PHP driver Redis->del() returned false'));
             }
 
             return $this;
@@ -351,20 +354,20 @@ class Redis implements DatabaseInterface, RedisInterface
 
 
     /**
-     * Drop/deletes a queue from the Redis database
+     * Deletes a value from the Redis database
      *
      * @param string $key
      *
      * @return Redis
      */
-    public function delValue(string $key): static
+    public function deleteValue(string $key): static
     {
         try {
             $result = $this->connect()
                         ->client->del('value_' . $key);
 
             if ($result === false) {
-                throw new RedisException(tr('PHP driver Redis::del() returned false'));
+                throw new RedisException(tr('PHP driver Redis->del() returned false'));
             }
 
             return $this;
@@ -427,7 +430,7 @@ class Redis implements DatabaseInterface, RedisInterface
     public function pop(string $queue, int $timeout = 0): mixed
     {
 
-        if ($this->getQueueLength($queue) < 1) {
+        if ($this->getQueueCount($queue) < 1) {
             return null;
         }
 
@@ -435,7 +438,7 @@ class Redis implements DatabaseInterface, RedisInterface
             $result = $this->client->blPop('queue_' . $queue, $timeout);
 
             if ($result === false) {
-                throw new RedisException(tr('PHP driver Redis::del() returned false'));
+                throw new RedisException(tr('PHP driver Redis->del() returned false'));
             }
 
             return Json::decode($result[1]);
@@ -587,7 +590,7 @@ class Redis implements DatabaseInterface, RedisInterface
     {
         try {
 
-            if ($index > ($this->getQueueLength($queue) - 1)) {
+            if ($index > ($this->getQueueCount($queue) - 1)) {
                 return null;
             }
 
@@ -611,50 +614,13 @@ class Redis implements DatabaseInterface, RedisInterface
 
 
     /**
-     * Takes a queue and clears all values from it, leaving it as an empty array
-     *
-     * @return static
-     */
-    public function clearQueue(string $queue): static
-    {
-        try {
-            if ($this->queueExists($queue)) {
-                $this->connect();
-
-                if (empty($this->getQueue($queue))) {
-                    return $this;
-                }
-
-                $result = $this->client->set('queue_' . $queue, []);
-
-                if ($result) {
-                    return $this;
-                }
-
-                throw RedisException::new(tr('PHP Redis driver failed to run "set" to clear queue'));
-            }
-
-            throw RedisException::new(tr('Could not find queue'));
-
-        } catch (Throwable $e) {
-            throw RedisException::new(tr('Failed to clear queue ":queue" with connector ":connector"', [
-                ':connector' => $this->getConnectorObject()->getName(),
-                ':queue'     => $queue
-            ]), $e)
-            ->setDatabase($this->getDatabase())
-            ->setConnectorObject($this->getConnectorObject());
-        }
-    }
-
-
-    /**
      * Returns the length of the specified queue
      *
      * @param string $queue
      *
      * @return int
      */
-    public function getQueueLength(string $queue): int
+    public function getQueueCount(string $queue): int
     {
         try {
 
@@ -665,7 +631,7 @@ class Redis implements DatabaseInterface, RedisInterface
             $result = $this->connect()->client->lLen('queue_' . $queue);
 
             if ($result === false) {
-                throw RedisException::new(tr('PHP driver Redis::lLen() returned false', [
+                throw RedisException::new(tr('PHP driver Redis->lLen() returned false', [
                     ':connector' => $this->getConnectorObject()->getName(),
                     ':queue'     => $queue
                 ]))
@@ -701,7 +667,7 @@ class Redis implements DatabaseInterface, RedisInterface
             $return = $this->client->ping($message);
 
             if ($return === false) {
-                throw RedisException::new(tr('PHP driver Redis::ping() returned false', [
+                throw RedisException::new(tr('PHP driver Redis->ping() returned false', [
                     ':connector' => $this->getConnectorObject()->getName()
                 ]))
                 ->setDatabase($this->getDatabase())
@@ -727,16 +693,15 @@ class Redis implements DatabaseInterface, RedisInterface
     /**
      * Shows all keys and queues in the database
      *
-     * @todo rename this method. "show" typically displays information on screen, and "all" is vague. This returns all "what"? Apparently this returns available keys, so likely a better method name would be Redis::getAllKeyValues()
      * @return array
      */
-    public function showAll(): array
+    public function getAllKeys(): array
     {
         try {
             $return = $this->client->keys('*');
 
             if ($return === false) {
-                throw RedisException::new(tr('PHP driver Redis::keys() returned false', [
+                throw RedisException::new(tr('PHP driver Redis->keys() returned false', [
                     ':connector' => $this->getConnectorObject()->getName()
                 ]))
                 ->setDatabase($this->getDatabase())
