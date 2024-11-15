@@ -285,7 +285,7 @@ class Redis implements DatabaseInterface, RedisInterface
      * @return static
      * @throws OutOfBoundsException|RedisException
      */
-    public function setDatabase(int $database): static
+    public function setDatabase(int $database, bool $test_mode = false): static
     {
         if ($database < 0) {
             throw new OutOfBoundsException(tr('Redis database ":database" is not a valid database id for Redis, the database must be an integer between 1 and 1024', [
@@ -293,12 +293,12 @@ class Redis implements DatabaseInterface, RedisInterface
             ]));
 
         } elseif ($database === 0) {
-            //TODO: PUT BACK OUT OF TESTING MODE
-//            if (!Core::getUnitTestMode()) {
-//                throw new OutOfBoundsException(tr('Redis database "0" is reserved for testing and may not be used', [
-//                    ':database' => $database
-//                ]));
-//            }
+
+            if ($test_mode === false) {
+                throw new OutOfBoundsException(tr('Redis database "0" is reserved for testing and may not be used', [
+                    ':database' => $database
+                ]));
+            }
 
         } elseif ($database > 1024) {
             throw new OutOfBoundsException(tr('Redis database ":database" is not a valid database id for Redis, the database must be an integer between 1 and 1024', [
