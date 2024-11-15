@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Library\Tests\Phoundation\Data\DataEntry;
 
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Utils\Numbers;
 use PHPUnit\Framework\TestCase;
@@ -43,7 +44,7 @@ class DataEntryTest extends TestCase
      */
     public function testNewId()
     {
-        $this->assertEquals(DataEntry::new()->getId(), null);
+        $this->assertEquals(null, DataEntry::new()->getId());
     }
 
 
@@ -56,6 +57,22 @@ class DataEntryTest extends TestCase
     {
         $id = Numbers::getRandomInt();
 
-        $this->assertEquals(DataEntry::new($id), null);
+        $this->assertEquals(null, DataEntry::new($id,null,false)->getId());
     }
+
+
+    /**
+     * Tests DataEntry::getDefaultMetaColumns()
+     *
+     * @return void
+     */
+    public function testGetDefaultMetaColumns()
+    {
+        $entry = DataEntry::new();
+        $expectedColumns = ['id', 'created_on', 'created_by', 'meta_id', 'status', 'meta_state'];
+
+        $this->assertEquals($expectedColumns, $entry->getDefaultMetaColumns(), 'getDefaultMetaColumns should return default metadata columns');
+    }
+
+
 }
