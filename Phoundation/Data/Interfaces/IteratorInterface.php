@@ -482,9 +482,9 @@ interface IteratorInterface extends IteratorBaseInterface
      *
      * @param array|string $columns
      * @param string|null $totals_column
-     * @return array
+     * @return array|null
      */
-    public function getTotals(array|string $columns, ?string $totals_column = null): array;
+    public function getTotals(array|string $columns, ?string $totals_column = null): ?array;
 
     /**
      * Displays a message on the command line

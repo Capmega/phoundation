@@ -1171,88 +1171,65 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
-     * Returns the total amounts for all columns together
+     * Returns the total amounts for all columns together for only the specified columns
      *
      * @param array|string $columns
-     * @param string|null $totals_column
-     * @return array
+     * @param string|null  $totals_column
+     * @param string|null  $totals_label
+     *
+     * @return array|null
      */
-    public function getTotals(array|string $columns, ?string $totals_column = null): array
+    public function getTotals(array|string $columns, ?string $totals_column = null, ?string $totals_label = null): ?array
     {
+        if (!$this->source) {
+            return null;
+        }
+
+        $totals_label = ($totals_label ?? tr('Totals'));
+
         if (is_string($columns)) {
             $columns = Arrays::force($columns);
-            $columns = Arrays::initialize($columns, 'total');
+
+        } else {
+            $columns = array_flip($columns);
         }
 
-        if (!$this->source) {
-            return array_keys($columns);
-        }
+        $footers = array_value_first($this->source);
+        $footers = Arrays::force($footers);
+        $footers = Arrays::setValues($footers, null);
 
-        // Get the first entry to use for columns, and remove the ID column
-        $entry = $this->getFirstValue();
-
-        // If the first entry is ArraySourceInterface object, get the source data array
-        if (is_object($entry)) {
-            if (!($entry instanceof ArraySourceInterface)) {
-                throw new OutOfBoundsException(tr('Cannot generate totals, first entry ":entry" is a non ArraySourceInterface object', [
-                    ':entry' => get_class($entry)
+        // Ensure all requested columns exist
+        foreach ($columns as $column) {
+            if (!array_key_exists($column, $footers)) {
+                throw new OutOfBoundsException(tr('Specified totals column ":column" does not exist in the source data', [
+                    ':column' => $column,
                 ]));
             }
-
-            $entry = $entry->getSource();
         }
 
-        array_shift($entry);
+        // Initialize all requested column footers
+        foreach($footers as $footer => &$value) {
+            if ($footer === $totals_column) {
+                // This is the column that will have the "Totals:" label, ensure it won't try to add data from columns!
+                $value = $totals_label;
+                unset($columns[$totals_column]);
 
-        // Build up the return columns
-        $key   = array_key_first($entry);
-        $entry = Arrays::setValues($entry, null);
-        $entry = array_merge($entry, [$totals_column ?? $key => tr('Totals')]);
-
-        foreach ($columns as $column => $total) {
-            $return[$column] = 0;
-        }
-
-        // Build up the totals
-        foreach ($this->source as &$entry) {
-            // If the entry is ArraySourceInterface object, get the source data array
-            if (is_object($entry)) {
-                if (!($entry instanceof ArraySourceInterface)) {
-                    throw new OutOfBoundsException(tr('Cannot generate totals, entry ":entry" is a non ArraySourceInterface object', [
-                        ':entry' => get_class($entry)
-                    ]));
-                }
-
-                $entry = $entry->getSource();
-            }
-
-            if (!is_array($entry)) {
-                throw new OutOfBoundsException(tr('Cannot generate source totals, source contains non-array entry ":entry"', [
-                    ':entry' => get_class($entry),
-                ]));
-            }
-
-            foreach ($columns as $column => $total) {
-                if (!array_key_exists($column, $entry)) {
-                    continue;
-                }
-
-                // Get data from array
-                if ($total) {
-                    if (array_key_exists($column, $return)) {
-                        $return[$column] += get_numeric($entry[$column]);
-
-                    } else {
-                        $return[$column] = get_numeric($entry[$column]);
-                    }
-
-                } else {
-                    $return[$column] = null;
-                }
+            } elseif (array_key_exists($footer, $columns)) {
+                $value = 0;
             }
         }
 
-        return $return;
+        unset($value);
+
+        foreach ($this->source as $value) {
+            $value = Arrays::force($value);
+
+            foreach ($columns as $column) {
+                $footers[$column] += get_numeric(isset_get($value[$column]));
+            }
+        }
+
+        return $footers;
     }
 
 
@@ -1809,7 +1786,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     {
         if ($columns and is_array($columns)) {
             foreach ($columns as &$column) {
-                $column = Strings::capitalize($column);
+                $column = Strings::capitalize((string) $column);
             }
 
             unset($column);
