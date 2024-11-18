@@ -56,4 +56,19 @@ interface PhoDateTimeInterface extends \DateTimeInterface
      * @return static
      */
     public function getDayStop(): static;
+
+    /**
+     * Returns a new DateTime object for tomorrow
+     *
+     * @return static
+     */
+    public function increaseDay(): static;
+
+
+    /**
+     * Returns a new DateTime object for tomorrow
+     *
+     * @return static
+     */
+    public function decreaseDay(): static;
 }

@@ -116,6 +116,30 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
     /**
      * Returns a new DateTime object for tomorrow
      *
+     * @return static
+     */
+    public function increaseDay(): static
+    {
+        $this->modify('+1 day');
+        return $this;
+    }
+
+
+    /**
+     * Returns a new DateTime object for tomorrow
+     *
+     * @return static
+     */
+    public function decreaseDay(): static
+    {
+        $this->modify('-1 day');
+        return $this;
+    }
+
+
+    /**
+     * Returns a new DateTime object for tomorrow
+     *
      * @param DateTimeZone|string|null $timezone
      *
      * @return static
