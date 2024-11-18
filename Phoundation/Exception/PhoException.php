@@ -203,12 +203,17 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
             }
         }
 
+        // Pass the warning flag along
+        if ($previous instanceof PhoExceptionInterface) {
+            $this->setWarning($this->getWarning() or $previous->getWarning());
+        }
+
         parent::__construct($message, 0, $previous);
     }
 
 
     /**
-     * Returns true if an PhoException object has ever been created
+     * Returns true if a PhoException object has ever been created
      *
      * @return bool
      */
