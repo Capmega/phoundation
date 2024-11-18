@@ -989,7 +989,7 @@ class Log
      *
      * @return bool
      */
-    public static function warning(mixed $messages = null, int $threshold = 8, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
+    public static function warning(mixed $messages = null, int $threshold = 7, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
     {
         return static::write($messages, 'warning', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }
