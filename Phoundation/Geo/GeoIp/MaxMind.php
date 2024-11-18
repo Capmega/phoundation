@@ -25,6 +25,7 @@ use Phoundation\Data\Traits\TraitDataDirectory;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
+use Phoundation\Geo\GeoIp\Exception\GeoIpNoDatabaseException;
 use Phoundation\Network\Network;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Config;
@@ -156,7 +157,9 @@ class MaxMind extends GeoIp
                 Log::warning(tr('MaxMind database file ":file" was not found, maybe try running "./pho geo ip import" ?', [
                     ':file' => $this->directory . ($this->pro ? 'GeoIP2-City.mmdb' : 'GeoLite2-City.mmdb'),
                 ]));
-                throw $e;
+
+                throw GeoIpNoDatabaseException::new(tr('Cannot fetch MaxMind GeoIP data, no GeoIP database available'), $e)
+                                              ->makeWarning();
             }
         }
 
