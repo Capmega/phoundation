@@ -209,14 +209,17 @@ class Password extends DataEntry implements PasswordInterface
         // Get the length of the password
         $strength = 10;
         $length   = strlen($password);
+
         if ($length < Config::getInteger('security.password.min-length', 10)) {
             if (!$length) {
                 throw new NoPasswordSpecifiedException(tr('No password specified'));
             }
+
             throw new PasswordTooShortException(tr('Specified password has only ":length" characters, 10 are the required minimum', [
                 ':length' => $length,
             ]));
         }
+
         // Test for email parts
         if ($email) {
             $tests = [
@@ -225,6 +228,7 @@ class Password extends DataEntry implements PasswordInterface
                 'ruser'   => strrev(Strings::from($email, '@')),
                 'rdomain' => strrev(Strings::until($email, '@')),
             ];
+
             foreach ($tests as $test) {
                 if (str_contains($password, $test)) {
                     // The password contains email parts, either straight or in reverse. Both are not allowed
@@ -232,6 +236,7 @@ class Password extends DataEntry implements PasswordInterface
                 }
             }
         }
+
         // Check if password is not all a lower case
         if (strtolower($password) === $password) {
             $strength -= 15;
@@ -240,28 +245,36 @@ class Password extends DataEntry implements PasswordInterface
         if (strtoupper($password) === $password) {
             $strength -= 15;
         }
+
         // Bonus for long passwords
         $strength += ($length * 2);
+
         // Get the number of upper case letters in the password
         preg_match_all('/[A-Z]/', $password, $matches);
         $a = (count($matches[0]) / strlen($password) * 100);
+
         // Get the number of lower case letters in the password
         preg_match_all('/[a-z]/', $password, $matches);
         $b = (count($matches[0]) / strlen($password) * 100);
+
         // Get the numbers in the password
         preg_match_all('/[0-9]/', $password, $matches);
         $c = (count($matches[0]) / strlen($password) * 100);
+
         // Check for special chars
         preg_match_all('/[<>\[\](){}|!@#$%&*\/=?,;.:\-_+~^\\\]/', $password, $matches);
-        $d = (count($matches[0]) / strlen($password) * 100);
+        $d         = (count($matches[0]) / strlen($password) * 100);
         $strength += (((100 / abs($a - $b - $c - $d))) * 2.5);
+
         // Get the number of unique chars
         $chars            = str_split($password);
         $num_unique_chars = count(array_unique($chars));
-        $strength += $num_unique_chars * 4;
+        $strength        += $num_unique_chars * 4;
+
         // Test for same character repeats
         $repeats = Strings::countCharacters($password);
         $count   = (array_pop($repeats) + array_pop($repeats) + array_pop($repeats));
+
         if ((($count / ($length + 3)) * 10) >= 5) {
             // Too many same characters repeated, this counts against the strength
             $strength = $strength - ($strength * ($count / $length));
@@ -270,6 +283,7 @@ class Password extends DataEntry implements PasswordInterface
             // Few same characters repeated, this counts for the strength
             $strength = $strength + ($strength * ($count / $length) * 2);
         }
+
 // TODO Improve this
 //        // Test for character series
 //        $series     = Strings::countAlphaNumericSeries($password);
@@ -277,6 +291,7 @@ class Password extends DataEntry implements PasswordInterface
 //        $strength  -= ((100 - $percentage) / 2);
         // Strength is a number 1 - 100;
         $strength = (int) floor(($strength > 99) ? 99 : floor(($strength < 0) ? 0 : $strength));
+
         if (VERBOSE) {
             Log::notice(tr('Password strength is ":strength"', [':strength' => $strength]));
         }
