@@ -67,7 +67,7 @@ class Email extends DataEntry implements EmailInterface
      *
      * @return string
      */
-    public static function getDataEntryName(): string
+    public static function getEntryName(): string
     {
         return tr('Email');
     }

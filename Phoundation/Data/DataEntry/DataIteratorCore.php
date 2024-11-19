@@ -494,7 +494,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
         $columns = $columns ?? $this->columns;
 
         // Create and return the table
-        return HtmlTable::new()
+        return HtmlTable::new($this)
                         ->setId(static::getTable())
                         ->setConnectorObject($this->getConnectorObject())
                         ->setHeaders($this->prepareHeaders($columns))
@@ -524,7 +524,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
         $columns = $columns ?? $this->columns;
 
         // Create and return the table
-        return HtmlDataTable::new()
+        return HtmlDataTable::new($this)
                             ->setId(static::getTable())
                             ->setConnectorObject($this->getConnectorObject())
                             ->setHeaders($this->prepareHeaders($columns))

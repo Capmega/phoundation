@@ -43,7 +43,7 @@ class PhoMeta extends DataEntry
 {
     use TraitDataEntryData;
 
-    
+
     /**
      * The length of the headers in string format
      *
@@ -90,7 +90,7 @@ class PhoMeta extends DataEntry
         }
 
         $this->setHash(hash('sha256', $message));
-        
+
         return $message;
     }
 
@@ -255,7 +255,7 @@ class PhoMeta extends DataEntry
      *
      * @return string
      */
-    public static function getDataEntryName(): string
+    public static function getEntryName(): string
     {
         return tr('Phoundation metadata');
     }

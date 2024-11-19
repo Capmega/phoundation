@@ -94,7 +94,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
      *
      * @return string
      */
-    public static function getDataEntryName(): string
+    public static function getEntryName(): string
     {
         return tr('Profile image');
     }

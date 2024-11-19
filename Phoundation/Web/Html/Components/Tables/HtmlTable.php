@@ -18,18 +18,21 @@ namespace Phoundation\Web\Html\Components\Tables;
 
 use PDO;
 use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataCellCallbacks;
 use Phoundation\Data\Traits\TraitDataColumns;
 use Phoundation\Data\Traits\TraitDataRowCallbacks;
 use Phoundation\Data\Traits\TraitDataTitle;
+use Phoundation\Data\Traits\TraitStaticMethodNewWithContent;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputCheckbox;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\ResourceElement;
+use Phoundation\Web\Html\Components\ResourceElementCore;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use Phoundation\Web\Html\Enums\EnumTableRowType;
@@ -38,7 +41,7 @@ use Phoundation\Web\Http\Url;
 use Stringable;
 
 
-class HtmlTable extends ResourceElement implements HtmlTableInterface
+class HtmlTable extends ResourceElementCore implements HtmlTableInterface
 {
     use TraitButtons;
     use TraitDataColumns;
@@ -166,18 +169,73 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      */
     protected bool $process_entities = true;
 
+    /**
+     * The object where this table was generated from
+     *
+     * @var IteratorInterface|null $from
+     */
+    protected ?IteratorInterface $from = null;
+
 
     /**
      * Table constructor
      *
-     * @param string|null $content
+     * @param IteratorInterface|null $from
      */
-    public function __construct(?string $content = null)
+    public function __construct(?IteratorInterface $from = null)
     {
-        parent::__construct($content);
-        parent::setElement('table');
+        parent::__construct();
 
-        $this->setNullStatus(tr('Active'));
+        $this->setElement('table')
+             ->setNullStatus(tr('Active'))
+             ->setFrom($from);
+    }
+
+
+    /**
+     * Returns a new HtmlTable object
+     *
+     * @param IteratorInterface|null $from
+     *
+     * @return HtmlTable
+     */
+    public static function new(?IteratorInterface $from = null): static
+    {
+        return new static($from);
+    }
+
+
+    /**
+     * Returns the Iterator object where this table was generated from
+     *
+     * @return IteratorInterface|null
+     */
+    public function getFrom(): ?IteratorInterface
+    {
+        return $this->from;
+    }
+
+
+    /**
+     * Returns the Iterator object where this table was generated from
+     *
+     * @param IteratorInterface|null $from
+     *
+     * @return HtmlTable
+     */
+    public function setFrom(?IteratorInterface $from = null): static
+    {
+        if ($from) {
+            $this->setComponentEmptyLabel(tr('No :types available', [
+                ':types' => $from->getIteratorName()
+            ]));
+
+        } else {
+            $this->setComponentEmptyLabel(tr('No results available'));
+        }
+
+        $this->from = $from;
+        return $this;
     }
 
 
@@ -260,7 +318,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
 
     /**
-     * Sets if the table will process entities in the source data or not
+     * Sets if the table processes entities in the source data or not
      *
      * @return bool
      */
@@ -271,7 +329,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
 
     /**
-     * Sets if the table will process entities in the source data or not
+     * Sets if the table processes entities in the source data or not
      *
      * @param bool $process_entities
      *

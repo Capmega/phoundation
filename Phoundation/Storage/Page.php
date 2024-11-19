@@ -57,7 +57,7 @@ class Page extends DataEntry implements PageInterface
      *
      * @return string
      */
-    public static function getDataEntryName(): string
+    public static function getEntryName(): string
     {
         return tr('Page');
     }

@@ -127,7 +127,7 @@ class Authentication extends DataEntry implements AuthenticationInterface
      *
      * @return string
      */
-    public static function getDataEntryName(): string
+    public static function getEntryName(): string
     {
         return tr('Account authentication');
     }

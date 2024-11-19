@@ -267,7 +267,7 @@ class User extends DataEntry implements UserInterface
      *
      * @return string
      */
-    public static function getDataEntryName(): string
+    public static function getEntryName(): string
     {
         return tr('User');
     }
@@ -703,7 +703,7 @@ class User extends DataEntry implements UserInterface
 
         if ($this->readonly or $this->disabled) {
             throw new DataEntryReadonlyException(tr('Cannot save this ":name" object, the object is readonly or disabled', [
-                ':name' => static::getDataEntryName(),
+                ':name' => static::getEntryName(),
             ]));
         }
 

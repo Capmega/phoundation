@@ -39,7 +39,7 @@ class StaticRoute extends DataEntry
      *
      * @return string
      */
-    public static function getDataEntryName(): string
+    public static function getEntryName(): string
     {
         return tr('Static route');
     }

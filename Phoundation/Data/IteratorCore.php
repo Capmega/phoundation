@@ -101,6 +101,17 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
+     * Returns the name of the items in this Iterator class
+     *
+     * @return string
+     */
+    public static function getIteratorName(): string
+    {
+        return tr('items');
+    }
+
+
+    /**
      * Returns the first data type that is allowed and accepted for this data iterator, considered as the most important
      * one
      *

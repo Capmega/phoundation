@@ -105,6 +105,17 @@ class Users extends DataIterator implements UsersInterface
 
 
     /**
+     * Returns the name of the items in this Iterator class
+     *
+     * @return string
+     */
+    public static function getIteratorName(): string
+    {
+        return tr('users');
+    }
+
+
+    /**
      * Set the new users for the current parents to the specified list
      *
      * @param array|null  $list

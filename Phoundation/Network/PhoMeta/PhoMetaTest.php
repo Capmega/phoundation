@@ -168,7 +168,7 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
 
         return $this->set($action, 'action');
     }
-    
+
 
     /**
      * Returns the key property for this PhoMetaTest object
@@ -214,7 +214,7 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
      *
      * @return string
      */
-    public static function getDataEntryName(): string
+    public static function getEntryName(): string
     {
         return tr('Phoundation network test metadata');
     }

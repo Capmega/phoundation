@@ -144,7 +144,7 @@ class Connector extends DataEntry implements ConnectorInterface
     /**
      * @inheritDoc
      */
-    public static function getDataEntryName(): string
+    public static function getEntryName(): string
     {
         return tr('SQL connector');
     }

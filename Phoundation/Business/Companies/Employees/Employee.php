@@ -43,7 +43,7 @@ class Employee extends DataEntry
      *
      * @return string
      */
-    public static function getDataEntryName(): string
+    public static function getEntryName(): string
     {
         return 'company employee';
     }

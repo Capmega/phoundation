@@ -60,7 +60,7 @@ class UserFile extends DataEntry
      *
      * @return string
      */
-    public static function getDataEntryName(): string
+    public static function getEntryName(): string
     {
         return tr('User file');
     }

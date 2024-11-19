@@ -37,7 +37,7 @@ class EmailAddress extends DataEntry
     /**
      * @inheritDoc
      */
-    public static function getDataEntryName(): string
+    public static function getEntryName(): string
     {
         return tr('Email address');
     }

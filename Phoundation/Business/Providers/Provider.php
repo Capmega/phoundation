@@ -66,7 +66,7 @@ class Provider extends DataEntry implements ProviderInterface
      *
      * @return string
      */
-    public static function getDataEntryName(): string
+    public static function getEntryName(): string
     {
         return 'provider';
     }

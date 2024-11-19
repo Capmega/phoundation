@@ -95,7 +95,7 @@ class Task extends DataEntry implements TaskInterface
      *
      * @return string
      */
-    public static function getDataEntryName(): string
+    public static function getEntryName(): string
     {
         return tr('Process task');
     }

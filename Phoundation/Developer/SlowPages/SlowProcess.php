@@ -37,7 +37,7 @@ class SlowProcess extends Incident
      *
      * @return string
      */
-    public static function getDataEntryName(): string
+    public static function getEntryName(): string
     {
         return tr('Slow process');
     }

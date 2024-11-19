@@ -88,7 +88,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
     /**
      * @inheritDoc
      */
-    public static function getDataEntryName(): string
+    public static function getEntryName(): string
     {
         return tr('Signin key');
     }

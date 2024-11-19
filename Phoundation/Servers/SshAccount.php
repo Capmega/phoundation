@@ -79,7 +79,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
      *
      * @return string
      */
-    public static function getDataEntryName(): string
+    public static function getEntryName(): string
     {
         return tr('SSH account');
     }

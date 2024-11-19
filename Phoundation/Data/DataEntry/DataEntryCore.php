@@ -590,7 +590,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      *
      * @return string
      */
-    public static function getDataEntryName(): string
+    public static function getEntryName(): string
     {
         return 'DataEntry';
     }
@@ -1776,7 +1776,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     {
         if ($this->readonly or $this->disabled) {
             throw new DataEntryReadonlyException(tr('Cannot apply changes to ":name" object, the object is readonly or disabled', [
-                ':name' => static::getDataEntryName(),
+                ':name' => static::getEntryName(),
             ]));
         }
 
@@ -1801,7 +1801,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             if (!$this->allow_modify) {
                 // auto modify is not allowed, sorry!
                 throw new ValidationFailedException(tr('Cannot modify :entry', [
-                    ':entry' => static::getDataEntryName(),
+                    ':entry' => static::getEntryName(),
                 ]));
             }
 
@@ -1809,7 +1809,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             if (!$this->allow_create) {
                 // auto create is not allowed, sorry!
                 throw new ValidationFailedException(tr('Cannot create new :entry', [
-                    ':entry' => static::getDataEntryName(),
+                    ':entry' => static::getEntryName(),
                 ]));
             }
         }
@@ -1827,7 +1827,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         $data_source = Validator::pick($source)->setDefinitionsObject($this->definitions);
 
         if ($this->debug) {
-            Log::debug('APPLY ' . static::getDataEntryName() . ' (' . get_class($this) . ')', 10, echo_header: false);
+            Log::debug('APPLY ' . static::getEntryName() . ' (' . get_class($this) . ')', 10, echo_header: false);
             Log::debug('CURRENT DATA', 10         , echo_header: false);
             Log::vardump($this->source            , echo_header: false);
             Log::debug('UNVALIDATED NEW DATA'     , echo_header: false);
@@ -2097,7 +2097,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
                     case EnunmStateMismatchHandling::ignore:
                         Log::warning(tr('Ignoring database and user meta-state mismatch for ":type" type record with ID ":id" and old state ":old" and new state ":new"', [
                             ':id'   => $this->getId(),
-                            ':type' => static::getDataEntryName(),
+                            ':type' => static::getEntryName(),
                             ':old'  => $this->getMetaState(),
                             ':new'  => $data['meta_state'],
                         ]));
@@ -2112,7 +2112,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
                     case EnunmStateMismatchHandling::restrict:
                         throw new DataEntryStateMismatchException(tr('Database and user meta-state for ":type" type record with ID ":id" do not match', [
                             ':id'   => $this->getId(),
-                            ':type' => static::getDataEntryName(),
+                            ':type' => static::getEntryName(),
                         ]));
                 }
             }
@@ -3171,7 +3171,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     {
         if ($this->isNew()) {
             throw new OutOfBoundsException(tr('Cannot add meta-information, this ":class" object is still new', [
-                ':class' => $this->getDataEntryName(),
+                ':class' => $this->getEntryName(),
             ]));
         }
 
@@ -3311,7 +3311,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     {
         if ($this->readonly or $this->disabled) {
             throw new DataEntryReadonlyException(tr('Cannot save this ":name" object, the object is readonly or disabled', [
-                ':name' => static::getDataEntryName(),
+                ':name' => static::getEntryName(),
             ]));
         }
 

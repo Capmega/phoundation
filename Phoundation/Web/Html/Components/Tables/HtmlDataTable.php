@@ -219,11 +219,11 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     /**
      * HtmlDataTable class constructor
      *
-     * @param string|null $content
+     * @param IteratorInterface|null $from
      */
-    public function __construct(?string $content = null)
+    public function __construct(?IteratorInterface $from = null)
     {
-        parent::__construct($content);
+        parent::__construct($from);
 
         // Set defaults
         $this->setPagingEnabled(Config::getBoolean('data.paging.enabled', true))

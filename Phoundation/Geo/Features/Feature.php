@@ -43,7 +43,7 @@ class Feature extends DataEntry implements FeatureInterface
      *
      * @return string
      */
-    public static function getDataEntryName(): string
+    public static function getEntryName(): string
     {
         return 'geo feature';
     }

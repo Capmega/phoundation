@@ -52,7 +52,7 @@ class County extends DataEntry implements CountyInterface
      *
      * @return string
      */
-    public static function getDataEntryName(): string
+    public static function getEntryName(): string
     {
         return 'geo county';
     }

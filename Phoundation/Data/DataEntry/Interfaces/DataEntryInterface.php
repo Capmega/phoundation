@@ -55,7 +55,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      *
      * @return string
      */
-    public static function getDataEntryName(): string;
+    public static function getEntryName(): string;
 
     /**
      * Returns the column that is unique for this object
