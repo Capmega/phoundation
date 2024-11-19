@@ -1197,10 +1197,33 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
     {
-        $this->is_loading = true;
+        if ($source) {
+            if ($source instanceof IteratorInterface) {
+                $source = $source->getSource();
 
-        // Load data with object init
-        $this->setMetaData($source)->copyValuesToSource($source, false);
+            } elseif ($source instanceof PDOStatement) {
+                $source = sql()->list($source, $execute);
+
+            } elseif (is_string($source)) {
+                // Source string, must be JSON or SQL query
+                try {
+                    $source = Json::decode($source);
+
+                } catch (Throwable) {
+                    // This is not JSON
+                    $source = sql()->list($source, $execute);
+                }
+            }
+
+            $this->is_loading = true;
+
+            // Load data with object init
+            $this->setMetaData($source)
+                 ->copyValuesToSource($source, false);
+
+        } else {
+            $this->source = [];
+        }
 
         $this->is_modified = false;
         $this->is_loading  = false;
