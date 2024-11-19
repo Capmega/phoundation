@@ -768,7 +768,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     public function setUniqueColumnValue(mixed $value, bool $force = false): static
     {
-        return $this->doSet($value, static::getUniqueColumn(), $force);
+        return $this->set($value, static::getUniqueColumn(), $force);
     }
 
 
@@ -815,25 +815,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      *
      * @param mixed                       $value
      * @param Stringable|string|float|int $key
-     *
-     * @return static
-     */
-    public function set(mixed $value, Stringable|string|float|int $key): static
-    {
-        return $this->doSet($value, $key, false);
-    }
-
-
-    /**
-     * Sets the value for the specified data key
-     *
-     * @param mixed                       $value
-     * @param Stringable|string|float|int $key
      * @param bool                        $force
      *
      * @return static
      */
-    protected function doSet(mixed $value, Stringable|string|float|int $key, bool $force): static
+    public function set(mixed $value, Stringable|string|float|int $key, bool $force = false): static
     {
         if ($this->debug) {
             Log::debug('TRY SET SOURCE VALUE FIELD "' . get_class($this) . '>' . $key . '" TO "' . Strings::force($value) . ' [' . gettype($value) . ']"', 10, echo_header: false);

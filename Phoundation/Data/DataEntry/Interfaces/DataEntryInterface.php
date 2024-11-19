@@ -91,6 +91,8 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
     /**
      * Sets if this DataEntry validates data before saving
      *
+     * @param bool $validate
+     *
      * @return static
      */
     public function setValidate(bool $validate): static;
@@ -685,4 +687,15 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * @return bool
      */
     public function isCreated(): bool;
+
+    /**
+     * Sets the value for the specified data key
+     *
+     * @param mixed                       $value
+     * @param Stringable|string|float|int $key
+     * @param bool                        $force
+     *
+     * @return static
+     */
+    public function set(mixed $value, Stringable|string|float|int $key, bool $force = false): static;
 }
