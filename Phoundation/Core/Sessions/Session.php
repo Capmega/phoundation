@@ -960,10 +960,48 @@ class Session implements SessionInterface
     public static function signIn(string $user, string $password, string $user_class = User::class): UserInterface
     {
         try {
-            static::$user         = $user_class::authenticate(['email' => $user], $password, EnumAuthenticationAction::signin);
+            return static::signInWithUserObject(
+                $user_class::authenticate(['email' => $user], $password, EnumAuthenticationAction::signin)
+            );
+
+        } catch (DataEntryNotExistsException $e) {
+            if ($e->getDataKey('class')) {
+                switch (Strings::fromReverse($e->getDataKey('class'), '\\')) {
+                    case '':
+                        // no break
+                    case 'User':
+                        Incident::new()
+                                ->setType('User does not exist')
+                                ->setSeverity(EnumSeverity::low)
+                                ->setTitle(tr('Cannot sign in user ":user", the user does not exist', [
+                                    ':user' => $user
+                                ]))
+                                ->setDetails(['user' => $user])
+                                ->setNotifyRoles('accounts')
+                                ->save()
+                                ->throw(AuthenticationException::class);
+                }
+            }
+
+            throw $e;
+        }
+    }
+
+
+    /**
+     * Authenticate a user with the specified password
+     *
+     * @param UserInterface $user
+     *
+     * @return UserInterface
+     */
+    public static function signInWithUserObject(UserInterface $user): UserInterface
+    {
+        try {
+            // Update the users sign-in and last sign-in information
+            static::$user         = $user;
             static::$user_changed = true;
 
-            // Update the users sign-in and last sign-in information
             static::clear();
             static::updateSignInTracking();
             static::clearSignInKey();
@@ -973,10 +1011,10 @@ class Session implements SessionInterface
                     ->setSeverity(EnumSeverity::notice)
                     ->setTitle(tr('The user ":user" signed in', [':user' => static::$user->getLogId()]))
                     ->setDetails(['user' => static::$user->getLogId()])
+                    ->setLog(8)
                     ->save();
 
             $_SESSION['user']['id'] = static::$user->getId();
-
             return static::$user;
 
         } catch (DataEntryNotExistsException $e) {

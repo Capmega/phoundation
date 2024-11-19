@@ -401,7 +401,7 @@ class Plugins extends DataIterator implements PluginsInterface
      */
     protected static function loadBlacklist(): array
     {
-        $blacklist = Config::getArray('plugins.blacklist');
+        $blacklist = Config::getArray('plugins.blacklist', []);
         $return    = [];
 
         if ($blacklist) {
