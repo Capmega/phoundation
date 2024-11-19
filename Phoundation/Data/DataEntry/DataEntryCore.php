@@ -694,9 +694,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
         $this->definitions = $definitions->add(DefinitionFactory::newDivider($this, 'new-divider')
                                                                 ->addPreRenderFunctions(function(DefinitionInterface $definition, array $source, mixed $value) {
-            // Only render this when displaying meta-elements
-            $definition->setRender(!$this->isNew() and $this->getDefinitionsObject()->getMetaVisible());
-        }));
+                                                                    // Only render this when displaying meta-elements
+                                                                    $definition->setRender(!$this->isNew() and $this->getDefinitionsObject()->getMetaVisible());
+                                                                }));
     }
 
 
@@ -1512,7 +1512,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
          * 2) This method was called with the $directly flag
          * 3) If this specific column has no direct methods defined and updates directly
          */
-        if (!static::definitionsHaveMethods() or $directly or $this->definitions->get($column)?->getDirectUpdate()) {
+        if (!static::requireDefinitionsMethods() or $directly or $this->definitions->get($column)?->getDirectUpdate()) {
             // Store data directly, bypassing the set method for this key
             $this->set($value, $column);
 
@@ -1579,7 +1579,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      *
      * @return bool
      */
-    public static function definitionsHaveMethods(): bool
+    public static function requireDefinitionsMethods(): bool
     {
         return true;
     }

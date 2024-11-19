@@ -231,7 +231,7 @@ class PostValidator extends Validator
         // We have a button, yay!
         if ($return_key) {
             if ($prefix) {
-                return Strings::from($key, $post_key);
+                return Strings::until($key, $post_key);
             }
 
             return $key;
@@ -261,7 +261,7 @@ class PostValidator extends Validator
         if ($prefix) {
             // Search for the specified prefix code for the button
             foreach ($source as $key => $value) {
-                if (str_starts_with($key, $post_key)) {
+                if (str_ends_with($key, $post_key)) {
                     $post_key = $key;
                     $button   = trim((string) $value);
                     break;

@@ -3646,16 +3646,17 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             }
 
             $data_entry = $this->definitions?->getDataEntry();
+            $field      = Strings::from($this->selected_field, $this->field_prefix);
 
             if ($data_entry) {
                 // TODO Add support for connector passing here
-                if (($data_entry::class)::exists([$this->selected_field => $value], $this->id)) {
+                if (($data_entry::class)::exists([$field => $value], $this->id)) {
                     $this->addFailure($failure ?? tr('already exists'));
                 }
 
             } else {
                 // Not a DataEntry object, use manual query
-                if (sql($connector)->setDebug($this->debug)->exists($this->table, Strings::from($this->selected_field, $this->field_prefix), $value, $this->id)) {
+                if (sql($connector)->setDebug($this->debug)->exists($this->table, $field, $value, $this->id)) {
                     $this->addFailure($failure ?? tr('already exists'));
                 }
             }

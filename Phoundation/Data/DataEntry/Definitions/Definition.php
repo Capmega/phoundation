@@ -2831,7 +2831,7 @@ class Definition implements DefinitionInterface
                   ->select($column, !$bool);
 
         // Should this value be forced NULL in the database if empty?
-        if (!$validator->get($column)) {
+        if (!$validator->get($column, false)) {
             if ($this->getNullDefault()) {
                 // Yep!
                 $validator->set(null, $column);
@@ -2882,7 +2882,7 @@ class Definition implements DefinitionInterface
         if (!$this->getRender()) {
             // This column isn't rendered (so not sent to the user) which means that it CANNOT be submitted.
             // If the user submitted it, they're messing around, don't allow it!
-            if ($validator->get($column)) {
+            if ($validator->get($column, false)) {
                 // This column isn't rendered and should not have a value whilst applying unless forced processing.
                 if (!$this->getForcedProcessing()) {
                     // Frack...
