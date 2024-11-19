@@ -241,7 +241,7 @@ class Url implements UrlInterface
         $domain = static::getDomainFromUrl($this->source);
 
         try {
-            if (Domains::getConfigurationKey($domain, 'cloaked')) {
+            if (Domains::getConfigurationKey($domain, 'cloaked', false)) {
                 $this->cloak();
             }
 
@@ -572,7 +572,7 @@ class Url implements UrlInterface
         }
 
         $url  = Strings::from($url, 'data/content/cdn/');
-        $base = Domains::getConfigurationKey(Domains::getCurrent(), 'cdn', $_SERVER['REQUEST_SCHEME'] . '://cdn.' . Domains::getCurrent() . '/:LANGUAGE/');
+        $base = Domains::getConfigurationKey(Domains::getCurrent(), 'cdn', $_SERVER['REQUEST_SCHEME'] . '://cdn.' . Domains::getCurrent() . '/:LANGUAGE/', false);
         $base = Strings::ensureEndsWith($base, '/');
         $url  = Strings::ensureStartsNotWith($url, '/');
         $url  .= static::addExtension($extension);

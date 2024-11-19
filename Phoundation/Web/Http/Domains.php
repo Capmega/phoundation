@@ -402,7 +402,7 @@ class Domains
      */
     public static function getConfigurationKey(string $domain, string $key, mixed $default = null): mixed
     {
-        $domain_config = static::getConfiguration($domain);
+        $domain_config = static::getConfiguration($domain, $default === null);
 
         return isset_get($domain_config[$key], $default);
     }
@@ -412,16 +412,22 @@ class Domains
      * Returns the configuration for the specified domain
      *
      * @param string $domain
+     * @param bool   $validate
      *
-     * @return array
+     * @return array|null
      */
-    public static function getConfiguration(string $domain): array
+    public static function getConfiguration(string $domain, bool $validate = false): ?array
     {
         if (!static::isPrimary($domain)) {
             if (!static::isWhitelist($domain)) {
-                throw ConfigPathDoesNotExistsException::new(tr('No configuration available for domain ":domain"', [
-                    ':domain' => $domain,
-                ]));
+                if ($validate) {
+                    throw ConfigPathDoesNotExistsException::new(tr('No configuration available for domain ":domain"', [
+                        ':domain' => $domain,
+                    ]));
+                }
+
+                // No configuration available for this domain
+                return null;
             }
 
         } else {
@@ -431,15 +437,17 @@ class Domains
         $domain_config = &static::$domains_configuration[$domain];
 
         // Validate configuration
-        try {
-            Arrays::requiredKeys($domain_config, 'web,cdn', ConfigPathDoesNotExistsException::class);
-            Arrays::default($domain_config, 'index'  , '/');
-            Arrays::default($domain_config, 'cloaked', false);
+        if ($validate) {
+            try {
+                Arrays::requiredKeys($domain_config, 'web,cdn', ConfigPathDoesNotExistsException::class);
+                Arrays::default($domain_config, 'index'  , '/');
+                Arrays::default($domain_config, 'cloaked', false);
 
-        } catch (ConfigPathDoesNotExistsException $e) {
-            if (!Core::isState('setup')) {
-                // In setup mode, we won't have any configuration, but we will be able to continue
-                throw $e;
+            } catch (ConfigPathDoesNotExistsException $e) {
+                if (!Core::isState('setup')) {
+                    // In setup mode, we won't have any configuration, but we will be able to continue
+                    throw $e;
+                }
             }
         }
 
