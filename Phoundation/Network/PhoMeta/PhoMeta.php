@@ -30,35 +30,20 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryData;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Network\PhoMeta\Exceptions\PhoMetaTestException;
+use Phoundation\Network\PhoMeta\Exceptions\PhoMetaException;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaVersionNotSupportedException;
 use Phoundation\Network\PhoMeta\Exceptions\SourceNotPhoundationMetaException;
+use Phoundation\Network\PhoMeta\Interfaces\PhoMetaInterface;
 use Phoundation\Network\PhoMeta\Interfaces\PhoMetaTestInterface;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
-use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Numbers;
-use Phoundation\Web\Html\Components\P;
+use Throwable;
 
-class PhoMeta extends DataEntry
+class PhoMeta extends DataEntry implements PhoMetaInterface
 {
     use TraitDataEntryData;
-
-    
-    /**
-     * The length of the headers in string format
-     *
-     * @var int $headers_string_length
-     */
-    protected int $headers_string_length;
-
-    /**
-     * The headers in string (json) format
-     *
-     * @var string $headers_string
-     */
-    protected string $headers_string;
 
 
     /**
@@ -69,6 +54,7 @@ class PhoMeta extends DataEntry
      * @param bool                                     $init
      */
     public function __construct(int|array|string|DataEntryInterface|null $identifier = null, ?bool $meta_enabled = null, bool $init = true) {
+
         parent::__construct($identifier, $meta_enabled, $init);
 
         $this->setLocalId(Core::getLocalId())
@@ -98,13 +84,41 @@ class PhoMeta extends DataEntry
      *
      * @return static
      */
-    public function extractMetaHeader(string $message): string
+    public function extractPhoMetaData(string $message): string
     {
         if (PhoMeta::hasPhoMetaHeader($message)) {
-            $this->setMetaHeader($message);
-            $message = substr($message, $this->getHeadersStringLength());
+
+            //remove 'PHO\d'
+            $version = substr($message, 3, 1);
+
+            $message = substr($message, 4);
+
+
+
+            try {
+                $json = Json::decode($message);
+
+            } catch (Throwable $e) {
+                throw PhoMetaException::new(tr('Specified message containing PHO metadata is invalid'), $e)
+                                      ->addData(['message' => $message]);
+            }
+
+            if (!array_key_exists('data', $json)) {
+                throw PhoMetaException::new(tr('Specified message containing PHO metadata contains no message data'))
+                                      ->addData(['message' => $message]);
+            }
+
+            if (!array_key_exists('meta', $json)) {
+                throw PhoMetaException::new(tr('Specified message containing PHO metadata contains no meta data'))
+                                      ->addData(['message' => $message]);
+            }
+
+            // Message is json and contains 'meta' and 'data'
+            $this->parsePhoMessage($json, $version);
+
         }
 
+        // Set hash based on HL7 message OR Pho message with first 4 characters removed
         $this->setHash(hash('sha256', $message));
         
         return $message;
@@ -114,13 +128,13 @@ class PhoMeta extends DataEntry
     /**
      * Calls an existing 'extraction' method based on pho version
      *
-     * @param string $message
+     * @param array  $source
+     * @param string $version
      *
      * @return static
      */
-    protected function setMetaHeader(string $message): static
+    protected function parsePhoMessage(array $source, string $version): static
     {
-        $version = substr($message, 3, 1);
         $method  = 'parsePhoMessageV' . $version;
 
         if (!method_exists($this, $method)) {
@@ -129,35 +143,21 @@ class PhoMeta extends DataEntry
             ]));
         }
 
-        return $this->$method($method);
+        return $this->$method($source);
     }
 
 
     /**
      * Populates this PhoMeta's source array with correct details based on message
      *
-     * @param string $message
+     * @param array $source
      *
      * @return PhoMeta
      */
-    protected function parsePhoMessageV1(string $message): static
+    protected function parsePhoMessageV1(array $source): static
     {
-        return $this->setHeadersString($message)
-                    ->setGlobalId(Core::getGlobalId())
-                    ->processFromString($this->getHeadersString());
-    }
-
-
-    /**
-     * Populates this PhoMeta object's source with the JSON string formatted message header
-     *
-     * @param string $headers
-     *
-     * @return $this
-     */
-    protected function processFromString(string $headers): static
-    {
-        return $this->setSource(Json::decode($headers));
+        Log::checkpoint();
+        return $this->setSource($source['meta']);
     }
 
 
@@ -171,74 +171,29 @@ class PhoMeta extends DataEntry
      */
     public function setSource(IteratorInterface|array|string|PDOStatement|null $source = null, ?array $execute = null): static
     {
-        // Validate "phoundation" key available
-        if (!array_key_exists('phoundation', $source)) {
-            Incident::new()
-                    ->setSeverity(EnumSeverity::medium)
-                    ->setTitle(tr('Phoundation metadata missing'))
-                    ->setBody(tr('Specified Phoundation metadata source contains no required "phoundation" key'))
-                    ->setData(['source' => $source])
-                    ->setNotifyRoles('developer')
-                    ->save()
-                    ->throw(SourceNotPhoundationMetaException::class);
+        if ($source) {
+            parent::setSource($source, $execute);
+
+            // Validate "phoundation" key available
+            if (!array_key_exists('phoundation', $this->source)) {
+                Incident::new()
+                        ->setSeverity(EnumSeverity::medium)
+                        ->setTitle(tr('Phoundation metadata missing'))
+                        ->setBody(tr('Specified Phoundation metadata source contains no required "phoundation" key'))
+                        ->setData(['source' => $this->source])
+                        ->setNotifyRoles('developer')
+                        ->save()
+                        ->throw(SourceNotPhoundationMetaException::class);
+            }
+
+            // Validate that the "phoundation" key contains as a value a registered, authorized key
+            // TODO implement
+
+            return $this;
         }
 
-
-        // Validate that the "phoundation" key contains as a value a registered, authorized key
-        // TODO IMPLEMENT
-        return parent::setSource($source, $execute);
-    }
-
-
-    /**
-     * Returns this PhoMeta object's headers string length
-     *
-     * @return int
-     */
-    public function getHeadersStringLength(): int
-    {
-        return $this->headers_string_length;
-    }
-
-
-    /**
-     * Sets the headers string length
-     *
-     * @param int $length
-     *
-     * @return static
-     */
-    protected function setHeadersStringLength(int $length): static
-    {
-        $this->headers_string_length = $length;
-        return $this;
-    }
-
-
-    /**
-     * Returns the PhoMeta headers in string format
-     *
-     * @return string
-     */
-    public function getHeadersString(): string
-    {
-        return $this->headers_string;
-    }
-
-
-    /**
-     * Sets the PhoMeta headers in string format given an entire message
-     *
-     * @param string $message
-     *
-     * @return PhoMeta
-     */
-    public function setHeadersString(string $message): static
-    {
-        $this->setHeadersStringLength(Numbers::binaryToInt(substr($message, 4, 4)));
-        $this->headers_string = substr($message, 0, $this->getHeadersStringLength());
-
-        return $this;
+        // No source data specified, set source to empty
+        return parent::setSource(null, $execute);
     }
 
 
@@ -251,7 +206,7 @@ class PhoMeta extends DataEntry
      */
     public static function hasPhoMetaHeader(string $message): bool
     {
-        return (str_starts_with($message, 'PHO'));
+        return (bool) preg_match('/PHO\d/', $message);
     }
 
 
@@ -370,9 +325,12 @@ class PhoMeta extends DataEntry
     public function setGlobalId(string|int|null $global_id): static
     {
         // Only override global ID if the message contained on
-        if ($this->getGlobalId() and ($global_id === null)) {
+        if ($this->getGlobalId() or ($global_id === null)) {
             return $this;
         }
+
+        // Set the systems global ID to match
+        Core::setGlobalId($global_id);
 
         return $this->set($global_id, 'global_id');
     }
