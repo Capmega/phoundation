@@ -77,11 +77,11 @@ class Incident extends DataEntry implements IncidentInterface
 
 
     /**
-     * Sets if this incident is logged in the text log
+     * Tracks the log level threshold for this incident
      *
-     * @var bool
+     * @var int|bool
      */
-    protected bool $log = true;
+    protected int|bool $log = true;
 
 
     /**
@@ -157,9 +157,9 @@ class Incident extends DataEntry implements IncidentInterface
     /**
      * Returns if this incident is logged in the text log
      *
-     * @return bool
+     * @return int|bool
      */
-    public function getLog(): bool
+    public function getLog(): int|bool
     {
         return $this->log;
     }
@@ -168,13 +168,13 @@ class Incident extends DataEntry implements IncidentInterface
     /**
      * Sets if this incident is logged in the text log
      *
-     * @param bool $log
+     * @param int|bool $level
      *
      * @return static
      */
-    public function setLog(bool $log): static
+    public function setLog(int|bool $level): static
     {
-        $this->log = $log;
+        $this->log = $level;
 
         return $this;
     }
@@ -252,16 +252,7 @@ class Incident extends DataEntry implements IncidentInterface
      */
     public function setNotifyRoles(IteratorInterface|array|string $notify_roles): static
     {
-        if (is_string($notify_roles)) {
-            $notify_roles = [$notify_roles];
-        }
-
-        if (is_array($notify_roles)) {
-            $notify_roles = new Iterator($notify_roles);
-        }
-
-        $this->notify_roles = $notify_roles;
-
+        $this->notify_roles = Iterator::force($notify_roles);
         return $this;
     }
 
@@ -309,7 +300,7 @@ class Incident extends DataEntry implements IncidentInterface
             ]));
 
             // Force logging and make it always severe to be sure it gets attention
-            $this->log = true;
+            $this->log = 9;
             $severity  = 'severe';
         }
 
@@ -331,7 +322,7 @@ class Incident extends DataEntry implements IncidentInterface
                     Log::notice(tr('Security notice (:id): :message', [
                         ':id'      => $this->getId(),
                         ':message' => $this->getTitle(),
-                    ]));
+                    ]), (is_integer($this->log) ? $this->log : 3));
 
                     break;
 
@@ -343,10 +334,10 @@ class Incident extends DataEntry implements IncidentInterface
                         ':id'       => $this->getId(),
                         ':severity' => $severity,
                         ':message'  => $this->getTitle(),
-                    ]));
+                    ]), (is_integer($this->log) ? $this->log : 7));
 
                     if ($details) {
-                        Log::warning(print_r($details, true), clean: false);
+                        Log::warning(print_r($details, true), (is_integer($this->log) ? $this->log : 7), clean: false);
                     }
 
                     break;
@@ -356,10 +347,10 @@ class Incident extends DataEntry implements IncidentInterface
                         ':id'       => $this->getId(),
                         ':severity' => $severity,
                         ':message'  => $this->getTitle(),
-                    ]));
+                    ]), (is_integer($this->log) ? $this->log : 9));
 
                     if ($details) {
-                        Log::error(print_r($details, true));
+                        Log::error(print_r($details, true), (is_integer($this->log) ? $this->log : 9));
                     }
             }
         }

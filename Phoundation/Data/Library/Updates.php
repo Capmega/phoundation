@@ -40,7 +40,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     public function updates(): void
     {
         $this->addUpdate('0.0.3', function () {
-            // Create the categories table.
+            // Create the "categories" table.
             sql()->getSchemaObject()->getTableObject('categories')->drop()->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
@@ -64,8 +64,9 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_categories_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_categories_parents_id` FOREIGN KEY (`parents_id`) REFERENCES `categories` (`id`) ON DELETE RESTRICT
                 ')->create();
+
         })->addUpdate('0.0.5', function () {
-            // Modify the categories table.
+            // Modify the "categories" table.
             sql()->getSchemaObject()->getTableObject('categories')->alter()
                  ->addColumn('
                     `created_by` bigint DEFAULT NULL', 'AFTER `created_on`
@@ -76,8 +77,9 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->addForeignKeys('
                     CONSTRAINT `fk_categories_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ');
+
         })->addUpdate('0.0.12', function () {
-            // Create the entities table.
+            // Create the "entities" table.
             sql()->getSchemaObject()->getTableObject('entities')->drop()->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,

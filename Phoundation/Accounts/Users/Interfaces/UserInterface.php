@@ -694,11 +694,13 @@ interface UserInterface extends DataEntryInterface
 
 
     /**
-     * Send a notification to only this user.
+     * Returns a NotificationInterface object that can be used to send a notification to only this user.
      *
-     * @return NotificationInterface
+     * Will return NULL if notifications_enabled is false
+     *
+     * @return NotificationInterface|null
      */
-    public function notify(): NotificationInterface;
+    public function notify(): ?NotificationInterface;
 
 
     /**
@@ -814,4 +816,20 @@ interface UserInterface extends DataEntryInterface
      * @return bool
      */
     public function hasPassword(string $password): bool;
+
+    /**
+     * Returns if this user can receive notifications or if notifications for this user will be dropped
+     *
+     * @return bool
+     */
+    public function getNotificationsEnabled(): bool;
+
+    /**
+     * Sets if this user can receive notifications or if notifications for this user will be dropped
+     *
+     * @param bool $enabled
+     *
+     * @return $this
+     */
+    public function setNotificationsEnabled(bool $enabled): static;
 }

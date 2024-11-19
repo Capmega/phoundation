@@ -32,8 +32,7 @@ class DataEntryTest extends TestCase
      */
     public function testNew()
     {
-        $entry = DataEntry::new();
-        $this->assertInstanceOf(DataEntry::class, $entry);
+        $this->assertInstanceOf(DataEntry::class, DataEntry::new());
     }
 
 

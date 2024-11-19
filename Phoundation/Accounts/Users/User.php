@@ -96,8 +96,6 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\A;
-use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Json\Users;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
@@ -183,6 +181,13 @@ class User extends DataEntry implements UserInterface
      * @var ProfileImagesInterface $profile_images
      */
     protected ProfileImagesInterface $profile_images;
+
+    /**
+     * Sets if this User object may receive notifications or if it can simply ignore them.
+     *
+     * @var bool $notifications_enabled
+     */
+    protected bool $notifications_enabled = true;
 
 
     /**
@@ -554,8 +559,10 @@ class User extends DataEntry implements UserInterface
     {
         try {
             $user = static::load($identifier);
+
             if ($user->passwordMatch($password)) {
                 static::authenticateDomain($identifier, $user, $authentication, $domain, $test);
+
                 Hook::new('phoundation/accounts/authentication')
                     ->execute('success', [
                         'user'     => $user,
@@ -564,6 +571,7 @@ class User extends DataEntry implements UserInterface
 
                 return $user;
             }
+
         } catch (DataEntryNotExistsException $e) {
             $authentication->setStatus('user-not-exist')->save();
 
@@ -817,19 +825,17 @@ class User extends DataEntry implements UserInterface
             // Notify the user that their account was created, accompanied by a login link
             $key = $this->getSigninKey()->generate(Url::getWww('/force-password-update.html'));
 
-            Notification::new()
-                        ->setUser($this)
-                        ->setTitle(tr('An account has been created for you on :project', [
-                            ':project' => Config::getString('project.name', 'Phoundation')
-                        ]))
-                        ->setMessage(tr('An account has been created on :project by :user. To enter the system, you can click the link :link or copy/paste the :url in your browser. This will immediately take you to your account where you only have to enter your desired password', [
-                            ':url'     => $key->getUrl(),
-                            ':link'    => '<a href="' . $key->getUrl() . '">' . tr('here') . '</a>',
-                            ':user'    => Session::getUserObject()->getDisplayName(),
-                            ':project' => Config::getString('project.name', 'Phoundation'),
-                        ]))
-                        ->save()
-                        ->send();
+            $this->notify()?->setTitle(tr('An account has been created for you on :project', [
+                                  ':project' => Config::getString('project.name', 'Phoundation')
+                              ]))
+                              ->setMessage(tr('An account has been created on :project by :user. To enter the system, you can click the link :link or copy/paste the :url in your browser. This will immediately take you to your account where you only have to enter your desired password', [
+                                  ':url'     => $key->getUrl(),
+                                  ':link'    => '<a href="' . $key->getUrl() . '">' . tr('here') . '</a>',
+                                  ':user'    => Session::getUserObject()->getDisplayName(),
+                                  ':project' => Config::getString('project.name', 'Phoundation'),
+                              ]))
+                              ->save()
+                              ->send();
 
             return $this;
         }
@@ -847,14 +853,12 @@ class User extends DataEntry implements UserInterface
             ]);
         }
 
-        Notification::new()
-                    ->setUser($this)
-                    ->setTitle(tr('Your :project account has been modified', [
-                        ':project' => Config::getString('project.name', 'Phoundation')
-                    ]))
-                    ->setMessage($message)
-                    ->save()
-                    ->send();
+        $this->notify()?->setTitle(tr('Your :project account has been modified', [
+                            ':project' => Config::getString('project.name', 'Phoundation')
+                        ]))
+                        ->setMessage($message)
+                        ->save()
+                        ->send();
 
         return $this;
     }
@@ -880,12 +884,13 @@ class User extends DataEntry implements UserInterface
                 default   => null
             };
         }
-        if ((!$name = $this->getNickname()) or $official) {
+
+        if (!($name = $this->getNickname()) or $official) {
             // Nickname is NOT allowed for official information
-            if (!$name = trim($this->getFirstNames() . ' ' . $this->getLastNames())) {
-                if (!$name = $this->getUsername()) {
-                    if (!$name = $this->getEmail()) {
-                        if (!$name = $this->getId()) {
+            if (!($name = trim($this->getFirstNames() . ' ' . $this->getLastNames()))) {
+                if (!($name = $this->getUsername())) {
+                    if (!($name = $this->getEmail())) {
+                        if (!($name = $this->getId())) {
                             if ($this->getId() === -1) {
                                 // This is the guest user
                                 $name = tr('Guest');
@@ -2269,13 +2274,44 @@ class User extends DataEntry implements UserInterface
 
 
     /**
-     * Send a notification to only this user.
+     * Returns if this user can receive notifications or if notifications for this user will be dropped
      *
-     * @return NotificationInterface
+     * @return bool
      */
-    public function notify(): NotificationInterface
+    public function getNotificationsEnabled(): bool
     {
-        return Notification::new()->setUsersId($this->getId());
+        return $this->notifications_enabled;
+    }
+
+
+    /**
+     * Sets if this user can receive notifications or if notifications for this user will be dropped
+     *
+     * @param bool $enabled
+     *
+     * @return $this
+     */
+    public function setNotificationsEnabled(bool $enabled): static
+    {
+        $this->notifications_enabled = $enabled;
+        return $this;
+    }
+
+
+    /**
+     * Returns a NotificationInterface object that can be used to send a notification to only this user.
+     *
+     * Will return NULL if notifications_enabled is false
+     *
+     * @return NotificationInterface|null
+     */
+    public function notify(): ?NotificationInterface
+    {
+        if ($this->notifications_enabled) {
+            return Notification::new()->setUser($this);
+        }
+
+        return null;
     }
 
 
