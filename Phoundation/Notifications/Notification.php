@@ -51,6 +51,8 @@ use Phoundation\Notifications\Exception\NotificationBusyException;
 use Phoundation\Notifications\Exception\NotificationsException;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Os\Processes\Commands\Pho;
+use Phoundation\Security\Incidents\EnumSeverity;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\JsonException;
@@ -416,25 +418,6 @@ FILES variables:
     public function send(?bool $log = null): static
     {
         try {
-            static $sending = false;
-
-            if ($sending) {
-                // Avoid endless looping!
-                throw NotificationBusyException::new(tr('Cannot send notification ":title" notification with message ":message", the notifications system is already busy sending another notification', [
-                    ':title'   => $this->getTitle(),
-                    ':message' => $this->getMessage(),
-                ]))->addData($this->source);
-            }
-
-            if (!sql(connect: false)->isConnected()) {
-                throw new NotificationsException(tr('Cannot send notification ":title" notification with message ":message", the system database is not available', [
-                    ':title'   => $this->getTitle(),
-                    ':message' => $this->getMessage(),
-                ]));
-            }
-
-            $sending = true;
-
             if ($log === null) {
                 $log = static::$auto_log;
             }
@@ -445,17 +428,14 @@ FILES variables:
             }
 
             if (!$this->getTitle()) {
-                $sending = false;
                 throw new OutOfBoundsException(tr('Cannot send notification, no title specified'));
             }
 
             if (!$this->getMessage()) {
-                $sending = false;
                 throw new OutOfBoundsException(tr('Cannot send notification, no message specified'));
             }
 
             if (!$this->getRolesObject() and !$this->getUsersId()) {
-                $sending = false;
                 throw new OutOfBoundsException(tr('Cannot send notification, no roles or target users id specified'));
             }
 
@@ -483,8 +463,6 @@ FILES variables:
                     }
                 }
             }
-
-            $sending = false;
 
         } catch (Throwable $e) {
             Log::error(tr('Failed to send the following notification with the following exception'));
@@ -671,12 +649,30 @@ FILES variables:
      */
     protected function sendTo(UserInterface|int|null $user): static
     {
+        static $sending = false;
+
         if (!$user) {
             // No user specified, save nothing
             return $this;
         }
 
-        $user = User::load($user);
+        if ($sending) {
+            // Avoid endless looping!
+            throw NotificationBusyException::new(tr('Cannot send notification ":title" notification with message ":message", the notifications system is already busy sending another notification', [
+                ':title'   => $this->getTitle(),
+                ':message' => $this->getMessage(),
+            ]))->addData($this->source);
+        }
+
+        if (!sql(connect: false)->isConnected()) {
+            throw new NotificationsException(tr('Cannot send notification ":title" notification with message ":message", the system database is not available', [
+                ':title'   => $this->getTitle(),
+                ':message' => $this->getMessage(),
+            ]));
+        }
+
+        $sending = true;
+        $user    = User::load($user);
 
         if (Config::getBoolean('notifications.send.disable', false) and !$this->override_non_production_lockout) {
             if (!$user->hasSomeRights('developer,test,admin')) {
@@ -690,14 +686,31 @@ FILES variables:
             }
         }
 
-        Pho::new()
-           ->setPhoCommands('email send')
-           ->addArgument('-h')
-           ->addArguments(['-t', $user->getEmail()])
-           ->addArguments(['-s', $this->getTitle()])
-           ->addArguments(['-b', $this->getMessage()])
-           ->executeBackground();
+        if ($user->getEmail()) {
+            Pho::new()
+               ->setPhoCommands('email send')
+               ->addArgument('-h')
+               ->addArguments(['-t', $user->getEmail()])
+               ->addArguments(['-s', $this->getTitle()])
+               ->addArguments(['-b', $this->getMessage()])
+               ->executeBackground();
 
+        } else {
+            // WTF? This user has no email address? Is it a system user?
+            Incident::new()
+                    ->setSeverity(EnumSeverity::high)
+                    ->setNotifyRoles('developer,security')
+                    ->setTitle(tr('Notification for user without email address'))
+                    ->setBody(tr('An attempt was made to send a notification to user ":user" but the user has no email address', [
+                        ':user' => $user->getLogId()
+                    ]))
+                    ->setData([
+                        'user' => $user->getSource()
+                    ])
+                    ->save();
+        }
+
+        $sending = false;
         return $this;
     }
 
