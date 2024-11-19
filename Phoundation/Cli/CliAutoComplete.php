@@ -716,7 +716,7 @@ class CliAutoComplete
             // TODO Check if this is an issue with huge bash_completion files, are there huge files out there?
             $results = Grep::new($file->getParentDirectory())
                            ->setValue('_phoundation pho')
-                           ->setFile($file)
+                           ->setFileObject($file)
                            ->grep(EnumExecuteMethod::returnArray);
 
             if ($results) {

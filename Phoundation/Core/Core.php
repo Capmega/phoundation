@@ -2008,7 +2008,7 @@ class Core implements CoreInterface
      *
      * @return void
      */
-    protected static function setGlobalId(string $global_id): void
+    public static function setGlobalId(string $global_id): void
     {
         static::$global_id = $global_id;
     }

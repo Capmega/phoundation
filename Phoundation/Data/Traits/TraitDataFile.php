@@ -34,7 +34,7 @@ trait TraitDataFile
      *
      * @return PhoFileInterface|null
      */
-    public function getFile(): ?PhoFileInterface
+    public function getFileObject(): ?PhoFileInterface
     {
         return $this->file;
     }
@@ -47,7 +47,7 @@ trait TraitDataFile
      *
      * @return static
      */
-    public function setFile(?PhoFileInterface $file): static
+    public function setFileObject(?PhoFileInterface $file): static
     {
         $this->file = $file;
 

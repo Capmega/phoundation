@@ -138,7 +138,7 @@ class MySql extends Command
 
                 Zcat::new()
                     ->setTimeout($this->timeout)
-                    ->setFile($file)
+                    ->setFileObject($file)
                     ->setPipe($this)
                     ->execute();
                 break;
