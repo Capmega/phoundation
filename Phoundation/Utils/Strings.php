@@ -1482,27 +1482,29 @@ class Strings extends Utils
      * @param mixed $source
      * @param int   $truncate
      * @param bool  $ensure_visible
+     * @param bool  $clean
+     *
      * @return string The string, truncated if required, according to the specified truncating rules
      *
      * @see Strings::truncate()
      */
-    public static function log(mixed $source, int $truncate = 65536, bool $ensure_visible = false,bool $clean = true): string
+    public static function log(mixed $source, int $truncate = 65536, bool $ensure_visible = false, bool $clean = true): string
     {
         if ($source === null) {
             if ($ensure_visible) {
-                $source = 'NULL: NULL';
+                $source = 'NULL';
 
             } else {
-                $source = 'NULL: ';
+                $source = '';
             }
 
         } elseif (is_string($source)) {
             if (!$source and !is_numeric($source)) {
                 if ($ensure_visible) {
-                    $source = 'string: >>> EMPTY <<<';
+                    $source = '>>> EMPTY <<<';
 
                 } else {
-                    $source = 'string: ';
+                    $source = '';
                 }
             }
 
@@ -1512,10 +1514,10 @@ class Strings extends Utils
             }
 
         } elseif (is_bool($source)) {
-            $source = 'bool: ' . Strings::fromBoolean($source);
+            $source = Strings::fromBoolean($source);
 
         } elseif (is_scalar($source)) {
-            $source = gettype($source) . ': ' . (string) $source;
+            $source = (string) $source;
 
         } elseif (is_array($source)) {
             $source = Arrays::hideSensitive($source, [
@@ -1523,28 +1525,28 @@ class Strings extends Utils
                 'ssh_key',
             ]);
 
-            $source = 'array: ' . trim(Json::encode($source, JSON_PRETTY_PRINT));
+            $source = trim(Json::encode($source, JSON_PRETTY_PRINT));
 
         } elseif ($source instanceof ArraySourceInterface) {
-            $source = 'array source object: ' . trim(Json::encode($source->getArray(), JSON_PRETTY_PRINT));
+            $source = trim(Json::encode($source->getSource(), JSON_PRETTY_PRINT));
 
         } elseif ($source instanceof Stringable) {
-            $source = 'stringable object: ' . (string) $source;
-
-        } elseif (is_resource($source)) {
-            // Shows something like "Resource #43"
-            $source = 'resource: ' . (string) $source;
+            $source = (string) $source;
 
         } elseif (is_enum($source)) {
-            $source = 'enum: ' . $source->value;
+            $source = $source->value;
 
         } elseif (is_object($source)) {
             // Return the object's class name
-            $source = 'object: ' . get_class($source);
+            $source = get_class($source);
+
+        } elseif (is_resource($source)) {
+            // Shows something like "Resource #43"
+            $source = (string) $source;
 
         } else {
             // Anything else we cast to string
-            $source = get_datatype_or_class($source) . ': ' . (string) $source;
+            $source = (string) $source;
         }
 
         if ($clean) {
