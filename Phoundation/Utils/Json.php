@@ -18,10 +18,30 @@ namespace Phoundation\Utils;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Exception\JsonException;
-
+use Throwable;
 
 class Json
 {
+    /**
+     * Returns true if the specified JSON string is valid JSON
+     *
+     * @param string $json
+     *
+     * @return bool
+     */
+    public static function isValid(string $json): bool
+    {
+        try {
+            Json::decode($json);
+            return true;
+
+        } catch (Throwable $e) {
+            // This is not valid JSON, it failed to properly decode for some reason
+            return false;
+        }
+    }
+
+
     /**
      * Encode the specified variable into a JSON string
      *
