@@ -14,19 +14,19 @@ interface IncidentInterface
     /**
      * Returns if this incident will be logged in the text log
      *
-     * @return bool
+     * @return int|bool
      */
-    public function getLog(): bool;
+    public function getLog(): int|bool;
 
 
     /**
      * Sets if this incident will be logged in the text log
      *
-     * @param bool $log
+     * @param int|bool $level
      *
      * @return static
      */
-    public function setLog(bool $log): static;
+    public function setLog(int|bool $level): static;
 
 
     /**
