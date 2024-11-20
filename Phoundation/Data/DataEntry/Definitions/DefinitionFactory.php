@@ -1820,6 +1820,7 @@ class DefinitionFactory
     {
         return Definition::new($data_entry, $column)
                          ->setDisabled(true)
+                         ->setOptional(true)
                          ->setSize(3)
                          ->setLabel(tr('Created by'))
                          ->setTooltip(tr('This column contains the user who created this object. Other users may have made further edits to this object, that information may be found in the object\'s meta data'))
