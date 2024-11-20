@@ -599,12 +599,10 @@ class Session implements SessionInterface
             return false;
         }
 
-        switch (Request::getRequestType()) {
-            case EnumRequestTypes::api:
-                // API's don't do cookies at all
-                return false;
-            case EnumRequestTypes::ajax:
-                // TODO Implement
+        if (Request::getRequestType() === EnumRequestTypes::api) {
+            // APIs don't ever use cookies, make sure we can't use them accidentally
+            // TODO Later we might manually store session data in $_COOKIE, so that sessions can manually authenticate and use sessions
+            $_COOKIE = [];
         }
 
         if (isset_get(Core::readRegister('session', 'client')['type']) === 'crawler') {
@@ -770,12 +768,36 @@ class Session implements SessionInterface
 
 
     /**
+     * Initializes the user for a new session
+     *
+     * @return void
+     */
+    protected static function initializeUser(): void
+    {
+        switch (Request::getRequestType()) {
+            case EnumRequestTypes::api:
+                // API's don't do cookies at all
+                // For now, hard code that all API calls will be system user
+                // TODO Improve upon this, API's should allow manual login, shared keys for authentication, etc...
+                static::$user = new SystemUser();
+                break;
+
+            case EnumRequestTypes::ajax:
+                // TODO Implement
+
+        }
+    }
+
+
+    /**
      * Create a new session with basic data
      *
      * @return bool
      */
     protected static function create(): bool
     {
+        Session::initializeUser();
+
         Log::success(tr('Created new session ":session" for user ":user"', [
             ':session' => session_id(),
             ':user'    => static::getUserObject()->getLogId(),
