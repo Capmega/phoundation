@@ -71,7 +71,12 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
     public function getSource(bool $filter_meta = false): array
     {
         $array = parent::getSource(true);
-        $array['data'] = [Json::decode($array['data'])][0];
+        try {
+            $array['data'] = [Json::decode($array['data'])][0];
+
+        } catch (Throwable) {
+
+        }
 
         return $array;
     }
@@ -90,10 +95,7 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
 
             //remove 'PHO\d'
             $version = substr($message, 3, 1);
-
             $message = substr($message, 4);
-
-
 
             try {
                 $json = Json::decode($message);
@@ -103,18 +105,17 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
                                       ->addData(['message' => $message]);
             }
 
-            if (!array_key_exists('data', $json)) {
-                throw PhoMetaException::new(tr('Specified message containing PHO metadata contains no message data'))
-                                      ->addData(['message' => $message]);
-            }
-
-            if (!array_key_exists('meta', $json)) {
-                throw PhoMetaException::new(tr('Specified message containing PHO metadata contains no meta data'))
-                                      ->addData(['message' => $message]);
+            foreach (['data', 'meta'] as $part) {
+                if (!array_key_exists($part, $json)) {
+                    throw PhoMetaException::new(tr('Specified message containing PHO metadata contains no ":part" data', [
+                        ':part' => $part
+                    ]))->addData(['message' => $message]);
+                }
             }
 
             // Message is json and contains 'meta' and 'data'
             $this->parsePhoMessage($json, $version);
+            $message = $json['data'];
 
         }
 
@@ -300,6 +301,8 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
      */
     public function setLocalId(string|int|null $local_id): static
     {
+        $local_id = Core::getLocalId();
+
         return $this->set($local_id, 'local_id');
     }
 
@@ -324,12 +327,14 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
      */
     public function setGlobalId(string|int|null $global_id): static
     {
-        // Only override global ID if the message contained on
-        if ($this->getGlobalId() or ($global_id === null)) {
+        if ($global_id === null) {
             return $this;
         }
 
-        // Set the systems global ID to match
+        if (is_int($global_id)) {
+            $global_id = (string) $global_id;
+        }
+
         Core::setGlobalId($global_id);
 
         return $this->set($global_id, 'global_id');
