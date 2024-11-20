@@ -20,6 +20,7 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInterface;
+use Phoundation\Accounts\Users\SystemUser;
 use Phoundation\Cache\Cache;
 use Phoundation\Core\Exception\Interfaces\CoreReadonlyExceptionInterface;
 use Phoundation\Core\Exception\InvalidRequestTypeException;
@@ -1371,8 +1372,15 @@ class Request implements RequestInterface
             Response::clean();
         }
 
+        static::$request_type = $request_type;
+
         // Set up the response object for this request
         switch ($request_type) {
+            case EnumRequestTypes::api:
+                // Manually startup session for API requests
+                Session::startup();
+                break;
+
             case EnumRequestTypes::unsupported:
                 throw new OutOfBoundsException(tr('Unsupported web request type ":type" encountered', [
                     ':type' => static::getRequestType(),
@@ -1382,9 +1390,6 @@ class Request implements RequestInterface
                 throw new OutOfBoundsException(tr('Unknown web request type ":type" encountered', [
                     ':type' => static::getRequestType(),
                 ]));
-
-            default:
-                static::$request_type = $request_type;
         }
     }
 
@@ -1650,7 +1655,6 @@ class Request implements RequestInterface
             case EnumRequestTypes::api:
                 Log::information(tr('Executing API page ":target" on stack level ":level" with in language ":language" and sending output as API page', [
                     ':target'   => Strings::from(static::getTarget(), '/web/'),
-                    ':template' => static::$template->getName(),
                     ':level'    => static::$stack_level,
                     ':language' => LANGUAGE,
                 ]), (static::$stack_level ? 5 : 7));
