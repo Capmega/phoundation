@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Roles;
 
+use PDOStatement;
 use Phoundation\Accounts\Rights\Interfaces\RightInterface;
 use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
@@ -24,11 +25,10 @@ use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataIterator;
-use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Stringable;
 
@@ -38,7 +38,7 @@ class Roles extends DataIterator implements RolesInterface
     /**
      * Roles class constructor
      */
-    public function __construct()
+    public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
     {
         $this->getQueryBuilder()->addSelect('`accounts_roles`.`' . ($this->keys_are_unique_column ? 'seo_name' : 'id') . '` AS `id`, 
                                              `accounts_roles`.`description`,
@@ -60,7 +60,7 @@ class Roles extends DataIterator implements RolesInterface
                                 ->addGroupBy('`accounts_roles`.`id`')
                                 ->addOrderBy('`accounts_roles`.`name`');
 
-        parent::__construct();
+        parent::__construct($source);
 
         // Set the default columns to use
         $this->setColumns([

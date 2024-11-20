@@ -1118,8 +1118,8 @@ class User extends DataEntry implements UserInterface
         if (!isset($this->roles)) {
             if ($this->getId()) {
                 $this->roles = RolesBySeoName::new()
-                                    ->setParentObject($this)
-                                    ->load();
+                                             ->setParentObject($this)
+                                             ->load();
 
             } else {
                 $this->roles = RolesBySeoName::new()->setParentObject($this);
