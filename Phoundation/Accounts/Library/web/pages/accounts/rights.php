@@ -57,7 +57,7 @@ $rights_card = Card::new()
 
 // Add form for the "rights" card
 $rights_card->getForm()
-            ->setAction(Url::getCurrent())
+            ->setAction(Url::newCurrent())
             ->setRequestMethod(EnumHttpRequestMethod::post);
 
 
@@ -65,8 +65,8 @@ $rights_card->getForm()
 $relevant_card = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
-                ->setContent('<a href="' . Url::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
-                              <a href="' . Url::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a>');
+                ->setContent('<a href="' . Url::new('/accounts/users.html')->makeWww() . '">' . tr('Users management') . '</a><br>
+                              <a href="' . Url::new('/accounts/roles.html')->makeWww() . '">' . tr('Roles management') . '</a>');
 
 
 // Build documentation

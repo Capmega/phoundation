@@ -378,7 +378,7 @@ class Incident extends DataEntry implements IncidentInterface
                     break;
             }
 
-            $notification->setUrl(Url::getWww('security/incident+' . $this->getId() . '.html'))
+            $notification->setUrl(Url::new('security/incident+' . $this->getId() . '.html')->makeWww())
                          ->setRoles($this->notify_roles)
                          ->setTitle($this->getType())
                          ->setMessage($this->getTitle())

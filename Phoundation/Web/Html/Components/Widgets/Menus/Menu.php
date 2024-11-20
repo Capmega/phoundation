@@ -63,7 +63,7 @@ class Menu extends ElementsBlock implements MenuInterface
                 }
             }
             if (array_key_exists('url', $entry)) {
-                $entry['url'] = Url::getWww($entry['url']);
+                $entry['url'] = Url::new($entry['url'])->makeWww();
             }
             if (array_key_exists('menu', $entry)) {
                 // Recurse

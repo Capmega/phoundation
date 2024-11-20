@@ -32,7 +32,7 @@ Response::setRenderMainWrapper(false);
 
 ?>
 <body class="hold-transition lockscreen"
-      style="background: url(<?= Url::getImg('img/backgrounds/' . Core::getProjectSeoName() . '/lock-screen.jpg') ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
+      style="background: url(<?= Url::new('img/backgrounds/' . Core::getProjectSeoName() . '/lock-screen.jpg')->makeImg() ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
 <!-- Automatic element centering -->
 <div class="lockscreen-wrapper card card-outline card-info">
     <div class="card-header text-center">
@@ -53,7 +53,7 @@ Response::setRenderMainWrapper(false);
                 <?= Session::getUserObject()
                            ->getImageFileObject()
                                ->getImgObject()
-                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                    ->render() ?>
             </div>
@@ -80,7 +80,7 @@ Response::setRenderMainWrapper(false);
             Enter your password to retrieve your session
         </div>
         <div class="text-center">
-            <a href="<?= Url::getWww('sign-out'); ?>">Or sign in as a different user</a>
+            <a href="<?= Url::new('sign-out')->makeWww(); ?>">Or sign in as a different user</a>
         </div>
         <div class="lockscreen-footer text-center">
             <?= 'Copyright © ' . Config::getString('project.copyright', '2024') . ' <b><a href="' . Config::getString('project.owner.url', 'https://phoundation.org') . '" target="_blank">' . Config::getString('project.owner.name', 'Phoundation') . '</a></b><br>'; ?>

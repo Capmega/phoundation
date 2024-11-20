@@ -577,7 +577,7 @@ class Response implements ResponseInterface
 
                 static::$page_headers['link'][$url] = [
                     'rel'  => 'icon',
-                    'href' => Url::getImg($url),
+                    'href' => Url::new($url)->makeImg(),
                     'type' => PhoFile::new($file, PhoRestrictions::newCdn())->getMimetype(),
                 ];
 
@@ -587,7 +587,7 @@ class Response implements ResponseInterface
                 // Unknown (likely remote?) link
                 static::$page_headers['link'][$url] = [
                     'rel'  => 'icon',
-                    'href' => Url::getImg($url),
+                    'href' => Url::new($url)->makeImg(),
                     'type' => 'image/' . Strings::fromReverse($url, '.'),
                 ];
             }
@@ -761,7 +761,7 @@ class Response implements ResponseInterface
             $url           = static::versionFile($url, 'js');
             $scripts[$url] = [
                 'type' => 'text/javascript',
-                'src'  => Url::getJs($url),
+                'src'  => Url::new($url)->makeJs(),
             ];
         }
 
@@ -804,7 +804,7 @@ class Response implements ResponseInterface
             $url           = static::versionFile($url, 'css');
             $scripts[$url] = [
                 'rel'  => 'stylesheet',
-                'href' => Url::getCss($url),
+                'href' => Url::new($url)->makeCss(),
             ];
         }
 
@@ -981,7 +981,7 @@ class Response implements ResponseInterface
 
             if ($redirect) {
                 // Are we at the forced redirect page? If so, we can stay
-                $current = (string) Url::getCurrent();
+                $current = (string) Url::newCurrent();
 
                 if (Strings::until($redirect, '?') !== Strings::until($current, '?')) {
                     // We're at a different page. Should we redirect to the specified page?
@@ -994,9 +994,9 @@ class Response implements ResponseInterface
                         ]));
 
                         // Get URL builder object, ensure that sign-in page gets a redirect=$current_url
-                        $redirect = Url::getWww($redirect);
+                        $redirect = Url::new($redirect)->makeWww();
 
-                        if ((string) $redirect === (string) Url::getWww('sign-in')) {
+                        if ((string) $redirect === (string) Url::new('sign-in')->makeWww()) {
                             $redirect->addRedirect($current);
                         }
 
@@ -1064,13 +1064,13 @@ class Response implements ResponseInterface
     {
         if (!$url) {
             // Default to current URL
-            $url = Url::getCurrent();
+            $url = Url::newCurrent();
         }
 
         // Compare URLs without queries
         $url  = Strings::until((string) $url, '?');
         $skip = [
-            (string) Url::getWww('sign-out'),
+            (string) Url::new('sign-out')->makeWww(),
         ];
 
         return in_array($url, $skip);
@@ -1104,7 +1104,7 @@ class Response implements ResponseInterface
      */
     #[NoReturn] public static function reload(int $http_code = 302, ?int $time_delay = null): void
     {
-        Response::redirect(Url::getCurrent()->clearQueries(), $http_code, $time_delay);
+        Response::redirect(Url::newCurrent()->clearQueries(), $http_code, $time_delay);
     }
 
 
@@ -1138,10 +1138,10 @@ class Response implements ResponseInterface
         //        }
 
         // Build URL
-        $target = Url::getWww($url);
+        $target = Url::new($url)->makeWww();
 
         // Protect against endless redirecting.
-        if (Url::isCurrent($target)) {
+        if ($target->isCurrent()) {
             // POST-requests may target to the same page as the target will change POST to GET
             if (!Request::isPostRequestMethod()) {
                 // If the specified target URL was a short code like "prev" or "referer", then it was not hard coded
@@ -1155,7 +1155,7 @@ class Response implements ResponseInterface
                         // no break;
 
                     case 'referer':
-                        $target = Url::getCurrentDomainRootUrl();
+                        $target = Url::newCurrentDomainRootUrl();
                         break;
 
                     default:
@@ -1166,14 +1166,14 @@ class Response implements ResponseInterface
                             ]));
                         }
 
-                        $target = Url::getCurrentDomainRootUrl();
+                        $target = Url::newCurrentDomainRootUrl();
                 };
             }
         }
 
         if (isset_get($_GET['target'])) {
             // Add a target back query
-            $target = Url::getWww($target)->addQueries(['target' => $_GET['target']]);
+            $target = Url::new($target)->makeWww()->addQueries(['target' => $_GET['target']]);
         }
 
         /*

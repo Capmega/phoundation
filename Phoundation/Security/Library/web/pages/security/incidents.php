@@ -59,7 +59,7 @@ $incidents_card = Card::new()
                           'severity'   => tr('Severity'),
                           'title'      => tr('Title'),
                       ])
-                      ->setRowUrl(Url::getWww('/security/incident+:ROW.html')
+                      ->setRowUrl(Url::new('/security/incident+:ROW.html')->makeWww()
                                      ->addQueries(
                                          $filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : ''
                                      )))
@@ -70,8 +70,8 @@ $incidents_card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::getWww('/security/authentications.html')->addQueries($filters->getUsersId()   ? 'users_id='   . $filters->getUsersId()   : '')
-                                                                                             ->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : '') . '">' . tr('Authentications management') . '</a>');
+                     ->setContent('<a href="' . Url::new('/security/authentications.html')->makeWww()->addQueries($filters->getUsersId()   ? 'users_id=' . $filters->getUsersId()   : '')
+                                                   ->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : '') . '">' . tr('Authentications management') . '</a>');
 
 
 // Build documentation

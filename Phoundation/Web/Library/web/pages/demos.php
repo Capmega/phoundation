@@ -25,22 +25,22 @@ use Phoundation\Web\Requests\Response;
 
 echo Card::new()
          ->setTitle(tr('Demo page links'))
-         ->setContent('                  <a href="' . Url::getWww('/demos/timeline.html') . '">' . tr('Package timeline') . '</a><br>
-                  <a href="' . Url::getWww('/demos/calendar.html') . '">' . tr('User calendar') . '</a><br>
-                  <a href="' . Url::getWww('/demos/contact-us.html') . '">' . tr('Contact us') . '</a><br>
-                  <a href="' . Url::getWww('/demos/contacts.html') . '">' . tr('Contacts') . '</a><br>
-                  <a href="' . Url::getWww('/demos/profile.html') . '">' . tr('Employee profile page') . '</a><br>
-                  <a href="' . Url::getWww('/demos/fingerprint-screen.html') . '">' . tr('Finger print detection') . '</a><br>
-                  <a href="' . Url::getWww('/demos/lock-screen.html') . '">' . tr('Lock screen') . '</a><br>
-                  <a href="' . Url::getWww('/demos/invoice.html') . '">' . tr('Invoice') . '</a><br>
-                  <a href="' . Url::getWww('/demos/kanban.html') . '">' . tr('Kanban project management board') . '</a><br>
-                  <a href="' . Url::getWww('/demos/projects.html') . '">' . tr('Projects') . '</a><br>
-                  <a href="' . Url::getWww('/demos/project-detail.html') . '">' . tr('Projects detail page') . '</a><br>
-                  <a href="' . Url::getWww('/demos/project-edit.html') . '">' . tr('Projects edit page') . '</a><br>
-                  <a href="' . Url::getWww('/demos/mailbox.html') . '">' . tr('Mail box') . '</a><br>
-                  <a href="' . Url::getWww('/demos/readmail.html') . '">' . tr('Read mail') . '</a><br>
-                  <a href="' . Url::getWww('/demos/compose.html') . '">' . tr('Compose mail') . '</a><br>
-                  <a href="' . Url::getWww('/demos/scanner/gallery.html') . '">' . tr('Scanner gallery') . '</a>')
+         ->setContent('                  <a href="' . Url::new('/demos/timeline.html')->makeWww() . '">' . tr('Package timeline') . '</a><br>
+                  <a href="' . Url::new('/demos/calendar.html')->makeWww() . '">' . tr('User calendar') . '</a><br>
+                  <a href="' . Url::new('/demos/contact-us.html')->makeWww() . '">' . tr('Contact us') . '</a><br>
+                  <a href="' . Url::new('/demos/contacts.html')->makeWww() . '">' . tr('Contacts') . '</a><br>
+                  <a href="' . Url::new('/demos/profile.html')->makeWww() . '">' . tr('Employee profile page') . '</a><br>
+                  <a href="' . Url::new('/demos/fingerprint-screen.html')->makeWww() . '">' . tr('Finger print detection') . '</a><br>
+                  <a href="' . Url::new('/demos/lock-screen.html')->makeWww() . '">' . tr('Lock screen') . '</a><br>
+                  <a href="' . Url::new('/demos/invoice.html')->makeWww() . '">' . tr('Invoice') . '</a><br>
+                  <a href="' . Url::new('/demos/kanban.html')->makeWww() . '">' . tr('Kanban project management board') . '</a><br>
+                  <a href="' . Url::new('/demos/projects.html')->makeWww() . '">' . tr('Projects') . '</a><br>
+                  <a href="' . Url::new('/demos/project-detail.html')->makeWww() . '">' . tr('Projects detail page') . '</a><br>
+                  <a href="' . Url::new('/demos/project-edit.html')->makeWww() . '">' . tr('Projects edit page') . '</a><br>
+                  <a href="' . Url::new('/demos/mailbox.html')->makeWww() . '">' . tr('Mail box') . '</a><br>
+                  <a href="' . Url::new('/demos/readmail.html')->makeWww() . '">' . tr('Read mail') . '</a><br>
+                  <a href="' . Url::new('/demos/compose.html')->makeWww() . '">' . tr('Compose mail') . '</a><br>
+                  <a href="' . Url::new('/demos/scanner/gallery.html')->makeWww() . '">' . tr('Scanner gallery') . '</a>')
          ->render();
 ?>
     <div class="row">
@@ -125,7 +125,7 @@ echo Card::new()
                                 <a href="#" class="dropdown-item">Add new event</a>
                                 <a href="#" class="dropdown-item">Clear events</a>
                                 <div class="dropdown-divider"></div>
-                                <a href="<?= Url::getWww('calendar/calendar.html'); ?>" class="dropdown-item">View
+                                <a href="<?= Url::new('calendar/calendar.html')->makeWww(); ?>" class="dropdown-item">View
                                     calendar</a>
                             </div>
                         </div>

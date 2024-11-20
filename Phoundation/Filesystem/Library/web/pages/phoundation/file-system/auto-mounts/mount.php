@@ -59,7 +59,7 @@ if (Request::isPostRequestMethod()) {
                 ]));
 
                 // Redirect away from POST
-                Response::redirect(Url::getWww('/phoundation/file-system/mount+' . $mount->getId() . '.html'));
+                Response::redirect(Url::new('/phoundation/file-system/mount+' . $mount->getId() . '.html')->makeWww());
 
             case tr('Delete'):
                 $mount->delete();
@@ -132,7 +132,7 @@ $mount_card = Card::new()
     ->setContent($mount->getHtmlDataEntryFormObject())
     ->setButtons(Buttons::new()
                         ->addButton(isset_get($save))
-                        ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/phoundation/file-system/mounts.html'), true)
+                        ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/phoundation/file-system/mounts.html'), true)
                         ->addButton(isset_get($audit))
                         ->addButton(isset_get($delete))
                         ->addButton(isset_get($impersonate)));
@@ -143,7 +143,7 @@ $picture = Card::new()
     ->setTitle(tr('FsMount profile picture'))
     ->setContent(Img::new()
         ->addClasses('w100')
-        ->setSrc(Url::getImg('img/profiles/default.png'))
+        ->setSrc(Url::new('img/profiles/default.png')->makeImg())
 //        ->setSrc($mount->getPicture())
         ->setAlt(tr('Profile picture for :mount', [':mount' => $mount->getDisplayName()])));
 
@@ -152,7 +152,7 @@ $picture = Card::new()
 $relevant = Card::new()
     ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Relevant links'))
-->setContent('<a href="' . Url::getWww('/phoundation/file-systems.html') . '">' . tr('Manage filesystems') . '</a><br>');
+->setContent('<a href="' . Url::new('/phoundation/file-systems.html')->makeWww() . '">' . tr('Manage filesystems') . '</a><br>');
 
 
 // Build documentation

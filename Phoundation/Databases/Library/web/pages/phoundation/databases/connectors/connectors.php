@@ -117,7 +117,7 @@ $connectors_card = Card::new()
                                            ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true));
 
 $connectors_card->getForm()
-                ->setAction(Url::getCurrent())
+                ->setAction(Url::newCurrent())
                 ->setRequestMethod(EnumHttpRequestMethod::post);
 
 
@@ -125,8 +125,8 @@ $connectors_card->getForm()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::getWww('/phoundation/databases/connectors/roles.html') . '">' . tr('Roles management') . '</a><br>
-                                   <a href="' . Url::getWww('/phoundation/databases/connectors/rights.html') . '">' . tr('Rights management') . '</a>');
+                     ->setContent('<a href="' . Url::new('/phoundation/databases/connectors/roles.html')->makeWww() . '">' . tr('Roles management') . '</a><br>
+                                   <a href="' . Url::new('/phoundation/databases/connectors/rights.html')->makeWww() . '">' . tr('Rights management') . '</a>');
 
 
 // Build documentation

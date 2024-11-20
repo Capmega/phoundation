@@ -83,7 +83,7 @@ $authentications_card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::getWww('/my/profile.html') . '">' . tr('My profile page') . '</a>');
+                     ->setContent('<a href="' . Url::new('/my/profile.html')->makeWww() . '">' . tr('My profile page') . '</a>');
 
 
 // Build documentation

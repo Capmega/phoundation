@@ -85,12 +85,12 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                     <?= Session::getUserObject()
                                                ->getImageFileObject()
                                                    ->getImgObject()
-                                                       ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                       ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                        ->setClass('img-circle img-bordered-sm')
                                                        ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                        ->render() ?>
                                     <span class="username">
-                      <a href="<?= Url::getWww('/demos/profile.html'); ?>">Sven Olaf Oostenbrink</a>
+                      <a href="<?= Url::new('/demos/profile.html')->makeWww(); ?>">Sven Olaf Oostenbrink</a>
                     </span>
                                     <span class="description">Shared publicly - 7:45 PM today</span>
                                 </div>
@@ -111,7 +111,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                     <?= Session::getUserObject()
                                                ->getImageFileObject()
                                                    ->getImgObject()
-                                                       ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                       ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                        ->setClass('img-circle img-bordered-sm')
                                                        ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                        ->render() ?>
@@ -135,12 +135,12 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                     <?= Session::getUserObject()
                                                ->getImageFileObject()
                                                    ->getImgObject()
-                                                       ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                       ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                        ->setClass('img-circle img-bordered-sm')
                                                        ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                        ->render() ?>
                                     <span class="username">
-                      <a href="<?= Url::getWww('/demos/profile.html'); ?>">Sven Olaf Oostenbrink</a>
+                      <a href="<?= Url::new('/demos/profile.html')->makeWww(); ?>">Sven Olaf Oostenbrink</a>
                     </span>
                                     <span class="description">Shared publicly - 5 days ago</span>
                                 </div>

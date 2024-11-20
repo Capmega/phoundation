@@ -176,9 +176,9 @@ class SignInKey extends DataEntry implements SignInKeyInterface
 
         $this->setUuid($uuid)->save();
 
-        $url       = Url::getWww('sign-key');
+        $url       = Url::new('sign-key')->makeWww();
         $url       = str_replace(':key', $uuid, (string) $url);
-        $this->url = Url::getWww($url)->getSource();
+        $this->url = Url::new($url)->makeWww()->getSource();
 
         return $this;
     }
@@ -260,7 +260,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     public function signKeyRedirectUrlMatchesCurrentUrl(): bool
     {
-        return $this->getRedirect() === (string) Url::getCurrent();
+        return $this->getRedirect() === (string) Url::newCurrent();
     }
 
 
@@ -281,7 +281,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
             return true;
         }
 
-        if ($url === (string) Url::getWww('sign-out')) {
+        if ($url === (string) Url::new('sign-out')->makeWww()) {
             // sign-out page is always allowed
             return true;
         }

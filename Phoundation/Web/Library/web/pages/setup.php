@@ -81,7 +81,7 @@ if (Request::isPostRequestMethod()) {
                         to start using it!</p>
                     <hr>
                     <div class="mb-3">
-                        <a class="form-control btn btn-primary" href="<?= Url::getCurrentDomainRootUrl() ?>">Start
+                        <a class="form-control btn btn-primary" href="<?= Url::newCurrentDomainRootUrl() ?>">Start
                             using Phoundation!</a>
                     </div>
                 </div>

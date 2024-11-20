@@ -666,7 +666,7 @@ class Route
      */
     public static function getRequest(): string
     {
-        return (string) Url::getWww();
+        return (string) Url::newCurrent();
     }
 
 
@@ -1195,7 +1195,7 @@ class Route
                         // TODO What is going on here? Redirects to URL, but only domain is used? Wut?
                         throw new UnderConstructionException(tr('GET Query redirect rules are under construction'));
                         // Redirect to URL without query
-                        $domain = Url::getDomain()->getThis();
+                        $domain = Url::new()->getDomain();
                         $domain = Strings::until($domain, '?');
 
                         Log::warning(tr('Matched route ":route" allows GET key ":key" as redirect to URL without query', [
@@ -1642,7 +1642,7 @@ class Route
         Core::removeShutdownCallback(404);
 
         Request::setRoutingParameters(static::getParametersObject()->select(static::$url));
-        Response::redirect(Url::getWww(static::$route)->addQueries($_GET), (int) $http_code);
+        Response::redirect(Url::new(static::$route)->makeWww()->addQueries($_GET), (int) $http_code);
     }
 
 
@@ -1717,7 +1717,7 @@ class Route
     {
         Log::notice(tr('*POSSIBLE HACK ATTEMPT DETECTED*'));
         Notification::new()
-            ->setUrl(Url::getWww('security/incidents.html'))
+            ->setUrl(Url::new('security/incidents.html')->makeWww())
             ->setMode(EnumDisplayMode::exception)
             ->setCode('hack')
             ->setRoles('security')
@@ -1742,7 +1742,7 @@ class Route
     protected static function applyFlagCloak(int $flags_id): bool
     {
         // URL cloaking was used. See if we have a real URL behind the specified cloak
-        $url = Url::getWww(static::$route)->decloak();
+        $url = Url::new(static::$route)->makeWww()->decloak();
 
         if (!$url) {
             Log::warning(tr('Specified cloaked URL ":cloak" does not exist, cancelling match', [
@@ -1901,8 +1901,8 @@ class Route
             if (empty($_SERVER['HTTP_HOST'])) {
                 // No host name WTF? Redirect to the main site
                 Request::setRoutingParameters(static::getParametersObject()
-                                                    ->select(Url::getRootDomainRootUrl()));
-                Response::redirect(Url::getRootDomainRootUrl());
+                                                    ->select(Url::newRootDomainRootUrl()));
+                Response::redirect(Url::newRootDomainRootUrl());
             }
             if (str_starts_with($_SERVER['HTTP_HOST'], '.') or str_ends_with($_SERVER['HTTP_HOST'], '.')) {
                 Log::warning(tr('Encountered invalid HTTP HOST ":host", it starts or ends with a dot. Redirecting to clean hostname', [
@@ -1915,13 +1915,13 @@ class Route
                         ':host' => $_SERVER['HTTP_HOST'],
                     ]));
                     Request::setRoutingParameters(static::getParametersObject()
-                                                        ->select(Url::getRootDomainRootUrl()));
-                    Response::redirect(Url::getRootDomainRootUrl());
+                                                        ->select(Url::newRootDomainRootUrl()));
+                    Response::redirect(Url::newRootDomainRootUrl());
                 }
                 // Redirect to correct page
                 Request::setRoutingParameters(static::getParametersObject()
-                                                    ->select(Url::getRootDomainUrl()));
-                Response::redirect(Url::getRootDomainUrl());
+                                                    ->select(Url::newRootDomainUrl()));
+                Response::redirect(Url::newRootDomainUrl());
             }
         }
     }

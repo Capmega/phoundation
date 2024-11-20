@@ -67,7 +67,7 @@ $plugins_card = Card::new()
                ->setButtons(Buttons::new()->addButton(tr('Scan')));
 
 $plugins_card->getForm()
-             ->setAction(Url::getCurrent())
+             ->setAction(Url::newCurrent())
              ->setRequestMethod(EnumHttpRequestMethod::post);
 
 
@@ -75,8 +75,8 @@ $plugins_card->getForm()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::getWww('/development/slow-pages.html') . '">' . tr('Slow pages') . '</a><br>
-                                   <a href="' . Url::getWww('/security/security.html') . '">' . tr('Security management') . '</a>');
+                     ->setContent('<a href="' . Url::new('/development/slow-pages.html')->makeWww() . '">' . tr('Slow pages') . '</a><br>
+                                   <a href="' . Url::new('/security/security.html')->makeWww() . '">' . tr('Security management') . '</a>');
 
 
 // Build documentation

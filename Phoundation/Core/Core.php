@@ -3505,7 +3505,7 @@ class Core implements CoreInterface
                                 </tr>
                                 <tr>
                                     <td colspan="2">
-                                        <a href="' . Url::getWww('signout') . '">Sign out</a>
+                                        <a href="' . Url::new('signout')->makeWww() . '">Sign out</a>
                                     </td>
                                 </tr>
                             </tbody>

@@ -224,7 +224,7 @@ class Notification extends DataEntry implements NotificationInterface
 
         $details = Core::getProcessDetails();
 
-        $this->setUrl(Url::getCurrent())
+        $this->setUrl(Url::newCurrent())
              ->setMode($mode)
              ->setFile($e->getFile())
              ->setLine($e->getLine())

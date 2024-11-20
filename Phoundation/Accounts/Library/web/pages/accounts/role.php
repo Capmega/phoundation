@@ -110,7 +110,7 @@ $role_card = Card::new()
                  ->setContent($form)
                  ->setButtons(Buttons::new()
                                      ->addButton(tr('Save'))
-                                     ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/accounts/roles.html'), true)
+                                     ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/roles.html'), true)
                                      ->addButton(isset_get($delete))
                                      ->addButton(isset_get($audit)));
 
@@ -119,8 +119,8 @@ $role_card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
-                                   <a href="' . Url::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
+                     ->setContent('<a href="' . Url::new('/accounts/users.html')->makeWww() . '">' . tr('Users management') . '</a><br>
+                                   <a href="' . Url::new('/accounts/rights.html')->makeWww() . '">' . tr('Rights management') . '</a>');
 
 
 // Build documentation

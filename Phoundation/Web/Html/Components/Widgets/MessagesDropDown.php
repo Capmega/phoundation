@@ -85,7 +85,7 @@ class MessagesDropDown extends ElementsBlock
      */
     public function setMessagesUrl(Stringable|string|null $messages_url): static
     {
-        $this->messages_url = Url::getWww($messages_url);
+        $this->messages_url = Url::new($messages_url)->makeWww();
 
         return $this;
     }

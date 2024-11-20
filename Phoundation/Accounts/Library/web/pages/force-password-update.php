@@ -29,7 +29,7 @@ use Phoundation\Web\Requests\Response;
 
 
 // Only allow being here when it was forced by redirect
-if (!Session::getUserObject()->getRedirect() or (Session::getUserObject()->getRedirect() !== (string)Url::getWww('/force-password-update.html'))) {
+if (!Session::getUserObject()->getRedirect() or (Session::getUserObject()->getRedirect() !== (string)Url::new('/force-password-update.html')->makeWww())) {
     Response::redirect('prev', 302, reason_warning: tr('Force password update is only available when it was accessed using forced user redirect'));
 }
 

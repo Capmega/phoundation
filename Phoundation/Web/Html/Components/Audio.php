@@ -20,7 +20,6 @@ use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Web\Html\Enums\EnumAudioPreload;
 use Phoundation\Web\Http\Url;
-use Stringable;
 
 
 class Audio extends Element
@@ -100,7 +99,7 @@ class Audio extends Element
     {
         // For the moment generate the HTML directly
         return '<audio class="' . $this->getClass() . '" preload="auto">
-                    <source src="' . Url::getCdn(Url::getCdn($this->attributes->get('src', false) ?? $this->content)) . '" type="audio/mpeg">
+                    <source src="' . Url::new($this->attributes->get('src', false) ?? $this->content)->makeCdn() . '" type="audio/mpeg">
                 </audio>';
     }
 }

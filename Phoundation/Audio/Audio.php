@@ -33,6 +33,13 @@ use Stringable;
 
 class Audio extends PhoFile
 {
+    /**
+     * Audio class constructor
+     *
+     * @param Stringable|string|null             $source
+     * @param bool|PhoRestrictionsInterface|null $restrictions
+     * @param bool|Stringable|string|null        $absolute_prefix
+     */
     public function __construct(Stringable|string|null $source = null, bool|PhoRestrictionsInterface|null $restrictions = null, bool|Stringable|string|null $absolute_prefix = false)
     {
         if (!$source instanceof PhoPathInterface) {
@@ -92,12 +99,14 @@ class Audio extends PhoFile
             switch (Request::getRequestType()) {
                 case EnumRequestTypes::html:
                     // no break
+
                 case EnumRequestTypes::admin:
                     Response::addToFooter(\Phoundation\Web\Html\Components\Audio::new()
                                                                                 ->addClasses($class)
                                                                                 ->setFile($this)
                                                                                 ->render());
                     break;
+
                 default:
                     // Ignore this request
             }

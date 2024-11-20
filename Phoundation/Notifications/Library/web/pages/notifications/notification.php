@@ -74,7 +74,7 @@ $notification_card = Card::new()
     ->setContent($notification->getHtmlDataEntryFormObject())
     ->setButtons(Buttons::new()
                         ->addButton(tr('Mark unread'))
-                        ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/notifications/notifications.html'), true)
+                        ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/notifications/notifications.html'), true)
                         ->addButton(isset_get($go)));
 
 
@@ -82,10 +82,10 @@ $notification_card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::getWww('/notifications/all.html') . '">' . tr('All notifications') . '</a><br>
-                                   <a href="' . Url::getWww('/notifications/unread.html') . '">' . tr('Unread notifications') . '</a><br>
+                     ->setContent('<a href="' . Url::new('/notifications/all.html')->makeWww() . '">' . tr('All notifications') . '</a><br>
+                                   <a href="' . Url::new('/notifications/unread.html')->makeWww() . '">' . tr('Unread notifications') . '</a><br>
                                    <hr>
-                                   <a href="' . Url::getWww('/security/incidents.html') . '">' . tr('Security incidents') . '</a>');
+                                   <a href="' . Url::new('/security/incidents.html')->makeWww() . '">' . tr('Security incidents') . '</a>');
 
 
 // Build documentation

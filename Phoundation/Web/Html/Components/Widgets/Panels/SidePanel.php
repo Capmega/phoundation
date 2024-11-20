@@ -47,7 +47,7 @@ class SidePanel extends Panel
                 ->getForm()
                 ->setId('form-sign-in')
                 ->setRequestMethod(EnumHttpRequestMethod::post)
-                ->setAction(Url::getAjax('sign-in'));
+                ->setAction(Url::new('sign-in')->makeAjax());
         $this->setMenu(Request::getMenusObject()
                               ->getPrimaryMenu())
              ->getModals()

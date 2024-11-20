@@ -24,7 +24,7 @@ use Phoundation\Web\Requests\Response;
 
 // Create the notification, log it, and send it to this user.
 Notification::new()
-            ->setUrl(Url::getWww('/index.html'))
+            ->setUrl(Url::new('/index.html')->makeWww())
             ->setMode(pick_random_argument(EnumDisplayMode::error, EnumDisplayMode::warning, EnumDisplayMode::success, EnumDisplayMode::info, EnumDisplayMode::notice))
             ->setUsersId(Session::getUserObject()->getId())
             ->setTitle(tr('This is a test notification'))
@@ -34,4 +34,4 @@ Notification::new()
             ->send();
 
 // Redirect to the "all notifications" page
-Response::redirect(Url::getPrevious('/notifications/notifications.html'));
+Response::redirect(Url::newPrevious('/notifications/notifications.html'));

@@ -40,13 +40,13 @@ switch (Request::getRequestType()) {
 
 // Build the error page
 echo Template::new('system/http-error')->setSource([
-                                                       ':h2'     => '400',
-                                                       ':h3'     => tr('Bad Request'),
-                                                       ':img'    => Url::getImg('backgrounds/' . Core::getProjectSeoName() . '/404/large.jpg'),
-                                                       ':p'      => tr('You sent incorrect or invalid information and your request was denied. If you think this was in error, please contact the system administrator'),
-                                                       ':type'   => 'warning',
-                                                       ':search' => tr('Search'),
-                                                       ':action' => Url::getWww('search/'),
+    ':h2'     => '400',
+    ':h3'     => tr('Bad Request'),
+    ':img'    => Url::new('backgrounds/' . Core::getProjectSeoName() . '/404/large.jpg')->makeImg(),
+    ':p'      => tr('You sent incorrect or invalid information and your request was denied. If you think this was in error, please contact the system administrator'),
+    ':type'   => 'warning',
+    ':search' => tr('Search'),
+    ':action' => Url::new('search/')->makeWww(),
                                                    ])->render();
 
 

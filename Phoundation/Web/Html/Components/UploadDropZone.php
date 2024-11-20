@@ -160,7 +160,7 @@ class UploadDropZone extends ResourceElement
                      ->setJavascriptWrapper(EnumJavascriptWrappers::window)
                      ->setContent('
               var myDropzone = new Dropzone(' . $this->selector . ', {
-                url: "' . not_empty($this->url, Url::getWww()) . '",
+                url: "' . not_empty($this->url, Url::newCurrent()) . '",
                 thumbnailWidth: 80,
                 thumbnailHeight: 80,
                 parallelUploads: 20,

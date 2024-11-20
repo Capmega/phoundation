@@ -241,7 +241,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li>
                                 <span class="mailbox-attachment-icon has-img"><img
-                                            src="<?= Url::getCdn('/img/mail/test/image1.png'); ?>"
+                                            src="<?= Url::new('/img/mail/test/image1.png')->makeCdn(); ?>"
                                             alt="Attachment"></span>
 
                                 <div class="mailbox-attachment-info">
@@ -255,7 +255,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li>
                                 <span class="mailbox-attachment-icon has-img"><img
-                                            src="<?= Url::getCdn('/img/mail/test/image2.png'); ?>"
+                                            src="<?= Url::new('/img/mail/test/image2.png')->makeCdn(); ?>"
                                             alt="Attachment"></span>
 
                                 <div class="mailbox-attachment-info">
@@ -272,9 +272,9 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                     <!-- /.card-footer -->
                     <div class="card-footer">
                         <div class="float-right">
-                            <a href="<?= Url::getWww('/demos/compose.html'); ?>" type="button"
+                            <a href="<?= Url::new('/demos/compose.html')->makeWww(); ?>" type="button"
                                class="btn btn-default"><i class="fas fa-reply"></i> Reply</a>
-                            <a href="<?= Url::getWww('/demos/compose.html'); ?>" type="button"
+                            <a href="<?= Url::new('/demos/compose.html')->makeWww(); ?>" type="button"
                                class="btn btn-default"><i class="fas fa-share"></i> Forward</a>
                         </div>
                         <button type="button" class="btn btn-default"><i class="far fa-trash-alt"></i> Delete</button>

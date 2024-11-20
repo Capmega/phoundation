@@ -74,7 +74,7 @@ if (Request::isPostRequestMethod()) {
                 ]));
 
                 // Redirect away from POST
-                Response::redirect(Url::getWww('/phoundation/databases/connectors/connector+' . $connector->getId() . '.html'));
+                Response::redirect(Url::new('/phoundation/databases/connectors/connector+' . $connector->getId() . '.html')->makeWww());
 
             case tr('Delete'):
                 $connector->delete();
@@ -186,7 +186,7 @@ $connector_card = Card::new()
                       ->setContent($connector->getHtmlDataEntryFormObject())
                       ->setButtons(Buttons::new()
                                           ->addButton(isset_get($save))
-                                          ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/phoundation/databases/connectors/connectors.html'), true)
+                                          ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/phoundation/databases/connectors/connectors.html'), true)
                                           ->addButton(isset_get($test))
                                           ->addButton(isset_get($audit))
                                           ->addButton(isset_get($delete))
@@ -198,7 +198,7 @@ $connector_card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::getWww('/phoundation/databases/databases.html') . '">' . tr('Manage databases') . '</a><br>');
+                     ->setContent('<a href="' . Url::new('/phoundation/databases/databases.html')->makeWww() . '">' . tr('Manage databases') . '</a><br>');
 
 
 // Build documentation

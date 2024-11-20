@@ -82,7 +82,7 @@ class SignInForm extends Form
      */
     public function setSignInUrl(Stringable|string $sign_in_url): static
     {
-        $this->sign_in_url = ((string) $sign_in_url) ? Url::getWww($sign_in_url) : null;
+        $this->sign_in_url = ((string) $sign_in_url) ? Url::new($sign_in_url)->makeWww() : null;
 
         return $this;
     }
@@ -108,7 +108,7 @@ class SignInForm extends Form
      */
     public function setRegisterUrl(Stringable|string $register_url): static
     {
-        $this->register_url = ((string) $register_url) ? Url::getWww($register_url) : null;
+        $this->register_url = ((string) $register_url) ? Url::new($register_url)->makeWww() : null;
 
         return $this;
     }
@@ -134,7 +134,7 @@ class SignInForm extends Form
      */
     public function setForgotPasswordUrl(Stringable|string $forgot_password_url): static
     {
-        $this->forgot_password_url = ((string) $forgot_password_url) ? Url::getWww($forgot_password_url) : null;
+        $this->forgot_password_url = ((string) $forgot_password_url) ? Url::new($forgot_password_url)->makeWww() : null;
 
         return $this;
     }

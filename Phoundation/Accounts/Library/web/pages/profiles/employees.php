@@ -58,7 +58,7 @@ $template = '   <div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch 
                         <a href="#" class="btn btn-sm bg-teal">
                           <i class="fas fa-comments"></i>
                         </a>
-                        <a href="' . Url::getWww("profiles/profile+:id.html") . '" class="btn btn-sm btn-primary">
+                        <a href="' . Url::new('profiles/profile+:id.html')->makeWww() . '" class="btn btn-sm btn-primary">
                           <i class="fas fa-user"></i> View Profile
                         </a>
                       </div>

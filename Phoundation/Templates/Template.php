@@ -93,7 +93,7 @@ class Template extends Page implements TemplateInterface
     protected static function getPage(string $page): ?string
     {
         $sign_out = Session::isGuest() ? null : '<p>' . tr('Click :here to sign out', [
-            ':here' => '<a href="' . Url::getWww('sign-out') . '">here</a>'
+            ':here' => '<a href="' . Url::new('sign-out')->makeWww() . '">here</a>'
         ]) . '</p>';
 
         switch ($page) {
@@ -131,8 +131,8 @@ class Template extends Page implements TemplateInterface
                                             <h3><i class="fas fa-exclamation-triangle text-:type"></i> :h3</h3>
                                     
                                             <p>:p</p>
-                                            <p>' . tr('Click :here to go to the index page', [':here' => '<a href="' . Url::getCurrentDomainRootUrl() . '">here</a>']) . '</p>' .
-                                            $sign_out;
+                                            <p>' . tr('Click :here to go to the index page', [':here' => '<a href="' . Url::newCurrentDomainRootUrl() . '">here</a>']) . '</p>' .
+                         $sign_out;
 
                 if (!Session::getUserObject()->isGuest()) {
                     $html .= '              <form class="search-form" method="post" action=":action">

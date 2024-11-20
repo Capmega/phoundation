@@ -89,7 +89,7 @@ $card = Card::new()
             ->setTitle(tr('Edit data for authentication :id', [':id' => $authentication->getId()]))
             ->setContent($form)
             ->setButtons(Buttons::new()
-                                ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/accounts/authentications.html'), true)
+                                ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/authentications.html'), true)
                                 ->addButton(isset_get($delete))
                                 ->addButton(isset_get($audit)));
 
@@ -98,8 +98,8 @@ $card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::getWww('/security/authentications.html')->addQueries($get['date_range'] ? 'date_range=' . $get['date_range'] : '') . '">' . tr('Authentications management') . '</a><br>
-                                   <a href="' . Url::getWww('/security/incidents.html')->addQueries($get['date_range'] ? 'date_range=' . $get['date_range'] : '') . '">' . tr('Incidents management') . '</a>');
+                     ->setContent('<a href="' . Url::new('/security/authentications.html')->makeWww()->addQueries($get['date_range'] ? 'date_range=' . $get['date_range'] : '') . '">' . tr('Authentications management') . '</a><br>
+                                   <a href="' . Url::new('/security/incidents.html')->makeWww()->addQueries($get['date_range'] ? 'date_range=' . $get['date_range'] : '') . '">' . tr('Incidents management') . '</a>');
 
 
 // Build documentation
@@ -110,7 +110,7 @@ $documentation_card = Card::new()
 
 
 // Set page meta data
-$url = Url::getWww('/security/authentications.html')->addQueries(
+$url = Url::new('/security/authentications.html')->makeWww()->addQueries(
     $get['date_range'] ? 'date_range=' . $get['date_range'] : ''
 )->getSource();
 

@@ -40,7 +40,7 @@ $settings_card = Card::new()
                      ->setContent($form)
                      ->setButtons(Buttons::new()
                                          ->addButton(tr('Save'))
-                                         ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/my/settings.html'), true)
+                                         ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/my/settings.html'), true)
                                          ->addButton(isset_get($delete))
                                          ->addButton(isset_get($audit)));
 
@@ -49,7 +49,7 @@ $settings_card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::getWww('/my/profile.html') . '">' . tr('My profile page') . '</a>');
+                     ->setContent('<a href="' . Url::new('/my/profile.html')->makeWww() . '">' . tr('My profile page') . '</a>');
 
 
 // Build documentation

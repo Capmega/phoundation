@@ -48,7 +48,7 @@ $customers_card = Card::new()
 
 // TODO Is this necessary? Default form action should be current and default method should be POST already
 $customers_card->getForm()
-               ->setAction(Url::getCurrent())
+               ->setAction(Url::newCurrent())
                ->setRequestMethod(EnumHttpRequestMethod::post);
 
 
@@ -57,8 +57,8 @@ $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
                      ->setCollapseSwitch(true)
-                     ->setContent('<a href="' . Url::getWww('/business/providers.html') . '">' . tr('Providers management') . '</a><br>
-                                   <a href="' . Url::getWww('/business/companies.html') . '">' . tr('Companies management') . '</a>');
+                     ->setContent('<a href="' . Url::new('/business/providers.html')->makeWww() . '">' . tr('Providers management') . '</a><br>
+                                   <a href="' . Url::new('/business/companies.html')->makeWww() . '">' . tr('Companies management') . '</a>');
 
 
 // Build documentation

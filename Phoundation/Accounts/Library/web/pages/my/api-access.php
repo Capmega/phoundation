@@ -67,8 +67,8 @@ $card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::getWww('/my/profile.html') . '">' . tr('Your profile') . '</a><br>
-                                   <a href="' . Url::getWww('/my/api-access.html') . '">' . tr('Your API access') . '</a>');
+                     ->setContent('<a href="' . Url::new('/my/profile.html')->makeWww() . '">' . tr('Your profile') . '</a><br>
+                                   <a href="' . Url::new('/my/api-access.html')->makeWww() . '">' . tr('Your API access') . '</a>');
 
 
 // Build documentation

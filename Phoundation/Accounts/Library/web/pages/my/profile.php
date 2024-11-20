@@ -75,7 +75,7 @@ $user->getDefinitionsObject()->setSize('last_sign_in'           , 4)
 Request::getFileUploadHandlersObject()
     ->add(UploadHandler::new('image')
         ->getDropZoneObject()
-        ->setUrl(Url::getAjax('my/profile/image/upload'))
+        ->setUrl(Url::new('my/profile/image/upload')->makeAjax())
         ->setSelector('#profile-picture-card')
         ->setMaxFiles(0)
         ->getHandler()
@@ -140,11 +140,11 @@ $picture = Card::new()
 $relevant = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
-                ->setContent('<a href="' . Url::getWww('/my/password.html') . '">' . tr('Change my password') . '</a><br>
-                              <a href="' . Url::getWww('/my/settings.html') . '">' . tr('Manage my settings') . '</a><br>
-                              <a href="' . Url::getWww('/my/api-access.html') . '">' . tr('Manage my API access') . '</a><br>
-                              <a href="' . Url::getWww('/my/authentication-history.html') . '">' . tr('Review my authentication history') . '</a><br>
-                              <a href="' . Url::getWww('/profiles/profile+' . $user->getId() . '.html') . '">' . tr('View my public profile') . '</a><br>');
+                ->setContent('<a href="' . Url::new('/my/password.html')->makeWww() . '">' . tr('Change my password') . '</a><br>
+                              <a href="' . Url::new('/my/settings.html')->makeWww() . '">' . tr('Manage my settings') . '</a><br>
+                              <a href="' . Url::new('/my/api-access.html')->makeWww() . '">' . tr('Manage my API access') . '</a><br>
+                              <a href="' . Url::new('/my/authentication-history.html')->makeWww() . '">' . tr('Review my authentication history') . '</a><br>
+                              <a href="' . Url::new('/profiles/profile+' . $user->getId() . '.html')->makeWww() . '">' . tr('View my public profile') . '</a><br>');
 
 
 // Build documentation

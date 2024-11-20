@@ -253,7 +253,7 @@ class SystemRequest implements SystemRequestInterface
                              ':body'   => $variables['details'],
                              ':type'   => 'warning',
                              ':search' => tr('Search'),
-                             ':action' => Url::getWww('search/'),
+                             ':action' => Url::new('search/')->makeWww(),
                          ])
                          ->render();
 

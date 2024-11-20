@@ -45,7 +45,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             <?= Session::getUserObject()
                                        ->getImageFileObject()
                                            ->getImgObject()
-                                               ->setSrc(Url::getImg('img/profiles/default.png'))
+                                               ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                ->setClass('profile-user-img img-fluid img-circle')
                                                ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                ->render() ?>
@@ -136,7 +136,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                         <?= Session::getUserObject()
                                                    ->getImageFileObject()
                                                        ->getImgObject()
-                                                           ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                           ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                            ->setClass('img-circle img-bordered-sm')
                                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                            ->render() ?>
@@ -177,7 +177,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                         <?= Session::getUserObject()
                                                    ->getImageFileObject()
                                                        ->getImgObject()
-                                                           ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                           ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                            ->setClass('img-circle img-bordered-sm')
                                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                            ->render() ?>
@@ -213,7 +213,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                         <?= Session::getUserObject()
                                                    ->getImageFileObject()
                                                        ->getImgObject()
-                                                           ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                           ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                            ->setClass('img-circle img-bordered-sm')
                                                            ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                            ->render() ?>

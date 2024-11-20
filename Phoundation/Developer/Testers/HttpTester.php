@@ -133,7 +133,7 @@ class HttpTester
                 case 200:
                     $urls = $scraper->getUrls();
 showdie($urls->getSource());
-                    $urls = $urls->keepMatchingValues(Url::getPrimaryDomainRootUrl(), Utils::MATCH_STARTS_WITH);
+                    $urls = $urls->keepMatchingValues(Url::newPrimaryDomainRootUrl(), Utils::MATCH_STARTS_WITH);
 
                     $this->o_urls->addSource($urls)
                                  ->makeValuesUnique();

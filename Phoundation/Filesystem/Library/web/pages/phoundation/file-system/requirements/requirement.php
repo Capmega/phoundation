@@ -59,7 +59,7 @@ if (Request::isPostRequestMethod()) {
                 ]));
 
                 // Redirect away from POST
-                Response::redirect(Url::getWww('/phoundation/file-system/requirements/requirement+' . $requirement->getId() . '.html'));
+                Response::redirect(Url::new('/phoundation/file-system/requirements/requirement+' . $requirement->getId() . '.html')->makeWww());
 
             case tr('Delete'):
                 $requirement->delete();
@@ -163,7 +163,7 @@ $requirement_card = Card::new()
     ->setContent($requirement->getHtmlDataEntryFormObject())
     ->setButtons(Buttons::new()
                         ->addButton(isset_get($save))
-                        ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/phoundation/file-system/requirements/requirements.html'), true)
+                        ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/phoundation/file-system/requirements/requirements.html'), true)
                         ->addButton(isset_get($audit))
                         ->addButton(isset_get($delete))
                         ->addButton(isset_get($lock))
@@ -175,7 +175,7 @@ $picture = Card::new()
     ->setTitle(tr('Requirement profile picture'))
     ->setContent(Img::new()
         ->addClasses('w100')
-        ->setSrc(Url::getImg('img/profiles/default.png'))
+        ->setSrc(Url::new('img/profiles/default.png')->makeImg())
 //        ->setSrc($requirement->getPicture())
         ->setAlt(tr('Profile picture for :requirement', [':requirement' => $requirement->getDisplayName()])));
 
@@ -184,7 +184,7 @@ $picture = Card::new()
 $relevant = Card::new()
     ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Relevant links'))
-->setContent('<a href="' . Url::getWww('/phoundation/file-systems.html') . '">' . tr('Manage filesystems') . '</a><br>');
+->setContent('<a href="' . Url::new('/phoundation/file-systems.html')->makeWww() . '">' . tr('Manage filesystems') . '</a><br>');
 
 
 // Build documentation

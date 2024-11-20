@@ -70,7 +70,7 @@ class MetaModal extends Modal
             $("table.showmeta").click(function(e) {
                 e.stopPropagation();
 
-                $.get("' . Url::getAjax('system/meta/') . '" + id + ".html")
+                $.get("' . Url::new('system/meta/')->makeAjax() . '" + id + ".html")
                     .done(function (data, textStatus, jqXHR) {
                         $("#MetaModal").find("").innerHtml(data.html);                     
                     });

@@ -271,7 +271,7 @@ class JsonPage implements JsonPageInterface
                 $this->setResponse(EnumJsonResponse::signin)
                      ->reply([
                          'http_code' => 301,
-                         'location'  => Url::getWww('sign-in')
+                         'location'  => Url::new('sign-in')->makeWww()
                                            ->addRedirect($_SERVER['HTTP_REFERER'])
                                            ->getSource()
                      ]);

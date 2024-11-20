@@ -331,7 +331,7 @@ class Meta implements MetaInterface
                 static::$updates[++static::$pointer] = [
                     ':meta_id_' . static::$pointer    => $this->id,
                     ':created_by_' . static::$pointer => Session::getUserObject()->getId(),
-                    ':source_' . static::$pointer     => (string) (PLATFORM_WEB ? Url::getCurrent() : CliCommand::getExecutedPath()),
+                    ':source_' . static::$pointer     => (string) (PLATFORM_WEB ? Url::newCurrent() : CliCommand::getExecutedPath()),
                     ':action_' . static::$pointer     => $action,
                     ':comments_' . static::$pointer   => $comments,
                     ':data_' . static::$pointer       => (string) $data,
@@ -343,7 +343,7 @@ class Meta implements MetaInterface
                                     VALUES                     (:meta_id , :created_by , :action , :source , :comments , :data )', [
                     ':meta_id'    => $this->id,
                     ':created_by' => Session::getUserObject()->getId(),
-                    ':source'     => (string) (PLATFORM_WEB ? Url::getCurrent() : CliCommand::getExecutedPath()),
+                    ':source'     => (string) (PLATFORM_WEB ? Url::newCurrent() : CliCommand::getExecutedPath()),
                     ':action'     => $action,
                     ':comments'   => $comments,
                     ':data'       => (string) $data,

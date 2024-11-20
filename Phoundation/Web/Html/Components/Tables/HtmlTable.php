@@ -946,7 +946,7 @@ class HtmlTable extends ResourceElementCore implements HtmlTableInterface
                 }
             }
 
-            return '<a' . $this->renderAnchorClassString() . ' href="' . Url::getWww($url) . '"' . $attributes . '>' . $value . '</a>';
+            return '<a' . $this->renderAnchorClassString() . ' href="' . Url::new($url)->makeWww() . '"' . $attributes . '>' . $value . '</a>';
         }
 
         return $url;

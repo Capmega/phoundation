@@ -59,7 +59,7 @@ if (Request::isPostRequestMethod()) {
             $user->changePassword($post['password'], $post['passwordv']);
 
             Response::getFlashMessagesObject()->addSuccess(tr('Your password has been updated'));
-            Response::redirect(Url::getWww(Url::getPrevious('/my/profile.html')));
+            Response::redirect(Url::new(Url::newPrevious('/my/profile.html')->makeWww()));
 
         } catch (PasswordTooShortException | NoPasswordSpecifiedException) {
             Response::getFlashMessagesObject()->addWarning(tr('Please specify at least 10 characters for the password'));
@@ -84,7 +84,7 @@ if (Request::isPostRequestMethod()) {
 // Build the buttons
 $buttons = Buttons::new()
                   ->addButton(tr('Save'))
-                  ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/my/profile.html'), true);
+                  ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/my/profile.html'), true);
 
 
 // Build the "user" form
@@ -99,10 +99,10 @@ $card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::getWww('/my/profile.html') . '">' . tr('Manage my profile') . '</a><br>
-                                   <a href="' . Url::getWww('/my/settings.html') . '">' . tr('Manage my settings') . '</a><br>
-                                   <a href="' . Url::getWww('/my/api-access.html') . '">' . tr('Manage my API access') . '</a><br>
-                                   <a href="' . Url::getWww('/my/authentication-history.html') . '">' . tr('Review my authentication history') . '</a>');
+                     ->setContent('<a href="' . Url::new('/my/profile.html')->makeWww() . '">' . tr('Manage my profile') . '</a><br>
+                                   <a href="' . Url::new('/my/settings.html')->makeWww() . '">' . tr('Manage my settings') . '</a><br>
+                                   <a href="' . Url::new('/my/api-access.html')->makeWww() . '">' . tr('Manage my API access') . '</a><br>
+                                   <a href="' . Url::new('/my/authentication-history.html')->makeWww() . '">' . tr('Review my authentication history') . '</a>');
 
 
 // Build documentation

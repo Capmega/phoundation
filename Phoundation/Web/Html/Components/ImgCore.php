@@ -186,7 +186,7 @@ class ImgCore extends SpanCore implements ImgInterface
      */
     public function setImageFileObject(ImageFileInterface $image): static
     {
-        $this->src = Url::getImg($image->getSource());
+        $this->src = Url::new($image->getSource())->makeImg();
         return $this;
     }
 
@@ -214,7 +214,7 @@ class ImgCore extends SpanCore implements ImgInterface
 //        // Get a built src string. If $built_src is equal to specified $src then it wasn't changed and so it's an
 //        $domain         = Url::getDomain($src);
 //        $built_src      = Url::getCdn($src);
-//        $this->external = Url::isExternal($src);
+//        $this->external = $built_src->isExternal($src);
 //
 //        if ($this->external) {
 //            // Download external images local so that we can perform Tests, changes, upgrades, etc.
@@ -258,7 +258,7 @@ class ImgCore extends SpanCore implements ImgInterface
 //            $file_src = '/pub'.Strings::startsWith($src, '/');
 //            $src      = Url::getImg($src);
 //        }
-        $this->src = Url::getImg($src);
+        $this->src = Url::new($src)->makeImg();
 
         return $this;
     }

@@ -63,7 +63,7 @@ $authentications_card = Card::new()
                                                              'action'     => tr('Action'),
                                                              'status'     => tr('Status'),
                                                          ])
-                                                         ->setRowUrl(Url::getWww('/security/authentication+:ROW.html')->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : ''))
+                                                         ->setRowUrl(Url::new('/security/authentication+:ROW.html')->makeWww()->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : ''))
                                                          ->addRowCallback(function (IteratorInterface|array &$row, EnumTableRowType $type, &$params) {
                                                              // Adjust date to correct timezone and format
                                                              $row['created_on'] = PhoDateTime::new($row['created_on'], 'user')->format('human_datetime');
@@ -76,8 +76,8 @@ $authentications_card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::getWww('/security/incidents.html')->addQueries($filters->getUsersId()   ? 'users_id='   . $filters->getUsersId()   : '')
-                                                                                       ->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : '')  . '">' . tr('Incidents management') . '</a>');
+                     ->setContent('<a href="' . Url::new('/security/incidents.html')->makeWww()->addQueries($filters->getUsersId()   ? 'users_id=' . $filters->getUsersId()   : '')
+                                                   ->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : '')  . '">' . tr('Incidents management') . '</a>');
 
 
 // Build documentation
