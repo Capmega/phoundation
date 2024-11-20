@@ -174,7 +174,7 @@ class Dropzone implements DropzoneInterface
      */
     public function __construct(UploadHandlerInterface $handler, ?string $selector = null)
     {
-        $this->setUrl(Url::getWww())
+        $this->setUrl(Url::newCurrent())
              ->setSelector($selector)
              ->setRequestMethod(EnumHttpRequestMethod::post)
              ->handler = $handler;

@@ -110,7 +110,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
              ->useForm(true)
              ->getForm()
                 ->setRequestMethod($this->request_method)
-                ->setAction(Url::getWww());
+                ->setAction(Url::newCurrent());
 
         // Set basic definitions
         $this->definitions = Definitions::new()

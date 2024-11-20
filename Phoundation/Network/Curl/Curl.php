@@ -1141,7 +1141,7 @@ abstract class Curl implements CurlInterface
                 $url = Strings::from($header, ':');
                 $url = trim($url);
 
-                return Url::getWww($url);
+                return Url::new($url)->makeWww();
             }
         }
 

@@ -55,7 +55,7 @@ if (Request::isPostRequestMethod()) {
 //showdie(Timers::get('query'));
 
                 Response::getFlashMessagesObject()->addSuccess(tr('Right ":right" has been saved', [':right' => $right->getName()]));
-                Response::redirect(Url::getWww('/accounts/right+' . $right->getId() . '.html'));
+                Response::redirect(Url::new('/accounts/right+' . $right->getId() . '.html')->makeWww());
 
             case tr('Delete'):
                 $right->delete();
@@ -102,7 +102,7 @@ $card = Card::new()
             ->setContent($form)
             ->setButtons(Buttons::new()
                                 ->addButton(tr('Save'))
-                                ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/accounts/rights.html'), true)
+                                ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/rights.html'), true)
                                 ->addButton(isset_get($delete))
                                 ->addButton(isset_get($audit)));
 
@@ -111,8 +111,8 @@ $card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
-                                   <a href="' . Url::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a>');
+                     ->setContent('<a href="' . Url::new('/accounts/users.html')->makeWww() . '">' . tr('Users management') . '</a><br>
+                                   <a href="' . Url::new('/accounts/roles.html')->makeWww() . '">' . tr('Roles management') . '</a>');
 
 
 // Build documentation

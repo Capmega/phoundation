@@ -61,7 +61,7 @@ class Tests
     {
         Log::information('Starting HTTP tests');
 
-        HttpTester::new(Url::getWww())->execute();
+        HttpTester::new(Url::newCurrent())->execute();
     }
 
 

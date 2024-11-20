@@ -90,7 +90,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -99,7 +99,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -108,7 +108,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -117,7 +117,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -138,12 +138,12 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                     </td>
                     <td class="project-actions text-right">
                         <a class="btn btn-primary btn-sm"
-                           href="<?= Url::getWww('demos/project-detail.html'); ?>">
+                           href="<?= Url::new('demos/project-detail.html')->makeWww(); ?>">
                             <i class="fas fa-folder">
                             </i>
                             View
                         </a>
-                        <a class="btn btn-info btn-sm" href="<?= Url::getWww('demos/project-edit.html'); ?>">
+                        <a class="btn btn-info btn-sm" href="<?= Url::new('demos/project-edit.html')->makeWww(); ?>">
                             <i class="fas fa-pencil-alt">
                             </i>
                             Edit
@@ -174,7 +174,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -183,7 +183,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -204,12 +204,12 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                     </td>
                     <td class="project-actions text-right">
                         <a class="btn btn-primary btn-sm"
-                           href="<?= Url::getWww('demos/project-detail.html'); ?>">
+                           href="<?= Url::new('demos/project-detail.html')->makeWww(); ?>">
                             <i class="fas fa-folder">
                             </i>
                             View
                         </a>
-                        <a class="btn btn-info btn-sm" href="<?= Url::getWww('demos/project-edit.html'); ?>">
+                        <a class="btn btn-info btn-sm" href="<?= Url::new('demos/project-edit.html')->makeWww(); ?>">
                             <i class="fas fa-pencil-alt">
                             </i>
                             Edit
@@ -240,7 +240,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -249,7 +249,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -258,7 +258,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -279,12 +279,12 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                     </td>
                     <td class="project-actions text-right">
                         <a class="btn btn-primary btn-sm"
-                           href="<?= Url::getWww('demos/project-detail.html'); ?>">
+                           href="<?= Url::new('demos/project-detail.html')->makeWww(); ?>">
                             <i class="fas fa-folder">
                             </i>
                             View
                         </a>
-                        <a class="btn btn-info btn-sm" href="<?= Url::getWww('demos/project-edit.html'); ?>">
+                        <a class="btn btn-info btn-sm" href="<?= Url::new('demos/project-edit.html')->makeWww(); ?>">
                             <i class="fas fa-pencil-alt">
                             </i>
                             Edit
@@ -315,7 +315,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -324,7 +324,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -333,7 +333,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -342,7 +342,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -363,12 +363,12 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                     </td>
                     <td class="project-actions text-right">
                         <a class="btn btn-primary btn-sm"
-                           href="<?= Url::getWww('demos/project-detail.html'); ?>">
+                           href="<?= Url::new('demos/project-detail.html')->makeWww(); ?>">
                             <i class="fas fa-folder">
                             </i>
                             View
                         </a>
-                        <a class="btn btn-info btn-sm" href="<?= Url::getWww('demos/project-edit.html'); ?>">
+                        <a class="btn btn-info btn-sm" href="<?= Url::new('demos/project-edit.html')->makeWww(); ?>">
                             <i class="fas fa-pencil-alt">
                             </i>
                             Edit
@@ -399,7 +399,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -408,7 +408,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -417,7 +417,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -438,12 +438,12 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                     </td>
                     <td class="project-actions text-right">
                         <a class="btn btn-primary btn-sm"
-                           href="<?= Url::getWww('demos/project-detail.html'); ?>">
+                           href="<?= Url::new('demos/project-detail.html')->makeWww(); ?>">
                             <i class="fas fa-folder">
                             </i>
                             View
                         </a>
-                        <a class="btn btn-info btn-sm" href="<?= Url::getWww('demos/project-edit.html'); ?>">
+                        <a class="btn btn-info btn-sm" href="<?= Url::new('demos/project-edit.html')->makeWww(); ?>">
                             <i class="fas fa-pencil-alt">
                             </i>
                             Edit
@@ -474,7 +474,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -483,7 +483,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -492,7 +492,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -501,7 +501,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -522,12 +522,12 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                     </td>
                     <td class="project-actions text-right">
                         <a class="btn btn-primary btn-sm"
-                           href="<?= Url::getWww('demos/project-detail.html'); ?>">
+                           href="<?= Url::new('demos/project-detail.html')->makeWww(); ?>">
                             <i class="fas fa-folder">
                             </i>
                             View
                         </a>
-                        <a class="btn btn-info btn-sm" href="<?= Url::getWww('demos/project-edit.html'); ?>">
+                        <a class="btn btn-info btn-sm" href="<?= Url::new('demos/project-edit.html')->makeWww(); ?>">
                             <i class="fas fa-pencil-alt">
                             </i>
                             Edit
@@ -558,7 +558,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -567,7 +567,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -588,12 +588,12 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                     </td>
                     <td class="project-actions text-right">
                         <a class="btn btn-primary btn-sm"
-                           href="<?= Url::getWww('demos/project-detail.html'); ?>">
+                           href="<?= Url::new('demos/project-detail.html')->makeWww(); ?>">
                             <i class="fas fa-folder">
                             </i>
                             View
                         </a>
-                        <a class="btn btn-info btn-sm" href="<?= Url::getWww('demos/project-edit.html'); ?>">
+                        <a class="btn btn-info btn-sm" href="<?= Url::new('demos/project-edit.html')->makeWww(); ?>">
                             <i class="fas fa-pencil-alt">
                             </i>
                             Edit
@@ -624,7 +624,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -633,7 +633,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -642,7 +642,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -663,12 +663,12 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                     </td>
                     <td class="project-actions text-right">
                         <a class="btn btn-primary btn-sm"
-                           href="<?= Url::getWww('demos/project-detail.html'); ?>">
+                           href="<?= Url::new('demos/project-detail.html')->makeWww(); ?>">
                             <i class="fas fa-folder">
                             </i>
                             View
                         </a>
-                        <a class="btn btn-info btn-sm" href="<?= Url::getWww('demos/project-edit.html'); ?>">
+                        <a class="btn btn-info btn-sm" href="<?= Url::new('demos/project-edit.html')->makeWww(); ?>">
                             <i class="fas fa-pencil-alt">
                             </i>
                             Edit
@@ -699,7 +699,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -708,7 +708,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -717,7 +717,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -726,7 +726,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <?= Session::getUserObject()
                                            ->getImageFileObject()
                                                ->getImgObject()
-                                                   ->setSrc(Url::getImg('img/profiles/default.png'))
+                                                   ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
                                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                    ->render() ?>
@@ -747,12 +747,12 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                     </td>
                     <td class="project-actions text-right">
                         <a class="btn btn-primary btn-sm"
-                           href="<?= Url::getWww('demos/project-detail.html'); ?>">
+                           href="<?= Url::new('demos/project-detail.html')->makeWww(); ?>">
                             <i class="fas fa-folder">
                             </i>
                             View
                         </a>
-                        <a class="btn btn-info btn-sm" href="<?= Url::getWww('demos/project-edit.html'); ?>">
+                        <a class="btn btn-info btn-sm" href="<?= Url::new('demos/project-edit.html')->makeWww(); ?>">
                             <i class="fas fa-pencil-alt">
                             </i>
                             Edit

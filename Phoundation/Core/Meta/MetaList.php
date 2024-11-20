@@ -74,7 +74,7 @@ class MetaList
 
         foreach ($source as &$row) {
             if ($row['created_by']) {
-                $row['user'] = '<a href="' . Url::getWww('profiles/profile+' . $row['created_by'] . '.html') . '">' . $row['user'] . '</a>';
+                $row['user'] = '<a href="' . Url::new('profiles/profile+' . $row['created_by'] . '.html')->makeWww() . '">' . $row['user'] . '</a>';
             }
 
             try {
@@ -97,7 +97,7 @@ class MetaList
 
             unset($row['created_by']);
 
-            if (Url::isValid($row['source'])) {
+            if (Url::new($row['source'])->isValid()) {
                 $row['source'] = '<a href = "' . $row['source'] . '">' . $row['source'] . '</a>';
             }
 

@@ -42,6 +42,6 @@ trait TraitDataEntryDefaultPage
     public function setDefaultPage(?string $default_page): static
     {
 
-        return $this->set($default_page ? (string) Url::getWww($default_page) : null, 'default_page');
+        return $this->set($default_page ? (string) Url::new($default_page)->makeWww() : null, 'default_page');
     }
 }

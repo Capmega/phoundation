@@ -39,15 +39,15 @@ $card = Card::new()
             ->setTitle($url->getDisplayName())
             ->setMaximizeSwitch(true)
             ->setContent($form)
-            ->setButtons(Buttons::new()->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/security/non-200-urls.html'), true));
+            ->setButtons(Buttons::new()->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/security/non-200-urls.html'), true));
 
 
 // Build relevant links
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a><br>
-                                   <a href="' . Url::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
+                     ->setContent('<a href="' . Url::new('/accounts/users.html')->makeWww() . '">' . tr('Users management') . '</a><br>
+                                   <a href="' . Url::new('/accounts/rights.html')->makeWww() . '">' . tr('Rights management') . '</a>');
 
 
 // Build documentation

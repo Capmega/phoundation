@@ -44,7 +44,7 @@ $urls_card = Card::new()
                  ->useForm(true);
 
 $urls_card->getForm()
-          ->setAction(Url::getCurrent())
+          ->setAction(Url::newCurrent())
           ->setRequestMethod(EnumHttpRequestMethod::post);
 
 

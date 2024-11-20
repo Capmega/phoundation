@@ -57,7 +57,7 @@ $plugins = Card::new()
                ->setButtons($buttons);
 
 $plugins->getForm()
-        ->setAction(Url::getCurrent())
+        ->setAction(Url::newCurrent())
         ->setRequestMethod(EnumHttpRequestMethod::post);
 
 
@@ -65,7 +65,7 @@ $plugins->getForm()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::getWww('/accounts/users.html') . '">' . tr('Users management') . '</a>');
+                     ->setContent('<a href="' . Url::new('/accounts/users.html')->makeWww() . '">' . tr('Users management') . '</a>');
 
 
 // Build documentation

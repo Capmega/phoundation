@@ -41,15 +41,15 @@ switch (Request::getRequestType()) {
 
 // Build the error page
 echo Template::new('system/http-error')->setSource([
-                                                       ':h2'     => '409',
-                                                       ':h3'     => tr('Conflict'),
-                                                       ':img'    => Url::getImg('backgrounds/' . Core::getProjectSeoName() . '/404/large.jpg'),
-                                                       ':p'      => tr('The specified could not be completed due to a conflict with the current state of the target resource.', [
+    ':h2'     => '409',
+    ':h3'     => tr('Conflict'),
+    ':img'    => Url::new('backgrounds/' . Core::getProjectSeoName() . '/404/large.jpg')->makeImg(),
+    ':p'      => tr('The specified could not be completed due to a conflict with the current state of the target resource.', [
                                                            ':url' => Request::getReferer(true),
                                                        ]),
-                                                       ':type'   => 'warning',
-                                                       ':search' => tr('Search'),
-                                                       ':action' => Url::getWww('search/'),
+    ':type'   => 'warning',
+    ':search' => tr('Search'),
+    ':action' => Url::new('search/')->makeWww(),
                                                    ])->render();
 
 

@@ -484,7 +484,7 @@ class Request implements RequestInterface
 
                 // None of the requested languages are supported! Oh noes! Go for default language.
                 Notification::new()
-                            ->setUrl(Url::getWww('developer/incidents.html'))
+                            ->setUrl(Url::new('developer/incidents.html')->makeWww())
                             ->setMode(EnumDisplayMode::warning)
                             ->setCode('unsupported-languages-requested')
                             ->setRoles('developer')
@@ -613,12 +613,12 @@ class Request implements RequestInterface
         if ($default) {
             if (is_bool($default)) {
                 // We don't have a referer, return the current URL instead
-                return Url::getCurrent()
+                return Url::newCurrent()
                           ->__toString();
             }
 
             // Use the specified referrer
-            return Url::getWww($default)
+            return Url::new($default)->makeWww()
                       ->__toString();
         }
 
@@ -1143,8 +1143,8 @@ class Request implements RequestInterface
                 $guest_redirect = 'sign-in';
             }
 
-            $current        = Response::getRedirect(Url::getCurrent());
-            $guest_redirect = Url::getWww($guest_redirect)
+            $current        = Response::getRedirect(Url::newCurrent());
+            $guest_redirect = Url::new($guest_redirect)->makeWww()
                                  ->addRedirect($current);
 
             Incident::new()
@@ -1277,20 +1277,20 @@ class Request implements RequestInterface
             static::executeSystem(401);
         }
 
-        if (!$key->signKeyAllowsUrl(Url::getCurrent(), $target)) {
+        if (!$key->signKeyAllowsUrl(Url::newCurrent(), $target)) {
             Incident::new()
                     ->setType('401 - Unauthorized')
                     ->setSeverity(EnumSeverity::low)
                     ->setTitle(tr('Cannot open URL ":url", sign in key ":uuid" does not allow navigation beyond ":allow"', [
-                        ':url'   => Url::getCurrent(),
+                        ':url'   => Url::newCurrent(),
                         ':allow' => $key->getRedirect(),
                         ':uuid'  => $key->getUuid(),
                     ]))
                     ->setDetails([
-                                     ':url'      => Url::getCurrent(),
-                                     ':users_id' => $key->getUsersId(),
-                                     ':allow'    => $key->getRedirect(),
-                                     ':uuid'     => $key->getUuid(),
+                        ':url'      => Url::newCurrent(),
+                        ':users_id' => $key->getUsersId(),
+                        ':allow'    => $key->getRedirect(),
+                        ':uuid'     => $key->getUuid(),
                     ])
                     ->save();
 

@@ -27,8 +27,8 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 
 echo Card::new()
          ->setTitle(tr('Reports available to me'))
-         ->setContent('<a href="' . Url::getWww('/timesheets/my-timesheet-reports/review.html') . '">' . tr('Review & submit') . '</a><hr>
-                         <a href="' . Url::getWww('/timesheets/my-timesheet-reports/summary.html') . '">' . tr('My summary report') . '</a><br>
-                         <a href="' . Url::getWww('/timesheets/my-timesheet-reports/detailed.html') . '">' . tr('My detailed report') . '</a><hr>')
+         ->setContent('<a href="' . Url::new('/timesheets/my-timesheet-reports/review.html')->makeWww() . '">' . tr('Review & submit') . '</a><hr>
+                         <a href="' . Url::new('/timesheets/my-timesheet-reports/summary.html')->makeWww() . '">' . tr('My summary report') . '</a><br>
+                         <a href="' . Url::new('/timesheets/my-timesheet-reports/detailed.html')->makeWww() . '">' . tr('My detailed report') . '</a><hr>')
          ->render();
 ?>

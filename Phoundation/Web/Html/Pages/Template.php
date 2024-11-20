@@ -163,7 +163,7 @@ class Template implements TemplateInterface
 
         } else {
             $sign_out = Session::isGuest() ? null : '<p>' . tr('Click :here to sign out', [
-                ':here' => '<a href="' . Url::getWww('sign-out') . '">here</a>'
+                ':here' => '<a href="' . Url::new('sign-out')->makeWww() . '">here</a>'
             ]) . '</p>';
 
             switch ($this->page) {
@@ -177,8 +177,8 @@ class Template implements TemplateInterface
                                                 <h3><i class="fas fa-exclamation-triangle text-:type"></i> :h3</h3>
 
                                                 <p>:p</p>
-                                                <p>' . tr('Click :here to go to the index page', [':here' => '<a href="' . Url::getCurrentDomainRootUrl() . '">here</a>']) . '</p>' .
-                                                $sign_out;
+                                                <p>' . tr('Click :here to go to the index page', [':here' => '<a href="' . Url::newCurrentDomainRootUrl() . '">here</a>']) . '</p>' .
+                                  $sign_out;
 
                     if (Session::isUser()) {
                         $this->text .= '    <form class="search-form" method="post" action=":action">

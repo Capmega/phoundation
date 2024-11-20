@@ -34,13 +34,13 @@ class TopPanel extends Panel
         // Set the default menu for top panels
         $this->source['menu'] = Menu::new()
                                     ->addSource([
-                                        tr('Home') => (string) Url::getCurrentDomainRootUrl(),
+                                        tr('Home') => (string) Url::newCurrentDomainRootUrl(),
                                     ]);
         if (
             Session::getUserObject()
                    ->hasAllRights('demos')
         ) {
-            $this->source['menu']->add((string) Url::getWww('demos.html'), tr('Demos'));
+            $this->source['menu']->add((string) Url::new('demos.html')->makeWww(), tr('Demos'));
         }
         parent::__construct($content);
         $this->elements = Iterator::new([

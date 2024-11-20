@@ -823,7 +823,7 @@ class User extends DataEntry implements UserInterface
     {
         if ($this->isCreated()) {
             // Notify the user that their account was created, accompanied by a login link
-            $key = $this->getSigninKey()->generate(Url::getWww('/force-password-update.html'));
+            $key = $this->getSigninKey()->generate(Url::new('/force-password-update.html')->makeWww());
 
             $this->notify()?->setTitle(tr('An account has been created for you on :project', [
                                   ':project' => Config::getString('project.name', 'Phoundation')
@@ -1781,7 +1781,7 @@ class User extends DataEntry implements UserInterface
     {
         if ($redirect) {
             // Ensure we have a valid redirect URL
-            $redirect = Url::getWww($redirect);
+            $redirect = Url::new($redirect)->makeWww();
         }
 
         return $this->set(get_null((string) $redirect), 'redirect');
@@ -2922,7 +2922,7 @@ class User extends DataEntry implements UserInterface
 
                     ->add(DefinitionFactory::newUrl($this, 'redirect')
                                            ->setSize(4)
-                                           ->setDataSource(Url::getAjax('system/accounts/users/redirect/autosuggest.json'))
+                                           ->setDataSource(Url::new('system/accounts/users/redirect/autosuggest.json')->makeAjax())
                                            ->setInputType(EnumInputType::auto_suggest)
                                            ->setInitialDefault(Config::getString('security.accounts.users.new.defaults.redirect', '/force-password-update.html'))
                                            ->setLabel(tr('Redirect URL'))
@@ -2931,7 +2931,7 @@ class User extends DataEntry implements UserInterface
 
                     ->add(DefinitionFactory::newUrl($this, 'default_page')
                                            ->setSize(2)
-                                           ->setDataSource(Url::getAjax('system/accounts/users/redirect/autosuggest.json'))
+                                           ->setDataSource(Url::new('system/accounts/users/redirect/autosuggest.json')->makeAjax())
                                            ->setInputType(EnumInputType::auto_suggest)
                                            ->setLabel(tr('Default page'))
                                            ->setHelpGroup(tr('Preferences'))

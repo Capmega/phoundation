@@ -61,7 +61,7 @@ if (Request::isPostRequestMethod()) {
             $user->changePassword($post['password'], $post['passwordv']);
 
             Response::getFlashMessagesObject()->addSuccess(tr('The password for user ":user" has been updated', [':user' => $user->getDisplayName()]));
-            Response::redirect(Url::getPrevious('accounts/user+' . $user->getId() . '.html'));
+            Response::redirect(Url::newPrevious('accounts/user+' . $user->getId() . '.html'));
 
         } catch (PasswordTooShortException|NoPasswordSpecifiedException) {
             Response::getFlashMessagesObject()->addWarning(tr('Please specify at least ":count" characters for the password', [
@@ -82,7 +82,7 @@ if (Request::isPostRequestMethod()) {
 // Build the buttons
 $buttons = Buttons::new()
                   ->addButton(tr('Save'))
-                  ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/accounts/users.html'), true);
+                  ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/users.html'), true);
 
 
 // Build the user form
@@ -104,9 +104,9 @@ $column = GridColumn::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::getWww('/accounts/user+' . $user->getId() . '.html') . '">' . tr('Modify profile for this user') . '</a><br>
-                                   <a href="' . Url::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
-                                   <a href="' . Url::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
+                     ->setContent('<a href="' . Url::new('/accounts/user+' . $user->getId() . '.html')->makeWww() . '">' . tr('Modify profile for this user') . '</a><br>
+                                   <a href="' . Url::new('/accounts/roles.html')->makeWww() . '">' . tr('Roles management') . '</a><br>
+                                   <a href="' . Url::new('/accounts/rights.html')->makeWww() . '">' . tr('Rights management') . '</a>');
 
 
 // Build documentation

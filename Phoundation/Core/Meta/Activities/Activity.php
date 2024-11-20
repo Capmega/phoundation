@@ -261,7 +261,7 @@ class Activity implements ActivityInterface, RenderInterface
                                                          ->setAlt(tr("Profile picture for :user", [":user" => Html::safe($this->getUserObject()->getDisplayName())]))
                                                          ->render() .'
                                         <span class="username">
-                                          <a href="' . Url::getWww('profiles/profile+' . $this->getUserObject()->getId() . '.html') .'">' . $this->getUserObject()->getDisplayName() . '</a>
+                                          <a href="' . Url::new('profiles/profile+' . $this->getUserObject()->getId() . '.html')->makeWww() . '">' . $this->getUserObject()->getDisplayName() . '</a>
                                         </span>
                                         <span class="description">' . $action . ' - ' . tr(':time ago', [':time' => $this->getMoment()]) . '</span>
                                     </div>

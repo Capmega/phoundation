@@ -83,7 +83,7 @@ $notifications_card = Card::new()
                           );
 
 $notifications_card->getForm()
-                   ->setAction(Url::getCurrent())
+                   ->setAction(Url::newCurrent())
                    ->setRequestMethod(EnumHttpRequestMethod::post);
 
 
@@ -91,8 +91,8 @@ $notifications_card->getForm()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::getWww('/notifications/all.html') . '">' . tr('All notifications') . '</a><br>
-                                   <a href="' . Url::getWww('/notifications/test.html') . '">' . tr('Send me a test notification') . '</a>');
+                     ->setContent('<a href="' . Url::new('/notifications/all.html')->makeWww() . '">' . tr('All notifications') . '</a><br>
+                                   <a href="' . Url::new('/notifications/test.html')->makeWww() . '">' . tr('Send me a test notification') . '</a>');
 
 
 // Build documentation

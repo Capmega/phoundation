@@ -72,7 +72,7 @@ if (Request::isPostRequestMethod()) {
                     ->throw(AccessDeniedException::class);
         }
 
-        $key = $user->getSigninKey()->generate(Url::getWww('/update-lost-password.html'));
+        $key = $user->getSigninKey()->generate(Url::new('/update-lost-password.html')->makeWww());
         $mail = new PHPMailer();
         $mail->isSMTP();
         $mail->isHTML(true);

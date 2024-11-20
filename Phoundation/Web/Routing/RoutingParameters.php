@@ -446,7 +446,7 @@ class RoutingParameters implements RoutingParametersInterface
     public function setRootUrl(string $root_url): static
     {
         // Make it a correct local URL
-        $this->root_url = (string) Url::getWww($root_url, true);
+        $this->root_url = (string) Url::new($root_url, true)->makeWww();
 
         return $this;
     }

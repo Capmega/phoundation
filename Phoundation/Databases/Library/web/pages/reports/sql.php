@@ -84,7 +84,7 @@ $results_card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::getWww('/reports.html') . '">' . tr('Reports') . '</a>');
+                     ->setContent('<a href="' . Url::new('/reports.html')->makeWww() . '">' . tr('Reports') . '</a>');
 
 
 // Build documentation

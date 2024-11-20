@@ -39,13 +39,13 @@ switch (Request::getRequestType()) {
 
 // Build the error page
 echo Template::new('system/http-error')->setSource([
-                                                       ':h2'     => '500',
-                                                       ':h3'     => tr('Internal Server Error'),
-                                                       ':img'    => Url::getImg('backgrounds/' . Core::getProjectSeoName() . '/404/large.jpg'),
-                                                       ':p'      => tr('The server encountered an internal error and could not fulfill your request. Please contact the system administrator'),
-                                                       ':type'   => 'warning',
-                                                       ':search' => tr('Search'),
-                                                       ':action' => Url::getWww('search/'),
+    ':h2'     => '500',
+    ':h3'     => tr('Internal Server Error'),
+    ':img'    => Url::new('backgrounds/' . Core::getProjectSeoName() . '/404/large.jpg')->makeImg(),
+    ':p'      => tr('The server encountered an internal error and could not fulfill your request. Please contact the system administrator'),
+    ':type'   => 'warning',
+    ':search' => tr('Search'),
+    ':action' => Url::new('search/')->makeWww(),
                                                    ])->render();
 
 

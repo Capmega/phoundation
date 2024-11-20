@@ -3261,12 +3261,12 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                 return;
             }
 
-            if (!Url::isValid($value)) {
+            if (!Url::new($value)->isValid()) {
                 if (str_contains($value, ' ')) {
                     // Spaces in URL's are common but will make the URL fail, auto replace with + and retry
                     $value = str_replace(' ', '+', $value);
 
-                    if (Url::isValid($value)) {
+                    if (Url::new($value)->isValid()) {
                         // Now we're good!
                         return;
                     }

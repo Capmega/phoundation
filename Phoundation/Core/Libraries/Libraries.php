@@ -179,7 +179,7 @@ class Libraries
         if (Core::isProductionEnvironment()) {
             // Notification developers
             Notification::new()
-                        ->setUrl(Url::getWww('/system/information.html'))
+                        ->setUrl(Url::new('/system/information.html')->makeWww())
                         ->setMode(EnumDisplayMode::info)
                         ->setRoles('developer')
                         ->setTitle(tr('System initialization'))

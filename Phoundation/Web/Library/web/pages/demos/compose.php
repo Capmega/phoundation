@@ -44,7 +44,7 @@ echo Script::new()
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-3">
-                <a href="<?= Url::getWww('/demos/mailbox.html'); ?>" class="btn btn-primary btn-block mb-3">Back
+                <a href="<?= Url::new('/demos/mailbox.html')->makeWww(); ?>" class="btn btn-primary btn-block mb-3">Back
                     to Inbox</a>
 
                 <div class="card">

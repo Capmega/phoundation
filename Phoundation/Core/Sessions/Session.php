@@ -489,7 +489,7 @@ class Session implements SessionInterface
 
                 if (!str_contains(static::$domain, $test)) {
                     Notification::new()
-                                ->setUrl(Url::getWww('security/incidents.html'))
+                                ->setUrl(Url::new('security/incidents.html')->makeWww())
                                 ->setMode(EnumDisplayMode::warning)
                                 ->setCode('configuration')
                                 ->setRoles('developer')
@@ -1399,7 +1399,7 @@ class Session implements SessionInterface
         // Impersonate the user
         $original_user = static::getUserObject();
         $_SESSION['user']['impersonate_id']  = $user->getId();
-        $_SESSION['user']['impersonate_url'] = (string) Url::getCurrent();
+        $_SESSION['user']['impersonate_url'] = (string) Url::newCurrent();
 
         static::$user_changed = true;
 
@@ -1426,7 +1426,7 @@ class Session implements SessionInterface
 
         // Notify the target user
         Notification::new()
-                    ->setUrl(Url::getWww('profiles/profile+' . $original_user->getId() . '.html'))
+                    ->setUrl(Url::new('profiles/profile+' . $original_user->getId() . '.html')->makeWww())
                     ->setMode(EnumDisplayMode::warning)
                     ->setUsersId($_SESSION['user']['impersonate_id'])
                     ->setTitle(tr('Your account was impersonated'))

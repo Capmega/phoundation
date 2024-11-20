@@ -230,7 +230,7 @@ class Bundler
                          ]), 3);
                          if (!file_exists($file)) {
                              Notification::new()
-                                         ->setUrl(Url::getWww('developer/incidents.html'))
+                                         ->setUrl(Url::new('developer/incidents.html')->makeWww())
                                          ->setMode(EnumDisplayMode::exception)
                                          ->setCode('not-exists')
                                          ->setRoles('developer')
@@ -287,7 +287,7 @@ class Bundler
                     $import = Strings::cut($match, '"', '"');
                     if (!file_exists($this->directory . $import)) {
                         Notification::new()
-                                    ->setUrl(Url::getWww('developer/incidents.html'))
+                                    ->setUrl(Url::new('developer/incidents.html')->makeWww())
                                     ->setMode(EnumDisplayMode::exception)
                                     ->setCode('not-exists')
                                     ->setRoles('developer')
@@ -311,7 +311,7 @@ class Bundler
                     $import = Strings::slash(dirname($file)) . Strings::unslash($import);
                     if (!file_exists($import)) {
                         Notification::new()
-                                    ->setUrl(Url::getWww('developer/incidents.html'))
+                                    ->setUrl(Url::new('developer/incidents.html')->makeWww())
                                     ->setMode(EnumDisplayMode::exception)
                                     ->setCode('not-exists')
                                     ->setRoles('developer')

@@ -59,7 +59,7 @@ class LanguagesDropDown extends ElementsBlock
      */
     public function setSettingsUrl(Stringable|string|null $settings_url): static
     {
-        $this->settings_url = Url::getWww($settings_url);
+        $this->settings_url = Url::new($settings_url)->makeWww();
 
         return $this;
     }

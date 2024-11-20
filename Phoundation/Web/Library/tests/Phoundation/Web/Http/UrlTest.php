@@ -29,7 +29,7 @@ class UrlTest extends TestCase
      */
     public function testGetWww()
     {
-        $url = Url::getWww();
+        $url = Url::newCurrent();
         $this->assertEquals($url, '', 'The result array should equal the sample array');
     }
 }

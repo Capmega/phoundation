@@ -40,15 +40,15 @@ switch (Request::getRequestType()) {
 
 // Build the error page
 echo Template::new('system/http-error')->setSource([
-                                                       ':h2'     => '405',
-                                                       ':h3'     => tr('Method not allowed'),
-                                                       ':img'    => Url::getImg('backgrounds/' . Core::getProjectSeoName() . '/404/large.jpg'),
-                                                       ':p'      => tr('The action you requested could not be executed because the method is (currently) not allowed. Please try again later or contact your system administrator', [
+    ':h2'     => '405',
+    ':h3'     => tr('Method not allowed'),
+    ':img'    => Url::new('backgrounds/' . Core::getProjectSeoName() . '/404/large.jpg')->makeImg(),
+    ':p'      => tr('The action you requested could not be executed because the method is (currently) not allowed. Please try again later or contact your system administrator', [
                                                            ':url' => Request::getReferer(true),
                                                        ]),
-                                                       ':type'   => 'warning',
-                                                       ':search' => tr('Search'),
-                                                       ':action' => Url::getWww('search/'),
+    ':type'   => 'warning',
+    ':search' => tr('Search'),
+    ':action' => Url::new('search/')->makeWww(),
                                                    ])->render();
 
 

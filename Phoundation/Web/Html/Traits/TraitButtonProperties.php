@@ -160,7 +160,7 @@ trait TraitButtonProperties
     public function setAnchorUrl(Stringable|string|null $anchor_url): static
     {
         $this->setElement('a');
-        $this->anchor_url  = (string) Url::getWww($anchor_url);
+        $this->anchor_url  = (string) Url::new($anchor_url)->makeWww();
         $this->button_type = null;
 
         return $this;

@@ -61,7 +61,7 @@ if (Request::isPostRequestMethod()) {
 // Build the buttons
 $buttons = Buttons::new()
                   ->addButton('Submit')
-                  ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::getPrevious('/accounts/customers.html'), true)
+                  ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/customers.html'), true)
                   ->addButton(tr('Audit'), EnumDisplayMode::information, '/audit/meta+' . $customer->getMetaId() . '.html', false, true);
 
 
@@ -92,8 +92,8 @@ $picture = Card::new()
 $relevant = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
-                ->setContent('<a href="' . Url::getWww('/business/providers.html') . '">' . tr('Providers management') . '</a><br>
-                         <a href="' . Url::getWww('/business/companies.html') . '">' . tr('Companies management') . '</a>');
+                ->setContent('<a href="' . Url::new('/business/providers.html')->makeWww() . '">' . tr('Providers management') . '</a><br>
+                         <a href="' . Url::new('/business/companies.html')->makeWww() . '">' . tr('Companies management') . '</a>');
 
 
 // Build documentation

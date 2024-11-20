@@ -627,7 +627,7 @@ class Task extends DataEntry implements TaskInterface
             if ($this->getRolesId()) {
                 // Notify the specified role!
                 Notification::new()
-                            ->setUrl(Url::getWww('/tasks/task+' . $this->getId() . '.html'))
+                            ->setUrl(Url::new('/tasks/task+' . $this->getId() . '.html')->makeWww())
                             ->setMode(EnumDisplayMode::info)
                             ->setRoles($this->getRolesId())
                             ->setTitle(tr('A task has been completed'))
@@ -669,7 +669,7 @@ class Task extends DataEntry implements TaskInterface
             if ($this->getRolesId()) {
                 // Notify the specified role!
                 Notification::new()
-                            ->setUrl(Url::getWww('/tasks/task+' . $this->getId() . '.html'))
+                            ->setUrl(Url::new('/tasks/task+' . $this->getId() . '.html')->makeWww())
                             ->setMode(EnumDisplayMode::info)
                             ->setRoles($this->getRolesId())
                             ->setTitle(tr('A task has failed'))

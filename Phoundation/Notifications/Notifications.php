@@ -260,7 +260,7 @@ class Notifications extends DataIterator implements NotificationsInterface
               ->setContent('   function checkNotifications(ping) {
                                         var ping = (typeof ping !== "undefined") ? ping : true;
 
-                                        $.get("' . Url::getAjax('/system/notifications/dropdown.json') . '")
+                                        $.get("' . Url::new('/system/notifications/dropdown.json')->makeAjax() . '")
                                         .done(function(data) {
                                             if ((data.count > 0) && data.ping) {
                                                 console.log("Notification ping!");

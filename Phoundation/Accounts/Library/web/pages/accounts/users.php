@@ -112,7 +112,7 @@ $users_card = Card::new()
                   ->setButtons($buttons);
 
 $users_card->getForm()
-           ->setAction(Url::getCurrent())
+           ->setAction(Url::newCurrent())
            ->setRequestMethod(EnumHttpRequestMethod::post);
 
 
@@ -120,8 +120,8 @@ $users_card->getForm()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::getWww('/accounts/roles.html') . '">' . tr('Roles management') . '</a><br>
-                                   <a href="' . Url::getWww('/accounts/rights.html') . '">' . tr('Rights management') . '</a>');
+                     ->setContent('<a href="' . Url::new('/accounts/roles.html')->makeWww() . '">' . tr('Roles management') . '</a><br>
+                                   <a href="' . Url::new('/accounts/rights.html')->makeWww() . '">' . tr('Rights management') . '</a>');
 
 
 // Build documentation

@@ -30,4 +30,4 @@ $get = GetValidator::new()
 
 
 // Reply
-JsonPage::new()->reply([(string) Url::getWww('/force-password-update.html')]);
+JsonPage::new()->reply([(string) Url::new('/force-password-update.html')->makeWww()]);

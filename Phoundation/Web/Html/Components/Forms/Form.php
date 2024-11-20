@@ -322,7 +322,7 @@ class Form extends Element implements FormInterface
      */
     public function getAction(): ?string
     {
-        return $this->action ?? (string) Url::getWww();
+        return $this->action ?? (string) Url::newCurrent();
     }
 
 
@@ -336,7 +336,7 @@ class Form extends Element implements FormInterface
     public function setAction(Stringable|string|null $action): static
     {
         if ($action) {
-            $this->action = (string) Url::getWww($action);
+            $this->action = (string) Url::new($action)->makeWww();
 
         } else {
             $this->action = null;

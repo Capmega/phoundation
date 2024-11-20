@@ -116,7 +116,7 @@ $mounts_card = Card::new()
     ->setButtons($buttons);
 
 $mounts_card->getForm()
-            ->setAction(Url::getCurrent())
+            ->setAction(Url::newCurrent())
             ->setRequestMethod(EnumHttpRequestMethod::post);
 
 
@@ -124,7 +124,7 @@ $mounts_card->getForm()
 $relevant_card = Card::new()
     ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . Url::getWww('/phoundation/file-system/roles.html') . '">' . tr('Filesystem connectors management') . '</a><br>');
+    ->setContent('<a href="' . Url::new('/phoundation/file-system/roles.html')->makeWww() . '">' . tr('Filesystem connectors management') . '</a><br>');
 
 
 // Build documentation

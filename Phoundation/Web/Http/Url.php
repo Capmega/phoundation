@@ -20,7 +20,6 @@ namespace Phoundation\Web\Http;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Traits\TraitStaticMethodNewWithSource;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
@@ -35,15 +34,11 @@ use Phoundation\Web\Http\Exception\UrlConfiguredUrlNotFoundException;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
-use Phoundation\Web\Requests\Response;
 use Stringable;
 
 
 class Url implements UrlInterface
 {
-    use TraitStaticMethodNewWithSource;
-
-
     /**
      * Will be true if the current URL as-is is cloaked
      *
@@ -54,9 +49,9 @@ class Url implements UrlInterface
     /**
      * The url to work with
      *
-     * @var string $source
+     * @var string|int $source
      */
-    protected string $source;
+    protected string|int $source;
 
     /**
      * Tracks if this URL is properly encoded, or not
@@ -69,14 +64,14 @@ class Url implements UrlInterface
     /**
      * Url class constructor
      *
-     * @param Stringable|string|null $source
+     * @param Stringable|string|int|null $source
      */
-    protected function __construct(Stringable|string|null $source = null)
+    protected function __construct(Stringable|string|int|null $source = null)
     {
         $source = trim((string) $source);
 
         // This is either part of a URL or a complete URL
-        if (!Url::isValid($source)) {
+        if (!Url::isValidUrl($source)) {
             // This is a section
             $this->source = Strings::ensureStartsNotWith($source, '/');
 
@@ -88,22 +83,479 @@ class Url implements UrlInterface
 
 
     /**
+     * When used as string, will always return the internal URL as available
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->getSource();
+    }
+
+
+    /**
+     * Returns a new Url object
+     *
+     * @param Stringable|string|int|null $source
+     *
+     * @return static
+     */
+    public static function new(Stringable|string|int|null $source = null): static
+    {
+        return new static($source);
+    }
+
+
+    /**
+     * Returns the current URL
+     *
+     * @param string|int|null $id
+     * @param bool            $strip_queries
+     *
+     * @return static
+     */
+    public static function newCurrent(string|int|null $id = null, bool $strip_queries = false): static
+    {
+        $url = static::newCurrentDomainUrl();
+
+        if ($id) {
+            // Inject the ID in the URL
+            $url = (string) $url;
+            $ext = Strings::fromReverse($url, '.');
+            $url = Strings::untilReverse($url, '.');
+            $url = $url . '+' . $id . $ext;
+            $url = new static($url);
+        }
+
+        if ($strip_queries) {
+            return static::new(Strings::until((string) $url, '?'))->makeWww();
+        }
+
+        return $url;
+    }
+
+
+    /**
+     * Returns the URL as requested for the primary domain
+     *
+     * @return static
+     */
+    public static function newCurrentDomainUrl(): static
+    {
+        return new static(Request::getUrl());
+    }
+
+
+    /**
+     * Returns the URL where to redirect to
+     *
+     * @param Stringable|string|int|null ...$urls
+     *
+     * @return static
+     */
+    public static function newRedirect(Stringable|string|int|null ...$urls): static
+    {
+        foreach ($urls as $url) {
+            if (!$url) {
+                continue;
+            }
+
+            $url = Url::new($url)->makeWww();
+
+            if ($url->getSource(true) === static::newCurrent()->getSource(true)) {
+                continue;
+            }
+
+            if ((string) $url === (string) static::new('index')->makeWww()) {
+                continue;
+            }
+
+            return $url;
+        }
+
+        return static::new('index')->makeWww();
+    }
+
+
+    /**
+     * Returns the root URL for the primary domain
+     *
+     * @return static
+     */
+    public static function newCurrentDomainRootUrl(): static
+    {
+        return new static(Request::getRootUrl());
+    }
+
+
+    /**
+     * Returns a complete web URL for the previous page, or the specified URL
+     *
+     * This will return either the $_GET[previous], $_GET[redirect], or $_SERVER[referer] URL. If none of these exist,
+     * or if they are the current page, then the specified URL will be sent instead.
+     *
+     * @param Stringable|string|int|null $or_else_url         The URL to build if no valid previous page is available
+     * @param bool                       $use_configured_root If true, the builder will not use the root URI from the
+     *                                                        routing parameters but from the static configuration
+     * @param string|null                $strip_query_keys    If specified, will strip the specified keys from the URL
+     *                                                        queries
+     *
+     * @return static
+     */
+    public static function newPrevious(Stringable|string|int|null $or_else_url = null, bool $use_configured_root = false, ?string $strip_query_keys = 'previous,redirect'): static
+    {
+        $url = GetValidator::getRedirectValue();
+
+        if (!empty($url)) {
+            // We got a previous, redirect, or referer value
+            $url     = static::new($url)->makeWww($use_configured_root);
+            $current = static::new(null)->makeWww($use_configured_root);
+
+            if ((string) $current !== (string) $url) {
+                // Option is not current page, return it with previous and redirect keys stripped
+                return $url->removeQueryKeys($strip_query_keys);
+            }
+        }
+
+        // No URL found in any of the options, or option was current page. Use the specified URL
+        return static::new($or_else_url)->makeWww($use_configured_root)->removeQueryKeys($strip_query_keys);
+    }
+
+
+    /**
+     * Apply predefined URL names
+     *
+     * @param Stringable|string|int|null $url
+     * @param EnumRequestTypes|null      $request_type
+     *
+     * @return static
+     */
+    public static function newConfigured(Stringable|string|int|null $url, ?EnumRequestTypes $request_type = null): static
+    {
+        $url        = (string) $url;
+        $configured = match (Strings::until($url, '.html')) {
+            'dashboard', 'index'   => Config::getString('web.pages.index'   , '/index'),
+            'sign-in'  , 'signin'  => Config::getString('web.pages.sign-in' , '/sign-in'),
+            'sign-up'  , 'signup'  => Config::getString('web.pages.sign-up' , '/sign-up'),
+            'sign-out' , 'signout' => Config::getString('web.pages.sign-out', '/sign-out') . (Session::isUser() ? '?redirect=' . urlencode(Url::newCurrent()->getSource()) : null),
+            'sign-key' , 'signkey' => Config::getString('web.pages.sign-key', '/sign-key+:key'),
+            'profile'              => Config::getString('web.pages.profile' , '/my/profile'),
+            'settings'             => Config::getString('web.pages.settings', '/my/settings'),
+            default                => Config::getString('web.pages.' . $url , '')
+        };
+
+        if ($configured) {
+            return new static($configured);
+        }
+
+        return new static($url);
+    }
+
+
+    /**
+     * Returns the root URL for the parent domain
+     *
+     * @return static
+     */
+    public static function newParentDomainRootUrl(): static
+    {
+        return new static(Domains::from()->getParent() . Request::getRootUri());
+    }
+
+
+    /**
+     * Returns the URL as requested for the parent domain
+     *
+     * @return static
+     */
+    public static function newParentDomainUrl(): static
+    {
+        return new static(Domains::from()->getParent() . Request::getUri());
+    }
+
+
+    /**
+     * Returns the root URL for the root domain
+     *
+     * @return static
+     */
+    public static function newRootDomainRootUrl(): static
+    {
+        return new static(Domains::from()->getRoot() . Request::getRootUri());
+    }
+
+
+    /**
+     * Returns the URL as requested for the root domain
+     *
+     * @return static
+     */
+    public static function newRootDomainUrl(): static
+    {
+        return new static(Domains::from()->getRoot() . Request::getUri());
+    }
+
+
+    /**
+     * Returns the current URL for the specified domain
+     *
+     * @param string $domain
+     *
+     * @return static
+     */
+    public static function newDomainCurrentUrl(string $domain): static
+    {
+        return new static($domain . Request::getUri());
+    }
+
+
+    /**
+     * Returns the root URL for the primary domain
+     *
+     * @return static
+     */
+    public static function newPrimaryDomainRootUrl(): static
+    {
+        return Url::new(Config::getString('web.domains.primary.web'))->makeWww();
+    }
+
+
+    /**
+     * Returns the URL as requested for the primary domain
+     *
+     * @return static
+     */
+    public static function newPrimaryDomainUrl(): static
+    {
+        return new static(Domains::getPrimaryWeb() . Request::getUri());
+    }
+
+
+    /**
+     * Returns the "redirect" or referer (previous) URL
+     *
+     * @param Stringable|string|int|null $url
+     *
+     * @return static
+     */
+    public static function newReferer(Stringable|string|int|null $url = null): static
+    {
+        $url = trim((string) $url);
+
+        // Try to get a "redirect" via GET
+        try {
+            $get = GetValidator::new()
+                               ->select('redirect')
+                               ->isOptional()
+                               ->isUrl()
+                               ->validate(false);
+
+        } catch (ValidationFailedException) {
+            Log::warning(tr('Validation for redirect url ":url" failed, ignoring', [
+                ':url' => GetValidator::new()
+                                      ->get('redirect'),
+            ]));
+        }
+        if (isset_get($get['redirect'])) {
+            // Use the redirect URL
+            $url = $get['redirect'];
+
+        } else {
+            // Try referer
+            try {
+                $server = ArrayValidator::new($_SERVER)
+                                        ->select('HTTP_REFERER')
+                                        ->isOptional()
+                                        ->isUrl()
+                                        ->validate(false);
+
+            } catch (ValidationFailedException) {
+                Log::warning(tr('Validation for HTTP_REFERRER ":url" failed, ignoring', [
+                    ':url' => $_SERVER['HTTP_REFERER'],
+                ]));
+            }
+            if (isset_get($server['HTTP_REFERER'])) {
+                // Use the referer
+                $url = $server['HTTP_REFERER'];
+
+            } elseif (empty($url)) {
+                // No url specified either, just go to the root page
+                $url = static::newCurrentDomainRootUrl();
+            }
+        }
+
+        return new static($url);
+    }
+
+
+    /**
+     * Returns a complete web URL
+     *
+     * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
+     *                                  from the static configuration
+     *
+     * @return static
+     */
+    public function makeWww(bool $use_configured_root = false): static
+    {
+        if (!$this->source) {
+            return Url::newCurrent();
+
+        }
+
+        if (is_numeric($this->source)) {
+            $this->source = 'system/' . $this->source . 'html';
+
+        } elseif ($this->source === '/') {
+            return $this->renderUrl('', null, $use_configured_root);
+        }
+
+        return $this->renderUrl('html', null, $use_configured_root);
+    }
+
+
+    /**
+     * Returns a CDN URL
+     *
+     * @param string|null $extension
+     *
+     * @return static
+     */
+    public function makeCdn(?string $extension = null): static
+    {
+        return $this->renderCdn($extension);
+    }
+
+
+    /**
+     * Returns an ajax URL
+     *
+     * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
+     *                                  from the static configuration
+     *
+     * @return static
+     */
+    public function makeAjax(bool $use_configured_root = false): static
+    {
+        return $this->makeJson('ajax', $use_configured_root);
+    }
+
+
+    /**
+     * Returns an api URL
+     *
+     * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
+     *                                  from the static configuration
+     *
+     * @return static
+     */
+    public function makeApi(bool $use_configured_root = false): static
+    {
+        return $this->makeJson('api', $use_configured_root);
+    }
+
+
+    /**
+     * Returns a JSON type URL
+     *
+     * @param string $type
+     * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
+     *                                  from the static configuration
+     *
+     * @return static
+     */
+    protected function makeJson(string $type, bool $use_configured_root = false): static
+    {
+        if (empty($this->source)) {
+            throw new OutOfBoundsException(tr('No URL specified'));
+        }
+
+        $url = $this->source;
+
+        if (is_numeric($url)) {
+            $url = 'system/' . $url . 'json';
+
+        } elseif (!str_contains($url, '.json?')) {
+            $url = Strings::ensureEndsWith($url, '.json');
+        }
+
+        return $this->renderUrl('json', $type . '/', $use_configured_root);
+    }
+
+
+    /**
+     * Returns a CSS URL
+     *
+     * @return static
+     */
+    public function makeCss(): static
+    {
+        return $this->renderCdn('css');
+    }
+
+
+    /**
+     * Returns a Javascript URL
+     *
+     * @return static
+     */
+    public function makeJs(): static
+    {
+        return $this->renderCdn('js');
+    }
+
+
+    /**
+     * Returns an image URL
+     *
+     * @return static
+     */
+    public function makeImg(): static
+    {
+        if ($this->isValid()) {
+            return $this;
+        }
+
+//        if ($directory) {
+//            throw new UnderConstructionException();
+//            // Return the local filesystem path instead of a public URL
+//            if (static::isValid($url)) {
+//                // This is an external URL, there is no local file
+//                return new static($url);
+//            }
+//
+//            $directory = Strings::startsNotWith($this->url, '/');
+//
+//            if (!str_starts_with($directory, 'img/')) {
+//                $directory = 'img/' . $directory;
+//            }
+//
+//            return $directory;
+//        }
+
+        $this->source = Strings::ensureStartsWith($this->source, 'img/');
+
+        return $this->renderCdn();
+    }
+
+
+    /**
      * Returns the URL if it did not match any of the filter URL's
      *
      * @note Specified filters may be URL strings or UrlInterface objects. The filter will be converted to a URL object,
      *       so it also may be a pre-defined URL like "sign-in" or "index"
      *
-     * @param UrlInterface|string     $url             The URL to test
-     * @param IteratorInterface|array $filters         The URL's to test against
-     * @param bool                    $include_queries If true, will compare the complete URL with queries. If false,
-     *                                                 will only test the URI part, the queries stripped
+     * @param Stringable|string|int|null $url             The URL to test
+     * @param IteratorInterface|array    $filters         The URL's to test against
+     * @param bool                       $include_queries If true, will compare the complete URL with queries. If false,
+     *                                                    will only test the URI part, the queries stripped
      *
      * @return UrlInterface|null
      */
-    public static function filter(UrlInterface|string $url, IteratorInterface|array $filters, bool $include_queries = false): ?UrlInterface
+    public static function filter(Stringable|string|int|null $url, IteratorInterface|array $filters, bool $include_queries = false): ?UrlInterface
     {
         // Prepare test value
-        $url = Url::getWww($url);
+        $url = Url::new($url)->makeWww();
 
         if (!$include_queries) {
             $test = $url->removeAllQueries()->getSource();
@@ -115,7 +567,7 @@ class Url implements UrlInterface
         // Go over all filters
         foreach ($filters as $filter) {
             // Prepare filter value
-            $filter = Url::getWww($filter);
+            $filter = Url::new($filter)->makeWww();
 
             if (!$include_queries) {
                 $filter = $filter->removeAllQueries();
@@ -132,103 +584,6 @@ class Url implements UrlInterface
 
 
     /**
-     * Returns the URL where to redirect to
-     *
-     * @param Stringable|string|null ...$urls
-     *
-     * @return static
-     */
-    public static function getRedirect(Stringable|string|null ...$urls): static
-    {
-        foreach ($urls as $url) {
-            if (!$url) {
-                continue;
-            }
-
-            $url = Url::getWww($url);
-
-            if ($url->getSource(true) === static::getCurrent()->getSource(true)) {
-                continue;
-            }
-
-            if ((string) $url === (string) static::getWww('index')) {
-                continue;
-            }
-
-            return $url;
-        }
-
-        return static::getWww('index');
-    }
-
-
-    /**
-     * Returns a complete web URL
-     *
-     * @param UrlInterface|string|int|null $url                        The URL to build
-     * @param bool                         $use_configured_root        If true, the builder will not use the root URI
-     *                                                                 from the routing parameters but from the static
-     *                                                                 configuration
-     *
-     * @return static
-     */
-    public static function getWww(UrlInterface|string|int|null $url = null, bool $use_configured_root = false): static
-    {
-        if (!$url) {
-            $url = Url::getCurrent();
-
-        } elseif (is_numeric($url)) {
-            $url = 'system/' . $url . 'html';
-
-        } elseif ($url === '/') {
-            return static::renderUrl($url, '', null, $use_configured_root);
-        }
-
-        return static::renderUrl($url, 'html', null, $use_configured_root);
-    }
-
-
-    /**
-     * Returns the current URL
-     *
-     * @param string|int|null $id
-     * @param bool            $strip_queries
-     *
-     * @return static
-     */
-    public static function getCurrent(string|int|null $id = null, bool $strip_queries = false): static
-    {
-        $url = static::getCurrentDomainUrl();
-
-        if ($id) {
-            // Inject the ID in the URL
-            $url = (string) $url;
-            $ext = Strings::fromReverse($url, '.');
-            $url = Strings::untilReverse($url, '.');
-            $url = $url . '+' . $id . $ext;
-            $url = new static($url);
-        }
-
-        if ($strip_queries) {
-            return static::getWww(Strings::until((string) $url, '?'));
-        }
-
-        return $url;
-    }
-
-
-    /**
-     * Returns the URL as requested for the primary domain
-     *
-     * @return static
-     */
-    public static function getCurrentDomainUrl(): static
-    {
-        return new static(Request::getUrl());
-    }
-
-
-    /**
      * When used as string, will always return the internal URL as available
      *
      * @param bool $strip_queries
@@ -238,10 +593,8 @@ class Url implements UrlInterface
     public function getSource(bool $strip_queries = false): string
     {
         // Auto cloak URL's?
-        $domain = static::getDomainFromUrl($this->source);
-
         try {
-            if (Domains::getConfigurationKey($domain, 'cloaked', false)) {
+            if (Domains::getConfigurationKey($this->getDomain(), 'cloaked', false)) {
                 $this->cloak();
             }
 
@@ -260,17 +613,15 @@ class Url implements UrlInterface
     /**
      * Returns the domain for the specified URL, NULL if the URL is invalid
      *
-     * @param string $url
-     *
      * @return string|null
      */
-    public static function getDomainFromUrl(string $url): ?string
+    public function getDomain(): ?string
     {
-        $data = parse_url($url);
+        $data = parse_url($this->source);
 
         if (!$data) {
             throw new OutOfBoundsException(tr('Failed to parse url ":url" to fetch domain', [
-                ':url' => $url,
+                ':url' => $this->source,
             ]));
         }
 
@@ -330,21 +681,28 @@ class Url implements UrlInterface
     /**
      * Builds and returns the domain prefix
      *
-     * @param Stringable|string $url
-     * @param string|null       $extension
-     * @param string|null       $prefix
-     * @param bool              $use_configured_root If true, the builder will not use the root URI from the routing
+     * @param string|null $extension
+     * @param string|null $prefix
+     * @param bool        $use_configured_root       If true, the builder will not use the root URI from the routing
      *                                               parameters but from the static configuration
      *
      * @return static
      */
-    protected static function renderUrl(Stringable|string $url, ?string $extension, ?string $prefix, bool $use_configured_root): static
+    protected function renderUrl(?string $extension, ?string $prefix, bool $use_configured_root): static
     {
+        $url = $this->source;
+
+        if (static::isValidUrl($url)) {
+            // TODO Add check that the URL is local! If its not local, how can we verify its a CDN URL?
+            return $this;
+        }
+
         $url = static::applyPredefined($url);
         $url = static::applyVariables($url);
+        $url = new static($url);
 
-        if (static::isValid($url)) {
-            return new static($url);
+        if ($url->isValid()) {
+            return $url;
         }
 
         // Get the base URL configuration for the domain
@@ -381,10 +739,53 @@ class Url implements UrlInterface
         }
 
         if ($query) {
-            return new static($url . '?' . $query);
+            $this->source = $url . '?' . $query;
+
+        } else {
+            $this->source = $url;
         }
 
-        return new static($url);
+        return $this;
+    }
+
+
+    /**
+     * Returns a CDN URL
+     *
+     * @todo Clean URL strings, escape HTML characters, " etc.
+     *
+     * @param string|null $extension
+     *
+     * @return static
+     */
+    protected function renderCdn(?string $extension = null): static
+    {
+        $url = $this->source;
+
+        if (empty($url)) {
+            throw new OutOfBoundsException(tr('No URL specified'));
+        }
+
+        if (static::isValidUrl($url)) {
+            // TODO Add check that the URL is local! If its not local, how can we verify its a CDN URL?
+            return $this;
+        }
+
+        // Apply predefined / configured URL words
+        // Apply special variables
+        // Form the CDN URL
+        $url  = static::applyPredefined($url);
+        $url  = static::applyVariables($url);
+        $url  = Strings::from($url, 'data/content/cdn/');
+        $base = Domains::getConfigurationKey(Domains::getCurrent(), 'cdn', $_SERVER['REQUEST_SCHEME'] . '://cdn.' . Domains::getCurrent() . '/:LANGUAGE/', false);
+        $base = Strings::ensureEndsWith($base, '/');
+        $base = str_replace(':LANGUAGE', Session::getLanguage(), $base);
+        $url  = Strings::ensureStartsNotWith($url, '/');
+        $url .= static::addExtension($extension);
+
+        $this->source = $base . $url;
+
+        return $this;
     }
 
 
@@ -399,9 +800,9 @@ class Url implements UrlInterface
     {
         $url    = (string) $url;
         $return = match ($url) {
-            'self', 'this', 'here'        => static::getCurrent(),
-            'root'                        => static::getCurrentDomainRootUrl(),
-            'prev', 'previous', 'referer' => static::getPrevious(),
+            'self', 'this', 'here'        => static::newCurrent(),
+            'root'                        => static::newCurrentDomainRootUrl(),
+            'prev', 'previous', 'referer' => static::newPrevious(),
             default                       => null,
         };
 
@@ -410,7 +811,7 @@ class Url implements UrlInterface
         }
 
         try {
-            return (string) static::getConfigured($url);
+            return (string) static::newConfigured($url);
 
         } catch (UrlConfiguredUrlNotFoundException) {
             // This was not a configured URL
@@ -420,94 +821,18 @@ class Url implements UrlInterface
 
 
     /**
-     * Returns the root URL for the primary domain
-     *
-     * @return static
-     */
-    public static function getCurrentDomainRootUrl(): static
-    {
-        return new static(Request::getRootUrl());
-    }
-
-
-    /**
-     * Returns a complete web URL for the previous page, or the specified URL
-     *
-     * This will return either the $_GET[previous], $_GET[redirect], or $_SERVER[referer] URL. If none of these exist,
-     * or if they are the current page, then the specified URL will be sent instead.
-     *
-     * @param UrlInterface|string|null $or_else_url         The URL to build if no valid previous page is available
-     * @param bool                     $use_configured_root If true, the builder will not use the root URI from the
-     *                                                      routing parameters but from the static configuration
-     * @param string|null              $strip_query_keys    If specified, will strip the specified keys from the URL
-     *                                                      queries
-     *
-     * @return static
-     */
-    public static function getPrevious(UrlInterface|string|null $or_else_url = null, bool $use_configured_root = false, ?string $strip_query_keys = 'previous,redirect'): static
-    {
-        $url = GetValidator::getRedirectValue();
-
-        if (!empty($url)) {
-            // We got a previous, redirect, or referer value
-            $url     = static::getWww($url, $use_configured_root);
-            $current = static::getWww(null, $use_configured_root);
-
-            if ((string) $current !== (string) $url) {
-                // Option is not current page, return it with previous and redirect keys stripped
-                return $url->removeQueryKeys($strip_query_keys);
-            }
-        }
-
-        // No URL found in any of the options, or option was current page. Use the specified URL
-        return static::getWww($or_else_url, $use_configured_root)->removeQueryKeys($strip_query_keys);
-    }
-
-
-    /**
-     * Apply predefined URL names
-     *
-     * @param Stringable|string     $url
-     * @param EnumRequestTypes|null $request_type
-     *
-     * @return UrlInterface
-     */
-    public static function getConfigured(Stringable|string $url, ?EnumRequestTypes $request_type = null): UrlInterface
-    {
-        $url        = (string) $url;
-        $configured = match (Strings::until($url, '.html')) {
-            'dashboard', 'index'   => Config::getString('web.pages.index'   , '/index'),
-            'sign-in'  , 'signin'  => Config::getString('web.pages.sign-in' , '/sign-in'),
-            'sign-up'  , 'signup'  => Config::getString('web.pages.sign-up' , '/sign-up'),
-            'sign-out' , 'signout' => Config::getString('web.pages.sign-out', '/sign-out') . (Session::isUser() ? '?redirect=' . urlencode(Url::getCurrent()->getSource()) : null),
-            'sign-key' , 'signkey' => Config::getString('web.pages.sign-key', '/sign-key+:key'),
-            'profile'              => Config::getString('web.pages.profile' , '/my/profile'),
-            'settings'             => Config::getString('web.pages.settings', '/my/settings'),
-            default                => Config::getString('web.pages.' . $url , '')
-        };
-
-        if ($configured) {
-            return new static($configured);
-        }
-
-        return new static($url);
-    }
-
-
-    /**
      * Apply variables in the URL
      *
-     * @param Stringable|string $url
+     * @param string $url
      *
      * @return Url
      */
-    protected static function applyVariables(Stringable|string $url): string
+    protected static function applyVariables(string $url): string
     {
-        $url = (string) $url;
         $url = str_replace(':PROTOCOL', Request::getProtocol(), $url);
         $url = str_replace(':DOMAIN'  , Domains::getCurrent(), $url);
         $url = str_replace(':PORT'    , (string) Request::getPort(), $url);
-        $url = str_replace(':LANGUAGE', Response::getLanguageCode(), $url);
+        $url = str_replace(':LANGUAGE', Session::getLanguage(), $url);
 
         return $url;
     }
@@ -516,69 +841,13 @@ class Url implements UrlInterface
     /**
      * Returns true if the specified URL is the same as the current URL
      *
-     * @param Stringable|string $url
-     * @param bool              $strip_queries
+     * @param bool $strip_queries
      *
      * @return bool
      */
-    public static function isCurrent(Stringable|string $url, bool $strip_queries = false): bool
+    public function isCurrent(bool $strip_queries = false): bool
     {
-        return (string) $url === (string) static::getCurrent(strip_queries: $strip_queries);
-    }
-
-
-    /**
-     * Returns a CDN URL
-     *
-     * @param Stringable|string $url
-     * @param string|null       $extension
-     *
-     * @return static
-     */
-    public static function getCdn(Stringable|string $url, ?string $extension = null): static
-    {
-        $url = (string) $url;
-
-        if (static::isValid($url)) {
-            return new static($url);
-        }
-
-        return static::renderCdn($url, $extension);
-    }
-
-
-    /**
-     * Returns a CDN URL
-     *
-     * @todo Clean URL strings, escape HTML characters, " etc.
-     *
-     * @param Stringable|string $url
-     * @param string|null       $extension
-     *
-     * @return static
-     * @throws OutOfBoundsException If no URL was specified
-     */
-    protected static function renderCdn(Stringable|string $url, ?string $extension = null): static
-    {
-        $url = static::applyPredefined($url);
-        $url = static::applyVariables($url);
-
-        if (!$url) {
-            throw new OutOfBoundsException(tr('No URL specified'));
-        }
-
-        if (static::isValid($url)) {
-            return new static($url);
-        }
-
-        $url  = Strings::from($url, 'data/content/cdn/');
-        $base = Domains::getConfigurationKey(Domains::getCurrent(), 'cdn', $_SERVER['REQUEST_SCHEME'] . '://cdn.' . Domains::getCurrent() . '/:LANGUAGE/', false);
-        $base = Strings::ensureEndsWith($base, '/');
-        $url  = Strings::ensureStartsNotWith($url, '/');
-        $url  .= static::addExtension($extension);
-        $url  = str_replace(':LANGUAGE', Session::getLanguage(), $base . $url);
-
-        return new static($url);
+        return $this->source === (string) static::newCurrent(strip_queries: $strip_queries);
     }
 
 
@@ -600,271 +869,6 @@ class Url implements UrlInterface
         }
 
         return '.' . $extension;
-    }
-
-
-    /**
-     * Returns the root URL for the parent domain
-     *
-     * @return static
-     */
-    public static function getParentDomainRootUrl(): static
-    {
-        return new static(Domains::from()->getParent() . Request::getRootUri());
-    }
-
-
-    /**
-     * Returns the URL as requested for the parent domain
-     *
-     * @return static
-     */
-    public static function getParentDomainUrl(): static
-    {
-        return new static(Domains::from()->getParent() . Request::getUri());
-    }
-
-
-    /**
-     * Returns the root URL for the root domain
-     *
-     * @return static
-     */
-    public static function getRootDomainRootUrl(): static
-    {
-        return new static(Domains::from()->getRoot() . Request::getRootUri());
-    }
-
-
-    /**
-     * Returns the URL as requested for the root domain
-     *
-     * @return static
-     */
-    public static function getRootDomainUrl(): static
-    {
-        return new static(Domains::from()->getRoot() . Request::getUri());
-    }
-
-
-    /**
-     * Returns the current URL for the specified domain
-     *
-     * @param string $domain
-     *
-     * @return static
-     */
-    public static function getDomainCurrentUrl(string $domain): static
-    {
-        return new static($domain . Request::getUri());
-    }
-
-
-    /**
-     * Returns the root URL for the primary domain
-     *
-     * @return static
-     */
-    public static function getPrimaryDomainRootUrl(): static
-    {
-        return Url::getWww(Config::getString('web.domains.primary.web'));
-    }
-
-
-    /**
-     * Returns the URL as requested for the primary domain
-     *
-     * @return static
-     */
-    public static function getPrimaryDomainUrl(): static
-    {
-        return new static(Domains::getPrimaryWeb() . Request::getUri());
-    }
-
-
-    /**
-     * Returns the "redirect" or referer (previous) URL
-     *
-     * @param Stringable|string|null $url
-     *
-     * @return static
-     */
-    public static function getReferer(Stringable|string|null $url = null): static
-    {
-        $url = (string) $url;
-
-        // Try to get a "redirect" via GET
-        try {
-            $get = GetValidator::new()
-                               ->select('redirect')
-                               ->isOptional()
-                               ->isUrl()
-                               ->validate(false);
-
-        } catch (ValidationFailedException) {
-            Log::warning(tr('Validation for redirect url ":url" failed, ignoring', [
-                ':url' => GetValidator::new()
-                                      ->get('redirect'),
-            ]));
-        }
-        if (isset_get($get['redirect'])) {
-            // Use the redirect URL
-            $url = $get['redirect'];
-
-        } else {
-            // Try referer
-            try {
-                $server = ArrayValidator::new($_SERVER)
-                                        ->select('HTTP_REFERER')
-                                        ->isOptional()
-                                        ->isUrl()
-                                        ->validate(false);
-
-            } catch (ValidationFailedException) {
-                Log::warning(tr('Validation for HTTP_REFERRER ":url" failed, ignoring', [
-                    ':url' => $_SERVER['HTTP_REFERER'],
-                ]));
-            }
-            if (isset_get($server['HTTP_REFERER'])) {
-                // Use the referer
-                $url = $server['HTTP_REFERER'];
-
-            } elseif (empty($url)) {
-                // No url specified either, just go to the root page
-                $url = static::getCurrentDomainRootUrl();
-            }
-        }
-
-        return new static($url);
-    }
-
-
-    /**
-     * Returns an ajax URL
-     *
-     * @param UrlInterface|string|int|null $url                        The URL to build
-     * @param bool                         $use_configured_root        If true, the builder will not use the root URI
-     *                                                                 from the routing parameters but from the static
-     *                                                                 configuration
-     *
-     * @return static
-     */
-    public static function getAjax(UrlInterface|string|int|null $url, bool $use_configured_root = false): static
-    {
-        $url = (string) $url;
-
-        if (!$url) {
-            throw new OutOfBoundsException(tr('No URL specified'));
-
-        } elseif (is_numeric($url)) {
-            $url = 'system/' . $url . 'json';
-
-        } elseif (!str_contains($url, '.json?')) {
-            $url = Strings::ensureEndsWith($url, '.json');
-        }
-
-        return static::renderUrl($url, 'json', 'ajax/', $use_configured_root);
-    }
-
-
-    /**
-     * Returns an api URL
-     *
-     * @param UrlInterface|string|int|null $url                        The URL to build
-     * @param bool                         $use_configured_root        If true, the builder will not use the root URI
-     *                                                                 from the routing parameters but from the static
-     *                                                                 configuration
-     *
-     * @return static
-     */
-    public static function getApi(UrlInterface|string|int|null $url, bool $use_configured_root = false): static
-    {
-        $url = (string) $url;
-
-        if (!$url) {
-            throw new OutOfBoundsException(tr('No URL specified'));
-
-        } elseif (is_numeric($url)) {
-            $url = 'system/' . $url . 'json';
-        }
-
-        return static::renderUrl($url, 'json', 'api/', $use_configured_root);
-    }
-
-
-    /**
-     * Returns a CSS URL
-     *
-     * @param Stringable|string $url
-     *
-     * @return static
-     */
-    public static function getCss(Stringable|string $url): static
-    {
-        $url = (string) $url;
-
-        if (static::isValid($url)) {
-            return new static($url);
-        }
-
-        return static::renderCdn($url, 'css');
-    }
-
-
-    /**
-     * Returns a Javascript URL
-     *
-     * @param Stringable|string $url
-     *
-     * @return static
-     */
-    public static function getJs(Stringable|string $url): static
-    {
-        $url = (string) $url;
-
-        if (static::isValid($url)) {
-            return new static($url);
-        }
-
-        return static::renderCdn($url, 'js');
-    }
-
-
-    /**
-     * Returns an image URL
-     *
-     * @param Stringable|string $url
-     *
-     * @return static
-     */
-    public static function getImg(Stringable|string $url): static
-    {
-        $url = (string) $url;
-
-        if (static::isValid($url)) {
-            return new static($url);
-        }
-
-//        if ($directory) {
-//            throw new UnderConstructionException();
-//            // Return the local filesystem path instead of a public URL
-//            if (static::isValid($url)) {
-//                // This is an external URL, there is no local file
-//                return new static($url);
-//            }
-//
-//            $directory = Strings::startsNotWith($this->url, '/');
-//
-//            if (!str_starts_with($directory, 'img/')) {
-//                $directory = 'img/' . $directory;
-//            }
-//
-//            return $directory;
-//        }
-
-        $url = Strings::ensureStartsWith($url, 'img/');
-
-        return static::renderCdn($url);
     }
 
 
@@ -895,16 +899,15 @@ class Url implements UrlInterface
     /**
      * Returns an array containing all the queries found in the specified URL
      *
-     * @param Stringable|string                   $url
      * @param IteratorInterface|array|string|null $remove_keys
      * @param bool                                $unescape
      *
      * @return array
      */
-    public static function getQueries(Stringable|string $url, IteratorInterface|array|string|null $remove_keys = null, bool $unescape = true): array
+    public function getQueries(IteratorInterface|array|string|null $remove_keys = null, bool $unescape = true): array
     {
         $return      = [];
-        $queries     = Strings::from($url, '?', needle_required: true);
+        $queries     = Strings::from($this->source, '?', needle_required: true);
         $queries     = Arrays::force($queries, '&');
         $remove_keys = Arrays::force($remove_keys);
 
@@ -924,17 +927,6 @@ class Url implements UrlInterface
         }
 
         return $return;
-    }
-
-
-    /**
-     * When used as string, will always return the internal URL as available
-     *
-     * @return string
-     */
-    public function __toString(): string
-    {
-        return $this->getSource();
     }
 
 
@@ -1049,10 +1041,10 @@ class Url implements UrlInterface
     {
         // Use what URL?
         if ($redirect === '') {
-            $redirect = Url::getCurrent();
+            $redirect = Url::newCurrent();
 
         } else {
-            $redirect = Url::getWww($redirect);
+            $redirect = Url::new($redirect)->makeWww();
         }
 
         // Strip redirect?
@@ -1197,7 +1189,7 @@ class Url implements UrlInterface
      *
      * Do not use this method, only use it as a reference to implement language mapping
      */
-    protected function language_map($url_params = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_cloak = true): string
+    protected function mapLanguage($url_params = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_cloak = true): string
     {
         throw new UnderConstructionException('Url::domain() is GARBAGE! DO NOT USE');
         /*
@@ -1264,21 +1256,31 @@ class Url implements UrlInterface
      *
      * External here means that the domain is NOT one of the configured domains
      *
-     * @param string $url
-     * @param bool   $check_sub_domains
+     * @param bool $check_sub_domains
      *
      * @return bool
      */
-    public static function isExternal(string $url, bool $check_sub_domains = true): bool
+    public function isExternal(bool $check_sub_domains = true): bool
     {
-        if (!static::isValid($url)) {
+        if ($this->isValid()) {
             // This isn't even a complete URL, must be internal, there is no domain name expected here
             return false;
         }
 
         // We have a complete URL, so there is a domain name in there. Check if it's a "local" (ie, on this server)
         // domain name
-        return !static::getDomainType($url, $check_sub_domains);
+        return !$this->getDomainType($check_sub_domains);
+    }
+
+
+    /**
+     * Returns true if this Url object contains a full and VALID URL
+     *
+     * @return bool
+     */
+    public function isValid(): bool
+    {
+        return (bool) filter_var($this->source, FILTER_VALIDATE_URL);
     }
 
 
@@ -1289,7 +1291,7 @@ class Url implements UrlInterface
      *
      * @return bool
      */
-    public static function isValid(string $url): bool
+    public static function isValidUrl(string $url): bool
     {
         return (bool) filter_var($url, FILTER_VALIDATE_URL);
     }
@@ -1300,15 +1302,14 @@ class Url implements UrlInterface
      *
      * External here means that the domain is NOT one of the configured domains
      *
-     * @param string $url
-     * @param bool   $check_sub_domains
+     * @param bool $check_sub_domains
      *
      * @return string|null web in case its on a WWW domain, cdn in case its on a CDN domain, NULL if it's on an external
      */
-    public static function getDomainType(string $url, bool $check_sub_domains = true): ?string
+    public function getDomainType(bool $check_sub_domains = true): ?string
     {
         // Get all domain names and check if its primary or subdomain of those.
-        $url_domain = static::getDomainFromUrl($url);
+        $url_domain = $this->getDomain();
         $domains    = Config::get('web.domains');
 
         foreach ($domains as $domain) {
