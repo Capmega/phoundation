@@ -18,6 +18,7 @@ namespace Phoundation\Utils;
 
 use PDOStatement;
 use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
@@ -29,6 +30,23 @@ use UnitEnum;
 
 class Arrays extends Utils
 {
+        /**
+     * Returns true if the given array is multidimensional
+     *
+     * @param array $array
+     *
+     * @return bool
+     */
+    public static function isMultiDimensional(array $array): bool
+    {
+        foreach ($array as $a) {
+            if (is_array($a)) return true;
+        }
+
+        return false;
+    }
+
+
     /**
      * If all the specified keys are not in the source array, an exception will be thrown
      *
@@ -164,6 +182,87 @@ class Arrays extends Utils
                 }
             }
         }
+    }
+
+
+    /**
+     * Returns an array that is a multidimensional version of the given flattened array. If the given array is not
+     * flattened, it will return the same array
+     *
+     * For example:
+     * INPUT: array {                                       OUTPUT: array {
+     *                  [a] => apple                                        [a] => apple
+     *                  [b] => banana                                       [b] => banana
+     *                  [c][d] => orange             ==>                       [c] => Array {
+     *                  [c][e] => eggplant                                        [d] => orange
+     *                }                                                           [e] => eggplant
+     *                                                                          }
+     *                                                                      }
+     *
+     * @param array $source
+     *
+     * @return array
+     */
+    public static function unflattenToMultidimensionalArray(array $source): array
+    {
+        $result = [];
+
+        foreach ($source as $key => $value) {
+            $keys = preg_split('/\]\[|\[|\]/', rtrim($key, ']'));
+
+            $current = &$result;
+
+            foreach ($keys as $inner_key) {
+
+                if (!isset($current[$inner_key])) {
+                    $current[$inner_key] = [];
+                }
+                $current = &$current[$inner_key];
+            }
+
+            $current = $value;
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * Returns an array that is a flatted version of the given multidimensional array. If the given array is not
+     * multidimensional, it will return the same array
+     *
+     * For example:
+     * INPUT: array {                                       OUTPUT: array {
+     *                  [a] => apple                                        [a] => apple
+     *                  [b] => banana                                       [b] => banana
+     *                  [c] => Array              ==>                       [c][d] => orange
+     *                      {                                               [c][e] => eggplant
+     *                          [d] => orange                           }
+     *                          [e] => eggplant
+     *                      }
+     *          }
+     *
+     * @param array  $source
+     * @param string $prefix
+     *
+     * @return array
+     */
+    public static function flattenToBracketedArray(array $source, string $prefix = ''): array
+    {
+        $result = [];
+
+        foreach ($source as $key => $value) {
+            $current_key = $prefix === '' ? $key : "{$prefix}[{$key}]";
+
+            if (is_array($value)) {
+                $result = array_merge($result, static::flattenToBracketedArray($value, $current_key));
+
+            } else {
+                $result[$current_key] = $value;
+            }
+        }
+
+        return $result;
     }
 
 
