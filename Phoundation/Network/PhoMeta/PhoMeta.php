@@ -38,7 +38,6 @@ use Phoundation\Network\PhoMeta\Interfaces\PhoMetaTestInterface;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Json;
-use Phoundation\Utils\Numbers;
 use Throwable;
 
 class PhoMeta extends DataEntry implements PhoMetaInterface
@@ -71,11 +70,12 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
     public function getSource(bool $filter_meta = false): array
     {
         $array = parent::getSource(true);
+
         try {
             $array['data'] = [Json::decode($array['data'])][0];
 
         } catch (Throwable) {
-
+            //Data is not in string form, continue;
         }
 
         return $array;
@@ -157,7 +157,6 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
      */
     protected function parsePhoMessageV1(array $source): static
     {
-        Log::checkpoint();
         return $this->setSource($source['meta']);
     }
 
