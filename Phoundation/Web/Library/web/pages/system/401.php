@@ -48,7 +48,7 @@ Response::redirect('signin');
 //                                                       ':p'      => tr('The server encountered an internal error and could not fulfill your request. Please contact the system administrator'),
 //                                                       ':type'   => 'warning',
 //                                                       ':search' => tr('Search'),
-//                                                       ':action' => Url::getWww('search/'),
+//                                                       ':action' => Url::new('search/')->makeWww(),
 //                                                   ])->render();
 //
 //
