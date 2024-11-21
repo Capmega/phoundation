@@ -43,7 +43,7 @@ trait TraitDataEntryException
     public function setException(Throwable|string|null $e): static
     {
         if (is_object($e)) {
-            if ($e instanceof PhoException) {
+            if (!$e instanceof PhoException) {
                 // Make it a Phoundation Exception
                 $e = new PhoException($e);
             }
