@@ -23,7 +23,7 @@ use PHPUnit\Framework\TestCase;
 class UrlTest extends TestCase
 {
     /**
-     * Tests Url::getWww()
+     * Tests Url::makeWww()
      *
      * @return void
      */
