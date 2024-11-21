@@ -490,7 +490,14 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
      */
     public function getTestCount(): int
     {
-        $test_data = isset_get($this->getSource(true)['data']['tests']);
+        $source    = $this->getSource(true);
+        $data      = isset_get($source['data']);
+
+        if (empty($data)) {
+            $data = [];
+        }
+
+        $test_data = isset_get($data['tests']);
 
         if (!$test_data) {
             return 0;
