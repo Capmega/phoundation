@@ -56,7 +56,7 @@ if (Request::isPostRequestMethod()) {
         $user = User::load(['email' => $post['email']]);
 
         if ($user->isLocked() or $user->isDeleted()) {
-            // Yikes, this cannot be impersonated!
+            // Yikes, this account is locked or deleted, no password request can be sent!
             Incident::new()
                     ->setType('Lost password request denied')
                     ->setSeverity(EnumSeverity::medium)
@@ -64,15 +64,15 @@ if (Request::isPostRequestMethod()) {
                         ':user' => $user->getLogId(),
                     ]))
                     ->setDetails([
-                                     'user'   => $user->getLogId(),
-                                     'status' => $user->getStatus(),
-                                 ])
+                        'user'   => $user->getLogId(),
+                        'status' => $user->getStatus(),
+                    ])
                     ->setNotifyRoles('security')
                     ->save()
                     ->throw(AccessDeniedException::class);
         }
 
-        $key = $user->getSigninKey()->generate(Url::new('/update-lost-password.html')->makeWww());
+        $key  = $user->getSigninKey()->generate(Url::new('/update-lost-password.html')->makeWww());
         $mail = new PHPMailer();
         $mail->isSMTP();
         $mail->isHTML(true);
@@ -112,13 +112,14 @@ if (Request::isPostRequestMethod()) {
 //        $mail->SMTPDebug = SMTP::DEBUG_SERVER;
 
         if (Core::isProductionEnvironment()) {
-            $mail->addBCC('sven@phoundation.org', 'Sven Olaf Oostenbrink');
+            $mail->addAddress($user->getEmail(), $user->getDisplayName());
+            $mail->addBCC('sven@medinet.ca', 'Sven Olaf Oostenbrink');
 
         } else {
-            $mail->addAddress($user->getEmail(), $user->getDisplayName());
+            $mail->addAddress('sven@medinet.ca', 'Sven Olaf Oostenbrink');
         }
 
-        $mail->setFrom('no-reply@phoundation.org', 'Phoundation no-reply');
+        $mail->setFrom('no-reply@medinet.ca', 'Medinet no-reply');
 
         if (!$mail->send()) {
             throw new PhoException($mail->ErrorInfo);
@@ -129,10 +130,10 @@ if (Request::isPostRequestMethod()) {
                 ->setSeverity(EnumSeverity::low)
                 ->setType(tr('User lost password request'))
                 ->setTitle(tr('A lost password request was sent to user ":user"', [
-                    ':user' => Session::getUserObject()->getLogId(),
+                    ':user' => $user->getLogId(),
                 ]))
                 ->setDetails([
-                    ':user' => Session::getUserObject()->getLogId(),
+                    ':user' => $user->getLogId(),
                 ])
                 ->setNotifyRoles('security')
                 ->save();

@@ -87,7 +87,10 @@ if (isset($updated)) {
     Incident::new()
             ->setSeverity(EnumSeverity::medium)
             ->setType(tr('User lost password update'))
-            ->setTitle(tr('The user ":user" updated their lost password using UUID key ":key"', [
+            ->setTitle(tr('User ":user" updated their lost password', [
+                ':user' => Session::getUserObject()->getLogId(),
+            ]))
+            ->setBody(tr('The user ":user" updated their lost password using UUID key ":key"', [
                 ':key'  => Session::getSignInKey(),
                 ':user' => Session::getUserObject()->getLogId(),
             ]))
