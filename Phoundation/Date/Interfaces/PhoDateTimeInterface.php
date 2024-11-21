@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Date\Interfaces;
 
+use DateMalformedStringException;
 use Phoundation\Date\PhoDateInterval;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\PhoDateTimeZone;
+use Phoundation\Exception\OutOfBoundsException;
 
 interface PhoDateTimeInterface extends \DateTimeInterface
 {
@@ -71,4 +73,22 @@ interface PhoDateTimeInterface extends \DateTimeInterface
      * @return static
      */
     public function decreaseDay(): static;
+
+    /**
+     * Returns a new DateTime object for tomorrow
+     *
+     * @param int $days
+     *
+     * @return static
+     */
+    public function increaseDays(int $days): static;
+
+    /**
+     * Returns a new DateTime object for tomorrow
+     *
+     * @param int $days
+     *
+     * @return static
+     */
+    public function decreaseDays(int $days): static;
 }

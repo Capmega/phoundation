@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Date;
 
 use DateInterval;
+use DateMalformedStringException;
 use DateTime;
 use DateTimeInterface;
 use DateTimeZone;
@@ -133,6 +134,54 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
     public function decreaseDay(): static
     {
         $this->modify('-1 day');
+        return $this;
+    }
+
+
+    /**
+     * Returns a new DateTime object for tomorrow
+     *
+     * @param int $days
+     *
+     * @return static
+     */
+    public function increaseDays(int $days): static
+    {
+        if ($days <= 0) {
+            if ($days < 0) {
+                throw new OutOfBoundsException(tr('Invalid days value ":days" specified, must be 1 or higher', [
+                    ':days' => $days,
+                ]));
+            }
+
+            return $this;
+        }
+
+        $this->modify('+' . $days . ' day');
+        return $this;
+    }
+
+
+    /**
+     * Returns a new DateTime object for tomorrow
+     *
+     * @param int $days
+     *
+     * @return static
+     */
+    public function decreaseDays(int $days): static
+    {
+        if ($days <= 0) {
+            if ($days < 0) {
+                throw new OutOfBoundsException(tr('Invalid days value ":days" specified, must be 1 or higher', [
+                    ':days' => $days,
+                ]));
+            }
+
+            return $this;
+        }
+
+        $this->modify('-' . $days . ' day');
         return $this;
     }
 
