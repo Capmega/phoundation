@@ -1018,7 +1018,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             );
         }
 
-        return static::new()->setSource($source);
+        $entry = new static();
+        return $entry->setSource($source);
     }
 
 
