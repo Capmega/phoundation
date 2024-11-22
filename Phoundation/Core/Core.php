@@ -286,8 +286,8 @@ class Core implements CoreInterface
 
         // Set local and global process identifiers
         // TODO Implement support for global process identifier
-        static::setLocalId(substr(uniqid(), -8, 8));
-        static::setGlobalId(substr(uniqid(), -8, 8));
+        static::resetGlobalId();
+        static::setLocalId(static::getGlobalId());
 
         // Set the platform constants
         static::setPlatform();
@@ -2011,6 +2011,18 @@ class Core implements CoreInterface
     public static function setGlobalId(string $global_id): void
     {
         static::$global_id = $global_id;
+    }
+
+
+    /**
+     * Resets the global ID
+     *
+     * @return string
+     */
+    public static function resetGlobalId(): string
+    {
+        static::setGlobalId(substr(Strings::getUuid(), 0, 8));
+        return static::getGlobalId();
     }
 
 
