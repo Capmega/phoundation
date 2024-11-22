@@ -228,7 +228,7 @@ class PhoMetaTest extends EntryCore implements PhoMetaTestInterface
         $o_connector = Connector::new($connector)->setDatabase($database_selector);
 
         Log::action(tr('Now recording key ":key" in ":connector" database at ":domain::port" db ":db_number" for component ":component"', [
-            ':key' => $key,
+            ':key'       => $key,
             ':connector' => $database_connector,
             ':domain'    => $o_connector->getHostname(),
             ':port'      => (string) $o_connector->getPort(),
@@ -237,7 +237,7 @@ class PhoMetaTest extends EntryCore implements PhoMetaTestInterface
 
         ]));
 
-        Redis::new($o_connector)->set($component,$key)->close();
+        Redis::new($o_connector)->set($component, $key)->close();
 
         return $this;
     }

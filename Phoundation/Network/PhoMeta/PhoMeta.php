@@ -23,7 +23,6 @@ namespace Phoundation\Network\PhoMeta;
 
 use PDOStatement;
 use Phoundation\Core\Core;
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
@@ -59,6 +58,56 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
         $this->setLocalId(Core::getLocalId())
              ->setGlobalId(Core::getGlobalId())
              ->setPhoundation(1);
+    }
+
+
+    /**
+     * Returns a new DataEntry object
+     *
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool|null                                $meta_enabled
+     * @param bool                                     $init
+     *
+     * @return static
+     */
+    public static function new(int|array|string|DataEntryInterface|null $identifier = null, ?bool $meta_enabled = null, bool $init = true): static
+    {
+        return parent::new($identifier, $meta_enabled, $init)->setGlobalId(Core::resetGlobalId());
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string|null
+     */
+    public static function getTable(): ?string
+    {
+        return 'network_meta';
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getDataEntryName(): string
+    {
+        return tr('Phoundation metadata');
+    }
+
+
+    /**
+     * Returns true if the given string has a PhoMeta Header
+     *
+     * @param string $message
+     *
+     * @return bool
+     */
+    public static function hasPhoMetaHeader(string $message): bool
+    {
+        return (bool) preg_match('/PHO\d/', $message);
     }
 
 
@@ -194,41 +243,6 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
 
         // No source data specified, set source to empty
         return parent::setSource(null, $execute);
-    }
-
-
-    /**
-     * Returns true if the given string has a PhoMeta Header
-     *
-     * @param string $message
-     *
-     * @return bool
-     */
-    public static function hasPhoMetaHeader(string $message): bool
-    {
-        return (bool) preg_match('/PHO\d/', $message);
-    }
-
-
-    /**
-     * Returns the table name used by this object
-     *
-     * @return string|null
-     */
-    public static function getTable(): ?string
-    {
-        return 'network_meta';
-    }
-
-
-    /**
-     * Returns the name of this DataEntry class
-     *
-     * @return string
-     */
-    public static function getDataEntryName(): string
-    {
-        return tr('Phoundation metadata');
     }
 
 
