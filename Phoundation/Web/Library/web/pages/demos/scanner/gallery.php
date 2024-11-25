@@ -1,10 +1,5 @@
 <?php
 
-use Phoundation\Web\Html\Components\Script;use Phoundation\Web\Html\Enums\JavascriptWrappers;
-use Phoundation\Web\Http\UrlBuilder;
-use Phoundation\Web\Page;
-
-
 /**
  * Scanner gallery page
  *
@@ -17,18 +12,31 @@ use Phoundation\Web\Page;
  */
 
 
-// Load required javascript libraries
-Page::loadJavascript('adminlte/plugins/ekko-lightbox/ekko-lightbox');
-Page::loadJavascript('adminlte/plugins/filterizr/jquery.filterizr');
+use Phoundation\Web\Html\Components\Script;
+use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
+use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
+use Phoundation\Web\Http\Url;
+use Phoundation\Web\Requests\Response;
 
 
-// Load required CSS libraries
-Page::loadCss('adminlte/plugins/ekko-lightbox/ekko-lightbox');
+// Load required JavaScript & CSS libraries
+Response::loadJavascript('phoundation/adminlte/plugins/ekko-lightbox/ekko-lightbox');
+Response::loadJavascript('phoundation/adminlte/plugins/filterizr/jquery.filterizr');
+Response::loadCss('phoundation/adminlte/plugins/ekko-lightbox/ekko-lightbox');
+
+Response::setHeaderTitle(tr('Scanner gallery'));
+Response::setHeaderSubTitle(tr('Demo'));
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
+    '/'                   => tr('Home'),
+    '/demos.html'         => tr('Demos'),
+    '/demos/scanner.html' => tr('Scanner'),
+    ''                    => tr('Gallery'),
+]));
 
 
 // Load specific test script
 echo Script::new()
-    ->setJavascriptWrapper(JavascriptWrappers::function)
+    ->setJavascriptWrapper(EnumJavascriptWrappers::function)
     ->setContent('
         $(document).on("click", \'[data-toggle="lightbox"]\', function(event) {
             event.preventDefault();
@@ -88,15 +96,14 @@ echo Script::new()
                                         $number = (random_int(1, 14) * 2);
 
                                         echo '  <div class="filtr-item col-sm-2" data-category="' . $color . '" data-sort="' . $colors[$color] . ' sample">
-                                                    <a href="' . UrlBuilder::getImg('scanner/output' . $number . '.jpg') . '" data-toggle="lightbox" data-title="sample 1 - ' . $colors[$color] . '">
-                                                        <img src="' . UrlBuilder::getImg('scanner/output' . $number . '.jpg') . '" class="img-fluid mb-2" alt="' . $colors[$color] . ' sample"/>
+                                                    <a href="' . Url::new('scanner/output' . $number . '.jpg')->makeImg() . '" data-toggle="lightbox" data-title="sample 1 - ' . $colors[$color] . '">
+                                                        <img src="' . Url::new('scanner/output' . $number . '.jpg')->makeImg() . '" class="img-fluid mb-2" alt="' . $colors[$color] . ' sample"/>
                                                     </a>
                                                 </div>';
                                     }
                                 ?>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
