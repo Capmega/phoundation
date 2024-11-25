@@ -41,10 +41,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryType;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryUrl;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\PhoException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\Notification;
@@ -58,7 +55,6 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Routing\Route;
-use Phoundation\Web\Uploads\UploadHandlers;
 use Throwable;
 
 
@@ -211,15 +207,14 @@ class Incident extends DataEntry implements IncidentInterface
                 $this->setTitle(tr('Encountered exception: :e', [':e' => $e->getMessage()]))
                      ->setType('exception')
                      ->setUrl(PLATFORM_WEB ? Route::getRequest() : CliCommand::getRequest())
-                     ->setSeverity(EnumSeverity::medium)
+                     ->setSeverity(EnumSeverity::severe)
                      ->setBody($e->getMessage())
                      ->setDetails([
                          'exception' => [
                              'message'   => $e->getMessage(),
                              'backtrace' => $e->getTrace(),
                          ],
-                         'data'      => $e->getData(),
-                         'details'   => Core::getProcessDetails()
+                         'details' => Core::getProcessDetails()
                      ]);
             }
         }
@@ -313,7 +308,38 @@ class Incident extends DataEntry implements IncidentInterface
             ]);
         }
 
-        if ($this->log) {
+        // Notify anybody?
+        if (isset($this->notify_roles)) {
+            // Notify the specified roles
+            $notification = Notification::new();
+
+            switch ($severity) {
+                case 'notice':
+                    $notification->setMode(EnumDisplayMode::information);
+                    break;
+
+                case 'low':
+                    $notification->setMode(EnumDisplayMode::notice);
+                    break;
+
+                case 'medium':
+                    $notification->setMode(EnumDisplayMode::warning);
+                    break;
+
+                default:
+                    $notification->setMode(EnumDisplayMode::danger);
+                    break;
+            }
+
+            $notification->setUrl(Url::new('security/incident+' . $this->getId() . '.html')->makeWww())
+                         ->setRoles($this->notify_roles)
+                         ->setTitle($this->getType())
+                         ->setMessage($this->getTitle())
+                         ->setDetails($details)
+                         ->log($this->log)
+                         ->send();
+
+        } elseif ($this->log) {
             switch ($severity) {
                 case 'notice':
                     // no break
@@ -353,37 +379,6 @@ class Incident extends DataEntry implements IncidentInterface
                         Log::error(print_r($details, true), (is_integer($this->log) ? $this->log : 9));
                     }
             }
-        }
-
-        // Notify anybody?
-        if (isset($this->notify_roles)) {
-            // Notify the specified roles
-            $notification = Notification::new();
-
-            switch ($severity) {
-                case 'notice':
-                    $notification->setMode(EnumDisplayMode::information);
-                    break;
-
-                case 'low':
-                    $notification->setMode(EnumDisplayMode::notice);
-                    break;
-
-                case 'medium':
-                    $notification->setMode(EnumDisplayMode::warning);
-                    break;
-
-                default:
-                    $notification->setMode(EnumDisplayMode::danger);
-                    break;
-            }
-
-            $notification->setUrl(Url::new('security/incident+' . $this->getId() . '.html')->makeWww())
-                         ->setRoles($this->notify_roles)
-                         ->setTitle($this->getType())
-                         ->setMessage($this->getTitle())
-                         ->setDetails($details)
-                         ->send();
         }
 
         return $this;

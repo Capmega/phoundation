@@ -275,7 +275,7 @@ class Database extends SchemaAbstract implements DatabaseInterface
         Import::new()
               ->setConnectorObject($this->sql->getConnectorObject())
               ->setDatabase($database_name)
-              ->setFile($file)
+              ->setFileObject($file)
               ->setTimeout($timeout)
               ->import();
 

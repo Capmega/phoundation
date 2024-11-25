@@ -109,7 +109,7 @@ class KubernetesObject
         Log::success(tr('Saved ":kind" object ":name" in file ":file"', [
             ':kind' => $this->getKind(),
             ':name' => $this->getName(),
-            ':file' => $this->getObjectFile()->getFile(),
+            ':file' => $this->getObjectFile()->getFileObject(),
         ]));
 
         return $this;
@@ -187,7 +187,7 @@ class KubernetesObject
                                    'apply',
                                    '-f',
                                    $this->getObjectFile()
-                                        ->getFile(),
+                                        ->getFileObject(),
                                ])
                                ->executeReturnArray();
         Log::success($this->output);

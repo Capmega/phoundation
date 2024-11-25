@@ -15,8 +15,6 @@
 
 declare(strict_types=1);
 
-use Phoundation\Os\Processes\Traits\TraitProcessVariables;
-
 namespace Phoundation\Os\Workers;
 
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;

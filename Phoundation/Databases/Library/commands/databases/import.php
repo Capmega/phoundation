@@ -104,7 +104,7 @@ Import::new()
       ->setConnector($argv['connector'])
       ->setDatabase($argv['database'])
       ->setDrop(!$argv['no_drop'])
-      ->setFile($argv['file'])
+      ->setFileObject($argv['file'])
       ->setTimeout($argv['timeout'])
       ->import();
 

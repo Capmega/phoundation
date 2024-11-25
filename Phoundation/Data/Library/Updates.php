@@ -28,7 +28,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.20';
+        return '0.1.0';
     }
 
 
@@ -144,6 +144,36 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_entities_cities_id` FOREIGN KEY (`cities_id`) REFERENCES `geo_cities` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_entities_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE RESTRICT,
                 ')->create();
+
+        })->addUpdate('0.1.0', function () {
+            sql()->getSchemaObject()->getTableObject('test_dataentries')->drop()->define()
+                 ->setColumns('
+                    `id` bigint NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `meta_id` bigint NULL DEFAULT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `parents_id` bigint DEFAULT NULL,
+                    `name` varchar(128) DEFAULT NULL,
+                    `seo_name` varchar(128) DEFAULT NULL,
+                    `description` text DEFAULT NULL
+                ')->setIndices(' 
+                    PRIMARY KEY (`id`),
+                    KEY `created_on` (`created_on`),
+                    KEY `meta_id` (`meta_id`),
+                    KEY `status` (`status`),
+                    UNIQUE KEY `seo_name` (`seo_name`),
+                    UNIQUE KEY `parents_id_name` (`parents_id`,`name`),
+                    KEY `parents_id` (`parents_id`),
+                ')->setForeignKeys(' 
+                    CONSTRAINT `fk_test_dataentries_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_test_dataentries_parents_id` FOREIGN KEY (`parents_id`) REFERENCES `categories` (`id`) ON DELETE RESTRICT
+                ')->create();
+
+            // Fix incorrect index name
+            sql()->getSchemaObject()->getTableObject('categories')->alter()
+                ->dropIndex('parent_name')
+                ->addIndex('UNIQUE KEY `parents_id_name` (`parents_id`,`name`)');
         });
     }
 }

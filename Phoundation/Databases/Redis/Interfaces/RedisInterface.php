@@ -55,7 +55,7 @@ interface RedisInterface
      *
      * @return Redis
      */
-    public function dropQueue(string $queue): static;
+    public function clearQueue(string $queue): static;
 
 
     /**
@@ -65,7 +65,7 @@ interface RedisInterface
      *
      * @return Redis
      */
-    public function delValue(string $key): static;
+    public function deleteValue(string $key): static;
 
 
     /**
@@ -152,21 +152,13 @@ interface RedisInterface
 
 
     /**
-     * Takes the queue and clears all values from it
-     *
-     * @return static
-     */
-    public function clearQueue(string $queue): static;
-
-
-    /**
      * Returns the length of the specified queue
      *
      * @param string $queue
      *
      * @return int
      */
-    public function getQueueLength(string $queue): int;
+    public function getQueueCount(string $queue): int;
 
 
     /**
@@ -183,7 +175,7 @@ interface RedisInterface
      *
      * @return array
      */
-    public function showAll(): array;
+    public function getAllKeys(): array;
 
 
     /**

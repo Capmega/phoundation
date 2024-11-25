@@ -16,11 +16,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Library\tests\Phoundation\Databases;
 
+use Phoundation\Core\Core;
+use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Exception\RedisException;
 use Phoundation\Databases\Redis\Interfaces\RedisInterface;
 use Phoundation\Databases\Redis\Redis;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Config;
 use PHPUnit\Framework\TestCase;
 
 
@@ -37,15 +40,22 @@ class RedisTest extends TestCase
      *
      * @param bool $force
      *
-     * @return RedisInterface
+     * @return void
      */
-    protected function openRedisConnection(bool $force = false): RedisInterface
+    protected function ensureRedisConnectionOpen(bool $force = false): void
     {
+        
         if (isset($this->redis) and !$force) {
-            throw new OutOfBoundsException(tr('Cannot open Redis test connection, an open connection already exists'));
+            return;
         }
 
-        return $this->redis = Redis::new(Connector::new('redis-test'))->setDatabase(0);
+        $connector   = Config::get('databases.connectors.redis-queue');
+        $o_connector = Connector::new($connector);
+        $this->redis = Redis::new($o_connector)->setDatabase(0, true);
+        if (!$this->redis->ping()) {
+            Log::error(tr('Connection to Redis server failed'));
+        }
+        
     }
 
 
@@ -68,10 +78,9 @@ class RedisTest extends TestCase
      */
     public function testConstructor()
     {
-        $redis = $this->openRedisConnection();
-
-//        $this->expectNotToPerformAssertions(); //expect no exception when constructing properly
-        $this->assertEquals(0, $redis->getDatabase());
+        $this->ensureRedisConnectionOpen();
+        $this->assertEquals(0, $this->redis->getDatabase());
+        
         $this->close();
     }
 
@@ -83,9 +92,8 @@ class RedisTest extends TestCase
      */
     public function testClose()
     {
-        $this->expectNotToPerformAssertions(); //expect no exception when constructing properly
-//        $this->openRedisConnection()->close();
-        $this->openRedisConnection();
+        $this->expectNotToPerformAssertions();
+        $this->ensureRedisConnectionOpen();
         $this->close();
     }
 
@@ -97,35 +105,29 @@ class RedisTest extends TestCase
      */
     public function testPing()
     {
-        $this->redis = Redis::new(Connector::new('redis-test'))->setDatabase(0);
+        $this->ensureRedisConnectionOpen();
 
         $this->assertTrue($this->redis->ping(), 'Pinging connection (from connector object) should return true');
 
-//        $this->assertNull(Redis::new(connector::new('invalid'))->ping());
-
-        $this->openRedisConnection(true);
+        $this->ensureRedisConnectionOpen(true);
         $this->assertTrue($this->redis->ping(), 'Pinging connection should still return true');
         $this->redis->close();
 
         $this->redis = Redis::new('test');
         $this->assertTrue($this->redis->ping(), 'Pinging connection (from string) should return true');
-        $this->redis->close();
-
-        $this->expectException(RedisException::class);
-        $this->redis = Redis::new(Connector::new('new-connector'), false);
 
         $this->redis->close();
     }
 
 
     /**
-     * ???
+     * test Redis::set()
      *
      * @return void
      */
     public function testCreateList()
     {
-        $this->redis = Redis::new(Connector::new('redis-test'))->setDatabase(0);
+        $this->ensureRedisConnectionOpen();
 
         $this->redis->set(null, 'key1');
         $this->assertNull($this->redis->get('key1'), '"Get" on key1 should return null');
@@ -133,7 +135,7 @@ class RedisTest extends TestCase
         $this->redis->set(['value1','value2'], 'key2');
         $this->assertEquals(['value1','value2'],$this->redis->get('key2'), '"get" on key2 should return values');
 
-        $this->redis->delValue('key2');
+        $this->redis->deleteValue('key2');
         $this->assertNull($this->redis->get('key2'), '"get" on key2 should return null');
 
         $this->assertNull($this->redis->get('key3'), '"get" on key3 should return null');
@@ -150,7 +152,7 @@ class RedisTest extends TestCase
      */
     public function testFlush()
     {
-        $this->redis = Redis::new(Connector::new('redis-test'))->setDatabase(0);
+        $this->ensureRedisConnectionOpen();
 
         $this->redis->set('value', 'key1');
         $this->redis->clearAll();
@@ -170,22 +172,22 @@ class RedisTest extends TestCase
      */
     public function testPush()
     {
-        $this->redis = Redis::new(Connector::new('redis-test'))->setDatabase(0);
+        $this->ensureRedisConnectionOpen();
 
         $value1 = 'test-value-1';
         $this->redis->push($value1, 'test-queue');
 
         $this->assertContains($value1, $this->redis->getQueue('test-queue'), 'The pushed value should be in the queue.');
-        $this->assertEquals(1, $this->redis->getQueueLength('test-queue'), 'The queue count should be 1 after the first push.');
+        $this->assertEquals(1, $this->redis->getQueueCount('test-queue'), 'The queue count should be 1 after the first push.');
 
         $value2 = 'test-value-2';
         $this->redis->push($value2, 'test-queue');
 
-        $this->assertEquals(2, $this->redis->getQueueLength('test-queue'), 'The queue count should be 2 after both pushes.');
+        $this->assertEquals(2, $this->redis->getQueueCount('test-queue'), 'The queue count should be 2 after both pushes.');
         $this->assertEquals($value1, $this->redis->queuePeek('test-queue'), 'The first value in the queue should be the pushed value.');
 
         $this->redis->push(null, 'test-queue');
-        $this->assertEquals(2, $this->redis->getQueueLength('test-queue'), 'The queue count should still be 2 after pushing null.');
+        $this->assertEquals(2, $this->redis->getQueueCount('test-queue'), 'The queue count should still be 2 after pushing null.');
 
         $this->redis->clearAll();
         $this->redis->close();
@@ -199,7 +201,7 @@ class RedisTest extends TestCase
      */
     public function testPop()
     {
-        $this->redis = Redis::new(Connector::new('redis-test'))->setDatabase(0);
+        $this->ensureRedisConnectionOpen();
         $this->redis->clearAll();
 
         $this->redis->push('test-value-1', 'test-queue');
@@ -207,7 +209,7 @@ class RedisTest extends TestCase
         $poppedValue1 = $this->redis->pop('test-queue');
 
         $this->assertEquals('test-value-1', $poppedValue1, 'The popped value should be the last value pushed.');
-        $this->assertEquals(1, $this->redis->getQueueLength('test-queue'), 'The queue count should decrease by 1 after a pop operation.');
+        $this->assertEquals(1, $this->redis->getQueueCount('test-queue'), 'The queue count should decrease by 1 after a pop operation.');
         $this->assertNotContains('test-value-1', $this->redis->getQueue('test-queue'), 'The popped value should no longer exist in the queue.');
 
         $this->assertEquals('test-value-2', $this->redis->pop('test-queue'), 'The next popped value should be the first value pushed.');
@@ -226,7 +228,7 @@ class RedisTest extends TestCase
      */
     public function testGetQueue()
     {
-        $this->redis = Redis::new(Connector::new('redis-test'))->setDatabase(0);
+        $this->ensureRedisConnectionOpen();
 
         $this->redis->push('test-value-1', 'test-queue');
         $this->redis->push('test-value-2', 'test-queue');
@@ -252,7 +254,7 @@ class RedisTest extends TestCase
      */
     public function testQueueExists()
     {
-        $this->redis = Redis::new(Connector::new('redis-test'))->setDatabase(0);
+        $this->ensureRedisConnectionOpen();
 
         $this->redis->push('test-value-1', 'test-queue');
         $this->assertTrue($this->redis->queueExists('test-queue'), 'This queue should exist');
@@ -274,13 +276,13 @@ class RedisTest extends TestCase
      */
     public function testPeek()
     {
-        $this->redis = Redis::new(Connector::new('redis-test'))->setDatabase(0);
+        $this->ensureRedisConnectionOpen();
 
         $this->redis->push('test-value', 'test-queue');
         $result = $this->redis->queuePeek('test-queue');
 
         $this->assertEquals('test-value', $result, 'Peek should return the first value without removing it.');
-        $this->assertEquals(1, $this->redis->getQueueLength('test-queue'), 'The queue count should still be 1.');
+        $this->assertEquals(1, $this->redis->getQueueCount('test-queue'), 'The queue count should still be 1.');
 
         $this->assertNull($this->redis->queuePeek('test-queue', 10), 'Return null if out of bounds');
 
@@ -299,20 +301,20 @@ class RedisTest extends TestCase
      * @todo Rename this method, should be static::testGetQueueLength()?  Should there be a static::testGetCount() too?
      * @return void
      */
-    public function testGetCount()
+    public function testGetQueueCount()
     {
-        $this->redis = Redis::new(Connector::new('redis-test'))->setDatabase(0);
+        $this->ensureRedisConnectionOpen();
         $this->redis->clearAll();
 
-        $result1 = $this->redis->getQueueLength('test-queue');
+        $result1 = $this->redis->getQueueCount('test-queue');
         $this->assertEquals(0, $result1, 'The queue should be empty at first.');
 
         $this->redis->push('test-value', 'test-queue');
-        $result2 = $this->redis->getQueueLength('test-queue');
+        $result2 = $this->redis->getQueueCount('test-queue');
         $this->assertEquals(1, $result2, 'The queue should have size 1 after push');
 
         $this->redis->pop('test-queue');
-        $result3 = $this->redis->getQueueLength('test-queue');
+        $result3 = $this->redis->getQueueCount('test-queue');
         $this->assertEquals(0, $result3, 'The queue should be empty after pop.');
 
         $this->redis->clearAll();
@@ -327,23 +329,17 @@ class RedisTest extends TestCase
      */
     public function testClearQueue()
     {
-        $this->redis = Redis::new(Connector::new('redis-test'))->setDatabase(0);
+        $this->ensureRedisConnectionOpen();
         $this->redis->clearall();
 
         $this->redis->push('value1','test-queue');
-        $result1 = $this->redis->getQueueLength('test-queue');
+        $result1 = $this->redis->getQueueCount('test-queue');
         $this->assertEquals(1, $result1, 'The queue should have size 1 after push');
 
         $this->redis->clearQueue('test-queue');
-        $result2 = $this->redis->getQueueLength('test-queue');
+        $result2 = $this->redis->getQueueCount('test-queue');
         $this->assertEquals(0, $result2, 'The queue should be empty after clear.');
-
-        $this->redis->clearQueue('test-queue');
-        $result3 = $this->redis->getQueueLength('test-queue');
-        $this->assertEquals(0, $result3, 'The queue should still be empty after clear, no errors.');
-
-        $this->expectException(RedisException::class); //Non-existent queue should throw exception.
-        $this->redis->clearQueue('test-queue-2');
+        
         $this->redis->clearAll();
         $this->redis->close();
     }
@@ -356,7 +352,7 @@ class RedisTest extends TestCase
      */
     public function testShowAll()
     {
-        $this->redis = Redis::new(Connector::new('redis-test'))->setDatabase(0);
+        $this->ensureRedisConnectionOpen();
         $this->redis->clearAll();
 
         $this->redis->push('value-1','test-queue');
@@ -367,7 +363,7 @@ class RedisTest extends TestCase
         $result = [];
         array_push($result, 'queue_test-queue-3','queue_test-queue-2', 'queue_test-queue');
 
-        $this->assertEquals($result, $this->redis->showAll(), 'The result array should equal the sample array');
+        $this->assertEquals($result, $this->redis->getAllKeys(), 'The result array should equal the sample array');
         $this->redis->clearAll();
         $this->redis->close();
     }

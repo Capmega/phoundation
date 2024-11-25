@@ -75,11 +75,11 @@ class EchoServer extends PhoSocketServer
      *
      * @param PhoSocketServer $server
      * @param PhoSocket       $client
-     * @param                 $message
+     * @param string          $message
      *
      * @return void
      */
-    public function onInput(PhoSocketServer $server, PhoSocket $client, $message): void
+    public function onInput(PhoSocketServer $server, PhoSocket $client, string $message): void
     {
         $message = trim($message);
 

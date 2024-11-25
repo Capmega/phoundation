@@ -109,7 +109,7 @@ class RedisQueueCore implements RedisQueueInterface
      */
     public function getCount(): int
     {
-        return $this->redis->getQueueLength($this->queue);
+        return $this->redis->getQueueCount($this->queue);
     }
 
 

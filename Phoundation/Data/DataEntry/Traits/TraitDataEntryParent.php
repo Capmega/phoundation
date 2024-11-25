@@ -64,6 +64,7 @@ trait TraitDataEntryParent
     public function getParent(): ?DataEntryInterface
     {
         $parents_id = $this->getTypesafe('int', 'parents_id');
+
         if ($parents_id) {
             return new static($parents_id);
         }

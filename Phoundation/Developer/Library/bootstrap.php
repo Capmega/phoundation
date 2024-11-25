@@ -14,14 +14,18 @@ declare(strict_types=1);
 
 namespace Phoundation\Tests;
 
+use Exception;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Core;
+use Phoundation\Utils\Strings;
+use Throwable;
+
 
 try {
     include_once('./vendor/autoload.php');
-
-} catch (\Throwable $e) {
-    throw new \Exception('Failed to start autoloader', $e);
+    define('PHO_DIRECTORY', Strings::untilReverse($_SERVER['SCRIPT_FILENAME'], 'vendor'));
+} catch (Throwable $e) {
+    throw new Exception('Failed to start autoloader', previous: $e);
 }
 
 // Startup Phoundation Core

@@ -495,10 +495,21 @@ FILES variables:
     /**
      * Log this notification to the system logs as well
      *
+     * @param bool $log
+     *
      * @return static
      */
-    public function log(): static
+    public function log(int|bool $log = true): static
     {
+        if ($log === false) {
+            // Don't actually log
+            return $this;
+        }
+
+        if ($log === true) {
+            $log = 8;
+        }
+
         Log::information(tr('Notification:'));
 
         // Remove HTML from the message for logging
@@ -508,61 +519,61 @@ FILES variables:
 
         switch ($this->getMode()) {
             case EnumDisplayMode::danger:
-                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::write($this->getTitle(), 'error', echo_prefix: false);
-                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::write($message, 'error', clean: false, echo_prefix: false);
+                Log::write(Strings::size('Title', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write($this->getTitle(), 'error', $log, echo_prefix: false);
+                Log::write(Strings::size('Message', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write($message, 'error', $log, clean: false, echo_prefix: false);
                 break;
 
             case EnumDisplayMode::warning:
-                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::write($this->getTitle(), 'warning', echo_prefix: false);
-                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::write($message, 'warning', clean: false, echo_prefix: false);
+                Log::write(Strings::size('Title', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write($this->getTitle(), 'warning', $log, echo_prefix: false);
+                Log::write(Strings::size('Message', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write($message, 'warning', $log, clean: false, echo_prefix: false);
                 break;
 
             case EnumDisplayMode::success:
-                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::write($this->getTitle(), 'success', echo_prefix: false);
-                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::write($message, 'success', clean: false, echo_prefix: false);
+                Log::write(Strings::size('Title', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write($this->getTitle(), 'success', $log, echo_prefix: false);
+                Log::write(Strings::size('Message', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write($message, 'success', $log, clean: false, echo_prefix: false);
                 break;
 
             case EnumDisplayMode::info:
-                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::write($this->getTitle(), 'information', echo_prefix: false);
-                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::write($message, 'information', clean: false, echo_prefix: false);
+                Log::write(Strings::size('Title', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write($this->getTitle(), 'information', $log, echo_prefix: false);
+                Log::write(Strings::size('Message', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write($message, 'information', $log, clean: false, echo_prefix: false);
                 break;
 
             default:
-                Log::write(Strings::size('Title', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::write($this->getTitle(), 'notice', echo_prefix: false);
-                Log::write(Strings::size('Message', 12) . ': ', 'debug', clean: false, echo_newline: false);
-                Log::write($message, 'notice', clean: false, echo_prefix: false);
+                Log::write(Strings::size('Title', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write($this->getTitle(), 'notice', $log, echo_prefix: false);
+                Log::write(Strings::size('Message', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write($message, 'notice', $log, clean: false, echo_prefix: false);
                 break;
         }
 
         $details = $this->getDetails();
 
         if ($details) {
-            Log::write(Strings::size('Details', 12) . ': ', 'debug', clean: false);
+            Log::write(Strings::size('Details', 12) . ': ', 'debug', $log, clean: false);
 
             foreach (Arrays::force($details) as $key => $value) {
                 if (is_scalar($value)) {
-                    Log::write(Strings::size(Strings::capitalize((string) $key), 12) . ': ', 'debug', clean: false, echo_newline: false);
+                    Log::write(Strings::size(Strings::capitalize((string) $key), 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
                     Log::write(Strings::log($value), echo_prefix: false);
 
                 } else {
                     switch ($key) {
                         case 'trace':
-                            Log::write(Strings::size(Strings::capitalize((string) $key), 12) . ': ', 'debug', clean: false);
-                            Log::backtrace(backtrace: $value);
+                            Log::write(Strings::size(Strings::capitalize((string) $key), 12) . ': ', 'debug', $log, clean: false);
+                            Log::backtrace(backtrace: $value, threshold: $log);
                             break;
 
                         default:
-                            Log::write(Strings::size(Strings::capitalize((string) $key), 12) . ': ', 'debug', clean: false, echo_newline: false);
-                            Log::printr($value, echo_prefix: false, echo_header: false);
+                            Log::write(Strings::size(Strings::capitalize((string) $key), 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                            Log::printr($value, $log, echo_prefix: false, echo_header: false);
                     }
                 }
             }

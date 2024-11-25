@@ -17,9 +17,8 @@ declare(strict_types=1);
 namespace Phoundation\Network\Curl;
 
 use CURLFile;
-use Exception;
 use Phoundation\Core\Log\Log;
-use Phoundation\Network\Curl\Exception\CurlPostException;
+use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Stringable;
 
@@ -62,8 +61,8 @@ class Post extends Get
      */
     public function __construct(Stringable|string|null $url = null)
     {
-        parent::__construct($url)
-        ;
+        parent::__construct($url);
+
         // Disable 301 302 location header following since this would cause the POST to go to GET
         $this->method          = EnumHttpRequestMethod::post;
         $this->follow_location = false;
@@ -275,25 +274,26 @@ class Post extends Get
     {
         parent::prepare();
         curl_setopt($this->curl, CURLOPT_POST, true);
+
         // Log cURL request?
         if ($this->log_directory) {
             Log::action(tr('Sending following post data'));
-            Log::printr($this->post_data);
         }
+
         if ($this->content_type) {
             curl_setopt($this->curl, CURLINFO_CONTENT_TYPE, $this->content_type);
         }
+
         if ($this->post_url_encoded) {
             curl_setopt($this->curl, CURLOPT_POSTFIELDS, http_build_query($this->post_data));
-        } else {
-            try {
-                curl_setopt($this->curl, CURLOPT_POSTFIELDS, $this->post_data);
 
-            } catch (Exception $e) {
-                if (str_contains($e->getMessage(), 'Array to string conversion')) {
-                    throw new CurlPostException(tr('CURLOPT_POSTFIELDS failed with "Array to string conversion", this is very likely because the specified post array is a multi dimensional array, while CURLOPT_POSTFIELDS only accept one dimensional arrays. Please set $params[posturlencoded] = true to use http_build_query() to set CURLOPT_POSTFIELDS instead'));
-                }
+        } else {
+
+            if (Arrays::isMultidimensional($this->post_data)) {
+                $this->post_data = Arrays::flattenToBracketedArray($this->post_data);
             }
+
+            curl_setopt($this->curl, CURLOPT_POSTFIELDS, $this->post_data);
         }
     }
 }

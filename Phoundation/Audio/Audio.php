@@ -63,7 +63,7 @@ class Audio extends PhoFile
             if (!defined('NOAUDIO') or !NOAUDIO) {
                 try {
                     Mpg123::new(new PhoDirectory(DIRECTORY_DATA . 'audio', PhoRestrictions::newData()))
-                          ->setFile($this->makeAbsolute(DIRECTORY_DATA . 'audio'))
+                          ->setFileObject($this->makeAbsolute(DIRECTORY_DATA . 'audio'))
                           ->play($background);
 
                 } catch (FileNotExistException | ProcessesException $e) {
