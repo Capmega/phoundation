@@ -20,6 +20,7 @@ use DateTimeInterface;
 use DateTimeZone;
 use Exception;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
+use Phoundation\Exception\UnderConstructionException;
 use Stringable;
 
 
@@ -177,5 +178,19 @@ class PhoDateTimeImmutable extends \DateTimeImmutable implements Stringable, Int
     public function getDayStop(): static
     {
         return PhoDateTimeImmutable::new($this->format('Y-m-d 23:59:59.999999'), $this->getTimezone());
+    }
+
+
+    public function increaseDay(): static
+    {
+        throw UnderConstructionException::new(tr('This method is under construction'));
+        // TODO: Implement increaseDay() method.
+    }
+
+
+    public function decreaseDay(): static
+    {
+        throw UnderConstructionException::new(tr('This method is under construction'));
+        // TODO: Implement decreaseDay() method.
     }
 }
