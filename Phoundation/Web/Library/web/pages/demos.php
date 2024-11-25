@@ -38,7 +38,7 @@ echo Card::new()
                   <a href="' . Url::new('/demos/project-detail.html')->makeWww() . '">' . tr('Projects detail page') . '</a><br>
                   <a href="' . Url::new('/demos/project-edit.html')->makeWww() . '">' . tr('Projects edit page') . '</a><br>
                   <a href="' . Url::new('/demos/mailbox.html')->makeWww() . '">' . tr('Mail box') . '</a><br>
-                  <a href="' . Url::new('/demos/readmail.html')->makeWww() . '">' . tr('Read mail') . '</a><br>
+                  <a href="' . Url::new('/demos/read-mail.html')->makeWww() . '">' . tr('Read mail') . '</a><br>
                   <a href="' . Url::new('/demos/compose.html')->makeWww() . '">' . tr('Compose mail') . '</a><br>
                   <a href="' . Url::new('/demos/scanner/gallery.html')->makeWww() . '">' . tr('Scanner gallery') . '</a>')
          ->render();

@@ -16,17 +16,15 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use Phoundation\Date\Interfaces\PhoDateTimeInterface;
-
 
 trait TraitDataEntryYear
 {
     /**
      * Returns the year for this object
      *
-     * @return PhoDateTimeInterface|null
+     * @return int|null
      */
-    public function getYear(): ?PhoDateTimeInterface
+    public function getYear(): ?int
     {
         return $this->getTypesafe('int', 'year');
     }

@@ -302,7 +302,7 @@ class Core implements CoreInterface
         // DIRECTORY_PUBTMP   is a public (accessible by web server) temporary directory
         // DIRECTORY_WEB      is the system cache location for all web pages
         // DIRECTORY_COMMANDS is the system cache location for all commands
-        define('REQUEST', substr(uniqid(), 7));
+        define('REQUEST'           , substr(uniqid(), 7));
         define('DIRECTORY_START'   , Strings::slash(getcwd()));
         define('DIRECTORY_ROOT'    , static::getRootPath());
         define('DIRECTORY_DATA'    , DIRECTORY_ROOT . 'data/');
@@ -3536,8 +3536,8 @@ class Core implements CoreInterface
         }
 
         Notification::new()
-            ->setException($e)
-            ->send();
+                    ->setException($e)
+                    ->send();
 
         showdie($e);
     }
