@@ -1526,7 +1526,7 @@ class Strings extends Utils
             $source = 'array: ' . trim(Json::encode($source, JSON_PRETTY_PRINT));
 
         } elseif ($source instanceof ArraySourceInterface) {
-            $source = 'array source object: ' . trim(Json::encode($source->getArray(), JSON_PRETTY_PRINT));
+            $source = 'array source object: ' . trim(Json::encode($source->getSource(), JSON_PRETTY_PRINT));
 
         } elseif ($source instanceof Stringable) {
             $source = 'stringable object: ' . (string) $source;
