@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class DataEntryTest
+ * Class TestDataEntry
  *
  * This PHPUnit test class will test the \Phoundation\Data\DataEntry Object
  *
@@ -20,6 +20,7 @@ namespace Phoundation\Data\Library\Tests\Phoundation\Data\DataEntry;
 
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\Tests\TestDataEntry;
 use Phoundation\Utils\Numbers;
 use PHPUnit\Framework\TestCase;
 
@@ -56,7 +57,7 @@ class DataEntryTest extends TestCase
     {
         $id = Numbers::getRandomInt();
 
-        $this->assertEquals(null, DataEntry::new($id,null,false)->getId());
+        $this->assertEquals($id, TestDataEntry::new($id)->getId());
     }
 
 
@@ -72,6 +73,4 @@ class DataEntryTest extends TestCase
 
         $this->assertEquals($expectedColumns, $entry->getDefaultMetaColumns(), 'getDefaultMetaColumns should return default metadata columns');
     }
-
-
 }
