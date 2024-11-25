@@ -157,6 +157,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     protected bool $allow_modify = true;
 
     /**
+     * Global initialization flag, true when the objects DataEntry::init() call is working
+     *
+     * @var bool $is_initializing
+     */
+    protected bool $is_initializing = false;
+
+    /**
      * Global loading flag, when data is loaded into the object from a database
      *
      * @var bool $is_loading
@@ -431,6 +438,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     public function init(bool $identifier_must_exist = true, bool $ignore_deleted = false): static
     {
+        $this->is_initializing = true;
+
         if ($this->connector === null) {
             // Use the default connector for this DataEntry object
             $this->setConnectorObject(static::getDefaultConnectorObject());
@@ -464,6 +473,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
                  ->copyValuesToSource([], false);
         }
 
+        $this->is_initializing = false;
         return $this;
     }
 
@@ -1444,7 +1454,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
             if ($definition->getVirtual()) {
                 // This is a virtual column, do NOT apply during load time
-                if ($this->is_loading) {
+                if ($this->is_loading or $this->is_initializing) {
                     continue;
                 }
 
@@ -1525,12 +1535,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
                 $value = Json::ensureDecoded($value);
             }
 
-            if ($this->debug) {
-                Log::debug('ABOUT TO SET SOURCE KEY "' . $column . '" WITH METHOD: ' . $method . ' (' . (method_exists($this, $method) ? 'exists' : 'NOT exists') . ') TO VALUE "' . Strings::log($value) . ' [' . gettype($value) . ']"', 10, echo_header: false);
-            }
-
             try {
                 if ($this->definitions->get($column)->getContainsData()) {
+                    if ($this->debug) {
+                        Log::debug('ABOUT TO SET SOURCE KEY "' . $column . '" WITH METHOD: ' . $method . ' (' . (method_exists($this, $method) ? 'exists' : 'NOT exists') . ') TO VALUE "' . Strings::log($value) . ' [' . gettype($value) . ']"', 10, echo_header: false);
+                    }
+
                     $this->$method($value);
                 }
 
@@ -3351,16 +3361,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     public function getObjectState(): array
     {
         return [
-            'id'             => $this->getId(),
-            'is_saved'       => $this->is_saved,
-            'is_new'         => $this->isNew(),
-            'is_created'     => $this->is_created,
-            'is_modified'    => $this->is_modified,
-            'is_validated'   => $this->is_validated,
-            'is_loading'     => $this->is_loading,
-            'previous_id'    => $this->previous_id,
-            'id_lower_limit' => $this->id_lower_limit,
-            'id_upper_limit' => $this->id_upper_limit,
+            'id'              => $this->getId(),
+            'is_saved'        => $this->is_saved,
+            'is_new'          => $this->isNew(),
+            'is_created'      => $this->is_created,
+            'is_modified'     => $this->is_modified,
+            'is_validated'    => $this->is_validated,
+            'is_loading'      => $this->is_loading,
+            'is_initializing' => $this->is_initializing,
+            'previous_id'     => $this->previous_id,
+            'id_lower_limit'  => $this->id_lower_limit,
+            'id_upper_limit'  => $this->id_upper_limit,
         ];
     }
 
