@@ -533,7 +533,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      */
     public function applyFiltersToQueryBuilder(QueryBuilderInterface $builder): static
     {
-        if ($this->apply_filters->keyExists('status') and $this->definitions->isRendered('status')) {
+        if ($this->apply_filters->keyExists('status') and $this->definitions->isRendered('status', false)) {
             // Is the status filter rendered and available?
             if ($this->getStatus() !== false) {
                 // Is the status filter not set to "All"?
@@ -545,7 +545,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
             }
         }
 
-        if ($this->apply_filters->keyExists('date_range') and $this->definitions->isRendered('date_range')) {
+        if ($this->apply_filters->keyExists('date_range') and $this->definitions->isRendered('date_range', false)) {
             if ($this->getStartDate()) {
                 $builder->addWhere(
                     '`' . $builder->getFromTable() . '`.`created_on` >= :start', [':start' => $this->getStartDate()->format('mysql')]
@@ -559,7 +559,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
             }
         }
 
-        if ($this->apply_filters->keyExists('users_id') and $this->definitions->isRendered('users_id')) {
+        if ($this->apply_filters->keyExists('users_id') and $this->definitions->isRendered('users_id', false)) {
             if ($this->getUsersId()) {
                 $builder->addWhere(
                     '`' . $builder->getFromTable() . '`.`created_by` = :created_by', [':created_by' => $this->getUsersId()]

@@ -208,7 +208,7 @@ if (Session::getUserObject()->hasAllRights(['accounts'])) {
 
                         <strong><i class="fas fa-map-marker-alt mr-1"></i> Location</strong>
 
-                        <p class="text-muted"><?= (($user->getCity() . $user->getCountry()) ? $user->getCity() . ', ' . $user->getCountry() : '-') ?></p>
+                        <p class="text-muted"><?= (($user->getCityObject() . $user->getCountryObject()) ? $user->getCityObject() . ', ' . $user->getCountryObject() : '-') ?></p>
 
                         <hr>
 

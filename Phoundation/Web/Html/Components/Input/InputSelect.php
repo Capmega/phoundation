@@ -800,40 +800,48 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
                 }
             }
 
-            if (!is_scalar($value)) {
-                if (!($value instanceof Stringable)) {
-                    if (!is_array($value)) {
-                        throw OutOfBoundsException::new(tr('The specified select source array is invalid. Format should be [key => value, key => value, ...]'))
-                                                  ->addData([
-                                                      ':first_row_key'   => $key,
-                                                      ':first_row_value' => $value,
-                                                      ':value_column'    => $this->value_column,
-                                                      ':source'          => $this->source,
-                                                  ]);
+            if ($value) {
+                if (!is_scalar($value)) {
+                    if (!($value instanceof Stringable)) {
+                        if (!is_array($value)) {
+                            throw OutOfBoundsException::new(tr('The specified select source array is invalid. Format should be [key => value, key => value, ...]'))
+                                                      ->addData([
+                                                          ':first_row_key'   => $key,
+                                                          ':first_row_value' => $value,
+                                                          ':value_column'    => $this->value_column,
+                                                          ':source'          => $this->source,
+                                                      ]);
+                        }
+
+                        if (!$this->value_column) {
+                            throw OutOfBoundsException::new(tr('The specified ":id" select source array contains array values, but no value column was specified', [
+                                ':id' => $this->getId() . ' / ' . $this->getName(),
+                            ]))
+                                                      ->addData($this->source);
+                        }
+                        try {
+                            $value = $value[$this->value_column];
+                        } catch (Throwable $e) {
+                            throw OutOfBoundsException::new(tr('Failed to build select body because the data row does not contain the specified value column ":column"', [
+                                ':column' => $this->value_column,
+                            ]))
+                                                      ->setData([
+                                                          'value'        => $value,
+                                                          'value_column' => $this->value_column,
+                                                      ]);
+                        }
                     }
 
-                    if (!$this->value_column) {
-                        throw OutOfBoundsException::new(tr('The specified ":id" select source array contains array values, but no value column was specified', [
-                            ':id' => $this->getId() . ' / ' . $this->getName(),
-                        ]))
-                        ->addData($this->source);
-                    }
-
-                    try {
-                        $value = $value[$this->value_column];
-
-                    } catch (Throwable $e) {
-                        throw OutOfBoundsException::new(tr('Failed to build select body because the data row does not contain the specified value column ":column"', [
-                            ':column' => $this->value_column,
-                        ]))->setData([
-                            'value'        => $value,
-                            'value_column' => $this->value_column,
-                        ]);
-                    }
+                    // So value is a stringable object. Force value to be a string
+                    $value = (string) $value;
                 }
 
-                // So value is a stringable object. Force value to be a string
-                $value = (string) $value;
+            } else {
+                Log::warning(tr('Encountered empty value with key ":key" in following select source array, not displaying entry', [
+                    ':key' => $key,
+                ]));
+                Log::printr(Arrays::force($this->source), echo_header: false);
+                continue;
             }
 
             $return .= '<option' . $this->renderOptionClassString() . $this->renderSelectedString($key, $value) . ' value="' . htmlspecialchars((string) $key) . '"' . $option_data . '>' . htmlentities((string) $value) . '</option>';

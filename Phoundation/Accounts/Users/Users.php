@@ -68,17 +68,6 @@ class Users extends DataIterator implements UsersInterface
 //                               ORDER BY  `name`');
 
         parent::__construct();
-
-        $this->columns = [
-            'id'            => tr('Id'),
-            'profile_image' => tr('Profile image'),
-            'email'         => tr('Email'),
-            'name'          => tr('Name'),
-            'roles'         => tr('Roles'),
-            'status'        => tr('Status'),
-            'sign_in_count' => tr('Sign-in count'),
-            'created_on'    => tr('Created on'),
-        ];
     }
 
 
@@ -664,19 +653,18 @@ class Users extends DataIterator implements UsersInterface
      */
     public function getHtmlDataTableObject(array|string|null $columns = null): HtmlDataTableInterface
     {
-        return parent::getHtmlDataTableObject($columns)
-                     ->addCellCallback($this->getCellCallback())
-                     ->setColumnsOrderable([
-                         1 => false,
-                         2 => true,
-                         3 => true,
-                         4 => true,
-                         5 => true,
-                         6 => true,
-                         7 => true
-                     ])
-                     ->setJsDateFormat('YYYY-MM-DD HH:mm:ss')
-                     ->setOrder([2 => 'asc']);
+        return parent::getHtmlDataTableObject($columns)->addCellCallback($this->getCellCallback())
+                                                       ->setColumnsOrderable([
+                                                           1 => false,
+                                                           2 => true,
+                                                           3 => true,
+                                                           4 => true,
+                                                           5 => true,
+                                                           6 => true,
+                                                           7 => true
+                                                       ])
+                                                       ->setJsDateFormat('YYYY-MM-DD HH:mm:ss')
+                                                       ->setOrder([2 => 'asc']);
     }
 
 

@@ -38,6 +38,7 @@ use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
@@ -484,14 +485,14 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
      */
     public function getHtmlTableObject(array|string|null $columns = null): HtmlTableInterface
     {
+        $columns = get_null(Arrays::force($columns ?? $this->columns));
+
         if ($this->source) {
             // Source is already loaded, use that
             return parent::getHtmlTableObject($columns)->setId(static::getTable());
         }
 
         $this->selectQuery();
-
-        $columns = $columns ?? $this->columns;
 
         // Create and return the table
         return HtmlTable::new($this)
@@ -513,6 +514,8 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
      */
     public function getHtmlDataTableObject(array|string|null $columns = null): HtmlDataTableInterface
     {
+        $columns = get_null(Arrays::force($columns ?? $this->columns));
+
         if ($this->is_loaded) {
             // Source is already loaded, use that
             return parent::getHtmlDataTableObject($columns)->setId(static::getTable());
@@ -520,8 +523,6 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
 
         // This DataIterator is empty, automatically load
         $this->selectQuery();
-
-        $columns = $columns ?? $this->columns;
 
         // Create and return the table
         return HtmlDataTable::new($this)

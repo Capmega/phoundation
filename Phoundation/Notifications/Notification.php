@@ -686,15 +686,14 @@ FILES variables:
         $user    = User::load($user);
 
         if (Config::getBoolean('notifications.send.disable', false) and !$this->override_non_production_lockout) {
-            if (!$user->hasSomeRights('developer,test,admin')) {
-                // We're not in production environment, don't send any notifications!
-                Log::warning(tr('Not sending notification ":title" to user ":user" because notifications sending has been disabled', [
-                    ':title' => $this->getTitle(),
-                    ':user'  => $user->getEmail()
-                ]));
+            // We're not in production environment, don't send any notifications!
+            Log::warning(tr('Not sending notification ":title" to user ":user" because notifications sending has been disabled', [
+                ':title' => $this->getTitle(),
+                ':user'  => $user->getEmail()
+            ]));
 
-                return $this;
-            }
+            $sending = false;
+            return $this;
         }
 
         if ($user->getEmail()) {

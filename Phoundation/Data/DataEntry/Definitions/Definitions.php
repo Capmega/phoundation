@@ -341,7 +341,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function isRendered(Stringable|string|float|int $key, bool $exception = true): bool
     {
-        return $this->get($key, $exception)->getRender();
+        return (bool) $this->get($key, $exception)?->getRender();
     }
 
 

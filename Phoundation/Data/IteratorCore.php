@@ -1232,6 +1232,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
         unset($value);
 
+        // Convert all source entries to array and fetch their values
         foreach ($this->source as $value) {
             $value = Arrays::force($value);
 
@@ -1795,13 +1796,25 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      */
     protected function prepareHeaders(array|string|null $columns): ?array
     {
-        if ($columns and is_array($columns)) {
-            foreach ($columns as &$column) {
-                $column = Strings::capitalize((string) $column);
+        if ($columns) {
+            $columns = Arrays::force($columns);
+            $return  = [];
+
+            foreach ($columns as $column => $header) {
+                if (is_integer($column)) {
+                    $column = (string) $header;
+                    $header = (string) $header;
+                    $header = str_replace(['_', '-'], ' ', $header);
+                    $header = Strings::capitalize($header);
+
+                    $return[$column] = $header;
+
+                } else {
+                    $return[$column] = $header;
+                }
             }
 
-            unset($column);
-            return $columns;
+            return $return;
         }
 
         return null;
@@ -1809,7 +1822,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
-     * Extracts headers from the specified columns
+     * ???
      *
      * @param array|string|null $columns
      *
@@ -1817,11 +1830,11 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      */
     protected function prepareColumns(array|string|null $columns): ?array
     {
-        $columns = $columns ?? $this->columns;
+        $columns = get_null(Arrays::force($columns ?? $this->columns));
 
         if ($columns) {
             if (is_array($columns)) {
-                return array_keys($columns);
+                return $columns;
             }
 
             return explode(',', $columns);
@@ -1842,12 +1855,12 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     {
         $this->ensureArrays();
 
-        $columns = $columns ?? $this->columns;
+        $columns = get_null(Arrays::force($columns ?? $this->columns));
 
         return HtmlTable::new()
                         ->setId(strtolower(Strings::fromReverse(static::class, '\\')))
                         ->setHeaders($this->prepareHeaders($columns))
-                        ->setSource($this->getAllRowsMultipleColumns($this->prepareColumns($columns)))
+                        ->setSource($this->source)
                         ->setRowCallbacks($this->row_callbacks)
                         ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
     }
@@ -1864,12 +1877,12 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     {
         $this->ensureArrays();
 
-        $columns = $columns ?? $this->columns;
+        $columns = get_null(Arrays::force($columns ?? $this->columns));
 
         return HtmlDataTable::new()
                             ->setId(strtolower(Strings::fromReverse(static::class, '\\')))
                             ->setHeaders($this->prepareHeaders($columns))
-                            ->setSource($this->getAllRowsMultipleColumns($this->prepareColumns($columns)))
+                            ->setSource($this->source)
                             ->setRowCallbacks($this->row_callbacks)
                             ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
     }

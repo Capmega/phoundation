@@ -61,14 +61,6 @@ class Roles extends DataIterator implements RolesInterface
                                 ->addOrderBy('`accounts_roles`.`name`');
 
         parent::__construct($source);
-
-        // Set the default columns to use
-        $this->setColumns([
-            'id'          => tr('Id'),
-            'role'        => tr('Role'),
-            'rights'      => tr('Rights from this role'),
-            'description' => tr('Description')
-        ]);
     }
 
 

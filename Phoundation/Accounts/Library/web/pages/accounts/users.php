@@ -101,15 +101,23 @@ $buttons = Buttons::new()
 
 // TODO Automatically re-select items if possible
 //    ->select($post['id']);
-
 $users_card = Card::new()
                   ->setTitle('Active users')
                   ->setSwitches('reload')
                   ->setContent($users->load()
-                                     ->getHtmlDataTableObject()
-                                         ->setRowUrl('/accounts/user+:ROW.html'))
+                                     ->getHtmlDataTableObject([
+                                         'id'            => tr('Id'),
+                                         'profile_image' => tr('Profile image'),
+                                         'email'         => tr('Email'),
+                                         'name'          => tr('Name'),
+                                         'roles'         => tr('Roles'),
+                                         'status'        => tr('Status'),
+                                         'sign_in_count' => tr('Sign-in count'),
+                                         'created_on'    => tr('Created on'),
+                                     ])->setRowUrl('/accounts/user+:ROW.html'))
                   ->useForm(true)
                   ->setButtons($buttons);
+
 
 $users_card->getForm()
            ->setAction(Url::newCurrent())

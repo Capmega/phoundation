@@ -55,7 +55,6 @@ trait TraitDataColumns
     public function setColumns(ArrayableInterface|array|string|null $columns): static
     {
         $this->columns = get_null(Arrays::force($columns));
-
         return $this;
     }
 }

@@ -58,14 +58,6 @@ class Rights extends DataIterator implements RightsInterface
                                 ->addOrderBy('`accounts_rights`.`name`');
 
         parent::__construct($source);
-
-        // Set the default columns to use
-        $this->setColumns([
-            'id'          => tr('Id'),
-            'right'       => tr('Right'),
-            'roles'       => tr('Roles having this right'),
-            'description' => tr('Description')
-        ]);
     }
 
 
@@ -514,7 +506,7 @@ class Rights extends DataIterator implements RightsInterface
                             ->setDescription(tr('This is a default right that applies to all users'));
 
                     } elseif (is_array($first)) {
-                        $first                = Arrays::nullValues($first);
+                        $first                = Arrays::initializeValues($first);
                         $first['id']          = null;
                         $first['right']       = 'everybody';
                         $first['description'] = tr('This is a default right that applies to all users');

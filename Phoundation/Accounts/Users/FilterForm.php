@@ -144,7 +144,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
      */
     public function applyFiltersToQueryBuilder(QueryBuilderInterface $builder): static
     {
-        if ($this->apply_filters->keyExists('roles_id') and $this->definitions->isRendered('roles_id')) {
+        if ($this->apply_filters->keyExists('roles_id') and $this->definitions->isRendered('roles_id', false)) {
             if ($this->getRolesId()) {
                 $builder->addJoin('JOIN  `accounts_users_roles` AS `accounts_users_roles_filter`
                                    ON    `accounts_users_roles_filter`.`roles_id` = :roles_id
@@ -153,7 +153,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
             }
         }
 
-        if ($this->apply_filters->keyExists('rights_id') and $this->definitions->isRendered('rights_id')) {
+        if ($this->apply_filters->keyExists('rights_id') and $this->definitions->isRendered('rights_id', false)) {
             if ($this->getRightsId()) {
                 $builder->addJoin('JOIN  `accounts_users_rights` AS `accounts_users_rights_filter`
                                    ON    `accounts_users_rights_filter`.`rights_id` = :rights_id
