@@ -506,7 +506,7 @@ class Rights extends DataIterator implements RightsInterface
                             ->setDescription(tr('This is a default right that applies to all users'));
 
                     } elseif (is_array($first)) {
-                        $first                = Arrays::initializeValues($first);
+                        $first                = Arrays::setValues($first);
                         $first['id']          = null;
                         $first['right']       = 'everybody';
                         $first['description'] = tr('This is a default right that applies to all users');
