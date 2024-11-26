@@ -186,7 +186,7 @@ class PostValidator extends Validator
         }
 
         // Return button from cache if available
-        $button = $this->getButton(static::$buttons, $post_key, $prefix, false);
+        $button = $this->getButton($this->source, $post_key, $prefix, false);
 
         if ($button) {
             // We had it from cache. Get button key and value
@@ -230,10 +230,6 @@ class PostValidator extends Validator
 
         // We have a button, yay!
         if ($return_key) {
-            if ($prefix) {
-                return Strings::until($key, $post_key);
-            }
-
             return $key;
         }
 
@@ -259,10 +255,13 @@ class PostValidator extends Validator
     protected function getButton(array &$source, string $post_key, bool $prefix, bool $remove): array|null
     {
         if ($prefix) {
+            // TODO Cleanup this mess...
+            $post_key = str_replace(['-', '_'], '', $post_key);
+
             // Search for the specified prefix code for the button
             foreach ($source as $key => $value) {
-                if (str_ends_with($key, $post_key)) {
-                    $post_key = $key;
+                if (str_ends_with($key,  '-' . $post_key)) {
+                    $post_key = Strings::until($key, '-' . $post_key);
                     $button   = trim((string) $value);
                     break;
                 }
@@ -270,7 +269,43 @@ class PostValidator extends Validator
 
             if (!isset($button)) {
                 // No button with specified prefix found
-                return null;
+                // Search for the specified prefix code for the button
+                foreach ($source as $key => $value) {
+                    if (str_ends_with($key, '_' . $post_key)) {
+                        $post_key = Strings::until($key, '_' . $post_key);
+                        $button   = trim((string) $value);
+                        break;
+                    }
+                }
+
+                if (!isset($button)) {
+                    // No button with specified prefix found
+                    // Search for the specified prefix code for the button
+                    foreach ($source as $key => $value) {
+                        if (str_starts_with($key, $post_key . '_')) {
+                            $post_key = Strings::from($key, $post_key . '_');
+                            $button   = trim((string) $value);
+                            break;
+                        }
+                    }
+
+                    if (!isset($button)) {
+                        // No button with specified prefix found
+                        // Search for the specified prefix code for the button
+                        foreach ($source as $key => $value) {
+                            if (str_starts_with($key, $post_key . '-')) {
+                                $post_key = Strings::from($key, $post_key . '-');
+                                $button   = trim((string) $value);
+                                break;
+                            }
+                        }
+
+                        if (!isset($button)) {
+                            // No button with specified prefix found
+                            return null;
+                        }
+                    }
+                }
             }
 
         } else {
