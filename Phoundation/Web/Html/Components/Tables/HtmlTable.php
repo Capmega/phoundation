@@ -227,7 +227,7 @@ class HtmlTable extends ResourceElementCore implements HtmlTableInterface
     {
         if ($columns) {
             $this->column_cache = array_flip($columns);
-            $this->column_cache = Arrays::initializeValues($this->column_cache, true);
+            $this->column_cache = Arrays::setValues($this->column_cache, true);
 
         } else {
             $this->column_cache = null;
@@ -1149,6 +1149,7 @@ class HtmlTable extends ResourceElementCore implements HtmlTableInterface
             return null;
         }
 
+        $first   = true;
         $return  = '<tfoot><tr>';
         $footers = $this->footers->__toArray();
 
@@ -1159,7 +1160,30 @@ class HtmlTable extends ResourceElementCore implements HtmlTableInterface
                 continue;
             }
 
-            $return .= '<th>' . $footer . '</th>';
+
+            if ($first) {
+                $first = false;
+
+                switch ($this->checkbox_selectors) {
+                    case EnumTableIdColumn::hidden:
+                        break;
+
+                    case EnumTableIdColumn::checkbox:
+                        $return .= '<td>' . InputCheckbox::new()
+                                                         ->setName($column . '[]')
+                                                         ->setValue(1)
+                                                         ->render() . '
+                                    </td>';
+                        break;
+
+                    case EnumTableIdColumn::visible:
+                        $return .= '<td>' . $header . '</td>';
+                        break;
+                }
+
+            } else {
+                $return .= '<td>' . $footer . '</td>';
+            }
         }
 
         return $return . '</tr></tfoot>';
@@ -1201,7 +1225,7 @@ class HtmlTable extends ResourceElementCore implements HtmlTableInterface
             }
 
             unset($value);
-            $this->headers = new Iterator($source);
+            $this->setHeaders(new Iterator($source));
         }
     }
 }
