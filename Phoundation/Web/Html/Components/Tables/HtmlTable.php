@@ -722,7 +722,8 @@ class HtmlTable extends ResourceElementCore implements HtmlTableInterface
         $row   = '<tr' . $row_data . $this->renderRowClassString() . '>';
         $first = true;
 
-        foreach ($row_values as $column => $value) {
+        foreach ($this->columns as $column) {
+            $value         = isset_get($row_values[$column]);
             $made_checkbox = false;
 
             if ($first) {

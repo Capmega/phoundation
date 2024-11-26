@@ -26,6 +26,7 @@ use Phoundation\Core\Exception\Interfaces\CoreReadonlyExceptionInterface;
 use Phoundation\Core\Exception\InvalidRequestTypeException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
+use Phoundation\Data\DataEntry\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryReadonlyExceptionInterface;
@@ -1769,7 +1770,7 @@ class Request implements RequestInterface
 
             return $results;
 
-        } catch (ValidationFailedExceptionInterface|RequestMethodRestrictionsException $e) {
+        } catch (ValidationFailedExceptionInterface | RequestMethodRestrictionsException $e) {
             static::executeSystem(400, $e, tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
 
         } catch (AuthenticationExceptionInterface $e) {
@@ -1791,16 +1792,16 @@ class Request implements RequestInterface
             // Execute the new system page target instead
             static::executeSystem($new_target, $e, $e->getMessage());
 
-        } catch (Http404Exception|DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
+        } catch (Http404Exception | DataEntryNotExistsExceptionInterface | DataEntryDeletedException $e) {
             static::executeSystem(404, $e, tr('Page did not catch the following "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
 
-        } catch (Http405Exception|DataEntryReadonlyExceptionInterface $e) {
+        } catch (Http405Exception | DataEntryReadonlyExceptionInterface $e) {
             static::executeSystem(405, $e, tr('Page did not catch the following "Http405Exception or DataEntryReadonlyExceptionInterface or CoreReadonlyExceptionInterface" warning. Executing "system/405" instead'));
 
-        } catch (Http409Exception $e) {
+        } catch (Http409Exception | DataEntryAlreadyExistsException $e) {
             static::executeSystem(409, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
 
-        } catch (Http503Exception|CoreReadonlyExceptionInterface $e) {
+        } catch (Http503Exception | CoreReadonlyExceptionInterface $e) {
             static::executeSystem(503, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
         }
     }
