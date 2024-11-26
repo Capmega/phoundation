@@ -1877,14 +1877,15 @@ class Arrays extends Utils
     /**
      * Initializes all (or only specified column) values in the specified array with the specified value
      *
-     * @param array                      $source
+     * @param IteratorInterface|array    $source
      * @param mixed|null                 $value
      * @param Iterator|array|string|null $columns
      *
      * @return array
      */
-    public static function initializeValues(array $source, mixed $value = null, Iterator|array|string|null $columns = null): array
+    public static function setValues(IteratorInterface|array $source, mixed $value = null, Iterator|array|string|null $columns = null): array
     {
+        $source  = Arrays::force($source);
         $columns = Arrays::force($columns);
         $columns = array_flip($columns);
 
@@ -2961,34 +2962,6 @@ class Arrays extends Utils
     {
         foreach (Arrays::force($keys) as $key) {
             $source[$key] = $value;
-        }
-
-        return $source;
-    }
-
-
-    /**
-     * Ensure that all specified array keys have the specified value
-     *
-     * If $keys is specified then only the specified keys will be updated
-     *
-     * @param IteratorInterface|array             $source
-     * @param mixed                               $value
-     * @param IteratorInterface|array|string|null $keys
-     * @return array
-     */
-    public static function setValues(IteratorInterface|array $source, mixed $value, IteratorInterface|array|string|null $keys = null): array
-    {
-        $source = Arrays::force($source);
-
-        if ($keys) {
-            $keys = Arrays::force($keys);
-        }
-
-        foreach ($source as $key => $current_value) {
-            if (($keys === null) or (array_key_exists($key, $keys))) {
-                $source[$key] = $value;
-            }
         }
 
         return $source;
