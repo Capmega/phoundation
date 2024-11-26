@@ -478,13 +478,15 @@ interface IteratorInterface extends IteratorBaseInterface
     public function keepMatchingKeysStartingWith(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH): IteratorInterface;
 
     /**
-     * Returns the total amounts for all columns together
+     * Returns the total amounts for all columns together for only the specified columns
      *
-     * @param array|string $columns
-     * @param string|null $totals_column
+     * @param array|string|null $columns
+     * @param string|null       $totals_column
+     * @param string|null       $totals_label
+     *
      * @return array|null
      */
-    public function getTotals(array|string $columns, ?string $totals_column = null): ?array;
+    public function getTotals(array|string|null $columns = null, ?string $totals_column = null, ?string $totals_label = null): ?array;
 
     /**
      * Displays a message on the command line

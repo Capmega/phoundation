@@ -68,7 +68,9 @@ use Throwable;
 
 class IteratorCore extends IteratorBase implements IteratorInterface
 {
-    use TraitDataColumns;
+    use TraitDataColumns {
+        getColumns as protected __getColumns;
+    }
     use TraitDataFilterForm;
     use TraitDataParent {
         setParentObject as protected __setParent;
@@ -179,6 +181,28 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         $this->source = [];
 
         return $this->__setParent($parent);
+    }
+
+
+    /**
+     * Returns the columns for the data in this Iterator.
+     *
+     * If columns haven't been set already, it will automatically detect the columns from the first entry in the
+     * Iterator
+     *
+     * @return array|null
+     */
+    public function getColumns(): ?array
+    {
+        $columns = $this->__getColumns();
+
+        if (empty($columns)) {
+            $columns = array_value_first($this->source);
+            $columns = Arrays::force($columns);
+            $columns = array_keys($columns);
+        }
+
+        return $columns;
     }
 
 
@@ -1184,30 +1208,29 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Returns the total amounts for all columns together for only the specified columns
      *
-     * @param array|string $columns
-     * @param string|null  $totals_column
-     * @param string|null  $totals_label
+     * @param array|string|null $columns
+     * @param string|null       $totals_column
+     * @param string|null       $totals_label
      *
      * @return array|null
      */
-    public function getTotals(array|string $columns, ?string $totals_column = null, ?string $totals_label = null): ?array
+    public function getTotals(array|string|null $columns = null, ?string $totals_column = null, ?string $totals_label = null): ?array
     {
         if (!$this->source) {
             return null;
         }
 
-        $totals_label = ($totals_label ?? tr('Totals'));
+        if (empty($columns)) {
+            $columns = $this->getColumns();
+        }
 
         if (is_string($columns)) {
             $columns = Arrays::force($columns);
-
-        } else {
-            $columns = array_flip($columns);
         }
 
-        $footers = array_value_first($this->source);
-        $footers = Arrays::force($footers);
-        $footers = Arrays::setValues($footers, null);
+        $footers = $this->getColumns();
+        $footers = array_flip($footers);
+        $footers = Arrays::setValues($footers);
 
         // Ensure all requested columns exist
         foreach ($columns as $column) {
@@ -1222,7 +1245,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         foreach($footers as $footer => &$value) {
             if ($footer === $totals_column) {
                 // This is the column that will have the "Totals:" label, ensure it won't try to add data from columns!
-                $value = $totals_label;
+                $value = $totals_label ?? tr('Total');
                 unset($columns[$totals_column]);
 
             } elseif (array_key_exists($footer, $columns)) {
@@ -1236,8 +1259,16 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         foreach ($this->source as $value) {
             $value = Arrays::force($value);
 
-            foreach ($columns as $column) {
-                $footers[$column] += get_numeric(isset_get($value[$column]));
+            try {
+                foreach ($columns as $column) {
+                    $footers[$column] += get_numeric(isset_get($value[$column]));
+                }
+
+            } catch (Throwable $e) {
+                throw IteratorException::new(tr('Encountered non numeric row while calculating totals'), $e)
+                                       ->addData([
+                                           'row' => $value,
+                                       ]);
             }
         }
 

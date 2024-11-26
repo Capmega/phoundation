@@ -185,8 +185,8 @@ class PostValidator extends Validator
             return null;
         }
 
-        // Return button from cache if available
-        $button = $this->getButton($this->source, $post_key, $prefix, false);
+        // Find button. First check $buttons, because found buttons will be removed from the POST source
+        $button = $this->getButton(static::$buttons, $post_key, $prefix, false);
 
         if ($button) {
             // We had it from cache. Get button key and value
