@@ -1875,6 +1875,31 @@ class Arrays extends Utils
 
 
     /**
+     * Initializes all (or only specified column) values in the specified array with the specified value
+     *
+     * @param array                      $source
+     * @param mixed|null                 $value
+     * @param Iterator|array|string|null $columns
+     *
+     * @return array
+     */
+    public static function initializeValues(array $source, mixed $value = null, Iterator|array|string|null $columns = null): array
+    {
+        $columns = Arrays::force($columns);
+        $columns = array_flip($columns);
+
+        foreach ($source as $source_key => &$source_value) {
+            if (!$columns or array_key_exists($source_key, $columns)) {
+                $source_value = $value;
+            }
+        }
+
+        unset($value);
+        return $source;
+    }
+
+
+    /**
      * Remove the key with the specified value from the given source array
      *
      * @param array            $source
@@ -3529,23 +3554,5 @@ class Arrays extends Utils
         }
 
         return $return;
-    }
-
-
-    /**
-     * Makes all values in the specified array null
-     *
-     * @param array $source
-     *
-     * @return array
-     */
-    public static function nullValues(array $source): array
-    {
-        foreach ($source as &$value) {
-            $value = null;
-        }
-
-        unset($value);
-        return $source;
     }
 }
