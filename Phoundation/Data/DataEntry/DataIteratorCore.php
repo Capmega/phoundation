@@ -797,7 +797,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
     {
         // If the value is a DataEntry object, make sure its saved
         if ($value instanceof DataEntryInterface) {
-            if (!$value->isSaved()) {
+            if ($value->isModified() and !$value->isSaved()) {
                 $value->save();
             }
 
