@@ -234,7 +234,7 @@ class Redis implements DatabaseInterface, RedisInterface
     {
         try {
             $this->connect()->client
-                ->set('value_' . $key, JSON::encode($value), $timeout);
+                ->set('value_' . $key, Json::encode($value), $timeout);
 
             return $this;
 
