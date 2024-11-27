@@ -24,7 +24,7 @@ use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
-
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 
 class Mode implements ModeInterface
 {
@@ -54,9 +54,9 @@ class Mode implements ModeInterface
      * Mode class constructor
      *
      * @param string                $mode
-     * @param PhoFileInterface|null $mode_file
+     * @param PhoPathInterface|null $mode_file
      */
-    public function __construct(string $mode, ?PhoFileInterface $mode_file = null)
+    public function __construct(string $mode, ?PhoPathInterface $mode_file = null)
     {
         $this->mode     = $mode;
         $this->datetime = $mode_file?->getMtime() ?? new PhoDateTime();
