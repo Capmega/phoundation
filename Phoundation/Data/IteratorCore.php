@@ -1220,11 +1220,12 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             return null;
         }
 
-        if (empty($columns)) {
-            $columns = $this->getColumns();
-        }
+        $system_columns = $this->getColumns();
 
-        if (is_string($columns)) {
+        if (empty($columns)) {
+            $columns = $system_columns;
+
+        } elseif (is_string($columns)) {
             $columns = Arrays::force($columns);
         }
 
@@ -1234,6 +1235,11 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
         // Ensure all requested columns exist
         foreach ($columns as $column) {
+            if (str_starts_with($column, '-')) {
+                $remove = true;
+                $column = substr($column, 1);
+            }
+
             if (!array_key_exists($column, $footers)) {
                 throw new OutOfBoundsException(tr('Specified totals column ":column" does not exist in the source data', [
                     ':column' => $column,
@@ -1241,14 +1247,28 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
+        if (isset($remove)) {
+            // Use all system columns and remove specified columns
+            $display_columns = $system_columns;
+
+            foreach ($columns as $column) {
+                if (str_starts_with($column, '-')) {
+                    $display_columns = Arrays::removeValues($display_columns, substr($column, 1));
+                }
+            }
+
+        } else {
+            $display_columns = $columns;
+        }
+
         // Initialize all requested column footers
         foreach($footers as $footer => &$value) {
             if ($footer === $totals_column) {
                 // This is the column that will have the "Totals:" label, ensure it won't try to add data from columns!
-                $value = $totals_label ?? tr('Total');
-                unset($columns[$totals_column]);
+                $value           = $totals_label ?? tr('Totals');
+                $display_columns = Arrays::removeValues($display_columns, $totals_column);
 
-            } elseif (array_key_exists($footer, $columns)) {
+            } elseif (array_key_exists($footer, $display_columns)) {
                 $value = 0;
             }
         }
@@ -1260,7 +1280,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             $value = Arrays::force($value);
 
             try {
-                foreach ($columns as $column) {
+                foreach ($display_columns as $column) {
                     $footers[$column] += get_numeric(isset_get($value[$column]));
                 }
 
