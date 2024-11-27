@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace Phoundation\Network\Library;
 
 
-
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
     /**
@@ -28,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.8';
+        return '0.2.0';
     }
 
 
@@ -83,6 +82,37 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->setForeignKeys('
                     CONSTRAINT `fk_network_meta_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_network_meta_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,')
+                 ->create();
+
+        })->addUpdate('0.2.0', function () {
+            sql()->getSchemaObject()->getTableObject('network_test_meta')->drop()->define()
+                 ->setColumns('
+                        `id` bigint NOT NULL AUTO_INCREMENT,
+                        `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        `created_by` bigint NULL DEFAULT NULL,
+                        `meta_id` bigint NULL DEFAULT NULL,
+                        `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                        `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                        `network_meta_id` bigint NULL DEFAULT NULL,
+                        `component` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
+                        `key` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
+                        `duration` varchar(32) CHARACTER SET latin1 DEFAULT NULL,
+                        `success` varchar(8) CHARACTER SET latin1 DEFAULT NULL,')
+                 ->setIndices('
+                        PRIMARY KEY (`id`),
+                        KEY `created_on` (`created_on`),
+                        KEY `created_by` (`created_by`),
+                        KEY `status` (`status`),
+                        KEY `meta_id` (`meta_id`),
+                        KEY `network_meta_id` (`network_meta_id`),
+                        KEY `component` (`component`),
+                        KEY `key` (`component`),
+                        KEY `duration` (`component`),
+                        KEY `success` (`success`),')
+                 ->setForeignKeys('
+                        CONSTRAINT `fk_network_test_meta_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                        CONSTRAINT `fk_network_test_meta_network_meta_id` FOREIGN KEY (`network_meta_id`) REFERENCES `network_meta` (`id`) ON DELETE CASCADE,
+                        CONSTRAINT `fk_network_test_meta_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,')
                  ->create();
         });
     }
