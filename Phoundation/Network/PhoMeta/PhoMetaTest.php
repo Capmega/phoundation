@@ -34,11 +34,6 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
 {
     use TraitDataEntryData;
 
-    //TODO: FIX THIS
-    use TraitDataEntrySetCreatedBy;
-    //
-
-
     /**
      * Returns the table name used by this object
      *
@@ -216,34 +211,6 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
         return $this->set($duration, 'duration');
     }
 
-//TODO: FIX THIS!!!
-    /**
-     * Returns the created_on property for this PhoMetaTest object
-     *
-     * @return int|null
-     */
-    public function getCreatedOn(): ?int
-    {
-        return $this->get('created_on');
-    }//TODO: FIX THIS!!!
-
-//TODO: FIX THIS!!!
-    /**
-     * Sets the created_on property for this PhoMetaTest object
-     *
-     * @param int|null $created_on
-     *
-     * @return $this
-     */
-    public function setCreatedOn(?int $created_on): static
-    {
-        if ($created_on == null) {
-            return $this;
-        }
-
-        return $this->set($created_on, 'created_on');
-    }//TODO: FIX THIS!!!
-    
 
     /**
      * Records a test entry into a database, with all info specified in a PhoMetaTest object
