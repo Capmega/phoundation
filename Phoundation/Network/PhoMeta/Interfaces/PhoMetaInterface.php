@@ -121,16 +121,6 @@ interface PhoMetaInterface extends DataEntryInterface
 
 
     /**
-     * Removes the test object with a given component from this PhoMeta object
-     *
-     * @param string $component
-     *
-     * @return static
-     */
-    public function removeTest(string $component): static;
-
-
-    /**
      * Adds an array of data to this PhoMeta object's source
      *
      * @param string $key
@@ -150,27 +140,7 @@ interface PhoMetaInterface extends DataEntryInterface
      *
      * @param string $component
      *
-     * @return PhoMeta
-     */
-    public function processTestObjects(string $component): static;
-
-
-    /**
-     * Checks if there is PhoMetaTest information, and if so, if specified component is the terminal test. Terminal test
-     * refers to the only remaining test that matches the component name, which means this test is meant to end at
-     * the specified component without going any further
-     *
-     * @param string $component
-     *
      * @return bool
      */
-    public function isTerminalTest(string $component): bool;
-
-
-    /**
-     * Returns the count of PhoMetaTest objects in the data array
-     *
-     * @return int
-     */
-    public function getTestCount(): int;
+    public function processTest(string $component): bool;
 }

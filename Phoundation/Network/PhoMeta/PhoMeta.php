@@ -24,6 +24,7 @@ namespace Phoundation\Network\PhoMeta;
 
 use PDOStatement;
 use Phoundation\Core\Core;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
@@ -31,6 +32,7 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryData;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaException;
+use Phoundation\Network\PhoMeta\Exceptions\PhoMetaTestFoundException;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaVersionNotSupportedException;
 use Phoundation\Network\PhoMeta\Exceptions\SourceNotPhoundationMetaException;
 use Phoundation\Network\PhoMeta\Interfaces\PhoMetaInterface;
@@ -143,50 +145,33 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
     public function extractPhoMetaData(string $message): string
     {
         if (PhoMeta::hasPhoMetaHeader($message)) {
-
-            //remove 'PHO\d'
-            $version = substr($message, 3, 1);
-            $message = substr($message, 4);
-
-            try {
-                $json = Json::decode($message);
-
-            } catch (Throwable $e) {
-                throw PhoMetaException::new(tr('Specified message containing PHO metadata is invalid'), $e)
-                                      ->addData(['message' => $message]);
-            }
-
-            foreach (['data', 'meta'] as $part) {
-                if (!array_key_exists($part, $json)) {
-                    throw PhoMetaException::new(tr('Specified message containing PHO metadata contains no ":part" data', [
-                        ':part' => $part
-                    ]))->addData(['message' => $message]);
-                }
-            }
-
             // Message is json and contains 'meta' and 'data'
-            $this->parsePhoMessage($json, $version);
-            $message = $json['data'];
+            $message = $this->parsePhoMessage($message);
 
+        } else {
+            // Set hash based on HL7 message
+            $this->setHash(hash('sha256', $message));
         }
-
-        // Set hash based on HL7 message OR Pho message with first 4 characters removed
-        $this->setHash(hash('sha256', $message));
 
         return $message;
     }
 
 
     /**
-     * Calls an existing 'extraction' method based on pho version
+     * Calls an existing 'extraction' method based on message pho version header, then parses the PhoMeta message and
+     * populates this object source with the meta information
      *
-     * @param array  $source
-     * @param string $version
+     * @param string $message
      *
      * @return static
+     *
+     * @see PhoMeta::parsePhoMessageV1()
      */
-    protected function parsePhoMessage(array $source, string $version): static
+    protected function parsePhoMessage(string $message): string
     {
+        // Remove 4 byte PHO# version header
+        $version = substr($message, 3, 1);
+        $message = substr($message, 4);
         $method  = 'parsePhoMessageV' . $version;
 
         if (!method_exists($this, $method)) {
@@ -195,20 +180,43 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
             ]));
         }
 
-        return $this->$method($source);
+        return $this->$method($message);
     }
 
 
     /**
-     * Populates this PhoMeta's source array with correct details based on message
+     * Parses the specified PhoMeta enabled message and populates this object source with the meta information
      *
-     * @param array $source
+     * Message is required to be a JSON string with array content that contains the sections "meta" and "data"
      *
-     * @return PhoMeta
+     * Returns the "data" section of the message as a string
+     *
+     * @param string $message
+     *
+     * @return string
      */
-    protected function parsePhoMessageV1(array $source): static
+    protected function parsePhoMessageV1(string $message): string
     {
-        return $this->setSource($source['meta']);
+        try {
+            $json = Json::decode($message);
+
+        } catch (Throwable $e) {
+            throw PhoMetaException::new(tr('Specified PhoMeta enabled message could not be JSON decoded and is likely invalid'), $e)
+                                  ->addData(['message' => $message]);
+        }
+
+        foreach (['data', 'meta'] as $part) {
+            if (!array_key_exists($part, $json)) {
+                throw PhoMetaException::new(tr('The specified PhoMeta enabled message is missing the ":part" section', [
+                    ':part' => $part
+                ]))->addData(['message' => $message]);
+            }
+        }
+
+        $this->setSource($json['meta'])
+             ->setHash(hash('sha256', $json['data']));
+
+        return $json['data'];
     }
 
 
@@ -365,32 +373,7 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
      */
     public function addTest(PhoMetaTestInterface $test): static
     {
-        $this->addData('tests', $test->getSource(), true);
-
-        return $this;
-    }
-
-
-    /**
-     * Removes the test object with a given component from this PhoMeta object
-     *
-     * @param string $component
-     *
-     * @return static
-     */
-    public function removeTest(string $component): static
-    {
-        $object_data = $this->getData();
-        $test_data   = [];
-
-        foreach ($object_data['tests'] as $test) {
-            if ($test['component'] !== $component) {
-                $test_data[] = $test;
-            }
-        }
-
-        $object_data['tests'] = $test_data;
-        $this->setData($object_data);
+        $this->addData('test', $test->getSource(true));
 
         return $this;
     }
@@ -452,74 +435,29 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
 
 
     /**
-     * Checks the source for PhoMetaTest info and if it matches a specified component. If it does, it will remove
-     * that PhoMetaTest, and have it record itself in its database. Returns static
+     * Checks the source for PhoMetaTest info and if it matches a specified component.
      *
-     * @param string $component
+     * If it does, it will remove that PhoMetaTest, and record the test result in the required database.
      *
-     * @return PhoMeta
-     */
-    public function processTestObjects(string $component): static
-    {
-        $test_data = isset_get($this->getSource(true)['data']['tests']);
-
-        if ($test_data === null) {
-            return $this;
-        }
-
-        foreach ($test_data as $test) {
-            if (isset_get($test['component']) == $component ) {
-
-                PhoMetaTest::new($test)->recordTest();
-                $this->removeTest($component);
-            }
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Checks if there is PhoMetaTest information, and if so, if specified component is the terminal test. Terminal test
-     * refers to the only remaining test that matches the component name, which means this test is meant to end at
-     * the specified component without going any further
+     * Returns true if a test was found, false otherwise
      *
      * @param string $component
      *
      * @return bool
      */
-    public function isTerminalTest(string $component): bool
+    public function processTest(string $component): bool
     {
-        if ($this->getTestCount() === 0) {
+        $test_data = isset_get($this->getSource(true)['data']['test']);
+
+        if ($test_data === null) {
             return false;
         }
-        $this->processTestObjects($component);
 
-        return (bool) ($this->getTestCount() === 0);
-    }
-
-
-    /**
-     * Returns the count of PhoMetaTest objects in the data array
-     *
-     * @return int
-     */
-    public function getTestCount(): int
-    {
-        $source    = $this->getSource(true);
-        $data      = isset_get($source['data']);
-
-        if (empty($data)) {
-            $data = [];
+        if ($test_data['component'] === $component) {
+            return PhoMetaTest::new($test_data)->saveTest();
         }
 
-        $test_data = isset_get($data['tests']);
-
-        if (!$test_data) {
-            return 0;
-        }
-
-        return count($test_data);
+        return false;
     }
 
 

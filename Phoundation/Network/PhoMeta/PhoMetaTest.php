@@ -16,9 +16,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Network\PhoMeta;
 
-use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\EntryCore;
+use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntryData;
+use Phoundation\Data\DataEntry\Traits\TraitDataEntrySetCreatedBy;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Redis\Redis;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaTestNoDatabaseException;
@@ -27,30 +30,23 @@ use Phoundation\Network\PhoMeta\Interfaces\PhoMetaTestInterface;
 use Phoundation\Utils\Config;
 
 
-class PhoMetaTest extends EntryCore implements PhoMetaTestInterface
+class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
 {
-    /**
-     * PhoMetaTest class constructor
-     *
-     * @param ArrayableInterface|array|null $source
-     */
-    public function __construct(ArrayableInterface|array|null $source = null) {
-        if (!empty($source)) {
-            $this->setSource($source);
-        }
-    }
+    use TraitDataEntryData;
+
+    //TODO: FIX THIS
+    use TraitDataEntrySetCreatedBy;
+    //
 
 
     /**
-     * Returns a new PhoMetaTest object
+     * Returns the table name used by this object
      *
-     * @param ArrayableInterface|array|null $source
-     *
-     * @return PhoMetaTestInterface
+     * @return string|null
      */
-    public static function new(ArrayableInterface|array|null $source = null): PhoMetaTestInterface
+    public static function getTable(): ?string
     {
-        return new static($source);
+        return 'network_test_meta';
     }
 
 
@@ -85,10 +81,6 @@ class PhoMetaTest extends EntryCore implements PhoMetaTestInterface
      */
     public function setComponent(?string $component): static
     {
-        if ($component == null) {
-            return $this;
-        }
-
         return $this->set($component, 'component');
     }
 
@@ -113,10 +105,6 @@ class PhoMetaTest extends EntryCore implements PhoMetaTestInterface
      */
     public function setDatabaseConnector(?string $database_connector): static
     {
-        if ($database_connector == null) {
-            return $this;
-        }
-
         return $this->set($database_connector, 'database_connector');
     }
 
@@ -124,9 +112,9 @@ class PhoMetaTest extends EntryCore implements PhoMetaTestInterface
     /**
      * Returns the database_selector property for this PhoMetaTest object
      *
-     * @return string|int|null
+     * @return int|null
      */
-    public function getDatabaseSelector(): string|int|null
+    public function getDatabaseSelector(): ?int
     {
         return $this->get('database_selector');
     }
@@ -135,45 +123,13 @@ class PhoMetaTest extends EntryCore implements PhoMetaTestInterface
     /**
      * Sets the database_selector property for this PhoMetaTest object
      *
-     * @param string|int|null $database_selector
+     * @param int|null $database_selector
      *
      * @return $this
      */
-    public function setDatabaseSelector(string|int|null $database_selector): static
+    public function setDatabaseSelector(?int $database_selector): static
     {
-        if ($database_selector == null) {
-            return $this;
-        }
-
         return $this->set($database_selector, 'database_selector');
-    }
-
-
-    /**
-     * Returns the action property for this PhoMetaTest object
-     *
-     * @return string|null
-     */
-    public function getAction(): ?string
-    {
-        return $this->get('action');
-    }
-
-
-    /**
-     * Sets the action property for this PhoMetaTest object
-     *
-     * @param string|null $action
-     *
-     * @return $this
-     */
-    public function setAction(?string $action): static
-    {
-        if ($action == null) {
-            return $this;
-        }
-
-        return $this->set($action, 'action');
     }
 
 
@@ -206,12 +162,96 @@ class PhoMetaTest extends EntryCore implements PhoMetaTestInterface
 
 
     /**
-     * Records a test entry into a database, with all info specified in a PhoMetaTest object
+     * Returns the meta_id property for this PhoMetaTest object
      *
-     * @todo Change method name to "saveTest()"
-     * @return static
+     * @return int|null
      */
-    public function recordTest(): static
+    public function getMetaId(): ?int
+    {
+        return $this->get('meta_id');
+    }
+
+
+    /**
+     * Sets the meta_id property for this PhoMetaTest object
+     *
+     * @param int|null $meta_id
+     *
+     * @return $this
+     */
+    public function setMetaId(?int $meta_id): static
+    {
+        if ($meta_id == null) {
+            return $this;
+        }
+
+        return $this->set($meta_id, 'meta_id');
+    }
+
+
+    /**
+     * Returns the duration property for this PhoMetaTest object
+     *
+     * @return float|null
+     */
+    public function getDuration(): ?float
+    {
+        return $this->get('duration');
+    }
+
+
+    /**
+     * Sets the duration property for this PhoMetaTest object
+     *
+     * @param float|null $duration
+     *
+     * @return $this
+     */
+    public function setDuration(?float $duration): static
+    {
+        if ($duration == null) {
+            return $this;
+        }
+
+        return $this->set($duration, 'duration');
+    }
+
+//TODO: FIX THIS!!!
+    /**
+     * Returns the created_on property for this PhoMetaTest object
+     *
+     * @return int|null
+     */
+    public function getCreatedOn(): ?int
+    {
+        return $this->get('created_on');
+    }//TODO: FIX THIS!!!
+
+//TODO: FIX THIS!!!
+    /**
+     * Sets the created_on property for this PhoMetaTest object
+     *
+     * @param int|null $created_on
+     *
+     * @return $this
+     */
+    public function setCreatedOn(?int $created_on): static
+    {
+        if ($created_on == null) {
+            return $this;
+        }
+
+        return $this->set($created_on, 'created_on');
+    }//TODO: FIX THIS!!!
+    
+
+    /**
+     * Records a test entry into a database, with all info specified in a PhoMetaTest object
+     * Returns true if saved successfully
+     *
+     * @return bool
+     */
+    public function saveTest(): bool
     {
         $component          = $this->getComponent();
         $key                = get_null($this->getKey());
@@ -240,6 +280,36 @@ class PhoMetaTest extends EntryCore implements PhoMetaTestInterface
         ]));
 
         Redis::new($o_connector)->set($component, $key)->close();
-        return $this;
+
+        return true;
+    }
+
+
+    /**
+     * Sets the available data keys for this entry
+     *
+     * @param DefinitionsInterface $definitions
+     */
+    protected function setDefinitions(DefinitionsInterface $definitions): void
+    {
+        $definitions->add(DefinitionFactory::newCode($this, 'component')
+                                           ->setMaxlength(32)
+                                           ->setLabel('Component being tested'))
+
+                    ->add(DefinitionFactory::newCode($this, 'database_connector')
+                                           ->setMaxlength(32)
+                                           ->setLabel('Which database connector to use'))
+
+                    ->add(DefinitionFactory::newCode($this, 'database_selector')
+                                           ->setMaxlength(32)
+                                           ->setLabel('Which specific database number to use'))
+
+                    ->add(DefinitionFactory::newCode($this, 'key')
+                                           ->setMaxlength(128)
+                                           ->setLabel('The UUID for this PhoMetaTest'))
+
+                    ->add(DefinitionFactory::newCode($this, 'duration')
+                                           ->setMaxlength(64)
+                                           ->setLabel('The duraction for this PhoMetaTest'));
     }
 }
