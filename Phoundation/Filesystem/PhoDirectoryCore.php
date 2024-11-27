@@ -1205,7 +1205,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
      *
      * @return PhoFilesInterface                                 The resulting directory files
      */
-    public function scan(Stringable|string|null $path, IteratorInterface|array|string $file_patterns = '/.*/', IteratorInterface|array|string $directory_patterns = '/.*/', int $glob_flags = GLOB_MARK): PhoFilesInterface
+    public function scan(Stringable|string|null $path = null, IteratorInterface|array|string $file_patterns = '/.*/', IteratorInterface|array|string $directory_patterns = '/.*/', int $glob_flags = GLOB_MARK): PhoFilesInterface
     {
         $this->restrictions->check($this->source, false);
 
@@ -1217,11 +1217,10 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
             foreach ($result as $path) {
                 if (is_dir($path)) {
                     if ($this->pathMatchesPatterns($path, $directory_patterns)) {
-                        $path          = $this->source . Strings::ensureStartsNotWith($path, '/');
                         $return[$path] = $path;
                     }
+
                 } elseif ($this->pathMatchesPatterns($path, $file_patterns)) {
-                    $path          = $this->source . Strings::ensureStartsNotWith($path, '/');
                     $return[$path] = $path;
                 }
             }
