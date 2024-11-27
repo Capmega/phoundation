@@ -4391,10 +4391,10 @@ class PhoPathCore implements PhoPathInterface
         }
 
         if (is_string($directory)) {
-            return str_starts_with($this->source, $directory);
+            $directory = PhoDirectory::new($directory, PhoRestrictions::newReadonly($directory));
         }
 
-        return str_starts_with($this->source, $directory->getSource());
+        return str_starts_with($this->getRealPath(), $directory->getRealPath());
     }
 
 
