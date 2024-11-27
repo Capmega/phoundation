@@ -707,7 +707,7 @@ class HtmlTable extends ResourceElementCore implements HtmlTableInterface
      */
     protected function doRenderRow(string|float|int|null $row_id, array $row_values, array $params): ?string
     {
-        $this->ensureHeaders($row_values);
+        $this->ensureHeadersAndColumns($row_values);
 
         // ID is the first value in the row
         $row_data = '';
@@ -1214,7 +1214,7 @@ class HtmlTable extends ResourceElementCore implements HtmlTableInterface
      *
      * @return void
      */
-    protected function ensureHeaders(array $source): void
+    protected function ensureHeadersAndColumns(array $source): void
     {
         if (!$this->headers) {
             // Auto set headers from the column names, make sure that headers to look pretty for humans
@@ -1225,6 +1225,9 @@ class HtmlTable extends ResourceElementCore implements HtmlTableInterface
             }
 
             unset($value);
+            $this->setHeaders(new Iterator($source));
+
+        }elseif (!$this->columns) {
             $this->setHeaders(new Iterator($source));
         }
     }
