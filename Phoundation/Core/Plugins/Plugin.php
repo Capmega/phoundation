@@ -153,7 +153,9 @@ class Plugin extends DataEntry implements PluginInterface
             $directory = dirname(Strings::from(dirname(Library::getClassFile($this)) . '/', DIRECTORY_ROOT));
         }
 
-        return new PhoDirectory($directory, PhoRestrictions::newReadonly(DIRECTORY_ROOT . 'Plugins'));
+        $vendor = Strings::until(Strings::from($directory, 'Plugins/'), '/');
+
+        return new PhoDirectory($directory, PhoRestrictions::newReadonly(DIRECTORY_ROOT . 'Plugins/' . $vendor . '/'));
     }
 
 
@@ -586,9 +588,10 @@ class Plugin extends DataEntry implements PluginInterface
                                            ->setReadonly(true)
                                            ->setHelpText(tr('The name of this plugin')))
 
+                    // TODO setInDirectories should have a smaller scope
                     ->add(Definition::new($this, 'directory')
                                     ->setLabel(tr('Directory'))
-                                    ->setInDirectories(new PhoDirectory(DIRECTORY_ROOT . 'Plugins', PhoRestrictions::newReadonly(DIRECTORY_ROOT . 'Plugins')))
+                                    ->setInDirectories(new PhoDirectory('/', PhoRestrictions::newFilesystemRoot()))
                                     ->setInputType(EnumInputType::path)
                                     ->setMaxlength(128)
                                     ->setReadonly(true)
