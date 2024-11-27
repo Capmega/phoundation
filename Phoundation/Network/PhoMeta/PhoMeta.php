@@ -24,7 +24,6 @@ namespace Phoundation\Network\PhoMeta;
 
 use PDOStatement;
 use Phoundation\Core\Core;
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
@@ -32,7 +31,6 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryData;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaException;
-use Phoundation\Network\PhoMeta\Exceptions\PhoMetaTestFoundException;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaVersionNotSupportedException;
 use Phoundation\Network\PhoMeta\Exceptions\SourceNotPhoundationMetaException;
 use Phoundation\Network\PhoMeta\Interfaces\PhoMetaInterface;
@@ -41,11 +39,13 @@ use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Json;
 use Throwable;
-
+use Traversable;
 
 class PhoMeta extends DataEntry implements PhoMetaInterface
 {
-    use TraitDataEntryData;
+    use TraitDataEntryData {
+        setData as protected __setData;
+    }
 
 
     /**
@@ -395,18 +395,39 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
         $object_data = $this->getData() ?? [];
 
         if ($data_is_sub_array) {
-
             $object_data[$key][] = $data;
-        } else {
 
-            $object_data[$key] = empty($object_data[$key])
-                ? $data
-                : $this->mergeData($data, $object_data[$key]);
+        } else {
+            $object_data[$key] = empty($object_data[$key]) ? $data : $this->mergeData($data, $object_data[$key]);
         }
 
-        $this->setData($object_data);
+        return $this->setData($object_data);
+    }
 
-        return $this;
+
+    /**
+     * Sets the Data property
+     *
+     * @param array|string|null $data
+     *
+     * @return $this
+     */
+    public function setData(array|string|null $data): static
+    {
+        if (is_string($data)) {
+            try {
+                $data_array = Json::decode($data);
+
+            } catch (Throwable) {
+                // Data was not Json encoded, set it as array
+                $data_array[] = $data;
+            }
+
+        } else {
+            $data_array = $data;
+        }
+
+        return $this->__setData($data_array);
     }
 
 

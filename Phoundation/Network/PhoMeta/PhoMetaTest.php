@@ -112,9 +112,9 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
     /**
      * Returns the database_selector property for this PhoMetaTest object
      *
-     * @return int|null
+     * @return string|null
      */
-    public function getDatabaseSelector(): ?int
+    public function getDatabaseSelector(): ?string
     {
         return $this->get('database_selector');
     }
@@ -123,13 +123,13 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
     /**
      * Sets the database_selector property for this PhoMetaTest object
      *
-     * @param int|null $database_selector
+     * @param string|int|null $database_selector
      *
      * @return $this
      */
-    public function setDatabaseSelector(?int $database_selector): static
+    public function setDatabaseSelector(string|int|null $database_selector): static
     {
-        return $this->set($database_selector, 'database_selector');
+        return $this->set((string) $database_selector, 'database_selector');
     }
 
 
