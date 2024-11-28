@@ -24,6 +24,7 @@ namespace Phoundation\Network\PhoMeta;
 
 use PDOStatement;
 use Phoundation\Core\Core;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
@@ -31,6 +32,7 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryData;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaException;
+use Phoundation\Network\PhoMeta\Exceptions\PhoMetaInvalidDataException;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaVersionNotSupportedException;
 use Phoundation\Network\PhoMeta\Exceptions\SourceNotPhoundationMetaException;
 use Phoundation\Network\PhoMeta\Interfaces\PhoMetaInterface;
@@ -65,7 +67,7 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
 
 
     /**
-     * Returns a new DataEntry object
+     * Returns a new PhoMeta object
      *
      * @param array|DataEntryInterface|string|int|null $identifier
      * @param bool|null                                $meta_enabled
@@ -121,16 +123,18 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
      */
     public function getSource(bool $filter_meta = false): array
     {
-        $array = parent::getSource(true);
+        $source = parent::getSource($filter_meta);
 
         try {
-            $array['data'] = [Json::decode($array['data'])][0];
-
-        } catch (Throwable) {
-            //Data is not in string form, continue;
+            $data = Json::ensureDecoded($source['data']);
+        } catch (Throwable $e) {
+            Throw PhoMetaInvalidDataException::new(tr('Error decoding this PhoMeta source'))
+                                             ->addData($e);
         }
 
-        return $array;
+        $source['data'] = $data;
+
+        return $source;
     }
 
 
