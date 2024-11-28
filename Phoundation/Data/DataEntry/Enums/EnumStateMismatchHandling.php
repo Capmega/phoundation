@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Enum EnunmStateMismatchHandling
+ * Enum EnumStateMismatchHandling
  *
  *
  *
@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Enums;
 
 
-enum EnunmStateMismatchHandling: string
+enum EnumStateMismatchHandling: string
 {
     case restrict       = 'restrict';
     case allow_override = 'allow_override';
