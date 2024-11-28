@@ -5,7 +5,6 @@ namespace Phoundation\Network\PhoMeta\Interfaces;
 use PDOStatement;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Network\PhoMeta\PhoMeta;
 
 interface PhoMetaInterface extends DataEntryInterface
 {

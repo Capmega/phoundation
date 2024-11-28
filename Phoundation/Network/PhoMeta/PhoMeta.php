@@ -39,7 +39,6 @@ use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Json;
 use Throwable;
-use Traversable;
 
 class PhoMeta extends DataEntry implements PhoMetaInterface
 {
@@ -501,7 +500,7 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
                                            ->setMaxlength(64)
                                            ->setLabel('Message digest'))
 
-                    ->add(DefinitionFactory::newData($this, 'data')
+                    ->add(DefinitionFactory::newData($this)
                                            ->setLabel('Message meta data'))
 
                     ->add(DefinitionFactory::newCode($this, 'phoundation')
