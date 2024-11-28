@@ -791,9 +791,8 @@ class User extends DataEntry implements UserInterface
                 Incident::new()
                         ->setType('Accounts change')
                         ->setSeverity(EnumSeverity::low)
-                        ->setTitle(tr('The user ":user" was modified, see audit ":meta_id" for more information', [
-                            ':user'    => $this->getLogId(),
-                            ':meta_id' => $this->getMetaId(),
+                        ->setTitle(tr('The user ":user" was created', [
+                            ':user' => $this->getLogId(),
                         ]))
                         ->setDetails(['user' => $this->getLogId()])
                         ->setNotifyRoles('accounts')
@@ -803,8 +802,9 @@ class User extends DataEntry implements UserInterface
                 Incident::new()
                         ->setType('Accounts change')
                         ->setSeverity(EnumSeverity::low)
-                        ->setTitle(tr('The user ":user" was created', [
-                            ':user' => $this->getLogId(),
+                        ->setTitle(tr('The user ":user" was modified, see audit ":meta_id" for more information', [
+                            ':user'    => $this->getLogId(),
+                            ':meta_id' => $this->getMetaId(),
                         ]))
                         ->setDetails(['user' => $this->getLogId()])
                         ->setNotifyRoles('accounts')
