@@ -231,7 +231,7 @@ class ServiceCore
      *
      * @return bool
      */
-    public function processIsService(): bool
+    public static function processIsService(): bool
     {
         return posix_getppid() === 1;
     }

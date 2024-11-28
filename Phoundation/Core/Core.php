@@ -65,6 +65,8 @@ use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Os\Processes\Commands\Free;
 use Phoundation\Os\Processes\Commands\Id;
+use Phoundation\Os\Services\Service;
+use Phoundation\Os\Services\SystemD\SystemDService;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
@@ -1399,7 +1401,7 @@ class Core implements CoreInterface
                              ->select('-R,--rebuild-commands')->isOptional(false)->isBoolean()
                              ->select('-M,--timeout', true)->isOptional(false)->isInteger()
                              ->select('-N,--no-audio')->isOptional(false)->isBoolean()
-                             ->select('-S,--sudo')->isOptional(false)->isBoolean()
+                             ->select('-S,--service', true)->isOptional(false)->isVariable()
                              ->select('-T,--test')->isOptional(false)->isBoolean()
                              ->select('-U,--usage')->isOptional(false)->isBoolean()
                              ->select('-V,--verbose')->isOptional(false)->isBoolean()
@@ -1411,6 +1413,7 @@ class Core implements CoreInterface
                              ->select('--deleted')->isOptional(false)->isBoolean()
                              ->select('--version')->isOptional(false)->isBoolean()
                              ->select('--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
+                             ->select('--sudo')->isOptional(false)->isBoolean()
                              ->select('--very-quiet')->isOptional(false)->isBoolean()
                              ->select('--limit', true)->isOptional(0)->isNatural()
                              ->select('--timezone', true)->isOptional()->isString()
@@ -1663,6 +1666,7 @@ class Core implements CoreInterface
         if (Config::get('languages.encoding.charset', 'UTF-8') === 'UTF-8') {
 // TODO Fix this godawful mess!
             mb_init(not_empty(Config::get('locale.LC_CTYPE', ''), Config::get('locale.LC_ALL', '')));
+
             if (function_exists('mb_internal_encoding')) {
                 mb_internal_encoding('UTF-8');
             }
@@ -1670,22 +1674,25 @@ class Core implements CoreInterface
 
         static::setTimeZone($argv['timezone']);
 
+        if ($argv['service']) {
+            // Execute the specified systemd command for the specified command.
+            SystemDService::new()->executeCommand($argv['service']);
+        }
+
         //
         static::$register['ready'] = true;
 
         // Validate parameters and give some startup messages, if needed
         if (Debug::isEnabled()) {
-            if (Debug::isEnabled()) {
-                Log::warning(tr('Running in DEBUG mode, started @ ":datetime"', [
-                    ':datetime' => PhoDate::convert(STARTTIME, 'ISO8601'),
-                ]), 8);
+            Log::warning(tr('Running in DEBUG mode, started @ ":datetime"', [
+                ':datetime' => PhoDate::convert(STARTTIME, 'ISO8601'),
+            ]), 8);
 
-                Log::notice(tr('Detected ":size" terminal with ":columns" columns and ":lines" lines', [
-                    ':size' => static::$register['cli']['size'],
-                    ':columns' => static::$register['cli']['columns'],
-                    ':lines' => static::$register['cli']['lines'],
-                ]));
-            }
+            Log::notice(tr('Detected ":size" terminal with ":columns" columns and ":lines" lines', [
+                ':columns' => static::$register['cli']['columns'],
+                ':lines'   => static::$register['cli']['lines'],
+                ':size'    => static::$register['cli']['size'],
+            ]));
         }
 
         if (FORCE) {

@@ -59,6 +59,7 @@ use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
+use Phoundation\Web\Html\Components\P;
 use RuntimeException;
 use Throwable;
 
@@ -205,6 +206,7 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
 
         // Pass the warning flag along
         if ($previous instanceof PhoExceptionInterface) {
+var_dump($this->getWarning() or $previous->getWarning());            
             $this->setWarning($this->getWarning() or $previous->getWarning());
         }
 
@@ -659,7 +661,16 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
      */
     public function makeWarning(): static
     {
-        return $this->setWarning(true);
+        $this->setWarning(true);
+
+        // Make all previous exceptions warnings too, if possible
+        $e = $this->getPrevious();
+
+        if ($e instanceof PhoExceptionInterface) {
+            $e->makeWarning();
+        }
+
+        return $this;
     }
 
 

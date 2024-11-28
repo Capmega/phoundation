@@ -26,6 +26,7 @@ use Phoundation\Data\Traits\TraitDataDescription;
 use Phoundation\Data\Traits\TraitDataOsUser;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
@@ -33,7 +34,6 @@ use Phoundation\Os\Processes\Commands\SystemCtl;
 use Phoundation\Os\Services\Exception\ServicesException;
 use Phoundation\Os\Services\Service;
 use Phoundation\Utils\Strings;
-
 
 class SystemDService extends Service
 {
@@ -132,6 +132,21 @@ class SystemDService extends Service
 
 
     /**
+     * Ensures
+     *
+     * @return static
+     */
+    public function ensureInstalled(): static
+    {
+        if (!$this->isInstalled()) {
+            return $this->install();
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Generates a systemd system file and ensures its symlinked in /etc/systemd/system/
      *
      * @return static
@@ -152,6 +167,70 @@ class SystemDService extends Service
     {
         $this->getTargetScript()->delete(false);
         return $this;
+    }
+
+
+    /**
+     * Returns true if the current service is installed
+     *
+     * The current service is installed if a systemd system script exists and is symlinked in /etc/systemd/system
+     *
+     * @return bool
+     */
+    public function isInstalled(): bool
+    {
+        return $this->getServiceScript()->exists();
+    }
+
+
+    /**
+     * Returns true if the current service is enabled
+     *
+     * @note This requires the service file to be installed
+     *
+     * @return bool
+     */
+    public function isEnabled(): bool
+    {
+        if ($this->isInstalled()) {
+            return SystemCtl::new($this->getOsProcessName())->getStatusObject()->isEnabled();
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Returns true if the current service is enabled
+     *
+     * @note This requires the service file to be installed
+     *
+     * @return bool
+     */
+    public function isLoaded(): bool
+    {
+        if ($this->isInstalled()) {
+            return SystemCtl::new($this->getOsProcessName())->getStatusObject()->isEnabled();
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Returns true if the current service is enabled
+     *
+     * @note This requires the service file to be installed
+     *
+     * @return bool
+     */
+    public function isActive(): bool
+    {
+        if ($this->isInstalled()) {
+            return SystemCtl::new($this->getOsProcessName())->getStatusObject()->isEnabled();
+        }
+
+        return false;
     }
 
 
@@ -184,19 +263,6 @@ StandardOutput=null #If you do not want to make toms of logs you can set it null
 StandardError=/var/log/myphpdaemon.log
     [Install]
 WantedBy=default.target');
-    }
-
-
-    /**
-     * Returns true if the current service is enabled
-     *
-     * The current service is enabled if a systemd system script exists and is symlinked in /etc/systemd/system
-     *
-     * @return bool
-     */
-    public function isEnabled(): bool
-    {
-        return $this->getServiceScript()->exists();
     }
 
 
@@ -285,6 +351,10 @@ WantedBy=default.target');
     {
         $this->ensureSystemFileInstalled();
 
+        Log::action(tr('Starting service ":service" as a systemd service', [
+            'service' => $this->getOsProcessName()
+        ]));
+
         SystemCtl::new()
                  ->setOsProcessName($this->getOsProcessName())
                  ->start();
@@ -303,8 +373,8 @@ WantedBy=default.target');
         $this->ensureSystemFileInstalled();
 
         SystemCtl::new()
-                  ->setOsProcessName($this->getOsProcessName())
-                  ->restart();
+                 ->setOsProcessName($this->getOsProcessName())
+                 ->restart();
 
         return $this;
     }
@@ -320,8 +390,8 @@ WantedBy=default.target');
         $this->ensureSystemFileInstalled();
 
         SystemCtl::new()
-            ->setOsProcessName($this->getOsProcessName())
-            ->stop();
+                 ->setOsProcessName($this->getOsProcessName())
+                 ->stop();
 
         return $this;
     }
@@ -358,5 +428,39 @@ WantedBy=default.target');
                              ->show());
 
         return $this;
+    }
+
+
+    /**
+     * Executes the specified systemd method
+     *
+     * @param string $command
+     *
+     * @return $this
+     */
+    public function executeCommand(string $command): static
+    {
+        switch ($command) {
+            case 'start':
+                $this->start();
+                break;
+
+            case 'stop':
+                $this->stop();
+                break;
+
+            case 'enable':
+                $this->ensureInstalled();
+                break;
+
+            case 'disable':
+                $this->uninstall();
+                break;
+
+            default:
+                throw new OutOfBoundsException(tr('Unknown systemd service command ":command" specified', [
+                    ':command' => $command
+                ]));
+        }
     }
 }

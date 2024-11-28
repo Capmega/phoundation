@@ -26,6 +26,7 @@ class Service extends ServiceCore implements ServiceInterface
      * Service class constructor
      */
     public function __construct() {
+        parent::__construct();
         $this->setOsProcessName();
     }
 
