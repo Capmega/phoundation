@@ -30,6 +30,7 @@ use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Exception\CoreStartupFailedException;
 use Phoundation\Core\Exception\ProcessRequiresRootException;
 use Phoundation\Core\Exception\ProjectException;
+use Phoundation\Core\Exception\StartupException;
 use Phoundation\Core\Interfaces\CoreInterface;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Libraries\Library;
@@ -44,6 +45,7 @@ use Phoundation\Data\Traits\TraitDataStaticIsExecutedPath;
 use Phoundation\Data\Traits\TraitDataStaticReadonly;
 use Phoundation\Data\Traits\TraitGetInstance;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\Exception\MissingArgumentValueException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -392,7 +394,7 @@ class Core implements CoreInterface
      * This method will start up the core class and with it the entire system
      *
      * @return void
-     * @throws CoreStartupFailedException
+     * @throws StartupException
      */
     public static function startup(): void
     {
@@ -411,7 +413,8 @@ class Core implements CoreInterface
             static::startPlatform();
 
             // Check if we're in readonly mode
-            static::$readonly = (bool)static::getReadonlyMode();
+            static::$readonly = (bool) static::getReadonlyMode();
+
         } catch (Throwable $e) {
             Config::allowNoEnvironment();
             Core::ensureCoreDefines();
@@ -430,7 +433,7 @@ class Core implements CoreInterface
                 }
             }
 
-            throw new CoreStartupFailedException(tr('Core->startup() failed'), $e);
+            throw $e;
         }
     }
 
@@ -551,6 +554,7 @@ class Core implements CoreInterface
             }
 
             static::$state = 'startup';
+
         } catch (ConfigFileDoesNotExistsException $e) {
             throw new EnvironmentNotExistsException(tr('Failed to start platform ":platform", the configured or requested environment ":environment" does not exist', [
                 ':environment' => ENVIRONMENT,
@@ -563,9 +567,7 @@ class Core implements CoreInterface
             ]), $e);
 
         } catch (Throwable $e) {
-            throw new EnvironmentNotExistsException(tr('Failed to start platform ":platform"', [
-                ':platform' => PLATFORM
-            ]), $e);
+            throw new StartupException(tr('Failed to start because: :e', [':e' => $e->getMessage()]), $e);
         }
     }
 
@@ -1382,46 +1384,54 @@ class Core implements CoreInterface
         // we'll need the $argv as-is
         global $argv;
 
-        // Validate system modifier arguments. Ensure that these variables get stored in the global $argv array because
-        // they may be used later down the line by (for example) Documenation class, for example!
-        $argv = ArgvValidator::new()
-                             ->select('-A,--all')->isOptional(false)->isBoolean()
-                             ->select('-C,--no-color')->isOptional(false)->isBoolean()
-                             ->select('-D,--debug')->isOptional(false)->isBoolean()
-                             ->select('-E,--environment', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(64)
-                             ->select('-F,--force')->isOptional(false)->isBoolean()
-                             ->select('-G,--prefix')->isOptional(false)->isBoolean()
-                             ->select('-H,--help')->isOptional(false)->isBoolean()
-                             ->select('-I,--json-input', true)->isOptional()->hasMaxCharacters(8192)
-                             ->select('-J,--json-output')->isOptional()->isBoolean()
-                             ->select('-L,--log-level', true)->isOptional()->isInteger()->isBetween(1, 10)
-                             ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
-                             ->select('-P,--page', true)->isOptional(1)->isNatural(false)
-                             ->select('-Q,--quiet')->isOptional(false)->isBoolean()
-                             ->select('-R,--rebuild-commands')->isOptional(false)->isBoolean()
-                             ->select('-M,--timeout', true)->isOptional(false)->isInteger()
-                             ->select('-N,--no-audio')->isOptional(false)->isBoolean()
-                             ->select('-S,--service', true)->isOptional(false)->isVariable()
-                             ->select('-T,--test')->isOptional(false)->isBoolean()
-                             ->select('-U,--usage')->isOptional(false)->isBoolean()
-                             ->select('-V,--verbose')->isOptional(false)->isBoolean()
-                             ->select('-W,--no-warnings')->isOptional(false)->isBoolean()
-                             ->select('-X,--ignore-readonly')->isOptional(false)->isBoolean()
-                             ->select('-Y,--clear-tmp')->isOptional(false)->isBoolean()
-                             ->select('-Z,--clear-caches')->isOptional(false)->isBoolean()
-                             ->select('--language', true)->isOptional()->isCode()
-                             ->select('--deleted')->isOptional(false)->isBoolean()
-                             ->select('--version')->isOptional(false)->isBoolean()
-                             ->select('--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
-                             ->select('--sudo')->isOptional(false)->isBoolean()
-                             ->select('--very-quiet')->isOptional(false)->isBoolean()
-                             ->select('--limit', true)->isOptional(0)->isNatural()
-                             ->select('--timezone', true)->isOptional()->isString()
-                             ->select('--auto-complete', true)->isOptional()->hasMaxCharacters(1024)
-                             ->select('--show-passwords')->isOptional(false)->isBoolean()
-                             ->select('--no-validation')->isOptional(false)->isBoolean()
-                             ->select('--no-password-validation')->isOptional(false)->isBoolean()
-                             ->validate(false);
+        try {
+            // Validate system modifier arguments. Ensure that these variables get stored in the global $argv array because
+            // they may be used later down the line by (for example) Documenation class, for example!
+            $argv = ArgvValidator::new()
+                                 ->select('-A,--all')->isOptional(false)->isBoolean()
+                                 ->select('-C,--no-color')->isOptional(false)->isBoolean()
+                                 ->select('-D,--debug')->isOptional(false)->isBoolean()
+                                 ->select('-E,--environment', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(64)
+                                 ->select('-F,--force')->isOptional(false)->isBoolean()
+                                 ->select('-G,--prefix')->isOptional(false)->isBoolean()
+                                 ->select('-H,--help')->isOptional(false)->isBoolean()
+                                 ->select('-I,--json-input', true)->isOptional()->hasMaxCharacters(8192)
+                                 ->select('-J,--json-output')->isOptional()->isBoolean()
+                                 ->select('-L,--log-level', true)->isOptional()->isInteger()->isBetween(1, 10)
+                                 ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
+                                 ->select('-P,--page', true)->isOptional(1)->isNatural(false)
+                                 ->select('-Q,--quiet')->isOptional(false)->isBoolean()
+                                 ->select('-R,--rebuild-commands')->isOptional(false)->isBoolean()
+                                 ->select('-M,--timeout', true)->isOptional(false)->isInteger()
+                                 ->select('-N,--no-audio')->isOptional(false)->isBoolean()
+                                 ->select('-S,--service', true)->isOptional(false)->isVariable()
+                                 ->select('-T,--test')->isOptional(false)->isBoolean()
+                                 ->select('-U,--usage')->isOptional(false)->isBoolean()
+                                 ->select('-V,--verbose')->isOptional(false)->isBoolean()
+                                 ->select('-W,--no-warnings')->isOptional(false)->isBoolean()
+                                 ->select('-X,--ignore-readonly')->isOptional(false)->isBoolean()
+                                 ->select('-Y,--clear-tmp')->isOptional(false)->isBoolean()
+                                 ->select('-Z,--clear-caches')->isOptional(false)->isBoolean()
+                                 ->select('--language', true)->isOptional()->isCode()
+                                 ->select('--deleted')->isOptional(false)->isBoolean()
+                                 ->select('--version')->isOptional(false)->isBoolean()
+                                 ->select('--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
+                                 ->select('--sudo')->isOptional(false)->isBoolean()
+                                 ->select('--very-quiet')->isOptional(false)->isBoolean()
+                                 ->select('--limit', true)->isOptional(0)->isNatural()
+                                 ->select('--timezone', true)->isOptional()->isString()
+                                 ->select('--auto-complete', true)->isOptional()->hasMaxCharacters(1024)
+                                 ->select('--show-passwords')->isOptional(false)->isBoolean()
+                                 ->select('--no-validation')->isOptional(false)->isBoolean()
+                                 ->select('--no-password-validation')->isOptional(false)->isBoolean()
+                                 ->validate(false);
+
+        } catch (MissingArgumentValueException $e) {
+            throw MissingArgumentValueException::new(tr('System argument ":value" does not have a required value specified, see "./pho --help" or "./pho --usage" for more information', [
+                ':value' => $e->getDataKey('value'),
+            ]), $e)->makeWarning();
+        }
+
 
 //        $argv = [
 //            'all'                    => false,
@@ -1527,6 +1537,16 @@ class Core implements CoreInterface
         // Set more system parameters
         if ($argv['debug']) {
             Debug::switch();
+        }
+
+        if ($argv['service']) {
+            try {
+                // Execute the specified systemd command for the specified command.
+                SystemDService::new()->executeCommand($argv['service']);
+
+            } catch (OutOfBoundsException $e) {
+                throw $e->makeWarning();
+            }
         }
 
         if (!CliCommand::getPhoUidMatch()) {
@@ -1673,11 +1693,6 @@ class Core implements CoreInterface
         }
 
         static::setTimeZone($argv['timezone']);
-
-        if ($argv['service']) {
-            // Execute the specified systemd command for the specified command.
-            SystemDService::new()->executeCommand($argv['service']);
-        }
 
         //
         static::$register['ready'] = true;
@@ -2929,9 +2944,11 @@ class Core implements CoreInterface
     {
         // This class requires running with root privileges
         if (!Core::processIsRoot()) {
-            throw new ProcessRequiresRootException(tr('The SystemDService class requires root privileges to execute correctly.'));
+            throw ProcessRequiresRootException::new(tr('The SystemDService class requires root privileges to execute correctly.'))
+                                              ->setWarning(Core::inBootState());
         }
     }
+
 
     /**
      * Returns the UID for the current process
@@ -3191,7 +3208,7 @@ class Core implements CoreInterface
                     }
 
                 } else {
-                    Log::error('Not attempting to play exception audio, environment has not yet been defined');
+                    Log::warning('Not attempting to play exception audio, environment has not yet been defined');
                 }
 
             } catch (Throwable $f) {

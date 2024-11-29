@@ -23,6 +23,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataStaticArrayBackup;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
+use Phoundation\Data\Validator\Exception\MissingArgumentValueException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ArgvValidatorInterface;
@@ -64,6 +65,22 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      * @var bool $test
      */
     protected bool $test = false;
+
+
+    /**
+     * Validator constructor.
+     *
+     * @note This class will purge the $_REQUEST array as this array contains a mix of $_GET and $_POST variables which
+     *       should never be used
+     *
+     * @note Keys that do not exist in $data that are validated will automatically be created
+     * @note Keys in $data that are not validated will automatically be removed
+     */
+    public function __construct()
+    {
+        // ArgValidator does NOT pass $argv to the parent, the $argv values are manually copied to the object source.
+        $this->construct();
+    }
 
 
     /**
@@ -705,10 +722,13 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             try {
                 // Return next argument, if available
                 $value = Arrays::nextValue(static::$argv, $arguments, !$test);
-this should cause a warning on cli!!
+
             } catch (OutOfBoundsException $e) {
                 // This argument requires another parameter. Make it a CliArgumentsException
-                throw CliArgumentsException::new($e)->makeWarning();
+                // The current value was found, but it was at the end of the array
+                throw MissingArgumentValueException::new(tr('Argument ":value" does not have a required value specified, see --help or --usage', [
+                    ':value' => $arguments,
+                ]), $e)->addData($e->getData());
             }
 
             if (str_starts_with((string) $value, '-')) {
