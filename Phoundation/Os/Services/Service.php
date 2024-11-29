@@ -23,15 +23,6 @@ use Phoundation\Os\Services\Interfaces\ServiceInterface;
 class Service extends ServiceCore implements ServiceInterface
 {
     /**
-     * Service class constructor
-     */
-    public function __construct() {
-        parent::__construct();
-        $this->setOsProcessName();
-    }
-
-
-    /**
      * Returns a new Service class object
      *
      * @return static
