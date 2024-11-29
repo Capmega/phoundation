@@ -206,7 +206,6 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
 
         // Pass the warning flag along
         if ($previous instanceof PhoExceptionInterface) {
-var_dump($this->getWarning() or $previous->getWarning());            
             $this->setWarning($this->getWarning() or $previous->getWarning());
         }
 
@@ -712,7 +711,7 @@ var_dump($this->getWarning() or $previous->getWarning());
             $warning = false;
         }
 
-        if (Core::inBootState() or !Config::getBoolean('debug.exceptions.warnings', true)) {
+        if (!Core::inBootState() and !Config::getBoolean('debug.exceptions.warnings', true)) {
             // No warnings allowed from the configuration
             $warning = false;
         }
