@@ -2,9 +2,7 @@
 
 namespace Phoundation\Network\PhoMeta\Interfaces;
 
-use PDOStatement;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\Interfaces\IteratorInterface;
 
 interface PhoMetaInterface extends DataEntryInterface
 {
@@ -24,89 +22,42 @@ interface PhoMetaInterface extends DataEntryInterface
      * @return static
      */
     public function extractPhoMetaData(string $message): string;
-
-
-    /**
-     * Loads the specified data into this PhoMeta object
-     *
-     * @param IteratorInterface|array|string|PDOStatement|null $source
-     * @param array|null                                       $execute
-     *
-     * @return $this
-     */
-    public function setSource(IteratorInterface|array|string|PDOStatement|null $source = null, ?array $execute = null): static;
-
+    
 
     /**
      * Returns the hash for this object
      *
-     * @return string|int|null
+     * @return string|null
      */
-    public function getHash(): string|int|null;
+    public function getHash(): ?string;
 
 
     /**
      * Sets the hash for this object
      *
-     * @param string|int|null $hash
+     * @param string|null $hash
      *
      * @return static
      */
-    public function setHash(string|int|null $hash): static;
-
-
-    /**
-     * Returns the phoundation key for this object
-     *
-     * @return string|int|null
-     */
-    public function getPhoundation(): string|int|null;
-
-
-    /**
-     * Sets the phoundation key for this object
-     *
-     * @param string|int|null $value
-     *
-     * @return static
-     */
-    public function setPhoundation(string|int|null $value): static;
-
-
-    /**
-     * Returns the local_id for this object
-     *
-     * @return string|int|null
-     */
-    public function getLocalId(): string|int|null;
-
-
-    /**
-     * Sets the local_id for this object
-     *
-     * @param string|int|null $local_id
-     *
-     * @return static
-     */
-    public function setLocalId(string|int|null $local_id): static;
+    public function setHash(string|null $hash): static;
 
 
     /**
      * Returns the global_id for this object
      *
-     * @return string|int|null
+     * @return string|null
      */
-    public function getGlobalId(): string|int|null;
+    public function getGlobalId(): ?string;
 
 
     /**
      * Sets the global_id for this object
      *
-     * @param string|int|null $global_id
+     * @param string|null $global_id
      *
      * @return static
      */
-    public function setGlobalId(string|int|null $global_id): static;
+    public function setGlobalId(string|null $global_id): static;
 
 
     /**
