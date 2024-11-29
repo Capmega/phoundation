@@ -127,6 +127,7 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
 
         try {
             $data = Json::ensureDecoded($source['data']);
+
         } catch (Throwable $e) {
             Throw PhoMetaInvalidDataException::new(tr('Error decoding this PhoMeta source'))
                                              ->addData($e);
