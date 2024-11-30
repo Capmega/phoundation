@@ -30,4 +30,18 @@ class UnderConstructionException extends PhoException
         $this->makeWarning();
         parent::__construct($messages, $previous);
     }
+
+
+    /**
+     * Returns a new exception object
+     *
+     * @param Throwable|array|string|null $messages
+     * @param Throwable|null              $previous
+     *
+     * @return static
+     */
+    public static function new(Throwable|array|string|null $messages = null, ?Throwable $previous = null): static
+    {
+        return new static($messages, $previous);
+    }
 }
