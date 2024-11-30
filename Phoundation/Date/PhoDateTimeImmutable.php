@@ -20,6 +20,7 @@ use DateTimeInterface;
 use DateTimeZone;
 use Exception;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Stringable;
 
@@ -192,5 +193,55 @@ class PhoDateTimeImmutable extends \DateTimeImmutable implements Stringable, Int
     {
         throw UnderConstructionException::new(tr('This method is under construction'));
         // TODO: Implement decreaseDay() method.
+    }
+
+
+    /**
+     * Returns a new DateTime object for tomorrow
+     *
+     * @param int $days
+     *
+     * @return static
+     */
+    public function increaseDays(int $days): static
+    {
+        throw UnderConstructionException::new();
+        if ($days <= 0) {
+            if ($days < 0) {
+                throw new OutOfBoundsException(tr('Invalid days value ":days" specified, must be 1 or higher', [
+                    ':days' => $days,
+                ]));
+            }
+
+            return $this;
+        }
+
+        $this->modify('+' . $days . ' day');
+        return $this;
+    }
+
+
+    /**
+     * Returns a new DateTime object for tomorrow
+     *
+     * @param int $days
+     *
+     * @return static
+     */
+    public function decreaseDays(int $days): static
+    {
+        throw UnderConstructionException::new();
+        if ($days <= 0) {
+            if ($days < 0) {
+                throw new OutOfBoundsException(tr('Invalid days value ":days" specified, must be 1 or higher', [
+                    ':days' => $days,
+                ]));
+            }
+
+            return $this;
+        }
+
+        $this->modify('-' . $days . ' day');
+        return $this;
     }
 }
