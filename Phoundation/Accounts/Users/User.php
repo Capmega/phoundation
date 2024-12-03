@@ -474,7 +474,7 @@ class User extends DataEntry implements UserInterface
                             'account' => $hook->getArgument('identifier'),
                             'hook'    => $hook->__toArray()
                         ])
-                        ->setNotifyRoles('accounts')
+                        ->setNotifyRoles('security')
                         ->save()
                         ->throw(OutOfBoundsException::class);
             }
@@ -508,7 +508,7 @@ class User extends DataEntry implements UserInterface
                         ':status' => $user->getStatus(),
                     ]))
                     ->setDetails(['user' => $user->getLogId()])
-                    ->setNotifyRoles('accounts')
+                    ->setNotifyRoles('security')
                     ->save()
                     ->throw(AuthenticationException::class);
         }
@@ -583,7 +583,7 @@ class User extends DataEntry implements UserInterface
                         ':user'   => Json::encode($identifier, JSON_OBJECT_AS_ARRAY),
                     ]))
                     ->setDetails(['user' => $identifier])
-                    ->setNotifyRoles('accounts')
+                    ->setNotifyRoles('security')
                     ->save()
                     ->throw(AuthenticationException::class);
         }
@@ -616,7 +616,7 @@ class User extends DataEntry implements UserInterface
                     ':user'   => $user->getLogId(),
                 ]))
                 ->setDetails(['user' => $user->getLogId()])
-                ->setNotifyRoles('accounts')
+                ->setNotifyRoles('security')
                 ->save()
                 ->throw(AuthenticationException::class);
     }
@@ -657,7 +657,7 @@ class User extends DataEntry implements UserInterface
                                 'user'   => $user,
                                 'domain' => $domain,
                             ])
-                            ->setNotifyRoles('accounts')
+                            ->setNotifyRoles('security')
                             ->save();
                 }
 
@@ -724,7 +724,7 @@ class User extends DataEntry implements UserInterface
                             ':user'   => Session::getUserObject()
                                                 ->getSource(),
                         ])
-                        ->setNotifyRoles('accounts')
+                        ->setNotifyRoles('security')
                         ->save()
                         ->throw();
             }
@@ -795,7 +795,7 @@ class User extends DataEntry implements UserInterface
                             ':user' => $this->getLogId(),
                         ]))
                         ->setDetails(['user' => $this->getLogId()])
-                        ->setNotifyRoles('accounts')
+                        ->setNotifyRoles('security')
                         ->save();
 
             } else {
@@ -807,7 +807,7 @@ class User extends DataEntry implements UserInterface
                             ':meta_id' => $this->getMetaId(),
                         ]))
                         ->setDetails(['user' => $this->getLogId()])
-                        ->setNotifyRoles('accounts')
+                        ->setNotifyRoles('security')
                         ->save();
             }
         }
