@@ -303,8 +303,8 @@ class CliCommand
 
         if (Core::getMaintenanceMode()) {
             // We're running in maintenance mode, limit command execution to system/
-            $return['limit']  = ['system/', 'info'];
-            $return['reason'] = tr('system has been placed in maintenance mode by user ":user" and only ./pho system ... commands are available right now. If maintenance mode is stuck then please run "./pho system maintenance disable" to disable maintenance mode. Please note that all web requests are being blocked as well during maintenance mode!', [
+            $return['limit']  = ['system/', 'project/', 'info'];
+            $return['reason'] = tr('system has been placed in maintenance mode by user ":user" and only "./pho system ..." or "./pho project ..." commands are available right now. If maintenance mode is stuck then please run "./pho project modes maintenance disable" to disable maintenance mode. Please note that all web requests are being blocked as well during maintenance mode!', [
                 ':user' => Core::getMaintenanceMode(),
             ]);
         }
@@ -1113,7 +1113,7 @@ class CliCommand
 ./pho accounts users create --help
 ./pho system update -H
 ./pho dev patch -H
-./pho system maintenance disable
+./pho project modes maintenance disable
 ./pho <TAB>
 ./pho sy<TAB>
 ./pho system <TAB>', false);

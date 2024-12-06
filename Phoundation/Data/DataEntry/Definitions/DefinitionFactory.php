@@ -1572,6 +1572,28 @@ class DefinitionFactory
 
 
     /**
+     * Returns a Definition object for column body
+     *
+     * @param DataEntryInterface|null $data_entry
+     * @param string|null             $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newBody(?DataEntryInterface $data_entry, ?string $column = 'body'): DefinitionInterface
+    {
+        return Definition::new($data_entry, $column)
+                         ->setOptional(true)
+                         ->setInputType(EnumInputType::description)
+                         ->setSize(12)
+                         ->setRows(5)
+                         ->setMaxlength(16_777_215)
+                         ->setCliColumn('-b,--body "BODY"')
+                         ->setCliAutoComplete(true)
+                         ->setLabel(tr('Body'));
+    }
+
+
+    /**
      * Returns a Definition object for column content
      *
      * @param DataEntryInterface|null $data_entry

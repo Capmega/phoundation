@@ -87,7 +87,7 @@ USEFUL COMMANDS:
                                         after you installed Phoundation) which allows you to setup an initial
                                         configuration and initializes your database
 
-./pho system maintenance disable        Disables maintenance mode manually. This may be needed if some command that
+./pho project modes maintenance disable Disables maintenance mode manually. This may be needed if some command that
                                         placed the system in maintenance mode crashed, leaving the system unusable
 
 ./pho system maintenance enable         Enables maintenance mode manually.

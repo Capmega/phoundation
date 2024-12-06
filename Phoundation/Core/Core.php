@@ -2156,7 +2156,7 @@ class Core implements CoreInterface
      *
      * @note This mode is global, and will immediately block all future web requests and block all future commands with
      * the exception of commands under ./pho system. Maintenance mode will remain enabled until disabled either by this
-     * call or manually with ./pho system maintenance disable
+     * call or manually with ./pho project modes maintenance disable
      *
      * @param bool $enable
      *
