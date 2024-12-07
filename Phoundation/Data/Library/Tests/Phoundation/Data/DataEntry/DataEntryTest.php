@@ -21,6 +21,7 @@ namespace Phoundation\Data\Library\Tests\Phoundation\Data\DataEntry;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Exception\DataEntryException;
 use Phoundation\Data\DataEntry\Tests\TestDataEntry;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Numbers;
 use PHPUnit\Framework\TestCase;
 use Throwable;
@@ -136,7 +137,7 @@ class DataEntryTest extends TestCase
     {
         $entry = TestDataEntry::new();
 
-        $test_value = 'test-value';
+        $test_value = 'test-set-value';
 
         // Test setting to invalid column
         try {
@@ -163,8 +164,30 @@ class DataEntryTest extends TestCase
      */
     public function testGet()
     {
-        // TODO
         $entry = TestDataEntry::new();
+
+        // Successful get
+        $test_value = 'test-get-value';
+        $test_key   = 'test_column';
+        $entry->set($test_value, $test_key);
+
+        $value = $entry->get($test_key);
+        $this->assertEquals($test_value, $value, '`get()` should return the specified value');
+
+        // Return null if no value set
+        $entry->clear();
+        $value = $entry->get($test_key, false);
+        $this->assertNull($value, '`get()` should return the specified value');
+
+        // Failure without exception
+        $entry->clear();
+        $test_key_invalid = 'test-get-value-invalid';
+        $value = $entry->get($test_key_invalid, false);
+        $this->assertNull($value, '`get()` should return the specified value');
+
+        // Failure with exception
+        $this->expectException(OutOfBoundsException::class, '`get()` should return the specified value');
+        $value = $entry->get($test_key_invalid, exception: true);
     }
 
 
