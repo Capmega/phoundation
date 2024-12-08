@@ -229,11 +229,11 @@ class Connector extends DataEntry implements ConnectorInterface
     /**
      * Returns the name for this user that can be displayed
      *
-     * @return string
+     * @return string|null
      */
-    function getDisplayName(): string
+    public function getDisplayName(): ?string
     {
-        return $this->getLogId();
+        return $this->formatDisplayVariables($this->getLogId());
     }
 
 
