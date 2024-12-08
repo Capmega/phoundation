@@ -124,9 +124,9 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
             ]));
         }
 
-        if ($this->getFile()) {
+        if ($this->getFileObject()) {
             // This profile image object can ony be the default if it has a file
-            return $this->getUserObject()->getProfileImageObject() === $this->getFile();
+            return $this->getUserObject()->getProfileImageObject() === $this->getFileObject();
         }
 
         return false;
@@ -147,7 +147,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
         }
 
         Log::action(tr('Setting image ":file" as default profile image for user ":user"', [
-            ':file' => $this->getFile()->getRootname(),
+            ':file' => $this->getFileObject()->getRootname(),
             ':user' => $this->getUserObject()->getLogId()
         ]));
 
@@ -163,7 +163,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
      */
     public function getImageFileObject(): ImageFileInterface
     {
-        return new ImageFile($this->getFile());
+        return new ImageFile($this->getFileObject());
     }
 
 
@@ -187,7 +187,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
      */
     public function getHtmlImgObject(): ImgInterface
     {
-        return Img::new($this->getFile()->getSource())->setAlt($this->getDescription());
+        return Img::new($this->getFileObject()->getSource())->setAlt($this->getDescription());
     }
 
 
@@ -251,7 +251,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
      */
     protected function ___setUsersId(UserInterface|int|null $user): static
     {
-        $file = $this->getFile();
+        $file = $this->getFileObject();
 
         if ($file) {
             // This profile image object has a file set, process it
@@ -267,7 +267,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                                              ->ensure();
 
                 Log::action(tr('Adding image ":file" to profile images for user ":user"', [
-                    ':file' => $this->getFile()->getRootname(),
+                    ':file' => $this->getFileObject()->getRootname(),
                     ':user' => $user->getLogId()
                 ]), 4);
 

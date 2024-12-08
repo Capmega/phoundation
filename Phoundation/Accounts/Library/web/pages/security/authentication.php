@@ -115,12 +115,12 @@ $url = Url::new('/security/authentications.html')->makeWww()->addQueries(
 )->getSource();
 
 Response::setHeaderTitle(tr('Authentication details'));
-Response::setHeaderSubTitle($authentication->getId());
+Response::setHeaderSubTitle($authentication->getDisplayId());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'              => tr('Home'),
     '/security.html' => tr('Security'),
     $url             => tr('Authentications management'),
-    ''               => $authentication->getId(),
+    ''               => $authentication->getDisplayId(),
 ]));
 
 

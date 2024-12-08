@@ -474,7 +474,7 @@ class User extends DataEntry implements UserInterface
                             'account' => $hook->getArgument('identifier'),
                             'hook'    => $hook->__toArray()
                         ])
-                        ->setNotifyRoles('security')
+                        ->setNotifyRoles('accounts')
                         ->save()
                         ->throw(OutOfBoundsException::class);
             }
@@ -508,7 +508,7 @@ class User extends DataEntry implements UserInterface
                         ':status' => $user->getStatus(),
                     ]))
                     ->setDetails(['user' => $user->getLogId()])
-                    ->setNotifyRoles('security')
+                    ->setNotifyRoles('accounts')
                     ->save()
                     ->throw(AuthenticationException::class);
         }
@@ -583,7 +583,7 @@ class User extends DataEntry implements UserInterface
                         ':user'   => Json::encode($identifier, JSON_OBJECT_AS_ARRAY),
                     ]))
                     ->setDetails(['user' => $identifier])
-                    ->setNotifyRoles('security')
+                    ->setNotifyRoles('accounts')
                     ->save()
                     ->throw(AuthenticationException::class);
         }
@@ -616,7 +616,7 @@ class User extends DataEntry implements UserInterface
                     ':user'   => $user->getLogId(),
                 ]))
                 ->setDetails(['user' => $user->getLogId()])
-                ->setNotifyRoles('security')
+                ->setNotifyRoles('accounts')
                 ->save()
                 ->throw(AuthenticationException::class);
     }
@@ -657,7 +657,7 @@ class User extends DataEntry implements UserInterface
                                 'user'   => $user,
                                 'domain' => $domain,
                             ])
-                            ->setNotifyRoles('security')
+                            ->setNotifyRoles('accounts')
                             ->save();
                 }
 
@@ -724,7 +724,7 @@ class User extends DataEntry implements UserInterface
                             ':user'   => Session::getUserObject()
                                                 ->getSource(),
                         ])
-                        ->setNotifyRoles('security')
+                        ->setNotifyRoles('accounts')
                         ->save()
                         ->throw();
             }
@@ -791,23 +791,23 @@ class User extends DataEntry implements UserInterface
                 Incident::new()
                         ->setType('Accounts change')
                         ->setSeverity(EnumSeverity::low)
-                        ->setTitle(tr('The user ":user" was created', [
-                            ':user' => $this->getLogId(),
+                        ->setTitle(tr('The user ":user" was modified, see audit ":meta_id" for more information', [
+                            ':user'    => $this->getLogId(),
+                            ':meta_id' => $this->getMetaId(),
                         ]))
                         ->setDetails(['user' => $this->getLogId()])
-                        ->setNotifyRoles('security')
+                        ->setNotifyRoles('accounts')
                         ->save();
 
             } else {
                 Incident::new()
                         ->setType('Accounts change')
                         ->setSeverity(EnumSeverity::low)
-                        ->setTitle(tr('The user ":user" was modified, see audit ":meta_id" for more information', [
-                            ':user'    => $this->getLogId(),
-                            ':meta_id' => $this->getMetaId(),
+                        ->setTitle(tr('The user ":user" was created', [
+                            ':user' => $this->getLogId(),
                         ]))
                         ->setDetails(['user' => $this->getLogId()])
-                        ->setNotifyRoles('security')
+                        ->setNotifyRoles('accounts')
                         ->save();
             }
         }
@@ -870,9 +870,9 @@ class User extends DataEntry implements UserInterface
      * @param bool $official
      * @param bool $clean
      *
-     * @return string
+     * @return string|null
      */
-    public function getDisplayName(bool $official = false, bool $clean = false): string
+    public function getDisplayName(bool $official = false, bool $clean = false): ?string
     {
         if ($clean) {
             $postfix = null;
@@ -2009,9 +2009,9 @@ class User extends DataEntry implements UserInterface
     /**
      * Returns the name with an id for a user
      *
-     * @return string
+     * @return string|null
      */
-    function getDisplayId(): string
+    function getDisplayId(): ?string
     {
         return $this->getTypesafe('int', 'id') . ' / ' . $this->getDisplayName();
     }
