@@ -380,6 +380,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         $this->loadFromDatabase($this->identifier);
 
         if ($this->isNew()) {
+            // So this entry does not exist in the database (or, SQL table doesn't exist either).
+            // Does it perhaps have configuration load support and exist in configuration?
+            if ($this->tryLoadFromConfiguration($this->identifier)) {
+                // Yay, found it in configuration!
+                return;
+            }
+
             if ($identifier_must_exist) {
                 // Throw the DataEntry does not exist exception
                 throw DataEntryNotExistsException::new(tr('Cannot load ":class" class object, entry with identifiers ":identifiers" does not exist', [
@@ -744,6 +751,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
 
     /**
+     * Returns a database id that can be displayed for users
+     *
+     * @return string|null
+     */
+    public function getDisplayId(): ?string
+    {
+        return $this->formatDisplayVariables($this->getId());
+    }
+
+
+    /**
      * Returns the unique identifier for this database entry, which will be the ID column if it does not have any
      *
      * @return string|float|int|null
@@ -1060,17 +1078,31 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     /**
      * Returns the name for this user that can be displayed
      *
-     * @return string
+     * @return string|null
      */
-    public function getDisplayName(): string
+    public function getDisplayName(): ?string
     {
-        $postfix = null;
+        return $this->formatDisplayVariables($this->getTypesafe('string', static::getUniqueColumn() ?? 'id'));
+    }
 
-        if ($this->getStatus() === 'deleted') {
-            $postfix = ' ' . tr('[DELETED]');
+
+    /**
+     * Ensures the display name is correct
+     *
+     * @param string|null $real_name
+     * @return string|null
+     */
+    protected function formatDisplayVariables(?string $real_name): ?string
+    {
+        if ($this->isNew()) {
+            return tr('New');
         }
 
-        return $this->getTypesafe('string', static::getUniqueColumn() ?? 'id') . $postfix;
+        if ($this->getStatus() === 'deleted') {
+            return $real_name . ' ' . tr('[DELETED]');
+        }
+
+        return $real_name;
     }
 
 
@@ -1239,13 +1271,18 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     protected function tryLoadFromConfiguration(array|string|int $identifier): bool
     {
-        $path   = $this->getConfigurationPath();
-        $column = static::determineColumn($identifier);
+        $path = $this->getConfigurationPath();
 
         // Can only load from configuration if the configuration path is available
         if ($path) {
-            // Can only load from configuration using unique column, or NULL column
-            if (($column === null) or ($column === static::getUniqueColumn())) {
+            $column = static::determineColumn($identifier);
+
+            if (is_array($identifier)) {
+                $identifier = $identifier[$column];
+            }
+
+            // Can only load from configuration using unique column, or id column or NULL column (means id column too)
+            if (($column === null) or ($column === static::getUniqueColumn()) or ($column === static::getIdColumn())) {
                 if (!static::idColumnIs('id')) {
                     throw new DataEntryException(tr('Cannot use configuration paths for DataEntry object ":class" that uses id column ":column" instead of "id"', [
                         ':class'  => static::class,

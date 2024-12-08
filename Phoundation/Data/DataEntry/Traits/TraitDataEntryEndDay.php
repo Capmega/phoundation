@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Trait TraitDataEntryDay
+ * Trait TraitDataEntryEndDay
  *
- * This trait contains methods for DataEntry objects that require "day"
+ * This trait contains methods for DataEntry objects that require "end_day"
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -17,28 +17,28 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 
-trait TraitDataEntryDay
+trait TraitDataEntryEndDay
 {
     /**
-     * Returns the day for this object
+     * Returns the end day for this object
      *
      * @return int|null
      */
-    public function getDay(): ?int
+    public function getEndDay(): ?int
     {
-        return $this->getTypesafe('int', 'day');
+        return $this->getTypesafe('int', 'end_day');
     }
 
 
     /**
-     * Sets the day for this object
+     * Sets the end day for this object
      *
      * @param int|null $day
      *
      * @return static
      */
-    public function setDay(?int $day): static
+    public function setEndDay(?int $day): static
     {
-        return $this->set(get_null($day), 'day');
+        return $this->set(get_null($day), 'end_day');
     }
 }

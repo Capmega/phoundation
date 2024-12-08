@@ -130,10 +130,10 @@ class PostValidator extends Validator
         // Check for RAW input
         if(empty($_POST)){
             try{
-                $json = file_get_contents('php://input');
+                $input = file_get_contents('php://input');
 
-                if ($json) {
-                    $json = Json::decode($json);
+                if ($input) {
+                    $json = Json::decode($input);
 
                     if (!is_array($json)) {
                         throw new ValidationFailedException(tr('Invalid RAW POST JSON ":json" encountered, it should be an array', [
@@ -145,7 +145,9 @@ class PostValidator extends Validator
                 }
 
             } catch (JsonException $e) {
-                throw new ValidationFailedException(tr('Failed to decode RAW POST JSON'), $e);
+                throw new ValidationFailedException(tr('Failed to decode RAW POST JSON input string ":input"', [
+                    ':input' => $input
+                ]), $e);
             }
         }
     }

@@ -427,9 +427,9 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
     /**
      * Returns the name for this object that can be displayed
      *
-     * @return string
+     * @return string|null
      */
-    function getDisplayName(): string;
+    function getDisplayName(): ?string;
 
 
     /**

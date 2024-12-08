@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Trait TraitDataEntryMonth
+ * Trait TraitDataEntryEndMonth
  *
- * This trait contains methods for DataEntry objects that require "month"
+ * This trait contains methods for DataEntry objects that require "end_month"
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -19,16 +19,16 @@ namespace Phoundation\Data\DataEntry\Traits;
 use Phoundation\Exception\OutOfBoundsException;
 
 
-trait TraitDataEntryMonth
+trait TraitDataEntryEndMonth
 {
     /**
      * Returns the month for this object
      *
      * @return int|null
      */
-    public function getMonth(): ?int
+    public function getEndMonth(): ?int
     {
-        return $this->getTypesafe('int', 'month');
+        return $this->getTypesafe('int', 'end_month');
     }
 
 
@@ -39,7 +39,7 @@ trait TraitDataEntryMonth
      *
      * @return static
      */
-    public function setMonth(string|int|null $month): static
+    public function setEndMonth(string|int|null $month): static
     {
         if ($month) {
             if (!is_numeric($month) or ($month < 1) or ($month > 12)) {
@@ -66,6 +66,6 @@ trait TraitDataEntryMonth
             $month = null;
         }
 
-        return $this->set(get_null($month), 'month');
+        return $this->set(get_null($month), 'end_month');
     }
 }

@@ -31,6 +31,17 @@ trait TraitDataEntryCode
 
 
     /**
+     * Returns the code for this object
+     *
+     * @return string|null
+     */
+    public function getDisplayCode(): string|null
+    {
+        return $this->formatDisplayVariables($this->getTypesafe('string', 'code'));
+    }
+
+
+    /**
      * Sets the code for this object
      *
      * @note This method prefixes each code with a "#" symbol to ensure that codes are never seen as numeric, which
