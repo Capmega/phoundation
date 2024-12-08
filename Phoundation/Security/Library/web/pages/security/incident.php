@@ -69,12 +69,12 @@ $url = Url::new('/security/incidents.html')->makeWww()->addQueries(
 )->getSource();
 
 Response::setHeaderTitle(tr('Incident'));
-Response::setHeaderSubTitle($incident->getId());
+Response::setHeaderSubTitle($incident->getDisplayId());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'              => tr('Home'),
     '/security.html' => tr('Security'),
     $url             => tr('Incidents management'),
-    ''               => $incident->getId(),
+    ''               => $incident->getDisplayId(),
 ]));
 
 
