@@ -31,6 +31,17 @@ trait TraitDataEntrySshAccount
 
 
     /**
+     * Returns the field that is unique for this object
+     *
+     * @return string|null
+     */
+    public static function getUniqueColumn(): ?string
+    {
+        return 'name';
+    }
+
+
+    /**
      * Returns the ssh_accounts_id for this object
      *
      * @return int|null
@@ -73,14 +84,14 @@ trait TraitDataEntrySshAccount
     /**
      * Sets the SshAccount for this object
      *
-     * @param SshAccountInterface|null $o_SshAccount
+     * @param SshAccountInterface|null $o_ssh_account
      * @return TraitDataEntrySshAccount
      */
-    public function setSshAccountObject(?SshAccountInterface $o_SshAccount): static
+    public function setSshAccountObject(?SshAccountInterface $o_ssh_account): static
     {
-        $this->setSshAccountsId($o_SshAccount?->getId());
+        $this->setSshAccountsId($o_ssh_account?->getId())
+             ->o_ssh_account = $o_ssh_account;
 
-        $this->o_ssh_account = $o_SshAccount;
         return $this;
     }
 

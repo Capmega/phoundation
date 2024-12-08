@@ -416,7 +416,7 @@ class Server extends DataEntry implements ServerInterface
             ]));
         }
 
-        if (empty($this->ssh_account)) {
+        if (empty($this->getSshAccountObject())) {
             throw new SshException(
                 tr('Cannot generate SSH command line, no account specified for hostname ":hostname"', [
                     ':hostname' => $this->getHostname(),
@@ -424,18 +424,18 @@ class Server extends DataEntry implements ServerInterface
             );
         }
 
-        if (!$this->ssh_account->getFile()) {
+        if (!$this->getSshAccountObject()->getFileObject()) {
             throw new SshException(
                 tr('Cannot generate SSH command line, the SSH account ":account" has no private key specified', [
-                    ':account' => $this->ssh_account->getLogId(),
+                    ':account' => $this->getSshAccountObject()->getLogId(),
                 ])
             );
         }
 
-        if (!$this->ssh_account->getFile()->exists()) {
+        if (!$this->getSshAccountObject()->getFileObject()->exists()) {
             throw new SshException(tr('Cannot generate SSH command line, the private key file ":file" specified for SSH account ":account" does not exist', [
-                ':account' => $this->ssh_account->getLogId(),
-                ':file'    => $this->ssh_account->getFile()
+                ':account' => $this->getSshAccountObject()->getLogId(),
+                ':file'    => $this->getSshAccountObject()->getFileObject()
             ]));
         }
 
@@ -447,7 +447,7 @@ class Server extends DataEntry implements ServerInterface
 
         return Process::new('ssh')
                       ->addArguments($this->getPort() ? ['-p', $this->getPort()] : null)
-                      ->addArguments(['-t', '-i', $this->getSshAccount()->getFile()])
+                      ->addArguments(['-t', '-i', $this->getSshAccountObject()->getFileObject()])
                       ->addArgument($username . $this->getHostname())
                       ->addArgument($command_line)
                       ->getBasicCommandLine();
@@ -461,7 +461,7 @@ class Server extends DataEntry implements ServerInterface
      */
     public function getUsername(): ?string
     {
-        return $this->getSshAccount()
+        return $this->getSshAccountObject()
                     ->getUsername();
     }
 
