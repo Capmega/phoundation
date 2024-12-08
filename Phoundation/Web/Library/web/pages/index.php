@@ -25,6 +25,6 @@ Response::setHeaderTitle(tr('Dashboard'));
 Response::setHeaderSubTitle(tr('(:user)', [':user' => Session::getUserObject()->getDisplayName()]));
 Response::setDescription(tr(''));
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/' => tr('Home'),
-                                                           ''  => tr('Dashboard'),
-                                                       ]));
+    '/' => tr('Home'),
+    ''  => tr('Dashboard'),
+]));
