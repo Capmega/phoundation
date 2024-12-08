@@ -113,9 +113,9 @@ echo $grid->render();
 
 // Set page meta data
 Response::setHeaderTitle(tr('Provider'));
-Response::setHeaderSubTitle($provider->getName());
+Response::setHeaderSubTitle($provider->getDisplayName());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/'                        => tr('Home'),
-                                                           '/business/providers.html' => tr('Providers'),
-                                                           ''                         => $provider->getName(),
-                                                       ]));
+    '/'                        => tr('Home'),
+    '/business/providers.html' => tr('Providers'),
+    ''                         => $provider->getDisplayName(),
+]));
