@@ -513,7 +513,7 @@ FILES variables:
         Log::information(tr('Notification:'));
 
         // Remove HTML from the message for logging
-        $message = $this->getMessage();
+        $message = (string) $this->getMessage();
         $message = strip_tags($message);
         $message = trim($message);
 

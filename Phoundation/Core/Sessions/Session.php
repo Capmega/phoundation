@@ -999,7 +999,7 @@ class Session implements SessionInterface
                                     ':user' => $user
                                 ]))
                                 ->setDetails(['user' => $user])
-                                ->setNotifyRoles('accounts')
+                                ->setNotifyRoles('security')
                                 ->save()
                                 ->throw(AuthenticationException::class);
                 }
@@ -1052,7 +1052,7 @@ class Session implements SessionInterface
                                     ':user' => $user
                                 ]))
                                 ->setDetails(['user' => $user])
-                                ->setNotifyRoles('accounts')
+                                ->setNotifyRoles('security')
                                 ->save()
                                 ->throw(AuthenticationException::class);
                 }
@@ -1341,7 +1341,7 @@ class Session implements SessionInterface
                         'impersonating'       => User::load($_SESSION['user']['impersonate_id'])->getLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
-                    ->setNotifyRoles('accounts')
+                    ->setNotifyRoles('security')
                     ->save()
                     ->throw();
         }
@@ -1365,7 +1365,7 @@ class Session implements SessionInterface
                         'user'                => static::getUserObject()->getLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
-                    ->setNotifyRoles('accounts')
+                    ->setNotifyRoles('security')
                     ->save()
                     ->throw();
         }
@@ -1389,7 +1389,7 @@ class Session implements SessionInterface
                         'user'                => static::getUserObject()->getLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
-                    ->setNotifyRoles('accounts')
+                    ->setNotifyRoles('security')
                     ->save()
                     ->throw();
         }
@@ -1413,7 +1413,7 @@ class Session implements SessionInterface
                         'user'                => static::getUserObject()->getLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
-                    ->setNotifyRoles('accounts')
+                    ->setNotifyRoles('security')
                     ->save()
                     ->throw();
         }
@@ -1443,7 +1443,7 @@ class Session implements SessionInterface
                     'user'        => $original_user->getLogId(),
                     'impersonate' => $user->getLogId(),
                 ])
-                ->setNotifyRoles('accounts')
+                ->setNotifyRoles('security')
                 ->save();
 
         // Notify the target user
@@ -1617,7 +1617,7 @@ class Session implements SessionInterface
                             'user'        => User::load($users_id)->getLogId(),
                             'impersonate' => User::load($impersonate_id)->getLogId(),
                         ])
-                        ->setNotifyRoles('accounts')
+                        ->setNotifyRoles('security')
                         ->save();
 
                     Response::getFlashMessagesObject()

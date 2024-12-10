@@ -468,7 +468,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
             return parent::set($key, $value);
         }
 
-        throw new OutOfBoundsException(tr('Cannot set value ":value" to key ":key" in the list ":list", it does not have a DataEntryInterface', [
+        throw new OutOfBoundsException(tr('Cannot set value ":value" to key ":key" in the list ":list", the value does not have a required DataEntryInterface', [
             ':list'  => get_class($this),
             ':key'   => $key,
             ':value' => $value,

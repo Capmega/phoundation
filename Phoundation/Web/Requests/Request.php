@@ -1211,7 +1211,7 @@ class Request implements RequestInterface
                         'rights'         => $rights,
                         'missing_rights' => Rights::getNotExist($rights),
                     ])
-                    ->setNotifyRoles('accounts')
+                    ->setNotifyRoles('security')
                     ->save();
 
         } else {
@@ -1237,7 +1237,7 @@ class Request implements RequestInterface
                         'real_target' => static::$main_target->getSource('web'),
                         'rights'      => Session::getUserObject()->getMissingRights($rights),
                     ])
-                    ->setNotifyRoles('accounts')
+                    ->setNotifyRoles('security')
                     ->save();
         }
 

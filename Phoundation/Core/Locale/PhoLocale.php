@@ -44,6 +44,17 @@ class PhoLocale extends Locale
 
 
     /**
+     * Returns the default date/time format for this process used in PHP
+     *
+     * @return string
+     */
+    public static function getPhpDateFormat(): string
+    {
+        return 'Y/m/d';
+    }
+
+
+    /**
      * Returns the default date/time format for this process used in JavaScript
      *
      * @return string

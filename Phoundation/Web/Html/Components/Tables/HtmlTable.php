@@ -654,11 +654,12 @@ class HtmlTable extends ResourceElementCore implements HtmlTableInterface
 
         // Process SQL resource
         while ($row = $this->source_query->fetch()) {
+            $this->executeRowCallbacks($row, EnumTableRowType::row, $params);
+
             if (isset($this->columns)) {
                 $row = Arrays::keepKeysOrdered($row, $this->columns);
             }
 
-            $this->executeRowCallbacks($row, EnumTableRowType::row, $params);
             $return .= $this->doRenderRow(array_value_first($row), $row, $params);
         }
 
@@ -1057,11 +1058,11 @@ class HtmlTable extends ResourceElementCore implements HtmlTableInterface
                 $row = $row->__toArray();
             }
 
+            $this->executeRowCallbacks($row, EnumTableRowType::row, $params);
+
             if (isset($this->columns)) {
                 $row = Arrays::keepKeysOrdered($row, $this->columns);
             }
-
-            $this->executeRowCallbacks($row, EnumTableRowType::row, $params);
 
             $return .= $this->doRenderRow($row_id, $row, $params);
         }

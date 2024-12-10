@@ -59,12 +59,12 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Non HTTP-200 URL'));
-Response::setHeaderSubTitle($url->getId());
+Response::setHeaderSubTitle($url->getDisplayId());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                           => tr('Home'),
     '/security.html'              => tr('Security'),
     '/security/non-200-urls.html' => tr('Non HTTP-200 URL\'s'),
-    ''                            => $url->getId(),
+    ''                            => $url->getDisplayId(),
 ]));
 
 

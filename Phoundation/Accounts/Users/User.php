@@ -791,8 +791,9 @@ class User extends DataEntry implements UserInterface
                 Incident::new()
                         ->setType('Accounts change')
                         ->setSeverity(EnumSeverity::low)
-                        ->setTitle(tr('The user ":user" was created', [
-                            ':user' => $this->getLogId(),
+                        ->setTitle(tr('The user ":user" was modified, see audit ":meta_id" for more information', [
+                            ':user'    => $this->getLogId(),
+                            ':meta_id' => $this->getMetaId(),
                         ]))
                         ->setDetails(['user' => $this->getLogId()])
                         ->setNotifyRoles('accounts')
@@ -802,9 +803,8 @@ class User extends DataEntry implements UserInterface
                 Incident::new()
                         ->setType('Accounts change')
                         ->setSeverity(EnumSeverity::low)
-                        ->setTitle(tr('The user ":user" was modified, see audit ":meta_id" for more information', [
-                            ':user'    => $this->getLogId(),
-                            ':meta_id' => $this->getMetaId(),
+                        ->setTitle(tr('The user ":user" was created', [
+                            ':user' => $this->getLogId(),
                         ]))
                         ->setDetails(['user' => $this->getLogId()])
                         ->setNotifyRoles('accounts')
@@ -870,9 +870,9 @@ class User extends DataEntry implements UserInterface
      * @param bool $official
      * @param bool $clean
      *
-     * @return string
+     * @return string|null
      */
-    public function getDisplayName(bool $official = false, bool $clean = false): string
+    public function getDisplayName(bool $official = false, bool $clean = false): ?string
     {
         if ($clean) {
             $postfix = null;
@@ -2009,9 +2009,9 @@ class User extends DataEntry implements UserInterface
     /**
      * Returns the name with an id for a user
      *
-     * @return string
+     * @return string|null
      */
-    function getDisplayId(): string
+    function getDisplayId(): ?string
     {
         return $this->getTypesafe('int', 'id') . ' / ' . $this->getDisplayName();
     }

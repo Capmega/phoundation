@@ -158,7 +158,7 @@ $documentation = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('My profile'));
-Response::setHeaderSubTitle($user->getName());
+Response::setHeaderSubTitle($user->getDisplayName());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/' => tr('Home'),
     ''  => tr('My profile'),
@@ -168,6 +168,6 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 // Render and return the page grid
 return Grid::new()
            ->addGridColumn($column)
-           ->addGridColumn($picture->render() . '<br>' .
-                       $relevant->render() . '<br>' .
-                       $documentation->render(), EnumDisplaySize::three);
+           ->addGridColumn($picture . '<br>' .
+                           $relevant . '<br>' .
+                           $documentation, EnumDisplaySize::three);

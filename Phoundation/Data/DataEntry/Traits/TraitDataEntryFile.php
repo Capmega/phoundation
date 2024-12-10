@@ -32,7 +32,7 @@ trait TraitDataEntryFile
      *
      * @return PhoFileInterface|null
      */
-    public function getFile(): ?PhoFileInterface
+    public function getFileObject(): ?PhoFileInterface
     {
         $file = $this->getTypesafe(PhoFileInterface::class . '|string', 'file');
 

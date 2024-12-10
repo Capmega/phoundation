@@ -124,11 +124,11 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Right'));
-Response::setHeaderSubTitle($right->getName());
+Response::setHeaderSubTitle($right->getDisplayName());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                     => tr('Home'),
     '/accounts/rights.html' => tr('Rights'),
-    ''                      => $right->getName() ?? tr('[NEW]'),
+    ''                      => $right->getDisplayName(),
 ]));
 
 

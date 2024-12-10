@@ -99,13 +99,13 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Notification'));
-Response::setHeaderSubTitle($notification->getId());
+Response::setHeaderSubTitle($notification->getDisplayId());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                       => tr('Home'),
     '/notifications/all.html' => tr('Notifications'),
     ''                        => tr(':id [:title]', [
         ':title' => $notification->getTitle(),
-        ':id'    => $notification->getId()
+        ':id'    => $notification->getDisplayId()
     ])
 ]));
 

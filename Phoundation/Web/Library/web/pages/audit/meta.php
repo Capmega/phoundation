@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 use Phoundation\Core\Meta\MetaList;
 use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -31,11 +32,16 @@ $get = GetValidator::new()
 
 
 $meta  = MetaList::new($get['id']);
-$table = $meta->getHtmlDataTableObject();
 $card  = Card::new()
              ->setTitle('Registered activities')
              ->setSwitches('reload,maximize')
-             ->setContent($table);
+             ->setContent($meta->getHtmlDataTableObject([
+                 'created_on' => tr('Date / Time'),
+                 'user'       => tr('User'),
+                 'action'     => tr('Action'),
+                 'url'        => tr('URL'),
+                 'changes'    => tr('Changes')
+             ]));
 
 
 // Build documentation
@@ -50,7 +56,7 @@ Response::setHeaderTitle(tr('Audit information'));
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'           => tr('Home'),
     '/audit.html' => tr('Audits'),
-    ''            => tr('Item'),
+    ''            => Strings::truncate(Strings::force($get['id'], ', '), 32),
 ]));
 
 

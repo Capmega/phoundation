@@ -80,16 +80,13 @@ use Phoundation\Exception\PhoException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
-use Phoundation\Utils\Exception\ConfigurationInvalidException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
-use Phoundation\Web\Html\Components\Input\InputText;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
-use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Stringable;
 use Throwable;
@@ -380,6 +377,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         $this->loadFromDatabase($this->identifier);
 
         if ($this->isNew()) {
+            // So this entry does not exist in the database (or, SQL table doesn't exist either).
+            // Does it perhaps have configuration load support and exist in configuration?
+            if ($this->tryLoadFromConfiguration($this->identifier)) {
+                // Yay, found it in configuration!
+                return;
+            }
+
             if ($identifier_must_exist) {
                 // Throw the DataEntry does not exist exception
                 throw DataEntryNotExistsException::new(tr('Cannot load ":class" class object, entry with identifiers ":identifiers" does not exist', [
@@ -744,6 +748,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
 
     /**
+     * Returns a database id that can be displayed for users
+     *
+     * @return string|null
+     */
+    public function getDisplayId(): ?string
+    {
+        return $this->formatDisplayVariables($this->getId());
+    }
+
+
+    /**
      * Returns the unique identifier for this database entry, which will be the ID column if it does not have any
      *
      * @return string|float|int|null
@@ -871,6 +886,20 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             ]), 6);
 
             return $this;
+        }
+
+        // Apply default values
+        if (empty($value)) {
+            if ($this->debug) {
+                Log::debug('TRYING TO APPLY DEFAULT VALUES TO FIELD "' . get_class($this) . '>' . $key . '"', 10, echo_header: false);
+            }
+
+            if ($this->isNew()) {
+                $value = $definition->getInitialDefault() ?? $definition->getDefault();
+
+            } else  {
+                $value = $definition->getDefault();
+            }
         }
 
         if (!$this->is_modified and !$definition->getIgnoreModify()) {
@@ -1060,17 +1089,31 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     /**
      * Returns the name for this user that can be displayed
      *
-     * @return string
+     * @return string|null
      */
-    public function getDisplayName(): string
+    public function getDisplayName(): ?string
     {
-        $postfix = null;
+        return $this->formatDisplayVariables($this->getTypesafe('string', 'name'));
+    }
 
-        if ($this->getStatus() === 'deleted') {
-            $postfix = ' ' . tr('[DELETED]');
+
+    /**
+     * Ensures the display name is correct
+     *
+     * @param string|null $real_name
+     * @return string|null
+     */
+    protected function formatDisplayVariables(?string $real_name): ?string
+    {
+        if ($this->isNew()) {
+            return tr('New');
         }
 
-        return $this->getTypesafe('string', static::getUniqueColumn() ?? 'id') . $postfix;
+        if ($this->getStatus() === 'deleted') {
+            return $real_name . ' ' . tr('[DELETED]');
+        }
+
+        return $real_name;
     }
 
 
@@ -1239,13 +1282,18 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     protected function tryLoadFromConfiguration(array|string|int $identifier): bool
     {
-        $path   = $this->getConfigurationPath();
-        $column = static::determineColumn($identifier);
+        $path = $this->getConfigurationPath();
 
         // Can only load from configuration if the configuration path is available
         if ($path) {
-            // Can only load from configuration using unique column, or NULL column
-            if (($column === null) or ($column === static::getUniqueColumn())) {
+            $column = static::determineColumn($identifier);
+
+            if (is_array($identifier)) {
+                $identifier = $identifier[$column];
+            }
+
+            // Can only load from configuration using unique column, or id column or NULL column (means id column too)
+            if (($column === null) or ($column === static::getUniqueColumn()) or ($column === static::getIdColumn())) {
                 if (!static::idColumnIs('id')) {
                     throw new DataEntryException(tr('Cannot use configuration paths for DataEntry object ":class" that uses id column ":column" instead of "id"', [
                         ':class'  => static::class,
@@ -1372,7 +1420,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     {
         try {
             // Get the data using the query builder
-            $data = $this->getQueryBuilderObject()->setMetaEnabled($this->meta_enabled)
+            $data = $this->getQueryBuilderObject()->setDebug($this->debug)
+                                                  ->setMetaEnabled($this->meta_enabled)
                                                   ->setConnectorObject($this->getConnectorObject())
                                                   ->addSelect('`' . static::getTable() . '`.*')
                                                   ->addWhere($where, $execute)
@@ -1477,17 +1526,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             }
 
             if ($definition->getVirtual()) {
-                // This is a virtual column, do NOT apply during load time
-                if ($this->is_loading or $this->is_initializing) {
+                // Virtual columns do nothing if they have no value
+                if ($value === null) {
                     continue;
                 }
 
-                // Virtual columns that are linked to other columns do NOT update if they are NULL whilst the other
-                // column has a value
-                if ($definition->getLinkedTo()) {
-                    if (($value === null) and isset_get($this->source[$definition->getLinkedTo()])) {
-                        continue;
-                    }
+                // This is a virtual column, do NOT apply during load time
+                if ($this->is_loading or $this->is_initializing) {
+                    continue;
                 }
             }
 

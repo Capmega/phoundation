@@ -260,7 +260,7 @@ class Plugins extends DataIterator implements PluginsInterface
                         Log::warning(tr('Not starting blacklisted plugin ":vendor/:plugin", check your configuration if this should be started', [
                             ':vendor' => $plugin['vendor'],
                             ':plugin' => $plugin['name'],
-                        ]), 9);
+                        ]), 4);
 
                     } else {
                         Log::action(tr('Starting plugin ":vendor/:plugin"', [

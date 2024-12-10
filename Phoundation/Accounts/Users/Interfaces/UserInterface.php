@@ -549,17 +549,17 @@ interface UserInterface extends DataEntryInterface
      * @param bool $official
      * @param bool $clean
      *
-     * @return string
+     * @return string|null
      */
-    function getDisplayName(bool $official = false, bool $clean = false): string;
+    function getDisplayName(bool $official = false, bool $clean = false): ?string;
 
 
     /**
      * Returns the name with an id for a user
      *
-     * @return string
+     * @return string|null
      */
-    function getDisplayId(): string;
+    function getDisplayId(): ?string;
 
 
     /**
