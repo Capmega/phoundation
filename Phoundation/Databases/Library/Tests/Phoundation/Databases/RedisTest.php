@@ -44,14 +44,13 @@ class RedisTest extends TestCase
      */
     protected function ensureRedisConnectionOpen(bool $force = false): void
     {
-        
         if (isset($this->redis) and !$force) {
             return;
         }
 
-        $connector   = Config::get('databases.connectors.redis-queue');
-        $o_connector = Connector::new($connector);
+        $o_connector = Connector::new('redis-queue');
         $this->redis = Redis::new($o_connector)->setDatabase(0, true);
+
         if (!$this->redis->ping()) {
             Log::error(tr('Connection to Redis server failed'));
         }
