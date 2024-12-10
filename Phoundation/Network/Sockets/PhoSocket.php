@@ -219,6 +219,7 @@ class PhoSocket implements Stringable
                     'l_onoff'  => (int) $force
                 ];
 
+                socket_set_block($this->resource);
                 socket_set_option($this->resource, SOL_SOCKET, SO_LINGER, $linger_options);
                 socket_close($this->resource);
                 $this->open = false;

@@ -465,7 +465,7 @@ class Numbers
      */
     public static function getHighest(float|int ...$numbers): float|int
     {
-        $highest = PHP_FLOAT_MIN;
+        $highest = PHP_INT_MIN;
 
         foreach ($numbers as $number) {
             if ($number > $highest) {
