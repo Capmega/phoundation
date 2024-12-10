@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Phoundation\Network\Sockets;
 
 use Phoundation\Core\Core;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataUSleep;
 use Phoundation\Network\Sockets\Exception\SocketException;
 use Phoundation\Network\Sockets\Exception\SocketServerException;
@@ -270,7 +271,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
 
 
     /**
-     * Accepts a new connection in the Master Socket
+     * Accepts a new connection in the master socket
      *
      * @param array $read
      *
@@ -290,7 +291,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
 
 
     /**
-     * Handle Client Input
+     * Handles client input
      *
      * @param $client
      *
@@ -301,7 +302,6 @@ class PhoSocketServerCore implements PhoSocketServerInterface
         $input = $this->read($client);
 
         if ($input === '') {
-            $this->disconnect($client);
             return true;
         }
 
@@ -310,7 +310,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
 
 
     /**
-     * Read Functionality.
+     * Read functionality.
      *
      * @param PhoSocket $client
      *
@@ -335,20 +335,25 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      * @param PhoSocket $client
      * @param string    $message Disconnection Message.  Could be used to trigger a disconnect with a status code
      *
-     * @return void Whether or not to continue running the server (true: continue, false: shutdown)
+     * @return void
      */
     public function disconnect(PhoSocket $client, string $message = ''): void
     {
-        $clientIndex = array_search($client, $this->clients, true);
+        Log::action(tr('Disconnecting client ":client" from service ":service"', [
+            ':client'  => $client->getAddress(),
+            ':service' => $this->getService(),
+        ]));
 
-        if ($clientIndex === false) {
+        $client_index = array_search($client, $this->clients, true);
+
+        if ($client_index === false) {
             return;
         }
 
-        $this->triggerHooks(static::HOOK_DISCONNECT, $this->clients[$clientIndex], $message);
-        $this->clients[$clientIndex]->close();
+        $this->triggerHooks(static::HOOK_DISCONNECT, $this->clients[$client_index], $message);
+        $this->clients[$client_index]->close();
 
-        unset($this->clients[$clientIndex], $client);
+        unset($this->clients[$client_index], $client);
     }
 
 
@@ -359,7 +364,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      * @param PhoSocket   $client
      * @param string|null $input   Message Sent along with the Trigger
      *
-     * @return bool Whether or not to continue running the server (true: continue, false: shutdown)
+     * @return bool Whether to continue running the server (true: continue, false: shutdown)
      */
     protected function triggerHooks(string $command, PhoSocket $client, ?string $input = null): bool
     {
@@ -463,7 +468,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
 
     /**
      * Returns the hooks property of this PhoSocketServer
-     * 
+     *
      * @return callable[][]
      */
     public function getHooks(): array
@@ -520,7 +525,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
         return $this;
     }
 
-    
+
     /**
      * Returns the port property of this PhoSocketServer
      *
@@ -545,7 +550,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
         return $this;
     }
 
-    
+
     /**
      * Returns the timeout property of this PhoSocketServer
      *
