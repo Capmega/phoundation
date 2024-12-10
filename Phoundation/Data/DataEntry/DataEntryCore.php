@@ -80,16 +80,13 @@ use Phoundation\Exception\PhoException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
-use Phoundation\Utils\Exception\ConfigurationInvalidException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
-use Phoundation\Web\Html\Components\Input\InputText;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
-use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Stringable;
 use Throwable;
@@ -891,6 +888,20 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             return $this;
         }
 
+        // Apply default values
+        if (empty($value)) {
+            if ($this->debug) {
+                Log::debug('TRYING TO APPLY DEFAULT VALUES TO FIELD "' . get_class($this) . '>' . $key . '"', 10, echo_header: false);
+            }
+
+            if ($this->isNew()) {
+                $value = $definition->getInitialDefault() ?? $definition->getDefault();
+
+            } else  {
+                $value = $definition->getDefault();
+            }
+        }
+
         if (!$this->is_modified and !$definition->getIgnoreModify()) {
             $this->is_modified = (isset_get($this->source[$key]) !== $value);
 
@@ -1082,7 +1093,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     public function getDisplayName(): ?string
     {
-        return $this->formatDisplayVariables($this->getTypesafe('string', static::getUniqueColumn() ?? 'id'));
+        return $this->formatDisplayVariables($this->getTypesafe('string', 'name'));
     }
 
 
@@ -1409,7 +1420,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     {
         try {
             // Get the data using the query builder
-            $data = $this->getQueryBuilderObject()->setMetaEnabled($this->meta_enabled)
+            $data = $this->getQueryBuilderObject()->setDebug($this->debug)
+                                                  ->setMetaEnabled($this->meta_enabled)
                                                   ->setConnectorObject($this->getConnectorObject())
                                                   ->addSelect('`' . static::getTable() . '`.*')
                                                   ->addWhere($where, $execute)
@@ -1514,17 +1526,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             }
 
             if ($definition->getVirtual()) {
-                // This is a virtual column, do NOT apply during load time
-                if ($this->is_loading or $this->is_initializing) {
+                // Virtual columns do nothing if they have no value
+                if ($value === null) {
                     continue;
                 }
 
-                // Virtual columns that are linked to other columns do NOT update if they are NULL whilst the other
-                // column has a value
-                if ($definition->getLinkedTo()) {
-                    if (($value === null) and isset_get($this->source[$definition->getLinkedTo()])) {
-                        continue;
-                    }
+                // This is a virtual column, do NOT apply during load time
+                if ($this->is_loading or $this->is_initializing) {
+                    continue;
                 }
             }
 
