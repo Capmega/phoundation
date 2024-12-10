@@ -412,13 +412,13 @@ class SqlDataEntry implements SqlDataEntryInterface
         $row = static::initializeInsertRow($row, $comments, $diff);
 
         // Build bound variables for the query
-        $columns = SqlQueries::getPrefixedColumns($row, $this->data_entry->getColumnPrefix());
+        $columns = SqlQueries::getPrefixedColumns($row);
         $values  = SqlQueries::getBoundValues($row, $this->data_entry->getColumnPrefix(), true);
-        $keys    = SqlQueries::getBoundKeys($row);
+        $keys    = SqlQueries::getBoundKeys($row, $this->data_entry->getColumnPrefix());
 
         $this->sql->setDebug($this->debug)
                   ->query('INSERT INTO `' . $this->table . '` (' . $columns . ')
-                           VALUES                             (' . $keys . ')', $values);
+                           VALUES                             (' . $keys    . ')', $values);
 
         if (empty($row[$this->id_column])) {
             // No row id specified, get the insert id from SQL driver
