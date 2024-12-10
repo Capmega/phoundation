@@ -1633,7 +1633,7 @@ class Log
             static::logDebugHeader('HEX', 1, $threshold, echo_screen: $echo_screen);
         }
 
-        $messages = Strings::log($messages);
+        $messages = Strings::force($messages, PHP_EOL);
 
         return static::write(Strings::interleave(bin2hex($messages), ' ', chunk_size: 2), 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }
