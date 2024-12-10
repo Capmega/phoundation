@@ -362,7 +362,7 @@ class RedisTest extends TestCase
         $result = [];
         array_push($result, 'queue_test-queue-3','queue_test-queue', 'queue_test-queue-2');
 
-        $this->assertEquals($result, $this->redis->getAllKeys(), 'The result array should equal the sample array');
+        $this->assertEqualsCanonicalizing($result, $this->redis->getAllKeys(), 'The result array should equal the sample array');
         $this->redis->clearAll();
         $this->redis->close();
     }
