@@ -146,7 +146,7 @@ class RoutingParametersList
                 ':directory' => Strings::from($parameters->getRootDirectory(), DIRECTORY_ROOT),
                 ':template'  => $parameters->getTemplate(),
                 ':pattern'   => $pattern,
-            ]), 4);
+            ]), 3);
 
             return $parameters;
         }
