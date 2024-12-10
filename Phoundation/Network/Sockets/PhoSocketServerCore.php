@@ -43,14 +43,14 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      *
      * @var string
      */
-    protected string $address;
+    protected string $local_address;
 
     /**
      * Port Number.
      *
      * @var int
      */
-    protected int $port;
+    protected int $local_port;
 
     /**
      * Seconds to wait on a socket before timing out.
@@ -147,8 +147,8 @@ class PhoSocketServerCore implements PhoSocketServerInterface
         Core::setTimeout(0);
 
         $this->master_socket = PhoSocket::create($this->domain, SOCK_STREAM, 0)
-                                        ->bind($this->address, $this->port)
-                                        ->getSockName($this->address, $this->port)
+                                        ->bind($this->local_address, $this->local_port)
+                                        ->getSockName($this->local_address, $this->local_port)
                                         ->listen();
 
         return $this;
@@ -430,7 +430,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      *
      * @return void
      */
-    private function shutDownEverything(): void
+    protected function shutDownEverything(): void
     {
         foreach ($this->clients as $client) {
             $this->disconnect($client);
@@ -448,8 +448,8 @@ class PhoSocketServerCore implements PhoSocketServerInterface
 
         unset(
             $this->hooks,
-            $this->address,
-            $this->port,
+            $this->local_address,
+            $this->local_port,
             $this->timeout,
             $this->domain,
             $this->masterSocket,
@@ -491,32 +491,32 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      *
      * @return string
      */
-    public function getAddress(): string
+    public function getLocalAddress(): string
     {
-        return $this->address;
+        return $this->local_address;
     }
 
 
     /**
      * Sets the address property of this PhoSocketServer
      *
-     * @param $address
+     * @param $local_address
      *
      * @return static
      */
-    public function setAddress($address): static
+    public function setLocalAddress($local_address): static
     {
-        if (filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+        if (filter_var($local_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
             $this->domain = AF_INET;
 
-        } elseif (filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+        } elseif (filter_var($local_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
             $this->domain = AF_INET6;
 
         } else {
             $this->domain = AF_UNIX;
         }
 
-        $this->address = $address;
+        $this->local_address = $local_address;
         return $this;
     }
 
@@ -526,22 +526,22 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      *
      * @return int
      */
-    public function getPort(): int
+    public function getLocalPort(): int
     {
-        return $this->port;
+        return $this->local_port;
     }
 
 
     /**
      * Sets the port property of this PhoSocketServer
      *
-     * @param $port
+     * @param $local_port
      *
      * @return static
      */
-    public function setPort($port): static
+    public function setLocalPort($local_port): static
     {
-        $this->port = $port;
+        $this->local_port = $local_port;
         return $this;
     }
 

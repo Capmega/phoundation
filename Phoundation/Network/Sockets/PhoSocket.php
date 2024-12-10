@@ -211,12 +211,6 @@ class PhoSocket implements Stringable
         if ($this->getOpen()) {
             $hash = $this->__toString();
 
-            Log::action(tr('Closing connection for socket ID ":id" with linger ":linger" and force ":force"', [
-                ':id'     => $hash,
-                ':linger' => $linger,
-                ':force'  => $force,
-            ]));
-
             unset(static::$source[$hash]);
 
             try {
@@ -810,7 +804,7 @@ class PhoSocket implements Stringable
         Log::action(tr('Listening on ":ip::port"', [
             ':ip' => $this->getAddress(),
             ':port' => $this->getPort()
-        ]));
+        ]), 1);
 
 
         $result = socket_listen($this->resource, $backlog);
