@@ -34,11 +34,6 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
 {
     use TraitDataEntryData;
 
-    //TODO: FIX THIS
-    use TraitDataEntrySetCreatedBy;
-    //
-
-
     /**
      * Returns the table name used by this object
      *
@@ -112,9 +107,9 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
     /**
      * Returns the database_selector property for this PhoMetaTest object
      *
-     * @return int|null
+     * @return string|null
      */
-    public function getDatabaseSelector(): ?int
+    public function getDatabaseSelector(): ?string
     {
         return $this->get('database_selector');
     }
@@ -123,13 +118,13 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
     /**
      * Sets the database_selector property for this PhoMetaTest object
      *
-     * @param int|null $database_selector
+     * @param string|int|null $database_selector
      *
      * @return $this
      */
-    public function setDatabaseSelector(?int $database_selector): static
+    public function setDatabaseSelector(string|int|null $database_selector): static
     {
-        return $this->set($database_selector, 'database_selector');
+        return $this->set((string) $database_selector, 'database_selector');
     }
 
 
@@ -216,34 +211,6 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
         return $this->set($duration, 'duration');
     }
 
-//TODO: FIX THIS!!!
-    /**
-     * Returns the created_on property for this PhoMetaTest object
-     *
-     * @return int|null
-     */
-    public function getCreatedOn(): ?int
-    {
-        return $this->get('created_on');
-    }//TODO: FIX THIS!!!
-
-//TODO: FIX THIS!!!
-    /**
-     * Sets the created_on property for this PhoMetaTest object
-     *
-     * @param int|null $created_on
-     *
-     * @return $this
-     */
-    public function setCreatedOn(?int $created_on): static
-    {
-        if ($created_on == null) {
-            return $this;
-        }
-
-        return $this->set($created_on, 'created_on');
-    }//TODO: FIX THIS!!!
-    
 
     /**
      * Records a test entry into a database, with all info specified in a PhoMetaTest object
@@ -266,10 +233,9 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
             throw PhoMetaTestNoDatabaseException::new(tr('Database Info Missing from PhoMetaTest source'));
         }
 
-        $connector   = Config::get('databases.connectors.' . $database_connector);
-        $o_connector = Connector::new($connector)->setDatabase($database_selector);
+        $o_connector = Connector::new($database_connector)->setDatabase($database_selector);
 
-        Log::action(tr('Saving key ":key" in database ":connector" at ":domain::port" database number ":db_number" for component ":component"', [
+        Log::action(tr('Saving key ":key" in database ":connector" at ":domain::port" database number ":db_number" for HL7 component ":component"', [
             ':key'       => $key,
             ':connector' => $database_connector,
             ':domain'    => $o_connector->getHostname(),

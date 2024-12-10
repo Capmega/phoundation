@@ -1372,7 +1372,7 @@ class Route
             ':regex' => static::$url_regex,
             ':type'  => static::$method,
             ':url'   => static::$url,
-        ]), 4);
+        ]), 3);
 
         try {
             $match = preg_match_all(static::$url_regex, static::$url, static::$regex_matches);
@@ -1395,7 +1395,7 @@ class Route
                 ':regex'   => static::$url_regex,
                 ':matches' => Strings::force(static::$regex_matches, ', '),
                 ':flags'   => Strings::force(static::$flags        , ', '),
-            ]), 5);
+            ]), 3);
         }
 
         return true;

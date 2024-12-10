@@ -24,28 +24,24 @@ namespace Phoundation\Network\PhoMeta;
 
 use PDOStatement;
 use Phoundation\Core\Core;
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryData;
-use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaException;
-use Phoundation\Network\PhoMeta\Exceptions\PhoMetaTestFoundException;
+use Phoundation\Network\PhoMeta\Exceptions\PhoMetaInvalidDataException;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaVersionNotSupportedException;
-use Phoundation\Network\PhoMeta\Exceptions\SourceNotPhoundationMetaException;
 use Phoundation\Network\PhoMeta\Interfaces\PhoMetaInterface;
 use Phoundation\Network\PhoMeta\Interfaces\PhoMetaTestInterface;
-use Phoundation\Security\Incidents\EnumSeverity;
-use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Json;
 use Throwable;
 
-
 class PhoMeta extends DataEntry implements PhoMetaInterface
 {
-    use TraitDataEntryData;
+    use TraitDataEntryData {
+        setData as protected __setData;
+    }
 
 
     /**
@@ -58,15 +54,12 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
     public function __construct(int|array|string|DataEntryInterface|null $identifier = null, ?bool $meta_enabled = null, bool $init = true) {
 
         parent::__construct($identifier, $meta_enabled, $init);
-
-        $this->setLocalId(Core::getLocalId())
-             ->setGlobalId(Core::getGlobalId())
-             ->setPhoundation(1);
+        $this->setGlobalId(Core::getGlobalId());
     }
 
 
     /**
-     * Returns a new DataEntry object
+     * Returns a new PhoMeta object
      *
      * @param array|DataEntryInterface|string|int|null $identifier
      * @param bool|null                                $meta_enabled
@@ -122,16 +115,18 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
      */
     public function getSource(bool $filter_meta = false): array
     {
-        $array = parent::getSource(true);
+        $source = parent::getSource($filter_meta);
 
         try {
-            $array['data'] = [Json::decode($array['data'])][0];
+            $data = Json::ensureDecoded($source['data']);
 
-        } catch (Throwable) {
-            //Data is not in string form, continue;
+        } catch (Throwable $e) {
+            Throw PhoMetaInvalidDataException::new(tr('Error decoding this PhoMeta source'))
+                                             ->addData($e);
         }
 
-        return $array;
+        $source['data'] = $data;
+        return $source;
     }
 
 
@@ -221,47 +216,11 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
 
 
     /**
-     * Loads the specified data into this PhoMeta object
-     *
-     * @param IteratorInterface|array|string|PDOStatement|null $source
-     * @param array|null                                       $execute
-     *
-     * @return $this
-     */
-    public function setSource(IteratorInterface|array|string|PDOStatement|null $source = null, ?array $execute = null): static
-    {
-        if ($source) {
-            parent::setSource($source, $execute);
-
-            // Validate "phoundation" key available
-            if (!array_key_exists('phoundation', $this->source)) {
-                Incident::new()
-                        ->setSeverity(EnumSeverity::medium)
-                        ->setTitle(tr('Phoundation metadata missing'))
-                        ->setBody(tr('Specified Phoundation metadata source contains no required "phoundation" key'))
-                        ->setData(['source' => $this->source])
-                        ->setNotifyRoles('developer')
-                        ->save()
-                        ->throw(SourceNotPhoundationMetaException::class);
-            }
-
-            // Validate that the "phoundation" key contains as a value a registered, authorized key
-            // TODO implement
-
-            return $this;
-        }
-
-        // No source data specified, set source to empty
-        return parent::setSource(null, $execute);
-    }
-
-
-    /**
      * Returns the hash for this object
      *
-     * @return string|int|null
+     * @return string|null
      */
-    public function getHash(): string|int|null
+    public function getHash(): string|null
     {
         return $this->getTypesafe('string', 'hash');
     }
@@ -270,72 +229,22 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
     /**
      * Sets the hash for this object
      *
-     * @param string|int|null $hash
+     * @param string|null $hash
      *
      * @return static
      */
-    public function setHash(string|int|null $hash): static
+    public function setHash(string|null $hash): static
     {
         return $this->set($hash, 'hash');
     }
 
 
     /**
-     * Returns the phoundation key for this object
-     *
-     * @return string|int|null
-     */
-    public function getPhoundation(): string|int|null
-    {
-        return $this->getTypesafe('string', 'phoundation');
-    }
-
-
-    /**
-     * Sets the phoundation key for this object
-     *
-     * @param string|int|null $value
-     *
-     * @return static
-     */
-    public function setPhoundation(string|int|null $value): static
-    {
-        return $this->set($value, 'phoundation');
-    }
-
-
-    /**
-     * Returns the local_id for this object
-     *
-     * @return string|int|null
-     */
-    public function getLocalId(): string|int|null
-    {
-        return $this->getTypesafe('string', 'local_id');
-    }
-
-
-    /**
-     * Sets the local_id for this object
-     *
-     * @param string|int|null $local_id
-     *
-     * @return static
-     */
-    public function setLocalId(string|int|null $local_id): static
-    {
-        $local_id = Core::getLocalId();
-
-        return $this->set($local_id, 'local_id');
-    }
-
-
-    /**
      * Returns the global_id for this object
      *
-     * @return string|int|null
+     * @return string|null
      */
-    public function getGlobalId(): string|int|null
+    public function getGlobalId(): string|null
     {
         return $this->getTypesafe('string', 'global_id');
     }
@@ -344,18 +253,14 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
     /**
      * Sets the global_id for this object
      *
-     * @param string|int|null $global_id
+     * @param string|null $global_id
      *
      * @return static
      */
-    public function setGlobalId(string|int|null $global_id): static
+    public function setGlobalId(string|null $global_id): static
     {
         if ($global_id === null) {
             return $this;
-        }
-
-        if (is_int($global_id)) {
-            $global_id = (string) $global_id;
         }
 
         Core::setGlobalId($global_id);
@@ -382,31 +287,52 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
     /**
      * Adds an array of data to this PhoMeta object's source
      *
-     * @param string $key
-     * @param array  $data
-     * @param bool   $data_is_sub_array     Whether the data is stored as a sub array. If it is, the data will be
-     *                                      stored inside the key=>value[], otherwise it will be stored as the
-     *                                      key=>value
+     * @param string       $key
+     * @param string|array $data
+     * @param bool         $data_is_sub_array Whether the data is stored as a sub array. If it is, the data will be
+     *                                        stored inside the key=>value[], otherwise it will be stored as the
+     *                                        key=>value
      *
      * @return $this
      */
-    public function addData(string $key, array $data, bool $data_is_sub_array = false): static
+    public function addData(string $key, string|array $data, bool $data_is_sub_array = false): static
     {
-        $object_data = $this->getData() ?? [];
+        $this_data = $this->getData() ?? [];
 
-        if ($data_is_sub_array) {
+        if (is_string($data)) {
+            $this_data[$key] = $data;
 
-            $object_data[$key][] = $data;
         } else {
-
-            $object_data[$key] = empty($object_data[$key])
-                ? $data
-                : $this->mergeData($data, $object_data[$key]);
+            $this_data[$key] = empty($this_data[$key]) ? $data : $this->mergeData($data, $this_data[$key]);
         }
 
-        $this->setData($object_data);
+        return $this->setData($this_data);
+    }
 
-        return $this;
+
+    /**
+     * Sets the Data property
+     *
+     * @param array|string|null $data
+     *
+     * @return $this
+     */
+    public function setData(array|string|null $data): static
+    {
+        if (is_string($data)) {
+            try {
+                $data_array = Json::decode($data);
+
+            } catch (Throwable) {
+                // Data was not Json encoded, set it as array
+                $data_array[] = $data;
+            }
+
+        } else {
+            $data_array = $data;
+        }
+
+        return $this->__setData($data_array);
     }
 
 
@@ -472,19 +398,11 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
                                            ->setMaxlength(32)
                                            ->setLabel('Global request identifier'))
 
-                    ->add(DefinitionFactory::newCode($this, 'local_id')
-                                           ->setMaxlength(32)
-                                           ->setLabel('Local request identifier'))
-
                     ->add(DefinitionFactory::newCode($this, 'hash')
                                            ->setMaxlength(64)
                                            ->setLabel('Message digest'))
 
-                    ->add(DefinitionFactory::newData($this, 'data')
-                                           ->setLabel('Message meta data'))
-
-                    ->add(DefinitionFactory::newCode($this, 'phoundation')
-                                           ->setMaxlength(64)
-                                           ->setLabel('Phoundation'));
+                    ->add(DefinitionFactory::newData($this)
+                                           ->setLabel('Message meta data'));
     }
 }

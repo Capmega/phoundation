@@ -91,7 +91,7 @@ interface PhoSocketServerInterface
      *
      * @return string
      */
-    public function getAddress(): string;
+    public function getLocalAddress(): string;
 
 
     /**
@@ -101,7 +101,7 @@ interface PhoSocketServerInterface
      *
      * @return static
      */
-    public function setAddress($address): static;
+    public function setLocalAddress($address): static;
 
 
     /**
@@ -109,7 +109,7 @@ interface PhoSocketServerInterface
      *
      * @return int
      */
-    public function getPort(): int;
+    public function getLocalPort(): int;
 
 
     /**
@@ -119,7 +119,7 @@ interface PhoSocketServerInterface
      *
      * @return static
      */
-    public function setPort($port): static;
+    public function setLocalPort($port): static;
 
 
     /**

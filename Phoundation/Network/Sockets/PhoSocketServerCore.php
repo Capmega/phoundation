@@ -22,6 +22,7 @@ use Phoundation\Data\Traits\TraitDataUSleep;
 use Phoundation\Network\Sockets\Exception\SocketException;
 use Phoundation\Network\Sockets\Exception\SocketServerException;
 use Phoundation\Network\Sockets\Interfaces\PhoSocketServerInterface;
+use Phoundation\Security\Incidents\Incident;
 use Throwable;
 
 
@@ -42,14 +43,14 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      *
      * @var string
      */
-    protected string $address;
+    protected string $local_address;
 
     /**
      * Port Number.
      *
      * @var int
      */
-    protected int $port;
+    protected int $local_port;
 
     /**
      * Seconds to wait on a socket before timing out.
@@ -146,8 +147,8 @@ class PhoSocketServerCore implements PhoSocketServerInterface
         Core::setTimeout(0);
 
         $this->master_socket = PhoSocket::create($this->domain, SOCK_STREAM, 0)
-                                        ->bind($this->address, $this->port)
-                                        ->getSockName($this->address, $this->port)
+                                        ->bind($this->local_address, $this->local_port)
+                                        ->getSockName($this->local_address, $this->local_port)
                                         ->listen();
 
         return $this;
@@ -182,14 +183,16 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     /**
      * Run the Server for as long as server iteration returns true.
      *
+     * @param bool $exception
+     *
      * @throws SocketException
      */
-    public function run(): void
+    public function run(bool $exception = false): void
     {
         try{
             $this->ensureMasterSocketStarted();
 
-            while ($this->processServerIteration()) {
+            while ($this->processServerIteration($exception)) {
                 usleep($this->usleep);
             }
 
@@ -209,24 +212,23 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      *
      * @throws SocketException
      */
-    protected function processServerIteration(): bool
+    protected function processServerIteration(bool $exception = false): bool
     {
         try {
             $this->validateSocket();
 
-            $read_sockets   = array_merge([$this->master_socket], $this->clients);
-            $write_sockets  = [];
-            $except_sockets = [];
-
+            $write_sockets     = [];
+            $except_sockets    = [];
+            $read_sockets      = array_merge([$this->master_socket], $this->clients);
             $num_ready_sockets = PhoSocket::select($read_sockets, $write_sockets, $except_sockets, $this->timeout);
 
-            if ($this->timeout !== null && $num_ready_sockets === 0) {
+            if (($this->timeout !== null) and ($num_ready_sockets === 0)) {
                 if ($this->triggerHooks(static::HOOK_TIMEOUT, $this->master_socket) === false) {
                     return false;
                 }
             }
 
-            if ($this->master_socket && in_array($this->master_socket, $read_sockets)) {
+            if (($this->master_socket) and (in_array($this->master_socket, $read_sockets))) {
                 $this->acceptNewConnection($read_sockets);
             }
 
@@ -239,8 +241,17 @@ class PhoSocketServerCore implements PhoSocketServerInterface
             unset($read_sockets, $write_sockets, $except_sockets);
 
         } catch (Throwable $e) {
-            throw SocketServerException::new($e->getMessage(), $e);
+            if ($exception) {
+                throw SocketServerException::new($e->getMessage(), $e);
+            }
+
+            Incident::new()
+                    ->setException($e)
+                    ->setLog(ENVIRONMENT === 'production' ? 10 : 4)
+                    ->setNotifyRoles('developer')
+                    ->save();
         }
+
         return true;
     }
 
@@ -269,7 +280,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     {
         unset($read[array_search($this->master_socket, $read)]);
 
-        $socket = $this->master_socket->accept();
+        $socket          = $this->master_socket->accept();
         $this->clients[] = $socket;
 
         if ($this->triggerHooks(static::HOOK_CONNECT, $socket) === false) {
@@ -293,6 +304,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
             $this->disconnect($client);
             return true;
         }
+
         return $this->triggerHooks(static::HOOK_INPUT, $client, $input);
     }
 
@@ -334,8 +346,8 @@ class PhoSocketServerCore implements PhoSocketServerInterface
         }
 
         $this->triggerHooks(static::HOOK_DISCONNECT, $this->clients[$clientIndex], $message);
-
         $this->clients[$clientIndex]->close();
+
         unset($this->clients[$clientIndex], $client);
     }
 
@@ -358,12 +370,15 @@ class PhoSocketServerCore implements PhoSocketServerInterface
                 if ($continue === static::RETURN_HALT_HOOK) {
                     break;
                 }
+
                 if ($continue === static::RETURN_HALT_SERVER) {
                     return false;
                 }
+
                 unset($continue);
             }
         }
+
         return true;
     }
 
@@ -415,7 +430,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      *
      * @return void
      */
-    private function shutDownEverything(): void
+    protected function shutDownEverything(): void
     {
         foreach ($this->clients as $client) {
             $this->disconnect($client);
@@ -433,8 +448,8 @@ class PhoSocketServerCore implements PhoSocketServerInterface
 
         unset(
             $this->hooks,
-            $this->address,
-            $this->port,
+            $this->local_address,
+            $this->local_port,
             $this->timeout,
             $this->domain,
             $this->masterSocket,
@@ -476,32 +491,32 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      *
      * @return string
      */
-    public function getAddress(): string
+    public function getLocalAddress(): string
     {
-        return $this->address;
+        return $this->local_address;
     }
 
 
     /**
      * Sets the address property of this PhoSocketServer
      *
-     * @param $address
+     * @param $local_address
      *
      * @return static
      */
-    public function setAddress($address): static
+    public function setLocalAddress($local_address): static
     {
-        if (filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+        if (filter_var($local_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
             $this->domain = AF_INET;
 
-        } elseif (filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+        } elseif (filter_var($local_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
             $this->domain = AF_INET6;
 
         } else {
             $this->domain = AF_UNIX;
         }
 
-        $this->address = $address;
+        $this->local_address = $local_address;
         return $this;
     }
 
@@ -511,22 +526,22 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      *
      * @return int
      */
-    public function getPort(): int
+    public function getLocalPort(): int
     {
-        return $this->port;
+        return $this->local_port;
     }
 
 
     /**
      * Sets the port property of this PhoSocketServer
      *
-     * @param $port
+     * @param $local_port
      *
      * @return static
      */
-    public function setPort($port): static
+    public function setLocalPort($local_port): static
     {
-        $this->port = $port;
+        $this->local_port = $local_port;
         return $this;
     }
 

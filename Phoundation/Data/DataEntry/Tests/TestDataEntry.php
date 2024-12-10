@@ -67,6 +67,30 @@ class TestDataEntry extends DataEntry
 
 
     /**
+     * Returns the test-column field for this TestDataEntry object
+     *
+     * @return string|null
+     */
+    public function getTestColumn(): ?string
+    {
+        return $this->getTypesafe('string', 'test_column');
+    }
+
+
+    /**
+     * Sets the test-column field for this TestDataEntry object
+     *
+     * @param string|null $value
+     *
+     * @return TestDataEntry
+     */
+    public function setTestColumn(?string $value): static
+    {
+        return $this->set($value, 'test_column');
+    }
+
+    
+    /**
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
@@ -84,6 +108,8 @@ class TestDataEntry extends DataEntry
                                            }))
 
                     ->add(DefinitionFactory::newSeoName($this))
+
+                    ->add(DefinitionFactory::newCode($this, 'test_column'))
 
                     ->add(DefinitionFactory::newParentsId($this))
 
