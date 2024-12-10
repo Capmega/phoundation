@@ -263,7 +263,7 @@ class PhoSocket implements Stringable
             ':id'      => $this->__toString(),
             ':address' => $address,
             ':port'    => $port,
-        ]));
+        ]), 3);
 
         $result = socket_connect($this->resource, $address, $port);
 

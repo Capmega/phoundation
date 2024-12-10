@@ -233,10 +233,9 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
             throw PhoMetaTestNoDatabaseException::new(tr('Database Info Missing from PhoMetaTest source'));
         }
 
-        $connector   = Config::get('databases.connectors.' . $database_connector);
-        $o_connector = Connector::new($connector)->setDatabase($database_selector);
+        $o_connector = Connector::new($database_connector)->setDatabase($database_selector);
 
-        Log::action(tr('Saving key ":key" in database ":connector" at ":domain::port" database number ":db_number" for component ":component"', [
+        Log::action(tr('Saving key ":key" in database ":connector" at ":domain::port" database number ":db_number" for HL7 component ":component"', [
             ':key'       => $key,
             ':connector' => $database_connector,
             ':domain'    => $o_connector->getHostname(),
