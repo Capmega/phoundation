@@ -697,12 +697,18 @@ FILES variables:
         }
 
         if ($user->getEmail()) {
+            $message = $this->getMessage();
+
+            if ($this->getDetails()) {
+                $message .= PHP_EOL . PHP_EOL . tr('Details:') . PHP_EOL . Json::encode($this->getDetails());
+            }
+
             Pho::new()
                ->setPhoCommands('email send')
                ->addArgument('-h')
                ->addArguments(['-t', $user->getEmail()])
                ->addArguments(['-s', $this->getTitle()])
-               ->addArguments(['-b', $this->getMessage()])
+               ->addArguments(['-b', $message])
                ->executeBackground();
 
         } else {
