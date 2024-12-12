@@ -284,45 +284,76 @@ class CliCommand
             throw new CliCommandException(tr('Cannot startup the CliCommand class, it has already been started up'));
         }
 
-        // Enable the garbage collector
-        // TODO Should this always be on? Should this be moved to the Core class?
-        gc_enable();
-
-        $return = [
-            'limit'  => null,
-            'reason' => null,
-        ];
-
+        // Boot the Core object
         Core::boot();
 
-        // Various startup methods
+        // Startup sequence for the command line
+        static::onlyCommandLine();
+        static::initalizeSignalHandlers();
         static::checkPhoNotWorldExecutable();
         static::detectProcessUidMatchesPhoundationOwner();
         static::processSystemArguments();
         static::ensureProcessUidMatchesPhoundationOwner();
-        static::startupCore();
+        static::initializeReadLine();
 
-        // Define the readline completion function
+        // Startup the Core object and return command limits information
+        return static::startupCore();
+    }
+
+
+    /**
+     * Defines the readline completion function
+     *
+     * @return void
+     */
+    protected static function initializeReadline(): void
+    {
         readline_completion_function([
             '\Phoundation\Cli\CliCommand',
             'completeReadline',
         ]);
+    }
 
-        // Only allow this to be run by the command line interface
-        // TODO This should be done before Core::startup() but then the PLATFORM_CLI define would not exist yet. Fix this!
-        static::onlyCommandLine();
 
-        return $return;
+    /**
+     * Initializes the command line signal handers
+     *
+     * @return void
+     */
+    protected static function initalizeSignalHandlers(): void
+    {
+        // Catch and handle process control signals
+        pcntl_async_signals(true);
+
+        pcntl_signal(SIGINT, [
+            '\Phoundation\Core\ProcessControlSignals',
+            'execute',
+        ]);
+
+        pcntl_signal(SIGTERM, [
+            '\Phoundation\Core\ProcessControlSignals',
+            'execute',
+        ]);
+
+        pcntl_signal(SIGHUP, [
+            '\Phoundation\Core\ProcessControlSignals',
+            'execute',
+        ]);
     }
 
 
     /**
      * Starts up Core and handles Core startup exceptions
      *
-     * @return void
+     * @return array Command limit information, if any
      */
-    protected static function startupCore(): void
+    protected static function startupCore(): array
     {
+        $return = [
+            'limit'  => null,
+            'reason' => null,
+        ];
+
         try {
             // Startup the system core
             Core::startup();
@@ -343,6 +374,8 @@ class CliCommand
                 ':user' => Core::getMaintenanceMode(),
             ]);
         }
+
+        return $return;
     }
 
 

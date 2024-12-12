@@ -20,9 +20,7 @@ use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\GetVariables;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\CookieValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -215,6 +213,7 @@ class Route
         try {
             if (Core::isState(null)) {
                 Core::boot();
+                Core::detectProject();
                 Core::startup();
             }
 

@@ -289,9 +289,6 @@ class Core implements CoreInterface
         static::$state                         = 'boot';
         static::$register['system']['startup'] = microtime(true);
 
-        // Ensure Core PHP modules are available and loaded
-        static::ensureModules();
-
         // Set local and global process identifiers
         // TODO Implement support for global process identifier
         static::resetGlobalId();
@@ -299,9 +296,30 @@ class Core implements CoreInterface
 
         // Set the platform, constants, load basic library functions, initialize error and signal handling
         static::detectPlatform();
+        static::ensureModules();
         static::setConstants();
         static::loadLibraries();
-        static::initializeSignalAndErrorHandling();
+        static::initializeErrorHandlers();
+        static::initializeGarbageCollection();
+
+        // Register the process start
+        static::$timer = Timers::new('core', 'system');
+        define('STARTTIME', static::$timer->getStart());
+    }
+
+
+    /**
+     * Initializes the garbage collection depending on configuration
+     *
+     * @see https://www.php.net/manual/en/features.gc.php
+     * @see https://www.php.net/manual/en/features.gc.performance-considerations.php
+     *
+     * @todo implement this
+     * @return void
+     */
+    protected static function initializeGarbageCollection(): void
+    {
+        gc_enable();
     }
 
 
@@ -315,12 +333,15 @@ class Core implements CoreInterface
         $modules = [
             'mbstring',
             'posix',
-            'pcntl',
+            PLATFORM_CLI ? 'pcntl' : null,
         ];
 
         foreach ($modules as $module) {
-            if (!extension_loaded($module)) {
-                throw new CoreException('The PHP ' . $module . ' extension is required for Phoundation to run');
+            if ($module) {
+                if (!extension_loaded($module)) {
+                    throw new CoreException('The PHP "' . $module . '" module is required for Phoundation to run');
+                }
+
             }
         }
     }
@@ -387,7 +408,7 @@ class Core implements CoreInterface
      *
      * @return void
      */
-    protected static function initializeSignalAndErrorHandling(): void
+    protected static function initializeErrorHandlers(): void
     {
         // Setup error handling, report ALL errors, setup shutdown functions
         static::setErrorHandling(true);
@@ -397,28 +418,6 @@ class Core implements CoreInterface
             '\Phoundation\Core\Core',
             'exit',
         ]);
-
-        // Catch and handle process control signals
-        pcntl_async_signals(true);
-
-        pcntl_signal(SIGINT, [
-            '\Phoundation\Core\ProcessControlSignals',
-            'execute',
-        ]);
-
-        pcntl_signal(SIGTERM, [
-            '\Phoundation\Core\ProcessControlSignals',
-            'execute',
-        ]);
-
-        pcntl_signal(SIGHUP, [
-            '\Phoundation\Core\ProcessControlSignals',
-            'execute',
-        ]);
-
-        // Register the process start
-        static::$timer = Timers::new('core', 'system');
-        define('STARTTIME', static::$timer->getStart());
     }
 
 
@@ -643,7 +642,7 @@ class Core implements CoreInterface
             // No environment set in ENV, maybe given by parameter?
             Config::allowNoEnvironment();
             throw EnvironmentNotDefinedException::new('No required web environment specified for project "' . PROJECT . '"')
-                ->setCode(500);
+                                                ->setCode(500);
         }
 
         // Set environment and protocol
