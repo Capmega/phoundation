@@ -37,36 +37,48 @@ class PhoSocket implements Stringable
     protected bool $open;
 
     /**
-     * @var int Should be set to one of the php predefined constants for Sockets - AF_UNIX, AF_INET, or AF_INET6
+     * Should be set to one of the php predefined constants for Sockets - AF_UNIX, AF_INET, or AF_INET6
+     *
+     * @var int $domain
      */
     protected int $domain;
 
     /**
-     * @var int Should be set to one of the php predefined constants for Sockets - SOCK_STREAM, SOCK_DGRAM,
-     *          SOCK_SEQPACKET, SOCK_RAW, SOCK_RDM
+     * Should be set to one of the php predefined constants for Sockets - SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET,
+     * SOCK_RAW, SOCK_RDM
+     *
+     * @var int $type
      */
     protected int $type;
 
     /**
-     * @var int Should be set to the protocol number to be used. Can use getprotobyname to get the value.
-     *          Alternatively, there are two predefined constants for Sockets that could be used - SOL_TCP, SOL_UDP
+     * Should be set to the protocol number to be used. Can use getprotobyname to get the value. Alternatively, there
+     * are two predefined constants for Sockets that could be used - SOL_TCP, SOL_UDP
+     *
+     * @var int $protocol
      */
     protected int $protocol;
 
     /**
-     * @var string The IP address in string form for this socket. If the socket is not created or connected yet,
-     *             value will be not be set
+     * The IP address in string form for this socket. If the socket is not created or connected yet, value will be not
+     * be set
+     *
+     * @var string $address
      */
     protected string $address;
 
     /**
-     * @var int The Port value in int form for this socket. If the socket is not created or connected yet,
- *              value will be not be set
+     * The Port value in int form for this socket. If the socket is not created or connected yet, value will be not be
+     * set
+     *
+     * @var int $port
      */
     protected int $port;
 
     /**
-     * @var SocketResource The PHP Socket resource that this PHOSocket object uses.
+     * The PHP Socket resource that this PHOSocket object uses.
+     *
+     * @var SocketResource $resource
      */
     protected SocketResource $resource;
 
@@ -398,7 +410,7 @@ class PhoSocket implements Stringable
      */
     public function getPort(): ?int
     {
-        return $this->port ? : null;
+        return $this->port ?: null;
     }
 
 
@@ -412,7 +424,7 @@ class PhoSocket implements Stringable
     public function setPort(?int $port): static
     {
         $this->port = $port;
-        
+
         return $this;
     }
 
