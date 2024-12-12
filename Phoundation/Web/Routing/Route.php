@@ -207,13 +207,14 @@ class Route
 
 
     /**
-     * Route constructor
+     * Route class constructor
      */
     protected function __construct()
     {
         // Start the Core object
         try {
             if (Core::isState(null)) {
+                Core::boot();
                 Core::startup();
             }
 
