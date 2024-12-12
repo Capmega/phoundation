@@ -801,7 +801,7 @@ FILES variables:
                                     ->setLabel(tr('Code'))
                                     ->setDefault(tr('-'))
                                     ->addClasses('text-center')
-                                    ->setSize(6)
+                                    ->setSize(3)
                                     ->setMaxlength(16)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isPrintable();
