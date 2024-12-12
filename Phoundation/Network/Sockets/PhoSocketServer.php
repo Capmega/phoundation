@@ -46,4 +46,19 @@ class PhoSocketServer extends PhoSocketServerCore
             throw SocketServerException::new($e->getMessage(), $e);
         }
     }
+
+
+    /**
+     * Returns a new PhoSocketServer object
+     *
+     * @param string   $address
+     * @param int      $port
+     * @param int|null $timeout
+     *
+     * @return static
+     */
+    public static function new(string $address, int $port = 0, ?int $timeout = 0): static
+    {
+        return new static($address, $port, $timeout);
+    }
 }

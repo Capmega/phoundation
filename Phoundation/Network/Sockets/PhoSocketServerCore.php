@@ -20,6 +20,8 @@ namespace Phoundation\Network\Sockets;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataUSleep;
+use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Network\Sockets\Exception\SocketDisconnectionException;
 use Phoundation\Network\Sockets\Exception\SocketException;
 use Phoundation\Network\Sockets\Exception\SocketServerException;
 use Phoundation\Network\Sockets\Interfaces\PhoSocketServerInterface;
@@ -33,11 +35,62 @@ class PhoSocketServerCore implements PhoSocketServerInterface
 
 
     /**
-     * A Multi-dimensional array of callable arrays mapped by hook name.
+     * Constant String for Generic Connection Hook.
+     */
+    public const string HOOK_CONNECT = '__SOCKET_SERVER_CONNECT__';
+
+    /**
+     * Constant String for Generic Input Hook.
+     */
+    public const string HOOK_INPUT = '__SOCKET_SERVER_INPUT__';
+
+    /**
+     * Constant String for Generic Disconnect Hook.
+     */
+    public const string HOOK_DISCONNECT = '__SOCKET_SERVER_DISCONNECT__';
+
+    /**
+     * Constant String for Server Timeout.
+     */
+    public const string HOOK_TIMEOUT = '__SOCKET_SERVER_TIMEOUT__';
+
+    /**
+     * Return value from a hook callable to tell the server not to run the other hooks.
+     */
+    public const bool RETURN_HALT_HOOK = false;
+
+    /**
+     * Return value from a hook callable to tell the server to halt operations.
+     */
+    public const string RETURN_HALT_SERVER = '__HALT_SERVER__';
+
+    /**
+     * An array of hooks to be called when a socket connects to this server
      *
      * @var array<string, callable[]>
      */
-    protected array $hooks = [];
+    protected array $connection_hooks = [];
+
+    /**
+     * An array of hooks to be called when a socket sends a message to this server
+     *
+     * @var array<string, callable[]>
+     */
+    protected array $input_hooks = [];
+
+    /**
+     * An array of hooks to be called when a socket disconnects from this server
+     *
+     * @var array<string, callable[]>
+     */
+    protected array $disconnection_hooks = [];
+
+    /**
+     * An array of hooks to be called when a socket disconnects from this server
+     *
+     * @var array<string, callable[]>
+     */
+    protected array $timeout_hooks = [];
 
     /**
      * IP Address.
@@ -106,40 +159,45 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     protected int $read_type = PHP_BINARY_READ;
 
     /**
-     * Constant String for Generic Connection Hook.
+     * Tracks the total amount of messages received
+     *
+     * @var int $total_count
      */
-    public const string HOOK_CONNECT = '__SOCKET_SERVER_CONNECT__';
+    protected int $total_count = 0;
 
     /**
-     * Constant String for Generic Input Hook.
+     * Tracks the amount of messages sent within the last second
+     *
+     * @var int $second_count
      */
-    public const string HOOK_INPUT = '__SOCKET_SERVER_INPUT__';
+    protected int $second_count = 0;
 
     /**
-     * Constant String for Generic Disconnect Hook.
+     * Tracks the average amount of messages per second
+     *
+     * @var float $second_average
      */
-    public const string HOOK_DISCONNECT = '__SOCKET_SERVER_DISCONNECT__';
+    protected float $second_average = 0;
 
     /**
-     * Constant String for Server Timeout.
+     * Tracks the amount of seconds that this socket server has been listening
+     *
+     * @var int $total_seconds
      */
-    public const string HOOK_TIMEOUT = '__SOCKET_SERVER_TIMEOUT__';
+    protected int $total_seconds = 0;
 
     /**
-     * Return value from a hook callable to tell the server not to run the other hooks.
+     * Tracks statistics time
+     *
+     * @var float $time
      */
-    public const bool RETURN_HALT_HOOK = false;
-
-    /**
-     * Return value from a hook callable to tell the server to halt operations.
-     */
-    public const string RETURN_HALT_SERVER = '__HALT_SERVER__';
+    protected float $time = 0;
 
 
     /**
      * Start the server, binding to ports and listening for connections.
      *
-     * If you call {@see run} you do not need to call this method.
+     * If you call {@see execute} you do not need to call this method.
      *
      * @throws SocketException
      */
@@ -161,7 +219,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      */
     public function __destruct()
     {
-        $this->shutDownEverything();
+        $this->disconnectEverything();
     }
 
 
@@ -180,6 +238,64 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     }
 
 
+    /**
+     * Updates internal statistics
+     *
+     * @return void
+     */
+    protected function updateStatistics(): void
+    {
+        $time = microtime(true);
+
+        if (($time - $this->time) > 1) {
+            // 1 Second passed, update statistics
+            $this->second_average = ($this->total_count / ++$this->total_seconds);
+
+            $this->second_count = 0;
+            $this->time = $time;
+        }
+    }
+
+
+    public function getOnlineSeconds(): int
+    {
+        throw UnderConstructionException::new();
+    }
+
+
+    /**
+     * Returns the total count of messages received
+     *
+     * @return int
+     */
+    public function getTotalMessages(): int
+    {
+        return $this->total_count;
+    }
+
+
+    /**
+     * Returns the number of messages received this second
+     *
+     * @return int
+     */
+    public function getMessagesThisSecond(): int
+    {
+        throw UnderConstructionException::new();
+    }
+
+
+    /**
+     * Returns the average number of messages received per second based on the total time elapsed and the
+     * total message count
+     *
+     * @return float
+     */
+    public function getMessagesPerSecond(): float
+    {
+        throw UnderConstructionException::new();
+    }
+
 
     /**
      * Run the Server for as long as server iteration returns true.
@@ -188,16 +304,17 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      *
      * @throws SocketException
      */
-    public function run(bool $exception = false): void
+    public function execute(bool $exception = false): void
     {
         try{
             $this->ensureMasterSocketStarted();
 
             while ($this->processServerIteration($exception)) {
+                $this->updateStatistics();
                 usleep($this->usleep);
             }
 
-            $this->shutDownEverything();
+            $this->disconnectEverything();
 
         } catch (Throwable $e) {
             throw SocketServerException::new($e->getMessage(), $e);
@@ -224,7 +341,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
             $num_ready_sockets = PhoSocket::select($read_sockets, $write_sockets, $except_sockets, $this->timeout);
 
             if (($this->timeout !== null) and ($num_ready_sockets === 0)) {
-                if ($this->triggerHooks(static::HOOK_TIMEOUT, $this->master_socket) === false) {
+                if ($this->triggerTimeoutHooks($this->master_socket) === false) {
                     return false;
                 }
             }
@@ -284,7 +401,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
         $socket          = $this->master_socket->accept();
         $this->clients[] = $socket;
 
-        if ($this->triggerHooks(static::HOOK_CONNECT, $socket) === false) {
+        if ($this->triggerConnectionHooks($socket) === false) {
             usleep($this->usleep);
         }
     }
@@ -302,10 +419,11 @@ class PhoSocketServerCore implements PhoSocketServerInterface
         $input = $this->read($client);
 
         if ($input === '') {
+            $this->disconnect($client);
             return true;
         }
 
-        return $this->triggerHooks(static::HOOK_INPUT, $client, $input);
+        return $this->triggerInputHooks($client, $input);
     }
 
 
@@ -318,14 +436,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      */
     protected function read(PhoSocket $client): string
     {
-        try {
-            $return = $client->read($this->max_read, $this->read_type);
-
-        } catch (Throwable $e) {
-            throw SocketServerException::new($e->getMessage(), $e);
-        }
-
-        return $return;
+        return $client->read($this->max_read, $this->read_type);
     }
 
 
@@ -339,18 +450,13 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      */
     public function disconnect(PhoSocket $client, string $message = ''): void
     {
-        Log::action(tr('Disconnecting client ":client" from service ":service"', [
-            ':client'  => $client->getAddress(),
-            ':service' => $this->getService(),
-        ]));
-
         $client_index = array_search($client, $this->clients, true);
 
         if ($client_index === false) {
             return;
         }
 
-        $this->triggerHooks(static::HOOK_DISCONNECT, $this->clients[$client_index], $message);
+        $this->triggerDisconnectionHooks($this->clients[$client_index]);
         $this->clients[$client_index]->close();
 
         unset($this->clients[$client_index], $client);
@@ -358,30 +464,18 @@ class PhoSocketServerCore implements PhoSocketServerInterface
 
 
     /**
-     * Triggers the hooks for the supplied command.
+     * Triggers the hooks in the input_hooks array. Called when client socket sends a message to this PhoSocketServer
      *
-     * @param string      $command Hook to listen for (e.g. HOOK_CONNECT, HOOK_INPUT, HOOK_DISCONNECT, HOOK_TIMEOUT)
      * @param PhoSocket   $client
-     * @param string|null $input   Message Sent along with the Trigger
+     * @param string|null $input Message Sent along with the Trigger
      *
      * @return bool Whether to continue running the server (true: continue, false: shutdown)
      */
-    protected function triggerHooks(string $command, PhoSocket $client, ?string $input = null): bool
+    protected function triggerInputHooks(PhoSocket $client, ?string $input = null): bool
     {
-        if (isset($this->hooks[$command])) {
-            foreach ($this->hooks[$command] as $callable) {
-                $continue = $callable($this, $client, $input);
-
-                if ($continue === static::RETURN_HALT_HOOK) {
-                    break;
-                }
-
-                if ($continue === static::RETURN_HALT_SERVER) {
-                    return false;
-                }
-
-                unset($continue);
-            }
+        foreach ($this->input_hooks as $callable) {
+            $method = $callable($this, $client, $input);
+            unset($method);
         }
 
         return true;
@@ -389,41 +483,206 @@ class PhoSocketServerCore implements PhoSocketServerInterface
 
 
     /**
-     * Attach a Listener to a Hook.
+     * Triggers the hooks in the input_hooks array. Called when client socket connects to this PhoSocketServer
      *
-     * @param string   $command  Hook to listen for
+     * @param PhoSocket $client
+     *
+     * @return bool Whether to continue running the server (true: continue, false: shutdown)
+     */
+    protected function triggerConnectionHooks(PhoSocket $client): bool
+    {
+        $this->total_count++;
+
+        foreach ($this->connection_hooks as $callable) {
+            $method = $callable($this, $client);
+            unset($method);
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Triggers the hooks in the input_hooks array. Called when client socket disconnects from this PhoSocketServer
+     *
+     * @param PhoSocket $client
+     *
+     * @return bool Whether to continue running the server (true: continue, false: shutdown)
+     */
+    protected function triggerDisconnectionHooks(PhoSocket $client): bool
+    {
+        foreach ($this->disconnection_hooks as $callable) {
+            $method = $callable($this, $client);
+
+            unset($method);
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Triggers the hooks in the timeout_hooks array.
+     *
+     * @param PhoSocket $client
+     *
+     * @return bool Whether to continue running the server (true: continue, false: shutdown)
+     */
+    protected function triggerTimeoutHooks(PhoSocket $client): bool
+    {
+        foreach ($this->timeout_hooks as $callable) {
+            $method = $callable($this, $client);
+
+            if ($method === static::RETURN_HALT_HOOK) {
+                break;
+            }
+
+            // TODO: finalize this
+            if ($method === static::RETURN_HALT_SERVER) {
+                return false;
+            }
+
+            unset($method);
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Attach a Callback function that will be called when a connection is initiated
+     *
      * @param callable $callable A callable with the signature (Server, Socket, string). Callable should return false
      *                           if it wishes to stop the server, and true if it wishes to continue.
      *
      * @return static
      */
-    public function addHook(string $command, callable $callable): static
+    public function addConnectionHook(callable $callable): static
     {
-        if (empty($this->hooks[$command])) {
-            $this->hooks[$command] = [];
-        }
-
-        $this->hooks[$command][] = $callable;
+        $this->connection_hooks[] = $callable;
         return $this;
     }
 
 
     /**
-     * Remove the provided Callable from the provided Hook.
+     * Attach a Callback function that will be called when a connection is terminated
+     *
+     * @param callable $callable A callable with the signature (Server, Socket, string). Callable should return false
+     *                           if it wishes to stop the server, and true if it wishes to continue.
+     *
+     * @return static
+     */
+    public function addDisconnectionHook(callable $callable): static
+    {
+        $this->disconnection_hooks[] = $callable;
+        return $this;
+    }
+
+
+    /**
+     * Attach a Callback function that will be called when a message is sent from the PhoSocket client
+     *
+     * @param callable $callable A callable with the signature (Server, Socket, string). Callable should return false
+     *                           if it wishes to stop the server, and true if it wishes to continue.
+     *
+     * @return static
+     */
+    public function addInputHook(callable $callable): static
+    {
+        $this->input_hooks[] = $callable;
+        return $this;
+    }
+
+
+    /**
+     * Attach a Callback function that will be called when a connection is timed out
+     *
+     * @param callable $callable A callable with the signature (Server, Socket, string). Callable should return false
+     *                           if it wishes to stop the server, and true if it wishes to continue.
+     *
+     * @return static
+     */
+    public function addTimeoutHook(callable $callable): static
+    {
+        $this->timeout_hooks[] = $callable;
+        return $this;
+    }
+
+
+    /**
+     * Remove the provided Connection Callable from the provided Hook.
      *
      * @param string   $command  Hook to remove callable from
      * @param callable $callable The callable to be removed
      *
      * @return static
      */
-    public function removeHook(string $command, callable $callable): static
+    public function removeConnectionHook(string $command, callable $callable): static
     {
-        if (isset($this->hooks[$command])) {
-            if (in_array($callable, $this->hooks[$command])) {
-                $hook = array_search($callable, $this->hooks[$command]);
+        if (in_array($callable, $this->connection_hooks)) {
+            $hook = array_search($callable, $this->connection_hooks);
 
-                unset($this->hooks[$command][$hook], $hook);
-            }
+            unset($this->connection_hooks[$hook], $hook);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Remove the provided Disconnection Callable from the provided Hook.
+     *
+     * @param string   $command  Hook to remove callable from
+     * @param callable $callable The callable to be removed
+     *
+     * @return static
+     */
+    public function removeDisconnectionHook(string $command, callable $callable): static
+    {
+        if (in_array($callable, $this->disconnection_hooks)) {
+            $hook = array_search($callable, $this->disconnection_hooks);
+
+            unset($this->disconnection_hooks[$hook], $hook);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Remove the provided Input Callable from the provided Hook.
+     *
+     * @param string   $command  Hook to remove callable from
+     * @param callable $callable The callable to be removed
+     *
+     * @return static
+     */
+    public function removeInputHook(string $command, callable $callable): static
+    {
+        if (in_array($callable, $this->input_hooks)) {
+            $hook = array_search($callable, $this->input_hooks);
+
+            unset($this->input_hooks[$hook], $hook);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Remove the provided Timeout Callable from the provided Hook.
+     *
+     * @param string   $command  Hook to remove callable from
+     * @param callable $callable The callable to be removed
+     *
+     * @return static
+     */
+    public function removeTimeoutHook(string $command, callable $callable): static
+    {
+        if (in_array($callable, $this->timeout_hooks)) {
+            $hook = array_search($callable, $this->timeout_hooks);
+
+            unset($this->timeout_hooks[$hook], $hook);
         }
 
         return $this;
@@ -435,21 +694,13 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      *
      * @return void
      */
-    protected function shutDownEverything(): void
+    protected function disconnectEverything(): void
     {
         foreach ($this->clients as $client) {
             $this->disconnect($client);
         }
 
-        try {
-            $this->master_socket?->close();
-
-        } catch (Throwable $e) {
-            //Ignore 'harmless' error
-            if (!str_contains($e->getMessage(), 'must not be accessed before initialization')) {
-                throw SocketServerException::new($e->getMessage());
-            }
-        }
+        $this->closeMasterSocket();
 
         unset(
             $this->hooks,
@@ -467,26 +718,25 @@ class PhoSocketServerCore implements PhoSocketServerInterface
 
 
     /**
-     * Returns the hooks property of this PhoSocketServer
+     * Closes the master socket for this PhoSocketServer object
      *
-     * @return callable[][]
+     * @return $this
      */
-    public function getHooks(): array
+    protected function closeMasterSocket(): static
     {
-        return $this->hooks;
-    }
+        try {
+            if (isset($this->master_socket)) {
+                $this->master_socket->shutdown();
+                $this->master_socket->close(0, true);
+            }
 
+        } catch (Throwable $e) {
+            // Ignore error that occurs when master_socket is never initialized
+            if (!str_contains($e->getMessage(), 'must not be accessed before initialization')) {
+                throw SocketServerException::new($e->getMessage());
+            }
+        }
 
-    /**
-     * Sets the hooks property of this PhoSocketServer
-     *
-     * @param $hooks
-     *
-     * @return static
-     */
-    public function setHooks($hooks): static
-    {
-        $this->hooks = $hooks;
         return $this;
     }
 

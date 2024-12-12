@@ -51,7 +51,7 @@ class EchoServer extends PhoSocketServer
         $this->addHook(PhoSocketServer::HOOK_CONNECT   , [$this, 'onConnect']);
         $this->addHook(PhoSocketServer::HOOK_INPUT     , [$this, 'onInput']);
         $this->addHook(PhoSocketServer::HOOK_DISCONNECT, [$this, 'onDisconnect']);
-        $this->run();
+        $this->execute();
     }
 
 
@@ -93,7 +93,6 @@ class EchoServer extends PhoSocketServer
                 exit();
         }
 
-//        $response = '(' . count($this->clients) . ') ' . $message;
         $response = $message;
 
         Log::action(tr('Responding with ":message"', [
