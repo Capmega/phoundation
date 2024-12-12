@@ -64,17 +64,31 @@ class PhoSocket implements Stringable
      * The IP address in string form for this socket. If the socket is not created or connected yet, value will be not
      * be set
      *
-     * @var string $address
+     * @var string $local_address
      */
-    protected string $address;
+    protected string $local_address;
 
     /**
      * The Port value in int form for this socket. If the socket is not created or connected yet, value will be not be
      * set
      *
-     * @var int $port
+     * @var int $local_port
      */
-    protected int $port;
+    protected int $local_port;
+
+    /**
+     * The remote IP address for this socket
+     *
+     * @var string $remote_address
+     */
+    protected string $remote_address;
+
+    /**
+     * The remote port for this socket
+     *
+     * @var int $remote_port
+     */
+    protected int $remote_port;
 
     /**
      * The PHP Socket resource that this PHOSocket object uses.
@@ -207,7 +221,37 @@ class PhoSocket implements Stringable
             ->addMessages(socket_strerror(socket_last_error($this->resource)));
         }
 
-        return $this->setAddress($address)->setPort($port);
+        return $this->setLocalAddress($address)->setLocalPort($port);
+    }
+
+
+    /**
+     * Wrapper for PhoSocket::getOpen()
+     *
+     * @return bool
+     */
+    public function isOpen(): bool
+    {
+        return $this->getOpen();
+    }
+
+
+    /**
+     * Will throw SocketException if the socket is open
+     *
+     * @param string $action
+     *
+     * @return $this
+     */
+    protected function ensureClosed(string $action): static
+    {
+        if ($this->isOpen()) {
+            throw new SocketException(tr('Cannot perform action ":action", socket is open', [
+                ':action' => $action
+            ]));
+        }
+
+        return $this;
     }
 
 
@@ -257,13 +301,13 @@ class PhoSocket implements Stringable
      * <p>Initiate a connection to the address given using the current php socket resource, which must be a valid socket
      * resource created with <code>create()</code>.
      *
-     * @param string $address <p>The address parameter is either an IPv4 address in dotted-quad notation (e.g.
-     *                        <code>127.0.0.1</code>) if the socket is AF_INET, a valid IPv6 address
-     *                        (e.g. <code>::1</code>) if IPv6 support is enabled and the socket is AF_INET6, or the
-     *                        pathname of a Unix domain socket, if the socket family is AF_UNIX.</p>
-     * @param int $port       <p>(Optional) The port parameter is only used and is mandatory when connecting to an
-     *                        AF_INET or an AF_INET6 socket, and designates the port on the remote host to which a
-     *                        connection should be made.</p>
+     * @param string|null $address <p>The address parameter is either an IPv4 address in dotted-quad notation (e.g.
+     *                             <code>127.0.0.1</code>) if the socket is AF_INET, a valid IPv6 address
+     *                             (e.g. <code>::1</code>) if IPv6 support is enabled and the socket is AF_INET6, or the
+     *                             pathname of a Unix domain socket, if the socket family is AF_UNIX.</p>
+     * @param int|null    $port    <p>(Optional) The port parameter is only used and is mandatory when connecting to an
+     *                             AF_INET or an AF_INET6 socket, and designates the port on the remote host to which a
+     *                             connection should be made.</p>
      *
      * @return PhoSocket Returns <code>true</code> if connection was successful.
      *
@@ -271,7 +315,7 @@ class PhoSocket implements Stringable
      * @see PhoSocket::create()
      * @see PhoSocket::bind()
      */
-    public function connect(string $address, int $port = 0): static
+    public function connect(?string $address = null, ?int $port = null): static
     {
         Log::action(tr('Opening connection for socket ":id" at address ":address" and port ":port"', [
             ':id'      => $this->__toString(),
@@ -279,7 +323,7 @@ class PhoSocket implements Stringable
             ':port'    => $port,
         ]), 3);
 
-        $result = socket_connect($this->resource, $address, $port);
+        $result = socket_connect($this->resource, $this->remote_address ?? $address, $this->remote_port ?? $port);
 
         if (!$result) {
             throw SocketException::new(tr('Failed to connect to socket ":address::port"', [
@@ -409,26 +453,26 @@ class PhoSocket implements Stringable
      *
      * @return int|null
      */
-    public function getPort(): ?int
+    public function getLocalPort(): ?int
     {
-        if (empty($this->port)) {
+        if (empty($this->local_port)) {
             $this->setPeerName();
         }
 
-        return $this->port;
+        return $this->local_port;
     }
 
 
     /**
      * Sets the Port value property for the PhoSocket, then returns the PhoSocket
      *
-     * @param int|null $port The port number
+     * @param int|null $local_port The port number
      *
      * @return static
      */
-    protected function setPort(?int $port): static
+    protected function setLocalPort(?int $local_port): static
     {
-        $this->port = $port;
+        $this->local_port = $local_port;
 
         return $this;
     }
@@ -439,26 +483,81 @@ class PhoSocket implements Stringable
      *
      * @return string|null
      */
-    public function getAddress(): ?string
+    public function getLocalAddress(): ?string
     {
-        if (empty($this->port)) {
+        if (empty($this->local_port)) {
             $this->setPeerName();
         }
 
-        return $this->address ? : null;
+        return $this->local_address ? : null;
     }
 
 
     /**
      * Sets the Address value property for the PhoSocket, then returns the PhoSocket
      *
-     * @param string|null $address The address number
+     * @param string|null $local_address The address number
      *
      * @return static
      */
-    protected function setAddress(?string $address): static
+    protected function setLocalAddress(?string $local_address): static
     {
-        $this->address = $address;
+        $this->local_address = $local_address;
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the Port value for the PhoSocket, if initialized, otherwise returns null
+     *
+     * @return int|null
+     */
+    public function getRemotePort(): ?int
+    {
+        return $this->remote_port;
+    }
+
+
+    /**
+     * Sets the Port value property for the PhoSocket, then returns the PhoSocket
+     *
+     * @param int|null $remote_port The port number
+     *
+     * @return static
+     */
+    protected function setRemotePort(?int $remote_port): static
+    {
+        $this->ensureClosed(tr('set remote port'))
+             ->remote_port = $remote_port;
+
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the Address value for the PhoSocket, if initialized, otherwise returns null
+     *
+     * @return string|null
+     */
+    public function getRemoteAddress(): ?string
+    {
+        return $this->remote_address;
+    }
+
+
+    /**
+     * Sets the Address value property for the PhoSocket, then returns the PhoSocket
+     *
+     * @param string|null $remote_address The address number
+     *
+     * @return static
+     */
+    protected function setRemoteAddress(?string $remote_address): static
+    {
+        $this->ensureClosed(tr('set remote address'))
+             ->remote_address = $remote_address;
 
         return $this;
     }
@@ -724,7 +823,7 @@ class PhoSocket implements Stringable
      *
      * @return PhoSocket Returns nothing, but will set byref the $address and $port variables
      */
-    public function getPeerName(string &$address, int &$port): static
+    protected function getPeerName(string &$address, int &$port): static
     {
         $this->checkSocketOpen();
 
@@ -747,7 +846,7 @@ class PhoSocket implements Stringable
      *
      * @return PhoSocket
      */
-    public function setPeerName(): static
+    protected function setPeerName(): static
     {
         $address = '';
         $port    = 0;
@@ -758,14 +857,14 @@ class PhoSocket implements Stringable
             $address = null;
 
         } else {
-            $this->setAddress($address);
+            $this->setLocalAddress($address);
         }
 
         if ($port === 0) {
             $port = null;
 
         } else {
-            $this->setPort($port);
+            $this->setLocalPort($port);
         }
 
         return $this;
@@ -854,8 +953,8 @@ class PhoSocket implements Stringable
     public function listen(int $backlog = 0): static
     {
         Log::action(tr('Listening on ":ip::port"', [
-            ':ip' => $this->getAddress(),
-            ':port' => $this->getPort()
+            ':ip' => $this->getLocalAddress(),
+            ':port' => $this->getLocalPort()
         ]), 1);
 
 
