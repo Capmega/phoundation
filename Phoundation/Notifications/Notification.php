@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Notifications;
 
+use Phoundation\Accounts\Roles\Exception\RoleNotExistsException;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
@@ -197,6 +198,17 @@ class Notification extends DataEntry implements NotificationInterface
     public static function getUniqueColumn(): ?string
     {
         return null;
+    }
+
+
+    /**
+     * Returns id for this database entry that can be used in logs
+     *
+     * @return string
+     */
+    public function getLogId(): string
+    {
+        return $this->getTypesafe('int', static::getIdColumn()) . ' / ' . $this->getTitle();
     }
 
 
@@ -447,20 +459,31 @@ FILES variables:
 
             // Save and send this notification to all users that are members of the specified roles
             foreach ($this->getRolesObject() as $role) {
-                $users = Role::load($role)->getUsersObject();
+                try {
+                    $users = Role::load($role)->getUsersObject();
 
-                foreach ($users as $user) {
-                    try {
-                        $this->saveFor($user->getId())
-                             ->sendTo($user->getId());
+                    foreach ($users as $user) {
+                        try {
+                            $this->saveFor($user->getId())
+                                 ->sendTo($user->getId());
 
-                    } catch (Throwable $e) {
-                        Log::error(tr('Failed to save notification for user ":user" because of the following exception', [
-                            ':user' => $user->getId(),
-                        ]));
+                        } catch (Throwable $e) {
+                            Log::error(tr('Failed to save notification for user ":user" because of the following exception', [
+                                ':user' => $user->getId(),
+                            ]));
 
-                        Log::error($e);
+                            Log::error($e);
+                        }
                     }
+                } catch (RoleNotExistsException $e) {
+                    Incident::new()
+                            ->setException($e)
+                            ->setTitle(tr('Role does not exist'))
+                            ->setBody(tr('Will not send notification ":notification" to role ":role" because the role does not exist', [
+                                ':role'         => $role,
+                                ':notification' => $this->getLogId(),
+                            ]))
+                            ->save();
                 }
             }
 
