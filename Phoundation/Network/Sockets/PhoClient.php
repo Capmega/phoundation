@@ -19,7 +19,7 @@ declare(strict_types=1);
 namespace Phoundation\Network\Sockets;
 
 
-class Client
+class PhoClient
 {
     /**
      * @var PhoSocket The PhoSocket that this Client will use to connect to the server
@@ -70,7 +70,7 @@ class Client
      * @param string $ip
      * @param int    $port
      *
-     * @return Client
+     * @return PhoClient
      */
     public function connect(string $ip, int $port): static
     {

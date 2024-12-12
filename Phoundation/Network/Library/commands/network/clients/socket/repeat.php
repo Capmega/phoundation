@@ -21,7 +21,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
-use Phoundation\Network\Sockets\Client;
+use Phoundation\Network\Sockets\PhoClient;
 
 
 CliDocumentation::setAutoComplete(User::getAutoComplete([
@@ -89,7 +89,7 @@ Log::action(tr('Creating client with on ":host::port"',[
     ':port' => $argv['port'],
 ]));
 
-$client = new Client($argv['host'], $argv['port']);
+$client = new PhoClient($argv['host'], $argv['port']);
 Log::success(tr('Opened connection'));
 
 
