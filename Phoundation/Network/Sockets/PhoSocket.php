@@ -19,6 +19,7 @@ namespace Phoundation\Network\Sockets;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataStaticSourceArray;
+use Phoundation\Network\Sockets\Exception\SocketDisconnectionException;
 use Phoundation\Network\Sockets\Exception\SocketException;
 use Socket as SocketResource;
 use Stringable;
@@ -32,7 +33,7 @@ class PhoSocket implements Stringable
 
 
     /**
-     * @var bool indicate whether this PhoSocket is supposed to be open or closed
+     * @var bool Indicate whether this PhoSocket is open or closed
      */
     protected bool $open;
 
@@ -116,7 +117,7 @@ class PhoSocket implements Stringable
      */
     public function __destruct()
     {
-        $this->close(1, true);
+        $this->close(0, true);
         unset($this->resource);
     }
 
@@ -147,7 +148,7 @@ class PhoSocket implements Stringable
     /**
      * Accept a connection.
      *
-     * <p>After the socket socket has been created using <code>create()</code>, bound to a name with
+     * <p>After the socket has been created using <code>create()</code>, bound to a name with
      * <code>bind()</code>, and told to listen for connections with <code>listen()</code>, this function will accept
      * incoming connections on that socket. Once a successful connection is made, a new Socket resource is returned,
      * which may be used for communication. If there are multiple connections queued on the socket, the first will be
@@ -227,15 +228,15 @@ class PhoSocket implements Stringable
 
             try {
                 $linger_options = [
-                    'l_linger' => $linger,
-                    'l_onoff'  => (int) $force
+                    'l_linger' => 1,
+                    'l_onoff'  => 1
                 ];
 
                 socket_set_block($this->resource);
                 socket_set_option($this->resource, SOL_SOCKET, SO_LINGER, $linger_options);
+
                 socket_close($this->resource);
                 $this->open = false;
-
 
             } catch (Throwable $e) {
                 if (!str_contains($e->getMessage(), 'has already been closed')) {
@@ -410,7 +411,11 @@ class PhoSocket implements Stringable
      */
     public function getPort(): ?int
     {
-        return $this->port ?: null;
+        if (empty($this->port)) {
+            $this->setPeerName();
+        }
+
+        return $this->port;
     }
 
 
@@ -421,7 +426,7 @@ class PhoSocket implements Stringable
      *
      * @return static
      */
-    public function setPort(?int $port): static
+    protected function setPort(?int $port): static
     {
         $this->port = $port;
 
@@ -436,6 +441,10 @@ class PhoSocket implements Stringable
      */
     public function getAddress(): ?string
     {
+        if (empty($this->port)) {
+            $this->setPeerName();
+        }
+
         return $this->address ? : null;
     }
 
@@ -447,7 +456,7 @@ class PhoSocket implements Stringable
      *
      * @return static
      */
-    public function setAddress(?string $address): static
+    protected function setAddress(?string $address): static
     {
         $this->address = $address;
 
@@ -592,7 +601,7 @@ class PhoSocket implements Stringable
      */
     public static function createPair(int $domain, int $type, int $protocol): array
     {
-        $array = [];
+        $array  = [];
         $result = socket_create_pair($domain, $type, $protocol, $array);
 
         if (!$result) {
@@ -734,6 +743,36 @@ class PhoSocket implements Stringable
 
 
     /**
+     * Sets the address and port property of this PhoSocket object
+     *
+     * @return PhoSocket
+     */
+    public function setPeerName(): static
+    {
+        $address = '';
+        $port    = 0;
+
+        $this->getPeerName($address, $port);
+
+        if ($address === '') {
+            $address = null;
+
+        } else {
+            $this->setAddress($address);
+        }
+
+        if ($port === 0) {
+            $port = null;
+
+        } else {
+            $this->setPort($port);
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Queries the local side of the given socket which may either result in host/port or in a Unix filesystem path,
      * dependent on its type.
      *
@@ -856,10 +895,13 @@ class PhoSocket implements Stringable
     public function read(int $length, int $type = PHP_BINARY_READ): string
     {
         $this->checkSocketOpen();
-
         $return = socket_read($this->resource, $length, $type);
 
         if ($return === false) {
+            if (!$this->open) {
+                throw SocketDisconnectionException::new(tr('Socket disconnected'));
+            }
+
             throw SocketException::new(tr('Failed to read from socket with length ":length" and type ":type"', [
                 ':length'    => $length,
                 ':type'      => $type]))
@@ -1036,8 +1078,8 @@ class PhoSocket implements Stringable
             return 0;
         }
 
-        $totalWritten = 0;
-        $originalLength = $length;
+        $total_written   = 0;
+        $original_length = $length;
 
         try {
             while ($length > 0) {
@@ -1047,9 +1089,9 @@ class PhoSocket implements Stringable
                     throw SocketException::new(tr('PHP socket socket_write failed'));
                 }
 
-                $totalWritten += $written;
+                $total_written += $written;
 
-                if ($totalWritten >= $originalLength) {
+                if ($total_written >= $original_length) {
                     break;
                 }
 
@@ -1057,7 +1099,7 @@ class PhoSocket implements Stringable
                 $length -= $written;
             }
 
-            if ($totalWritten !== $originalLength) {
+            if ($total_written !== $original_length) {
                 throw SocketException::new(tr('incomplete write'));
             }
 
@@ -1066,11 +1108,11 @@ class PhoSocket implements Stringable
                 ':buffer' => $buffer,
                 ':length' => $length
             ]), $e)
-                                 ->setCode(socket_last_error($this->resource))
-                                 ->addMessages(socket_strerror(socket_last_error($this->resource)));
+            ->setCode(socket_last_error($this->resource))
+            ->addMessages(socket_strerror(socket_last_error($this->resource)));
         }
 
-        return $totalWritten;
+        return $total_written;
     }
 
 
@@ -1138,8 +1180,7 @@ class PhoSocket implements Stringable
      */
     public function setBlocking(bool $bool): static
     {
-        $result = $bool ? socket_set_block($this->resource)
-                        : socket_set_nonblock($this->resource);
+        $result = $bool ? socket_set_block($this->resource): socket_set_nonblock($this->resource);
 
         if ($result === false) {
             throw SocketException::new(tr('Failed to set blocking to ":bool"', [
@@ -1166,5 +1207,17 @@ class PhoSocket implements Stringable
         throw new SocketException(tr('Socket is not connected', [
             ':resource' => $this->resource]));
     }
+
+
+    /**
+     * Shuts down this socket
+     *
+     * @return void
+     */
+    public function shutdown(): void
+    {
+        socket_shutdown($this->getResource(),2);
+    }
+
 
 }

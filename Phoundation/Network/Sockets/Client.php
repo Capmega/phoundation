@@ -51,7 +51,7 @@ class Client
 
 
     /**
-     * Returns a new client object
+     * Returns a new static object
      *
      * @param string $ip
      * @param int    $port
