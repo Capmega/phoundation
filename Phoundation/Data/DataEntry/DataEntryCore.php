@@ -1100,10 +1100,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     /**
      * Ensures the display name is correct
      *
-     * @param string|null $real_name
+     * @param string|int|null $real_name
      * @return string|null
      */
-    protected function formatDisplayVariables(?string $real_name): ?string
+    protected function formatDisplayVariables(string|int|null $real_name): ?string
     {
         if ($this->isNew()) {
             return tr('New');
@@ -1113,7 +1113,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             return $real_name . ' ' . tr('[DELETED]');
         }
 
-        return $real_name;
+        return (string) $real_name;
     }
 
 
