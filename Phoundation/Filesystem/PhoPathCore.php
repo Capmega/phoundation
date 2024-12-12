@@ -75,6 +75,7 @@ use Phoundation\Filesystem\Requirements\Interfaces\RequirementsInterface;
 use Phoundation\Filesystem\Requirements\Requirements;
 use Phoundation\Filesystem\Traits\TraitDataBufferSize;
 use Phoundation\Filesystem\Traits\TraitDataIsRelative;
+use Phoundation\Os\Processes\Commands\Chmod;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Phoundation\Os\Processes\Commands\Interfaces\ZipInterface;
@@ -1913,15 +1914,20 @@ class PhoPathCore implements PhoPathInterface
         $this->checkRestrictions(true);
 
         if ($recursive or is_string($mode)) {
-            // Use operating system chmod command as PHP chmod does not support these functions
-            Process::new('chmod', $this->restrictions)
-                   ->setSudo($sudo)
-                   ->addArguments([
-                       ($recursive ? '-R' : null),
-                       '0' . decoct($mode),
-                       $this->source,
-                   ])
-                   ->executeReturnArray();
+            if (is_numeric($mode)) {
+                // Use operating system chmod command as PHP chmod does not support these functions
+                Process::new('chmod', $this->restrictions)
+                       ->setSudo($sudo)
+                       ->addArguments([
+                           ($recursive ? '-R' : null),
+                           '0' . decoct($mode),
+                           $this->source,
+                       ])
+                       ->executeReturnArray();
+            } else {
+                Chmod::new($this->getParentDirectory())->do($this->getSource(), $mode, false);
+            }
+
         } else {
             chmod($this->source, $mode);
         }
@@ -2065,7 +2071,7 @@ class PhoPathCore implements PhoPathInterface
      */
     protected function getRealPathLogString(): ?string
     {
-        if ($this->source === $this->getRealPath()->getSource()) {
+        if ($this->source === $this->getRealPath()) {
             return null;
         }
 
