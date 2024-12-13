@@ -51,7 +51,7 @@ class EchoServer extends PhoSocketServer
         $this->addHook(PhoSocketServer::HOOK_CONNECT   , [$this, 'onConnect']);
         $this->addHook(PhoSocketServer::HOOK_INPUT     , [$this, 'onInput']);
         $this->addHook(PhoSocketServer::HOOK_DISCONNECT, [$this, 'onDisconnect']);
-        $this->execute();
+        $this->listen();
     }
 
 

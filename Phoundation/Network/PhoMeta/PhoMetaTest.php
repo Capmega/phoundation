@@ -21,18 +21,17 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryData;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntrySetCreatedBy;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Redis\Redis;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaTestNoDatabaseException;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaTestNoUUIDException;
 use Phoundation\Network\PhoMeta\Interfaces\PhoMetaTestInterface;
-use Phoundation\Utils\Config;
 
 
 class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
 {
     use TraitDataEntryData;
+
 
     /**
      * Returns the table name used by this object
@@ -216,9 +215,13 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
      * Records a test entry into a database, with all info specified in a PhoMetaTest object
      * Returns true if saved successfully
      *
-     * @return bool
+     * @param bool        $force
+     * @param bool        $skip_validation
+     * @param string|null $comments
+     *
+     * @return static
      */
-    public function saveTest(): bool
+    public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
         $component          = $this->getComponent();
         $key                = get_null($this->getKey());
@@ -247,7 +250,7 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
 
         Redis::new($o_connector)->set($component, $key)->close();
 
-        return true;
+        return $this;
     }
 
 

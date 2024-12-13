@@ -380,7 +380,7 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
         }
 
         if ($test_data['component'] === $component) {
-            return PhoMetaTest::new($test_data)->saveTest();
+            return PhoMetaTest::new($test_data)->save();
         }
 
         return false;

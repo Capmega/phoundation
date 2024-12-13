@@ -18,6 +18,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Network\Sockets;
 
+use Phoundation\Network\Enums\EnumNetworkSocketDomain;
+
 
 class PhoClient
 {
@@ -27,8 +29,7 @@ class PhoClient
     protected PhoSocket $socket;
 
     /**
-     * Maximum amount of characters to send at once
-     * This integer is passed directly to socket_read.
+     * The Maximum number of characters to send at once. This integer is passed directly to socket_read.
      *
      * @var int
      */
@@ -36,7 +37,7 @@ class PhoClient
 
 
     /**
-     * Constructs a Client object by creating a socket and connecting the socket to the specified server
+     * PhoClient class constructor
      *
      * @param string $ip
      * @param int    $port
@@ -45,8 +46,9 @@ class PhoClient
      */
     public function __construct(string $ip, int $port)
    {
-       $this->socket = PhoSocket::create(AF_INET, SOCK_STREAM, SOL_TCP);
-       $this->connect($ip, $port);
+       $this->socket = PhoSocket::create(EnumNetworkSocketDomain::AF_INET, SOCK_STREAM, SOL_TCP)
+                                ->setRemoteAddress($ip)
+                                ->setRemotePort($port);
    }
 
 
@@ -67,20 +69,17 @@ class PhoClient
     /**
      * Connects the client to the specified server
      *
-     * @param string $ip
-     * @param int    $port
-     *
      * @return PhoClient
      */
-    public function connect(string $ip, int $port): static
+    public function connect(): static
     {
-        $this->socket->connect($ip, $port);
+        $this->socket->connect();
         return $this;
     }
 
 
     /**
-     * Sends a message (string) to the server
+     * Sends a message to the server
      *
      * @param string $message
      *
@@ -89,7 +88,6 @@ class PhoClient
     public function send(string $message): static
     {
         $this->socket->write($message);
-
         return $this;
     }
 
@@ -112,7 +110,7 @@ class PhoClient
      */
     public function close(): static
     {
-        $this->socket->close();
+        $this->socket->disconnect();
         return $this;
     }
 

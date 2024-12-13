@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class SocketException
+ * Class SocketDisconnectedException
  *
  *
  *
@@ -16,10 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Network\Sockets\Exception;
 
-
 use Phoundation\Network\Exception\NetworkException;
 
 
-class SocketDisconnectionException extends NetworkException
+class SocketDisconnectedException extends NetworkException
 {
 }

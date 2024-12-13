@@ -2,49 +2,16 @@
 
 namespace Phoundation\Network\Sockets\Interfaces;
 
-use Phoundation\Core\Core;
-use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Network\Enums\EnumNetworkSocketDomain;
+use Phoundation\Network\Interfaces\PhoSocketsInterface\PhoSocketInterface;
 use Phoundation\Network\Sockets\Exception\SocketException;
-use Phoundation\Network\Sockets\Exception\SocketServerException;
-use Phoundation\Network\Sockets\PhoSocket;
-use Phoundation\Network\Sockets\PhoSocketServerCore;
-use Phoundation\Security\Incidents\Incident;
 
 interface PhoSocketServerInterface
 {
     /**
-     * Start the server, binding to ports and listening for connections.
-     *
-     * If you call {@see execute} you do not need to call this method.
-     *
-     * @throws SocketException
-     */
-    public function start(): static;
-
-
-    /**
      * Called when object destroyed
      */
     public function __destruct();
-
-
-    /**
-     * Checks if the master socket is started,
-     *
-     * @return $this
-     */
-    public function ensureMasterSocketStarted(): static;
-
-    public function getOnlineSeconds(): int;
-
-
-    public function getTotalMessages(): int;
-
-
-    public function getMessagesThisSecond(): int;
-
-
-    public function getMessagesPerSecond(): float;
 
 
     /**
@@ -60,12 +27,12 @@ interface PhoSocketServerInterface
     /**
      * Disconnect the supplied Client Socket.
      *
-     * @param PhoSocket $client
+     * @param PhoSocketInterface $client
      * @param string    $message Disconnection Message.  Could be used to trigger a disconnect with a status code
      *
      * @return void
      */
-    public function disconnect(PhoSocket $client, string $message = ''): void;
+    public function disconnect(PhoSocketInterface $client, string $message = ''): void;
 
 
     /**
@@ -115,77 +82,74 @@ interface PhoSocketServerInterface
     /**
      * Remove the provided Connection Callable from the provided Hook.
      *
-     * @param string   $command  Hook to remove callable from
-     * @param callable $callable The callable to be removed
+     * @param int|string $key
      *
      * @return static
      */
-    public function removeConnectionHook(string $command, callable $callable): static;
+    public function removeConnectionHook(int|string $key): static;
 
 
     /**
      * Remove the provided Disconnection Callable from the provided Hook.
      *
-     * @param string   $command  Hook to remove callable from
-     * @param callable $callable The callable to be removed
+     * @param int|string $key
      *
      * @return static
      */
-    public function removeDisconnectionHook(string $command, callable $callable): static;
+    public function removeDisconnectionHook(int|string $key): static;
+
 
     /**
      * Remove the provided Input Callable from the provided Hook.
      *
-     * @param string   $command  Hook to remove callable from
-     * @param callable $callable The callable to be removed
+     * @param int|string $key
      *
      * @return static
      */
-    public function removeInputHook(string $command, callable $callable): static;
+    public function removeInputHook(int|string $key): static;
 
 
     /**
      * Remove the provided Timeout Callable from the provided Hook.
      *
-     * @param string   $command  Hook to remove callable from
-     * @param callable $callable The callable to be removed
+     * @param int|string $key
      *
      * @return static
      */
-    public function removeTimeoutHook(string $command, callable $callable): static;
+    public function removeTimeoutHook(int|string $key): static;
 
 
     /**
      * Returns the address property of this PhoSocketServer
      *
-     * @return string
+     * @return string|null
      */
-    public function getLocalAddress(): string;
+    public function getListenAddress(): ?string;
 
     /**
      * Sets the address property of this PhoSocketServer
      *
-     * @param $local_address
+     * @param string|null $listen_address
      *
      * @return static
      */
-    public function setLocalAddress($local_address): static;
+    public function setListenAddress(?string $listen_address): static;
 
     /**
      * Returns the port property of this PhoSocketServer
      *
      * @return int
      */
-    public function getLocalPort(): int;
+    public function getListenPort(): int;
 
     /**
      * Sets the port property of this PhoSocketServer
      *
-     * @param $local_port
+     * @param int|null $listen_port
      *
      * @return static
      */
-    public function setLocalPort($local_port): static;
+    public function setListenPort(?int $listen_port): static;
 
 
     /**
@@ -207,32 +171,32 @@ interface PhoSocketServerInterface
     /**
      * Returns the domain property of this PhoSocketServer
      *
-     * @return int
+     * @return EnumNetworkSocketDomain
      */
-    public function getDomain(): int;
+    public function getDomain(): EnumNetworkSocketDomain;
 
     /**
      * Sets the domain property of this PhoSocketServer
      *
-     * @param $domain
+     * @param EnumNetworkSocketDomain $domain
      *
      * @return static
      */
-    public function setDomain($domain): static;
+    public function setDomain(EnumNetworkSocketDomain $domain): static;
 
     /**
      * Returns the master_socket property of this PhoSocketServer
      *
-     * @return PhoSocket|null
+     * @return PhoSocketInterface|null
      */
-    public function getMasterSocket(): ?PhoSocket;
+    public function getMasterSocket(): ?PhoSocketInterface;
 
     /**
      * Sets the master_socket property of this PhoSocketServer
      *
-     * @param PhoSocket|null $master_socket
+     * @param PhoSocketInterface|null $master_socket
      *
      * @return static
      */
-    public function setMasterSocket(?PhoSocket $master_socket): static;
+    public function setMasterSocket(?PhoSocketInterface $master_socket): static;
 }

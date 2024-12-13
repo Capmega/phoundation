@@ -37,10 +37,10 @@ class PhoSocketServer extends PhoSocketServerCore
     public function __construct(string $address, int $port = 0, ?int $timeout = 0)
     {
         try {
-            $this->setLocalAddress($address);
-            $this->setLocalPort($port);
-            $this->setTimeout($timeout);
-            $this->setUSleep(Config::getInteger('network.sockets.usleep', 10));
+            $this->setListenAddress($address)
+                 ->setListenPort($port)
+                 ->setTimeout($timeout)
+                 ->setUSleep(Config::getInteger('network.sockets.usleep', 10));
 
         } catch (Throwable $e) {
             throw SocketServerException::new($e->getMessage(), $e);

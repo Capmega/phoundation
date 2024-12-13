@@ -19,12 +19,15 @@ namespace Phoundation\Network\Sockets;
 
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Traits\TraitDataName;
 use Phoundation\Data\Traits\TraitDataUSleep;
-use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Network\Sockets\Exception\SocketDisconnectionException;
+use Phoundation\Network\Enums\EnumNetworkSocketDomain;
+use Phoundation\Network\Interfaces\PhoSocketsInterface\PhoSocketInterface;
+use Phoundation\Network\Sockets\Exception\SocketAddressInUseException;
 use Phoundation\Network\Sockets\Exception\SocketException;
 use Phoundation\Network\Sockets\Exception\SocketServerException;
 use Phoundation\Network\Sockets\Interfaces\PhoSocketServerInterface;
+use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
 use Throwable;
 
@@ -32,6 +35,7 @@ use Throwable;
 class PhoSocketServerCore implements PhoSocketServerInterface
 {
     use TraitDataUSleep;
+    use TraitDataName;
 
 
     /**
@@ -64,6 +68,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      */
     public const string RETURN_HALT_SERVER = '__HALT_SERVER__';
 
+
     /**
      * An array of hooks to be called when a socket connects to this server
      *
@@ -95,16 +100,16 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     /**
      * IP Address.
      *
-     * @var string
+     * @var string|null
      */
-    protected string $local_address;
+    protected ?string $listen_address = null;
 
     /**
      * Port Number.
      *
-     * @var int
+     * @var int|null
      */
-    protected int $local_port;
+    protected ?int $listen_port = null;
 
     /**
      * Seconds to wait on a socket before timing out.
@@ -114,20 +119,20 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     protected ?int $timeout = null;
 
     /**
-     * Domain.
+     * Domain
      *
      * @see http://php.net/manual/en/function.socket-create.php
      *
-     * @var int One of AF_INET, AF_INET6, AF_UNIX
+     * @var EnumNetworkSocketDomain One of AF_INET, AF_INET6, AF_UNIX
      */
-    protected int $domain;
+    protected EnumNetworkSocketDomain $domain = EnumNetworkSocketDomain::AF_INET;
 
     /**
      * The Master Socket.
      *
-     * @var ?PhoSocket
+     * @var PhoSocketInterface|null
      */
-    protected ?PhoSocket $master_socket = null;
+    protected ?PhoSocketInterface $master_socket = null;
 
     /**
      * Maximum Amount of Clients Allowed to Connect.
@@ -147,7 +152,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     /**
      * Connected Clients.
      *
-     * @var PhoSocket[]
+     * @var array $clients
      */
     protected array $clients = [];
 
@@ -166,7 +171,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     protected int $total_count = 0;
 
     /**
-     * Tracks the amount of messages sent within the last second
+     * Tracks the number of messages sent within the last second
      *
      * @var int $second_count
      */
@@ -193,29 +198,16 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      */
     protected float $time = 0;
 
-
     /**
-     * Start the server, binding to ports and listening for connections.
+     * Log statistics every $log_statistics messages
      *
-     * If you call {@see execute} you do not need to call this method.
-     *
-     * @throws SocketException
+     * @var int $log_statistics
      */
-    public function start(): static
-    {
-        Core::setTimeout(0);
-
-        $this->master_socket = PhoSocket::create($this->domain, SOCK_STREAM, 0)
-                                        ->bind($this->local_address, $this->local_port)
-                                        ->getSockName($this->local_address, $this->local_port)
-                                        ->listen();
-
-        return $this;
-    }
+    protected int $log_statistics = 100;
 
 
     /**
-     * Called when object destroyed
+     * PhoSocketServerCore class destructor
      */
     public function __destruct()
     {
@@ -224,14 +216,33 @@ class PhoSocketServerCore implements PhoSocketServerInterface
 
 
     /**
+     * Start the server, binding to ports and listening for connections.
+     *
+     * If you call {@see listen} you do not need to call this method.
+     *
+     * @throws SocketException
+     */
+    protected function listen(): static
+    {
+        Core::setTimeout(0);
+
+        $this->master_socket = PhoSocket::create($this->domain, SOCK_STREAM, 0)
+                                        ->bind($this->listen_address, $this->listen_port)
+                                        ->listen();
+
+        return $this;
+    }
+
+
+    /**
      * Checks if the master socket is started,
      *
      * @return $this
      */
-    public function ensureMasterSocketStarted(): static
+    protected function ensureMasterSocketStarted(): static
     {
         if ($this->master_socket === null) {
-            $this->start();
+            $this->listen();
         }
 
         return $this;
@@ -250,16 +261,20 @@ class PhoSocketServerCore implements PhoSocketServerInterface
         if (($time - $this->time) > 1) {
             // 1 Second passed, update statistics
             $this->second_average = ($this->total_count / ++$this->total_seconds);
-
-            $this->second_count = 0;
-            $this->time = $time;
+            $this->second_count   = 0;
+            $this->time           = $time;
         }
     }
 
 
-    public function getOnlineSeconds(): int
+    /**
+     * Returns the number of seconds that this socket server has been connected
+     *
+     * @return int
+     */
+    public function getConnectedSeconds(): int
     {
-        throw UnderConstructionException::new();
+        return $this->total_seconds;
     }
 
 
@@ -281,7 +296,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      */
     public function getMessagesThisSecond(): int
     {
-        throw UnderConstructionException::new();
+        return $this->second_count;
     }
 
 
@@ -293,7 +308,18 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      */
     public function getMessagesPerSecond(): float
     {
-        throw UnderConstructionException::new();
+        return $this->second_count / $this->total_seconds;
+    }
+
+
+    /**
+     * Returns the current amount of open connections
+     *
+     * @return int
+     */
+    public function getOpenConnections(): int
+    {
+        return count($this->clients);
     }
 
 
@@ -317,6 +343,10 @@ class PhoSocketServerCore implements PhoSocketServerInterface
             $this->disconnectEverything();
 
         } catch (Throwable $e) {
+            if ($e instanceof SocketAddressInUseException) {
+                throw $e;
+            }
+
             throw SocketServerException::new($e->getMessage(), $e);
         }
     }
@@ -356,8 +386,6 @@ class PhoSocketServerCore implements PhoSocketServerInterface
                 }
             }
 
-            unset($read_sockets, $write_sockets, $except_sockets);
-
         } catch (Throwable $e) {
             if ($exception) {
                 throw SocketServerException::new($e->getMessage(), $e);
@@ -365,6 +393,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
 
             Incident::new()
                     ->setException($e)
+                    ->setSeverity(EnumSeverity::severe)
                     ->setLog(ENVIRONMENT === 'production' ? 10 : 4)
                     ->setNotifyRoles('developer')
                     ->save();
@@ -408,6 +437,25 @@ class PhoSocketServerCore implements PhoSocketServerInterface
 
 
     /**
+     * Logs statistical information
+     *
+     * @return $this
+     */
+    protected function logStatistics(): static
+    {
+        if (!fmod($this->total_count, $this->log_statistics)) {
+            Log::printr([
+                'total amount of message' => $this->total_count,
+                'total connection time'   => $this->total_seconds,
+                'messages per second'     => $this->second_average,
+            ], echo_header: false);
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Handles client input
      *
      * @param $client
@@ -423,18 +471,19 @@ class PhoSocketServerCore implements PhoSocketServerInterface
             return true;
         }
 
-        return $this->triggerInputHooks($client, $input);
+        return $this->logStatistics()
+                    ->triggerInputHooks($client, $input);
     }
 
 
     /**
      * Read functionality.
      *
-     * @param PhoSocket $client
+     * @param PhoSocketInterface $client
      *
      * @return string
      */
-    protected function read(PhoSocket $client): string
+    protected function read(PhoSocketInterface $client): string
     {
         return $client->read($this->max_read, $this->read_type);
     }
@@ -443,13 +492,19 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     /**
      * Disconnect the supplied Client Socket.
      *
-     * @param PhoSocket $client
-     * @param string    $message Disconnection Message.  Could be used to trigger a disconnect with a status code
+     * @param PhoSocketInterface $client
+     * @param string             $message Disconnection Message. Can be used to trigger a disconnect with a status code
      *
      * @return void
      */
-    public function disconnect(PhoSocket $client, string $message = ''): void
+    public function disconnect(PhoSocketInterface $client, string $message = ''): void
     {
+        Log::action(tr('Disconnecting client ":address::port" from service ":name"', [
+            ':address' => $client->getRemoteAddress(),
+            ':port'    => $client->getRemotePort(),
+            ':name'    => $this->getName(),
+        ]));
+
         $client_index = array_search($client, $this->clients, true);
 
         if ($client_index === false) {
@@ -457,7 +512,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
         }
 
         $this->triggerDisconnectionHooks($this->clients[$client_index]);
-        $this->clients[$client_index]->close();
+        $this->clients[$client_index]->disconnect();
 
         unset($this->clients[$client_index], $client);
     }
@@ -466,16 +521,29 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     /**
      * Triggers the hooks in the input_hooks array. Called when client socket sends a message to this PhoSocketServer
      *
-     * @param PhoSocket   $client
-     * @param string|null $input Message Sent along with the Trigger
+     * @param PhoSocketInterface $client
+     * @param string|null        $input Message Sent along with the Trigger
      *
      * @return bool Whether to continue running the server (true: continue, false: shutdown)
      */
-    protected function triggerInputHooks(PhoSocket $client, ?string $input = null): bool
+    protected function triggerInputHooks(PhoSocketInterface $client, ?string $input = null): bool
     {
-        foreach ($this->input_hooks as $callable) {
-            $method = $callable($this, $client, $input);
-            unset($method);
+        try {
+            $this->total_count++;
+
+            foreach ($this->input_hooks as $callable) {
+                $callable($this, $client, $input);
+            }
+
+        } catch (Throwable $e) {
+            Incident::new()
+                    ->setException($e)
+                    ->setTitle(tr('Socket server input hook failed'))
+                    ->setNotifyRoles('developer')
+                    ->setDetails([
+                        'data' => $input
+                    ])
+                    ->save();
         }
 
         return true;
@@ -485,17 +553,36 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     /**
      * Triggers the hooks in the input_hooks array. Called when client socket connects to this PhoSocketServer
      *
-     * @param PhoSocket $client
+     * @param PhoSocketInterface $client
      *
      * @return bool Whether to continue running the server (true: continue, false: shutdown)
      */
-    protected function triggerConnectionHooks(PhoSocket $client): bool
+    protected function triggerConnectionHooks(PhoSocketInterface $client): bool
     {
-        $this->total_count++;
+        try {
+            Log::action(tr('Service ":name" received connection on local address ":local_ip::local_port" from remote address ":remote_ip::remote_port"', [
+                ':name'        => $this->getName(),
+                ':local_ip'    => $client->getLocalAddress(),
+                ':local_port'  => $client->getLocalPort(),
+                ':remote_ip'   => $client->getRemoteAddress(),
+                ':remote_port' => $client->getRemotePort(),
+            ]));
 
-        foreach ($this->connection_hooks as $callable) {
-            $method = $callable($this, $client);
-            unset($method);
+            foreach ($this->connection_hooks as $callable) {
+                $callable($this, $client);
+            }
+
+            Log::notice(tr('Service ":name" has ":count" open connections', [
+                ':name'  => $this->getName(),
+                ':count' => $this->getOpenConnections(),
+            ]));
+
+        } catch (Throwable $e) {
+            Incident::new()
+                    ->setException($e)
+                    ->setTitle(tr('Socket server connection hook failed'))
+                    ->setNotifyRoles('developer')
+                    ->save();
         }
 
         return true;
@@ -505,16 +592,34 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     /**
      * Triggers the hooks in the input_hooks array. Called when client socket disconnects from this PhoSocketServer
      *
-     * @param PhoSocket $client
+     * @param PhoSocketInterface $client
      *
      * @return bool Whether to continue running the server (true: continue, false: shutdown)
      */
-    protected function triggerDisconnectionHooks(PhoSocket $client): bool
+    protected function triggerDisconnectionHooks(PhoSocketInterface $client): bool
     {
-        foreach ($this->disconnection_hooks as $callable) {
-            $method = $callable($this, $client);
+        try {
+            Log::action(tr('Client ":address::port" disconnected from service ":name"', [
+                ':address' => $client->getRemoteAddress(),
+                ':port'    => $client->getRemotePort(),
+                ':name'    => $this->getName(),
+            ]));
 
-            unset($method);
+            foreach ($this->disconnection_hooks as $callable) {
+                $callable($this, $client);
+            }
+
+            Log::notice(tr('Service ":name" has ":count" open connections', [
+                ':name'  => $this->getName(),
+                ':count' => $this->getOpenConnections(),
+            ]));
+
+        } catch (Throwable $e) {
+            Incident::new()
+                    ->setException($e)
+                    ->setTitle(tr('Socket server disconnection hook failed'))
+                    ->setNotifyRoles('developer')
+                    ->save();
         }
 
         return true;
@@ -524,25 +629,34 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     /**
      * Triggers the hooks in the timeout_hooks array.
      *
-     * @param PhoSocket $client
+     * @param PhoSocketInterface $client
      *
      * @return bool Whether to continue running the server (true: continue, false: shutdown)
      */
-    protected function triggerTimeoutHooks(PhoSocket $client): bool
+    protected function triggerTimeoutHooks(PhoSocketInterface $client): bool
     {
-        foreach ($this->timeout_hooks as $callable) {
-            $method = $callable($this, $client);
+        try {
+            foreach ($this->timeout_hooks as $callable) {
+                $method = $callable($this, $client);
 
-            if ($method === static::RETURN_HALT_HOOK) {
-                break;
+                if ($method === static::RETURN_HALT_HOOK) {
+                    break;
+                }
+
+                // TODO: finalize this
+                if ($method === static::RETURN_HALT_SERVER) {
+                    return false;
+                }
+
+                unset($method);
             }
 
-            // TODO: finalize this
-            if ($method === static::RETURN_HALT_SERVER) {
-                return false;
-            }
-
-            unset($method);
+        } catch (Throwable $e) {
+            Incident::new()
+                    ->setException($e)
+                    ->setTitle(tr('Socket server timeout hook failed'))
+                    ->setNotifyRoles('developer')
+                    ->save();
         }
 
         return true;
@@ -580,7 +694,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
 
 
     /**
-     * Attach a Callback function that will be called when a message is sent from the PhoSocket client
+     * Attach a Callback function that will be called when a message is sent from the PhoSocketInterface client
      *
      * @param callable $callable A callable with the signature (Server, Socket, string). Callable should return false
      *                           if it wishes to stop the server, and true if it wishes to continue.
@@ -612,19 +726,13 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     /**
      * Remove the provided Connection Callable from the provided Hook.
      *
-     * @param string   $command  Hook to remove callable from
-     * @param callable $callable The callable to be removed
+     * @param int|string $key The callable to be removed
      *
      * @return static
      */
-    public function removeConnectionHook(string $command, callable $callable): static
+    public function removeConnectionHook(int|string $key): static
     {
-        if (in_array($callable, $this->connection_hooks)) {
-            $hook = array_search($callable, $this->connection_hooks);
-
-            unset($this->connection_hooks[$hook], $hook);
-        }
-
+        unset($this->connection_hooks[$key]);
         return $this;
     }
 
@@ -632,19 +740,13 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     /**
      * Remove the provided Disconnection Callable from the provided Hook.
      *
-     * @param string   $command  Hook to remove callable from
-     * @param callable $callable The callable to be removed
+     * @param int|string $key
      *
      * @return static
      */
-    public function removeDisconnectionHook(string $command, callable $callable): static
+    public function removeDisconnectionHook(int|string $key): static
     {
-        if (in_array($callable, $this->disconnection_hooks)) {
-            $hook = array_search($callable, $this->disconnection_hooks);
-
-            unset($this->disconnection_hooks[$hook], $hook);
-        }
-
+        unset($this->disconnection_hooks[$key]);
         return $this;
     }
 
@@ -652,19 +754,13 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     /**
      * Remove the provided Input Callable from the provided Hook.
      *
-     * @param string   $command  Hook to remove callable from
-     * @param callable $callable The callable to be removed
+     * @param int|string $key
      *
      * @return static
      */
-    public function removeInputHook(string $command, callable $callable): static
+    public function removeInputHook(int|string $key): static
     {
-        if (in_array($callable, $this->input_hooks)) {
-            $hook = array_search($callable, $this->input_hooks);
-
-            unset($this->input_hooks[$hook], $hook);
-        }
-
+        unset($this->input_hooks[$key]);
         return $this;
     }
 
@@ -672,18 +768,28 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     /**
      * Remove the provided Timeout Callable from the provided Hook.
      *
-     * @param string   $command  Hook to remove callable from
-     * @param callable $callable The callable to be removed
+     * @param int|string $key
      *
      * @return static
      */
-    public function removeTimeoutHook(string $command, callable $callable): static
+    public function removeTimeoutHook(int|string $key): static
     {
-        if (in_array($callable, $this->timeout_hooks)) {
-            $hook = array_search($callable, $this->timeout_hooks);
+        unset($this->timeout_hooks[$key]);
+        return $this;
+    }
 
-            unset($this->timeout_hooks[$hook], $hook);
-        }
+
+    /**
+     * Clears all hook functions for this server
+     *
+     * @return static
+     */
+    public function clearHooks(): static
+    {
+        $this->input_hooks         = [];
+        $this->timeout_hooks       = [];
+        $this->connection_hooks    = [];
+        $this->disconnection_hooks = [];
 
         return $this;
     }
@@ -696,16 +802,20 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      */
     protected function disconnectEverything(): void
     {
+        Log::action(tr('Disconnecting all sockets'), 8);
+
         foreach ($this->clients as $client) {
             $this->disconnect($client);
         }
 
         $this->closeMasterSocket();
 
+        Log::success(tr('Disconnected all sockets'), 4);
+
         unset(
             $this->hooks,
-            $this->local_address,
-            $this->local_port,
+            $this->listen_address,
+            $this->listen_port,
             $this->timeout,
             $this->domain,
             $this->masterSocket,
@@ -727,7 +837,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
         try {
             if (isset($this->master_socket)) {
                 $this->master_socket->shutdown();
-                $this->master_socket->close(0, true);
+                $this->master_socket->disconnect(0, true);
             }
 
         } catch (Throwable $e) {
@@ -744,34 +854,36 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     /**
      * Returns the address property of this PhoSocketServer
      *
-     * @return string
+     * @return string|null
      */
-    public function getLocalAddress(): string
+    public function getListenAddress(): ?string
     {
-        return $this->local_address;
+        return $this->listen_address;
     }
 
 
     /**
      * Sets the address property of this PhoSocketServer
      *
-     * @param $local_address
+     * @param string|null $listen_address
      *
      * @return static
      */
-    public function setLocalAddress($local_address): static
+    public function setListenAddress(?string $listen_address): static
     {
-        if (filter_var($local_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            $this->domain = AF_INET;
+        if ($listen_address === null) {
+            if (filter_var($listen_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                $this->domain = EnumNetworkSocketDomain::AF_INET;
 
-        } elseif (filter_var($local_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-            $this->domain = AF_INET6;
+            } elseif (filter_var($listen_address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+                $this->domain = EnumNetworkSocketDomain::AF_INET6;
 
-        } else {
-            $this->domain = AF_UNIX;
+            } else {
+                $this->domain = EnumNetworkSocketDomain::AF_UNIX;
+            }
         }
 
-        $this->local_address = $local_address;
+        $this->listen_address = $listen_address;
         return $this;
     }
 
@@ -781,22 +893,22 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      *
      * @return int
      */
-    public function getLocalPort(): int
+    public function getListenPort(): int
     {
-        return $this->local_port;
+        return $this->listen_port;
     }
 
 
     /**
      * Sets the port property of this PhoSocketServer
      *
-     * @param $local_port
+     * @param int|null $listen_port
      *
      * @return static
      */
-    public function setLocalPort($local_port): static
+    public function setListenPort(?int $listen_port): static
     {
-        $this->local_port = $local_port;
+        $this->listen_port = $listen_port;
         return $this;
     }
 
@@ -829,9 +941,9 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     /**
      * Returns the domain property of this PhoSocketServer
      *
-     * @return int
+     * @return EnumNetworkSocketDomain
      */
-    public function getDomain(): int
+    public function getDomain(): EnumNetworkSocketDomain
     {
         return $this->domain;
     }
@@ -840,11 +952,11 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     /**
      * Sets the domain property of this PhoSocketServer
      *
-     * @param $domain
+     * @param EnumNetworkSocketDomain $domain
      *
      * @return static
      */
-    public function setDomain($domain): static
+    public function setDomain(EnumNetworkSocketDomain$domain): static
     {
         $this->domain = $domain;
         return $this;
@@ -854,9 +966,9 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     /**
      * Returns the master_socket property of this PhoSocketServer
      *
-     * @return PhoSocket|null
+     * @return PhoSocketInterface|null
      */
-    public function getMasterSocket(): ?PhoSocket
+    public function getMasterSocket(): ?PhoSocketInterface
     {
         return $this->master_socket;
     }
@@ -865,11 +977,11 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     /**
      * Sets the master_socket property of this PhoSocketServer
      *
-     * @param PhoSocket|null $master_socket
+     * @param PhoSocketInterface|null $master_socket
      *
      * @return static
      */
-    public function setMasterSocket(?PhoSocket $master_socket): static
+    public function setMasterSocket(?PhoSocketInterface $master_socket): static
     {
         $this->master_socket = $master_socket;
         return $this;

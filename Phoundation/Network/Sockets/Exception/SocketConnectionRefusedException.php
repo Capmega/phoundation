@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Enum EnumNetworkSocketDomain
+ * Class SocketConnectionRefusedException
  *
- * This enum defines PHP socket domain types
+ *
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -14,11 +14,9 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Network\Enums;
+namespace Phoundation\Network\Sockets\Exception;
 
-enum EnumNetworkSocketDomain: int
+
+class SocketConnectionRefusedException extends SocketException
 {
-    case AF_UNIX  = 1;
-    case AF_INET  = 2;
-    case AF_INET6 = 10;
 }
