@@ -185,7 +185,7 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
         // Log all exceptions EXCEPT LogExceptions as those can cause endless loops
         if (!$this instanceof LogException) {
             if (Debug::isEnabled()) {
-                if (Config::getBoolean('debug.exceptions.log.auto.enabled', true)) {
+                if (Config::getBoolean('debug.exceptions.log.auto.enabled', false)) {
                     if (Config::getBoolean('debug.exceptions.log.auto.full', true)) {
                         $this->message = $messages;
                         Log::error($this, 2);
@@ -203,9 +203,10 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
             }
         }
 
-        // Pass the warning flag along
+        // Pass the warning flag and data along to this exception
         if ($previous instanceof PhoExceptionInterface) {
             $this->setWarning($this->getWarning() or $previous->getWarning());
+            $this->addData($previous->getData());
         }
 
         parent::__construct($message, 0, $previous);
@@ -235,6 +236,19 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
         $this->message = $message;
 
         return $this;
+    }
+
+
+    /**
+     * Returns true if the exception message matches the specified needle(s)
+     *
+     * @param array|string $needle
+     *
+     * @return bool
+     */
+    public function messageContains(array|string $needle): bool
+    {
+        return str_contains($this->getMessage(), $needle);
     }
 
 
