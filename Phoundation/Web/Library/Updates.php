@@ -26,7 +26,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.40';
+        return '0.0.41';
     }
 
 
@@ -156,6 +156,9 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             if (!$table->indexExists('ip_address_binary')) {
                 $table->alter()->addIndex('KEY `ip_address_binary` (`ip_address_binary`)');
             }
+
+        })->addUpdate('0.0.41', function () {
+            sql()->getSchemaObject()->getTableObject('web_uploads')->alter()->changeColumn('`error`', '`error` int(11) NULL DEFAULT NULL');
         });
     }
 }
