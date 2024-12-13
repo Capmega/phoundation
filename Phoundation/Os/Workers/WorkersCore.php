@@ -83,6 +83,13 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
     protected ?array $values = null;
 
     /**
+     * The number of cycles that must be executed
+     *
+     * @var int|null $cycles
+     */
+    protected ?int $cycles = 0;
+
+    /**
      * Counter for the number of workers that have been executed
      *
      * @var int
@@ -129,7 +136,6 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
     public function setWaitWorkerFinish(bool $wait_worker_finish): static
     {
         $this->wait_worker_finish = $wait_worker_finish;
-
         return $this;
     }
 
@@ -148,14 +154,13 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
     /**
      * Sets the minimum number of workers required
      *
-     * @param int|null $minimum
+     * @param int $minimum
      *
      * @return static
      */
     public function setMinimumWorkers(?int $minimum): static
     {
-        $this->minimum = (int) $minimum;
-
+        $this->minimum = $minimum;
         return $this;
     }
 
@@ -174,20 +179,19 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
     /**
      * Sets the maximum number of workers required
      *
-     * @param int|null $maximum
+     * @param int $maximum
      *
      * @return static
      */
-    public function setMaximumWorkers(?int $maximum): static
+    public function setMaximumWorkers(int $maximum): static
     {
-        $this->maximum = (int) $maximum;
-
+        $this->maximum = $maximum;
         return $this;
     }
 
 
     /**
-     * Returns number of time in milliseconds that the process cycle should sleep before retrying to start workers
+     * Returns amount of time in milliseconds that the process cycle should sleep before retrying to start workers
      *
      * @return int
      */
@@ -198,7 +202,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
 
 
     /**
-     * Sets Amount of time in milliseconds that the process cycle should sleep before retrying to start workers
+     * Sets amount of time in milliseconds that the process cycle should sleep before retrying to start workers
      *
      * @param int $wait_sleep
      *
@@ -207,13 +211,12 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
     public function setWaitSleep(int $wait_sleep): static
     {
         $this->wait_sleep = $wait_sleep;
-
         return $this;
     }
 
 
     /**
-     * Returns number of time in milliseconds that the process cycle should sleep each cycle while checking alive
+     * Returns amount of time in milliseconds that the process cycle should sleep each cycle while checking alive
      * workers
      *
      * @return int
@@ -234,7 +237,6 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
     public function setCycleSleep(int $cycle_sleep): static
     {
         $this->cycle_sleep = $cycle_sleep;
-
         return $this;
     }
 
@@ -264,8 +266,8 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
                 ':key' => $key,
             ]));
         }
-        $this->key = $key;
 
+        $this->key = $key;
         return $this;
     }
 
@@ -290,6 +292,10 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
      */
     public function setValues(array $values): static
     {
+        if ($this->values !== null) {
+            throw new OutOfBoundsException(tr('Cannot set both values list and cycles'));
+        }
+
         // Validate values
         foreach ($values as $value) {
             if (!is_scalar($value)) {
@@ -298,8 +304,37 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
                 ]));
             }
         }
-        $this->values = $values;
 
+        $this->values = $values;
+        return $this;
+    }
+
+
+    /**
+     * Returns the number of cycles that should be executed if the workers should not process a list
+     *
+     * @return int|null
+     */
+    public function getCycles(): ?int
+    {
+        return $this->cycles;
+    }
+
+
+    /**
+     * Sets the number of cycles that should be executed if the workers should not process a list
+     *
+     * @param int|null $cycles
+     *
+     * @return static
+     */
+    public function setCycles(?int $cycles): static
+    {
+        if ($this->values !== null) {
+            throw new OutOfBoundsException(tr('Cannot set both cycles and values list'));
+        }
+
+        $this->cycles = $cycles;
         return $this;
     }
 
@@ -315,15 +350,29 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
         if (!$this->key and $this->values) {
             throw new WorkersException(tr('Values specified without key'));
         }
+
         if ($this->key and !$this->values) {
             throw new WorkersException(tr('Key specified without values'));
         }
+
         $current = 0;
+
+        if (!$this->values) {
+            if (!$this->cycles) {
+                throw new OutOfBoundsException(tr('Cannot run workers, no cycles nor value list specified'));
+            }
+
+            $this->values = range(1, $this->cycles);
+        }
+
         while (true) {
             if (!$this->values) {
-                Log::success(tr('Finished processing values list with ":count" workers', [':count' => $this->workers_executed]));
+                Log::success(tr('Finished processing values list with ":count" workers', [
+                    ':count' => $this->workers_executed
+                ]));
                 break;
             }
+
             if ($current < $this->maximum) {
                 $this->startWorker();
 
@@ -333,17 +382,21 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
                     ':max'     => $this->maximum,
                 ]), 4);
             }
+
             usleep($this->cycle_sleep * 1000);
             $current = $this->getCurrent();
         }
+
         if ($this->wait_worker_finish) {
             while (true) {
                 $current = $this->getCurrent();
                 Log::notice(tr('Waiting for ":count" workers to finish', [':count' => $current]));
+
                 if (!$this->getCurrent()) {
                     Log::success(tr('All workers finished'));
                     break;
                 }
+
                 usleep($this->wait_sleep * 1000);
             }
         }
@@ -360,12 +413,15 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
         $value  = array_shift($this->values);
         $worker = clone $this;
         $worker->setVariables([$this->key => $value]);
+
         Log::action(tr('Starting worker with command ":command"', [
             ':command' => $worker->getFullCommandLine(),
         ]), 3);
+
         $worker->executeBackground();
         $this->workers[$worker->getPid()] = $worker;
         $this->workers_executed++;
+
         Log::success(tr('Started worker with PID ":pid" for ":label" ":value"', [
             ':pid'   => $worker->getPid(),
             ':label' => not_empty($this->label, tr('value')),
@@ -398,15 +454,18 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
         foreach ($this->workers as $pid => $worker) {
             $ps = Ps::new($this->restrictions)
                     ->ps($pid);
+
             if ($ps) {
                 // There is A process, but is it the right one? Cleanup both commands to compare
                 $args    = trim(Strings::from(Strings::untilReverse($worker->getFullCommandLine(), ';'), 'set -o'));
                 $ps_args = trim(Strings::from(Strings::untilReverse($ps['args'], ';'), 'set -o'));
+
                 if ($ps_args === $args) {
                     // Yep, this worker is still active
                     continue;
                 }
             }
+
             // This worker is dead, remove it from the list
             Log::notice(tr('Worker with PI ":pid" finished process, removing from list', [':pid' => $pid]));
             unset($this->workers[$pid]);

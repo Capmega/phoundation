@@ -35,11 +35,11 @@ interface WorkersCoreInterface extends ProcessInterface
     /**
      * Sets the minimum number of workers required
      *
-     * @param int|null $minimum
+     * @param int $minimum
      *
      * @return static
      */
-    public function setMinimumWorkers(?int $minimum): static;
+    public function setMinimumWorkers(int $minimum): static;
 
 
     /**
@@ -53,11 +53,11 @@ interface WorkersCoreInterface extends ProcessInterface
     /**
      * Sets the maximum number of workers required
      *
-     * @param int|null $maximum
+     * @param int $maximum
      *
      * @return static
      */
-    public function setMaximumWorkers(?int $maximum): static;
+    public function setMaximumWorkers(int $maximum): static;
 
 
     /**

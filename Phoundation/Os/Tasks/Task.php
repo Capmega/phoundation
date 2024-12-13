@@ -583,6 +583,7 @@ class Task extends DataEntry implements TaskInterface
         // Execute hook
         Hook::new('tasks')
             ->execute('pre-execute', ['task' => $this]);
+
         // Execute the command
         $worker = Worker::new($this->getCommand(), $this->getExecutionDirectory())
                                ->setServer($this->getServer())

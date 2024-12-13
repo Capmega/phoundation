@@ -33,11 +33,11 @@ trait TraitDataEntryWorkers
     /**
      * Sets the workers for this object
      *
-     * @param int|null $workers
+     * @param int $workers
      *
      * @return static
      */
-    public function setMinimumWorkers(?int $workers): static
+    public function setMinimumWorkers(int $workers): static
     {
         return $this->set($workers, 'maximum_workers');
     }
@@ -57,11 +57,11 @@ trait TraitDataEntryWorkers
     /**
      * Sets the workers for this object
      *
-     * @param int|null $workers
+     * @param int $workers
      *
      * @return static
      */
-    public function setMaximumWorkers(?int $workers): static
+    public function setMaximumWorkers(int $workers): static
     {
         return $this->set($workers, 'maximum_workers');
     }
