@@ -16,12 +16,15 @@ declare(strict_types=1);
 namespace Phoundation\Audio;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Traits\TraitDataSignal;
+use Phoundation\Data\Traits\TraitDataTimeout;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
+use Phoundation\Os\Enums\EnumSignal;
 use Phoundation\Os\Processes\Commands\Mpg123;
 use Phoundation\Os\Processes\Exception\ProcessesException;
 use Phoundation\Utils\Config;
@@ -33,6 +36,10 @@ use Stringable;
 
 class Audio extends PhoFile
 {
+    use TraitDataTimeout;
+    use TraitDataSignal;
+
+
     /**
      * Audio class constructor
      *
@@ -47,6 +54,8 @@ class Audio extends PhoFile
         }
 
         parent::__construct($source, $restrictions, $absolute_prefix);
+
+        $this->signal = EnumSignal::SIGKILL;
     }
 
 
@@ -63,6 +72,8 @@ class Audio extends PhoFile
             if (!defined('NOAUDIO') or !NOAUDIO) {
                 try {
                     Mpg123::new(new PhoDirectory(DIRECTORY_DATA . 'audio', PhoRestrictions::newData()))
+                          ->setTimeout($this->timeout)
+                          ->setSignal($this->signal)
                           ->setFileObject($this->makeAbsolute(DIRECTORY_DATA . 'audio'))
                           ->play($background);
 

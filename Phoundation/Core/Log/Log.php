@@ -1216,7 +1216,7 @@ class Log
                 }
 
             } else {
-                static::write(tr('Data : '), 'information', $threshold, false, echo_newline: false, echo_screen: $echo_screen);
+                static::write(tr('Data      : '), 'information', $threshold, false, echo_newline: false, echo_screen: $echo_screen);
                 static::write('-', 'debug', $threshold, false, $echo_newline, false, $echo_screen);
             }
         }

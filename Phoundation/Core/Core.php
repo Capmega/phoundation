@@ -2812,14 +2812,20 @@ class Core implements CoreInterface
                 if (defined('ENVIRONMENT')) {
                     if ($e instanceof PhoException) {
                         if ($e->isWarning()) {
-                            Audio::new('warning.mp3')->playLocal(true);
+                            Audio::new('warning.mp3')
+                                 ->setTimeout(5)
+                                 ->playLocal(true);
 
                         } else {
-                            Audio::new('critical.mp3')->playLocal(true);
+                            Audio::new('critical.mp3')
+                                 ->setTimeout(5)
+                                 ->playLocal(true);
                         }
 
                     } else {
-                        Audio::new('critical.mp3')->playLocal(true);
+                        Audio::new('critical.mp3')
+                             ->setTimeout(5)
+                             ->playLocal(true);
                     }
 
                 } else {
@@ -2828,6 +2834,7 @@ class Core implements CoreInterface
 
             } catch (Throwable $f) {
                 if (!CliAutoComplete::isActive()) {
+                    // Do NOT use tr() over here because we might be in failed mode where tr() is not available
                     Log::warning('Failed to play uncaught exception audio because "' . $f->getMessage() . '"');
                 }
             }
@@ -2881,9 +2888,12 @@ class Core implements CoreInterface
         // If not using Debug::enabled() mode, then try to give nice error messages for known issues
         if (($e instanceof ValidationFailedException) and $e->isWarning()) {
             // This is just a simple validation warning, show warning messages in the exception data
-            if (Debug::isEnabled()) {
-                Log::warning($e->getMessage(), 10);
-                Log::printr($e->getData(), 10);
+            Log::warning($e->getMessage(), 10);
+
+            if ($e->getDataKey('failures')) {
+                foreach ($e->getDataKey('failures') as $failure) {
+                    Log::printr($failure, 10, echo_header: false);
+                }
             }
 
             Core::exit(255);
