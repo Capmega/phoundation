@@ -7,9 +7,9 @@ interface PhoUploadedFileInterface extends PhoFileInterface
     /**
      * Returns the error code for this file
      *
-     * @return int
+     * @return int|null
      */
-    public function getError(): int;
+    public function getError(): ?int;
 
 
     /**

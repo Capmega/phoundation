@@ -30,9 +30,9 @@ class PhoUploadedFile extends PhoFileCore implements PhoUploadedFileInterface
     /**
      * Tracks the file upload error code
      *
-     * @var int $error
+     * @var int|null $error
      */
-    protected int $error = 0;
+    protected ?int $error = 0;
 
     /**
      * Tracks the real name of the uploaded file
@@ -135,11 +135,11 @@ class PhoUploadedFile extends PhoFileCore implements PhoUploadedFileInterface
     /**
      * Sets the error code for this uploaded file
      *
-     * @param int $error
+     * @param int|null $error
      *
      * @return static
      */
-    protected function setError(int $error): static
+    protected function setError(?int $error): static
     {
         $this->error = $error;
         return $this;
@@ -149,9 +149,9 @@ class PhoUploadedFile extends PhoFileCore implements PhoUploadedFileInterface
     /**
      * Returns the error code for this file
      *
-     * @return int
+     * @return int|null
      */
-    public function getError(): int
+    public function getError(): ?int
     {
         return $this->error;
     }
@@ -181,4 +181,5 @@ class PhoUploadedFile extends PhoFileCore implements PhoUploadedFileInterface
         return $this->real_name;
     }
 }
+
 
