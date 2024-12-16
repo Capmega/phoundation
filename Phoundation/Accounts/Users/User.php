@@ -465,9 +465,10 @@ class User extends DataEntry implements UserInterface
                 $authentication->setStatus('no-hook-data')->save();
 
                 Incident::new()
-                        ->setType('Authentication hook returned no data')
                         ->setSeverity(EnumSeverity::high)
-                        ->setTitle(tr('Cannot perform user authentication, hook script ":hook" returned no data', [
+                        ->setType('hook')
+                        ->setTitle('Authentication hook returned no data')
+                        ->setBody(tr('Cannot perform user authentication, hook script ":hook" returned no data', [
                             ':hook' => $hook->getFile('authenticate')->getRootname(),
                         ]))
                         ->setDetails([
@@ -501,9 +502,9 @@ class User extends DataEntry implements UserInterface
 
             Incident::new()
                     ->setCreatedBy($user->getId())
-                    ->setType('User attempted to authenticate on locked account')
                     ->setSeverity(EnumSeverity::high)
-                    ->setTitle(tr('Cannot authenticate user ":user", the user has the status ":status" which is not allowed', [
+                    ->setType('User attempted to authenticate locked account')
+                    ->setBody(tr('Cannot authenticate user ":user", the user has the status ":status" which is not allowed', [
                         ':user'   => $user->getLogId(),
                         ':status' => $user->getStatus(),
                     ]))
@@ -576,9 +577,10 @@ class User extends DataEntry implements UserInterface
             $authentication->setStatus('user-not-exist')->save();
 
             Incident::new()
-                    ->setType('User does not exist')
+                    ->setType('security')
+                    ->setTitle('User does not exist')
                     ->setSeverity(EnumSeverity::low)
-                    ->setTitle(tr('Cannot perform ":action" user ":user", the user does not exist', [
+                    ->setBody(tr('Cannot perform ":action" on user ":user", the user does not exist', [
                         ':action' => $authentication->getAction(),
                         ':user'   => Json::encode($identifier, JSON_OBJECT_AS_ARRAY),
                     ]))
@@ -609,9 +611,10 @@ class User extends DataEntry implements UserInterface
                        ->save();
 
         Incident::new()
-                ->setType('Incorrect password for account detected')
                 ->setSeverity(EnumSeverity::low)
-                ->setTitle(tr('Cannot perform ":action" user ":user", the specified password is incorrect', [
+                ->setType('security')
+                ->setTitle('Incorrect password for account detected')
+                ->setBody(tr('Cannot perform ":action" user ":user", the specified password is incorrect', [
                     ':action' => $authentication->getAction(),
                     ':user'   => $user->getLogId(),
                 ]))
@@ -647,9 +650,10 @@ class User extends DataEntry implements UserInterface
 
                     Incident::new()
                             ->setCreatedBy($user->getId())
-                            ->setType('Domain access disallowed')
                             ->setSeverity(EnumSeverity::medium)
-                            ->setTitle(tr('The user ":user" is not allowed to have access to domain ":domain"', [
+                            ->setType('security')
+                            ->setTitle('Domain access disallowed')
+                            ->setBody(tr('The user ":user" is not allowed to have access to domain ":domain"', [
                                 ':user'   => $user->getLogId(),
                                 ':domain' => $domain,
                             ]))
@@ -712,9 +716,10 @@ class User extends DataEntry implements UserInterface
             if (PLATFORM_WEB and !Session::getUserObject()->hasAllRights('god')) {
                 // Oops...
                 Incident::new()
-                        ->setType('Blocked user update')
                         ->setSeverity(EnumSeverity::severe)
-                        ->setTitle(tr('The user ":user" attempted to modify god level user ":modify" without having the "god" right itself.', [
+                        ->setType('security')
+                        ->setTitle('Blocked user update')
+                        ->setBody(tr('The user ":user" attempted to modify god level user ":modify" without having the "god" right itself.', [
                             ':modify' => $this->getLogId(),
                             ':user'   => Session::getUserObject()
                                                 ->getLogId(),
@@ -789,11 +794,12 @@ class User extends DataEntry implements UserInterface
         if (!Core::inInitState()) {
             if ($this->isCreated()) {
                 Incident::new()
-                        ->setType('Accounts change')
                         ->setSeverity(EnumSeverity::low)
-                        ->setTitle(tr('The user ":user" was modified, see audit ":meta_id" for more information', [
-                            ':user'    => $this->getLogId(),
-                            ':meta_id' => $this->getMetaId(),
+                        ->setType('security')
+                        ->setTitle(tr('User created'))
+                        ->setBody(tr('The administrator ":admin" created the user ":user"', [
+                            ':admin' => Session::getUserObject()->getLogId(),
+                            ':user'  => $this->getLogId(),
                         ]))
                         ->setDetails(['user' => $this->getLogId()])
                         ->setNotifyRoles('accounts')
@@ -801,10 +807,13 @@ class User extends DataEntry implements UserInterface
 
             } else {
                 Incident::new()
-                        ->setType('Accounts change')
                         ->setSeverity(EnumSeverity::low)
-                        ->setTitle(tr('The user ":user" was created', [
-                            ':user' => $this->getLogId(),
+                        ->setType('security')
+                        ->setTitle(tr('User modified'))
+                        ->setBody(tr('The administrator ":admin" modified the user ":user", see audit ":meta_id" for more information', [
+                            ':admin'   => Session::getUserObject()->getLogId(),
+                            ':user'    => $this->getLogId(),
+                            ':meta_id' => $this->getMetaId(),
                         ]))
                         ->setDetails(['user' => $this->getLogId()])
                         ->setNotifyRoles('accounts')

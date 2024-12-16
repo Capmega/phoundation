@@ -438,6 +438,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      * @param bool $identifier_must_exist
      * @param bool $ignore_deleted
      *
+     * @todo add caching support. If I load CLASSPATH+identifier twice, the second time should come from process cache
      * @return static
      */
     public function init(bool $identifier_must_exist = true, bool $ignore_deleted = false): static

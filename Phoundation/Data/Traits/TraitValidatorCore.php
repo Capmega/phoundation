@@ -18,7 +18,9 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Core;
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\ArraySourceInterface;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\NoKeySelectedException;
@@ -32,7 +34,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use ReflectionProperty;
-
+use Stringable;
 
 trait TraitValidatorCore
 {
@@ -529,7 +531,23 @@ trait TraitValidatorCore
             }
 
             Log::write('Validation failed on value below:', 'debug', 6);
-            Log::printr($this->selected_value, 6, echo_header: false);
+
+            // Try to display the value nicely
+            if (is_object($this->selected_value)) {
+                if ($this->selected_value instanceof ArrayableInterface) {
+                    Log::printr($this->selected_value->__toArray(), 6, echo_header: false);
+
+                } elseif ($this->selected_value instanceof Stringable) {
+                    Log::printr($this->selected_value->__toString(), 6, echo_header: false);
+
+                } else {
+                    Log::printr(get_datatype_or_class($this->selected_value), 6, echo_header: false);
+                }
+
+            } else {
+                Log::printr($this->selected_value, 6, echo_header: false);
+            }
+
             Log::write('Validation backtrace:', 'debug', 6);
             Log::backtrace(threshold: 6);
             Log::write('Validation data source:', 'debug', 6);
