@@ -54,11 +54,12 @@ use Phoundation\Exception\PhoException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\ScriptException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Databases\MySql;
 use Phoundation\Os\Processes\Process;
+use Phoundation\Os\Services\Exception\ServiceUnavailableException;
+use Phoundation\Os\Services\SystemD\SystemDService;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
@@ -101,13 +102,6 @@ class CliCommand
      * @var array|null $commands
      */
     protected static ?array $commands = null;
-
-    /**
-     * The commands that were found in the command cache path
-     *
-     * @var array $found_commands
-     */
-    protected static array $found_commands = [];
 
     /**
      * Contains the data sent to this command over stdin
@@ -157,6 +151,13 @@ class CliCommand
      * @var bool $started_up
      */
     protected static bool $started_up = false;
+
+    /**
+     * The detected service command
+     *
+     * @var string|null $service
+     */
+    protected static ?string $service;
 
 
     /**
@@ -246,16 +247,18 @@ class CliCommand
         static::addExecutedPath(static::$command);
 
         // Should we execute usage or help documentation instead?
-        static::showUsage();
-        static::showHelp();
+        static::checkUsage();
+        static::checkHelp();
 
-        // Execute the command and finish execution
-        try {
-            Request::setRestrictions(PhoRestrictions::newFilesystemRoot());
-            Request::execute(static::$command . '.php');
+        if (!static::processServiceCommands()) {
+            // Execute the command and finish execution
+            try {
+                Request::setRestrictions(PhoRestrictions::newFilesystemRoot());
+                Request::execute(static::$command . '.php');
 
-        } catch (SqlNoTimezonesException $e) {
-            static::fixMysqlTimezoneException($e);
+            } catch (SqlNoTimezonesException $e) {
+                static::fixMysqlTimezoneException($e);
+            }
         }
 
         // Make sure that the CLI auto-completion is configured for this shell.
@@ -270,6 +273,22 @@ class CliCommand
 
         // We're done, start the shutdown procedures
         exit();
+    }
+
+
+    /**
+     * Processes command line -S or --service commands
+     *
+     * @return bool
+     */
+    protected static function processServiceCommands(): bool
+    {
+        if (static::$service) {
+            SystemDService::new()->executeCommand(static::$service);
+            return true;
+        }
+
+        return false;
     }
 
 
@@ -567,7 +586,7 @@ class CliCommand
      */
     #[NoReturn] public static function exit(Throwable|int $exit_code = 0, ?string $exit_message = null, bool $sig_kill = false): never
     {
-        // Process was killed by a TERM signal
+        // The process was killed by a TERM signal
         if ($sig_kill) {
             echo Strings::ensureEndsWith($exit_message, PHP_EOL);
             exit($exit_code);
@@ -710,17 +729,26 @@ class CliCommand
     /**
      * Returns the list of commands that came to the command that executed in space separated string format
      *
+     * @param bool $strip_service_arguments
+     *
      * @return string
      */
-    public static function getCommandline(): string
+    public static function getCommandline(bool $strip_service_arguments = true): string
     {
+        $args   = ArgvValidator::new()->getBackup();
         $return = [];
 
-        foreach ($_SERVER['argv'] as $argument) {
-            $return[] = quote($argument);
+        // Strip the service command arguments
+        if ($strip_service_arguments) {
+            Arrays::nextValue($args, '-S', true);
         }
 
-        return implode(' ', $return);
+        // Add all arguments escaped
+        foreach ($args as $argument) {
+            $return[] = escapeshellarg($argument);
+        }
+
+        return DIRECTORY_ROOT . 'pho ' . implode(' ', $return);
     }
 
 
@@ -878,6 +906,11 @@ class CliCommand
                 static::$command = static::findCommand();
 
             } catch (CliNoCommandSpecifiedException) {
+                if (static::$service) {
+                    throw ServiceUnavailableException::new(tr('Cannot start pho as a service without a valid command'))
+                                                     ->makeWarning();
+                }
+
                 // See if the command execution should be stopped for some reason.
                 static::limitCommand(isset_get($parameters['limit']), isset_get($parameters['reason']));
 
@@ -908,8 +941,8 @@ class CliCommand
             $command = static::findCommand();
 
             // AutoComplete::getPosition() might become -1 if one were to <TAB> right at the end of the last command.
-            // If this is the case we actually have to expand the command, NOT yet the command parameters!
-            if ((CliAutoComplete::getPosition() - count(static::$found_commands)) === 0) {
+            // If this is the case, we actually have to expand the command, NOT yet the command parameters!
+            if ((CliAutoComplete::getPosition() - count(static::$commands)) === 0) {
                 throw CliCommandNotExistsException::new(tr('The specified command file ":file" does exist but requires auto complete extension', [
                     ':file' => $command,
                 ]))
@@ -953,8 +986,6 @@ class CliCommand
         $file     = DIRECTORY_COMMANDS;
         $commands = ArgvValidator::getCommands();
 
-        static::$commands = $commands;
-
         // Ensure commands cache directory exists
         if (!file_exists($file)) {
             Log::warning(tr('Commands cache directory ":path" does not yet exists, rebuilding commands cache', [
@@ -985,6 +1016,8 @@ class CliCommand
             if (!static::validateCommand($command)) {
                 continue;
             }
+
+            static::$commands[] = $command;
 
             // Start processing arguments as commands here
             $file .= $command;
@@ -1041,7 +1074,6 @@ class CliCommand
             }
 
             // Continue scanning
-            static::$found_commands[] = $command;
         }
 
         // Here we're still in a directory. If a file exists in that directory with the same name as the directory
@@ -1049,7 +1081,7 @@ class CliCommand
         // DIRECTORY_COMMANDS/system/init/init
         if (file_exists($file . $command)) {
             if (!is_dir($file . $command)) {
-                // Yup, this is it guys!
+                // Yup, this is it, guys!
                 return $file . $command;
             }
         }
@@ -1233,9 +1265,11 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
     /**
      * Returns true if the specified command has usage support available
      *
-     * @return void
+     * @param bool $exception
+     *
+     * @return bool
      */
-    protected static function showUsage(): void
+    protected static function checkUsage(bool $exception = true): bool
     {
         global $argv;
 
@@ -1244,20 +1278,39 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
                               ->grep(['CliDocumentation::setUsage('], 100);
 
             if (empty($results)) {
-                throw CliCommandException::new(tr('The command ":command" has no usage information available', [
-                    ':command' => static::getExecutedPath(true),
-                ]))->makeWarning();
+                if ($exception) {
+                    throw CliCommandException::new(tr('The command ":command" has no usage information available', [
+                        ':command' => static::getExecutedPath(true),
+                    ]))->makeWarning();
+                }
+
+                return false;
             }
         }
+
+        return true;
+    }
+
+
+    /**
+     * Returns the help contents for the current command
+     *
+     * @return string|null
+     */
+    public static function getHelp(): ?string
+    {
+return 'under construction';
     }
 
 
     /**
      * Returns true if the specified command has help support available
      *
-     * @return void
+     * @param bool $exception
+     *
+     * @return bool
      */
-    protected static function showHelp(): void
+    protected static function checkHelp(bool $exception = true): bool
     {
         global $argv;
 
@@ -1266,11 +1319,17 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
                               ->grep(['CliDocumentation::setHelp('], 100);
 
             if (empty($results)) {
-                throw CliCommandException::new(tr('The command ":command" has no help information available', [
-                    ':command' => static::getExecutedPath(true),
-                ]))->makeWarning();
+                if ($exception) {
+                    throw CliCommandException::new(tr('The command ":command" has no help information available', [
+                        ':command' => static::getExecutedPath(true),
+                    ]))->makeWarning();
+                }
+
+                return false;
             }
         }
+
+        return true;
     }
 
 
@@ -1280,6 +1339,7 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
      * @param Throwable $e
      *
      * @return void
+     * @todo This has nothing todo with CliCommand, move this to a different class
      */
     protected static function fixMysqlTimezoneException(Throwable $e): void
     {
@@ -1562,7 +1622,7 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
                              ->select('-R,--rebuild-commands')->isOptional(false)->isBoolean()
                              ->select('-M,--timeout', true)->isOptional(false)->isInteger()
                              ->select('-N,--no-audio')->isOptional(false)->isBoolean()
-                             ->select('-S,--sudo')->isOptional(false)->isBoolean()
+                             ->select('-S,--service', true)->isOptional()->isInArray(['start', 'stop', 'restart', 'enable', 'disable'])
                              ->select('-T,--test')->isOptional(false)->isBoolean()
                              ->select('-U,--usage')->isOptional(false)->isBoolean()
                              ->select('-V,--verbose')->isOptional(false)->isBoolean()
@@ -1574,6 +1634,7 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
                              ->select('--deleted')->isOptional(false)->isBoolean()
                              ->select('--version')->isOptional(false)->isBoolean()
                              ->select('--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
+                             ->select('--sudo')->isOptional(false)->isBoolean()
                              ->select('--very-quiet')->isOptional(false)->isBoolean()
                              ->select('--limit', true)->isOptional(0)->isNatural()
                              ->select('--timezone', true)->isOptional()->isString()
@@ -1924,6 +1985,8 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
 
         // Ensure any extra dashed arguments are "undashed"
         ArgvValidator::unDoubleDash();
+
+        static::$service = $argv['service'];
     }
 
 
