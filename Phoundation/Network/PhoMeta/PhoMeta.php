@@ -382,12 +382,12 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
 
         try {
             if ($test_data['component'] === $component) {
-                PhoMetaTest::new($test_data)->save();
+                PhoMetaTest::new($test_data)->finish();
                 return true;
             }
 
         } catch (PhoMetaTestException $e) {
-            Throw PhoMetaException::new(tr('Failed to save PhoMetaTest Data'))
+            throw PhoMetaException::new(tr('Failed to save PhoMetaTest Data'))
                                   ->addData($e);
         }
 

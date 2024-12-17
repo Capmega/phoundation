@@ -19,7 +19,7 @@ declare(strict_types=1);
 namespace Phoundation\Network\Sockets;
 
 use Phoundation\Network\Enums\EnumNetworkSocketDomain;
-
+use Phoundation\Utils\Config;
 
 class PhoClient
 {
@@ -60,10 +60,25 @@ class PhoClient
      *
      * @return static
      */
-   public static function new(string $ip, int $port): static
-   {
-       return new static($ip, $port);
-   }
+    public static function new(string $ip, int $port): static
+    {
+        return new static($ip, $port);
+    }
+
+
+    /**
+     * Returns a new static object
+     *
+     * @param string $configuration_path
+     *
+     * @return static
+     */
+    public static function newFromConfiguration(string $configuration_path): static
+    {
+        $configuration = Config::getArray($configuration_path, require_keys: ['address', 'port', 'listen_port']);
+
+        return new static($configuration['address'], $configuration['port'] ?? $configuration['listen_port']);
+    }
 
 
     /**
