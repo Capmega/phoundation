@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoFile;
@@ -30,11 +31,41 @@ trait TraitDataEntryFile
     /**
      * Returns the file for this object
      *
+     * @return string|null
+     */
+    public function getFile(): ?string
+    {
+        return $this->getTypesafe(PhoFileInterface::class . '|string', 'file');
+    }
+
+
+    /**
+     * Sets the file for this object
+     *
+     * @param string|null $file
+     *
+     * @return static
+     */
+    public function setFile(string|null $file): static
+    {
+        if ($file and (strlen($file) > 2048)) {
+            throw new OutOfBoundsException(tr('Specified file ":file" is invalid, the string should be no longer than 2048 characters', [
+                ':file' => $file,
+            ]));
+        }
+
+        return $this->set(get_null($file), 'file');
+    }
+
+
+    /**
+     * Returns the file for this object
+     *
      * @return PhoFileInterface|null
      */
-    public function getFile(): ?PhoFileInterface
+    public function getFileObject(): ?PhoFileInterface
     {
-        $file = $this->getTypesafe(PhoFileInterface::class . '|string', 'file');
+        $file = $this->getFile();
 
         if ($file and is_string($file)) {
             $file = new PhoFile($file, $this->restrictions);
@@ -47,20 +78,15 @@ trait TraitDataEntryFile
     /**
      * Sets the file for this object
      *
-     * @param PhoFileInterface|string|null $file
+     * @param PhoFileInterface|null $file
      *
      * @return static
      */
-    public function setFile(PhoFileInterface|string|null $file): static
+    public function setFileObject(PhoFileInterface|null $file): static
     {
-        if (is_string($file)) {
-            if (strlen($file) > 2048) {
-                throw new OutOfBoundsException(tr('Specified file ":file" is invalid, the string should be no longer than 2048 characters', [
-                    ':file' => $file,
-                ]));
-            }
-        }
-
-        return $this->set(get_null((string) $file), 'file');
+Log::printr($file?->getSource());
+$this->setFile($file?->getSource());
+Log::printr($this->getFile());
+        return $this->setFile($file?->getSource());
     }
 }

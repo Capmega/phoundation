@@ -143,7 +143,7 @@ class Rights extends DataIterator implements RightsInterface
                         ->setType('Right created automatically')
                         ->setTitle(tr('Automatically created new right ":right"', [':right' => $right]))
                         ->setDetails(['right' => $right])
-                        ->setNotifyRoles('accounts')
+                        ->setNotifyRoles('security')
                         ->save();
             }
         }

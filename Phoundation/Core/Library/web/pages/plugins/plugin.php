@@ -63,11 +63,11 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Plugin'));
-Response::setHeaderSubTitle($plugin->getName());
+Response::setHeaderSubTitle($plugin->getDisplayName());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                     => tr('Home'),
     '/plugins/plugins.html' => tr('Plugins'),
-    ''                      => $plugin->getName(),
+    ''                      => $plugin->getDisplayName(),
 ]));
 
 

@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Traits;
 
+use Phoundation\Data\Traits\TraitDataTarget;
 use Phoundation\Web\Html\Components\Icons\Icons;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Enums\EnumButtonType;
@@ -27,6 +28,7 @@ trait TraitButtonProperties
 {
     use TraitMode;
     use TraitUsesSize;
+    use TraitDataTarget;
 
 
     /**
@@ -160,6 +162,7 @@ trait TraitButtonProperties
     public function setAnchorUrl(Stringable|string|null $anchor_url): static
     {
         $this->setElement('a');
+
         $this->anchor_url  = (string) Url::new($anchor_url)->makeWww();
         $this->button_type = null;
 
@@ -305,11 +308,18 @@ trait TraitButtonProperties
     public function render(): ?string
     {
         $this->resetButtonClasses();
+
         $this->attributes->set($this->button_type?->value, 'type');
 
         if ($this->anchor_url) {
+            // Use an <a> anchor button
             $this->attributes->removeKeys('type');
             $this->attributes->set($this->anchor_url, 'href');
+
+            // Adds support for target="" attribute
+            if ($this->target) {
+                $this->attributes->set($this->target, 'target');
+            }
         }
 
         return parent::render();

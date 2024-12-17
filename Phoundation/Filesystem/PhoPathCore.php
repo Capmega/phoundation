@@ -29,6 +29,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
@@ -75,6 +76,7 @@ use Phoundation\Filesystem\Requirements\Interfaces\RequirementsInterface;
 use Phoundation\Filesystem\Requirements\Requirements;
 use Phoundation\Filesystem\Traits\TraitDataBufferSize;
 use Phoundation\Filesystem\Traits\TraitDataIsRelative;
+use Phoundation\Os\Processes\Commands\Chmod;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Phoundation\Os\Processes\Commands\Interfaces\ZipInterface;
@@ -427,6 +429,12 @@ class PhoPathCore implements PhoPathInterface
         } else {
             // Ensure absolute paths are absolute
             $this->source = static::absolutePath($path, $absolute_prefix, $must_exist);
+        }
+
+        if (strlen($this->source) > 2048) {
+            throw new ValidationFailedException(tr('The specified path ":path" has more than 2048 characters which is not supported', [
+                ':path' => $path,
+            ]));
         }
 
         return $this;
@@ -1913,15 +1921,20 @@ class PhoPathCore implements PhoPathInterface
         $this->checkRestrictions(true);
 
         if ($recursive or is_string($mode)) {
-            // Use operating system chmod command as PHP chmod does not support these functions
-            Process::new('chmod', $this->restrictions)
-                   ->setSudo($sudo)
-                   ->addArguments([
-                       ($recursive ? '-R' : null),
-                       '0' . decoct($mode),
-                       $this->source,
-                   ])
-                   ->executeReturnArray();
+            if (is_numeric($mode)) {
+                // Use operating system chmod command as PHP chmod does not support these functions
+                Process::new('chmod', $this->restrictions)
+                       ->setSudo($sudo)
+                       ->addArguments([
+                           ($recursive ? '-R' : null),
+                           '0' . decoct($mode),
+                           $this->source,
+                       ])
+                       ->executeReturnArray();
+            } else {
+                Chmod::new($this->getParentDirectory())->do($this->getSource(), $mode, false);
+            }
+
         } else {
             chmod($this->source, $mode);
         }
@@ -2065,7 +2078,7 @@ class PhoPathCore implements PhoPathInterface
      */
     protected function getRealPathLogString(): ?string
     {
-        if ($this->source === $this->getRealPath()->getSource()) {
+        if ($this->source === $this->getRealPath()) {
             return null;
         }
 

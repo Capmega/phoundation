@@ -9,7 +9,7 @@
  *
  * A valid project name matches regex /^[a-z_]+$/i
  *
- * @see Core::setProject()
+ * @see Core::detectProject()
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

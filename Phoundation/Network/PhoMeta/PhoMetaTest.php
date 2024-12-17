@@ -21,22 +21,16 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryData;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntrySetCreatedBy;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Redis\Redis;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaTestNoDatabaseException;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaTestNoUUIDException;
 use Phoundation\Network\PhoMeta\Interfaces\PhoMetaTestInterface;
-use Phoundation\Utils\Config;
 
 
 class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
 {
     use TraitDataEntryData;
-
-    //TODO: FIX THIS
-    use TraitDataEntrySetCreatedBy;
-    //
 
 
     /**
@@ -112,9 +106,9 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
     /**
      * Returns the database_selector property for this PhoMetaTest object
      *
-     * @return int|null
+     * @return string|null
      */
-    public function getDatabaseSelector(): ?int
+    public function getDatabaseSelector(): ?string
     {
         return $this->get('database_selector');
     }
@@ -123,13 +117,13 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
     /**
      * Sets the database_selector property for this PhoMetaTest object
      *
-     * @param int|null $database_selector
+     * @param string|int|null $database_selector
      *
      * @return $this
      */
-    public function setDatabaseSelector(?int $database_selector): static
+    public function setDatabaseSelector(string|int|null $database_selector): static
     {
-        return $this->set($database_selector, 'database_selector');
+        return $this->set((string) $database_selector, 'database_selector');
     }
 
 
@@ -216,42 +210,18 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
         return $this->set($duration, 'duration');
     }
 
-//TODO: FIX THIS!!!
-    /**
-     * Returns the created_on property for this PhoMetaTest object
-     *
-     * @return int|null
-     */
-    public function getCreatedOn(): ?int
-    {
-        return $this->get('created_on');
-    }//TODO: FIX THIS!!!
-
-//TODO: FIX THIS!!!
-    /**
-     * Sets the created_on property for this PhoMetaTest object
-     *
-     * @param int|null $created_on
-     *
-     * @return $this
-     */
-    public function setCreatedOn(?int $created_on): static
-    {
-        if ($created_on == null) {
-            return $this;
-        }
-
-        return $this->set($created_on, 'created_on');
-    }//TODO: FIX THIS!!!
-    
 
     /**
      * Records a test entry into a database, with all info specified in a PhoMetaTest object
      * Returns true if saved successfully
      *
-     * @return bool
+     * @param bool        $force
+     * @param bool        $skip_validation
+     * @param string|null $comments
+     *
+     * @return static
      */
-    public function saveTest(): bool
+    public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
         $component          = $this->getComponent();
         $key                = get_null($this->getKey());
@@ -266,10 +236,9 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
             throw PhoMetaTestNoDatabaseException::new(tr('Database Info Missing from PhoMetaTest source'));
         }
 
-        $connector   = Config::get('databases.connectors.' . $database_connector);
-        $o_connector = Connector::new($connector)->setDatabase($database_selector);
+        $o_connector = Connector::new($database_connector)->setDatabase($database_selector);
 
-        Log::action(tr('Saving key ":key" in database ":connector" at ":domain::port" database number ":db_number" for component ":component"', [
+        Log::action(tr('Saving key ":key" in database ":connector" at ":domain::port" database number ":db_number" for HL7 component ":component"', [
             ':key'       => $key,
             ':connector' => $database_connector,
             ':domain'    => $o_connector->getHostname(),
@@ -281,7 +250,7 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
 
         Redis::new($o_connector)->set($component, $key)->close();
 
-        return true;
+        return $this;
     }
 
 

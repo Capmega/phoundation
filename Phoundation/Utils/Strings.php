@@ -2456,7 +2456,7 @@ class Strings extends Utils
      */
     public static function getMatchingNeedles(Stringable|string $haystack, array|string $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_RECURSE): Stringable|string|null
     {
-        if (static::matchValues(Utils::MATCH_ACTION_RETURN_NEEDLES, [$haystack], $needles, null, $flags)) {
+        if (static::matchValues(Utils::MATCH_ACTION_RETURN_NEEDLES, [$haystack], $needles, $flags)) {
             return $haystack;
         }
 
@@ -2585,5 +2585,56 @@ class Strings extends Utils
         }
 
         return [$key => $value];
+    }
+
+
+    /**
+     * Removes the specified needle string from the specified source
+     *
+     * @param Stringable|string $source
+     * @param Stringable|string|null $needle
+     * @param bool $trim
+     * @return string
+     */
+    public static function removeString(Stringable|string $source, Stringable|string|null $needle, bool $trim = true): string
+    {
+        if ($needle) {
+            $source  = (string) $source;
+            $needle = (string) $needle;
+            $source  = str_replace($needle, '', $source);
+
+            if ($trim) {
+                $source = trim($source);
+            }
+        }
+
+        return $source;
+    }
+
+
+    /**
+     * Removes the specified needle characters from the specified source
+     *
+     * @param Stringable|string $source
+     * @param Stringable|string|null $needles
+     * @param bool $trim
+     * @return string
+     */
+    public static function removeCharacters(Stringable|string $source, Stringable|string|null $needles, bool $trim = true): string
+    {
+        if ($needles) {
+            $source  = (string) $source;
+            $needles = (string) $needles;
+
+            for ($i = 0; $i < strlen($needles); $i++) {
+                $source  = str_replace($needles[$i], '', $source);
+            }
+
+            if ($trim) {
+                $source = trim($source);
+            }
+        }
+
+        return $source;
     }
 }

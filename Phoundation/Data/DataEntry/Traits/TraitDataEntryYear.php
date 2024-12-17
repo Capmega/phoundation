@@ -3,7 +3,7 @@
 /**
  * Trait TraitDataEntryYear
  *
- * This trait contains methods for DataEntry objects that require a year
+ * This trait contains methods for DataEntry objects that require "year"
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

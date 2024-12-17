@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer;
 
+use Phoundation\Core\Core;
 use Phoundation\Core\Hooks\Hook;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataTimeout;
@@ -443,7 +444,7 @@ class Sync
     protected function clearTemporaryPath(?ServerInterface $server): static
     {
         $this->getPhoCommand($server)
-             ->setPhoCommands(['system', 'temporary', 'clear'])
+             ->setPhoCommands(['project', 'temporary', 'clear'])
              ->addArguments($this->source_temp_path)
              ->executeNoReturn();
 
@@ -585,7 +586,7 @@ class Sync
 
         $this->executeHook('pre-lock-system')
              ->getPhoCommand($server)
-             ->setPhoCommands(['system', 'modes', 'reset'])
+             ->setPhoCommands(['project', 'modes', 'reset'])
              ->executeReturnString();
 
         return $this->executeHook('post-unlock-system');
@@ -841,7 +842,7 @@ class Sync
 
         $this->executeHook('pre-lock-system')
              ->getPhoCommand($server)
-             ->setPhoCommands(['system', 'modes', 'readonly', 'enable'])
+             ->setPhoCommands(['project', 'modes', 'readonly', 'enable'])
              ->executeReturnString();
 
         return $this->executeHook('post-lock-system');
@@ -919,7 +920,7 @@ class Sync
     protected function initTemporaryPath(?ServerInterface $server): static
     {
         $path = $this->getPhoCommand($server)
-                     ->setPhoCommands(['system', 'temporary', 'get'])
+                     ->setPhoCommands(['project', 'temporary', 'get'])
                      ->addArguments('-Q')
                      ->executeReturnArray();
 
@@ -1013,21 +1014,21 @@ class Sync
 
         // Setup SSH account
         try {
-            if ($this->configuration['ssh_accounts_name']) {
-                // Ignore the default SSH account for this server, use the one from configuration
-                $account = Config::get('ssh.accounts.' . $this->configuration['ssh_accounts_name']);
-                $this->server->setSshAccountsName($account);
+            // Get SSH account configuration
+            if (!$this->configuration['ssh_accounts_name']) {
+                $this->configuration['ssh_accounts_name'] = Core::getProcessUsername();
             }
 
+            // Ignore the default SSH account for this server, use the one from configuration
+            $this->server->setSshAccountsName($this->configuration['ssh_accounts_name']);
+
         } catch (ConfigPathDoesNotExistsException) {
-            throw SyncException::new(tr('The configured SSH account ":account" for environment ":environment" does not exist', [
+            throw SyncException::new(tr('The configured SSH account ":account" for environment ":environment" does not exist in configuration path "ssh.accounts.*"', [
                 ':environment' => $environment,
                 ':account'     => $this->configuration['ssh_accounts_name']
             ]))->makeWarning();
         }
-show($this->server->getSource());
-show($this->server->getSshAccountObject()?->getSource());
-showdie();
+
         // Does this server have an SSH account after all this?
         if (!$this->server->getSshAccountObject()) {
             // The server has no SSH account configured, and no SSH account was configured

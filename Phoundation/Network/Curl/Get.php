@@ -242,10 +242,10 @@ class Get extends Curl
             curl_setopt($this->curl, CURLOPT_STDERR, PhoFile::new($this->log_directory . getmypid(), $this->log_restrictions)
                                                             ->open(EnumFileOpenMode::writeOnlyAppend)
                                                             ->getStream());
-            Log::action(tr('Preparing ":method" cURL request to ":url"', [
+            Log::action(tr('Preparing ":method" cURL request to URL ":url"', [
                 ':method' => $this->method,
                 ':url'    => $this->url,
-            ]));
+            ]), 2);
         }
 
         if ($this->user_password) {

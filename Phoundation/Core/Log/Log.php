@@ -830,7 +830,6 @@ class Log
             // Don't log the same message twice in a row
             if (($threshold > 0) and (static::$last_message === $messages) and (static::$filter_double)) {
                 static::$lock = false;
-
                 return false;
             }
 
@@ -973,7 +972,7 @@ class Log
      */
     public static function information(mixed $messages = null, int $threshold = 7, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
     {
-        return static::write($messages, 'information', $threshold, $clean, $echo_newline, $echo_prefix, ($echo_screen and VERY_QUIET));
+        return static::write($messages, 'information', $threshold, $clean, $echo_newline, $echo_prefix, ($echo_screen and !VERY_QUIET));
     }
 
 
@@ -1216,7 +1215,7 @@ class Log
                 }
 
             } else {
-                static::write(tr('Data : '), 'information', $threshold, false, echo_newline: false, echo_screen: $echo_screen);
+                static::write(tr('Data      : '), 'information', $threshold, false, echo_newline: false, echo_screen: $echo_screen);
                 static::write('-', 'debug', $threshold, false, $echo_newline, false, $echo_screen);
             }
         }
@@ -1633,7 +1632,7 @@ class Log
             static::logDebugHeader('HEX', 1, $threshold, echo_screen: $echo_screen);
         }
 
-        $messages = Strings::log($messages);
+        $messages = Strings::force($messages, PHP_EOL);
 
         return static::write(Strings::interleave(bin2hex($messages), ' ', chunk_size: 2), 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }

@@ -97,7 +97,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public function __toString()
     {
-        return $this->format('Y-m-d H:i:s');
+        return $this->getSource();
     }
 
 
@@ -111,6 +111,17 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
     public static function newToday(DateTimeZone|string|null $timezone = null): static
     {
         return new static('today', PhoDateTimeZone::new($timezone));
+    }
+
+
+    /**
+     * Returns the source of this PhoDateTime object
+     *
+     * @return string
+     */
+    public function getSource(): string
+    {
+        return $this->format('Y-m-d H:i:s');
     }
 
 

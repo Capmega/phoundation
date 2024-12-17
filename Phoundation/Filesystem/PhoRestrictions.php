@@ -217,6 +217,20 @@ class PhoRestrictions implements PhoRestrictionsInterface
 
 
     /**
+     * Returns a restrictions object for DIRECTORY_DATA
+     *
+     * @param bool        $write
+     * @param string|null $sub_directory
+     *
+     * @return static
+     */
+    public static function newDataSources(bool $write = false, ?string $sub_directory = null): static
+    {
+        return new static(DIRECTORY_DATA . 'sources/' . $sub_directory, $write);
+    }
+
+
+    /**
      * Returns a restrictions object for DIRECTORY_SYSTEM
      *
      * @param bool        $write

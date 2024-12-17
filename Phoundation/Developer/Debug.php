@@ -242,7 +242,9 @@ class Debug
                         ),
                     ]));
 
-                    Audio::new('showdie.mp3')->playLocal(true);
+                    Audio::new('showdie.mp3')
+                         ->setTimeout(5)
+                         ->playLocal(true);
                 }
 
             } catch (Throwable $e) {

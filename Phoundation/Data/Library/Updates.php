@@ -156,6 +156,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `parents_id` bigint DEFAULT NULL,
                     `name` varchar(128) DEFAULT NULL,
                     `seo_name` varchar(128) DEFAULT NULL,
+                    `test_column` varchar(128) DEFAULT NULL,
                     `description` text DEFAULT NULL
                 ')->setIndices(' 
                     PRIMARY KEY (`id`),
@@ -164,6 +165,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `status` (`status`),
                     UNIQUE KEY `seo_name` (`seo_name`),
                     UNIQUE KEY `parents_id_name` (`parents_id`,`name`),
+                    KEY `test_column` (`test_column`),
                     KEY `parents_id` (`parents_id`),
                 ')->setForeignKeys(' 
                     CONSTRAINT `fk_test_dataentries_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,

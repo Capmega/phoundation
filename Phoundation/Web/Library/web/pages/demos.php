@@ -23,6 +23,37 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 
+// Required javascript
+Response::loadJavascript('phoundation/adminlte/plugins/moment/moment');
+Response::loadJavascript('phoundation/adminlte/plugins/daterangepicker/daterangepicker');
+Response::loadJavascript('phoundation/adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4');
+
+
+// Required CSS
+Response::loadCss('phoundation/adminlte/plugins/daterangepicker/daterangepicker');
+Response::loadCss('phoundation/adminlte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4');
+Response::loadCss('https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css');
+
+Script::new()
+    ->setJavascriptWrapper(EnumJavascriptWrappers::window)
+    ->setContent(' 
+          $("#calendar").datetimepicker({
+            format: "L",
+            inline: true
+          })');
+
+
+// Set page meta data
+Response::setPageTitle(tr('Demo dashboard'));
+Response::setHeaderTitle(tr('Dashboard'));
+Response::setHeaderSubTitle(tr('(:user)', [':user' => Session::getUserObject()->getDisplayName()]));
+Response::setDescription(tr(''));
+Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
+    '/' => tr('Home'),
+    ''  => tr('Demos'),
+]));
+
+
 echo Card::new()
          ->setTitle(tr('Demo page links'))
          ->setContent('                  <a href="' . Url::new('/demos/timeline.html')->makeWww() . '">' . tr('Package timeline') . '</a><br>
@@ -150,31 +181,3 @@ echo Card::new()
         <!-- right col -->
     </div>
 <?php
-
-// Required javascript
-Response::loadJavascript('phoundation/adminlte/plugins/moment/moment');
-Response::loadJavascript('phoundation/adminlte/plugins/daterangepicker/daterangepicker');
-Response::loadJavascript('phoundation/adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4');
-
-// Required CSS
-Response::loadCss('phoundation/adminlte/plugins/daterangepicker/daterangepicker');
-Response::loadCss('phoundation/adminlte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4');
-Response::loadCss('https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css');
-
-Script::new()
-      ->setJavascriptWrapper(EnumJavascriptWrappers::window)
-      ->setContent(' 
-          $("#calendar").datetimepicker({
-            format: "L",
-            inline: true
-          })');
-
-// Set page meta data
-Response::setPageTitle(tr('Demo dashboard'));
-Response::setHeaderTitle(tr('Dashboard'));
-Response::setHeaderSubTitle(tr('(:user)', [':user' => Session::getUserObject()->getDisplayName()]));
-Response::setDescription(tr(''));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/' => tr('Home'),
-                                                           ''  => tr('Demos'),
-                                                       ]));

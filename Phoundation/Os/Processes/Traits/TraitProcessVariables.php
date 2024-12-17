@@ -32,6 +32,7 @@ use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Os\Enums\EnumSignal;
 use Phoundation\Os\Packages\Interfaces\PackagesInterface;
 use Phoundation\Os\Packages\Packages;
 use Phoundation\Os\Processes\Commands\Command;
@@ -1997,16 +1998,18 @@ trait TraitProcessVariables
      *
      * Defaults to 0, the process will NOT signal and start immediately
      *
-     * @param int $signal
+     * @param EnumSignal|int $signal
      *
      * @return static
      */
-    public function setSignal(int $signal): static
+    public function setSignal(EnumSignal|int $signal): static
     {
-        if (!is_natural($signal, 1)) {
-            throw new OutOfBoundsException(tr('The specified signal time ":signal" is invalid, it must be a natural number 0 or higher', [
-                ':signal' => $signal,
-            ]));
+        if (is_integer($signal)) {
+            if (!is_natural($signal, 1)) {
+                throw new OutOfBoundsException(tr('The specified signal ":signal" is invalid, it must be a natural number 0 or higher', [
+                    ':signal' => $signal,
+                ]));
+            }
         }
 
         $this->cached_command_line = null;

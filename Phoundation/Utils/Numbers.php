@@ -65,13 +65,21 @@ class Numbers
      */
     public static function intToBinary(int $source): string
     {
-        $return        = '';
-        $binary_char   = decbin($source);
-        $binary_string = str_pad($binary_char, 32, '0', STR_PAD_LEFT);
+        if ($source < 0) {
+            throw OutOfBoundsException::new(tr('Negative integers such as ":integer" are not supported', [
+                ':integer' => $source
+            ]));
+        }
 
-        for ($i = 0; $i < strlen($binary_string); $i++) {
-            $byte_string = substr($binary_string, $i * 8, 8);
-            $return     .= chr(bindec($byte_string));
+        $binary_char   = decbin($source);
+        $rounded_val   = (int) ceil(strlen($binary_char) / 8) * 8;
+        $binary_string = str_pad($binary_char, $rounded_val, '0', STR_PAD_LEFT);
+        $return        = '';
+
+        // Process 8 bits at a time
+        for ($i = 0; $i < strlen($binary_string); $i += 8) {
+            $byte_string = substr($binary_string, $i, 8);
+            $return .= chr(bindec($byte_string));
         }
 
         return $return;
@@ -457,7 +465,7 @@ class Numbers
      */
     public static function getHighest(float|int ...$numbers): float|int
     {
-        $highest = PHP_FLOAT_MIN;
+        $highest = PHP_INT_MIN;
 
         foreach ($numbers as $number) {
             if ($number > $highest) {
@@ -499,7 +507,7 @@ class Numbers
      *
      * @return string
      */
-    function humanReadable(string|float|int $number, int $thousand = 1000, int $decimals = 0): string
+    public static function humanReadable(string|float|int $number, int $thousand = 1000, int $decimals = 0): string
     {
         if ($number > pow($thousand, 5)) {
             return number_format($number / pow($thousand, 5), $decimals) . 'P';

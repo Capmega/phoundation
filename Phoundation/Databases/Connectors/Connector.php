@@ -127,7 +127,7 @@ class Connector extends DataEntry implements ConnectorInterface
             'ssh_tunnels_id' => null,
             'pdo_attributes' => '',
             'version'        => '0.0.0',
-            'timezones_name' => 'UTC',
+            'timezones_name' => null,
         ];
     }
 
@@ -229,11 +229,11 @@ class Connector extends DataEntry implements ConnectorInterface
     /**
      * Returns the name for this user that can be displayed
      *
-     * @return string
+     * @return string|null
      */
-    function getDisplayName(): string
+    public function getDisplayName(): ?string
     {
-        return $this->getLogId();
+        return $this->formatDisplayVariables($this->getLogId());
     }
 
 
@@ -740,7 +740,7 @@ class Connector extends DataEntry implements ConnectorInterface
 
                     ->add(DefinitionFactory::newTimezone($this, 'timezones_name')
                                            ->setLabel(tr('Timezone'))
-                                           ->setDefault('UTC')
+                                           ->setDefault(null)
                                            ->setVirtual(false)
                                            ->setRender(false)
                                            ->setSize(2)

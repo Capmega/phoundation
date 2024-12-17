@@ -20,7 +20,6 @@ use Phoundation\Accounts\Users\ProfileImages\ProfileImage;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Content\Images\ImageFile;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\Interfaces\FileValidatorInterface;
@@ -56,9 +55,9 @@ try {
             ->setFunction(function(PhoUploadedFileInterface $file) use ($user) {
                 // Set this image as the profile image
                 ProfileImage::newFromImageFile(new ImageFile($file))
-                    ->setUserObject($user)
-                    ->save()
-                    ->setDefault();
+                            ->setUserObject($user)
+                            ->save()
+                            ->setDefault();
 
                 $user->reload();
 

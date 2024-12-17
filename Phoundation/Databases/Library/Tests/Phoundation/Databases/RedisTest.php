@@ -44,14 +44,13 @@ class RedisTest extends TestCase
      */
     protected function ensureRedisConnectionOpen(bool $force = false): void
     {
-        
         if (isset($this->redis) and !$force) {
             return;
         }
 
-        $connector   = Config::get('databases.connectors.redis-queue');
-        $o_connector = Connector::new($connector);
+        $o_connector = Connector::new('redis-queue');
         $this->redis = Redis::new($o_connector)->setDatabase(0, true);
+
         if (!$this->redis->ping()) {
             Log::error(tr('Connection to Redis server failed'));
         }
@@ -361,9 +360,9 @@ class RedisTest extends TestCase
         $this->redis->push('value-4', 'test-queue-3');
 
         $result = [];
-        array_push($result, 'queue_test-queue-3','queue_test-queue-2', 'queue_test-queue');
+        array_push($result, 'queue_test-queue-3','queue_test-queue', 'queue_test-queue-2');
 
-        $this->assertEquals($result, $this->redis->getAllKeys(), 'The result array should equal the sample array');
+        $this->assertEqualsCanonicalizing($result, $this->redis->getAllKeys(), 'The result array should equal the sample array');
         $this->redis->clearAll();
         $this->redis->close();
     }

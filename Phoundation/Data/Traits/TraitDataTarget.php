@@ -24,7 +24,7 @@ trait TraitDataTarget
      *
      * @var string|null $target
      */
-    protected ?string $target;
+    protected ?string $target = null;
 
 
     /**

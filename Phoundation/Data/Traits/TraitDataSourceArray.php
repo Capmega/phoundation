@@ -207,12 +207,10 @@ trait TraitDataSourceArray
     /**
      * Sets the value for the specified key
      *
-     * @note this is basically a wrapper function for IteratorCore::add($value, $key, false) that always requires a key
-     *
      * @param mixed                       $value
      * @param Stringable|string|float|int $key
      *
-     * @return mixed
+     * @return static
      */
     public function set(mixed $value, Stringable|string|float|int $key): static
     {

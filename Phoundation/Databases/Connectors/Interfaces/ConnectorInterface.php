@@ -242,9 +242,9 @@ interface ConnectorInterface extends DataEntryInterface
     /**
      * Returns the name for this user that can be displayed
      *
-     * @return string
+     * @return string|null
      */
-    function getDisplayName(): string;
+    function getDisplayName(): ?string;
 
     /**
      * Returns id for this database entry that can be used in logs

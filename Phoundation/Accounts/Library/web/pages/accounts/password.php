@@ -120,7 +120,7 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Change password'));
-Response::setHeaderSubTitle($user->getName());
+Response::setHeaderSubTitle($user->getDisplayName());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                                          => tr('Home'),
     '/accounts/users.html'                       => tr('Users'),

@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Notifications;
 
+use Phoundation\Accounts\Roles\Exception\RoleNotExistsException;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
@@ -197,6 +198,17 @@ class Notification extends DataEntry implements NotificationInterface
     public static function getUniqueColumn(): ?string
     {
         return null;
+    }
+
+
+    /**
+     * Returns id for this database entry that can be used in logs
+     *
+     * @return string
+     */
+    public function getLogId(): string
+    {
+        return $this->getTypesafe('int', static::getIdColumn()) . ' / ' . $this->getTitle();
     }
 
 
@@ -447,20 +459,31 @@ FILES variables:
 
             // Save and send this notification to all users that are members of the specified roles
             foreach ($this->getRolesObject() as $role) {
-                $users = Role::load($role)->getUsersObject();
+                try {
+                    $users = Role::load($role)->getUsersObject();
 
-                foreach ($users as $user) {
-                    try {
-                        $this->saveFor($user->getId())
-                             ->sendTo($user->getId());
+                    foreach ($users as $user) {
+                        try {
+                            $this->saveFor($user->getId())
+                                 ->sendTo($user->getId());
 
-                    } catch (Throwable $e) {
-                        Log::error(tr('Failed to save notification for user ":user" because of the following exception', [
-                            ':user' => $user->getId(),
-                        ]));
+                        } catch (Throwable $e) {
+                            Log::error(tr('Failed to save notification for user ":user" because of the following exception', [
+                                ':user' => $user->getId(),
+                            ]));
 
-                        Log::error($e);
+                            Log::error($e);
+                        }
                     }
+                } catch (RoleNotExistsException $e) {
+                    Incident::new()
+                            ->setException($e)
+                            ->setTitle(tr('Role does not exist'))
+                            ->setBody(tr('Will not send notification ":notification" to role ":role" because the role does not exist', [
+                                ':role'         => $role,
+                                ':notification' => $this->getLogId(),
+                            ]))
+                            ->save();
                 }
             }
 
@@ -513,12 +536,14 @@ FILES variables:
         Log::information(tr('Notification:'));
 
         // Remove HTML from the message for logging
-        $message = $this->getMessage();
+        $message = (string) $this->getMessage();
         $message = strip_tags($message);
-        $message = trim($message);
+        $message = get_null(trim($message)) ?? 'N/A';
 
         switch ($this->getMode()) {
             case EnumDisplayMode::danger:
+                Log::write(Strings::size('Type', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write($this->getMode()->value, 'error', $log, echo_prefix: false);
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($this->getTitle(), 'error', $log, echo_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
@@ -526,6 +551,8 @@ FILES variables:
                 break;
 
             case EnumDisplayMode::warning:
+                Log::write(Strings::size('Type', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write($this->getMode()->value, 'warning', $log, echo_prefix: false);
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($this->getTitle(), 'warning', $log, echo_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
@@ -533,6 +560,8 @@ FILES variables:
                 break;
 
             case EnumDisplayMode::success:
+                Log::write(Strings::size('Type', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write($this->getMode()->value, 'success', $log, echo_prefix: false);
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($this->getTitle(), 'success', $log, echo_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
@@ -540,6 +569,8 @@ FILES variables:
                 break;
 
             case EnumDisplayMode::info:
+                Log::write(Strings::size('Type', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write($this->getMode()->value, 'information', $log, echo_prefix: false);
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($this->getTitle(), 'information', $log, echo_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
@@ -547,6 +578,8 @@ FILES variables:
                 break;
 
             default:
+                Log::write(Strings::size('Type', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write($this->getMode()->value, 'notice', $log, echo_prefix: false);
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($this->getTitle(), 'notice', $log, echo_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
@@ -697,12 +730,18 @@ FILES variables:
         }
 
         if ($user->getEmail()) {
+            $message = $this->getMessage();
+
+            if ($this->getDetails()) {
+                $message .= PHP_EOL . PHP_EOL . tr('Details:') . PHP_EOL . Json::encode($this->getDetails());
+            }
+
             Pho::new()
                ->setPhoCommands('email send')
                ->addArgument('-h')
                ->addArguments(['-t', $user->getEmail()])
                ->addArguments(['-s', $this->getTitle()])
-               ->addArguments(['-b', $this->getMessage()])
+               ->addArguments(['-b', $message])
                ->executeBackground();
 
         } else {
@@ -801,7 +840,7 @@ FILES variables:
                                     ->setLabel(tr('Code'))
                                     ->setDefault(tr('-'))
                                     ->addClasses('text-center')
-                                    ->setSize(6)
+                                    ->setSize(3)
                                     ->setMaxlength(16)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isPrintable();

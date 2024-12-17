@@ -26,6 +26,7 @@ namespace Phoundation\Cli;
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Audio\Audio;
+use Phoundation\Cache\Cache;
 use Phoundation\Cache\InstanceCache;
 use Phoundation\Cli\Exception\CliCommandException;
 use Phoundation\Cli\Exception\CliCommandNotExistsException;
@@ -33,15 +34,21 @@ use Phoundation\Cli\Exception\CliCommandNotFoundException;
 use Phoundation\Cli\Exception\CliException;
 use Phoundation\Cli\Exception\CliNoCommandSpecifiedException;
 use Phoundation\Core\Core;
+use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Exception\ProjectException;
 use Phoundation\Core\Libraries\Libraries;
+use Phoundation\Core\Libraries\Version;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Tmp;
 use Phoundation\Data\Traits\TraitDataStaticExecuted;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
+use Phoundation\Date\PhoDate;
 use Phoundation\Date\PhoTime;
+use Phoundation\Developer\Debug;
 use Phoundation\Exception\EnvironmentException;
 use Phoundation\Exception\PhoException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -54,6 +61,7 @@ use Phoundation\Os\Processes\Commands\Databases\MySql;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
+use Phoundation\Utils\Json;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
@@ -125,9 +133,9 @@ class CliCommand
     /**
      * Tracks if the UID of the process and the pho file match
      *
-     * @var bool|null $pho_uid_match
+     * @var bool $pho_uid_match
      */
-    protected static ?bool $pho_uid_match = null;
+    protected static bool $pho_uid_match;
 
     /**
      * Tracks if the ./pho file UID
@@ -276,11 +284,71 @@ class CliCommand
             throw new CliCommandException(tr('Cannot startup the CliCommand class, it has already been started up'));
         }
 
-        // Enable the garbage collector
-        gc_enable();
+        // Boot the Core object
+        Core::boot();
 
+        // Startup sequence for the command line
+        static::onlyCommandLine();
+        static::initalizeSignalHandlers();
+        static::checkPhoNotWorldExecutable();
         static::detectProcessUidMatchesPhoundationOwner();
+        static::processSystemArguments();
+        static::ensureProcessUidMatchesPhoundationOwner();
+        static::initializeReadLine();
 
+        // Startup the Core object and return command limits information
+        return static::startupCore();
+    }
+
+
+    /**
+     * Defines the readline completion function
+     *
+     * @return void
+     */
+    protected static function initializeReadline(): void
+    {
+        readline_completion_function([
+            '\Phoundation\Cli\CliCommand',
+            'completeReadline',
+        ]);
+    }
+
+
+    /**
+     * Initializes the command line signal handers
+     *
+     * @return void
+     */
+    protected static function initalizeSignalHandlers(): void
+    {
+        // Catch and handle process control signals
+        pcntl_async_signals(true);
+
+        pcntl_signal(SIGINT, [
+            '\Phoundation\Core\ProcessControlSignals',
+            'execute',
+        ]);
+
+        pcntl_signal(SIGTERM, [
+            '\Phoundation\Core\ProcessControlSignals',
+            'execute',
+        ]);
+
+        pcntl_signal(SIGHUP, [
+            '\Phoundation\Core\ProcessControlSignals',
+            'execute',
+        ]);
+    }
+
+
+    /**
+     * Starts up Core and handles Core startup exceptions
+     *
+     * @return array Command limit information, if any
+     */
+    protected static function startupCore(): array
+    {
         $return = [
             'limit'  => null,
             'reason' => null,
@@ -299,8 +367,6 @@ class CliCommand
             $return['reason'] = $e;
         }
 
-        static::ensureProcessUidMatchesPhoundationOwner();
-
         if (Core::getMaintenanceMode()) {
             // We're running in maintenance mode, limit command execution to system/
             $return['limit']  = ['system/', 'project/', 'info'];
@@ -309,17 +375,20 @@ class CliCommand
             ]);
         }
 
-        // Define the readline completion function
-        readline_completion_function([
-            '\Phoundation\Cli\CliCommand',
-            'completeReadline',
-        ]);
-
-        // Only allow this to be run by the command line interface
-        // TODO This should be done before Core::startup() but then the PLATFORM_CLI define would not exist yet. Fix this!
-        static::onlyCommandLine();
-
         return $return;
+    }
+
+
+    /**
+     * Will throw exception when PHO command is world executable.
+     *
+     * @return void
+     * @todo Implement this method
+     */
+    protected static function checkPhoNotWorldExecutable(): void
+    {
+        return;
+        throw new CliCommandException(tr('Refusing to startup, the "pho" command is world executable. Please fix this first by running "chmod o-rwx ./pho" in your projects root directory.'));
     }
 
 
@@ -332,15 +401,13 @@ class CliCommand
     protected static function detectProcessUidMatchesPhoundationOwner(): void
     {
         try {
-            static::$pho_uid = fileowner(__DIR__ . '/../../pho');
+            static::$pho_uid = fileowner(PHO_DIRECTORY . 'pho');
 
         } catch (Throwable $e) {
             // Wut? What happened? Does the pho command exist? If it does, how did we got here? ./pho renamed, perhaps?
             echo 'Failed to get file owner information of "PROJECT_ROOT/pho" command file' . PHP_EOL;
             exit();
         }
-
-        Core::getInstance();
 
         if (Core::getProcessUid() === static::$pho_uid) {
             // Correct user, yay!
@@ -377,7 +444,7 @@ class CliCommand
      */
     protected static function ensureProcessUidMatchesPhoundationOwner(bool $auto_switch = true, bool $permit_root = true): void
     {
-        if (static::$pho_uid_match) {
+        if (static::phoUidMatch()) {
             // Correct user, yay!
             return;
         }
@@ -390,11 +457,6 @@ class CliCommand
         // UID mismatch, stop logging to file as that likely won't be possible at all. Also stop all file access
         Log::disableFile();
         PhoFile::disable();
-
-        if (!Config::getBoolean('cli.security.require-same-uid', true)) {
-            // According to configuration, we don't need to have the same UID.
-            return;
-        }
 
         if (!$auto_switch) {
             throw new CliException(tr('The user ":puser" is not allowed to execute these commands, only user ":fuser" can do this. use "sudo -u :fuser COMMANDS instead.', [
@@ -438,15 +500,17 @@ class CliCommand
 
         } else {
             // Ensure all arguments are properly escaped
-            foreach ($arguments as &$argument) {
-                $argument = escapeshellarg($argument);
+            if ($arguments) {
+                foreach ($arguments as &$argument) {
+                    $argument = escapeshellarg($argument);
+                }
             }
         }
 
         unset($argument);
 
         // As what user should we execute this? Build the sudo command to be executed
-        $command = 'sudo -Esu ' . escapeshellarg($user) . ' ' . $command . ' ' . implode(' ', $arguments);
+        $command = 'sudo -Esu ' . escapeshellarg($user) . ' ' . $command . ' ' . Strings::force($arguments, ' ');
 
         if (!CliAutoComplete::isActive() and !QUIET) {
             if (VERBOSE) {
@@ -596,6 +660,7 @@ class CliCommand
             // Give a "success!" sound for normally executed commands (so NOT auto complete actions!)
             if (!CliAutoComplete::isActive()) {
                 Audio::new('success.mp3')
+                     ->setTimeout(5)
                      ->playLocal(true);
 
                 if ($exit_message) {
@@ -1462,6 +1527,407 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
 
 
     /**
+     * Startup for Command Line Interface
+     *
+     * @return void
+     * @todo Refactor this monstrosity into smaller methods
+     */
+    protected static function processSystemArguments(): void
+    {
+        global $argv;
+
+        // Hide all command line arguments
+        ArgvValidator::hideData($argv);
+
+        // USe global $argv ONLY if CliCommand::PhoUidMatch() is true because if it isn't we're going to restart and
+        // we'll need the $argv as-is
+        global $argv;
+
+        // Validate system modifier arguments. Ensure that these variables get stored in the global $argv array because
+        // they may be used later down the line by (for example) Documenation class, for example!
+        $argv = ArgvValidator::new()
+                             ->select('-A,--all')->isOptional(false)->isBoolean()
+                             ->select('-C,--no-color')->isOptional(false)->isBoolean()
+                             ->select('-D,--debug')->isOptional(false)->isBoolean()
+                             ->select('-E,--environment', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(64)
+                             ->select('-F,--force')->isOptional(false)->isBoolean()
+                             ->select('-G,--prefix')->isOptional(false)->isBoolean()
+                             ->select('-H,--help')->isOptional(false)->isBoolean()
+                             ->select('-I,--json-input', true)->isOptional()->hasMaxCharacters(8192)
+                             ->select('-J,--json-output')->isOptional()->isBoolean()
+                             ->select('-L,--log-level', true)->isOptional()->isInteger()->isBetween(1, 10)
+                             ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
+                             ->select('-P,--page', true)->isOptional(1)->isNatural(false)
+                             ->select('-Q,--quiet')->isOptional(false)->isBoolean()
+                             ->select('-R,--rebuild-commands')->isOptional(false)->isBoolean()
+                             ->select('-M,--timeout', true)->isOptional(false)->isInteger()
+                             ->select('-N,--no-audio')->isOptional(false)->isBoolean()
+                             ->select('-S,--sudo')->isOptional(false)->isBoolean()
+                             ->select('-T,--test')->isOptional(false)->isBoolean()
+                             ->select('-U,--usage')->isOptional(false)->isBoolean()
+                             ->select('-V,--verbose')->isOptional(false)->isBoolean()
+                             ->select('-W,--no-warnings')->isOptional(false)->isBoolean()
+                             ->select('-X,--ignore-readonly')->isOptional(false)->isBoolean()
+                             ->select('-Y,--clear-tmp')->isOptional(false)->isBoolean()
+                             ->select('-Z,--clear-caches')->isOptional(false)->isBoolean()
+                             ->select('--language', true)->isOptional()->isCode()
+                             ->select('--deleted')->isOptional(false)->isBoolean()
+                             ->select('--version')->isOptional(false)->isBoolean()
+                             ->select('--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
+                             ->select('--very-quiet')->isOptional(false)->isBoolean()
+                             ->select('--limit', true)->isOptional(0)->isNatural()
+                             ->select('--timezone', true)->isOptional()->isString()
+                             ->select('--auto-complete', true)->isOptional()->hasMaxCharacters(1024)
+                             ->select('--show-passwords')->isOptional(false)->isBoolean()
+                             ->select('--no-validation')->isOptional(false)->isBoolean()
+                             ->select('--no-password-validation')->isOptional(false)->isBoolean()
+                             ->validate(false);
+
+        Core::detectProject();
+
+// DEBUG CODE, uncomment these if manual $argv settings are required
+//        $argv = [
+//            'all'                    => false,
+//            'no_color'               => false,
+//            'debug'                  => false,
+//            'environment'            => null,
+//            'force'                  => false,
+//            'help'                   => false,
+//            'log_level'              => false,
+//            'order_by'               => false,
+//            'page'                   => 1,
+//            'quiet'                  => false,
+//            'very_quiet'             => false,
+//            'prefix'                 => false,
+//            'no_sound'               => false,
+//            'status'                 => false,
+//            'test'                   => false,
+//            'json_input'             => null,
+//            'json_output'            => null,
+//            'usage'                  => false,
+//            'verbose'                => false,
+//            'no_warnings'            => false,
+//            'language'               => false,
+//            'deleted'                => false,
+//            'version'                => false,
+//            'limit'                  => false,
+//            'timezone'               => null,
+//            'auto_complete'          => null,
+//            'show_passwords'         => false,
+//            'no_validation'          => false,
+//            'no_password_validation' => false
+//    ];
+
+        // Check what environment we're in
+        if ($argv['environment']) {
+            // The Environment was manually specified on the command line
+            $env = $argv['environment'];
+
+        } else {
+            // Get environment variable from the shell environment
+            $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
+        }
+
+        if (empty($env)) {
+            Core::requireCliEnvironment((bool)$argv['auto_complete']);
+        }
+
+        if ($argv['json_input']) {
+            // We received arguments in JSON format
+            $argv = static::applyJsonArguments($argv);
+        }
+
+        // Set environment and protocol
+        define('ENVIRONMENT', $env);
+
+        Config::setEnvironment(ENVIRONMENT);
+
+        // Define basic platform constants
+        define('ADMIN'     , '');
+        define('PROTOCOL'  , Config::get('web.protocol', 'https://'));
+        define('PWD'       , Strings::slash(isset_get($_SERVER['PWD'])));
+        define('QUIET'     , ($argv['very_quiet'] or $argv['quiet']));
+        define('VERY_QUIET', $argv['very_quiet']);
+        define('VERBOSE'   , $argv['verbose']);
+        define('FORCE'     , $argv['force']);
+        define('NOCOLOR'   , $argv['no_color']);
+        define('TEST'      , $argv['test']);
+        define('DELETED'   , $argv['deleted']);
+        define('ALL'       , $argv['all']);
+        define('STATUS'    , $argv['status']);
+        define('PAGE'      , $argv['page']);
+        define('OUTPUT'    , $argv['json_output'] ? 'json' : 'normal');
+        define('NOAUDIO'   , $argv['no_audio'] or $argv['auto_complete']); // auto complete mode disables audio
+        define('LIMIT'     , get_null($argv['limit']) ?? Config::getNatural('paging.limit', 50));
+
+        // Set requested language
+        Core::writeRegister($argv['language'] ?? Config::getString('languages.default', 'en'), 'system', 'language');
+
+        if ($argv['auto_complete']) {
+            // We're in auto complete mode. Show only direct output, don't use any color, don't log to screen
+            Log::disableScreen();
+
+            $argv['no_color']      = true;
+            $argv['auto_complete'] = explode(' ', trim($argv['auto_complete']));
+
+            $location = (int) array_shift($argv['auto_complete']);
+
+            // Reset the $argv array to the auto complete data
+            ArgvValidator::hideData($argv['auto_complete']);
+            CliAutoComplete::setPosition($location - 1);
+            CliAutoComplete::initSystemArguments();
+        }
+
+        // Correct $_SERVER['PHP_SELF'], sometimes seems empty
+        if (empty($_SERVER['PHP_SELF'])) {
+            if (!isset($_SERVER['_'])) {
+                $e = new OutOfBoundsException('No $_SERVER[PHP_SELF] or $_SERVER[_] found');
+            }
+
+            $_SERVER['PHP_SELF'] = $_SERVER['_'];
+        }
+
+        // Set more system parameters
+        if ($argv['debug']) {
+            Debug::switch();
+        }
+
+        if ($argv['no_warnings']) {
+            define('NOWARNINGS', true);
+
+        } else {
+            define('NOWARNINGS', false);
+        }
+
+        if ($argv['show_passwords']) {
+            Cli::showPasswords(true);
+        }
+
+        if ($argv['no_validation']) {
+            Validator::disable();
+        }
+
+        if ($argv['no_password_validation']) {
+            Validator::disablePasswords();
+        }
+
+        // Set timeout
+        if ($argv['timeout']) {
+            // User set timeout
+            Core::setTimeout((int)$argv['timeout']);
+
+        } else {
+            // Use default timeout
+            Core::setTimeout();
+        }
+
+        if ($argv['log_level']) {
+            Log::setThreshold($argv['log_level']);
+        }
+
+        if ($argv['prefix']) {
+            Log::setEchoPrefix(true);
+        }
+
+        if (!static::phoUidMatch()) {
+            // The rest of the options will NOT be set because we'll try to restart soon!
+            return;
+        }
+
+        // Process command line system arguments if we have no exception so far
+        if ($argv['version']) {
+            Log::cli(tr('Phoundation framework version ":version"', [
+                ':version' => Core::FRAMEWORK_CODE_VERSION,
+            ]), 10);
+            Log::cli(tr('Phoundation database version ":version"', [
+                ':version' => Version::getString(Libraries::getMaximumVersion()),
+            ]), 10);
+            Log::cli(tr('Phoundation minimum PHP version ":version"', [
+                ':version' => Core::PHP_MINIMUM_VERSION,
+            ]), 10);
+
+            $exit = 0;
+        }
+
+        if ($argv['order_by']) {
+            define('ORDERBY', ' ORDER BY `' . Strings::until($argv['order_by'], ' ') . '` ' . Strings::from($argv['order_by'], ' ') . ' ');
+
+            $valid = preg_match('/^ ORDER BY `[a-z0-9_]+`(?:\s+(?:DESC|ASC))? $/', ORDERBY);
+
+            if (!$valid) {
+                // The specified column ordering is NOT valid
+                $e = new CoreException(tr('The specified orderby argument ":argument" is invalid', [':argument' => ORDERBY]));
+            }
+        }
+
+        // Something failed?
+        if (isset($e)) {
+            echo 'Command line parser failed with "' . $e->getMessage() . '"' . PHP_EOL;
+            CliCommand::setExitCode(1);
+            exit(1);
+        }
+
+        if (isset($exit)) {
+            Core::exit($exit);
+        }
+
+        // set terminal data
+        // TODO REWRITE TERMINAL SIZE DETECTION
+//        static::$register['cli'] = ['term' => Cli::getTerm()];
+//
+//        if (static::$register['cli']['term']) {
+//            static::$register['cli']['columns'] = Cli::getColumns();
+//            static::$register['cli']['lines']   = Cli::getLines();
+//
+//            if (!static::$register['cli']['columns']) {
+//                static::$register['cli']['size'] = 'unknown';
+//
+//            } elseif (static::$register['cli']['columns'] <= 80) {
+//                static::$register['cli']['size'] = 'small';
+//
+//            } elseif (static::$register['cli']['columns'] <= 160) {
+//                static::$register['cli']['size'] = 'medium';
+//
+//            } else {
+//                static::$register['cli']['size'] = 'large';
+//            }
+//        }
+
+        // Set security umask
+        umask(Config::get('filesystem.umask', 0007));
+
+        // Get required language.
+        try {
+            $language = not_empty($argv['language'], Config::get('language.default', 'en'));
+
+            if (Config::get('language.default', ['en']) and Config::exists('language.supported.' . $language)) {
+                throw new CoreException(tr('Unknown language ":language" specified', [':language' => $language]));
+            }
+
+            define('LANGUAGE', $language);
+            define('LOCALE'  , $language . (empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
+
+            $_SESSION['language'] = $language;
+
+        } catch (Throwable $e) {
+            // Language selection failed
+            if (!defined('LANGUAGE')) {
+                define('LANGUAGE', 'en');
+            }
+
+            $e = new CoreException('Language selection failed', $e);
+        }
+
+        // Setup locale and character encoding
+        // TODO Check this mess!
+        ini_set('default_charset', Config::get('languages.encoding.charset', 'UTF-8'));
+        Core::setLocale();
+
+        // Prepare for unicode usage
+        if (Config::get('languages.encoding.charset', 'UTF-8') === 'UTF-8') {
+// TODO Fix this godawful mess!
+            mb_init(not_empty(Config::get('locale.LC_CTYPE', ''), Config::get('locale.LC_ALL', '')));
+
+            if (function_exists('mb_internal_encoding')) {
+                mb_internal_encoding('UTF-8');
+            }
+        }
+
+        Core::setTimeZone($argv['timezone']);
+
+        // Validate parameters and give some startup messages, if needed
+        if (Debug::isEnabled()) {
+            if (Debug::isEnabled()) {
+                Log::warning(tr('Running in DEBUG mode, started @ ":datetime"', [
+                    ':datetime' => PhoDate::convert(STARTTIME, 'ISO8601'),
+                ]), 8);
+
+// TODO Reimplement terminal size detection
+//                Log::notice(tr('Detected ":size" terminal with ":columns" columns and ":lines" lines', [
+//                    ':size'    => static::$register['cli']['size'],
+//                    ':columns' => static::$register['cli']['columns'],
+//                    ':lines'   => static::$register['cli']['lines'],
+//                ]));
+            }
+        }
+
+        if (FORCE) {
+            if (TEST) {
+                throw new CoreException(tr('Both FORCE and TEST modes where specified, these modes are mutually exclusive'));
+            }
+
+            Log::warning(tr('Running in FORCE mode'));
+
+        } elseif (TEST) {
+            Log::warning(tr('Running in TEST mode, various modifications may not be executed!'));
+        }
+
+        if (!is_natural(PAGE)) {
+            throw new CoreException(tr('Specified -P or --page ":page" is not a natural number', [
+                ':page' => PAGE,
+            ]));
+        }
+
+        if (!is_natural(LIMIT)) {
+            throw new CoreException(tr('Specified --limit":limit" is not a natural number', [
+                ':limit' => LIMIT,
+            ]));
+        }
+
+        if (ALL) {
+            if (PAGE > 1) {
+                throw new CoreException(tr('Both -A or --all and -P or --page have been specified, these options are mutually exclusive'));
+            }
+
+            if (DELETED) {
+                throw new CoreException(tr('Both -A or --all and -D or --deleted have been specified, these options are mutually exclusive'));
+            }
+
+            if (STATUS) {
+                throw new CoreException(tr('Both -A or --all and -S or --status have been specified, these options are mutually exclusive'));
+            }
+        }
+
+        // Switch core to script mode from here so that all functions are available
+        Core::setScriptState();
+
+        if ($argv['rebuild_commands']) {
+            // Rebuild only the "commands" cache
+            Core::enableInitState();
+            CliCommand::rebuildCache();
+            CliCommand::setRequireDefault(false);
+            Core::disableInitState();
+        }
+
+        if ($argv['clear_caches']) {
+            // Clear all caches
+            Core::enableInitState();
+            Cache::clear();
+            CliCommand::setRequireDefault(false);
+            Core::disableInitState();
+        }
+
+        if ($argv['clear_tmp']) {
+            // Clear all tmp data
+            Core::enableInitState();
+            Tmp::clear();
+            CliCommand::setRequireDefault(false);
+            Core::disableInitState();
+        }
+
+        Core::setIgnoreReadonly($argv['ignore_readonly']);
+
+        if ($argv['sudo']) {
+            // Try to execute the current command as root
+            CliCommand::restartAsRoot();
+        }
+
+        // Ensure any extra dashed arguments are "undashed"
+        ArgvValidator::unDoubleDash();
+    }
+
+
+    /**
      * Returns all options for readline <TAB> autocomplete
      *
      * @param string $input
@@ -1486,6 +1952,35 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
 //        }
 //
 //        return $matches;
+    }
+
+
+    /**
+     * Applies the JSON arguments in the given argv array
+     *
+     * @param array $argv
+     *
+     * @return array
+     */
+    protected static function applyJsonArguments(array $argv): array
+    {
+        $json = Json::decode($argv['json']);
+        unset($argv['json']);
+
+        // Convert all JSON argument parameters to proper format and add them to the argv, BUT DO NOT OVERWRITE EXISTING
+        foreach ($json as $key => $value) {
+            $key = str_replace('-', '_', $key);
+
+            if (str_starts_with($key, '__')) {
+                $key = substr($key, 2);
+            }
+
+            if (!array_key_exists($key, $argv)) {
+                $argv[$key] = $value;
+            }
+        }
+
+        return $argv;
     }
 
 

@@ -3,7 +3,7 @@
 /**
  * Trait TraitDataEntryMonth
  *
- * This trait contains methods for DataEntry objects that require a month
+ * This trait contains methods for DataEntry objects that require "month"
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

@@ -18,5 +18,7 @@ namespace Phoundation\Network\Enums;
 
 enum EnumNetworkSocketDomain: int
 {
-    case AF_INET = 2;
+    case AF_UNIX  = 1;
+    case AF_INET  = 2;
+    case AF_INET6 = 10;
 }

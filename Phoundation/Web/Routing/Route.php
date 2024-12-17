@@ -20,9 +20,7 @@ use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\GetVariables;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\CookieValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -207,13 +205,15 @@ class Route
 
 
     /**
-     * Route constructor
+     * Route class constructor
      */
     protected function __construct()
     {
         // Start the Core object
         try {
             if (Core::isState(null)) {
+                Core::boot();
+                Core::detectProject();
                 Core::startup();
             }
 
@@ -1372,7 +1372,7 @@ class Route
             ':regex' => static::$url_regex,
             ':type'  => static::$method,
             ':url'   => static::$url,
-        ]), 4);
+        ]), 3);
 
         try {
             $match = preg_match_all(static::$url_regex, static::$url, static::$regex_matches);
@@ -1395,7 +1395,7 @@ class Route
                 ':regex'   => static::$url_regex,
                 ':matches' => Strings::force(static::$regex_matches, ', '),
                 ':flags'   => Strings::force(static::$flags        , ', '),
-            ]), 5);
+            ]), 3);
         }
 
         return true;
