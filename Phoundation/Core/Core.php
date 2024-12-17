@@ -666,16 +666,16 @@ class Core implements CoreInterface
         define('PWD'       , Strings::slash(isset_get($_SERVER['PWD'])));
         define('PAGE'      , $_GET['page'] ?? 1);
         define('QUIET'     , (get_null(getenv('QUIET')) or get_null(getenv('VERY_QUIET'))) ?? false);
-        define('ALL'       , get_null(getenv('ALL')) ?? false);
-        define('DELETED'   , get_null(getenv('DELETED')) ?? false);
-        define('FORCE'     , get_null(getenv('FORCE')) ?? false);
-        define('ORDERBY'   , get_null(getenv('ORDERBY')) ?? '');
-        define('STATUS'    , get_null(getenv('STATUS')) ?? '');
+        define('ALL'       , get_null(getenv('ALL'))        ?? false);
+        define('DELETED'   , get_null(getenv('DELETED'))    ?? false);
+        define('FORCE'     , get_null(getenv('FORCE'))      ?? false);
+        define('ORDERBY'   , get_null(getenv('ORDERBY'))    ?? '');
+        define('STATUS'    , get_null(getenv('STATUS'))     ?? '');
         define('VERY_QUIET', get_null(getenv('VERY_QUIET')) ?? false);
-        define('TEST'      , get_null(getenv('TEST')) ?? false);
-        define('VERBOSE'   , get_null(getenv('VERBOSE')) ?? false);
-        define('NOAUDIO'   , get_null(getenv('NOAUDIO')) ?? false);
-        define('LIMIT'     , get_null(getenv('LIMIT')) ?? Config::getNatural('paging.limit', 50));
+        define('TEST'      , get_null(getenv('TEST'))       ?? false);
+        define('VERBOSE'   , get_null(getenv('VERBOSE'))    ?? false);
+        define('NOAUDIO'   , get_null(getenv('NOAUDIO'))    ?? false);
+        define('LIMIT'     , get_null(getenv('LIMIT'))      ?? Config::getNatural('paging.limit', 50));
         define('NOWARNINGS', get_null(getenv('NOWARNINGS')) ?? false);
 
         // Check HEAD and OPTIONS requests. If HEAD was requested, just return basic HTTP headers

@@ -39,7 +39,4 @@ ARGUMENTS
 -');
 
 
-
-Log::cli(tr('Phoundation environment ":environment"', [
-    ':environment' => ENVIRONMENT
-]));
+Log::cli(ENVIRONMENT);
