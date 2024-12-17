@@ -21,7 +21,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataStaticSourceArray;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Network\Enums\EnumNetworkSocketDomain;
-use Phoundation\Network\Interfaces\PhoSocketsInterface\PhoSocketInterface;
+use Phoundation\Network\Sockets\Interfaces\PhoSocketInterface;
 use Phoundation\Network\Sockets\Exception\SocketAddressInUseException;
 use Phoundation\Network\Sockets\Exception\SocketConnectionRefusedException;
 use Phoundation\Network\Sockets\Exception\SocketDisconnectedException;
@@ -29,7 +29,6 @@ use Phoundation\Network\Sockets\Exception\SocketException;
 use Socket as SocketResource;
 use Stringable;
 use Throwable;
-
 
 class PhoSocket implements Stringable, PhoSocketInterface
 {

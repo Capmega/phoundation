@@ -852,7 +852,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             throw new ValidatorException(tr('Cannot validate XOR field ":field" with itself', [':field' => $field]));
         }
 
-        if (isset_get($this->source[$this->selected_field])) {
+        if (isset_get($this->source[$this->selected_field]) and !$this->argument($this->selected_field, $this->next, true)) {
             // The currently selected field exists, the specified field cannot exist
             if (isset_get($this->source[$field]) or $this->argument($this->cli_fields, $this->next, true)) {
                 $this->addFailure(tr('Both fields ":field" and ":selected_field" were set, where only either one of them are allowed', [
@@ -869,8 +869,9 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         } else {
             // The currently selected field does not exist, the specified field MUST exist
             if (!isset_get($this->source[$field]) and !$this->argument($this->cli_fields, $this->next, true)) {
-                $this->addFailure(tr('nor ":field" were set, where either one of them is required', [
-                    ':field' => $field,
+                $this->addFailure(tr('neither the field ":current" nor ":field" were set, where either one of them is required', [
+                    ':current' => $this->selected_field,
+                    ':field'   => $field,
                 ]));
 
             } else {
