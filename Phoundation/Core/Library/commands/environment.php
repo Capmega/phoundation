@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Command version
+ * Command environment
  *
- * This command will display detailed information about the current framework, project, database ,etc.
+ * The environment script will print the current environment for your project
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -28,9 +28,9 @@ use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 
 
-CliDocumentation::setUsage('./pho version');
+CliDocumentation::setUsage('./pho environment');
 
-CliDocumentation::setHelp('The version script will print all version information.
+CliDocumentation::setHelp('The environment script will print the current environment for your project
 
 
 ARGUMENTS
@@ -40,9 +40,6 @@ ARGUMENTS
 
 
 
-Log::cli(tr('Phoundation version ":version"', [
-    ':version' => Core::FRAMEWORK_CODE_VERSION
-]));
-Log::cli(tr('Project version ":version"', [
-    ':version' => Core::getProjectVersion()
+Log::cli(tr('Phoundation environment ":environment"', [
+    ':environment' => ENVIRONMENT
 ]));
