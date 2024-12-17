@@ -17,6 +17,8 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 
+use Phoundation\Core\Core;
+
 trait TraitDataOsUser
 {
     /**
@@ -34,6 +36,10 @@ trait TraitDataOsUser
      */
     public function getOsUser(): ?string
     {
+        if (empty($this->os_user)) {
+            $this->detectOsUser();
+        }
+
         return $this->os_user;
     }
 
@@ -48,6 +54,18 @@ trait TraitDataOsUser
     public function setOsUser(?string $os_user): static
     {
         $this->os_user = get_null($os_user);
+        return $this;
+    }
+
+
+    /**
+     * Detects the operating system user
+     *
+     * @return static
+     */
+    public function detectOsUser(): static
+    {
+        $this->os_user = Core::getProcessUsername();
         return $this;
     }
 }
