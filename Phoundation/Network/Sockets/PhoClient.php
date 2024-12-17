@@ -156,7 +156,7 @@ class PhoClient
      *
      * @param PhoSocket $socket
      *
-     * @returns static
+     * @return PhoClient
      */
     protected function setSocket(PhoSocket $socket): static
     {

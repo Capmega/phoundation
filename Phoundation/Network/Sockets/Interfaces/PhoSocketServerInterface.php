@@ -3,7 +3,7 @@
 namespace Phoundation\Network\Sockets\Interfaces;
 
 use Phoundation\Network\Enums\EnumNetworkSocketDomain;
-use Phoundation\Network\Interfaces\PhoSocketsInterface\PhoSocketInterface;
+use Phoundation\Network\Sockets\Interfaces\PhoSocketInterface;
 use Phoundation\Network\Sockets\Exception\SocketException;
 
 interface PhoSocketServerInterface

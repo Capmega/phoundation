@@ -31,6 +31,7 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryData;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaException;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaInvalidDataException;
+use Phoundation\Network\PhoMeta\Exceptions\PhoMetaTestException;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaVersionNotSupportedException;
 use Phoundation\Network\PhoMeta\Interfaces\PhoMetaInterface;
 use Phoundation\Network\PhoMeta\Interfaces\PhoMetaTestInterface;
@@ -379,8 +380,15 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
             return false;
         }
 
-        if ($test_data['component'] === $component) {
-            return PhoMetaTest::new($test_data)->save();
+        try {
+            if ($test_data['component'] === $component) {
+                PhoMetaTest::new($test_data)->save();
+                return true;
+            }
+
+        } catch (PhoMetaTestException $e) {
+            Throw PhoMetaException::new(tr('Failed to save PhoMetaTest Data'))
+                                  ->addData($e);
         }
 
         return false;

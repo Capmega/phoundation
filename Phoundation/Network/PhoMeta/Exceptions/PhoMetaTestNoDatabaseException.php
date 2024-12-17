@@ -4,7 +4,7 @@ namespace Phoundation\Network\PhoMeta\Exceptions;
 
 use Phoundation\Exception\PhoException;
 
-class PhoMetaTestNoDatabaseException extends PhoMetaException
+class PhoMetaTestNoDatabaseException extends PhoMetaTestException
 {
 
 }

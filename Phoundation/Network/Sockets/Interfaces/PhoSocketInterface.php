@@ -1,10 +1,9 @@
 <?php
 
-namespace Phoundation\Network\Interfaces\PhoSocketsInterface;
+namespace Phoundation\Network\Sockets\Interfaces;
 
 use Phoundation\Network\Enums\EnumNetworkSocketDomain;
 use Phoundation\Network\Sockets\Exception\SocketException;
-use Phoundation\Network\Sockets\PhoSocket;
 use Socket as SocketResource;
 
 interface PhoSocketInterface
