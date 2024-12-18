@@ -28,6 +28,7 @@ use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Exception\CoreStartupFailedException;
 use Phoundation\Core\Exception\ProcessRequiresRootException;
 use Phoundation\Core\Exception\ProjectException;
+use Phoundation\Core\Exception\StartupException;
 use Phoundation\Core\Interfaces\CoreInterface;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Libraries\Library;
@@ -42,6 +43,7 @@ use Phoundation\Data\Traits\TraitDataStaticIsExecutedPath;
 use Phoundation\Data\Traits\TraitDataStaticReadonly;
 use Phoundation\Data\Traits\TraitGetInstance;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Data\Validator\Exception\MissingArgumentValueException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -60,6 +62,7 @@ use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Os\Processes\Commands\Free;
+use Phoundation\Os\Services\SystemD\SystemDService;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
@@ -451,7 +454,7 @@ class Core implements CoreInterface
      * This method will start up the core class and with it the entire system
      *
      * @return void
-     * @throws CoreStartupFailedException
+     * @throws StartupException
      */
     public static function startup(): void
     {
@@ -488,7 +491,7 @@ class Core implements CoreInterface
                 }
             }
 
-            throw new CoreStartupFailedException(tr('Core->startup() failed'), $e);
+            throw $e;
         }
     }
 
@@ -620,9 +623,7 @@ class Core implements CoreInterface
             ]), $e);
 
         } catch (Throwable $e) {
-            throw new EnvironmentNotExistsException(tr('Failed to start platform ":platform"', [
-                ':platform' => PLATFORM
-            ]), $e);
+            throw new StartupException(tr('Failed to start because: :e', [':e' => $e->getMessage()]), $e);
         }
     }
 
@@ -665,16 +666,16 @@ class Core implements CoreInterface
         define('PWD'       , Strings::slash(isset_get($_SERVER['PWD'])));
         define('PAGE'      , $_GET['page'] ?? 1);
         define('QUIET'     , (get_null(getenv('QUIET')) or get_null(getenv('VERY_QUIET'))) ?? false);
-        define('ALL'       , get_null(getenv('ALL')) ?? false);
-        define('DELETED'   , get_null(getenv('DELETED')) ?? false);
-        define('FORCE'     , get_null(getenv('FORCE')) ?? false);
-        define('ORDERBY'   , get_null(getenv('ORDERBY')) ?? '');
-        define('STATUS'    , get_null(getenv('STATUS')) ?? '');
+        define('ALL'       , get_null(getenv('ALL'))        ?? false);
+        define('DELETED'   , get_null(getenv('DELETED'))    ?? false);
+        define('FORCE'     , get_null(getenv('FORCE'))      ?? false);
+        define('ORDERBY'   , get_null(getenv('ORDERBY'))    ?? '');
+        define('STATUS'    , get_null(getenv('STATUS'))     ?? '');
         define('VERY_QUIET', get_null(getenv('VERY_QUIET')) ?? false);
-        define('TEST'      , get_null(getenv('TEST')) ?? false);
-        define('VERBOSE'   , get_null(getenv('VERBOSE')) ?? false);
-        define('NOAUDIO'   , get_null(getenv('NOAUDIO')) ?? false);
-        define('LIMIT'     , get_null(getenv('LIMIT')) ?? Config::getNatural('paging.limit', 50));
+        define('TEST'      , get_null(getenv('TEST'))       ?? false);
+        define('VERBOSE'   , get_null(getenv('VERBOSE'))    ?? false);
+        define('NOAUDIO'   , get_null(getenv('NOAUDIO'))    ?? false);
+        define('LIMIT'     , get_null(getenv('LIMIT'))      ?? Config::getNatural('paging.limit', 50));
         define('NOWARNINGS', get_null(getenv('NOWARNINGS')) ?? false);
 
         // Check HEAD and OPTIONS requests. If HEAD was requested, just return basic HTTP headers
@@ -2564,7 +2565,8 @@ class Core implements CoreInterface
     {
         // This class requires running with root privileges
         if (!Core::processIsRoot()) {
-            throw new ProcessRequiresRootException(tr('This process requires root privileges to execute correctly.'));
+            throw ProcessRequiresRootException::new(tr('This process requires root privileges to execute correctly.'))
+                                              ->setWarning(Core::inBootState());
         }
     }
 
@@ -2829,7 +2831,7 @@ class Core implements CoreInterface
                     }
 
                 } else {
-                    Log::error('Not attempting to play exception audio, environment has not yet been defined');
+                    Log::warning('Not attempting to play exception audio, environment has not yet been defined');
                 }
 
             } catch (Throwable $f) {

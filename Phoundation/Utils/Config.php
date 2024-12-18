@@ -250,13 +250,12 @@ class Config implements ConfigInterface
      *
      * @param string|array $path
      * @param bool|null    $default
-     * @param mixed|null   $specified
      *
      * @return bool
      */
-    public static function getBoolean(string|array $path, ?bool $default = null, mixed $specified = null): bool
+    public static function getBoolean(string|array $path, ?bool $default = null): bool
     {
-        $return = static::get($path, $default, $specified);
+        $return = static::get($path, $default);
 
         try {
             if (is_bool($return)) {
@@ -294,15 +293,10 @@ class Config implements ConfigInterface
      * @param string|array $path      The key path to search for. This should be specified either as an array with key
      *                                names or a "." separated string
      * @param mixed|null   $default   The default value to return if no value was found in the configuration files
-     * @param mixed|null   $specified A value that might have been specified by a calling function. IF this value is
-     *                                not
-     *                                NULL, it will automatically be returned as we will assume that that is the user
-     *                                (developer) specified value we should be using, overriding configuration and
-     *                                defaults
      *
      * @return mixed
      */
-    public static function get(string|array $path = '', mixed $default = null, mixed $specified = null): mixed
+    public static function get(string|array $path = '', mixed $default = null): mixed
     {
         if (empty(static::$environment)) {
             // We don't really have an environment, don't check configuration
@@ -336,10 +330,6 @@ class Config implements ConfigInterface
         }
 
         static::getInstance();
-
-        if ($specified) {
-            return $specified;
-        }
 
         if (!$path) {
             // No path specified, return everything
@@ -443,13 +433,12 @@ class Config implements ConfigInterface
      *
      * @param string|array $path
      * @param int|null     $default
-     * @param mixed|null   $specified
      *
      * @return int
      */
-    public static function getInteger(string|array $path, ?int $default = null, mixed $specified = null): int
+    public static function getInteger(string|array $path, ?int $default = null): int
     {
-        $return = static::get($path, $default, $specified);
+        $return = static::get($path, $default);
 
         if (is_integer($return)) {
             return $return;
@@ -474,13 +463,12 @@ class Config implements ConfigInterface
      *
      * @param string|array   $path
      * @param int|float|null $default
-     * @param mixed|null     $specified
      *
      * @return int|float
      */
-    public static function getNatural(string|array $path, int|float|null $default = null, mixed $specified = null): int|float
+    public static function getNatural(string|array $path, int|float|null $default = null): int|float
     {
-        $return = static::get($path, $default, $specified);
+        $return = static::get($path, $default);
 
         if (is_natural($return)) {
             return $return;
@@ -505,13 +493,12 @@ class Config implements ConfigInterface
      *
      * @param string|array   $path
      * @param int|float|null $default
-     * @param mixed|null     $specified
      *
      * @return int|float
      */
-    public static function getFloat(string|array $path, int|float|null $default = null, mixed $specified = null): int|float
+    public static function getFloat(string|array $path, int|float|null $default = null): int|float
     {
-        $return = static::get($path, $default, $specified);
+        $return = static::get($path, $default);
 
         if (is_float($return)) {
             return $return;
@@ -536,13 +523,12 @@ class Config implements ConfigInterface
      *
      * @param string|array $path
      * @param array|null   $default
-     * @param mixed|null   $specified
      *
      * @return IteratorInterface
      */
-    public static function getIterator(string|array $path, array|null $default = null, mixed $specified = null): IteratorInterface
+    public static function getIterator(string|array $path, array|null $default = null): IteratorInterface
     {
-        return new Iterator(static::getArray($path, $default, $specified));
+        return new Iterator(static::getArray($path, $default));
     }
 
 
@@ -553,16 +539,18 @@ class Config implements ConfigInterface
      *
      * @param string|array $path
      * @param array|null   $default
-     * @param mixed|null   $specified
      *
      * @return array
      */
-    public static function getArray(string|array $path, array|null $default = null, mixed $specified = null): array
+    public static function getArray(string|array $path, array|null $default = null, array|string|null $require_keys = null): array
     {
-        $return = static::get($path, $default, $specified);
+        $return = static::get($path, $default);
 
         if (is_array($return)) {
-            return static::fixKeys($return);
+            $return = static::fixKeys($return);
+            $return = static::checkKeys($path, $return, $require_keys);
+
+            return $return;
         }
 
         if (($default === null) and static::$allow_no_environment) {
@@ -578,19 +566,46 @@ class Config implements ConfigInterface
 
 
     /**
+     * Checks if the specified configuration keys are available
+     *
+     * @param string|array      $path
+     * @param array             $source
+     * @param array|string|null $keys
+     *
+     * @return array
+     */
+    public static function checkKeys(string|array $path, array $source, array|string|null $keys): array
+    {
+        if ($keys) {
+            $keys = Arrays::force($keys);
+
+            foreach ($keys as $key) {
+                if (!array_key_exists($key, $source)) {
+                    throw new ConfigException(tr('The configuration path ":path" does not have the required key ":key" specified', [
+                        ':path' => $path,
+                        ':key'  => $key,
+                    ]));
+                }
+            }
+        }
+
+        return $source;
+    }
+
+
+    /**
      * Return configuration STRING for the specified key path
      *
      * @note Will cause an exception if a non string value is returned!
      *
      * @param string|array $path
      * @param string|null  $default
-     * @param mixed|null   $specified
      *
      * @return string
      */
-    public static function getString(string|array $path, string|null $default = null, mixed $specified = null): string
+    public static function getString(string|array $path, string|null $default = null): string
     {
-        $return = static::get($path, $default, $specified);
+        $return = static::get($path, $default);
 
         if (is_string($return)) {
             return $return;
@@ -615,13 +630,12 @@ class Config implements ConfigInterface
      *
      * @param string|array     $path
      * @param string|bool|null $default
-     * @param mixed|null       $specified
      *
      * @return string|bool
      */
-    public static function getBoolString(string|array $path, string|bool|null $default = null, mixed $specified = null): string|bool
+    public static function getBoolString(string|array $path, string|bool|null $default = null): string|bool
     {
-        $return = static::get($path, $default, $specified);
+        $return = static::get($path, $default);
 
         if (is_string($return) or is_bool($return)) {
             return $return;

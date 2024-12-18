@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
+use Phoundation\Cli\CliCommand;
+use Phoundation\Utils\Strings;
 
 trait TraitDataOsProcessName
 {
@@ -48,7 +50,17 @@ trait TraitDataOsProcessName
     public function setOsProcessName(?string $os_process_name): static
     {
         $this->os_process_name = $os_process_name;
-
         return $this;
+    }
+
+
+    /**
+     * Detects and sets the process name for this object
+     *
+     * @return static
+     */
+    public function detectOsProcessName(): static
+    {
+        return $this->setOsProcessName('pho-' . Strings::force(CliCommand::getCommands(), '-'));
     }
 }

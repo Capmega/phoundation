@@ -35,7 +35,9 @@ class Ps extends Command
         try {
             // Validate arguments
             if ($pid < 1) {
-                throw new OutOfBoundsException(tr('Specified pid ":pid" is invalid, it should be an integer number 1 or higher', [':pid' => $pid]));
+                throw new OutOfBoundsException(tr('Specified pid ":pid" is invalid, it should be an integer number 1 or higher', [
+                    ':pid' => $pid
+                ]));
             }
 
             $output = $this->setCommand('ps')

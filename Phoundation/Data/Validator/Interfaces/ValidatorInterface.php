@@ -1316,4 +1316,11 @@ interface ValidatorInterface extends IteratorBaseInterface
      *       https://stackoverflow.com/questions/8827514/get-date-format-according-to-the-locale-in-php (INTL section)
      */
     public function isDateRange(array|string|null $formats = null): static;
+
+    /**
+     * Requires the selected value not be NULL
+     *
+     * @return static
+     */
+    public function isNotNull(): static;
 }

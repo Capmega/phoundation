@@ -2739,14 +2739,14 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         $this->test_count++;
 
         return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters(32);
+            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(32);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
-            $this->matchesRegex('/^[a-z][a-z0-9_.]*$/i');
+            $this->matchesRegex('/^[a-z][a-z0-9-_.]*$/i');
         });
     }
 
@@ -3709,6 +3709,30 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
 
     /**
+     * Updates the current field value by passing it to the specified function
+     *
+     * @param callable $function
+     *
+     * @return static
+     */
+    public function sanitizeCallback(callable $function): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) use ($function) {
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
+            }
+
+            if (!$this->checkIsOptional($value)) {
+                $value = $function($value);
+            }
+        });
+    }
+
+
+    /**
      * Sanitize the selected value by applying htmlentities()
      *
      * @return static
@@ -4313,28 +4337,23 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
 
     /**
-     * Sanitize the selected value by executing the specified callback over it
-     *
-     * @note The callback should accept values mixed $value and array $source
-     *
-     * @param callback $callback
+     * Requires the selected value not be NULL
      *
      * @return static
-     * @see  trim()
      */
-    public function sanitizeCallback(callable $callback): static
+    public function isNotNull(): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($callback) {
-            $this->sanitizeTrim()->hasMaxCharacters();
-
+        return $this->validateValues(function (&$value) {
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
-            $value = $callback($value, $this->source);
+            if ($value === null) {
+                $this->addFailure(tr('is not valid'));
+            }
         });
     }
 
@@ -4347,16 +4366,12 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      * @param callback $callback
      *
      * @return static
-     * @see  trim()
      */
     public function sanitizeCallbackNoNull(callable $callback): static
     {
         $this->test_count++;
 
         return $this->validateValues(function (&$value) use ($callback) {
-            $this->sanitizeTrim()
-                 ->hasMaxCharacters();
-
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
                 return;

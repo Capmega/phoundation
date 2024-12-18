@@ -348,9 +348,11 @@ class Arrays extends Utils
 
         if (isset($next)) {
             // The current value was found, but it was at the end of the array
-            throw OutOfBoundsException::new(tr('Option ":value" does not have a required value specified, see --help or --usage', [
+            throw OutOfBoundsException::new(tr('Value ":value" does not have a required next value specified', [
                 ':value' => $current_value,
-            ]))->makeWarning();
+            ]))->addData([
+                'value' => $current_value,
+            ]);
         }
 
         return null;

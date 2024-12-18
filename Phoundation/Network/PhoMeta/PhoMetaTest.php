@@ -40,7 +40,7 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
      */
     public static function getTable(): ?string
     {
-        return 'network_test_meta';
+        return 'network_tests';
     }
 
 
@@ -80,50 +80,50 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
 
 
     /**
-     * Returns the database_connector property for this PhoMetaTest object
+     * Returns the connector_name property for this PhoMetaTest object
      *
      * @return string|null
      */
-    public function getDatabaseConnector(): ?string
+    public function getConnectorName(): ?string
     {
-        return $this->get('database_connector');
+        return $this->get('connector_name');
     }
 
 
     /**
-     * Sets the database_connector property for this PhoMetaTest object
+     * Sets the connector_name property for this PhoMetaTest object
      *
-     * @param string|null $database_connector
+     * @param string|null $connector_name
      *
      * @return $this
      */
-    public function setDatabaseConnector(?string $database_connector): static
+    public function setConnectorName(?string $connector_name): static
     {
-        return $this->set($database_connector, 'database_connector');
+        return $this->set($connector_name, 'connector_name');
     }
 
 
     /**
-     * Returns the database_selector property for this PhoMetaTest object
+     * Returns the database_name property for this PhoMetaTest object
      *
      * @return string|null
      */
-    public function getDatabaseSelector(): ?string
+    public function getDatabaseName(): ?string
     {
-        return $this->get('database_selector');
+        return $this->get('database_name');
     }
 
 
     /**
-     * Sets the database_selector property for this PhoMetaTest object
+     * Sets the database_name property for this PhoMetaTest object
      *
-     * @param string|int|null $database_selector
+     * @param string|int|null $database_name
      *
      * @return $this
      */
-    public function setDatabaseSelector(string|int|null $database_selector): static
+    public function setDatabaseName(string|int|null $database_name): static
     {
-        return $this->set((string) $database_selector, 'database_selector');
+        return $this->set((string) $database_name, 'database_name');
     }
 
 
@@ -215,18 +215,14 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
      * Records a test entry into a database, with all info specified in a PhoMetaTest object
      * Returns true if saved successfully
      *
-     * @param bool        $force
-     * @param bool        $skip_validation
-     * @param string|null $comments
-     *
      * @return static
      */
-    public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
+    public function finish(): static
     {
         $component          = $this->getComponent();
         $key                = get_null($this->getKey());
-        $database_connector = get_null($this->getDatabaseConnector());
-        $database_selector  = get_null($this->getDatabaseSelector());
+        $database_connector = get_null($this->getConnectorName());
+        $database_selector  = get_null($this->getDatabaseName());
 
         if ($key == null) {
             throw PhoMetaTestNoUUIDException::new(tr('UUID Missing from PhoMetaTest source'));
@@ -261,24 +257,25 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->add(DefinitionFactory::newCode($this, 'component')
+        $definitions->add(DefinitionFactory::newVariable($this, 'component')
                                            ->setMaxlength(32)
-                                           ->setLabel('Component being tested'))
+                                           ->setLabel('Tested component'))
 
-                    ->add(DefinitionFactory::newCode($this, 'database_connector')
-                                           ->setMaxlength(32)
-                                           ->setLabel('Which database connector to use'))
+                    ->add(DefinitionFactory::newVariable($this, 'connector_name')
+                                           ->setMaxlength(64)
+                                           ->setLabel('Connector'))
 
-                    ->add(DefinitionFactory::newCode($this, 'database_selector')
-                                           ->setMaxlength(32)
-                                           ->setLabel('Which specific database number to use'))
+                    ->add(DefinitionFactory::newCode($this, 'database_name')
+                                           ->setMinlength(1)
+                                           ->setMaxlength(64)
+                                           ->setLabel('Database'))
 
                     ->add(DefinitionFactory::newCode($this, 'key')
-                                           ->setMaxlength(128)
-                                           ->setLabel('The UUID for this PhoMetaTest'))
-
-                    ->add(DefinitionFactory::newCode($this, 'duration')
                                            ->setMaxlength(64)
-                                           ->setLabel('The duraction for this PhoMetaTest'));
+                                           ->setLabel('Test UUID'))
+
+                    ->add(DefinitionFactory::newNumber($this, 'duration')
+                                           ->setMin(0)
+                                           ->setLabel('Test duration in microseconds'));
     }
 }

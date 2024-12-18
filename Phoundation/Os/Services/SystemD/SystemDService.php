@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class SystemD
+ * Class SystemDService
  *
  *
  *
@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Services\SystemD;
 
+use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -26,6 +27,7 @@ use Phoundation\Data\Traits\TraitDataDescription;
 use Phoundation\Data\Traits\TraitDataOsUser;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
@@ -38,16 +40,18 @@ use Phoundation\Utils\Strings;
 class SystemDService extends Service
 {
     use TraitStaticMethodNew;
-    use TraitDataDescription;
+    use TraitDataDescription {
+        getDescription as protected __getDescription;
+    }
     use TraitDataOsUser;
 
 
     /**
      * Tracks the service script used to manage the service process
      *
-     * @var PhoFileInterface|null $script
+     * @var PhoFileInterface|null $service_script
      */
-    protected ?PhoFileInterface $script = null;
+    protected ?PhoFileInterface $service_script = null;
 
     /**
      * Tracks the service target script used to manage the service process
@@ -72,7 +76,7 @@ class SystemDService extends Service
 
 
     /**
-     * SystemD class constructor
+     * SystemDService class constructor
      */
     public function __construct()
     {
@@ -83,13 +87,15 @@ class SystemDService extends Service
             return preg_match('/^[a-z]+?.service$/i', $value);
         };
 
+        $this->detectOsProcessName();
+
         $this->after    = Iterator::new()->addValidator($validator);
         $this->requires = Iterator::new()->addValidator($validator);
     }
 
 
     /**
-     * Returns true if the systemd system file is installed
+     * Returns true if the SystemD system file is installed
      *
      * @return bool
      */
@@ -100,13 +106,13 @@ class SystemDService extends Service
 
 
     /**
-     * Ensures that the systemd system file is installed
+     * Ensures that the SystemD system file is installed
      *
      * @return static
      */
     public function ensureSystemFileInstalled(): static
     {
-        if ($this->systemFileInstalled()) {
+        if ($this->systemFileInstalled() and !FORCE) {
             return $this;
         }
 
@@ -115,7 +121,7 @@ class SystemDService extends Service
 
 
     /**
-     * Checks that the systemd system file is installed
+     * Checks that the SystemD system file is installed
      *
      * @return static
      */
@@ -126,37 +132,118 @@ class SystemDService extends Service
         }
 
         throw new ServicesException(tr('System file ":file" is not installed', [
-            ':file' => $this->script->getBasename()
+            ':file' => $this->service_script->getBasename()
         ]));
     }
 
 
     /**
-     * Generates a systemd system file and ensures its symlinked in /etc/systemd/system/
+     * Ensures that the SystemD script exists and is installed
      *
      * @return static
      */
-    public function install(): static
+    public function ensureInstalled(): static
     {
-        $this->generate()->symlinkThisToTarget($this->target_script);
+        if (!$this->isInstalled()) {
+            return $this->install();
+        }
+
         return $this;
     }
 
 
     /**
-     * Removes the symlinked systemd script in /etc/systemd/system/
+     * Generates a SystemD system file and ensures its symlinked in /etc/systemd/system/
+     *
+     * @return static
+     */
+    public function install(): static
+    {
+        $this->generate()->symlinkTargetFromThis($this->target_script);
+        return $this;
+    }
+
+
+    /**
+     * Removes the symlinked SystemD script in /etc/systemd/system/
      *
      * @return static
      */
     public function uninstall(): static
     {
         $this->getTargetScript()->delete(false);
+        $this->getServiceScript()->delete(false);
+
         return $this;
     }
 
 
     /**
-     * Generates a systemd service script
+     * Returns true if the current service is installed
+     *
+     * The current service is installed if a SystemD system script exists and is symlinked in /etc/systemd/system
+     *
+     * @return bool
+     */
+    public function isInstalled(): bool
+    {
+        return $this->getServiceScript()->exists();
+    }
+
+
+    /**
+     * Returns true if the current service is enabled
+     *
+     * @note This requires the service file to be installed
+     *
+     * @return bool
+     */
+    public function isEnabled(): bool
+    {
+        if ($this->isInstalled()) {
+            return SystemCtl::new($this->getOsProcessName())->isEnabled();
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Returns true if the current service is enabled
+     *
+     * @note This requires the service file to be installed
+     *
+     * @return bool
+     */
+    public function isLoaded(): bool
+    {
+        if ($this->isInstalled()) {
+            return SystemCtl::new($this->getOsProcessName())->getStatusObject()->isEnabled();
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Returns true if the current service is enabled
+     *
+     * @note This requires the service file to be installed
+     *
+     * @return bool
+     */
+    public function isActive(): bool
+    {
+        if ($this->isInstalled()) {
+            return SystemCtl::new($this->getOsProcessName())->getStatusObject()->isEnabled();
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Generates a SystemD service script
      *
      * @return PhoFileInterface
      */
@@ -172,9 +259,9 @@ User=' . $this->getOsUser() . '
 Type=simple
 TimeoutSec=0
 PIDFile=/var/run/' . $this->getOsProcessName() . '.pid
-ExecStart=/usr/bin/php -f ' . DIRECTORY_ROOT . 'phod arg1 arg2> /dev/null 2>/dev/null
-#ExecStop=/bin/kill -HUP $MAINPID #It is the default you can change whats happens on stop command
-#ExecReload=/bin/kill -HUP $MAINPID
+ExecStart=' . CliCommand::getCommandline() . ' > /dev/null 2>/dev/null
+ExecStop=/bin/kill -TERM $MAINPID #It is the default you can change whats happens on stop command
+ExecReload=/bin/kill -HUP $MAINPID
 KillMode=process
 
 Restart=on-failure
@@ -188,32 +275,23 @@ WantedBy=default.target');
 
 
     /**
-     * Returns true if the current service is enabled
-     *
-     * The current service is enabled if a systemd system script exists and is symlinked in /etc/systemd/system
-     *
-     * @return bool
-     */
-    public function isEnabled(): bool
-    {
-        return $this->getServiceScript()->exists();
-    }
-
-
-    /**
      * Returns the service script
      *
-     * The current service is enabled if a systemd system script exists and is symlinked in /etc/systemd/system
+     * The current service is enabled if a SystemD system script exists and is symlinked in /etc/systemd/system
      *
      * @return PhoFileInterface
      */
     public function getServiceScript(): PhoFileInterface
     {
-        if (empty($this->script)) {
-            $this->script = PhoFile::new(DIRECTORY_ROOT . 'data/system/systemd/' . $this->getOsProcessName(), PhoRestrictions::newData(true, DIRECTORY_ROOT . 'data/system/systemd/'));
+        if (empty($this->service_script)) {
+            // Initialize the service_script object for the current process
+            $this->service_script = PhoFile::newDataObject(
+                'system/systemd/' . $this->getOsProcessName() . '.service',
+                PhoRestrictions::newData(true, 'system/systemd/')
+            );
         }
 
-        return $this->script;
+        return $this->service_script;
     }
 
 
@@ -225,10 +303,14 @@ WantedBy=default.target');
     public function getTargetScript(): PhoFileInterface
     {
         if (empty($this->target_script)) {
-            $this->target_script = PhoFile::new('/etc/systemd/system/' . $this->getOsProcessName(), PhoRestrictions::newWritable('/etc/systemd/system'));
+            // Initialize the target_script object for the current process
+            $this->target_script = PhoFile::new(
+                '/etc/systemd/system/' . $this->getOsProcessName() . '.service',
+                PhoRestrictions::newWritable('/etc/systemd/system')
+            );
         }
 
-        return $this->script;
+        return $this->target_script;
     }
 
 
@@ -244,7 +326,7 @@ WantedBy=default.target');
             return parent::execute($cycle);
         }
 
-        // This process is NOT yet a service. Instead of executing the specified cycle, execute systemd commands
+        // This process is NOT yet a service. Instead of executing the specified cycle, execute SystemD commands
         $argv = ArgvValidator::new()
                              ->select('command')->isInArray(['start', 'stop', 'restart', 'status', 'show'])
                              ->validate();
@@ -285,10 +367,14 @@ WantedBy=default.target');
     {
         $this->ensureSystemFileInstalled();
 
+        Log::action(tr('Starting service ":service" as a SystemD service', [
+            ':service' => $this->getOsProcessName()
+        ]));
+
         SystemCtl::new()
                  ->setOsProcessName($this->getOsProcessName())
                  ->start();
-
+showdie();
         return $this;
     }
 
@@ -303,8 +389,8 @@ WantedBy=default.target');
         $this->ensureSystemFileInstalled();
 
         SystemCtl::new()
-                  ->setOsProcessName($this->getOsProcessName())
-                  ->restart();
+                 ->setOsProcessName($this->getOsProcessName())
+                 ->restart();
 
         return $this;
     }
@@ -319,9 +405,13 @@ WantedBy=default.target');
     {
         $this->ensureSystemFileInstalled();
 
+        Log::action(tr('Stopping SystemD service ":service"', [
+            ':service' => $this->getOsProcessName()
+        ]));
+
         SystemCtl::new()
-            ->setOsProcessName($this->getOsProcessName())
-            ->stop();
+                 ->setOsProcessName($this->getOsProcessName())
+                 ->stop();
 
         return $this;
     }
@@ -358,5 +448,49 @@ WantedBy=default.target');
                              ->show());
 
         return $this;
+    }
+
+
+    /**
+     * Executes the specified SystemD method
+     *
+     * @param string $command
+     *
+     * @return $this
+     */
+    public function executeCommand(string $command): static
+    {
+        switch ($command) {
+            case 'start':
+                return $this->start();
+
+            case 'stop':
+                return $this->stop();
+
+            case 'restart':
+                return $this->restart();
+
+            case 'enable':
+                return $this->ensureInstalled();
+
+            case 'disable':
+                return $this->uninstall();
+
+            default:
+                throw new OutOfBoundsException(tr('Unknown SystemD service command ":command" specified', [
+                    ':command' => $command
+                ]));
+        }
+    }
+
+
+    /**
+     * Returns the description for the current process
+     *
+     * @return string
+     */
+    public function getDescription(): string
+    {
+        return CliCommand::getHelp();
     }
 }

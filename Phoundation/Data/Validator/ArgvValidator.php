@@ -23,6 +23,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataStaticArrayBackup;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
+use Phoundation\Data\Validator\Exception\MissingArgumentValueException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ArgvValidatorInterface;
@@ -77,10 +78,8 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      */
     public function __construct()
     {
-        // NOTE: ArgValidator does NOT pass $argv to the parent constructor, the $argv values are manually copied to
-        // static::source!
-        // TODO Fix this crap! The byref causes serious weird behaviour that right now I don't have the time to fix
-        $this->construct(null, static::$argv);
+        // ArgValidator does NOT pass $argv to the parent, the $argv values are manually copied to the object source.
+        $this->construct();
     }
 
 
@@ -589,14 +588,14 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         if (is_integer($arguments)) {
             // Get arguments by index
             if ($next === 'all') {
-                foreach ($this->source as $argv_key => $argv_value) {
+                foreach (static::$argv as $argv_key => $argv_value) {
                     if ($argv_key < $arguments) {
                         continue;
                     }
 
                     if ($argv_key == $arguments) {
                         if (!$test) {
-                            unset($this->source[$arguments]);
+                            unset(static::$argv[$arguments]);
                         }
 
                         continue;
@@ -611,18 +610,18 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                     $value[] = $argv_value;
 
                     if (!$test) {
-                        unset($this->source[$argv_key]);
+                        unset(static::$argv[$argv_key]);
                     }
                 }
 
                 return isset_get($value);
             }
 
-            if (isset($this->source[$arguments++])) {
-                $argument = $this->source[$arguments - 1];
+            if (isset(static::$argv[$arguments++])) {
+                $argument = static::$argv[$arguments - 1];
 
                 if (!$test) {
-                    unset($this->source[$arguments - 1]);
+                    unset(static::$argv[$arguments - 1]);
                 }
 
                 return $argument;
@@ -635,10 +634,10 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         if ($arguments === null) {
             // Get the next argument?
             if ($test) {
-                return $this->source[array_key_first($this->source)];
+                return static::$argv[array_key_first(static::$argv)];
             }
 
-            return array_shift($this->source);
+            return array_shift(static::$argv);
         }
 
         // Detect multiple key options for the same command, but ensure only one is specified
@@ -682,7 +681,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         }
 
         // Find the location of the specified singular key. If not found, we're done, return null
-        if (($argument_array_key = array_search($arguments, $this->source, true)) === false) {
+        if (($argument_array_key = array_search($arguments, static::$argv, true)) === false) {
             return null;
         }
 
@@ -691,13 +690,13 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                 // Return all following arguments, if available, until the next option
                 $value = [];
 
-                foreach ($this->source as $argv_key => $argv_value) {
+                foreach (static::$argv as $argv_key => $argv_value) {
                     if (empty($start)) {
                         if ($argv_value == $arguments) {
                             $start = true;
 
                             if (!$test) {
-                                unset($this->source[$argv_key]);
+                                unset(static::$argv[$argv_key]);
                             }
                         }
 
@@ -709,11 +708,11 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                         break;
                     }
 
-                    //Add this argument to the list
+                    // Add this argument to the list
                     $value[] = $argv_value;
 
                     if (!$test) {
-                        unset($this->source[$argv_key]);
+                        unset(static::$argv[$argv_key]);
                     }
                 }
 
@@ -722,11 +721,14 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
             try {
                 // Return next argument, if available
-                $value = Arrays::nextValue($this->source, $arguments, !$test);
+                $value = Arrays::nextValue(static::$argv, $arguments, !$test);
 
             } catch (OutOfBoundsException $e) {
                 // This argument requires another parameter. Make it a CliArgumentsException
-                throw CliArgumentsException::new($e)->makeWarning();
+                // The current value was found, but it was at the end of the array
+                throw MissingArgumentValueException::new(tr('Argument ":value" does not have a required value specified, see --help or --usage', [
+                    ':value' => $arguments,
+                ]), $e)->addData($e->getData());
             }
 
             if (str_starts_with((string) $value, '-')) {
@@ -741,7 +743,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         }
 
         if (!$test) {
-            unset($this->source[$argument_array_key]);
+            unset(static::$argv[$argument_array_key]);
         }
 
         return true;

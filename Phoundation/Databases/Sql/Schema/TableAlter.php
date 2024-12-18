@@ -235,7 +235,7 @@ class TableAlter extends SchemaAbstract
     {
         if ($index) {
             $this->sql->query('ALTER TABLE ' . $this->name . ' 
-                                     ADD ' . Strings::ensureEndsNotWith($index, ','));
+                               ADD         ' . Strings::ensureEndsNotWith($index, ','));
         }
 
         return $this;
@@ -253,7 +253,7 @@ class TableAlter extends SchemaAbstract
     {
         if ($index) {
             $this->sql->query('ALTER TABLE ' . $this->name . ' 
-                                     DROP KEY `' . Strings::ensureEndsNotWith(Strings::ensureStartsNotWith($index, '`'), '`') . '`');
+                               DROP KEY   `' . Strings::ensureEndsNotWith(Strings::ensureStartsNotWith($index, '`'), '`') . '`');
         }
 
         return $this;

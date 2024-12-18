@@ -226,4 +226,16 @@ class SystemCtl extends Command
     {
         return $this->executeCommandReturnNothing('suspend');
     }
+
+
+    /**
+     * Returns true if the specified service is enabled
+     *
+     * @return bool
+     */
+    public function isEnabled(): bool
+    {
+        $status = $this->status();
+showdie($status);
+    }
 }

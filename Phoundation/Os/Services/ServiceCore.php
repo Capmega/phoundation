@@ -77,7 +77,7 @@ class ServiceCore
 
         $this->setCycleGcChance(5)
              ->setCycleSleep(5000)
-             ->setOsProcessName();
+             ->detectOsProcessName();
     }
 
 
@@ -105,21 +105,6 @@ class ServiceCore
     public static function getCommandsList(): array
     {
         return ['start', 'stop', 'restart', 'status', 'show'];
-    }
-
-
-    /**
-     * Sets the name for this process
-     *
-     * @return static
-     */
-    public function setOsProcessName(): static
-    {
-        $name = 'pho-' . CliCommand::getCommandsString();
-        $name = strtolower($name);
-        $name = str_replace(' ', '-', $name);
-
-        return $this->__setOsProcessName($name);
     }
 
 
@@ -231,7 +216,7 @@ class ServiceCore
      *
      * @return bool
      */
-    public function processIsService(): bool
+    public static function processIsService(): bool
     {
         return posix_getppid() === 1;
     }

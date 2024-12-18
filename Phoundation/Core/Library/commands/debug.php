@@ -1,0 +1,23 @@
+<?php
+
+/**
+ * Command debug
+ *
+ * This command will return either 1 if debug is enabled, or nothing at all
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Scripts
+ */
+
+
+declare(strict_types=1);
+
+use Phoundation\Core\Log\Log;
+use Phoundation\Developer\Debug;
+
+
+if (Debug::isEnabled()) {
+    Log::cli('1');
+}
