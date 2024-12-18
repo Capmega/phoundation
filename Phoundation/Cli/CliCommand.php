@@ -54,6 +54,7 @@ use Phoundation\Exception\PhoException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\ScriptException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Databases\MySql;
@@ -90,11 +91,11 @@ class CliCommand
     protected static int $exit_code = 0;
 
     /**
-     * The command that is being executed
+     * The command file that is being executed
      *
-     * @var string|null $command
+     * @var string|null $command_file
      */
-    protected static ?string $command = null;
+    protected static ?string $command_file = null;
 
     /**
      * The original set of commands
@@ -230,6 +231,54 @@ class CliCommand
 
 
     /**
+     * Returns a PhoFile object containing the file for the command that will be executed
+     *
+     * @return PhoFileInterface|null
+     */
+    public function getCommandFile(): ?PhoFileInterface
+    {
+        if (empty(static::$command_file)) {
+            return null;
+        }
+
+        return new PhoFile(static::$command_file, PhoRestrictions::newRoot());
+    }
+
+
+    /**
+     * Sets the process title
+     *
+     * @param string|null $title
+     *
+     * @return void
+     */
+    public static function setProcessTitle(?string $title = null): void
+    {
+        $title = ($title ?? 'pho: ' . static::getCommandsString());
+
+        cli_set_process_title($title);
+        file_put_contents('/proc/' . getmypid() . '/comm', $title);
+    }
+
+
+    /**
+     * Returns the process title
+     *
+     * @param bool $short
+     *
+     * @return string
+     */
+    public function getProcessTitle(bool $short = true): string
+    {
+        if ($short) {
+            return (trim(file_get_contents('/proc/' . getmypid() . '/comm'), "\r\n"));
+        }
+
+        return cli_get_process_title();
+    }
+
+
+    /**
      * Execute a command by the "pho" command
      *
      * @return void
@@ -241,24 +290,24 @@ class CliCommand
         $parameters = static::startup();
 
         static::setCommandOrExecuteDocumentation($parameters);
-        static::$run_file = new CliRunFile(static::$command);
+        static::$run_file = new CliRunFile(static::$command_file);
 
         // TODO Move this to the Request object
-        static::addExecutedPath(static::$command);
+        static::addExecutedPath(static::$command_file);
 
         // Should we execute usage or help documentation instead?
         static::checkUsage();
         static::checkHelp();
+        static::processServiceCommands();
 
-        if (!static::processServiceCommands()) {
-            // Execute the command and finish execution
-            try {
-                Request::setRestrictions(PhoRestrictions::newFilesystemRoot());
-                Request::execute(static::$command . '.php');
+        // Execute the command and finish execution
+        try {
+            CliCommand::setProcessTitle();
+            Request::setRestrictions(PhoRestrictions::newFilesystemRoot());
+            Request::execute(static::$command_file . '.php');
 
-            } catch (SqlNoTimezonesException $e) {
-                static::fixMysqlTimezoneException($e);
-            }
+        } catch (SqlNoTimezonesException $e) {
+            static::fixMysqlTimezoneException($e);
         }
 
         // Make sure that the CLI auto-completion is configured for this shell.
@@ -284,11 +333,41 @@ class CliCommand
     protected static function processServiceCommands(): bool
     {
         if (static::$service) {
-            SystemDService::new()->executeCommand(static::$service);
-            return true;
+            if (static::hasSystemDConfigure()) {
+                return true;
+            }
+
+            throw ServiceUnavailableException::new(tr('The command ":command" cannot be run as a service', [
+                ':command' => static::getCommandsString(),
+            ]))->makeWarning();
         }
 
         return false;
+    }
+
+
+    /**
+     * Returns the service commands given on the command line
+     *
+     * @return string|null
+     */
+    public static function getServiceCommands(): ?string
+    {
+        return static::$service;
+    }
+
+
+    /**
+     * Returns true if the current command file has a SystemDService::configure() call
+     *
+     * @return bool
+     */
+    protected static function hasSystemDConfigure(): bool
+    {
+        $results = PhoFile::new(static::$command_file . '.php', PhoRestrictions::newFilesystemRoot())
+                          ->grep(['SystemDService::configure('], 100);
+
+        return !empty($results);
     }
 
 
@@ -898,12 +977,12 @@ class CliCommand
     protected static function setCommandOrExecuteDocumentation(array $parameters): void
     {
         if (CliAutoComplete::isActive()) {
-            static::$command = static::autoComplete();
+            static::$command_file = static::autoComplete();
 
         } else {
             try {
                 // Get the command file to execute
-                static::$command = static::findCommand();
+                static::$command_file = static::findCommand();
 
             } catch (CliNoCommandSpecifiedException) {
                 if (static::$service) {
@@ -1242,7 +1321,7 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
     protected static function limitCommand(array|string|null $limits, Throwable|string|null $reason): void
     {
         if ($limits) {
-            $test = Strings::from(static::$command, 'commands/');
+            $test = Strings::from(static::$command_file, 'commands/');
 
             foreach (Arrays::force($limits) as $limit) {
                 if (str_starts_with($test, $limit)) {
@@ -1274,7 +1353,7 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
         global $argv;
 
         if ($argv['usage']) {
-            $results = PhoFile::new(static::$command . '.php', PhoRestrictions::newFilesystemRoot())
+            $results = PhoFile::new(static::$command_file . '.php', PhoRestrictions::newFilesystemRoot())
                               ->grep(['CliDocumentation::setUsage('], 100);
 
             if (empty($results)) {
@@ -1315,7 +1394,7 @@ return 'under construction';
         global $argv;
 
         if ($argv['help']) {
-            $results = PhoFile::new(static::$command . '.php', PhoRestrictions::newFilesystemRoot())
+            $results = PhoFile::new(static::$command_file . '.php', PhoRestrictions::newFilesystemRoot())
                               ->grep(['CliDocumentation::setHelp('], 100);
 
             if (empty($results)) {
@@ -1622,7 +1701,7 @@ return 'under construction';
                              ->select('-R,--rebuild-commands')->isOptional(false)->isBoolean()
                              ->select('-M,--timeout', true)->isOptional(false)->isInteger()
                              ->select('-N,--no-audio')->isOptional(false)->isBoolean()
-                             ->select('-S,--service', true)->isOptional()->isInArray(['start', 'stop', 'restart', 'enable', 'disable'])
+                             ->select('-S,--service', true)->isOptional()->hasMaxcharacters(2048)
                              ->select('-T,--test')->isOptional(false)->isBoolean()
                              ->select('-U,--usage')->isOptional(false)->isBoolean()
                              ->select('-V,--verbose')->isOptional(false)->isBoolean()

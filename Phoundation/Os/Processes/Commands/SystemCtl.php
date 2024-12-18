@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class Mpg123
+ * Class SystemCtl
  *
  *
  *
@@ -68,10 +68,16 @@ class SystemCtl extends Command
      */
     protected function executeProcessCommandReturnNothing(string $command): static
     {
-        return $this->getProcessObject()
+//        return $this->getProcessObject()
+//                    ->checkProcessName($command)
+//                    ->addArgument([$command, $this->getOsProcessName()])
+//                    ->executeNoReturn();
+
+        $this->getProcessObject()
                     ->checkProcessName($command)
                     ->addArgument([$command, $this->getOsProcessName()])
-                    ->executeNoReturn();
+                    ->executePassthru();
+        return $this;
     }
 
 
@@ -225,6 +231,17 @@ class SystemCtl extends Command
     public function suspend(): static
     {
         return $this->executeCommandReturnNothing('suspend');
+    }
+
+
+    /**
+     * Reloads the systemd daemon
+     *
+     * @return $this
+     */
+    public function daemonReload(): static
+    {
+        return $this->executeCommandReturnNothing('daemon-reload');
     }
 
 
