@@ -2572,6 +2572,40 @@ class Core implements CoreInterface
 
 
     /**
+     * Returns the UID for the pho command
+     *
+     * @return int The user id for this process
+     */
+    public static function getPhoUid(): int
+    {
+        $uid = fileowner(PHO_DIRECTORY . 'pho');
+
+        if ($uid === false) {
+            throw new CoreException(tr('Failed to get UID for pho command'));
+        }
+
+        return $uid;
+    }
+
+
+    /**
+     * Returns the username for the pho command
+     *
+     * @return string|null The username for this process
+     */
+    public static function getPhoUsername(): ?string
+    {
+        $user = posix_getpwuid(Core::getPhoUid());
+
+        if ($user) {
+            return $user['name'];
+        }
+
+        return null;
+    }
+
+
+    /**
      * Returns the UID for the current process
      *
      * @return int The user id for this process
