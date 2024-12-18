@@ -194,7 +194,7 @@ class Table extends SchemaAbstract implements TableInterface
      *
      * @return bool
      */
-    public function columnExists(string $column, bool $cache = true): bool
+    public function columnExists(string $column, bool $cache = false): bool
     {
         return $this->getColumns($cache)->keyExists(Strings::cut($column, '`', '`', false));
     }
@@ -207,7 +207,7 @@ class Table extends SchemaAbstract implements TableInterface
      *
      * @return IteratorInterface
      */
-    public function getColumns(bool $cache = true): IteratorInterface
+    public function getColumns(bool $cache = false): IteratorInterface
     {
         if (!$cache) {
             unset($this->columns);
@@ -236,7 +236,7 @@ class Table extends SchemaAbstract implements TableInterface
      *
      * @return bool
      */
-    public function foreignKeyExists(string $key, bool $cache = true): bool
+    public function foreignKeyExists(string $key, bool $cache = false): bool
     {
         return $this->getForeignKeys($cache)->keyExists(Strings::cut($key, '`', '`', false));
     }
@@ -249,7 +249,7 @@ class Table extends SchemaAbstract implements TableInterface
      *
      * @return IteratorInterface
      */
-    public function getForeignKeys(bool $cache = true): IteratorInterface
+    public function getForeignKeys(bool $cache = false): IteratorInterface
     {
         if (!$cache) {
             unset($this->foreign_keys);
@@ -295,7 +295,7 @@ class Table extends SchemaAbstract implements TableInterface
      *
      * @return bool
      */
-    public function indexExists(string $key, bool $cache = true): bool
+    public function indexExists(string $key, bool $cache = false): bool
     {
         return $this->getIndices($cache)->keyExists(Strings::cut($key, '`', '`', false));
     }
@@ -308,7 +308,7 @@ class Table extends SchemaAbstract implements TableInterface
      *
      * @return IteratorInterface
      */
-    public function getIndices(bool $cache = true): IteratorInterface
+    public function getIndices(bool $cache = false): IteratorInterface
     {
         if (!$cache) {
             unset($this->indices);
@@ -316,11 +316,14 @@ class Table extends SchemaAbstract implements TableInterface
 
         if (empty($this->indices)) {
             $indices = [];
-            $results = sql()->listKeyValues('DESCRIBE `' . $this->name . '`');
+            $results = sql()->listKeyValues('SHOW CREATE TABLE  `' . $this->name . '`');
+            $results = array_pop($results);
+            $results = array_pop($results);
+            $results = explode(PHP_EOL, $results);
 
             foreach ($results as $result) {
-                if ($result['key']) {
-                    $indices[$result['field']] = strtolower($result['key']);
+                if (preg_match_all('/(?:KEY|UNIQUE) `(.+?)` \((.+?)\)/i', $result, $matches)) {
+                    $indices[$matches[1][0]] = str_replace('`', '', $matches[2][0]);
                 }
             }
 
