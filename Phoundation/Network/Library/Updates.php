@@ -122,7 +122,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
         })->addUpdate('0.3.0', function () {
             // Fix various design issues in table "network_test"
             if (!sql()->getSchemaObject()->getTableObject('network_tests')->exists()) {
-                sql()->getSchemaObject()->getTableObject('network_test_meta')->rename('network_test');
+                sql()->getSchemaObject()->getTableObject('network_test_meta')->rename('network_tests');
             }
 
             $table = sql()->getSchemaObject()->getTableObject('network_tests');
