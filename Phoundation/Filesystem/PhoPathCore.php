@@ -29,6 +29,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
@@ -428,6 +429,12 @@ class PhoPathCore implements PhoPathInterface
         } else {
             // Ensure absolute paths are absolute
             $this->source = static::absolutePath($path, $absolute_prefix, $must_exist);
+        }
+
+        if (strlen($this->source) > 2048) {
+            throw new ValidationFailedException(tr('The specified path ":path" has more than 2048 characters which is not supported', [
+                ':path' => $path,
+            ]));
         }
 
         return $this;

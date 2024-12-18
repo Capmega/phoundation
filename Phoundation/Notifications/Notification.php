@@ -538,10 +538,12 @@ FILES variables:
         // Remove HTML from the message for logging
         $message = (string) $this->getMessage();
         $message = strip_tags($message);
-        $message = trim($message);
+        $message = get_null(trim($message)) ?? 'N/A';
 
         switch ($this->getMode()) {
             case EnumDisplayMode::danger:
+                Log::write(Strings::size('Type', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write($this->getMode()->value, 'error', $log, echo_prefix: false);
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($this->getTitle(), 'error', $log, echo_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
@@ -549,6 +551,8 @@ FILES variables:
                 break;
 
             case EnumDisplayMode::warning:
+                Log::write(Strings::size('Type', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write($this->getMode()->value, 'warning', $log, echo_prefix: false);
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($this->getTitle(), 'warning', $log, echo_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
@@ -556,6 +560,8 @@ FILES variables:
                 break;
 
             case EnumDisplayMode::success:
+                Log::write(Strings::size('Type', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write($this->getMode()->value, 'success', $log, echo_prefix: false);
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($this->getTitle(), 'success', $log, echo_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
@@ -563,6 +569,8 @@ FILES variables:
                 break;
 
             case EnumDisplayMode::info:
+                Log::write(Strings::size('Type', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write($this->getMode()->value, 'information', $log, echo_prefix: false);
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($this->getTitle(), 'information', $log, echo_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
@@ -570,6 +578,8 @@ FILES variables:
                 break;
 
             default:
+                Log::write(Strings::size('Type', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write($this->getMode()->value, 'notice', $log, echo_prefix: false);
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($this->getTitle(), 'notice', $log, echo_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);

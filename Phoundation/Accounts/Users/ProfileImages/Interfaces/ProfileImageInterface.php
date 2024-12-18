@@ -51,9 +51,9 @@ interface ProfileImageInterface
     /**
      * Sets the img for this profile image
      *
-     * @param ImgInterface $img
+     * @param ImgInterface $o_img
      *
      * @return static
      */
-    public function setHtmlImgObject(ImgInterface $img): static;
+    public function setHtmlImgObject(ImgInterface $o_img): static;
 }
