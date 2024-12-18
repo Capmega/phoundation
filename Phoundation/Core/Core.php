@@ -2735,7 +2735,7 @@ class Core implements CoreInterface
      */
     #[NoReturn] public static function requireCliEnvironment(bool $auto_complete): never
     {
-        $message = 'No required cli environment specified for project "' . PROJECT . '". Use -E PROJECTNAME or ensure that your ~/.bashrc file contains a line like "export PHOUNDATION_' . PROJECT . '_ENVIRONMENT=PROJECTNAME" and then execute "source ~/.bashrc"';
+        $message = 'No required cli environment specified for project "' . PROJECT . '". Use -E ENVIRONMENT or ensure that your ~/.bashrc file contains a line like "export PHOUNDATION_' . PROJECT . '_ENVIRONMENT=ENVIRONMENT" and then execute "source ~/.bashrc"';
 
         if ($auto_complete) {
             Core::exit(2, str_replace(' ', '-', $message));
