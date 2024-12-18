@@ -65,7 +65,7 @@ trait TraitDataOsUser
      */
     public function detectOsUser(): static
     {
-        $this->os_user = Core::getProcessUsername();
+        $this->os_user = Core::getPhoUsername();
         return $this;
     }
 }
