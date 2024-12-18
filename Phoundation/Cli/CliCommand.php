@@ -60,7 +60,6 @@ use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Databases\MySql;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Os\Services\Exception\ServiceUnavailableException;
-use Phoundation\Os\Services\SystemD\SystemDService;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
@@ -499,7 +498,7 @@ class CliCommand
     protected static function detectProcessUidMatchesPhoundationOwner(): void
     {
         try {
-            static::$pho_uid = fileowner(PHO_DIRECTORY . 'pho');
+            static::$pho_uid = Core::getPhoUid();
 
         } catch (Throwable $e) {
             // Wut? What happened? Does the pho command exist? If it does, how did we got here? ./pho renamed, perhaps?
