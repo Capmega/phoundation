@@ -2,7 +2,7 @@
 
 namespace Phoundation\Databases\Redis\Interfaces;
 
-use Phoundation\Databases\Exception\RedisException;
+use Phoundation\Databases\Redis\Exception\RedisException;
 use Phoundation\Databases\Redis\Redis;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;

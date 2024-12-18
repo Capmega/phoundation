@@ -16,16 +16,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Library\tests\Phoundation\Databases;
 
-use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Connectors\Connector;
-use Phoundation\Databases\Exception\RedisException;
 use Phoundation\Databases\Redis\Interfaces\RedisInterface;
 use Phoundation\Databases\Redis\Redis;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Config;
 use PHPUnit\Framework\TestCase;
-
 
 class RedisTest extends TestCase
 {
@@ -54,7 +49,7 @@ class RedisTest extends TestCase
         if (!$this->redis->ping()) {
             Log::error(tr('Connection to Redis server failed'));
         }
-        
+
     }
 
 
@@ -79,7 +74,7 @@ class RedisTest extends TestCase
     {
         $this->ensureRedisConnectionOpen();
         $this->assertEquals(0, $this->redis->getDatabase());
-        
+
         $this->close();
     }
 
@@ -338,7 +333,7 @@ class RedisTest extends TestCase
         $this->redis->clearQueue('test-queue');
         $result2 = $this->redis->getQueueCount('test-queue');
         $this->assertEquals(0, $result2, 'The queue should be empty after clear.');
-        
+
         $this->redis->clearAll();
         $this->redis->close();
     }

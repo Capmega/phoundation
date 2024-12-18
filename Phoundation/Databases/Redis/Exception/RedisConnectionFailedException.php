@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class RedisException
+ * Class RedisConnectionFailedException
  *
- * This is the standard exception for the Phoundation Redis class
+ * This exception is thrown when the Redis database object failed to connect to a Redis database
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -14,10 +14,8 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Databases\Exception;
+namespace Phoundation\Databases\Redis\Exception;
 
-use Throwable;
-
-class RedisException extends DatabasesException
+class RedisConnectionFailedException extends RedisException
 {
 }

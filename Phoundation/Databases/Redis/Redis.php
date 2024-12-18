@@ -16,14 +16,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Redis;
 
-use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
-use Phoundation\Databases\Exception\RedisConnectionFailedException;
-use Phoundation\Databases\Exception\RedisException;
 use Phoundation\Databases\Interfaces\DatabaseInterface;
+use Phoundation\Databases\Redis\Exception\RedisConnectionFailedException;
+use Phoundation\Databases\Redis\Exception\RedisException;
+use Phoundation\Databases\Redis\Exception\RedisKeyNotFoundException;
 use Phoundation\Databases\Redis\Interfaces\RedisInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
@@ -211,7 +211,7 @@ class Redis implements DatabaseInterface, RedisInterface
             return null;
 
         } catch (Throwable $e) {
-            throw RedisException::new(tr('Failed to get key ":key" from Redis connector ":connector', [
+            throw RedisKeyNotFoundException::new(tr('Failed to get key ":key" from Redis connector ":connector', [
                 ':key' => $key,
                 ':connector' => $this->getConnectorObject()->getName()
             ]), $e)
