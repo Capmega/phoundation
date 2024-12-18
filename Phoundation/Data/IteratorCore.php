@@ -44,6 +44,7 @@ use Phoundation\Data\Interfaces\ArraySourceInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataColumns;
 use Phoundation\Data\Traits\TraitDataFilterForm;
+use Phoundation\Data\Traits\TraitDataName;
 use Phoundation\Data\Traits\TraitDataRowCallbacks;
 use Phoundation\Data\Traits\TraitDataParent;
 use Phoundation\Data\Traits\TraitDataRestrictions;
@@ -78,6 +79,9 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     use TraitDataRestrictions;
     use TraitDataRowCallbacks;
     use TraitDataSourceArray;
+    use TraitDataName {
+        getName as protected __getName;
+    }
 
 
     /**
@@ -109,7 +113,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      */
     public static function getIteratorName(): string
     {
-        return tr('items');
+        return tr('iterator');
     }
 
 
@@ -144,6 +148,21 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     public function getInputSelectClass(): string
     {
         return $this->input_select_class;
+    }
+
+
+    /**
+     * Returns the name of this Iterator
+     *
+     * @return string|null
+     */
+    public function getName(): ?string
+    {
+        if ($this->__getName()) {
+            return Strings::fromReverse($this::class, '\\') . '/' . $this->__getName();
+        }
+
+        return Strings::fromReverse($this::class, '\\');
     }
 
 
@@ -257,7 +276,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        $this->checkDataTypeAndContent($value);
+        $this->checkDataTypeAndContent($value, $key);
 
         // NULL keys will be added as numerical "next" entries
         if ($key === null) {
@@ -287,11 +306,12 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * Throws an OutOfBounds exception if the datatype or Interface is not allowed
      *
-     * @param mixed $value
+     * @param mixed                      $value
+     * @param Stringable|string|int|null $key
      *
      * @return void
      */
-    protected function checkDataTypeAndContent(mixed $value): void
+    protected function checkDataTypeAndContent(mixed $value, Stringable|string|int|null $key): void
     {
         $fail = false;
 
@@ -312,10 +332,16 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         if (isset($this->validators)) {
             foreach ($this->validators as $name => $validator) {
                 if (!$validator($value)) {
-                    throw new OutOfBoundsException(tr('Iterator value argument ":value" failed to pass validator ":validator', [
+                    throw OutOfBoundsException::new(tr('Iterator value argument ":key" with value ":value" failed to pass validator ":validator"', [
+                        ':key'       => $key,
                         ':value'     => $value,
                         ':validator' => $name,
-                    ]));
+                    ]))->addData([
+                        'key'       => $key,
+                        'value'     => $value,
+                        'validator' => $name,
+                        'iterator'  => $this->getName(),
+                    ]);
                 }
             }
         }
@@ -342,12 +368,14 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Adds a validator callback that must be passed for data to be added to this Iterator object
      *
-     * @param callable $validator
+     * @param callable    $validator
+     * @param string|null $name
+     *
      * @return static
      */
-    public function addValidator(callable $validator): static
+    public function addValidator(callable $validator, ?string $name = null): static
     {
-        $this->getValidatorsObject()->add($validator);
+        $this->getValidatorsObject()->add($validator, $name);
         return $this;
     }
 
@@ -413,7 +441,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        $this->checkDataTypeAndContent($value);
+        $this->checkDataTypeAndContent($value, $key);
 
         // NULL keys will be added as numerical "first" entries
         if ($key === null) {
@@ -456,7 +484,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        $this->checkDataTypeAndContent($value);
+        $this->checkDataTypeAndContent($value, $key);
 
         // Ensure the before key exists
         if (!array_key_exists($before, $this->source)) {
@@ -530,7 +558,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        $this->checkDataTypeAndContent($value);
+        $this->checkDataTypeAndContent($value, $key);
 
         // Ensure the after key exists
         if (!array_key_exists($after, $this->source)) {
@@ -579,7 +607,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        $this->checkDataTypeAndContent($value);
+        $this->checkDataTypeAndContent($value, $key);
 
         // Ensure the before key exists
         $before_key = array_search($before, $this->source, $strict);
@@ -630,7 +658,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        $this->checkDataTypeAndContent($value);
+        $this->checkDataTypeAndContent($value, $key);
 
         // Ensure the after value exists
         $after_key = array_search($after, $this->source, $strict);

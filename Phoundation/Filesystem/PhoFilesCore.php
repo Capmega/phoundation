@@ -395,7 +395,7 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
         }
 
         // specified value must match PhoPathInterface::class
-        $this->checkDataTypeAndContent($value);
+        $this->checkDataTypeAndContent($value, $key);
 
         if ($key === null) {
             $key = $value->getSource();
