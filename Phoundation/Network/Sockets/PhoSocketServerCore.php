@@ -443,6 +443,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     protected function logStatistics(): static
     {
         if (!fmod($this->total_count, $this->log_statistics)) {
+            Log::debug('Statistical information:', echo_header: false);
             Log::printr([
                 'total amount of message' => $this->total_count,
                 'total connection time'   => $this->total_seconds,
