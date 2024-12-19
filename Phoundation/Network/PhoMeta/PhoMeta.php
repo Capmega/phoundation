@@ -38,6 +38,7 @@ use Phoundation\Network\PhoMeta\Interfaces\PhoMetaTestInterface;
 use Phoundation\Utils\Json;
 use Throwable;
 
+
 class PhoMeta extends DataEntry implements PhoMetaInterface
 {
     use TraitDataEntryData {
