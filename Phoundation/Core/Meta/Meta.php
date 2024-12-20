@@ -30,12 +30,14 @@ use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\Validate;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\SqlQueries;
+use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Numbers;
+use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Html\Components\Tables\HtmlTable;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Http\Url;
@@ -111,7 +113,8 @@ class Meta implements MetaInterface
         if ($id) {
             if ($load) {
                 // Load the specified metadata
-                $this->load($id);
+                $this->loadFromDatabase($id);
+
             } else {
                 // We're assuming this ID exists in the meta system
                 $this->id = $id;
@@ -151,13 +154,27 @@ class Meta implements MetaInterface
 
 
     /**
+     * Returns a new static object
+     *
+     * @param int|null $id
+     * @param bool     $load
+     *
+     * @return static
+     */
+    public static function load(?int $id = null, bool $load = true): static
+    {
+        return new static($id, $load);
+    }
+
+
+    /**
      * Load data for the specified meta id
      *
      * @param int $id
      *
      * @return void
      */
-    protected function load(int $id): void
+    protected function loadFromDatabase(int $id): void
     {
         $this->id = sql()->getInteger('SELECT `id` FROM `meta` WHERE `id` = :id', [':id' => $id]);
 
@@ -228,7 +245,7 @@ class Meta implements MetaInterface
     {
         Validate::new($limit)->isMoreThan(0);
 
-        $before = \Phoundation\Date\PhoDateTime::new($before)->format('mysql');
+        $before = PhoDateTime::new($before)->format('mysql');
 
         sql()->list('DELETE FROM `meta_history` WHERE `created_on` < :created_on' . ($limit ? ' LIMIT ' . $limit : null), [
             ':created_on' => $before,
@@ -413,7 +430,7 @@ class Meta implements MetaInterface
     /**
      * Returns an Iterator object with Meta system statistics
      *
-     * @return \Phoundation\Data\Interfaces\IteratorInterface
+     * @return IteratorInterface
      */
     public static function getStatistics(): IteratorInterface
     {
@@ -455,7 +472,7 @@ class Meta implements MetaInterface
 
 
     /**
-     * Erases all meta history for this meta id
+     * Erases all meta-history for this meta id
      *
      * @return void
      */
