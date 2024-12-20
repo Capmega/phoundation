@@ -38,6 +38,7 @@ interface IteratorInterface extends IteratorBaseInterface
      */
     public function setComponentClass(string $input_select_class): static;
 
+
     /**
      * Sets the value for the specified key
      *
@@ -45,10 +46,11 @@ interface IteratorInterface extends IteratorBaseInterface
      *
      * @param mixed                       $value
      * @param Stringable|string|float|int $key
+     * @param bool                        $skip_null_values
      *
      * @return mixed
      */
-    public function set(mixed $value, Stringable|string|float|int $key): static;
+    public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = true): static;
 
     /**
      * Wrapper for Iterator::append()

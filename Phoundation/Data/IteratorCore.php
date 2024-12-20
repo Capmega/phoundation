@@ -1612,12 +1612,13 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @param mixed                       $value
      * @param Stringable|string|float|int $key
+     * @param bool                        $skip_null_values
      *
      * @return mixed
      */
-    public function set(mixed $value, Stringable|string|float|int $key): static
+    public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = true): static
     {
-        return $this->append($value, $key, false, false);
+        return $this->append($value, $key, $skip_null_values, false);
     }
 
 

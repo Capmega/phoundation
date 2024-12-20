@@ -841,11 +841,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      *
      * @param mixed                       $value
      * @param Stringable|string|float|int $key
-     * @param bool                        $force
+     * @param bool                        $skip_null_values
      *
      * @return static
      */
-    public function set(mixed $value, Stringable|string|float|int $key, bool $force = false): static
+    public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = false): static
     {
         if ($this->debug) {
             Log::debug('TRY SET SOURCE VALUE FIELD "' . get_class($this) . '>' . $key . '" TO "' . Strings::force($value) . ' [' . gettype($value) . ']"', 10, echo_header: false);
@@ -866,13 +866,23 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         }
 
         // Skip all meta-columns like id, created_on, meta_id, etc., etc., etc...
-        if (in_array($key, $this->meta_columns) and !$force) {
+        if (in_array($key, $this->meta_columns)) {
             if ($this->debug) {
                 Log::debug('NOT SETTING SOURCE VALUE FIELD "' . get_class($this) . '>' . $key . '", IT IS META FIELD. USE FORCE TO MODIFY ANYWAY', 10, echo_header: false);
                 Log::printr($this->definitions->getSourceKeys());
             }
 
             return $this;
+        }
+
+        if ($value === null) {
+            if ($skip_null_values) {
+                if ($this->debug) {
+                    Log::debug('SKIPPING SETTING NULL VALUE "' . get_class($this) . '>' . $key . '"', 10, echo_header: false);
+                }
+
+                return $this;
+            }
         }
 
         // If the key is defined as readonly or disabled, it cannot be updated unless it's a new object or a

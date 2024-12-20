@@ -196,7 +196,7 @@ trait TraitDataSourceArray
             // The key does not exist
             throw new NotExistsException(tr('The key ":key" does not exist in this ":class" object', [
                 ':key'   => $key,
-                ':class' => get_class($this),
+                ':class' => $this::class,
             ]));
         }
 
@@ -209,11 +209,18 @@ trait TraitDataSourceArray
      *
      * @param mixed                       $value
      * @param Stringable|string|float|int $key
+     * @param bool                        $skip_null_values
      *
      * @return static
      */
-    public function set(mixed $value, Stringable|string|float|int $key): static
+    public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = true): static
     {
+        if ($value === null) {
+            if ($skip_null_values) {
+                return $this;
+            }
+        }
+
         $this->source[$key] = $value;
         return $this;
     }

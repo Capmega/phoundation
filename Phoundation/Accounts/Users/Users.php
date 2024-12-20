@@ -26,7 +26,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
-use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;

@@ -50,13 +50,15 @@ interface EntryInterface extends ArraySourceInterface, CliFormInterface, Stringa
      */
     public function get(Stringable|string|float|int $key, bool $exception = true): mixed;
 
+
     /**
      * Sets the value for the specified data key
      *
      * @param mixed                       $value
      * @param Stringable|string|float|int $key
+     * @param bool                        $skip_null_values
      *
      * @return static
      */
-    public function set(mixed $value, Stringable|string|float|int $key): static;
+    public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = false): static;
 }

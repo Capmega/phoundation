@@ -140,11 +140,18 @@ class EntryCore implements EntryInterface
      *
      * @param mixed                       $value
      * @param Stringable|string|float|int $key
+     * @param bool                        $skip_null_values
      *
      * @return static
      */
-    public function set(mixed $value, Stringable|string|float|int $key): static
+    public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = false): static
     {
+        if ($value === null) {
+            if ($skip_null_values) {
+                return $this;
+            }
+        }
+
         $this->source[$key] = $value;
         return $this;
     }

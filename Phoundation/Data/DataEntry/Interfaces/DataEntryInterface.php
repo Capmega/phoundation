@@ -688,14 +688,15 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      */
     public function isCreated(): bool;
 
+
     /**
      * Sets the value for the specified data key
      *
      * @param mixed                       $value
      * @param Stringable|string|float|int $key
-     * @param bool                        $force
+     * @param bool                        $skip_null_values
      *
      * @return static
      */
-    public function set(mixed $value, Stringable|string|float|int $key, bool $force = false): static;
+    public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = false): static;
 }

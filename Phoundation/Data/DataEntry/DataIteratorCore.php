@@ -407,9 +407,9 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
      * @param Stringable|string|float|int $key
      * @param bool                        $exception
      *
-     * @return DataEntry|null
+     * @return mixed
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): ?DataEntryInterface
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed
     {
         // Does this entry exist?
         if (array_key_exists($key, $this->source)) {
@@ -430,9 +430,9 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
     /**
      * Returns the random entry
      *
-     * @return DataEntry|null
+     * @return mixed
      */
-    #[ReturnTypeWillChange] public function getRandom(): ?DataEntryInterface
+    #[ReturnTypeWillChange] public function getRandom(): mixed
     {
         if (empty($this->source)) {
             return null;
@@ -1024,9 +1024,9 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
      *
      * @note overrides the IteratorCore::current() method which returns mixed
      *
-     * @return DataEntry|null
+     * @return mixed
      */
-    #[ReturnTypeWillChange] public function current(): ?DataEntryInterface
+    #[ReturnTypeWillChange] public function current(): mixed
     {
         return $this->ensureObject(key($this->source));
     }

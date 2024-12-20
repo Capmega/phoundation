@@ -68,9 +68,9 @@ interface DataIteratorInterface extends IteratorInterface
      * @param Stringable|string|float|int $key
      * @param bool                        $exception
      *
-     * @return DataEntry|null
+     * @return mixed
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): ?DataEntryInterface;
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed;
 
     /**
      * Sets the value for the specified key
@@ -205,9 +205,9 @@ interface DataIteratorInterface extends IteratorInterface
     /**
      * Returns the current item
      *
-     * @return DataEntry|null
+     * @return mixed
      */
-    public function current(): ?DataEntryInterface;
+    #[ReturnTypeWillChange] public function current(): mixed;
 
 
     /**
@@ -272,9 +272,9 @@ interface DataIteratorInterface extends IteratorInterface
     /**
      * Returns the random entry
      *
-     * @return DataEntry|null
+     * @return mixed
      */
-    #[ReturnTypeWillChange] public function getRandom(): ?DataEntryInterface;
+    #[ReturnTypeWillChange] public function getRandom(): mixed;
 
     /**
      * Returns the debug value
