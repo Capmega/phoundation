@@ -28,13 +28,13 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 
-// Build plugins filter card
-$filters      = FilterForm::new();
-$filters_card = Card::new()
-                    ->setCollapseSwitch(true)
-                    ->setTitle('Plugins filters')
-                    ->setContent($filters)
-                    ->useForm(true);
+//// Build plugins filter card
+//$filters      = FilterForm::new();
+//$filters_card = Card::new()
+//                    ->setCollapseSwitch(true)
+//                    ->setTitle('Plugins filters')
+//                    ->setContent($filters)
+//                    ->useForm(true);
 
 
 // Build "plugins" table
@@ -44,21 +44,19 @@ $buttons = Buttons::new()
                   ->addButton(tr('Disable'), EnumDisplayMode::warning, EnumButtonType::submit, true, true);
 
 
-// Build "plugins" table
-$table = Plugins::new()
-                ->getHtmlDataTableObject()
-                ->setRowUrl('/phoundation/plugins/plugin+:ROW.html');
-
-$plugins = Card::new()
+// Build "plugins" card
+$plugins_card = Card::new()
                ->setTitle('Active plugins')
                ->setSwitches('reload')
-               ->setContent($table)
+               ->setContent(Plugins::new()
+                                   ->getHtmlDataTableObject()
+                                   ->setRowUrl('/phoundation/plugins/plugin+:ROW.html'))
                ->useForm(true)
                ->setButtons($buttons);
 
-$plugins->getForm()
-        ->setAction(Url::newCurrent())
-        ->setRequestMethod(EnumHttpRequestMethod::post);
+$plugins_card->getForm()
+             ->setAction(Url::newCurrent())
+             ->setRequestMethod(EnumHttpRequestMethod::post);
 
 
 // Build relevant links
@@ -86,5 +84,5 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($filters . $plugins                 , EnumDisplaySize::nine)
+           ->addGridColumn($plugins_card                       , EnumDisplaySize::nine)
            ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
