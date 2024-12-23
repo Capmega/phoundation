@@ -22,7 +22,7 @@ use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Import;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
-
+use Phoundation\Os\Processes\Commands\Pho;
 
 CliDocumentation::setUsage('./pho databases import -d mysql -b system -f system.sql');
 
@@ -115,7 +115,12 @@ if ($argv['no_init']) {
 
 } else {
     Log::information(tr('Executing database init to ensure database layout is compatible with the current code version'));
-    Libraries::initialize(comments: $argv['comments'] ?? tr('Init after database import'));
+
+    Pho::new()
+       ->setTimeout(0)
+       ->setPhoCommands('project init')
+       ->setArguments(['-m', tr('Init after database import')])
+       ->executePassthru();
 }
 
 
