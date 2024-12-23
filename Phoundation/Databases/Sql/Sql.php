@@ -314,7 +314,7 @@ class Sql implements SqlInterface
      */
     public function getConnectorLogPrefix(): string
     {
-        return '(' . $this->uniqueid . ' / ' . $this->getHostname() . ' / ' . $this->getDatabase() . ' / ' . $this->counter . ') ';
+        return '(' . $this->uniqueid . ' / ' . $this->getHostname() . ' / ' . ($this->getDatabase() ?? '*nodatabase*') . ' / ' . $this->counter . ') ';
     }
 
 
@@ -616,7 +616,9 @@ class Sql implements SqlInterface
                         ':string'    => isset_get($connect_string),
                         ':database'  => $this->configuration['database'],
                         ':user'      => $this->configuration['username'],
-                    ]))->addData(['database' => isset_get($matches[1][0])]);
+                    ]))->addData([
+                        'database' => isset_get($matches[1][0])
+                ]);
 
             default:
                 throw $e->setCode($e->getSqlState());

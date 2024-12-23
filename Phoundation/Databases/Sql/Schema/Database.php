@@ -21,11 +21,9 @@ use Phoundation\Databases\Export;
 use Phoundation\Databases\Import;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Schema\Interfaces\DatabaseInterface;
-use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\PhoFile;
-use Phoundation\Web\Html\Components\P;
 
 
 class Database extends SchemaAbstract implements DatabaseInterface
@@ -119,7 +117,7 @@ class Database extends SchemaAbstract implements DatabaseInterface
     public function exists(): bool
     {
         // If this query returns nothing, the database does not exist. If it returns anything, it does exist.
-        return (bool) sql()->get('SHOW DATABASES LIKE :name', [':name' => $this->sql->getDatabase()]);
+        return (bool) $this->sql->get('SHOW DATABASES LIKE :name', [':name' => $this->sql->getDatabase()]);
     }
 
 
