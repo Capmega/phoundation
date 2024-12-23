@@ -49,7 +49,7 @@ class Sync
     use TraitDataTimeout;
 
     /**
-     * Sets if the system initializes after syncing
+     * Sets if the project initializes after syncing
      *
      * @var bool $init
      */
@@ -132,7 +132,7 @@ class Sync
 
 
     /**
-     * Returns if the system initializes after syncing
+     * Returns if the project initializes after syncing
      *
      * @return bool
      */
@@ -143,7 +143,7 @@ class Sync
 
 
     /**
-     * Sets if the system initializes after syncing
+     * Sets if the project initializes after syncing
      *
      * @param bool $init
      *
@@ -311,7 +311,7 @@ class Sync
 
 
     /**
-     * Initialize the system
+     * Initialize the project
      *
      * @param ServerInterface|null $server
      *
@@ -319,7 +319,7 @@ class Sync
      */
     protected function init(?ServerInterface $server): static
     {
-        Log::action(tr('Executing system initialization on environment ":server"', [
+        Log::action(tr('Executing project initialization on environment ":server"', [
             ':server' => $this->getEnvironmentForServer($server),
         ]));
 

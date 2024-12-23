@@ -61,7 +61,7 @@ class Deploy implements DeployInterface
         'sync'              => true,
         // If true will sync before (optionally) executing an init before deploying
         'init'              => true,
-        // If true will execute a system init before deploying
+        // If true will execute a project init before deploying
         'notify'            => true,
         // If true will send out notifications about this deploy
         'minify'            => true,
@@ -200,7 +200,7 @@ class Deploy implements DeployInterface
             static::executeHook('post-sync,pre-init');
             if ($env_config['init']) {
                 // Initialize the system
-                Log::action(tr('Executing system initialization'));
+                Log::action(tr('Executing project initialization'));
                 Libraries::initialize(true, true, true, 'Executed by the Phoundation deployment system');
             }
             static::executeHook('post-init,pre-translate');
