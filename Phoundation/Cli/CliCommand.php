@@ -44,8 +44,8 @@ use Phoundation\Data\Traits\TraitDataStaticExecuted;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Validator;
-use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
+use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
 use Phoundation\Date\PhoDate;
 use Phoundation\Date\PhoTime;
 use Phoundation\Developer\Debug;
@@ -459,7 +459,7 @@ class CliCommand
             $return['limit']  = 'system/project/setup';
             $return['reason'] = $e;
 
-        } catch (SqlDatabaseDoesNotExistException $e) {
+        } catch (SqlUnknownDatabaseException $e) {
             $return['limit']  = 'system/project/init';
             $return['reason'] = $e;
         }
@@ -1155,7 +1155,7 @@ class CliCommand
         }
 
         // Here we're still in a directory. If a file exists in that directory with the same name as the directory
-        //  itself, then that is the one that will be executed. For example, ./pho system init will execute
+        //  itself, then that is the one that will be executed. For example, ./pho project init will execute
         // DIRECTORY_COMMANDS/system/init/init
         if (file_exists($file . $command)) {
             if (!is_dir($file . $command)) {
