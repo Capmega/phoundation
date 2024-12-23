@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Seo;
 
+use Phoundation\Core\Core;
+use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -62,10 +64,12 @@ class Seo
     {
         // Prepare string
         $id = 0;
+
         if (empty($source)) {
             // If the given string is empty, then treat seoname as null, this should not cause indexing issues
             return null;
         }
+
         if (is_array($source)) {
             /*
              * The specified source is a key => value array which can be used
@@ -81,13 +85,16 @@ class Seo
                 if (empty($first)) {
                     $first = [$column => $value];
                 }
+
                 $value = trim(static::string($value, $replace));
             }
+
             unset($value);
 
         } else {
             $source = trim(static::string($source, $replace));
         }
+
         // Filter out the id of the record itself
         if ($ownid) {
             if (is_scalar($ownid)) {
@@ -95,14 +102,17 @@ class Seo
 
             } elseif (is_array($ownid)) {
                 $key = key($ownid);
+
                 if (!is_numeric($ownid[$key])) {
                     if (!is_scalar($ownid[$key])) {
                         throw new OutOfBoundsException(tr('Invalid $ownid array value datatype specified, should be scalar and numeric, but is ":type"', [
                             ':type' => gettype($ownid[$key]),
                         ]));
                     }
+
                     $ownid[$key] = '"' . $ownid[$key] . '"';
                 }
+
                 $ownid = ' AND `' . $key . '` != ' . $ownid[$key];
 
             } else {
@@ -114,6 +124,7 @@ class Seo
         } else {
             $ownid = '';
         }
+
         // If the seostring exists, add an identifier to it.
         while (true) {
             if (is_array($source)) {
@@ -128,7 +139,19 @@ class Seo
                         $source[key($first)] = reset($first) . $id;
                     }
                 }
-                $exists = sql()->get('SELECT COUNT(*) AS `count` FROM `' . $table . '` WHERE `' . Arrays::implodeWithKeys($source, '" AND `', '` = "', true) . '"' . $ownid . ';');
+
+                try {
+                    $exists = sql()->get('SELECT COUNT(*) AS `count` FROM `' . $table . '` WHERE `' . Arrays::implodeWithKeys($source, '" AND `', '` = "', null) . '"' . $ownid . ';');
+
+                } catch (SqlUnknownDatabaseException $e) {
+                    // In case database does not exist during the init phase, we can assume this value is okay
+                    if (!Core::inInitState()) {
+                        throw $e;
+                    }
+
+                    $exists = false;
+                }
+
                 if (!$exists) {
                     return $source[key($first)];
                 }
@@ -147,11 +170,24 @@ class Seo
                         $return = $source . $id;
                     }
                 }
-                $exists = sql()->get('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = "' . $return . '"' . $ownid . ';');
+
+                try {
+                    $exists = sql()->get('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = "' . $return . '"' . $ownid . ';');
+
+                } catch (SqlUnknownDatabaseException $e) {
+                    // In case database does not exist during the init phase, we can assume this value is okay
+                    if (!Core::inInitState()) {
+                        throw $e;
+                    }
+
+                    $exists = false;
+                }
+
                 if (!$exists) {
                     return $return;
                 }
             }
+
             $id++;
         }
     }
@@ -163,56 +199,49 @@ class Seo
     public static function string($source, $replace = '-')
     {
         if (Strings::isUtf8($source)) {
-            //clean up string
+            // Clean up string
             $source = mb_strtolower(trim(mb_strip_tags($source)));
-            //convert spanish crap to english
+
+            // Remove letter accents
             $source2 = Strings::convertAccents($source);
-            //remove special chars
-            $from    = [
-                "'",
-                '"',
-                '\\',
-            ];
-            $to      = [
-                '',
-                '',
-                '',
-            ];
+
+            // Remove special chars
+            $from    = ["'", '"', '\\',];
+            $to      = ['' , '' , ''  ,];
             $source3 = str_replace($from, $to, $source2);
-            //remove double spaces
+
+            // Remove double spaces
             $source = preg_replace('/\s\s+/', ' ', $source3);
-            //Replace anything that is junk
+
+            // Replace anything that is junk
             $last = preg_replace('/[^a-zA-Z0-9]/u', $replace, $source);
-            //Remove double "replace" chars
-            $last = preg_replace('/\\' . $replace . '\\' . $replace . '+/', '-', $last);
 
-            return trim($last, '-');
-
-        } else {
-            //clean up string
-            $source = strtolower(trim(strip_tags($source)));
-            //convert spanish crap to english
-            $source2 = Strings::convertAccents($source);
-            //remove special chars
-            $from    = [
-                "'",
-                '"',
-                '\\',
-            ];
-            $to      = [
-                '',
-                '',
-                '',
-            ];
-            $source3 = str_replace($from, $to, $source2);
-            //remove double spaces
-            $source = preg_replace('/\s\s+/', ' ', $source3);
-            //Replace anything that is junk
-            $last = preg_replace('/[^a-zA-Z0-9]/', $replace, $source);
-            //Remove double "replace" chars
+            // Remove double "replace" chars
             $last = preg_replace('/\\' . $replace . '\\' . $replace . '+/', '-', $last);
 
             return trim($last, '-');
         }
+
+        // Clean up string
+        $source = strtolower(trim(strip_tags($source)));
+
+        //convert spanish crap to english
+        $source2 = Strings::convertAccents($source);
+
+        //remove special chars
+        $from    = ["'", '"', '\\',];
+        $to      = ['' , '' , ''  ,];
+        $source3 = str_replace($from, $to, $source2);
+
+        //remove double spaces
+        $source = preg_replace('/\s\s+/', ' ', $source3);
+
+        //Replace anything that is junk
+        $last = preg_replace('/[^a-zA-Z0-9]/', $replace, $source);
+
+        //Remove double "replace" chars
+        $last = preg_replace('/\\' . $replace . '\\' . $replace . '+/', '-', $last);
+
+        return trim($last, '-');
     }
 }
