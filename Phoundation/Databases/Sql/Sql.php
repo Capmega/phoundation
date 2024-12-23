@@ -36,13 +36,14 @@ use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
 use Phoundation\Databases\Sql\Exception\SqlColumnDoesNotExistsException;
 use Phoundation\Databases\Sql\Exception\SqlConnectException;
-use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Exception\SqlInvalidConfigurationException;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
+use Phoundation\Databases\Sql\Exception\SqlNoDatabaseSelectedException;
 use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
 use Phoundation\Databases\Sql\Exception\SqlServerNotAvailableException;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
+use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
 use Phoundation\Databases\Sql\Schema\Interfaces\SchemaInterface;
@@ -595,7 +596,7 @@ class Sql implements SqlInterface
                                                    ->addData(['table' => isset_get($matches[1][0])]);
 
             case '3D000':
-                throw SqlDatabaseDoesNotExistException::new(Strings::from($e->getMessage(), '1146'), $e);
+                throw SqlNoDatabaseSelectedException::new(Strings::from($e->getMessage(), '1146'), $e);
 
             case 'HY093':
                 // Invalid parameter number: number of bound variables does not match number of tokens
@@ -607,6 +608,15 @@ class Sql implements SqlInterface
                     'add'    => 'variables missing in query',
                     'delete' => 'variables missing in execute',
                 ]));
+
+            case 42000:
+                throw SqlUnknownDatabaseException::new(static::getConnectorLogPrefix() . tr('Unknown database ":database" while executing query ":query" with connector ":connector" with connection string ":string" and user ":user"', [
+                        ':query'     => $query,
+                        ':connector' => $this->connector,
+                        ':string'    => isset_get($connect_string),
+                        ':database'  => $this->configuration['database'],
+                        ':user'      => $this->configuration['username'],
+                    ]))->addData(['database' => isset_get($matches[1][0])]);
 
             default:
                 throw $e->setCode($e->getSqlState());
@@ -859,24 +869,15 @@ class Sql implements SqlInterface
                             ]));
 
                         case 1049:
-                            // Database doesn't exist!
+                            // The currently selected database doesn't exist!
                             preg_match_all('/^SQLSTATE\[HY000] \[1049] Unknown database \'(.+?)\'$/', $e->getMessage(), $matches);
 
-                            if ($this->connector === 'system') {
-                                throw SqlDatabaseDoesNotExistException::new(static::getConnectorLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user" because the system database ":database" does not exist. Run "./pho system init" to initialize the system, or "./pho system sync from SOURCE_ENVIRONMENT" to copy a system database from an existing environment', [
-                                    ':connector' => $this->connector,
-                                    ':string'    => isset_get($connect_string),
-                                    ':database'  => $this->configuration['database'],
-                                    ':user'      => $this->configuration['username'],
-                                ]))->addData(['database' => isset_get($matches[1][0])]);
-                            }
-
-                            throw SqlDatabaseDoesNotExistException::new(static::getConnectorLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user" because the database ":database" does not exist', [
+                            throw SqlUnknownDatabaseException::new(static::getConnectorLogPrefix() . tr('Unknown database ":database" while connecting with connector ":connector" with connection string ":string" and user ":user"', [
                                 ':connector' => $this->connector,
                                 ':string'    => isset_get($connect_string),
                                 ':database'  => $this->configuration['database'],
                                 ':user'      => $this->configuration['username'],
-                            ]));
+                            ]))->addData(['database' => isset_get($matches[1][0])]);
 
                         case 2002:
                             // Database service not available, connection refused!

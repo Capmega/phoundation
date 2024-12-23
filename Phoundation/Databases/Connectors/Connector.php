@@ -632,10 +632,11 @@ class Connector extends DataEntry implements ConnectorInterface
     public function getMemcachedConfiguration(): array
     {
         return [
-            'host'     => $this->getHostname(),
-            'port'     => $this->getPort() ?? 11211,
-            'options'  => null,
-            'database' => $this->getDatabase(),
+            'host'        => $this->getHostname(),
+            'port'        => $this->getPort() ?? 11211,
+            'options'     => null,
+            'database'    => $this->getDatabase(),
+            'connections' => []
         ];
     }
 

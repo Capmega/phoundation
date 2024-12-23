@@ -458,4 +458,11 @@ interface ConnectorInterface extends DataEntryInterface
      * @return array
      */
     public function getRedisConfiguration(): array;
+
+    /**
+     * Returns the connector configuration in an array that can be understood by the Memcached driver
+     *
+     * @return array
+     */
+    public function getMemcachedConfiguration(): array;
 }

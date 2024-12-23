@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class SqlDAtabaseDoesNotExistException
+ * Class SqlUnknownDatabaseException
  *
- * This exception is thrown when trying to use a database that does not exist
+ * This exception is thrown when trying to access a database that not (or no longer) exists.
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\Exception;
 
-class SqlDatabaseDoesNotExistException extends SqlException
+
+class SqlUnknownDatabaseException extends SqlException
 {
 }

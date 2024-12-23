@@ -88,12 +88,13 @@ class Mc implements DatastoreInterface
 
         // Get the configuration for the specified instance. Always default to "system"
         if (!$connector) {
-            $connector = 'mc-system';
+            $connector = 'system-mc';
         }
 
         // Get instance information and connect to memcached servers
-        $this->setConnectorObject($connector);
-        $this->memcached = new Memcached();
+        $this->setConnector($connector);
+        $this->configuration = $this->getConnectorObject()->getMemcachedConfiguration();
+        $this->memcached     = new Memcached();
 
         try {
             $this->setConnections($this->configuration['connections']);

@@ -18,10 +18,10 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Connectors\Connector;
-use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Exception\SqlNoDatabaseSpecifiedException;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
+use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
 use Phoundation\Utils\Json;
 
 
@@ -72,9 +72,9 @@ if ($argv['database']) {
 try {
     $results = sql($connector)->listKeyValues($argv['query']);
 
-} catch (SqlDatabaseDoesNotExistException $e) {
+} catch (SqlUnknownDatabaseException $e) {
     if ($e->getDataKey('database')) {
-        throw SqlDatabaseDoesNotExistException::new(tr('Database ":database" does not exist', [
+        throw SqlUnknownDatabaseException::new(tr('Database ":database" does not exist', [
             ':database' => $e->getDataKey('database')
         ]), $e)->makeWarning();
     }
@@ -84,7 +84,7 @@ try {
     ]), $e)->makeWarning();
 
 } catch (SqlTableDoesNotExistException $e) {
-    throw SqlDatabaseDoesNotExistException::new(tr('Table ":table" does not exist', [
+    throw SqlTableDoesNotExistException::new(tr('Table ":table" does not exist', [
         ':table' => $e->getDataKey('table')
     ]), $e)->makeWarning();
 

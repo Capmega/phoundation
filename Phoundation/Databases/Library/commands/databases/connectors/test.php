@@ -18,10 +18,8 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
 use Phoundation\Databases\Sql\Exception\SqlConnectException;
-use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlInvalidConfigurationException;
-
-
+use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
 
 // Test each connector
 foreach (Connectors::new()->load() as $connector) {
@@ -56,7 +54,7 @@ foreach (Connectors::new()->load() as $connector) {
             ':connector' => $connector->getName(),
         ]));
 
-    } catch (SqlDatabaseDoesNotExistException $e) {
+    } catch (SqlUnknownDatabaseException $e) {
         Log::warning(tr('Failed to connect to ":type" database connector ":connector", the configured database ":database" does not exist', [
             ':type'      => $connector->getType(),
             ':connector' => $connector->getName(),
