@@ -997,7 +997,7 @@ class Config implements ConfigInterface
      */
     public static function escape(string $path): string
     {
-        return str_replace('.', '\\.', $path);
+        return str_replace('.', '\\.', str_replace('_', '-', $path));
     }
 
 
