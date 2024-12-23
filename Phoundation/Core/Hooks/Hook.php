@@ -171,7 +171,7 @@ class Hook implements HookInterface
     public function execute(string $hook, ?array $arguments = []): mixed
     {
         if (Core::inInitState()) {
-            // Do not execute hooks during system initialization, too many unexpected side effects are possible!
+            // Do not execute hooks during project initialization, too many unexpected side effects are possible!
             Log::warning(tr('Not executing hook ":hook" due to system being in init state', [
                 ':hook' => $hook
             ]), 3);

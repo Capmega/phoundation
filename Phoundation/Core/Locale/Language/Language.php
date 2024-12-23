@@ -68,7 +68,7 @@ class Language extends DataEntry implements LanguageInterface
      *
      * @return string|null
      */
-    public function getCode_639_1(): ?string
+    public function getCode6391(): ?string
     {
         return $this->getTypesafe('string', 'code_639_1');
     }
@@ -81,7 +81,7 @@ class Language extends DataEntry implements LanguageInterface
      *
      * @return static
      */
-    public function setCode_639_1(?string $code_639_1): static
+    public function setCode6391(?string $code_639_1): static
     {
         return $this->set($code_639_1, 'code_639_1');
     }
@@ -92,7 +92,7 @@ class Language extends DataEntry implements LanguageInterface
      *
      * @return string|null
      */
-    public function getCode_639_2_b(): ?string
+    public function getCode6392B(): ?string
     {
         return $this->getTypesafe('string', 'code_639_2_b');
     }
@@ -105,7 +105,7 @@ class Language extends DataEntry implements LanguageInterface
      *
      * @return static
      */
-    public function setCode_639_2_b(?string $code_639_2_b): static
+    public function setCode6392B(?string $code_639_2_b): static
     {
         return $this->set($code_639_2_b, 'code_639_2_b');
     }
@@ -116,7 +116,7 @@ class Language extends DataEntry implements LanguageInterface
      *
      * @return string|null
      */
-    public function getCode_639_2_t(): ?string
+    public function getCode6392T(): ?string
     {
         return $this->getTypesafe('string', 'code_639_2_t');
     }
@@ -129,7 +129,7 @@ class Language extends DataEntry implements LanguageInterface
      *
      * @return static
      */
-    public function setCode_639_2_t(?string $code_639_2_t): static
+    public function setCode6392T(?string $code_639_2_t): static
     {
         return $this->set($code_639_2_t, 'code_639_2_t');
     }
@@ -140,7 +140,7 @@ class Language extends DataEntry implements LanguageInterface
      *
      * @return string|null
      */
-    public function getCode_639_3(): ?string
+    public function getCode6393(): ?string
     {
         return $this->getTypesafe('string', 'code_639_3');
     }
@@ -153,7 +153,7 @@ class Language extends DataEntry implements LanguageInterface
      *
      * @return static
      */
-    public function setCode_639_3(?string $code_639_3): static
+    public function setCode6393(?string $code_639_3): static
     {
         return $this->set($code_639_3, 'code_639_3');
     }

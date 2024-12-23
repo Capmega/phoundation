@@ -91,10 +91,10 @@ class Import extends \Phoundation\Developer\Project\Import
             // Import the language data into a language object and save.
             $language = Language::new();
             $language->setName(Strings::until(isset_get($line[0]), '('));
-            $language->setCode_639_1(isset_get($line[1]));
-            $language->setCode_639_2_t(isset_get($line[2]));
-            $language->setCode_639_2_b(isset_get($line[3]));
-            $language->setCode_639_3(substr(isset_get($line[4]), 0, 3));
+            $language->setCode6391(isset_get($line[1]));
+            $language->setCode6392T(isset_get($line[2]));
+            $language->setCode6392B(isset_get($line[3]));
+            $language->setCode6393(substr(isset_get($line[4]), 0, 3));
             $language->setDescription(isset_get($line[5]));
             $language->save();
         }

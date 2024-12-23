@@ -21,7 +21,7 @@ use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
-use Phoundation\Databases\Sql\Exception\SqlDatabaseDoesNotExistException;
+use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
 use Phoundation\Developer\Debug;
 use Phoundation\Utils\Config;
 use Phoundation\Utils\Numbers;
@@ -45,7 +45,7 @@ $no_db = false;
 try {
     Sql()->query('SELECT 1');
 
-} catch (SqlDatabaseDoesNotExistException $e) {
+} catch (SqlUnknownDatabaseException $e) {
     $no_db = tr('Database does not exist');
 
     define('FRAMEWORKDBVERSION', tr('Database ":db" does not exist', [':db' => Config::get('databases.sql.instances.system.name')]));

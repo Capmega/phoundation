@@ -43,7 +43,6 @@ use Phoundation\Data\Traits\TraitDataStaticIsExecutedPath;
 use Phoundation\Data\Traits\TraitDataStaticReadonly;
 use Phoundation\Data\Traits\TraitGetInstance;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\Exception\MissingArgumentValueException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -62,7 +61,6 @@ use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Os\Processes\Commands\Free;
-use Phoundation\Os\Services\SystemD\SystemDService;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
@@ -1539,6 +1537,8 @@ class Core implements CoreInterface
      */
     public static function enableInitState(): void
     {
+        Log::warning(tr('Enabling init state'), 4);
+
         static::$init = true;
     }
 
@@ -1551,6 +1551,8 @@ class Core implements CoreInterface
      */
     public static function disableInitState(): void
     {
+        Log::warning(tr('Disabling init state'), 4);
+
         static::$init = false;
     }
 

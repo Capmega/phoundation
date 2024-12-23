@@ -79,18 +79,18 @@ USEFUL COMMANDS:
 
 ./pho libraries stats                   Prints statistics about the libraries in your Phoundation installation
 
-./pho system init                       Will run the database initialization function. This will typically be run
+./pho project init                      Will run the database initialization function. This will typically be run
                                         automatically whenever you install a new plugin or when you update your
                                         Phoundation code, but can be run manually when required
 
-./pho system setup                      The first command you will want to run (or the first page that will show up
+./pho project setup                     The first command you will want to run (or the first page that will show up
                                         after you installed Phoundation) which allows you to setup an initial
                                         configuration and initializes your database
 
 ./pho project modes maintenance disable Disables maintenance mode manually. This may be needed if some command that
                                         placed the system in maintenance mode crashed, leaving the system unusable
 
-./pho system maintenance enable         Enables maintenance mode manually.
+./pho project maintenance enable        Enables maintenance mode manually.
 
 ./pho accounts users list               Lists all available users on the command line.
 

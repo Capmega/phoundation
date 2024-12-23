@@ -89,6 +89,8 @@ class Libraries
      */
     public static function reset(): void
     {
+        Core::enableInitState();
+
         Log::warning('Executing system reset, dropping all init enabled databases!');
         Log::warning('Check your configuration to see which databases are configured with the init flag!');
 
@@ -98,6 +100,7 @@ class Libraries
             switch (isset_get($configuration['driver'])) {
                 case 'sql':
                     // no break
+
                 case 'mysql':
                     if (($connector === 'system') or isset_get($configuration['init'])) {
                         sql($connector, false)
@@ -120,9 +123,13 @@ class Libraries
                     break;
 
                 case 'mongo':
+                    // no break
+
                 case 'redis':
+                    // no break
+
                 case 'elasticsearch':
-                    Log::error(tr('Ignoring connector ":connector", support for required driver ":driver" is under construction', [
+                    Log::error(tr('Ignoring "reset" for connector ":connector", support for required driver ":driver" is under construction', [
                         ':driver'    => $configuration['driver'],
                         ':connector' => $connector,
                     ]));
@@ -164,8 +171,8 @@ class Libraries
         }
 
         // Wipe all temporary data and set the core in INIT mode
-        Tmp::clear();
         Core::enableInitState();
+        Tmp::clear();
 
         // Ensure the system database exists
         static::ensureSystemsDatabaseAccessible();

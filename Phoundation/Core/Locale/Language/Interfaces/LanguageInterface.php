@@ -11,7 +11,7 @@ interface LanguageInterface
      *
      * @return string|null
      */
-    public function getCode_639_1(): ?string;
+    public function getCode6391(): ?string;
 
 
     /**
@@ -21,7 +21,7 @@ interface LanguageInterface
      *
      * @return static
      */
-    public function setCode_639_1(?string $code_639_1): static;
+    public function setCode6391(?string $code_639_1): static;
 
 
     /**
@@ -29,7 +29,7 @@ interface LanguageInterface
      *
      * @return string|null
      */
-    public function getCode_639_2_b(): ?string;
+    public function getCode6392B(): ?string;
 
 
     /**
@@ -39,7 +39,7 @@ interface LanguageInterface
      *
      * @return static
      */
-    public function setCode_639_2_b(?string $code_639_2_b): static;
+    public function setCode6392B(?string $code_639_2_b): static;
 
 
     /**
@@ -47,7 +47,7 @@ interface LanguageInterface
      *
      * @return string|null
      */
-    public function getCode_639_2_t(): ?string;
+    public function getCode6392T(): ?string;
 
 
     /**
@@ -57,7 +57,7 @@ interface LanguageInterface
      *
      * @return static
      */
-    public function setCode_639_2_t(?string $code_639_2_t): static;
+    public function setCode6392T(?string $code_639_2_t): static;
 
 
     /**
@@ -65,7 +65,7 @@ interface LanguageInterface
      *
      * @return string|null
      */
-    public function getCode_639_3(): ?string;
+    public function getCode6393(): ?string;
 
 
     /**
@@ -75,5 +75,5 @@ interface LanguageInterface
      *
      * @return static
      */
-    public function setCode_639_3(?string $code_639_3): static;
+    public function setCode6393(?string $code_639_3): static;
 }
