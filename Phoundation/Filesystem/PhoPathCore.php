@@ -1582,7 +1582,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function getMimetypeObject(): PhoMimetypeInterface
     {
-        return PhoMimetype::newFromPath($this);
+        return PhoMimetype::newFromPath($this->makeAbsolute());
     }
 
 
@@ -1654,7 +1654,7 @@ class PhoPathCore implements PhoPathInterface
             if (!file_exists(dirname($this->source))) {
                 // The file doesn't exist and neither does its parent directory
                 throw new FileNotExistException(tr('The ":type" type file ":file" cannot be read because the directory ":directory" does not exist', [
-                    ':type'      => $type,
+                    ':type'      => get_null($type) ?? tr('unknown'),
                     ':file'      => $this->source,
                     ':directory' => dirname($this->source),
                 ]), $previous_e);
@@ -1668,7 +1668,7 @@ class PhoPathCore implements PhoPathInterface
 
         if (!is_readable($this->source)) {
             throw new FileNotReadableException(tr('The ":type" type file ":file" cannot be read', [
-                ':type' => $type,
+                ':type' => get_null($type) ?? tr('unknown'),
                 ':file' => $this->source,
             ]), $previous_e);
         }
@@ -4562,7 +4562,19 @@ class PhoPathCore implements PhoPathInterface
     public function getIcon(): string
     {
         Log::warning('The PhoPathCore::getIcon() method is still under construction and currently only returns PDF icons!');
-        return 'far fa-fw fa-file-pdf';
+
+        switch ($this->getExtension()) {
+            case 'xls':
+                // no break
+
+            case 'xlsx':
+                return 'far fa-fw fa-file-excel';
+
+            case 'pdf':
+                return 'far fa-fw fa-file-pdf';
+        }
+
+        return 'far fa-fw fa-file';
     }
 
 
