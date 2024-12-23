@@ -899,11 +899,6 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_push_notifications_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ')->create();
 
-        })->addUpdate('0.3.1', function () {
-            // Guest user will have status "guest" as well.
-            sql()->query('UPDATE `accounts_users` SET `status` = "system" WHERE `email` = "guest"');
-
-        })->addUpdate('0.4.0', function () {
             $table = sql()->getSchemaObject()->getTableObject('accounts_users');
 
             if ($table->foreignKeyExists('fk_accounts_users_profile_images_id')) {
@@ -951,7 +946,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ->addIndex('KEY `profile_images_id` (`profile_images_id`)')
                 ->addForeignKey('CONSTRAINT `fk_accounts_users_profile_images_id` FOREIGN KEY (`profile_images_id`) REFERENCES `accounts_profile_images` (`id`) ON DELETE RESTRICT');
 
-        })->addUpdate('0.4.1', function () {
+        })->addUpdate('0.3.1', function () {
+            // Guest user will have status "guest" as well.
+            sql()->query('UPDATE `accounts_users` SET `status` = "system" WHERE `email` = "guest"');
+
             $table = sql()->getSchemaObject()->getTableObject('accounts_users');
 
             // Fix the mess with picture column may or may not exist as picture, or profile_image, or not at all?

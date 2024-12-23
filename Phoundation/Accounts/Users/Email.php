@@ -135,16 +135,41 @@ class Email extends DataEntry implements EmailInterface
 
 
     /**
+     * Returns a DataEntry object matching the specified identifier
+     *
+     * @note This method also accepts DataEntry objects, in which case it will simply return this object. This is to
+     *       simplify "if this is not DataEntry object then this is new DataEntry object" into
+     *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
+     *
+     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param bool                                     $meta_enabled
+     * @param bool                                     $init
+     * @param bool                                     $ignore_deleted
+     *
+     * @return Email
+     */
+    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): static
+    {
+        try {
+            return parent::load($identifier, $meta_enabled, $init, $ignore_deleted);
+
+        } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
+            throw new EmailNotExistsException($e);
+        }
+    }
+
+
+    /**
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->add(Definition::new($this, 'verification_code')
-                                    ->setOptional(true)
-                                    ->setRender(false)
-                                    ->setReadonly(true))
+        $definitions->add(DefinitionFactory::newCode($this, 'verification_code')
+                                           ->setOptional(true)
+                                           ->setRender(false)
+                                           ->setReadonly(true))
 
                     ->add(DefinitionFactory::newUsersId($this)
                                            ->setRender(false))
@@ -214,30 +239,5 @@ class Email extends DataEntry implements EmailInterface
 
                     ->add(DefinitionFactory::newDescription($this)
                                            ->setHelpText(tr('The description for this email')));
-    }
-
-
-    /**
-     * Returns a DataEntry object matching the specified identifier
-     *
-     * @note This method also accepts DataEntry objects, in which case it will simply return this object. This is to
-     *       simplify "if this is not DataEntry object then this is new DataEntry object" into
-     *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
-     *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool                                     $meta_enabled
-     * @param bool                                     $init
-     * @param bool                                     $ignore_deleted
-     *
-     * @return Email
-     */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): static
-    {
-        try {
-            return parent::load($identifier, $meta_enabled, $init, $ignore_deleted);
-
-        } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
-            throw new EmailNotExistsException($e);
-        }
     }
 }
