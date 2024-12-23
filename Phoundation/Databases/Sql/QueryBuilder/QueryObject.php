@@ -163,6 +163,27 @@ class QueryObject implements QueryObjectInterface
 
 
     /**
+     * Resets all query variables
+     *
+     * @return static
+     */
+    public function reset(): static
+    {
+        $this->select     = [];
+        $this->from       = [];
+        $this->wheres     = [];
+        $this->joins      = [];
+        $this->group_by   = [];
+        $this->execute    = [];
+        $this->delete     = [];
+        $this->predefines = [];
+        $this->order_by   = [];
+
+        return $this;
+    }
+
+
+    /**
      * Returns the principle "FROM" table
      *
      * @return string|null
