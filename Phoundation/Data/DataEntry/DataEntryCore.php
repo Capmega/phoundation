@@ -70,6 +70,7 @@ use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
+use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\SqlDataEntry;
@@ -366,46 +367,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
 
     /**
-     * Initializes the DataEntry object using an array identifier
-     *
-     * @param bool $identifier_must_exist
-     *
-     * @return void
-     */
-    protected function initArrayIdentifier(bool $identifier_must_exist): void
-    {
-        $this->loadFromDatabase($this->identifier);
-
-        if ($this->isNew()) {
-            // So this entry does not exist in the database (or, SQL table doesn't exist either).
-            // Does it perhaps have configuration load support and exist in configuration?
-            if ($this->tryLoadFromConfiguration($this->identifier)) {
-                // Yay, found it in configuration!
-                return;
-            }
-
-            if ($identifier_must_exist) {
-                // Throw the DataEntry does not exist exception
-                throw DataEntryNotExistsException::new(tr('Cannot load ":class" class object, entry with identifiers ":identifiers" does not exist', [
-                    ':class'       => static::getClassName(),
-                    ':identifiers' => Json::encode($this->identifier),
-                ]))->addData([
-                    'class'       => static::class,
-                    'identifiers' => Json::encode($this->identifier),
-                ]);
-            }
-        }
-    }
-
-
-    /**
      * Initializes the DataEntry object
      *
      * @param bool $identifier_must_exist
      *
      * @return void
      */
-    protected function initScalarIdentifier(bool $identifier_must_exist): void
+    protected function initIdentifier(bool $identifier_must_exist): void
     {
         $this->loadFromDatabase($this->identifier);
 
@@ -453,18 +421,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         $this->columns_filter_on_insert = [static::getIdColumn()];
 
         if ($this->identifier) {
-            if (is_array($this->identifier)) {
-                $this->initArrayIdentifier($identifier_must_exist);
+            if ($this->identifier instanceof DataEntryInterface) {
+                // Identifier is a DataEntry itself. Copy the DataEntry source directly and we're done!
+                $this->source = $this->identifier->getSource();
 
             } else {
-                if ($this->identifier instanceof DataEntryInterface) {
-                    // Identifier is a DataEntry itself. Copy the DataEntry source directly and we're done!
-                    $this->source = $this->identifier->getSource();
-
-                } else {
-                    // Load data from database
-                    $this->initScalarIdentifier($identifier_must_exist);
-                }
+                // Load data from database
+                $this->initIdentifier($identifier_must_exist);
             }
 
             // This entry exists in the database, yay! Is it not deleted, though?
@@ -1365,13 +1328,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     protected function loadFromDatabase(array|string|int $identifier): static
     {
         $this->is_loading = true;
-
         if (is_array($identifier)) {
             // Filter on multiple columns, multi column filter always pretends filtered column was id column
             static::buildManualQuery($identifier, $where, $joins, $group, $order, $execute);
-
             $column = null;
-
         } else {
             // For single column queries, determine the column we should use
             $column  = static::determineColumn($identifier);
@@ -1379,7 +1339,18 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             $execute = [':identifier' => $identifier];
         }
 
-        $this->loadData($where, $execute);
+        try {
+            $this->loadData($where, $execute);
+
+        } catch (SqlUnknownDatabaseException $e) {
+            // During project init we can ignore "database not found" exceptions so that config load may still happen
+            if (!Core::inInitState()) {
+                // But this only works if the DataEntry can load data from configuration
+                if (!$this->getConfigurationPath()) {
+                    throw $e;
+                }
+            }
+        }
 
         // Reset state
         $this->is_loading  = false;
@@ -1452,7 +1423,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
                 throw $e;
             }
 
-            // We're in system init state, act as if the entry simply doesn't exist
+            // We're in project init state, act as if the entry simply doesn't exist
         }
     }
 

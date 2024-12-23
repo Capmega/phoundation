@@ -17,7 +17,9 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Core\Core;
+use Phoundation\Databases\Sql\Exception\SqlNoDatabaseSelectedException;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
+use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
 use Phoundation\Seo\Seo;
 
 
@@ -58,6 +60,11 @@ trait TraitDataEntryName
         // the entry if it does!
         try {
             if ($name) {
+                if ($this->getId() < 0) {
+                    // ID is negative, this comes from configuration. Just use any seo-name
+                    return $this->setSeoName(Seo::string($name));
+                }
+
                 $seo_name = Seo::unique(
                     substr($name, 0, $this->definitions->get('name')->getMaxlength()),
                     static::getTable(),
@@ -68,13 +75,13 @@ trait TraitDataEntryName
                 return $this->setSeoName($seo_name);
             }
 
-        } catch (SqlTableDoesNotExistException $e) {
-            // Crap, the table we're working on doesn't exist, WTF? No biggie, we're likely in init mode, and
-            // then we can ignore this issue as we're likely working from configuration instead
+        } catch (SqlNoDatabaseSelectedException |SqlUnknownDatabaseException | SqlTableDoesNotExistException $e) {
+            // Crap, the table (or entire database!) that we're working on doesn't exist, WTF? No biggie, we're likely
+            // in init mode, and then we can ignore this issue as we're likely working from configuration DataEntries
+            // instead
             if (!Core::inInitState()) {
                 throw $e;
             }
-
         }
 
         return $this->setSeoName(null);
