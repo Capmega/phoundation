@@ -1435,7 +1435,8 @@ class Session implements SessionInterface
         Incident::new()
                 ->setType('User impersonation stopped')
                 ->setSeverity(EnumSeverity::medium)
-                ->setTitle(tr('The user ":user" started impersonating user ":impersonate"', [
+                ->setTitle('User impersonation stopped')
+                ->setBody(tr('The user ":user" started impersonating user ":impersonate"', [
                     ':user'        => $original_user->getLogId(),
                     ':impersonate' => $user->getLogId(),
                 ]))

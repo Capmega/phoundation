@@ -141,7 +141,10 @@ class Rights extends DataIterator implements RightsInterface
                 Incident::new()
                         ->setSeverity(EnumSeverity::medium)
                         ->setType('Right created automatically')
-                        ->setTitle(tr('Automatically created new right ":right"', [':right' => $right]))
+                        ->setTitle(tr('Automatically created right'))
+                        ->setBody(tr('The system encountered a request for the right ":right" and created it automatically', [
+                            ':right' => $right
+                        ]))
                         ->setDetails(['right' => $right])
                         ->setNotifyRoles('security')
                         ->save();
