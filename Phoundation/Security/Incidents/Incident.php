@@ -331,10 +331,13 @@ class Incident extends DataEntry implements IncidentInterface
                     break;
             }
 
+            // Some incidents may have Type and Title specified, but not Body. Fix that for the notification
+            $body = get_null($this->getBody());
+
             $notification->setUrl(Url::new('security/incident+' . $this->getId() . '.html')->makeWww())
                          ->setRoles($this->notify_roles)
-                         ->setTitle($this->getTitle())
-                         ->setMessage($this->getBody())
+                         ->setTitle($body ? $this->getTitle(): $this->getType())
+                         ->setMessage($body ?? $this->getTitle())
                          ->setDetails($details)
                          ->log($this->log)
                          ->send();
