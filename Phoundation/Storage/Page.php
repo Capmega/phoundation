@@ -8,7 +8,7 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Pages
+ * @package   Phoundation\Storage
  */
 
 
@@ -120,19 +120,26 @@ class Page extends DataEntry implements PageInterface
                                                          ->isName()
                                                          ->setColumnFromQuery('parents_id', 'SELECT `id` FROM `pages` WHERE `name` = :name AND `status` IS NULL', [':id' => '$parents_name']);
                                            }))
+
                     ->add(DefinitionFactory::newCategoriesId($this))
+
                     ->add(DefinitionFactory::newCategory($this))
+
                     ->add(DefinitionFactory::newCode($this)
                                            ->setDefault(tr('-')))
+
                     ->add(DefinitionFactory::newName($this)
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isFalse(function ($value, $source) {
                                                    static::exists(['name' => $value], isset_get($source['id']));
                                                }, tr('already exists'));
                                            }))
+
                     ->add(DefinitionFactory::newSeoName($this))
+
                     ->add(DefinitionFactory::newDescription($this)
                                            ->setHelpText(tr('The description for this page')))
+
                     ->add(DefinitionFactory::newContent($this)
                                            ->setHelpText(tr('The content for this page')));
     }
