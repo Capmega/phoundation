@@ -558,8 +558,8 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
 
                 if (file_exists($this->source)) {
                     if (!is_dir($this->source)) {
-                        // Some normal file is in the way. Delete the file, and retry
-                        PhoFile::new($this->source, $this->restrictions)->delete(false, $sudo);
+                        // Some normal file is in the way. Move the file out of the way, and retry
+                        PhoFile::new($this->source, $this->restrictions)->backup(move: true);
 
                         return $this->ensure($mode, $clear, $sudo);
                     }
@@ -575,11 +575,11 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                     // Make sure that the parent directory is writable when creating the directory
                     // Since we're modifying the item $id of $count, be sure to get matching restrictions
                     PhoDirectory::new(dirname($this->source), $this->restrictions->getParent($count - $id)->makeWritable())
-                               ->execute()
-                                   ->setMode(0770)
-                                   ->onDirectoryOnly(function () use ($mode) {
-                                       mkdir($this->source, $mode);
-                                   });
+                                ->execute()
+                                    ->setMode(0770)
+                                    ->onDirectoryOnly(function () use ($mode) {
+                                        mkdir($this->source, $mode);
+                                    });
 
                 } catch (RestrictionsException $e) {
                     throw $e;

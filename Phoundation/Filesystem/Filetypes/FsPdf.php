@@ -8,7 +8,7 @@
  *
  * @author    Sven Olaf Oostenbrink <sven@medinet.ca>
  * @license   This plugin is developed by Medinet and may only be used by others with explicit written authorization
- * @copyright Copyright (c) 2024 Medinet <copyright@medinet.ca>
+ * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Filesystem
  */
 
