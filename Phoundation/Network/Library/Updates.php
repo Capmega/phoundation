@@ -197,18 +197,27 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             }
 
             if (!$table->foreignKeyExists('fk_network_test_meta_created_by')) {
-                $table->alter()->dropForeignKey('fk_network_test_meta_created_by')
-                               ->addForeignKey('CONSTRAINT `fk_network_tests_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,');
+                $table->alter()->dropForeignKey('fk_network_test_meta_created_by');
             }
 
             if (!$table->foreignKeyExists('fk_network_test_meta_network_meta_id')) {
-                $table->alter()->dropForeignKey('fk_network_test_meta_network_meta_id')
-                               ->addForeignKey('CONSTRAINT `fk_network_tests_network_meta_id` FOREIGN KEY (`network_meta_id`) REFERENCES `network_meta` (`id`) ON DELETE RESTRICT,');
+                $table->alter()->dropForeignKey('fk_network_test_meta_network_meta_id');
             }
 
             if (!$table->foreignKeyExists('fk_network_test_meta_meta_id')) {
-                $table->alter()->dropForeignKey('fk_network_test_meta_meta_id')
-                               ->addForeignKey('CONSTRAINT `fk_network_tests_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE RESTRICT,');
+                $table->alter()->dropForeignKey('fk_network_test_meta_meta_id');
+            }
+
+            if (!$table->foreignKeyExists('fk_network_tests_created_by')) {
+                $table->alter()->addForeignKey('CONSTRAINT `fk_network_tests_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,');
+            }
+
+            if (!$table->foreignKeyExists('fk_network_tests_network_meta_id')) {
+                $table->alter()->addForeignKey('CONSTRAINT `fk_network_tests_network_meta_id` FOREIGN KEY (`network_meta_id`) REFERENCES `network_meta` (`id`) ON DELETE RESTRICT,');
+            }
+
+            if (!$table->foreignKeyExists('fk_network_tests_meta_id')) {
+                $table->alter()->addForeignKey('CONSTRAINT `fk_network_tests_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE RESTRICT,');
             }
         });
     }
