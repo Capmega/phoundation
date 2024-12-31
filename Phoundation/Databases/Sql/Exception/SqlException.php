@@ -24,7 +24,7 @@ use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 class SqlException extends DatabasesException implements SqlExceptionInterface
 {
     /**
-     * Returns the SQL state at this exception
+     * Returns the SQL state for this exception
      *
      * @return string|null
      */
@@ -35,7 +35,7 @@ class SqlException extends DatabasesException implements SqlExceptionInterface
 
 
     /**
-     * Sets the SQL state at this exception
+     * Sets the SQL state for this exception
      *
      * @param string|null $state
      *
@@ -44,6 +44,31 @@ class SqlException extends DatabasesException implements SqlExceptionInterface
     public function setSqlState(?string $state): static
     {
         return $this->addData($state, 'sql_state');
+    }
+
+
+    /**
+     * Returns the driver state for this exception
+     *
+     * @return string|int|null
+     */
+    public function getDriverState(): string|int|null
+    {
+        return $this->getDataKey('driver_state');
+    }
+
+
+
+    /**
+     * Sets the driver state for this exception
+     *
+     * @param string|int|null $state
+     *
+     * @return static
+     */
+    public function setDriverState(string|int|null $state): static
+    {
+        return $this->addData($state, 'driver_state');
     }
 
 
