@@ -88,8 +88,11 @@ class TableAlter extends SchemaAbstract
             throw new OutOfBoundsException(tr('No after column specified'));
         }
 
+        $column = trim($column);
+        $column = Strings::ensureEndsNotWith($column, ',');
+
         $this->sql->query('ALTER TABLE `' . $this->name . '` 
-                           ADD COLUMN ' . Strings::ensureEndsNotWith($column, ',') . ' ' . $before_after);
+                           ADD COLUMN ' . $column . ' ' . $before_after);
 
         return $this;
     }
@@ -234,8 +237,11 @@ class TableAlter extends SchemaAbstract
     public function addIndex(string $index): static
     {
         if ($index) {
+            $index = trim($index);
+            $index = Strings::ensureEndsNotWith($index, ',');
+
             $this->sql->query('ALTER TABLE ' . $this->name . ' 
-                               ADD         ' . Strings::ensureEndsNotWith($index, ','));
+                               ADD         ' . $index);
         }
 
         return $this;
@@ -292,6 +298,9 @@ class TableAlter extends SchemaAbstract
     public function addForeignKey(string $foreign_key): static
     {
         if ($foreign_key) {
+            $foreign_key = trim($foreign_key);
+            $foreign_key = Strings::ensureEndsNotWith($foreign_key, ',');
+
             $this->sql->query('ALTER TABLE ' . $this->name . ' ADD ' . $foreign_key);
         }
 
