@@ -515,14 +515,14 @@ class Sql implements SqlInterface
             // Get error data from PDO
             $error = $this->pdo?->errorInfo();
 
-
             $this->processQueryException(SqlException::new($e)
                                                      ->setHost($this->getHostname())
                                                      ->setDatabase($this->getDatabase())
                                                      ->setQuery($query)
                                                      ->setExecute($execute)
                                                      ->setMessage($message)
-                                                     ->setSqlState($state));
+                                                     ->setSqlState($state ?? isset_get($error[0]))
+                                                     ->setDriverState(isset_get($error[1])));
         }
     }
 
@@ -613,6 +613,14 @@ class Sql implements SqlInterface
                 ]));
 
             case 42000:
+                switch ($e->getDriverState()) {
+                    case 1049:
+                        throw SqlUnknownDatabaseException::new(static::getConnectorLogPrefix() . tr('Unknown database ":database"', [
+                            ':database' => $this->configuration['database']
+                        ]))->addData([
+                            'database'  => $this->configuration['database']
+                        ]);
+                }
 
                 throw SqlSyntaxErrorException::new(static::getConnectorLogPrefix() . tr('Syntax error in query ":query" with connector ":connector"', [
                         ':query'     => $query,
