@@ -579,7 +579,7 @@ FILES variables:
 
             default:
                 Log::write(Strings::size('Type', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
-                Log::write($this->getMode()->value, 'notice', $log, echo_prefix: false);
+                Log::write(get_null($this->getMode()->value) ?? tr('No mode'), 'notice', $log, echo_prefix: false);
                 Log::write(Strings::size('Title', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($this->getTitle(), 'notice', $log, echo_prefix: false);
                 Log::write(Strings::size('Message', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
