@@ -42,6 +42,7 @@ use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\Exception\SqlNoDatabaseSelectedException;
 use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
 use Phoundation\Databases\Sql\Exception\SqlServerNotAvailableException;
+use Phoundation\Databases\Sql\Exception\SqlSyntaxErrorException;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
@@ -511,6 +512,10 @@ class Sql implements SqlInterface
                 throw $e;
             }
 
+            // Get error data from PDO
+            $error = $this->pdo?->errorInfo();
+
+
             $this->processQueryException(SqlException::new($e)
                                                      ->setHost($this->getHostname())
                                                      ->setDatabase($this->getDatabase())
@@ -574,8 +579,6 @@ class Sql implements SqlInterface
 //                ':e'        => $e->getMessage()
 //            ]), $e);
 
-        // Get error data from PDO
-        $error = $this->pdo?->errorInfo();
 
         // Check SQL state
         switch ($e->getSqlState()) {
@@ -610,14 +613,12 @@ class Sql implements SqlInterface
                 ]));
 
             case 42000:
-                throw SqlUnknownDatabaseException::new(static::getConnectorLogPrefix() . tr('Unknown database ":database" while executing query ":query" with connector ":connector" with connection string ":string" and user ":user"', [
+
+                throw SqlSyntaxErrorException::new(static::getConnectorLogPrefix() . tr('Syntax error in query ":query" with connector ":connector"', [
                         ':query'     => $query,
                         ':connector' => $this->connector,
-                        ':string'    => isset_get($connect_string),
-                        ':database'  => $this->configuration['database'],
-                        ':user'      => $this->configuration['username'],
-                    ]))->addData([
-                        'database' => isset_get($matches[1][0])
+                    ]), $e)->addData([
+                        'query' => isset_get($matches[1][0])
                 ]);
 
             default:
