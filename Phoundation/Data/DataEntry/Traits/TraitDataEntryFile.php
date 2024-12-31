@@ -84,9 +84,6 @@ trait TraitDataEntryFile
      */
     public function setFileObject(PhoFileInterface|null $file): static
     {
-Log::printr($file?->getSource());
-$this->setFile($file?->getSource());
-Log::printr($this->getFile());
         return $this->setFile($file?->getSource());
     }
 }
