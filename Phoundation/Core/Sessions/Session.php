@@ -717,7 +717,7 @@ class Session implements SessionInterface
 
                 if ($core->register['url_cloak_users_id'] !== $_SESSION['user']['id']) {
                     throw new AccessDeniedException(tr('Failed cloaked URL strict checking, cloaked URL users_id ":cloak_users_id" did not match the users_id ":session_users_id" of this session', [
-                        ':session_users_id' => $_SESSION['user']['id'],
+                        ':session_users_id' => isset_get($_SESSION['user']['id']),
                         ':cloak_users_id'   => $core->register['url_cloak_users_id'],
                     ]));
                 }
@@ -903,7 +903,7 @@ class Session implements SessionInterface
 
         } catch (DataEntryNotExistsException) {
             Log::warning(tr('The session user ":id" does not exist, removing session entry and dropping to guest user', [
-                ':id' => $_SESSION['user']['id'],
+                ':id' => isset_get($_SESSION['user']['id']),
             ]));
 
         } catch (DataEntryStatusException $e) {
@@ -912,7 +912,7 @@ class Session implements SessionInterface
         } catch (Throwable $e) {
             Log::warning(tr('Failed to fetch user ":user" for session with ":e", removing session entry and dropping to guest user', [
                 ':e'    => $e->getMessage(),
-                ':user' => $_SESSION['user']['id'],
+                ':user' => isset_get($_SESSION['user']['id']),
             ]));
         }
 
