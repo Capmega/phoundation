@@ -19,7 +19,7 @@ namespace Phoundation\Databases\Sql\Exception;
 use PDOStatement;
 use Phoundation\Databases\Exception\DatabasesException;
 use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
-
+use Phoundation\Utils\Strings;
 
 class SqlException extends DatabasesException implements SqlExceptionInterface
 {
@@ -92,7 +92,12 @@ class SqlException extends DatabasesException implements SqlExceptionInterface
      */
     public function setQuery(PDOStatement|string|null $query): static
     {
-        return $this->addData($query, 'query');
+        if ($query instanceof PDOStatement) {
+            $query = $query->queryString;
+        }
+
+        return $this->addData($query, 'query')
+                    ->setParsedQuery();
     }
 
 
@@ -140,6 +145,51 @@ class SqlException extends DatabasesException implements SqlExceptionInterface
      */
     public function setExecute(?array $execute): static
     {
-        return $this->addData($execute, 'execute');
+        return $this->addData($execute, 'execute')
+                    ->setParsedQuery();
+    }
+
+
+    /**
+     * Returns the SQL parsed query
+     *
+     * @return string|null
+     */
+    public function getParsedQuery(): ?string
+    {
+        return $this->getDataKey('parsed_query');
+    }
+
+
+    /**
+     * Parses the query with the specified variables and stores it as "parsed_query"
+     *
+     * @return static
+     */
+    protected function setParsedQuery(): static
+    {
+        return $this->addData($this->parseQuery(), 'parsed_query');
+    }
+
+
+    /**
+     * Parses and returns the query with the execute variables
+     *
+     * @return string|null
+     */
+    protected function parseQuery(): ?string
+    {
+        if ($this->getQuery() and $this->getExecute()) {
+            $query = $this->getQuery();
+
+            foreach ($this->getExecute() as $key => $value) {
+                $value = Strings::fromDatatype($value, '"');
+                $query = str_replace($key, $value, $query);
+            }
+
+            return Strings::ensureEndsWith($query, ';');
+        }
+
+        return null;
     }
 }

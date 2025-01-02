@@ -4,7 +4,7 @@ namespace Phoundation\Network\Sockets\Interfaces;
 
 use Phoundation\Network\Enums\EnumNetworkSocketDomain;
 use Phoundation\Network\Sockets\Exception\SocketException;
-use Socket as SocketResource;
+use Socket;
 
 interface PhoSocketInterface
 {
@@ -133,19 +133,19 @@ interface PhoSocketInterface
     /**
      * Returns the Resource property of this PhoSocket
      *
-     * @return SocketResource
+     * @return Socket
      */
-    public function getResource(): SocketResource;
+    public function getResource(): Socket;
 
 
     /**
      * Sets the Resource property of this PhoSocket
      *
-     * @param SocketResource $resource
+     * @param Socket $resource
      *
      * @return static
      */
-    public function setResource(SocketResource $resource): static;
+    public function setResource(Socket $resource): static;
 
 
     /**

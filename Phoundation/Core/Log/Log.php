@@ -869,7 +869,10 @@ class Log
             // Add coloring for easier reading
             $messages    = CliColor::apply((string) $messages, $class);
             $messages   .= ($echo_newline ? PHP_EOL : null);
-            $echo_prefix = static::$newline_done;
+
+            if (!static::$newline_done) {
+                $echo_prefix = false;
+            }
 
             // Build message prefix
             // TODO Check max process id in /proc/sys/kernel/pid_max and use that as max length instead of static 7
@@ -1194,7 +1197,7 @@ class Log
                 if ($exception->isWarning()) {
                     // Log warning data as individual lines for easier read
                     foreach (Arrays::force($data, null) as $line) {
-                        static::write(get_null(print_r($line, true)) ?? '-', 'warning', $threshold, false, $echo_newline, $echo_prefix, $echo_screen);
+                        static::write(get_null(var_export($line, true)) ?? '-', 'debug', $threshold, false, $echo_newline, false, $echo_screen);
                     }
 
                 } else {
@@ -1209,8 +1212,8 @@ class Log
                             }
                         }
 
-                        static::write($key . ': '                           , 'debug', $threshold, false, false, $echo_prefix, $echo_screen);
-                        static::write(get_null(print_r($value, true)) ?? '-', 'debug', $threshold, false, true , $echo_prefix, $echo_screen);
+                        static::write($key . ': '                                , 'error', $threshold, false, false, false, $echo_screen);
+                        static::write((get_null(var_export($value, true)) ?? '-'), 'debug', $threshold, false, true , false, $echo_screen);
                     }
                 }
 

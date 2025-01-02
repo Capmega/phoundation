@@ -33,7 +33,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.6.0';
+        return '0.6.1';
     }
 
 
@@ -1187,6 +1187,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                                                     CONSTRAINT `fk_accounts_configurations_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                                                     CONSTRAINT `fk_accounts_configurations_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                                                 ')->create();
+
+        })->addUpdate('0.6.1', function () {
+            // name and seo_name must be nullable, fix
+            sql()->getSchemaObject()->getTableObject('accounts_rights')->alter()->changeColumn('name'    , '`name`     varchar(128) NULL DEFAULT NULL,')
+                                                                                ->changeColumn('seo_name', '`seo_name` varchar(128) NULL DEFAULT NULL,');
         });
     }
 }
