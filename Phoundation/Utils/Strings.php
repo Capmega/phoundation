@@ -1795,7 +1795,7 @@ class Strings extends Utils
 
 
     /**
-     * Return the specified value as a boolean name, false for null, zero, "", false, true otherwise.
+     * Return the specified value as a boolean name, "false" for null, zero, "", false, "true" otherwise.
      *
      * @param mixed $value
      *
