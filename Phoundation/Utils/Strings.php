@@ -1814,7 +1814,7 @@ class Strings extends Utils
                 // no break
 
             case false:
-                return $value;
+                return 'false';
         }
 
         if ($value) {

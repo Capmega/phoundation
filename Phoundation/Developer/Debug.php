@@ -346,7 +346,7 @@ class Debug
             if (Core::isProductionEnvironment()) {
                 // This is not usually something you want to happen!
                 Notification::new()
-                            ->setUrl(Url::new('developer/incidents.html')->makeWww())
+                            ->setUrl(Url::new('security/incidents.html')->makeWww())
                             ->setMode(EnumDisplayMode::exception)
                             ->setTitle('Debug mode enabled on production environment!')
                             ->setMessage('Debug mode enabled on production environment, with this all internal debug information can be visible to everybody!')

@@ -2378,7 +2378,7 @@ class Core implements CoreInterface
     public static function isPhpUnitTest(): bool
     {
         // TODO Chang this. Detection should not be a command or page name that might change in the future
-        return static::isExecutedPath('dev/phpunit') or static::isExecutedPath('development/phpunit');
+        return static::isExecutedPath('dev/phpunit') or static::isExecutedPath('developer/phpunit');
     }
 
 

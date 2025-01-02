@@ -3006,7 +3006,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
 
     /**
-     * Delete the specified entries
+     * Delete this entry
      *
      * @param string|null $comments
      *
