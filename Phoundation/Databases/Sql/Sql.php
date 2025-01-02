@@ -614,19 +614,29 @@ class Sql implements SqlInterface
 
             case 42000:
                 switch ($e->getDriverState()) {
+                    case 1072:
+                        $column = Strings::cut($e->getMessage(), "'", "'");
+
+                        throw SqlColumnDoesNotExistsException::new(static::getConnectorLogPrefix() . tr('Key column ":column" does not exist in table', [
+                            ':column' => $column
+                        ]), $e)->addData([
+                            'column'    => $column,
+                            'database'  => $this->configuration['database']
+                        ]);
+
                     case 1049:
                         throw SqlUnknownDatabaseException::new(static::getConnectorLogPrefix() . tr('Unknown database ":database"', [
                             ':database' => $this->configuration['database']
-                        ]))->addData([
+                        ]), $e)->addData([
                             'database'  => $this->configuration['database']
                         ]);
                 }
 
                 throw SqlSyntaxErrorException::new(static::getConnectorLogPrefix() . tr('Syntax error in query ":query" with connector ":connector"', [
-                        ':query'     => $query,
-                        ':connector' => $this->connector,
-                    ]), $e)->addData([
-                        'query' => isset_get($matches[1][0])
+                    ':query'     => $query,
+                    ':connector' => $this->connector,
+                ]), $e)->addData([
+                    'query' => isset_get($matches[1][0])
                 ]);
 
             default:
