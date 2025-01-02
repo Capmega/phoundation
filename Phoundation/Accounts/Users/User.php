@@ -874,6 +874,53 @@ class User extends DataEntry implements UserInterface
 
 
     /**
+     * Returns the initials for this user
+     *
+     * @param bool $official
+     *
+     * @return string|null
+     */
+    public function getInitials(bool $official = false): ?string
+    {
+        // Nickname is NOT allowed for official information
+        if ($this->getNickname()){
+            if ($official) {
+                return substr($this->getFirstNames(), 0, 1) . substr($this->getLastNames(), 0, 1);
+            }
+
+            return substr($this->getNickname(), 0, 2);
+        }
+
+        if (trim($this->getFirstNames() . ' ' . $this->getLastNames())) {
+            return substr($this->getFirstNames(), 0, 1) . substr($this->getLastNames(), 0, 1);
+        }
+
+        if ($this->getUsername()) {
+            return substr($this->getUsername(), 0, 2);
+        }
+
+        if ($this->getEmail()) {
+            $user   = Strings::until($this->getEmail(), '@');
+            $domain = Strings::from($this->getEmail(), '@');
+            return substr($user, 0, 1) . substr($domain, 0, 1);
+        }
+
+        if (!($name = $this->getId())) {
+            if ($this->getId() === -1) {
+                // This is the guest user
+                $name = tr('G');
+
+            } else {
+                // This is a new user
+                $name = tr('[N]');
+            }
+        }
+
+        return $name;
+    }
+
+
+    /**
      * Returns the name for this user that can be displayed
      *
      * @param bool $official
