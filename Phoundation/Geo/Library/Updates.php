@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace Phoundation\Geo\Library;
 
 
-
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
     /**
@@ -28,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.6';
+        return '0.0.7';
     }
 
 
@@ -396,6 +395,26 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_' . $table . '_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ');
             }
+
+        })->addUpdate('0.0.7', function () {
+            // name and seo_name must be nullable, fix
+            $tables = [
+                'geo_timezones',
+                'geo_continents',
+                'geo_countries',
+                'geo_states',
+                'geo_counties',
+                'geo_cities',
+            ];
+
+            foreach ($tables as $table) {
+                sql()->getSchemaObject()->getTableObject($table)->alter()->changeColumn('name'    , '`name`     varchar(128) NULL DEFAULT NULL,')
+                                                                         ->changeColumn('seo_name', '`seo_name` varchar(128) NULL DEFAULT NULL,');
+            }
+
+            sql()->getSchemaObject()->getTableObject('geo_features')->alter()->changeColumn('name', '`name` varchar(128) NULL DEFAULT NULL,')
+                                                                             ->addColumn('`seo_name` varchar(128) NULL DEFAULT NULL,', 'AFTER `name`')
+                                                                             ->addIndex('UNIQUE KEY `seo_name` (`seo_name`)');
         });
     }
 }

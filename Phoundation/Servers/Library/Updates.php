@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace Phoundation\Servers\Library;
 
 
-
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
     /**
@@ -28,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.15';
+        return '0.0.16';
     }
 
 
@@ -150,6 +149,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->addColumn('`seo_name` varchar(128) NOT NULL,', 'AFTER `name`')
                  ->addIndex('UNIQUE KEY `name` (`name`)')
                  ->addIndex('UNIQUE KEY `seo_name` (`seo_name`)');
+
+        })->addUpdate('0.0.16', function () {
+            // name and seo_name must be nullable, fix
+            sql()->getSchemaObject()->getTableObject('servers')->alter()->changeColumn('name'    , '`name`     varchar(128) NULL DEFAULT NULL,')
+                                                                        ->changeColumn('seo_name', '`seo_name` varchar(128) NULL DEFAULT NULL,');
         });
     }
 }
