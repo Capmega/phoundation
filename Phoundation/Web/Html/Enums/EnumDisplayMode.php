@@ -57,14 +57,14 @@ enum EnumDisplayMode: string
     {
         // Convert aliases
         return match ($mode) {
-            EnumDisplayMode::white                                                                                                                                                        => EnumDisplayMode::white,
-            EnumDisplayMode::blue, EnumDisplayMode::info, EnumDisplayMode::notice, EnumDisplayMode::information                                                                           => EnumDisplayMode::info,
-            EnumDisplayMode::green, EnumDisplayMode::success                                                                                                                              => EnumDisplayMode::success,
-            EnumDisplayMode::yellow, EnumDisplayMode::warning,                                                                                                                            => EnumDisplayMode::warning,
-            EnumDisplayMode::red, EnumDisplayMode::error, EnumDisplayMode::exception, EnumDisplayMode::danger                                                                             => EnumDisplayMode::danger,
-            EnumDisplayMode::plain, EnumDisplayMode::primary, EnumDisplayMode::secondary, EnumDisplayMode::tertiary, EnumDisplayMode::link, EnumDisplayMode::light, EnumDisplayMode::dark => $mode,
-            EnumDisplayMode::null, EnumDisplayMode::unknown                                                                                                                               => EnumDisplayMode::null,
-            default                                                                                                                                                                       => throw new OutOfBoundsException(tr('Unknown mode ":mode" specified', [
+            EnumDisplayMode::white                                                                                                                                                         => EnumDisplayMode::white,
+            EnumDisplayMode::blue  , EnumDisplayMode::info   , EnumDisplayMode::notice   , EnumDisplayMode::information                                                                    => EnumDisplayMode::info,
+            EnumDisplayMode::green , EnumDisplayMode::success                                                                                                                              => EnumDisplayMode::success,
+            EnumDisplayMode::yellow, EnumDisplayMode::warning,                                                                                                                             => EnumDisplayMode::warning,
+            EnumDisplayMode::red   , EnumDisplayMode::error  , EnumDisplayMode::exception, EnumDisplayMode::danger                                                                         => EnumDisplayMode::danger,
+            EnumDisplayMode::plain , EnumDisplayMode::primary, EnumDisplayMode::secondary, EnumDisplayMode::tertiary, EnumDisplayMode::link, EnumDisplayMode::light, EnumDisplayMode::dark => $mode,
+            EnumDisplayMode::null  , EnumDisplayMode::unknown                                                                                                                              => EnumDisplayMode::null,
+            default                                                                                                                                                                        => throw new OutOfBoundsException(tr('Unknown mode ":mode" specified', [
                 ':mode' => $mode,
             ]))
         };
