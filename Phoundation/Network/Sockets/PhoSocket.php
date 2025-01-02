@@ -26,9 +26,10 @@ use Phoundation\Network\Sockets\Exception\SocketAddressInUseException;
 use Phoundation\Network\Sockets\Exception\SocketConnectionRefusedException;
 use Phoundation\Network\Sockets\Exception\SocketDisconnectedException;
 use Phoundation\Network\Sockets\Exception\SocketException;
-use Socket as SocketResource;
+use Socket;
 use Stringable;
 use Throwable;
+
 
 class PhoSocket implements Stringable, PhoSocketInterface
 {
@@ -98,9 +99,9 @@ class PhoSocket implements Stringable, PhoSocketInterface
     /**
      * The PHP Socket resource that this PHOSocket object uses.
      *
-     * @var SocketResource $resource
+     * @var Socket $resource
      */
-    protected SocketResource $resource;
+    protected Socket $resource;
 
     /**
      * Array that stores the PHP \Socket Options
@@ -115,13 +116,13 @@ class PhoSocket implements Stringable, PhoSocketInterface
      *
      * Please use the <code>create</code> method to create new instances of this class.
      *
-     * @param SocketResource $resource The php socket resource. This is just a reference to the socket object created
+     * @param Socket $resource         The php socket resource. This is just a reference to the socket object created
      *                                 using the <code>socket_create</code> method.
      *
      * @see PhoSocket::create()
      *
      */
-    protected function __construct(SocketResource $resource, bool $connected)
+    protected function __construct(Socket $resource, bool $connected)
     {
         $this->options   = [];
         $this->resource  = $resource;
@@ -170,12 +171,12 @@ class PhoSocket implements Stringable, PhoSocketInterface
     /**
      * Returns a new static object
      *
-     * @param SocketResource $resource
-     * @param bool           $connected
+     * @param Socket $resource
+     * @param bool   $connected
      *
      * @return static
      */
-    protected static function new(SocketResource $resource, bool $connected): static
+    protected static function new(Socket $resource, bool $connected): static
     {
         return new static($resource, $connected);
     }
@@ -473,9 +474,9 @@ class PhoSocket implements Stringable, PhoSocketInterface
     /**
      * Returns the Resource property of this PhoSocket
      *
-     * @return SocketResource
+     * @return Socket
      */
-    public function getResource(): SocketResource
+    public function getResource(): Socket
     {
         return $this->resource;
     }
@@ -484,11 +485,11 @@ class PhoSocket implements Stringable, PhoSocketInterface
     /**
      * Sets the Resource property of this PhoSocket
      *
-     * @param SocketResource $resource
+     * @param Socket $resource
      *
      * @return static
      */
-    public function setResource(SocketResource $resource): static
+    public function setResource(Socket $resource): static
     {
         $this->resource = $resource;
         return $this;
@@ -603,9 +604,9 @@ class PhoSocket implements Stringable, PhoSocketInterface
     /**
      * Build Socket objects based on an array of php socket resources.
      *
-     * @param SocketResource[] $resources A list of php socket resource objects.
+     * @param array $resources A list of php socket resource objects.
      *
-     * @return PhoSocket[] <p>Returns an array of Socket objects built from the given php socket resources.</p>
+     * @return array Returns an array of Socket objects built from the given php socket resources.
      */
     protected static function constructFromResources(array $resources): array
     {
@@ -849,11 +850,11 @@ class PhoSocket implements Stringable, PhoSocketInterface
     /**
      * Sets the remote address and port
      *
-     * @param SocketResource $socket
+     * @param Socket $socket
      *
      * @return static
      */
-    protected function initializeRemoteName(SocketResource $socket): static
+    protected function initializeRemoteName(Socket $socket): static
     {
         if ($this->isConnected()) {
             $result = socket_getpeername($socket, $this->remote_address, $this->remote_port);
@@ -882,11 +883,11 @@ class PhoSocket implements Stringable, PhoSocketInterface
      * <code>connect()</code>. Only sockets created with <code>accept()</code> or a primary server socket following a
      * call to <code>bind()</code> will return meaningful values.</p>
      *
-     * @param SocketResource $socket
+     * @param Socket $socket
      *
      * @return static
      */
-    protected function initializeLocalName(SocketResource $socket): static
+    protected function initializeLocalName(Socket $socket): static
     {
         if ($this->isConnected()) {
             $result = socket_getsockname($socket, $this->local_address, $this->local_port);
@@ -1070,12 +1071,12 @@ class PhoSocket implements Stringable, PhoSocketInterface
      * can leave it out and use an empty array or <code>NULL</code> instead. Also do not forget that those arrays are
      * passed by reference and will be modified after <code>select()</code> returns.
      *
-     * @param PhoSocket[] &$read                 <p>The sockets listed in the read array will be watched to see if
+     * @param array       &$read                 <p>The sockets listed in the read array will be watched to see if
      *                                           characters become available for reading (more precisely, to see if a
      *                                           read will not block - in particular, a socket resource is also ready on
      *                                           end-of-file, in which case a <code>read()</code> will return a zero
      *                                           length string).</p>
-     * @param PhoSocket[] &$write                The sockets listed in the write array will be watched to see if a write
+     * @param array       &$write                The sockets listed in the write array will be watched to see if a write
      *                                           will not block.
      * @param array        $except               The sockets listed in the except array will be watched for exceptions.
      * @param ?int         $timeout_seconds      The seconds portion of the timeout parameters (in conjunction with
@@ -1117,9 +1118,9 @@ class PhoSocket implements Stringable, PhoSocketInterface
     /**
      * Maps an array of Sockets to an array of socket resources.
      *
-     * @param PhoSocket[] $sockets An array of sockets to map.
+     * @param array $sockets An array of sockets to map.
      *
-     * @return SocketResource[] Returns the corresponding array of resources.
+     * @return array         Returns the corresponding array of resources.
      */
     protected static function mapClassToRawSocket(array $sockets): array
     {
@@ -1138,9 +1139,9 @@ class PhoSocket implements Stringable, PhoSocketInterface
     /**
      * Maps an array of socket resources to an array of Sockets.
      *
-     * @param SocketResource[] $sockets An array of socket resources to map.
+     * @param array $sockets An array of socket resources to map.
      *
-     * @return PhoSocket[] Returns the corresponding array of Socket objects.
+     * @return array         Returns the corresponding array of Socket objects.
      */
     protected static function mapRawSocketToClass(array $sockets): array
     {
