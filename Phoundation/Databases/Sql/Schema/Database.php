@@ -93,7 +93,10 @@ class Database extends SchemaAbstract implements DatabaseInterface
             ]));
         }
 
-        Log::action(tr('Creating database ":database"', [':database' => $this->sql->getDatabase()]));
+        Log::action(tr('Creating database ":database" on SQL instance ":instance"', [
+            ':instance' => $this->sql->getConnector(),
+            ':database' => $this->sql->getDatabase()
+        ]));
 
         // This query can only partially use bound variables!
         $this->sql->query('CREATE DATABASE `' . $this->sql->getDatabase() . '` DEFAULT CHARSET=:charset COLLATE=:collate', [
@@ -144,7 +147,7 @@ class Database extends SchemaAbstract implements DatabaseInterface
     public function drop(): static
     {
         // This query cannot use bound variables!
-        Log::warning(tr('Dropping database ":database" for SQL instance ":instance"', [
+        Log::warning(tr('Dropping database ":database" on SQL instance ":instance"', [
             ':instance' => $this->sql->getConnector(),
             ':database' => $this->sql->getDatabase(),
         ]), 5);

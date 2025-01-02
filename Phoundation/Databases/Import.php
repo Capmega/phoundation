@@ -174,8 +174,8 @@ class Import
                 MySql::new()
                      ->setTimeout($this->timeout)
                      ->setConnectorObject($this->getConnectorObject())
-                     ->drop($this->drop ? $this->database : null)
-                     ->create($this->database)
+                     ->drop($this->drop ? $this->database ?? ($this->getConnectorObject()->getDatabase()) : null)
+                     ->create($this->database ?? ($this->getConnectorObject()->getDatabase()))
                      ->import($this->file);
 
                 Log::success(tr('Finished importing MySQL dump file ":file" to database ":database"', [

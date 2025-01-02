@@ -24,6 +24,7 @@ use Phoundation\Data\Traits\TraitDataSourceString;
 use Phoundation\Data\Traits\TraitDataUserPass;
 use Phoundation\Databases\Exception\MysqlException;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FileTypeNotSupportedException;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
@@ -46,6 +47,7 @@ class MySql extends Command
     use TraitDataSourceString;
     use TraitDataConnector;
 
+
     /**
      * Drops the specified database
      *
@@ -55,20 +57,20 @@ class MySql extends Command
      */
     public function drop(?string $database): static
     {
-        if ($database) {
-            // Drop the requested database
-            sql($this->o_connector, false)
-                ->getSchemaObject(false)
-                ->getDatabaseObject($database, false)
-                ->drop();
-        }
+        $this->checkSpecified($database, tr('drop database'));
+
+        // Drop the requested database
+        sql($this->o_connector, false)
+            ->getSchemaObject(false)
+            ->getDatabaseObject($database, false)
+            ->drop();
 
         return $this;
     }
 
 
     /**
-     * Drops the specified database
+     * Creates the specified database
      *
      * @param string|null $database
      *
@@ -76,15 +78,33 @@ class MySql extends Command
      */
     public function create(?string $database): static
     {
-        if ($database) {
-            // Drop the requested database
-            sql($this->o_connector, false)
-                ->getSchemaObject(false)
-                ->getDatabaseObject($database, false)
-                ->create();
-        }
+        $this->checkSpecified($database, tr('create database'));
+
+        // Drop the requested database
+        sql($this->o_connector, false)
+            ->getSchemaObject(false)
+            ->getDatabaseObject($database, false)
+            ->create();
 
         return $this;
+    }
+
+
+    /**
+     * Checks that a database is specified
+     *
+     * @param string|null $database
+     * @param string      $action
+     *
+     * @return void
+     */
+    protected function checkSpecified(?string $database, string $action): void
+    {
+        if (empty($database)) {
+            throw new OutOfBoundsException(tr('Cannot execute action ":action", no database specified', [
+                ':action' => $action,
+            ]));
+        }
     }
 
 
