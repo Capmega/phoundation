@@ -242,6 +242,52 @@ class Role extends DataEntry implements RoleInterface
 
 
     /**
+     * Delete this role
+     *
+     * @param string|null $comments
+     *
+     * @return static
+     */
+    public function delete(?string $comments = null): static
+    {
+        // Update all accounts_users_roles and accounts_roles_rights too
+        sql()->query('UPDATE `accounts_users_roles` SET status = "deleted" WHERE `roles_id` = :roles_id', [
+            ':roles_id' => $this->getId(),
+        ]);
+
+        sql()->query('UPDATE `accounts_roles_rights` SET status = "deleted" WHERE `roles_id` = :roles_id', [
+            ':roles_id' => $this->getId(),
+        ]);
+
+
+        return parent::delete($comments);
+    }
+
+
+    /**
+     * Undelete this role
+     *
+     * @param string|null $comments
+     *
+     * @return static
+     */
+    public function undelete(?string $comments = null): static
+    {
+        // Update all accounts_users_roles and accounts_roles_rights too
+        sql()->query('UPDATE `accounts_users_roles` SET status = NULL WHERE `roles_id` = :roles_id', [
+            ':roles_id' => $this->getId(),
+        ]);
+
+        sql()->query('UPDATE `accounts_roles_rights` SET status = NULL WHERE `roles_id` = :roles_id', [
+            ':roles_id' => $this->getId(),
+        ]);
+
+
+        return parent::undelete($comments);
+    }
+
+
+    /**
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions

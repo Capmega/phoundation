@@ -486,7 +486,7 @@ class Request implements RequestInterface
 
                 // None of the requested languages are supported! Oh noes! Go for default language.
                 Notification::new()
-                            ->setUrl(Url::new('developer/incidents.html')->makeWww())
+                            ->setUrl(Url::new('security/incidents.html')->makeWww())
                             ->setMode(EnumDisplayMode::warning)
                             ->setCode('unsupported-languages-requested')
                             ->setRoles('developer')

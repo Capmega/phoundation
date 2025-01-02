@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command development mdb repositories sync
+ * Command developer mdb repositories sync
  *
  * This script can sync MDB repositories
  *
@@ -26,7 +26,7 @@ use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 
 
-CliDocumentation::setHelp('The development/mdb/repositories/sync script synchronizes all MDB repositories
+CliDocumentation::setHelp('The developer/mdb/repositories/sync script synchronizes all MDB repositories
 
 If the repositories do not exist, they will be cloned.
 

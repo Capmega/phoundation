@@ -72,7 +72,7 @@ class Js
                     $file = substr($file, 0, -3);
 
                     Notification::new()
-                                ->setUrl(Url::new('developer/incidents.html')->makeWww())
+                                ->setUrl(Url::new('security/incidents.html')->makeWww())
                                 ->setMode(EnumDisplayMode::exception)
                                 ->setCode('not-exists')
                                 ->setRoles('developer')
@@ -85,7 +85,7 @@ class Js
 
                     Notification::new()
                                 ->setMode(EnumDisplayMode::exception)
-                                ->setUrl(Url::new('developer/incidents.html')->makeWww())
+                                ->setUrl(Url::new('security/incidents.html')->makeWww())
                                 ->setCode('not-exists')
                                 ->setRoles('developer')
                                 ->setTitle(tr('html_load_js() issue detected'))

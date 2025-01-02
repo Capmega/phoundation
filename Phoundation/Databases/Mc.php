@@ -197,7 +197,7 @@ class Mc implements DatastoreInterface
                     // We haven't been able to connect to any memcached server at all!
                     Log::warning(tr('Failed to connect to any memcached server'), 10);
                     Notification::new()
-                                ->setUrl(Url::new('developer/incidents.html')->makeWww())
+                                ->setUrl(Url::new('security/incidents.html')->makeWww())
                                 ->setMode(EnumDisplayMode::warning)
                                 ->setCode('not-available')
                                 ->addRole('developer')
