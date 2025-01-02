@@ -432,21 +432,23 @@ class Strings extends Utils
     /**
      * Return the specified string quoted if not numeric, boolean,
      *
-     * @param Stringable|string|null $source
-     * @param string                 $quote
-     * @param bool                   $force
+     * @param mixed       $source
+     * @param string|null $quote
+     * @param bool        $force
      *
      * @return string
      */
-    public static function quote(Stringable|string|null $source, string $quote = "'", bool $force = false): string
+    public static function quote(Stringable|string|float|int|bool|null $source, ?string $quote = "'", bool $force = false): string
     {
-        $source = (string) $source;
-
-        if (is_numeric($source) and !$force) {
-            return $source;
+        if (!$quote) {
+            $quote = "'";
         }
 
-        return $quote . $source . $quote;
+        if (is_string($source) or ($source instanceof Stringable) or $force) {
+            return $quote . $source . $quote;
+        }
+
+        return (string) $source;
     }
 
 
@@ -1501,7 +1503,7 @@ class Strings extends Utils
         } elseif (is_string($source)) {
             if (!$source and !is_numeric($source)) {
                 if ($ensure_visible) {
-                    $source = '>>> EMPTY <<<';
+                    $source = '>>> EMPTY STRING <<<';
 
                 } else {
                     $source = '';
@@ -1762,6 +1764,37 @@ class Strings extends Utils
 
 
     /**
+     * Returns a string from the given source that displays string versions of the given datatypes null and boolean or
+     * just the value of the source as a string
+     *
+     * @param mixed       $source
+     * @param string|bool $quote_strings
+     *
+     * @return string
+     */
+    public static function fromDatatype(mixed $source, string|bool $quote_strings = true): string
+    {
+        if ($source === null) {
+            return 'NULL';
+        }
+
+        if (is_bool($source)) {
+            if ($source) {
+                return 'true';
+            }
+
+            return 'false';
+        }
+
+        if ($quote_strings) {
+            $source = Strings::quote($source, is_string($quote_strings) ? $quote_strings : null);
+        }
+
+        return (string) $source;
+    }
+
+
+    /**
      * Return the specified value as a boolean name, false for null, zero, "", false, true otherwise.
      *
      * @param mixed $value
@@ -1770,8 +1803,18 @@ class Strings extends Utils
      */
     public static function fromBoolean(mixed $value): string
     {
-        if ($value === 'false') {
-            return $value;
+        switch ($value) {
+            case 'false':
+                // no break
+
+            case 'off':
+                // no break
+
+            case 'no':
+                // no break
+
+            case false:
+                return $value;
         }
 
         if ($value) {
