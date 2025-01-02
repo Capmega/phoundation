@@ -53,8 +53,8 @@ trait TraitDataTitle
         if ($make_safe) {
             $title = Html::safe($title);
         }
-        $this->title = $title;
 
+        $this->title = $title;
         return $this;
     }
 }
