@@ -31,6 +31,7 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameLowercaseDash;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
 
@@ -126,6 +127,42 @@ class Right extends DataEntry implements RightInterface
         return Roles::new()
                     ->setParentObject($this)
                     ->load();
+    }
+
+
+    /**
+     * Delete this right
+     *
+     * @param string|null $comments
+     *
+     * @return static
+     */
+    public function delete(?string $comments = null): static
+    {
+        // Update all accounts_users_rights too
+        sql()->query('UPDATE `accounts_users_rights` SET status = "deleted" WHERE `rights_id` = :rights_id', [
+            ':rights_id' => $this->getId(),
+        ]);
+
+        return parent::delete($comments);
+    }
+
+
+    /**
+     * Undelete this right
+     *
+     * @param string|null $comments
+     *
+     * @return static
+     */
+    public function undelete(?string $comments = null): static
+    {
+        // Update all accounts_users_rights too
+        sql()->query('UPDATE `accounts_users_rights` SET status = NULL WHERE `rights_id` = :rights_id', [
+            ':rights_id' => $this->getId(),
+        ]);
+
+        return parent::undelete($comments);
     }
 
 
