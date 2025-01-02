@@ -492,19 +492,19 @@ FILES variables:
             Log::write(tr('Code    : ":code"'   , [':code'    => $this->getCode()])   , 'debug', 10, false);
             Log::write(tr('Title   : ":title"'  , [':title'   => $this->getTitle()])  , 'debug', 10, false);
             Log::write(tr('Message : ":message"', [':message' => $this->getMessage()]), 'debug', 10, false);
-            Log::write(tr('Data :'), 'debug', 10, false);
+            Log::write(tr('Data    :'), 'debug', 10, false);
 
             try {
                 $details = $this->getDetails();
 
                 if ($details) {
-                    Log::write(print_r($details, true), 'debug', 10, false);
+                    Log::write(var_export($details, true), 'debug', 10, false, true, false);
                 }
 
             } catch (Throwable $f) {
                 Log::error(tr('Failed to display notifications detail due to the following exception. Details following after exception'));
                 Log::error($f);
-                Log::write(print_r($this->getTypesafe('string', 'details'), true), 'debug', 10, false);
+                Log::write(print_r($this->getTypesafe('string', 'details'), true), 'debug', 10, false, true, false);
             }
 
             Log::error(tr('Notification sending exception:'));
@@ -525,7 +525,7 @@ FILES variables:
     public function log(int|bool $log = true): static
     {
         if ($log === false) {
-            // Don't actually log
+            // We are asked not to log
             return $this;
         }
 
