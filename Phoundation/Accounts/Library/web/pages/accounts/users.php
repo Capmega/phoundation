@@ -112,7 +112,7 @@ $users_card = Card::new()
                                          'name'          => tr('Name'),
                                          'roles'         => tr('Roles'),
                                          'status'        => tr('Status'),
-                                         'sign_in_count' => tr('Sign-in count'),
+                                         'sign_in_count' => tr('Signins'),
                                          'created_on'    => tr('Created on'),
                                      ])->setRowUrl('/accounts/user+:ROW.html'))
                   ->useForm(true)
