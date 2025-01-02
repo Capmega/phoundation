@@ -20,7 +20,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Tables;
 
-use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Date\PhoDateFormats;
 use Phoundation\Date\PhoDateTime;
@@ -32,7 +31,6 @@ use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
-use Phoundation\Web\Html\Enums\EnumAttachJavascript;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Html\Enums\EnumPagingType;
 use Phoundation\Web\Html\Enums\EnumTableRowType;

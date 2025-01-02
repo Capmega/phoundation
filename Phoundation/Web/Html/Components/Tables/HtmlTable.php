@@ -25,7 +25,6 @@ use Phoundation\Data\Traits\TraitDataCellCallbacks;
 use Phoundation\Data\Traits\TraitDataColumns;
 use Phoundation\Data\Traits\TraitDataRowCallbacks;
 use Phoundation\Data\Traits\TraitDataTitle;
-use Phoundation\Data\Traits\TraitStaticMethodNewWithContent;
 use Phoundation\Developer\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
