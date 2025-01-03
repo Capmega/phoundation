@@ -457,9 +457,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     {
         // This entry has been deleted and can only be viewed by user with the "access_deleted" right
         if ($ignore_deleted or Session::getUserObject()->hasAllRights('access_deleted')) {
-            Log::warning(tr('Continuing load of dataEntry object ":class" with identifier ":identifier" with status "deleted"', [
+            Log::warning(tr('Continuing load of dataEntry object ":class" with identifier ":identifier" and log id ":log_id" with status "deleted"', [
                 ':class'      => static::class,
-                ':identifier' => $this->identifier
+                ':identifier' => $this->identifier,
+                ':log_id'     => $this->getLogId()
             ]));
             return;
         }
