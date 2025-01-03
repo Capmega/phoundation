@@ -1343,14 +1343,15 @@ class Log
      * @param mixed       $messages
      * @param int         $threshold
      * @param bool        $clean
+     * @param bool        $echo_newline
      * @param string|bool $echo_prefix
      * @param bool        $echo_screen
      *
      * @return bool
      */
-    public static function error(mixed $messages = null, int $threshold = 9, bool $clean = false, string|bool $echo_prefix = true, bool $echo_screen = true): bool
+    public static function error(mixed $messages = null, int $threshold = 7, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
     {
-        return static::write($messages, 'error', $threshold, $clean, echo_prefix: $echo_prefix, echo_screen: $echo_screen);
+        return static::write($messages, 'error', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }
 
 
