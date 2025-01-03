@@ -485,17 +485,6 @@ class Rights extends DataIterator implements RightsInterface
                                                      ':users_id' => $this->parent->getId(),
                 ]);
 
-//                $this->source = sql()->list('SELECT   `accounts_rights`.`seo_name` AS `key`,
-//                                                            `accounts_rights`.*,
-//                                                            CONCAT(UPPER(LEFT(`accounts_rights`.`name`, 1)), SUBSTRING(`accounts_rights`.`name`, 2)) AS `name`
-//                                                   FROM     `accounts_users_rights`
-//                                                   JOIN     `accounts_rights`
-//                                                   ON       `accounts_users_rights`.`rights_id` = `accounts_rights`.`id`
-//                                                   WHERE    `accounts_users_rights`.`users_id`  = :users_id
-//                                                   ORDER BY `accounts_rights`.`name` ASC', [
-//                    ':users_id' => $this->parent->getId(),
-//                ]);
-
                 // Load the rights so that we can add "everybody" after it
                 parent::load();
 
@@ -537,120 +526,11 @@ class Rights extends DataIterator implements RightsInterface
                 $this->query_builder->addWhere('`accounts_roles_rights`.`roles_id` = :roles_id', [
                     ':roles_id' => $this->parent->getId(),
                 ]);
-
-//                $this->source = sql()->list('SELECT   `accounts_rights`.`seo_name` AS `key`,
-//                                                            `accounts_rights`.*,
-//                                                            CONCAT(UPPER(LEFT(`accounts_rights`.`name`, 1)), SUBSTRING(`accounts_rights`.`name`, 2)) AS `name`
-//                                                   FROM     `accounts_roles_rights`
-//                                                   JOIN     `accounts_rights`
-//                                                   ON       `accounts_roles_rights`.`rights_id` = `accounts_rights`.`id`
-//                                                   WHERE    `accounts_roles_rights`.`roles_id`  = :roles_id
-//                                                   ORDER BY `accounts_rights`.`name` ASC', [
-//                    ':roles_id' => $this->parent->getId(),
-//                ]);
             }
         }
 
         return parent::load();
     }
-
-
-//    /**
-//     * Load the data for this right list
-//     *
-//     * @param array|string|null $columns
-//     * @param array             $filters
-//     * @param array             $order_by
-//     *
-//     * @return array
-//     */
-//    public function loadDetails(array|string|null $columns, array $filters = [], array $order_by = []): array
-//    {
-//        // Default columns
-//        if (!$columns) {
-//            $columns = 'id,name,roles';
-//        }
-//
-//        // Default ordering
-//        if (!$order_by) {
-//            $order_by = ['name' => false];
-//        }
-//
-//        // Get column information
-//        $columns = Arrays::force($columns);
-//        $users   = Arrays::replaceIfExists($columns, 'users', '1 AS `users`');
-//        $roles   = Arrays::replaceIfExists($columns, 'roles', '1 AS `roles`');
-//        $columns = Strings::force($columns);
-//
-//        // Build query
-//        $builder = new QueryBuilder();
-//        $builder->addSelect($columns);
-//        $builder->addFrom('`accounts_rights`');
-//
-//        // Add ordering
-//        foreach ($order_by as $column => $direction) {
-//            $builder->addOrderBy('`' . $column . '` ' . ($direction ? 'DESC' : 'ASC'));
-//        }
-//
-//        // Build filters
-//        foreach ($filters as $key => $value) {
-//            switch ($key) {
-//                case 'users':
-//                    $builder->addJoin('JOIN  `accounts_users`
-//                                       ON    `accounts_users`.`email` ' . $builder->compareQuery('email', $value) . '
-//                                       JOIN  `accounts_users_rights`
-//                                       ON    `accounts_users_rights`.`users_id`  = `accounts_users`.`id`
-//                                         AND `accounts_users_rights`.`rights_id` = `accounts_rights`.`id`');
-//                    break;
-//
-//                case 'roles':
-//                    $builder->addJoin('JOIN  `accounts_roles`
-//                                       ON    `accounts_roles`.`name` ' . $builder->compareQuery('role', $value) . '
-//                                       JOIN  `accounts_roles_rights`
-//                                       ON    `accounts_roles_rights`.`roles_id`  = `accounts_roles`.`id`
-//                                         AND `accounts_roles_rights`.`rights_id` = `accounts_rights`.`id`');
-//                    break;
-//            }
-//        }
-//
-//        $return = sql()->list($builder->getQuery(), $builder->getExecute());
-//
-//        if ($users) {
-//            // Add "roles" information to each user.
-//            foreach ($return as $id => &$item) {
-//                $item['users'] = sql()->list('SELECT `email`
-//                                              FROM   `accounts_users`
-//                                              JOIN   `accounts_users_rights`
-//                                              ON     `accounts_users_rights`.`rights_id` = :rights_id
-//                                              AND    `accounts_users_rights`.`users_id` = `accounts_users`.`id`', [
-//                    ':rights_id' => $id,
-//                ]);
-//
-//                $item['users'] = implode(', ', $item['users']);
-//            }
-//
-//            unset($item);
-//        }
-//
-//        if ($roles) {
-//            // Add "roles" information to each user.
-//            foreach ($return as $id => &$item) {
-//                $item['roles'] = sql()->list('SELECT `name`
-//                                               FROM   `accounts_roles`
-//                                               JOIN   `accounts_roles_rights`
-//                                               ON     `accounts_roles_rights`.`rights_id`  = :rights_id
-//                                               AND    `accounts_roles_rights`.`roles_id` = `accounts_roles`.`id`', [
-//                    ':rights_id' => $id,
-//                ]);
-//
-//                $item['roles'] = implode(', ', $item['roles']);
-//            }
-//
-//            unset($item);
-//        }
-//
-//        return $return;
-//    }
 
 
     /**

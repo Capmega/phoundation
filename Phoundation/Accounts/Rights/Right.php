@@ -162,6 +162,10 @@ class Right extends DataEntry implements RightInterface
             ':rights_id' => $this->getId(),
         ]);
 
+        sql()->query('UPDATE `accounts_roles_rights` SET status = NULL WHERE `rights_id` = :rights_id', [
+            ':rights_id' => $this->getId(),
+        ]);
+
         return parent::undelete($comments);
     }
 

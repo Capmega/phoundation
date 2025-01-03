@@ -86,12 +86,22 @@ if (!$right->isNew()) {
                    ->setValue(tr('Audit'))
                    ->setContent(tr('Audit'));
 
-    $delete = Button::new()
-                    ->setFloatRight(true)
-                    ->setMode(EnumDisplayMode::warning)
-                    ->setOutlined(true)
-                    ->setValue(tr('Delete'))
-                    ->setContent(tr('Delete'));
+    if ($right->isDeleted()) {
+        $delete = Button::new()
+                        ->setFloatRight(true)
+                        ->setMode(EnumDisplayMode::warning)
+                        ->setOutlined(true)
+                        ->setValue(tr('Undelete'))
+                        ->setContent(tr('Undelete'));
+
+    } else {
+        $delete = Button::new()
+                        ->setFloatRight(true)
+                        ->setMode(EnumDisplayMode::warning)
+                        ->setOutlined(true)
+                        ->setValue(tr('Delete'))
+                        ->setContent(tr('Delete'));
+    }
 }
 
 
