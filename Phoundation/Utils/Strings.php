@@ -1803,25 +1803,18 @@ class Strings extends Utils
      */
     public static function fromBoolean(mixed $value): string
     {
-        switch ($value) {
-            case 'false':
-                // no break
+        $return = match ($value) {
+            'false', 'off', 'no' , '0', '0.0' => function ($value) { return 'false'; },
+            default                           => function ($value) {
+                if ($value) {
+                    return 'true';
+                }
 
-            case 'off':
-                // no break
-
-            case 'no':
-                // no break
-
-            case false:
                 return 'false';
-        }
+            }
+        };
 
-        if ($value) {
-            return 'true';
-        }
-
-        return 'false';
+        return $return($value);
     }
 
 
