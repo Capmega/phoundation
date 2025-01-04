@@ -405,7 +405,7 @@ class Export
                 $file = MysqlDump::new($this->restrictions)
                                  ->setConnectorObject($this->getConnectorObject())
                                  ->setTimeout($this->timeout)
-                                 ->setDatabases($this->database)
+                                 ->setDatabases($this->database ?? ($this->getConnectorObject()->getDatabase()))
                                  ->dump($file, $method);
 
                 Log::success(tr('Exported to MySQL dump file ":file" from databases ":database", this may take a while...', [
