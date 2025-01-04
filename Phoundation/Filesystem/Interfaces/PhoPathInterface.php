@@ -1265,4 +1265,22 @@ interface PhoPathInterface extends Stringable
      * @return PhoMimetypeInterface
      */
     public function getMimetypeObject(): PhoMimetypeInterface;
+
+    /**
+     * Returns a new file object starting from the specified path part
+     *
+     * @param PhoPathInterface|string|null $from
+     *
+     * @return PhoFileInterface
+     */
+    public function getFrom(PhoPathInterface|string|null $from = null): PhoFileInterface;
+
+    /**
+     * Returns a new file object starting from the project ROOT directory plus the specified path part
+     *
+     * @param PhoPathInterface|string|null $from
+     *
+     * @return PhoFileInterface
+     */
+    public function getFromRoot(PhoPathInterface|string|null $from = null): PhoFileInterface;
 }

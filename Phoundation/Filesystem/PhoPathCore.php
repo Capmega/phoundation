@@ -407,6 +407,32 @@ class PhoPathCore implements PhoPathInterface
 
 
     /**
+     * Returns a new file object starting from the specified path part
+     *
+     * @param PhoPathInterface|string|null $from
+     *
+     * @return PhoFileInterface
+     */
+    public function getFrom(PhoPathInterface|string|null $from = null): PhoFileInterface
+    {
+        return PhoFile::new($this->getSource($from), $this->restrictions);
+    }
+
+
+    /**
+     * Returns a new file object starting from the project ROOT directory plus the specified path part
+     *
+     * @param PhoPathInterface|string|null $from
+     *
+     * @return PhoFileInterface
+     */
+    public function getFromRoot(PhoPathInterface|string|null $from = null): PhoFileInterface
+    {
+        return $this->getFrom(DIRECTORY_ROOT . $from);
+    }
+
+
+    /**
      * Sets the file for this Path object
      *
      * @param Stringable|string|null      $path
