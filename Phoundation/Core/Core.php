@@ -155,13 +155,13 @@ class Core implements CoreInterface
      *
      * Can be one of:
      *
-     * NULL        state has not yet been defined
-     * boot        Core is booting, no configuration available yet
-     * startup     Core is starting up
-     * script      Script execution is now running
-     * maintenance System is in maintenance state
-     * setup       System is in setup state
-     * shutdown    Core is shutting down after normal script execution
+     * NULL        The system state has not yet been defined
+     * boot        The system Core is booting, no configuration available yet
+     * startup     The system Core is starting up
+     * script      The script execution is now running
+     * maintenance The System is in maintenance state
+     * setup       The system is in setup state
+     * shutdown    The system is shutting down after normal script execution
      *
      * @var string|null $state
      */
@@ -298,8 +298,8 @@ class Core implements CoreInterface
         // Set the platform, constants, load basic library functions, initialize error and signal handling
         static::detectPlatform();
         static::ensureModules();
-        static::setConstants();
         static::loadLibraries();
+        static::setConstants();
         static::initializeErrorHandlers();
         static::initializeGarbageCollection();
 
@@ -367,12 +367,22 @@ class Core implements CoreInterface
         // DIRECTORY_PUBTMP   is a public (accessible by web server) temporary directory
         // DIRECTORY_WEB      is the system cache location for all web pages
         // DIRECTORY_COMMANDS is the system cache location for all commands
-        define('REQUEST'           , substr(uniqid(), 7));
 
-        define('DIRECTORY_START'   , Strings::slash(getcwd()));
-        define('DIRECTORY_ROOT'    , static::getRootPath());
+        define('REQUEST'        , substr(uniqid(), 7));
+        define('DIRECTORY_START', Strings::slash(getcwd()));
+        define('DIRECTORY_ROOT' , static::getRootPath());
 
-        define('DIRECTORY_DATA'    , DIRECTORY_ROOT   . 'data/');
+        // Find project data directory
+        $data = DIRECTORY_ROOT . 'data/';
+        $data = realpath($data);
+
+        if (empty($data)) {
+            throw CoreException::new(tr('Could not find system "data/" directory'))
+                               ->addFix(tr('Please ensure that the directory "data" exists in the root of your project'))
+                               ->addFix(tr('If the "data/" directory is a symlink to another directory, please ensure that the symlink is valid and points to a directory that exists'));
+        }
+
+        define('DIRECTORY_DATA'    , $data . '/');
         define('DIRECTORY_SYSTEM'  , DIRECTORY_DATA   . 'system/');
         define('DIRECTORY_CDN'     , DIRECTORY_DATA   . 'content/cdn/');
         define('DIRECTORY_PUBTMP'  , DIRECTORY_CDN    . 'content/cdn/tmp/');
@@ -394,8 +404,8 @@ class Core implements CoreInterface
     {
         // Load the system function files
         try {
-            include_once(DIRECTORY_ROOT . 'Phoundation/functions.php');
-            include_once(DIRECTORY_ROOT . 'Phoundation/mb.php');
+            include_once(__DIR__ . '/../functions.php');
+            include_once(__DIR__ . '/../mb.php');
 
         } catch (Throwable $e) {
             error_log($e->getMessage());
