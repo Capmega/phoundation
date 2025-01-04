@@ -463,4 +463,17 @@ class Definitions extends IteratorCore implements DefinitionsInterface
     {
         return $this->source[array_key_last($this->source)];
     }
+
+
+    /**
+     * Removes the definitions column prefix from the specified key and returns it
+     *
+     * @param string $key
+     *
+     * @return string
+     */
+    public function removeColumnPrefix(string $key): string
+    {
+        return str_replace((string) $this->prefix, '', $key);
+    }
 }

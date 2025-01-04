@@ -205,4 +205,13 @@ interface DefinitionsInterface extends IteratorInterface
      * @return bool
      */
     public function isRendered(Stringable|string|float|int $key, bool $exception = true): bool;
+
+    /**
+     * Removes the definitions column prefix from the specified key and returns it
+     *
+     * @param string $key
+     *
+     * @return string
+     */
+    public function removeColumnPrefix(string $key): string;
 }

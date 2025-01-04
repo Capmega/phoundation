@@ -20,7 +20,6 @@ use Phoundation\Cli\Cli;
 use Phoundation\Core\Core;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Interfaces\ArraySourceInterface;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\NoKeySelectedException;
@@ -603,12 +602,19 @@ trait TraitValidatorCore
                 ]) . $failure;
 
         } else {
-            $failure = tr('The ":field" field ', [':field' => $selected_field]) . $failure;
+            $failure = tr('The ":field" field ', [
+                ':field' => $selected_field
+            ]) . $failure;
         }
 
         // Store the failure
         $this->process_value_failed = true;
-        $this->failures[$field]     = $failure;
+        $this->failures[$field]     = [
+            'label'   => $field,
+            'column'  => $field,
+            'value'   => $this->selected_value,
+            'message' => $failure
+        ];
     }
 
 
@@ -931,7 +937,7 @@ trait TraitValidatorCore
                                                ->makeWarning();
             }
 
-            Log::error('WARNING: SKIPPED FIELDS VALIDATION DUE TO security.validation.disabled = false CONFIGURATION! SYSTEM DATA MAY BE IN UNKNOWN STATE!');
+            Log::error('WARNING: SKIPPED FIELDS VALIDATION DUE TO "security.validation.disabled" = false CONFIGURATION! SYSTEM DATA MAY BE IN UNKNOWN STATE!');
         }
 
         if (isset($unclean)) {

@@ -50,7 +50,6 @@ trait TraitDataDataEntry
     public function setDataEntry(?DataEntryInterface $data_entry): static
     {
         $this->data_entry = $data_entry;
-
         return $this;
     }
 }
