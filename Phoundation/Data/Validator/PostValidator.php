@@ -389,12 +389,12 @@ class PostValidator extends Validator
         }
 
         throw ValidationFailedException::new(tr('Unknown POST fields ":fields" encountered', [
-            ':fields' => Strings::force($fields, ', '),
+            ':fields'  => Strings::force($fields, ', '),
         ]))->addData([
-                'failures' => $messages,
-            ])
-           ->makeWarning()
-           ->log();
+            'failures' => $messages,
+        ])
+       ->makeWarning()
+       ->log();
     }
 
 

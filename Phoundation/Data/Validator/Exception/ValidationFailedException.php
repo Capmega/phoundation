@@ -31,6 +31,7 @@ class ValidationFailedException extends ValidatorException implements Validation
         setDataEntry as protected __setDataEntry;
     }
 
+
     /**
      * Class ValidationFailedException constructor
      *
@@ -58,7 +59,7 @@ class ValidationFailedException extends ValidatorException implements Validation
      *
      * @return static
      */
-    public function setSourceObject(?DataEntryInterface $data_entry): static
+    public function setDataEntry(?DataEntryInterface $data_entry): static
     {
         $this->__setDataEntry($data_entry);
         $this->applyLabels();
@@ -86,22 +87,19 @@ class ValidationFailedException extends ValidatorException implements Validation
         }
 
         $processing = true;
-        $failures   = $this->getDataKey('failures');
 
         // Apply the data entry definition labels to the data
-        if ($this->data_entry and $failures) {
+        if ($this->getDataKey('failures') and $this->data_entry) {
             // Create a temporary data entry object to get its definitions.
             $definitions = $this->data_entry->getDefinitionsObject();
-            $data        = $failures;
-
-            $this->data['failures'] = [];
 
             // Create a new exception data array with labels instead of keys
-            foreach ($data as $key => $value) {
-                $label = $definitions->get($key)->getLabel() ?? $key;
-                $value = str_replace('"' . $key . '"', '"' . $label . '"', $value);
+            foreach ($this->getDataKey('failures') as $key => $failure) {
+                $label   = $definitions->get($definitions->removeColumnPrefix($key))->getLabel() ?? $key;
+                $message = str_replace('"' . $key . '"', '"' . $label . '"', $failure['message']);
 
-                $this->data['failures'][$label] = $value;
+                $this->data['failures'][$key]['label']   = $label;
+                $this->data['failures'][$key]['message'] = $message;
             }
         }
 

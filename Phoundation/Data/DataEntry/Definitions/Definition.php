@@ -18,7 +18,6 @@ namespace Phoundation\Data\DataEntry\Definitions;
 
 use PDOStatement;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Exception\DefinitionException;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;

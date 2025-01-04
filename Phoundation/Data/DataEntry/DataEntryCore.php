@@ -1081,7 +1081,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     protected function formatDisplayVariables(string|int|null $real_name): ?string
     {
         if ($this->isNew()) {
-            return tr('New');
+            return tr('[NEW]');
         }
 
         if ($this->getStatus() === 'deleted') {
