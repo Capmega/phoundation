@@ -104,12 +104,15 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
                     $count = 0;
 
                     if ($message->dataKeyExists('failures')) {
-                        foreach ($message->getDataKey('failures') as $message) {
-                            if (!trim($message)) {
+                        foreach ($message->getDataKey('failures') as $failure) {
+                            $failure['message'] = trim((string) isset_get($failure['message']));
+
+                            if (!$failure['message']) {
                                 continue;
                             }
+
                             $count++;
-                            $this->addValidationFailed($message);
+                            $this->addValidationFailed($failure['message']);
                         }
 
                     } else {
