@@ -83,7 +83,7 @@ $argv = ArgvValidator::new()
                      ->select('--timeout', true)->isOptional(3600)->isInteger()->isMoreThan(0)
                      ->select('-f,--file', true)->isOptional()->sanitizeFile([PhoDirectory::newDataSourcesObject(), PhoDirectory::newTemporaryObject()])
                      ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(null, true, true)->getAllRowsSingleColumn('name'))
-                     ->select('-b,--database', true)->isVariable()
+                     ->select('-b,--database', true)->isOptional()->isVariable()
                      ->validate();
 
 

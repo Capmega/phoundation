@@ -980,4 +980,39 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
 
         return $this->has_been_logged;
     }
+
+
+    /**
+     * Returns the list of possible fixes for this exception, if available
+     *
+     * @return array|null
+     */
+    public function getFixes(): ?array
+    {
+        return isset_get($this->data['fixes']);
+    }
+
+
+    /**
+     * Adds a possible fix to this exception
+     *
+     * @param string $fix
+     *
+     * @return $this
+     */
+    public function addFix(string $fix): static
+    {
+        if (empty($this->data['fixes'])) {
+            $this->data['fixes'] = [];
+
+        } elseif (!is_array($this->data['fixes'])) {
+            Log::warning(tr('Exception data "fixes" is not an array, but contains data below instead. forcing array'));
+            Log::printr($this->data['fixes']);
+
+            $this->data['fixes'] = [];
+        }
+
+        $this->data['fixes'][] = $fix;
+        return $this;
+    }
 }

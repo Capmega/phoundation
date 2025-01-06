@@ -1598,6 +1598,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
                 }
 
             } catch (Throwable $e) {
+                if (($e instanceof SqlTableDoesNotExistException) or ($e instanceof SqlUnknownDatabaseException)) {
+                    // These exceptions mean that the database or table accessed does not exist
+                    throw $e;
+                }
+
                 if (method_exists($this, $method)) {
                     if (str_contains($e->getMessage(), 'must be of type')) {
                         // There is no method accepting this data. This might be because it is a virtual column that gets
