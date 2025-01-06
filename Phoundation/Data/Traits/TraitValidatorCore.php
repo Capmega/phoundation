@@ -20,6 +20,7 @@ use Phoundation\Cli\Cli;
 use Phoundation\Core\Core;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\NoKeySelectedException;
@@ -35,6 +36,7 @@ use Phoundation\Utils\Strings;
 use ReflectionProperty;
 use Stringable;
 
+
 trait TraitValidatorCore
 {
     use TraitDataDefinitions {
@@ -44,6 +46,7 @@ trait TraitValidatorCore
     use TraitDataMaxStringSize;
     use TraitDataMetaColumns;
     use TraitDataSourceArray;
+    use TraitDataIgnoreIterator;
 
 
     /**
@@ -859,6 +862,25 @@ trait TraitValidatorCore
 
 
     /**
+     * This will add the specified fields to the ignore list
+     *
+     * @param IteratorInterface|ArrayableInterface|array|string|null $fields
+     *
+     * @return $this
+     */
+    public function ignoreFields(IteratorInterface|ArrayableInterface|array|string|null $fields): static
+    {
+        $fields = Arrays::force($fields);
+
+        foreach ($fields as $field) {
+            $this->getIgnoreObject(true)->append(true, $field);
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Called at the end of defining all validation rules.
      *
      * This method will check the failures array and if any failures were registered, it will throw an exception
@@ -885,21 +907,44 @@ trait TraitValidatorCore
         foreach ($this->source as $field => $value) {
             // Unprocessed fields
             if ($require_clean_source) {
-                // Ignore the __csrf field
-                if ($field !== '__csrf') {
-                    if (!in_array($field, $this->selected_fields)) {
-                        // These fields were never selected, so we don't know them. Are they meta-columns? If so, ignore
-                        // them because they will have been set manually (DataEntry::apply() will ignore meta columns)
-                        if (empty($this->meta_columns) or !in_array($field, $this->meta_columns)) {
-                            $unclean[$field] = tr('The field ":field" with value ":value" is unknown', [
+                // Ignore fields?
+                if ($this->ignore?->getCount()) {
+                    if ($this->ignore->keyExists($field)) {
+                        if (in_array($field, $this->selected_fields)) {
+                            // These fields were specified to be skipped but also selected!
+                            throw new ValidatorException(tr('Cannot validate because the field ":field" was specified to be ignored but it was also selected for validation', [
                                 ':field' => $field,
-                                ':value' => $value,
-                            ]);
-
-                            unset($this->source[$field]);
-                            continue;
+                            ]));
                         }
+
+                        // This field should be ignored
+                        unset($this->source[$field]);
+                        continue;
                     }
+                }
+
+                switch ($field) {
+                    case '__csrf':
+                        // no break
+
+                    case 'submit':
+                        // These fields are always ignored
+                        break;
+
+                    default:
+                        if (!in_array($field, $this->selected_fields)) {
+                            // These fields were never selected, so we don't know them. Are they meta-columns? If so, ignore
+                            // them because they will have been set manually (DataEntry::apply() will ignore meta columns)
+                            if (empty($this->meta_columns) or !in_array($field, $this->meta_columns)) {
+                                $unclean[$field] = tr('The field ":field" with value ":value" is unknown', [
+                                    ':field' => $field,
+                                    ':value' => $value,
+                                ]);
+
+                                unset($this->source[$field]);
+                                continue;
+                            }
+                        }
                 }
             }
 

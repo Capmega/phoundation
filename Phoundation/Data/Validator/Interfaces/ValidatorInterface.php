@@ -17,9 +17,11 @@ declare(strict_types=1);
 namespace Phoundation\Data\Validator\Interfaces;
 
 use PDOStatement;
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Interfaces\IteratorBaseInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
@@ -1323,4 +1325,31 @@ interface ValidatorInterface extends IteratorBaseInterface
      * @return static
      */
     public function isNotNull(): static;
+
+    /**
+     * This will add the specified fields to the ignore list
+     *
+     * @param IteratorInterface|ArrayableInterface|array|string|null $fields
+     *
+     * @return $this
+     */
+    public function ignoreFields(IteratorInterface|ArrayableInterface|array|string|null $fields): static;
+
+    /**
+     * Returns the ignore list
+     *
+     * @param bool $force
+     *
+     * @return IteratorInterface|null
+     */
+    public function getIgnoreObject(bool $force = false): ?IteratorInterface;
+
+    /**
+     * Sets the ignore list
+     *
+     * @param IteratorInterface|null $ignore
+     *
+     * @return static
+     */
+    public function setIgnoreObject(?IteratorInterface $ignore): static;
 }
