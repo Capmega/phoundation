@@ -449,6 +449,11 @@ class Core implements CoreInterface
             // Web client here. Should ALWAYS go to web/index.php, return its grandparent directory.
             $path = dirname(dirname($_SERVER['SCRIPT_FILENAME']));
 
+            while (str_contains($path, '/data')) {
+                // We're inside a data directory. Keep moving up
+                $path = dirname($path);
+            }
+
             // Ensure PHO_DIRECTORY is defined, as on CLI the "pho" command would do this
             define('PHO_DIRECTORY', $path);
         }
