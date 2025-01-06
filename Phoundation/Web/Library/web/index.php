@@ -124,7 +124,7 @@ use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Routing\RoutingParameters;
 use Templates\Phoundation\Mdb\Mdb;
 
-require('../../../../../vendor/autoload.php');
+require(substr($_SERVER['DOCUMENT_ROOT'], 0, -4) . 'vendor/autoload.php');
 
 
 // Setup URL translations map
