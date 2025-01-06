@@ -942,7 +942,7 @@ trait TraitValidatorCore
                                 ]);
 
                                 unset($this->source[$field]);
-                                continue;
+                                continue 2;
                             }
                         }
                 }
