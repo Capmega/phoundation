@@ -365,7 +365,36 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
     /**
      * Checks the source for PhoMetaTest info and if it matches a specified component.
      *
-     * If it does, it will remove that PhoMetaTest, and record the test result in the required database.
+     * Returns true if a test was found, false otherwise
+     *
+     * @param string|null $component
+     *
+     * @return bool
+     */
+    public function containsTest(?string $component = null): bool
+    {
+        $test_data = isset_get($this->getSource(true)['data']['test']);
+
+        if (!isset($test_data)) {
+            return false;
+        }
+
+        if ($component) {
+            if ($test_data['component'] === $component) {
+                return true;
+
+            } else {
+                return false;
+            }
+        }
+
+        // No component specified, test data is set
+        return true;
+    }
+
+
+    /**
+     * Removes the PhoMetaTest data for a specified component, and records the test result in the required database.
      *
      * Returns true if a test was found, false otherwise
      *
