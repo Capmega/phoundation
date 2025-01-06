@@ -229,6 +229,11 @@ class PhoSocketServerCore implements PhoSocketServerInterface
                                         ->bind($this->listen_address, $this->listen_port)
                                         ->listen();
 
+        Log::success(tr('Socket server is now listening on ":address::port"', [
+            ':address' => $this->listen_address,
+            ':port'    => $this->listen_port,
+        ]));
+
         return $this;
     }
 
