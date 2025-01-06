@@ -29,6 +29,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FileUploadException;
 use Phoundation\Filesystem\Exception\FileUploadHandlerException;
 use Phoundation\Filesystem\PhoDirectory;
@@ -458,6 +459,7 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
      * Validates each uploaded file individually
      *
      * @return static
+     * @todo implement file validations!
      */
     protected function validateFiles(): static
     {
@@ -480,6 +482,7 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
                         $failures[] = $e;
                     }
                 }
+
             } catch (ValidationFailedException $e) {
                 // Add all failures together
                 $failures[] = $e;
@@ -487,6 +490,7 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
         }
 
         if (count($failures)) {
+throw new UnderConstructionException(tr('IMPLEMENT FILE VALIDATIONS'));
             // Validation failed! Gather all failure data and throw it in one exception
             $data = [];
 
