@@ -2583,7 +2583,7 @@ class Core implements CoreInterface
         // This class requires running with root privileges
         if (!Core::processIsRoot()) {
             throw ProcessRequiresRootException::new(tr('This process requires root privileges to execute correctly.'))
-                                              ->setWarning(Core::inBootState());
+                                              ->setWarning(!Core::inBootState());
         }
     }
 
