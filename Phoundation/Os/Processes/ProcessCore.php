@@ -621,7 +621,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessInterfac
         $command     = Strings::ensureEndsNotWith($command, ';');
 
         if ($this->debug) {
-            Log::printr(Strings::untilReverse($this->getFullCommandLine(), 'exit '));
+            Log::printr(Strings::untilReverse($this->getFullCommandLine(), 'exit '), echo_header: false);
         }
 
         Log::action(tr('Executing command ":commands" using passthru()', [
