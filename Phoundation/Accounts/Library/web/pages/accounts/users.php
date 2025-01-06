@@ -15,6 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\FilterForm;
+use Phoundation\Accounts\Users\User;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
@@ -43,27 +44,46 @@ $filters_card = Card::new()
 if (Request::isPostRequestMethod()) {
     // Validate POST
     $post = PostValidator::new()
-                         ->select('accounts_users_length')->isOptional()->isNumeric()    // This is paging length, ignore
-                         ->select('submit')->isOptional()->isVariable()
+                         ->ignoreFields('accounts_users_length') // This is paging length, ignore
                          ->select('id')->isOptional()->isArray()->eachField()->isDbId()
                          ->validate();
 
     try {
         // Process buttons
-        switch ($post['submit']) {
+        switch (PostValidator::new()->getSubmitButton()) {
+            case tr('Lock'):
+                if ($post['id']) {
+                    foreach ($post['id'] as $id) {
+                        $user = User::new($id)->lock();
+
+                        Response::getFlashMessagesObject()
+                                ->addSuccess(tr('The user ":user" has been locked', [
+                                    ':user' => $user->getName()
+                                ]));
+                    }
+
+                    Response::redirect();
+                }
+
+                Response::getFlashMessagesObject()->addWarning(tr('No users selected to be locked'));
+                Response::redirect();
+
             case tr('Delete'):
-                // Delete selected users
-                $count = Users::directOperations()->deleteKeys($post['id']);
+                if ($post['id']) {
+                    foreach ($post['id'] as $id) {
+                        $user = User::new($id)->delete();
 
-                Response::getFlashMessagesObject()->addSuccess(tr('Deleted ":count" users', [':count' => $count]));
-                Response::redirect('this');
+                        Response::getFlashMessagesObject()
+                                ->addSuccess(tr('The user ":user" has been deleted', [
+                                    ':user' => $user->getName()
+                                ]));
+                    }
 
-            case tr('Undelete'):
-                // Undelete selected users
-                $count = Users::directOperations()->undeleteKeys($post['id']);
+                    Response::redirect();
+                }
 
-                Response::getFlashMessagesObject()->addSuccess(tr('Undeleted ":count" users', [':count' => $count]));
-                Response::redirect('this');
+                Response::getFlashMessagesObject()->addWarning(tr('No users selected to be deleted'));
+                Response::redirect();
         }
 
     } catch (ValidationFailedException $e) {
@@ -97,7 +117,8 @@ $builder = $users->getQueryBuilder()
 // Build "users" table
 $buttons = Buttons::new()
                   ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html')
-                  ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true);
+                  ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true)
+                  ->addButton(tr('Lock')  , EnumDisplayMode::warning, EnumButtonType::submit, true, true);
 
 // TODO Automatically re-select items if possible
 //    ->select($post['id']);

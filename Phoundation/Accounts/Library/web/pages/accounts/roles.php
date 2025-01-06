@@ -14,31 +14,69 @@
 
 declare(strict_types=1);
 
+use Phoundation\Accounts\Rights\Right;
+use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Accounts\Users\FilterForm;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
-use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 
 // Build filter card
-$filters    = FilterForm::new();
-$defintions = $filters->getDefinitionsObject();
-$defintions->get('roles_id')->setRender(false);
-$defintions->get('rights_id')->setSize(6);
-$defintions->get('status')->setSize(6);
+$filters = FilterForm::new();
+$filters->getDefinitionsObject()->setRender('roles_id', false)
+                                ->setSize('rights_id' , 6)
+                                ->setSize('status'    , 6);
 
 $filters_card = Card::new()
                ->setCollapseSwitch(true)
                ->setTitle('Users filters')
                ->setContent($filters);
+
+
+// Validate POST and submit
+if (Request::isPostRequestMethod()) {
+    try {
+        $post = PostValidator::new()
+                             ->ignoreFields('accounts_roles_length')
+                             ->select('id')->isOptional()->isArray()->eachField()->isDbId()
+                             ->validate();
+
+        switch (PostValidator::new()->getSubmitButton()) {
+            case tr('Delete'):
+                if ($post['id']) {
+                    foreach ($post['id'] as $id) {
+                        $role = Role::new($id)->delete();
+
+                        Response::getFlashMessagesObject()
+                                ->addSuccess(tr('The role ":role" has been deleted', [
+                                    ':role' => $role->getName()
+                                ]));
+                    }
+
+                    Response::redirect();
+                }
+
+                Response::getFlashMessagesObject()->addWarning(tr('No roles selected to be deleted'));
+                Response::redirect();
+        }
+
+    } catch (IncidentsException | ValidationFailedException $e) {
+        // Oops! Show validation errors and remain on the page
+        Response::getFlashMessagesObject()->addMessage($e);
+    }
+}
 
 
 // Build "roles" card
