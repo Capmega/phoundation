@@ -1807,30 +1807,6 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for meta_state
-     *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
-     *
-     * @return DefinitionInterface
-     */
-    public static function getDivider(?DataEntryInterface $data_entry, ?string $column = null): DefinitionInterface
-    {
-        if (!$column) {
-            $column = 'divider' . Strings::getUuid();
-        }
-
-        return Definition::new($data_entry, $column)
-                         ->setVirtual(true)
-                         ->setElement(EnumElement::hr)
-                         ->addValidationFunction(function (ValidatorInterface $validator) {
-                             // Nothing to validate, this is not an input
-                             $validator->doNotValidate();
-                         });
-    }
-
-
-    /**
      * Returns a Definition object for created_by
      *
      * @param DataEntryInterface|null $data_entry
@@ -1957,7 +1933,6 @@ class DefinitionFactory
                          ->setTooltip(tr('This column contains a cache identifier value for this object. This information usually is of no importance to normal users'))
                          ->setLabel(tr('Meta state'));
     }
-
 
 
     /**
