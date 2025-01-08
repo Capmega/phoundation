@@ -170,7 +170,7 @@ interface SqlInterface extends DatabaseInterface
     /**
      * Delete the specified table entry
      *
-     * This is a simplified delete method to speed up writing basic insert queries
+     * This is a simplified delete method to speed up writing basic delete queries
      *
      * @param string $table
      * @param array  $execute
