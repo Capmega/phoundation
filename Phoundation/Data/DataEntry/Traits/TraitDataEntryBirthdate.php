@@ -18,16 +18,16 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 
-use Phoundation\Date\PhoDate;
+use Phoundation\Date\PhoDateTime;
 
 trait TraitDataEntryBirthdate
 {
     /**
      * Returns the birthdate day for this object
      *
-     * @return PhoDate|null
+     * @return PhoDateTime|string|null
      */
-    public function getBirthdate(): ?PhoDate
+    public function getBirthdate(): PhoDateTime|string|null
     {
         return $this->getTypesafe('date', 'birthdate');
     }
@@ -36,12 +36,16 @@ trait TraitDataEntryBirthdate
     /**
      * Sets the birthdate day for this object
      *
-     * @param PhoDate|null $birthdate
+     * @param PhoDateTime|string|null $birthdate
      *
      * @return static
      */
-    public function setBirthdate(?PhoDate $birthdate): static
+    public function setBirthdate(PhoDateTime|string|null $birthdate): static
     {
+        if ($birthdate instanceof PhoDateTime) {
+            $birthdate->format('Y-m-d');
+        }
+
         return $this->set($birthdate, 'birthdate');
     }
 }
