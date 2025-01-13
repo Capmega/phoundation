@@ -76,7 +76,7 @@ class Task extends DataEntry implements TaskInterface
      *
      * @var TaskInterface|null $parent
      */
-    protected TaskInterface|null $parent;
+    protected TaskInterface|null $parent = null;
 
 
     /**
@@ -554,7 +554,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getParent(): ?static
     {
-        if (!isset($this->parent)) {
+        if (empty($this->parent)) {
             $this->parent = static::loadOrNull($this->getParentsId());
         }
 
