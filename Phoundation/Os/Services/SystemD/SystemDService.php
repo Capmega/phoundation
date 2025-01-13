@@ -120,8 +120,6 @@ class SystemDService extends Service
      */
     public function __construct(?array $configuration = null)
     {
-        Core::checkProcessIsRoot();
-
         parent::__construct();
 
         $this->detectOsProcessName()
@@ -404,24 +402,30 @@ WantedBy=multi-user.target');
         if ($this->processIsService()) {
             return parent::execute($cycle);
         }
+
         // This process is NOT yet a service. Instead of executing the specified cycle, execute SystemD commands
         $argv = ArgvValidator::new()
                              ->select('command')
                              ->isInArray(['start', 'stop', 'restart', 'status', 'show'])
                              ->validate();
+
         switch ($argv['command']) {
             case 'start':
                 $this->start();
                 break;
+
             case 'restart':
                 $this->restart();
                 break;
+
             case 'stop':
                 $this->stop();
                 break;
+
             case 'status':
                 $this->status();
                 break;
+
             case 'show':
                 $this->show();
                 break;
@@ -438,6 +442,7 @@ WantedBy=multi-user.target');
      */
     public function enable(): static
     {
+        Core::checkProcessIsRoot();
         $this->ensureSystemFileInstalled();
 
         Log::action(tr('Enabling auto startup for SystemD service ":service"', [
@@ -460,6 +465,8 @@ WantedBy=multi-user.target');
      */
     public function disable(): static
     {
+        Core::checkProcessIsRoot();
+
         Log::action(tr('Disabling auto startup for SystemD service ":service"', [
             ':service' => $this->getOsProcessName()
         ]));
@@ -480,10 +487,13 @@ WantedBy=multi-user.target');
      */
     public function start(): static
     {
+        Core::checkProcessIsRoot();
         $this->ensureSystemFileInstalled();
+
         Log::action(tr('Starting service ":service" as a SystemD service', [
             ':service' => $this->getOsProcessName()
         ]));
+
         SystemCtl::new()
                  ->setDebug(true)
                  ->setOsProcessName($this->getOsProcessName())
@@ -500,7 +510,9 @@ WantedBy=multi-user.target');
      */
     public function restart(): static
     {
+        Core::checkProcessIsRoot();
         $this->ensureSystemFileInstalled();
+
         SystemCtl::new()
                  ->setOsProcessName($this->getOsProcessName())
                  ->restart();
@@ -516,6 +528,8 @@ WantedBy=multi-user.target');
      */
     public function stop(): static
     {
+        Core::checkProcessIsRoot();
+
         Log::action(tr('Stopping SystemD service ":service"', [
             ':service' => $this->getOsProcessName()
         ]));
