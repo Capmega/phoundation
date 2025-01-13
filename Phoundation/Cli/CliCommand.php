@@ -818,7 +818,8 @@ class CliCommand
 
         // Strip the service command arguments
         if ($strip_service_arguments) {
-            Arrays::nextValue($args, '-S', true);
+            Arrays::nextValue($args, '-S'       , true);
+            Arrays::nextValue($args, '--service', true);
         }
 
         // Add all arguments escaped
