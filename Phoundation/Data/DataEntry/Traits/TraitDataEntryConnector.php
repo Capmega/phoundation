@@ -19,6 +19,9 @@ namespace Phoundation\Data\DataEntry\Traits;
 
 trait TraitDataEntryConnector
 {
+    use TraitDataEntryDatabase;
+
+
     /**
      * Returns the connector for this object
      *
