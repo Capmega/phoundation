@@ -1654,7 +1654,7 @@ class Request implements RequestInterface
     {
         switch (static::getRequestType()) {
             case EnumRequestTypes::api:
-                Log::information(tr('Executing API page ":target" on stack level ":level" with in language ":language" and sending output as API page', [
+                Log::action(tr('Executing API page ":target" on stack level ":level" with in language ":language" and sending output as API page', [
                     ':target'   => Strings::from(static::getTarget(), '/web/'),
                     ':level'    => static::$stack_level,
                     ':language' => LANGUAGE,
@@ -1671,7 +1671,7 @@ class Request implements RequestInterface
                     Session::startup();
                 }
 
-                Log::information(tr('Executing AJAX page ":target" on stack level ":level" with in language ":language" and sending output as AJAX API page', [
+                Log::action(tr('Executing AJAX page ":target" on stack level ":level" with in language ":language" and sending output as AJAX API page', [
                     ':target'   => Strings::from(static::getTarget(), '/web/'),
                     ':level'    => static::$stack_level,
                     ':language' => LANGUAGE,
@@ -1694,7 +1694,7 @@ class Request implements RequestInterface
                     Response::getFlashMessagesObject()->addSource(Session::getFlashMessagesObject());
                 }
 
-                Log::information(tr('Executing HTML page ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
+                Log::action(tr('Executing HTML page ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
                     ':target'   => Strings::from(static::getTarget(), '/web/'),
                     ':template' => static::$template->getName(),
                     ':level'    => static::$stack_level,
