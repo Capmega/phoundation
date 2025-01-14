@@ -806,18 +806,33 @@ class User extends DataEntry implements UserInterface
                         ->save();
 
             } else {
-                Incident::new()
-                        ->setSeverity(EnumSeverity::low)
-                        ->setType('security')
-                        ->setTitle(tr('User modified'))
-                        ->setBody(tr('The administrator ":admin" modified the user ":user", see audit ":meta_id" for more information', [
-                            ':admin'   => Session::getUserObject()->getLogId(),
-                            ':user'    => $this->getLogId(),
-                            ':meta_id' => $this->getMetaId(),
-                        ]))
-                        ->setDetails(['user' => $this->getLogId()])
-                        ->setNotifyRoles('accounts')
-                        ->save();
+                if (Session::getUserObject()->getId() === $this->getId()) {
+                    Incident::new()
+                            ->setSeverity(EnumSeverity::low)
+                            ->setType('security')
+                            ->setTitle(tr('User modified'))
+                            ->setBody(tr('The user ":user" modified their account, see audit ":meta_id" for more information', [
+                                ':user'    => $this->getLogId(),
+                                ':meta_id' => $this->getMetaId(),
+                            ]))
+                            ->setDetails(['user' => $this->getLogId()])
+                            ->setNotifyRoles('accounts')
+                            ->save();
+
+                } else {
+                    Incident::new()
+                            ->setSeverity(EnumSeverity::low)
+                            ->setType('security')
+                            ->setTitle(tr('User modified'))
+                            ->setBody(tr('The administrator ":admin" modified the user ":user", see audit ":meta_id" for more information', [
+                                ':admin'   => Session::getUserObject()->getLogId(),
+                                ':user'    => $this->getLogId(),
+                                ':meta_id' => $this->getMetaId(),
+                            ]))
+                            ->setDetails(['user' => $this->getLogId()])
+                            ->setNotifyRoles('accounts')
+                            ->save();
+                }
             }
         }
     }
