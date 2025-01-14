@@ -2589,6 +2589,21 @@ class Core implements CoreInterface
 
 
     /**
+     * Checks if the current process is running as root. If not, the current process will be restarted with sudo
+     *
+     * @return void
+     * @throws ProcessRequiresRootException
+     */
+    public static function ensureProcessIsRoot(): void
+    {
+        // This class requires running with root privileges
+        if (!Core::processIsRoot()) {
+            CliCommand::restartAsRoot();
+        }
+    }
+
+
+    /**
      * Returns the UID for the pho command
      *
      * @return int The user id for this process
