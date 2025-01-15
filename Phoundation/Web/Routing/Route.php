@@ -1146,7 +1146,7 @@ class Route
     {
         // Do we allow any $_GET queries from the REQUEST_URI?
         if (!static::$pass_get_variables) {
-            if (!GetValidator::new()->isEmpty()) {
+            if (GetValidator::new()->isNotEmpty()) {
                 // Client specified variables on a URL that does not allow queries, cancel the match
                 Log::warning(tr('Matched route ":route" does not allow query variables while client specified them, cancelling match', [
                     ':route' => static::$route,
