@@ -22,9 +22,12 @@ declare(strict_types=1);
 namespace Phoundation\Core\Hooks;
 
 use Phoundation\Core\Core;
+use Phoundation\Core\Hooks\Exception\HooksException;
 use Phoundation\Core\Hooks\Interfaces\HookInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Exception\FileNotExistException;
+use Phoundation\Filesystem\Exception\FileNotReadableException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
@@ -188,16 +191,6 @@ class Hook implements HookInterface
             return null;
         }
 
-        // Ensure its readable, not a path, within the filesystem restrictions, etc...
-        try {
-            $file->checkReadable();
-
-        } catch (FilesystemException $e) {
-            Log::Warning(tr('Failed to execute hook ":hook". The file exists, but is not readable', [
-                ':hook' => $hook,
-            ]));
-        }
-
         // Try executing it!
         Log::action(tr('Executing hook ":hook"', [
             ':hook' => $this->class . $hook,
@@ -207,13 +200,22 @@ class Hook implements HookInterface
             return execute_hook($file->getSource(), $this);
 
         } catch (Throwable $e) {
-            Log::error(tr('Execution of hook ":hook" failed with the following exception', [
+            // Ensure its readable, not a path, within the filesystem restrictions, etc...
+            try {
+                $file->checkReadable();
+
+            } catch (FileNotReadableException $e) {
+                Log::Warning(tr('Failed to execute hook ":hook". The file exists, but is not readable', [
+                    ':hook' => $hook,
+                ]));
+
+            } catch (Throwable $e) {
+                // fall through
+            }
+
+            throw HooksException::new(tr('Execution of hook ":hook" failed', [
                 ':hook' => $file
-            ]));
-
-            Log::error($e);
-
-            throw $e;
+            ]), $e);
         }
     }
 
