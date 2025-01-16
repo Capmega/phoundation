@@ -2620,7 +2620,7 @@ class User extends DataEntry implements UserInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): void
     {
-        $definitions->get('status')->setNullDefault(tr('Ok'));
+        $definitions->get('status')->setNullDisplay(tr('Ok'));
         $definitions->add(Definition::new($this, 'remote_id')
                                     ->setOptional(true)
                                     ->setRender(false)
@@ -2633,7 +2633,7 @@ class User extends DataEntry implements UserInterface
                                     ->setDbNullInputType(EnumInputType::text)
                                     ->addClasses('text-center')
                                     ->setSize(3)
-                                    ->setNullDefault(tr('Never signed yet'))
+                                    ->setNullDisplay(tr('Never signed yet'))
                                     ->setLabel('Last sign in'))
 
                     ->add(Definition::new($this, 'sign_in_count')
@@ -2648,6 +2648,7 @@ class User extends DataEntry implements UserInterface
                                     ->setOptional(true)
                                     ->setDisabled(true)
                                     ->setInputType(EnumInputType::number)
+                                    ->setMin(0)
                                     ->setNullDefault(0)
                                     ->addClasses('text-center')
                                     ->setSize(3)
@@ -2658,7 +2659,7 @@ class User extends DataEntry implements UserInterface
                                     ->setDisabled(true)
                                     ->setInputType(EnumInputType::datetime_local)
                                     ->setDbNullInputType(EnumInputType::text)
-                                    ->setNullDefault(tr('Not locked'))
+                                    ->setNullDisplay(tr('Not locked'))
                                     ->addClasses('text-center')
                                     ->setSize(3)
                                     ->setLabel(tr('Locked until')))
@@ -2992,10 +2993,11 @@ class User extends DataEntry implements UserInterface
                                     }))
 
                     ->add(DefinitionFactory::newUrl($this, 'redirect')
+                                           // Normal users always start with "/force-password-update.html" URL because they lack a password, but remote users should already have a password.
                                            ->setSize(4)
                                            ->setDataSource(Url::new('system/accounts/users/redirect/autosuggest.json')->makeAjax())
                                            ->setInputType(EnumInputType::auto_suggest)
-                                           ->setInitialDefault(Config::getString('security.accounts.users.new.defaults.redirect', '/force-password-update.html'))
+                                           ->setInitialDefault($this->getRemoteId() ? null : Url::new(Config::getString('security.accounts.users.new.defaults.redirect', '/force-password-update.html'))->makeWww())
                                            ->setLabel(tr('Redirect URL'))
                                            ->setHelpGroup(tr('Account information'))
                                            ->setHelpText(tr('The URL where this user will be forcibly redirected to upon sign in')))
@@ -3021,7 +3023,7 @@ class User extends DataEntry implements UserInterface
                                            ->setSize(2)
                                            ->setDisabled(true)
                                            ->setDbNullInputType(EnumInputType::text)
-                                           ->setNullDefault(tr('Not verified'))
+                                           ->setNullDisplay(tr('Not verified'))
                                            ->addClasses('text-center')
                                            ->setLabel(tr('Account verified on'))
                                            ->setHelpGroup(tr('Account information'))
@@ -3062,7 +3064,7 @@ class User extends DataEntry implements UserInterface
                                     ->setCliAutoComplete(true)
                                     ->setInputType(EnumInputType::password)
                                     ->setMaxlength(64)
-                                    ->setNullDefault(false)
+                                    ->setNullDisplay(false)
                                     ->setHelpText(tr('The password for this user'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isStrongPassword();

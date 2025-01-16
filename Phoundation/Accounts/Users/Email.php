@@ -224,7 +224,7 @@ class Email extends DataEntry implements EmailInterface
                                            ->setReadonly(true)
                                            ->setSize(3)
                                            ->setDbNullInputType(EnumInputType::text)
-                                           ->setNullDefault(tr('Not verified'))
+                                           ->setNullDisplay(tr('Not verified'))
                                            ->addClasses('text-center')
                                            ->setLabel(tr('Verified on'))
                                            ->setHelpGroup(tr('Account information'))
