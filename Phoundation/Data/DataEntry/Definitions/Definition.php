@@ -2578,7 +2578,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns if this column should be stored with NULL in the database if empty
+     * Returns the default value for this column if the value is NULL
      *
      * @return string|float|int|bool|null
      */
@@ -2589,7 +2589,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets if this column should be stored with NULL in the database if empty
+     * Sets the default value for this column if the value is NULL
      *
      * @note Defaults to false
      *
@@ -2600,6 +2600,58 @@ class Definition implements DefinitionInterface
     public function setNullDefault(string|float|int|bool|null $value = null): static
     {
         return $this->setKey($value, 'null_default');
+    }
+
+
+    /**
+     * Returns the value that will be displayed when the real value is NULL
+     *
+     * @return string|float|int|bool|null
+     */
+    public function getNullDisplay(): string|float|int|bool|null
+    {
+        return isset_get_typed('string|float|int|bool|null', $this->source['null_display']);
+    }
+
+
+    /**
+     * Sets the value that will be displayed when the real value is NULL
+     *
+     * @note Defaults to false
+     *
+     * @param string|float|int|bool|null $value
+     *
+     * @return static
+     */
+    public function setNullDisplay(string|float|int|bool|null $value = null): static
+    {
+        return $this->setKey($value, 'null_display');
+    }
+
+
+    /**
+     * Returns if this column should be stored with NULL in the database if empty
+     *
+     * @return bool
+     */
+    public function getForceNull(): bool
+    {
+        return (bool) isset_get_typed('bool', $this->source['force_null'], false);
+    }
+
+
+    /**
+     * Sets if this column should be stored with NULL in the database if empty
+     *
+     * @note Defaults to false
+     *
+     * @param bool $value
+     *
+     * @return static
+     */
+    public function setForceNull(bool $value): static
+    {
+        return $this->setKey($value, 'force_null');
     }
 
 
@@ -2788,75 +2840,48 @@ class Definition implements DefinitionInterface
      * Validate this column according to the column definitions
      *
      * @param ValidatorInterface $validator
-     * @param string|null        $prefix
      *
      * @return bool
      */
-    public function validate(ValidatorInterface $validator, ?string $prefix): bool
+    public function validate(ValidatorInterface $validator): bool
     {
         if ($this->isMeta()) {
             // This column is metadata and should not be modified or validated, plain ignore it.
             return false;
         }
 
-        // Checkbox inputs always are boolean and does this column have a prefix?
-        $bool = ($this->getInputType()?->value === 'checkbox');
+        // Get column and ensure checkbox inputs always are boolean
+        $column = $this->validateGetColumn($validator);
+        $bool   = ($this->getInputType()?->value === 'checkbox');
 
-        if ($validator instanceof ArgvValidatorInterface) {
-            // These are arguments directly from the command line, we need to interpret the keys using CLI definitions
-            $column =  $this->getCliColumn();
+        if (!$column) {
+            return false;
+        }
 
-            if (!$column) {
-                // This column name is empty. Coming from static::getCliColumn() this means that this column should NOT
-                // be validated nor used
+        // Select the column to validate
+        $validator->select($column, !$bool);
+
+        // Process empty values
+        $this->validateProcessEmptyValues($validator, $column);
+
+        if ($this->data_entry?->isApplying()) {
+            // If we are applying to a DataEntry, READONLY, DISABLED, and NORENDER columns are treated differently
+            if ($this->validateProcessAppliedReadonlyDisabled($validator, $column)) {
+                // Yeah, this column is readonly / disabled and should not be validated (and not saved either)
                 return false;
             }
 
-            // Column name prefix is an HTML form array prefix? Then close the array
-            if (str_ends_with((string) $prefix, '[')) {
-                $column .= ']';
+            if ($this->validateProcessAppliedNotRendering($validator, $column)) {
+                // This column does not render so should not be validated (and not saved either)
+                return false;
             }
-
-        } else {
-            // These arguments are either from GetValidator, PostValidator, or the ArrayValidator.
-            // Use standard column name
-            $column = $this->getColumn();
-        }
-
-        // Set the data entry id, the column prefix, and select the column
-        // TODO Should the id setting and column prefix setting not be done before each column definition->validate() ?
-        $validator->setId($this->data_entry?->getId())
-                  ->setColumnPrefix($prefix)
-                  ->select($column, !$bool);
-
-        // Should this value be forced NULL in the database if empty?
-        if (!$validator->get($column, false)) {
-            if ($this->getNullDefault()) {
-                // Yep!
-                $validator->set(null, $column);
-            }
-        }
-
-        if ($this->data_entry?->isApplying()) {
-            // If we are applying a user data blob, READONLY, DISABLED, and NORENDER columns are treated differently
-            if ($this->getReadonly() or $this->getDisabled()) {
-                // This column CAN be submitted, but will not be modified, so validation is not required
-                // This behavior changes if a static value was specified, though, check that here.
-                if (!$this->processStaticValue($validator, $prefix, $column)) {
-                    // Yeah, just your standard "readonly / disabled" column, do not validate it
-                    $validator->doNotValidate();
-                    return false;
-                }
-            }
-
-            $this->processAppliedNotRendering($validator, $prefix, $column);
 
         } else {
             // Does this column require a static value?
-            $this->processStaticValue($validator, $prefix, $column);
+            $this->validateProcessStaticValue($validator, $column);
         }
 
-        if ($this->processNoValidationOrDefaults($validator, $prefix, $column)) {
+        if ($this->validateProcessNoValidationOrDefaults($validator, $column)) {
             // Apply all validations
             foreach ($this->validations as $validation) {
                 $validation($validator);
@@ -2868,59 +2893,153 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Process not rendering columns
+     * Returns the column that should be validated
      *
-     * @param ValidatorInterface $validator
-     * @param string|null        $prefix
-     * @param string             $column
+     * @note This method will return NULL if the column name is empty, which means that this column should NOT be
+     *       validated nor used
+     *
+     * @param ValidatorInterface $validator The validator that will validate all values
+     *
+     * @return string|null                  The column name that should be validated
+     */
+    protected function validateGetColumn(ValidatorInterface $validator): ?string
+    {
+        if ($validator instanceof ArgvValidatorInterface) {
+            // These are arguments directly from the command line, we need to interpret the keys using CLI definitions
+            $column =  $this->getCliColumn();
+
+            if (!$column) {
+                // This column name is empty. Coming from static::getCliColumn() this means that this column should NOT
+                // be validated nor used
+                return null;
+            }
+
+            // Column name prefix is an HTML form array prefix? Then close the array
+            if (str_ends_with((string) $validator->getColumnPrefix(), '[')) {
+                $column .= ']';
+            }
+
+            return $column;
+        }
+
+        // These arguments are either from GetValidator, PostValidator, or the ArrayValidator.
+        // Use standard column name
+        return $this->getColumn();
+    }
+
+
+    /**
+     * Processes values that are empty, before continuing validation
+     *
+     * This method will process the current colum if its empty:
+     *   If the value is considered empty and this definition has force_null set, the empty will be converted to NULL.
+     *
+     *   If the value is NULL, and this definition has null_default set, the value will be updated to whatever
+     *   null_default is
+     *
+     * @param ValidatorInterface $validator The validator containing all validations for all columns
+     * @param string             $column    The column being processed
      *
      * @return void
      */
-    protected function processAppliedNotRendering(ValidatorInterface $validator, ?string $prefix, string $column): void
+    protected function validateProcessEmptyValues(ValidatorInterface $validator, string $column): void
     {
-        if (!$this->getRender()) {
-            // This column isn't rendered (so not sent to the user) which means that it CANNOT be submitted.
-            // If the user submitted it, they're messing around, don't allow it!
-            if ($validator->get($column, false)) {
-                // This column isn't rendered and should not have a value whilst applying unless forced processing.
-                if (!$this->getForcedProcessing()) {
-                    // Frack...
-                    Incident::new()
-                            ->setSeverity(EnumSeverity::high)
-                            ->setType('Non rendered data submitted')
-                            ->setTitle(tr('User submitted column ":column" which was not rendered and MAY NOT be specified', [
-                                ':column' => $column
-                            ]))
-                            ->setDetails([
-                                'column' => $column,
-                                'data'   => $validator->getSource()
-                            ])
-                            ->setNotifyRoles('security')
-                            ->save();
-
-                    $validator->addFailure(tr('The field ":field" is unknown', [':field' => $column]));
-                }
+        if (!$validator->get($column, false)) {
+            // If this column is empty, should it be NULL?
+            if ($this->getForceNull()) {
+                $validator->set(null, $column);
             }
 
-            // Do not validate this column
-            $this->setNoValidation(true);
-
-            // Does this column require a static value?
-            $this->processStaticValue($validator, $prefix, $column);
+            // If this column is NULL, should it have a default value?
+            if ($validator->get($column, false) === null) {
+                $validator->set($this->getNullDefault(), $column);
+            }
         }
+    }
+
+
+    /**
+     * Checks if this column is readonly and/or disabled
+     *
+     * @param ValidatorInterface $validator The validator containing all validations for all columns
+     * @param string             $column    The column being processed
+     *
+     * @return bool                         True if this column is readonly or disabled and should not be validated
+     */
+    protected function validateProcessAppliedReadonlyDisabled(ValidatorInterface $validator, string $column): bool
+    {
+        // If we are applying to a DataEntry, READONLY, DISABLED, and NORENDER columns are treated differently
+        if ($this->getReadonly() or $this->getDisabled()) {
+            // This column CAN be submitted, but will not be modified, so validation is not required
+            // This behavior changes if a static value was specified, though, check that here.
+            if (!$this->validateProcessStaticValue($validator, $column)) {
+                // Yeah, this is your standard "readonly / disabled" column. Do not validate it.
+                $this->setNoValidation(true);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Process not rendering columns
+     *
+     * @param ValidatorInterface $validator The validator containing all validations for all columns
+     * @param string             $column    The column being processed
+     *
+     * @return bool                         True if this column does NOT render, false when it renders
+     */
+    protected function validateProcessAppliedNotRendering(ValidatorInterface $validator, string $column): bool
+    {
+        if ($this->getRender()) {
+            // This column renders so we're fine validating it
+            return false;
+        }
+
+        // This column isn't rendered (so not sent to the user) which means that it CANNOT be submitted.
+        // If the user submitted it, they're messing around, don't allow it!
+        if ($validator->get($column, false)) {
+            // This column isn't rendered and should not have a value whilst applying unless forced processing.
+            if (!$this->getForcedProcessing()) {
+                // Frack...
+                Incident::new()
+                        ->setSeverity(EnumSeverity::high)
+                        ->setType('Non rendered data submitted')
+                        ->setTitle(tr('User submitted column ":column" which was not rendered and MAY NOT be specified', [
+                            ':column' => $column
+                        ]))
+                        ->setDetails([
+                            'column' => $column,
+                            'data'   => $validator->getSource()
+                        ])
+                        ->setNotifyRoles('security')
+                        ->save();
+
+                $validator->addFailure(tr('The field ":field" is unknown', [':field' => $column]));
+            }
+        }
+
+        // Do not validate this column
+        $this->setNoValidation(true);
+
+        // Does this column require a static value?
+        $this->validateProcessStaticValue($validator, $column);
+
+        return true;
     }
 
 
     /**
      * Applies no-validation or default values
      *
-     * @param ValidatorInterface $validator
-     * @param string|null        $prefix
-     * @param string             $column
+     * @param ValidatorInterface $validator The validator containing all validations for all columns
+     * @param string             $column    The column being processed
      *
      * @return bool
      */
-    protected function processNoValidationOrDefaults(ValidatorInterface $validator, ?string $prefix, string $column): bool
+    protected function validateProcessNoValidationOrDefaults(ValidatorInterface $validator, string $column): bool
     {
         if ($this->getNoValidation() or $this->getIgnored()) {
             // Don't perform validations, or ignore the column completely
@@ -2949,15 +3068,18 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Attempts to set a static value for this column
+     * Attempts to set a static value from this definition for this column, returns true if a static value was set,
+     * false otherwise
      *
-     * @param ValidatorInterface $validator
-     * @param string|null        $prefix
-     * @param string             $column
+     * @note If the defined static value for this function is callable (in other words, a closure) it will be executed
+     *       and the return value will be assigned as the value for this column
      *
-     * @return bool
+     * @param ValidatorInterface $validator The ValidatorInterface object that contains the values for this definition
+     * @param string             $column    The column to process
+     *
+     * @return bool                         True if a static value was set, false otherwise
      */
-    protected function processStaticValue(ValidatorInterface $validator, ?string $prefix, string $column): bool
+    protected function validateProcessStaticValue(ValidatorInterface $validator, string $column): bool
     {
         if ($this->getValue()) {
             // For buttons, value is the button label, NOT THE DEFAULT VALUE!
@@ -2973,13 +3095,15 @@ class Definition implements DefinitionInterface
             }
 
             // This column has a static value, force the value
-            $value = $this->getValue();
+            $value  = $this->getValue();
+            $prefix = $validator->getColumnPrefix();
 
-            if (is_callable($this->getValue())) {
-                $value = ($this->getValue())($validator->getSource(), $prefix);
+            if (is_callable($value)) {
+                $value = $value($validator->getSource(), $prefix);
             }
 
-            $validator->set($value, $prefix . $column);
+            $validator->set($value, $prefix . $column)
+                      ->doNotValidate();
 
             return true;
         }
@@ -2994,8 +3118,11 @@ class Definition implements DefinitionInterface
      * If this column is a meta column, it will be readonly for user actions
      *
      * @note Defaults to false
+     *
      * @return bool
+     *
      * @see  Definition::getRender()
+     *
      */
     public function isMeta(): bool
     {

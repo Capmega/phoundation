@@ -213,6 +213,13 @@ trait TraitElementAttributes
      */
     protected DivInterface $outer_div;
 
+    /**
+     * Tracks the value to be displayed if the element value is NULL
+     *
+     * @var string|null $null_display
+     */
+    protected ?string $null_display = null;
+
 
     /**
      * Class constructor
@@ -407,8 +414,7 @@ trait TraitElementAttributes
      */
     public function getData(): IteratorInterface
     {
-        if (!isset($this->data)) {
-            // Lazy initialization
+        if (empty($this->data)) {
             $this->data = new Iterator();
         }
 
@@ -529,8 +535,7 @@ trait TraitElementAttributes
      */
     public function getAria(): IteratorInterface
     {
-        if (!isset($this->aria)) {
-            // Lazy initialization
+        if (empty($this->aria)) {
             $this->aria = new Iterator();
         }
 
@@ -772,7 +777,7 @@ trait TraitElementAttributes
      */
     public function getContent(): Stringable|string|float|int|null
     {
-        return $this->content;
+        return $this->content ?? $this->null_display;
     }
 
 
@@ -1108,7 +1113,8 @@ trait TraitElementAttributes
                  ->setAria($definition->getAria())
                  ->setDisabled($definition->getDisabled())
                  ->setReadOnly($definition->getReadonly())
-                 ->setAutoFocus($definition->getAutoFocus());
+                 ->setAutoFocus($definition->getAutoFocus())
+                 ->setNullDisplay($definition->getNullDisplay());
         }
 
         return $this->__setDefinition($definition);
@@ -1269,6 +1275,32 @@ trait TraitElementAttributes
     public function setRequired(bool $required): static
     {
         $this->required = $required;
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the HTML "null_display" element attribute
+     *
+     * @return string|null
+     */
+    public function getNullDisplay(): ?string
+    {
+        return $this->null_display;
+    }
+
+
+    /**
+     * Set the HTML "null_display" element attribute
+     *
+     * @param string|null $null_display
+     *
+     * @return static
+     */
+    public function setNullDisplay(?string $null_display): static
+    {
+        $this->null_display = $null_display;
 
         return $this;
     }

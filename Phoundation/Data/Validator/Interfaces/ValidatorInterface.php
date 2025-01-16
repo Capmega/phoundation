@@ -1183,7 +1183,7 @@ interface ValidatorInterface extends IteratorBaseInterface
      *
      * @return string|null
      */
-    public function getFieldPrefix(): ?string;
+    public function getColumnPrefix(): ?string;
 
     /**
      * Sets the field prefix value

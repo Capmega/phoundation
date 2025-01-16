@@ -757,7 +757,7 @@ class Response implements ResponseInterface
 
         $scripts = [];
 
-        // Convert the given URL (parts) to real URLs and add it to the scripts list
+        // Convert the given URL (parts) to real URLs and add it to the "scripts" list
         foreach (Arrays::force($urls, ',') as $url) {
             if (!Url::isValidUrl($url)) {
                 // Pre-process local URL's

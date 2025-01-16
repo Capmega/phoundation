@@ -657,7 +657,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
                 case 'status':
                     $definitions->add(DefinitionFactory::newStatus($this)
-                                                       ->setNullDefault(tr('Ok')));
+                                                       ->setNullDisplay(tr('Ok')));
                     break;
 
                 case 'meta_state':
@@ -1978,15 +1978,16 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             return $validator->getSource();
         }
 
+        $prefix = $this->definitions->getColumnPrefix();
+
         // Set ID so that the array validator can do unique lookups, etc.
         // Tell the validator what table this DataEntry is using and get the column prefix so that the validator knows
         // what columns to select
         $validator->setId($this->getId())
                   ->setDefinitionsObject($this->definitions)
+                  ->setColumnPrefix($prefix)
                   ->setMetaColumns($this->getMetaColumns())
                   ->setTable(static::getTable());
-
-        $prefix = $this->definitions->getColumnPrefix();
 
         // Go over each column and let the column definition do the validation since it knows the specs
         foreach ($this->definitions as $column => $definition) {
@@ -2001,7 +2002,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
             try {
                 // Execute the validations for this single definition
-                $definition->validate($validator, $prefix);
+                $definition->validate($validator);
 
             } catch (ValidationFailedException $e) {
                 throw $e;

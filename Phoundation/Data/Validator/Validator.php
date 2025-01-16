@@ -4439,7 +4439,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      *
      * @return string|null
      */
-    public function getFieldPrefix(): ?string
+    public function getColumnPrefix(): ?string
     {
         return $this->field_prefix;
     }
