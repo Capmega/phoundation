@@ -951,7 +951,7 @@ class Session implements SessionInterface
 
                 if ($user['id']) {
                     // Auto sign in user
-                    static::$user = Users::signin($user, true);
+                    static::$user = User::signin($user, true);
 
                     return true;
 
@@ -1263,28 +1263,34 @@ class Session implements SessionInterface
         // TODO Implement
         switch ($method) {
             case 'facebook':
+                // no break
+
             case 'google':
+                // no break
+
             case 'github':
-            case 'twitter':
-                return false;
+                // no break
 
             case 'email':
-                return true;
+                // no break
+
+            case 'copyright':
+                // no break
 
             case 'lost-password':
                 return true;
 
             case 'signup':
                 // no break
+
             case 'sign-up':
                 // no break
+
             case 'register':
                 // no break
+
             case 'registration':
                 return false;
-
-            case 'copyright':
-                return true;
 
             default:
                 throw new OutOfBoundsException(tr('Unknown Session support ":method" specified', [
@@ -1547,7 +1553,7 @@ class Session implements SessionInterface
                     Session::signOut();
 
                     Response::getFlashMessagesObject()
-                           ->addWarning(tr('Something went wrong with your session, please sign in again'));
+                            ->addWarning(tr('Something went wrong with your session, please sign in again'));
 
                     Response::redirect('sign-in');
                 }
@@ -1579,10 +1585,10 @@ class Session implements SessionInterface
     {
         if (!session_id()) {
             Incident::new()
-                ->setType('User sign out')
-                ->setSeverity(EnumSeverity::low)
-                ->setTitle(tr('User sign out requested on non existing session'))
-                ->save();
+                    ->setType('User session')
+                    ->setSeverity(EnumSeverity::medium)
+                    ->setTitle(tr('User sign out requested on non existing session'))
+                    ->save();
 
             return null;
         }
@@ -1602,29 +1608,29 @@ class Session implements SessionInterface
                     static::$user_changed = true;
 
                     Authentication::new()
-                        ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
-                       ->setAction(EnumAuthenticationAction::stopimpersonation)
-                       ->setCreatedBy($users_id)
-                       ->save();
+                                  ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
+                                  ->setAction(EnumAuthenticationAction::stopimpersonation)
+                                  ->setCreatedBy($users_id)
+                                  ->save();
 
                     Incident::new()
-                        ->setType('User impersonation started')
-                        ->setSeverity(EnumSeverity::low)
-                        ->setTitle(tr('The user ":user" stopped impersonating user ":impersonate"', [
-                            ':user'        => User::load($users_id)->getLogId(),
-                            ':impersonate' => User::load($impersonate_id)->getLogId(),
-                        ]))
-                        ->setDetails([
-                            'user'        => User::load($users_id)->getLogId(),
-                            'impersonate' => User::load($impersonate_id)->getLogId(),
-                        ])
-                        ->setNotifyRoles('security')
-                        ->save();
+                            ->setType('User impersonation')
+                            ->setSeverity(EnumSeverity::low)
+                            ->setTitle(tr('The user ":user" stopped impersonating user ":impersonate"', [
+                                ':user'        => User::load($users_id)->getLogId(),
+                                ':impersonate' => User::load($impersonate_id)->getLogId(),
+                            ]))
+                            ->setDetails([
+                                'user'        => User::load($users_id)->getLogId(),
+                                'impersonate' => User::load($impersonate_id)->getLogId(),
+                            ])
+                            ->setNotifyRoles('security')
+                            ->save();
 
                     Response::getFlashMessagesObject()
-                        ->addSuccess(tr('You have stopped impersonating user ":user"', [
-                            ':user' => User::load($users_id)->getLogId(),
-                        ]));
+                            ->addSuccess(tr('You have stopped impersonating user ":user"', [
+                                ':user' => User::load($users_id)->getLogId(),
+                            ]));
 
                     Response::redirect($url);
 
@@ -1633,65 +1639,69 @@ class Session implements SessionInterface
                     Log::error($e);
 
                     Notification::new()
-                        ->setException($e)
-                        ->save();
+                                ->setException($e)
+                                ->save();
 
                     Authentication::new()
-                        ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
-                        ->setAction(EnumAuthenticationAction::stopimpersonation)
-                        ->setCreatedBy($_SESSION['user']['id'])
-                        ->setStatus('failed')
-                        ->save();
+                                  ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
+                                  ->setAction(EnumAuthenticationAction::stopimpersonation)
+                                  ->setCreatedBy($_SESSION['user']['id'])
+                                  ->setStatus('failed')
+                                  ->save();
 
                     Incident::new()
-                        ->setType('User impersonation sign out failed')
-                        ->setSeverity(EnumSeverity::low)
-                        ->setTitle(tr('User impersonation sign out failed users id ":id", impersonate id ":impersonate_id", closing sessions', [
-                            ':id'             => isset_get($_SESSION['user']['id']),
-                            ':impersonate_id' => isset_get($_SESSION['user']['impersonate_id']),
-                        ]))
-                        ->save();
+                            ->setType('User impersonation')
+                            ->setSeverity(EnumSeverity::low)
+                            ->setTitle(tr('User impersonation failure', [
+                                ':id'             => isset_get($_SESSION['user']['id']),
+                                ':impersonate_id' => isset_get($_SESSION['user']['impersonate_id']),
+                            ]))
+                            ->setBody(tr('User impersonation sign out failed users id ":id", impersonate id ":impersonate_id", closing sessions', [
+                                ':id'             => isset_get($_SESSION['user']['id']),
+                                ':impersonate_id' => isset_get($_SESSION['user']['impersonate_id']),
+                            ]))
+                            ->save();
                 }
             }
 
             Authentication::new()
-                ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
-                ->setAction(EnumAuthenticationAction::signout)
-                ->setCreatedBy($_SESSION['user']['id'])
-                ->save();
+                          ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
+                          ->setAction(EnumAuthenticationAction::signout)
+                          ->setCreatedBy($_SESSION['user']['id'])
+                          ->save();
 
             Incident::new()
-                ->setType('User sign out')
-                ->setSeverity(EnumSeverity::notice)
-                ->setTitle(tr('The user ":user" signed out', [
-                    ':user' => static::getUserObject()->getLogId(),
-                ]))
-                ->setDetails([
-                    'user' => static::getUserObject()->getLogId(),
-                ])
-                ->save();
+                    ->setType('User session')
+                    ->setSeverity(EnumSeverity::notice)
+                    ->setTitle(tr('The user ":user" signed out', [
+                        ':user' => static::getUserObject()->getLogId(),
+                    ]))
+                    ->setDetails([
+                        'user' => static::getUserObject()->getLogId(),
+                    ])
+                    ->save();
 
         } catch (Throwable $e) {
             // Oops! Session sign out just completely failed for some reason. Just log, destroy the session, and continue
             Log::error($e);
 
             Authentication::new()
-                ->setAction(EnumAuthenticationAction::signout)
-                ->setCreatedBy($_SESSION['user']['id'])
-                ->setStatus('failed')
-                ->save();
+                          ->setAction(EnumAuthenticationAction::signout)
+                          ->setCreatedBy(isset_get($_SESSION['user']['id']))
+                          ->setStatus('failed')
+                          ->save();
 
             Incident::new()
-                ->setType('User sign out failed')
-                ->setSeverity(EnumSeverity::notice)
-                ->setTitle(tr('The sign out of user ":user" failed', [
-                    ':user' => static::getUserObject()->getLogId(),
-                ]))
-                ->setDetails([
-                    'user' => static::getUserObject()->getLogId(),
-                ])
-                ->save()
-                ->setNotifyRoles('developers');
+                    ->setType('User session')
+                    ->setSeverity(EnumSeverity::notice)
+                    ->setTitle(tr('The sign out of user ":user" failed', [
+                        ':user' => static::getUserObject()->getLogId(),
+                    ]))
+                    ->setDetails([
+                        'user' => static::getUserObject()->getLogId(),
+                    ])
+                    ->save()
+                    ->setNotifyRoles('developers');
         }
 
         // Attempt sign-out
