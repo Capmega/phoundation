@@ -1262,12 +1262,6 @@ class Session implements SessionInterface
     {
         // TODO Implement
         switch ($method) {
-            case 'facebook':
-                // no break
-
-            case 'google':
-                // no break
-
             case 'github':
                 // no break
 
@@ -1279,6 +1273,12 @@ class Session implements SessionInterface
 
             case 'lost-password':
                 return true;
+
+            case 'facebook':
+                // no break
+
+            case 'google':
+                // no break
 
             case 'signup':
                 // no break
