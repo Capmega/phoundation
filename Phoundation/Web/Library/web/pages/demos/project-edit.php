@@ -45,7 +45,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                 <div class="card-body">
                     <div class="form-group">
                         <label for="inputName">Project Name</label>
-                        <input type="text" id="inputName" class="form-control" value="Mediweb">
+                        <input type="text" id="inputName" class="form-control" value="Tracker">
                     </div>
                     <div class="form-group">
                         <label for="inputDescription">Project Description</label>

@@ -30,6 +30,6 @@ class UrlTest extends TestCase
     public function testGetWww()
     {
         $url = Url::newCurrent();
-        $this->assertEquals('http://mediweb.medinet.ca.local/en/', $url->getSource(), 'The result array should equal the sample array');
+        $this->assertEquals('http://tracker.medinet.ca.local/en/', $url->getSource(), 'The result array should equal the sample array');
     }
 }
