@@ -118,7 +118,7 @@ class Tree extends Iterator implements TreeInterface
     /**
      * @inheritDoc
      */
-    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
+    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, bool $filter_meta = false): static
     {
         $this->checkSourceDataType($source);
 
