@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Trait TraitDataMetaEnabled
+ * Trait TraitDataIdentifier
  *
  *
  *
@@ -16,42 +16,45 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 
-trait TraitDataMetaEnabled
+
+trait TraitDataIdentifier
 {
     /**
      * Tracks if the meta-system is enabled or disabled for this (type of) DataEntry
      *
-     * @var bool $meta_enabled
+     * @var IdentifierInterface|array|string|int|null $identifier
      */
-    protected bool $meta_enabled = true;
+    protected IdentifierInterface|array|string|int|null $identifier = null;
 
 
     /**
      * Returns if the meta-system is enabled or disabled for this (type of) DataEntry
      *
-     * @return bool
+     * @return IdentifierInterface|array|string|int|null
      */
-    public function getMetaEnabled(): bool
+    public function getIdentifier(): IdentifierInterface|array|string|int|null
     {
-        return $this->meta_enabled;
+        return $this->identifier;
     }
 
 
     /**
      * Sets if the meta-system is enabled or disabled for this (type of) DataEntry
      *
-     * @param bool|null $meta_enabled
+     * @param IdentifierInterface|array|string|int|null $identifier
+     *
      * @return static
      */
-    public function setMetaEnabled(?bool $meta_enabled): static
+    public function setIdentifier(IdentifierInterface|array|string|int|null $identifier): static
     {
-        if ($meta_enabled === null) {
-            // Don't modify the meta_enabled flag, keep the default
+        if ($identifier === null) {
+            // Don't modify the identifier flag, keep the default
             return $this;
         }
 
-        $this->meta_enabled = $meta_enabled;
+        $this->identifier = $identifier;
         return $this;
     }
 }

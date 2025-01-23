@@ -254,8 +254,10 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newVariable($this, 'component')
                                            ->setMaxlength(32)
@@ -277,5 +279,7 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
                     ->add(DefinitionFactory::newNumber($this, 'duration')
                                            ->setMin(0)
                                            ->setLabel('Test duration in microseconds'));
+
+        return $this;
     }
 }

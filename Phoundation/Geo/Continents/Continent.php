@@ -78,10 +78,14 @@ class Continent extends DataEntry implements ContinentInterface
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions;
+
+        return $this;
 //        throw new UnderConstructionException();
 //
 //        $data = $validator

@@ -410,7 +410,7 @@ class Project implements ProjectInterface
      *
      * @return string|null
      */
-    public static function load(): ?string
+    public function load(): ?string
     {
         $project      = file_get_contents(DIRECTORY_ROOT . 'config/project');
         $project      = static::sanitize($project);

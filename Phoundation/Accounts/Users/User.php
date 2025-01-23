@@ -57,6 +57,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryAddress;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryCode;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryComments;
@@ -193,11 +194,9 @@ class User extends DataEntry implements UserInterface
     /**
      * DataEntry class constructor
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
+     * @param IdentifierInterface|array|string|int|null $identifier
      */
-    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(IdentifierInterface|array|string|int|null $identifier = null)
     {
         if (empty($this->protected_columns)) {
             $this->protected_columns = [
@@ -220,7 +219,7 @@ class User extends DataEntry implements UserInterface
                 return;
         }
 
-        parent::__construct($identifier, $meta_enabled, $init);
+        parent::__construct($identifier);
 
         if ($this->hasStatus('system')) {
             // This is the guest user loaded manually
@@ -308,20 +307,15 @@ class User extends DataEntry implements UserInterface
     /**
      * Returns a single user object for a single user that has the specified alternate email address.
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool                                     $meta_enabled
-     * @param bool                                     $init
-     * @param bool                                     $ignore_deleted
-     *
      * @return static
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): static
+    public function load(): static
     {
         try {
-            $user = parent::load($identifier, $meta_enabled, $init, $ignore_deleted);
+            $user = parent::load();
 
         } catch (DataEntryNotExistsException $e) {
-            $user = static::loadFromAlternativeEmail($identifier, $meta_enabled, $init, $ignore_deleted);
+            $user = static::loadFromAlternativeEmail();
 
             if (!$user) {
                 // The requested user identifier doesn't exist
@@ -336,14 +330,9 @@ class User extends DataEntry implements UserInterface
     /**
      * Will attempt to load the user by the alternative email
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool                                     $meta_enabled
-     * @param bool                                     $init
-     * @param bool                                     $ignore_deleted
-     *
      * @return static|null
      */
-    protected static function loadFromAlternativeEmail(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): ?static
+    protected static function loadFromAlternativeEmail(): ?static
     {
         if (static::determineColumn($identifier) === 'email') {
             if ((static::getDefaultConnector() === 'system') and (static::getTable() === 'accounts_users')) {
@@ -357,7 +346,8 @@ class User extends DataEntry implements UserInterface
 
                 if ($user) {
                     if ($user['verified_on'] or !Config::getBoolean('security.accounts.identify.alternates.require-verified', true)) {
-                        $user = static::load($user['users_id'], $meta_enabled, $init, $ignore_deleted);
+                        $user = static::new($user['users_id'])->setMetaEnabled($this->meta_enabled)
+                                                              ->setIgnoreDeleted($this->ignore_deleted)
 
                         Log::warning(tr('Identified user ":user" with alternate email ":email"', [
                             ':user'  => $user->getLogId(),
@@ -2616,9 +2606,9 @@ class User extends DataEntry implements UserInterface
      *
      * @param DefinitionsInterface $definitions
      *
-     * @return void
+     * @return User
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->get('status')->setNullDisplay(tr('Ok'));
         $definitions->add(Definition::new($this, 'remote_id')
@@ -3096,5 +3086,7 @@ class User extends DataEntry implements UserInterface
                                            }))
 
                     ->add(DefinitionFactory::newData($this, 'data'));
+
+        return $this;
     }
 }

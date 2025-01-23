@@ -65,11 +65,13 @@ class Feature extends DataEntry implements FeatureInterface
      *
      * @param DefinitionsInterface $definitions
      *
-     * @return void
+     * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions;
+
+        return $this;
 //        throw new UnderConstructionException();
 //
 //        $data = $validator

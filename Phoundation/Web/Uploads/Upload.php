@@ -362,8 +362,10 @@ class Upload extends DataEntry implements UploadInterface
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return Upload
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newFilename($this, 'name')
                                            ->setLabel(tr('File name'))
@@ -402,5 +404,7 @@ class Upload extends DataEntry implements UploadInterface
                                            ->setReadonly(true))
 
                     ->add(DefinitionFactory::newComments($this));
+
+        return $this;
     }
 }

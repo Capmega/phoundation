@@ -55,7 +55,7 @@ class EmailAccount extends DataEntry
     /**
      * @inheritDoc
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newUsersEmail($this)
                                            ->setRender(false))
@@ -103,5 +103,7 @@ class EmailAccount extends DataEntry
                                            ->setSize(3))
 
                     ->add(DefinitionFactory::newDescription($this));
+
+        return $this;
     }
 }

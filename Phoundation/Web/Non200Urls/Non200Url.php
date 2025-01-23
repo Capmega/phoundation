@@ -109,7 +109,7 @@ class Non200Url extends DataEntry
     /**
      * @inheritDoc
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(Definition::new($this, 'ip_address_binary')
                                     ->setIgnored(true)
@@ -187,5 +187,7 @@ class Non200Url extends DataEntry
                     ->add(DefinitionFactory::newComments($this)
                                            ->setOptional(true)
                                            ->setHelpText(tr('Comments on this failed request')));
+
+        return $this;
     }
 }

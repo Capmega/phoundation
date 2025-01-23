@@ -92,7 +92,7 @@ class Core implements CoreInterface
     /**
      * Framework version and minimum required PHP version
      */
-    public const string FRAMEWORK_CODE_VERSION = '4.12.0';
+    public const string FRAMEWORK_CODE_VERSION = '4.13.0';
 
     public const string PHP_MINIMUM_VERSION    = '8.3.0';
 

@@ -26,7 +26,7 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryFile;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryUsername;
@@ -46,20 +46,17 @@ class SshAccount extends DataEntry implements SshAccountInterface
     use TraitDataEntryUsername;
     use TraitDataEntryFile;
 
-
     /**
      * SshAccount class constructor
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
+     * @param IdentifierInterface|array|string|int|null $identifier
      */
-    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(IdentifierInterface|array|string|int|null $identifier = null)
     {
         $this->configuration_path = 'ssh.accounts';
         $this->restrictions       = PhoRestrictions::newFilesystemRoot();
 
-        parent::__construct($identifier, $meta_enabled, $init);
+        parent::__construct($identifier);
     }
 
 
@@ -166,8 +163,10 @@ class SshAccount extends DataEntry implements SshAccountInterface
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return SshAccount
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newName($this)
                                            ->setSize(6)
@@ -209,5 +208,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->matchesRegex('/-----BEGIN .+? PRIVATE KEY-----.+?-----END .+? PRIVATE KEY-----/s');
                                     }));
+
+        return $this;
     }
 }

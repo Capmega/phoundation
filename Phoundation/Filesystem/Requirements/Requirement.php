@@ -76,7 +76,7 @@ class Requirement extends DataEntry
     /**
      * @inheritDoc
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newName($this)
                                            ->setInputType(EnumInputType::name)

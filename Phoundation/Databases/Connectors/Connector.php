@@ -21,7 +21,7 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryCharacterSet;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryCollate;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryDatabase;
@@ -35,7 +35,6 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Exception\ConnectorNotExistsException;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\DataStores;
-use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
@@ -67,17 +66,15 @@ class Connector extends DataEntry implements ConnectorInterface
     /**
      * Connector class constructor
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
+     * @param IdentifierInterface|array|string|int|null $identifier
      */
-    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(IdentifierInterface|array|string|int|null $identifier = null)
     {
         $this->supports_seo_hostname = false;
         $this->configuration_path    = 'databases.connectors';
         $this->connector             = 'system';
 
-        parent::__construct($identifier, $meta_enabled, $init);
+        parent::__construct($identifier);
 
         if (!$identifier) {
             // No identifier specified? This is a new object, apply defaults
@@ -175,26 +172,21 @@ class Connector extends DataEntry implements ConnectorInterface
      * @note The test to see if a DataEntry object exists in the database can be either DataEntry::isNew() or
      *       DataEntry::getId(), which should return a valid database id
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool                                     $meta_enabled
-     * @param bool                                     $init
-     * @param bool                                     $ignore_deleted
-     *
      * @return Connector
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): static
+    public function load(): static
     {
-        if (is_numeric($identifier) and ($identifier < 0)) {
+        if (is_numeric($this->identifier) and ($this->identifier < 0)) {
             // Negative identifier is a configured connector!
-            return Connector::newFromSource(Connectors::new()->load()->get($identifier));
+            return Connector::newFromSource(Connectors::new()->load()->get($this->identifier));
         }
 
         try {
-            return parent::load($identifier, $meta_enabled, $init, $ignore_deleted);
+            return parent::load();
 
         } catch (DataEntryNotExistsException $e) {
             throw ConnectorNotExistsException::new(tr('The connector ":connector" does not exist', [
-                ':connector' => $identifier,
+                ':connector' => $this->identifier,
             ]), $e);
         }
     }
@@ -644,7 +636,7 @@ class Connector extends DataEntry implements ConnectorInterface
     /**
      * @inheritDoc
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newName($this)
                                            ->setOptional(false)
@@ -801,5 +793,7 @@ class Connector extends DataEntry implements ConnectorInterface
                                            ->setSize(1))
 
                     ->add(DefinitionFactory::newDescription($this));
+
+        return $this;
     }
 }

@@ -53,7 +53,7 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
 
         $this->setDefaultPriority(0);
 
-        parent::__construct($identifier, $meta_enabled, $init);
+        parent::__construct($identifier);
     }
 
 
@@ -348,7 +348,7 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
      *
      * @param DefinitionsInterface $definitions
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newName($this)
                                            ->setOptional(false)

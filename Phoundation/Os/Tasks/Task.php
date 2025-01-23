@@ -1265,8 +1265,10 @@ class Task extends DataEntry implements TaskInterface
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newCode($this)
                                            ->setReadonly(true)
@@ -1277,8 +1279,11 @@ class Task extends DataEntry implements TaskInterface
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isCode();
                                            }))
+
                     ->add(DefinitionFactory::newName($this))
+
                     ->add(DefinitionFactory::newSeoName($this))
+
                     ->add(Definition::new($this, 'parents_id')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::select)
@@ -1289,6 +1294,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isDbId();
                                     }))
+
                     ->add(Definition::new($this, 'execute_after')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::datetime_local)
@@ -1299,6 +1305,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isDateTime();
                                     }))
+
                     ->add(Definition::new($this, 'start')
                                     ->setOptional(true)
                                     ->setReadonly(true)
@@ -1309,6 +1316,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isDateTime();
                                     }))
+
                     ->add(Definition::new($this, 'stop')
                                     ->setOptional(true)
                                     ->setReadonly(true)
@@ -1319,6 +1327,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isDateTime();
                                     }))
+
                     ->add(Definition::new($this, 'spent')
                                     ->setOptional(true)
                                     ->setReadonly(true)
@@ -1329,6 +1338,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isFloat();
                                     }))
+
                     ->add(Definition::new($this, 'send_to')
                                     ->setOptional(true)
                                     ->setVirtual(true)
@@ -1338,6 +1348,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isEmail();
                                     }))
+
                     ->add(Definition::new($this, 'send_to_id')
                                     ->setOptional(true)
                                     ->setRender(false)
@@ -1348,6 +1359,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isDbId();
                                     }))
+
                     ->add(Definition::new($this, 'server')
                                     ->setOptional(true)
                                     ->setVirtual(true)
@@ -1360,6 +1372,7 @@ class Task extends DataEntry implements TaskInterface
                                                   ->isName()
                                                   ->setColumnFromQuery('servers_id', 'SELECT `id` FROM `servers` WHERE `hostname` = :hostname AND `status` IS NULL', [':hostname' => '$server']);
                                     }))
+
                     ->add(Definition::new($this, 'servers_id')
                                     ->setOptional(true)
                                     ->setRender(false)
@@ -1370,6 +1383,7 @@ class Task extends DataEntry implements TaskInterface
                                                   ->isDbId()
                                                   ->isQueryResult('SELECT `id` FROM `servers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$servers_id']);
                                     }))
+
                     ->add(Definition::new($this, 'roles_id')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::select)
@@ -1381,6 +1395,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isDbId();
                                     }))
+
                     ->add(Definition::new($this, 'execution_directory')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::text)
@@ -1390,17 +1405,20 @@ class Task extends DataEntry implements TaskInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isDirectory(PhoDirectory::newFilesystemRootObject());
                                     }))
+
                     ->add(Definition::new($this, 'command')
                                     ->setInputType(EnumInputType::text)
                                     ->setLabel('Command')
                                     ->setCliColumn('[-c,--command COMMAND]')
                                     ->setSize(4))
+
                     ->add(Definition::new($this, 'executed_command')
                                     ->setOptional(true)
                                     ->setReadonly(true)
                                     ->setInputType(EnumInputType::text)
                                     ->setLabel('Command')
                                     ->setSize(4))
+
                     ->add(Definition::new($this, 'arguments')
                                     ->setOptional(true)
                                     ->setElement(EnumElement::textarea)
@@ -1408,6 +1426,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setLabel('Arguments')
                                     ->setCliColumn('[-a,--arguments ARGUMENTS]')
                                     ->setSize(4))
+
                     ->add(Definition::new($this, 'variables')
                                     ->setOptional(true)
                                     ->setElement(EnumElement::textarea)
@@ -1415,6 +1434,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setLabel('Argument variables')
                                     ->setCliColumn('[-v,--variables VARIABLES]')
                                     ->setSize(4))
+
                     ->add(Definition::new($this, 'environment_variables')
                                     ->setOptional(true)
                                     ->setElement(EnumElement::textarea)
@@ -1422,6 +1442,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setLabel('Environment variables')
                                     ->setCliColumn('[-e,--environment-variables VARIABLES]')
                                     ->setSize(4))
+
                     ->add(Definition::new($this, 'clear_logs')
                                     ->setOptional(true, false)
                                     ->setInputType(EnumInputType::checkbox)
@@ -1430,6 +1451,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isBoolean();
                                     }))
+
                     ->add(Definition::new($this, 'escape_quotes')
                                     ->setOptional(true, false)
                                     ->setInputType(EnumInputType::checkbox)
@@ -1438,6 +1460,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isBoolean();
                                     }))
+
                     ->add(Definition::new($this, 'nocache')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::select)
@@ -1445,6 +1468,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setDataSource([])
                                     ->setSize(4)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {}))
+
                     ->add(Definition::new($this, 'ionice')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::select)
@@ -1457,6 +1481,7 @@ class Task extends DataEntry implements TaskInterface
                                         3 => 'idle',
                                     ])
                                     ->setSize(4))
+
                     ->add(Definition::new($this, 'ionice_level')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::number)
@@ -1465,6 +1490,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setMin(0)
                                     ->setMax(7)
                                     ->setSize(4))
+
                     ->add(Definition::new($this, 'nice')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::number)
@@ -1474,6 +1500,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setMin(-20)
                                     ->setMax(20)
                                     ->setSize(4))
+
                     ->add(Definition::new($this, 'timeout')
                                     ->setOptional(true, 30)
                                     ->setInputType(EnumInputType::number)
@@ -1482,6 +1509,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setOptional(true, 0)
                                     ->setMin(0)
                                     ->setSize(4))
+
                     ->add(Definition::new($this, 'wait')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::number)
@@ -1490,6 +1518,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setOptional(true, 0)
                                     ->setMin(0)
                                     ->setSize(4))
+
                     ->add(Definition::new($this, 'minimum_workers')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::number)
@@ -1499,6 +1528,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setMin(0)
                                     ->setMax(10_000)
                                     ->setSize(4))
+
                     ->add(Definition::new($this, 'maximum_workers')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::number)
@@ -1508,53 +1538,63 @@ class Task extends DataEntry implements TaskInterface
                                     ->setMin(0)
                                     ->setMax(10_000)
                                     ->setSize(4))
+
                     ->add(Definition::new($this, 'sudo')
                                     ->setOptional(true, false)
                                     ->setLabel('Sudo required / command')
                                     ->setCliColumn('[-s,--sudo "string"]')
                                     ->setSize(6)
                                     ->setMaxlength(32))
+
                     ->add(Definition::new($this, 'term')
                                     ->setOptional(true)
                                     ->setLabel('Terminal command')
                                     ->setCliColumn('[-t,--term "command"]')
                                     ->setSize(6)
                                     ->setMaxlength(32))
+
                     ->add(Definition::new($this, 'pipe')
                                     ->setOptional(true)
                                     ->setLabel('Pipe to')
                                     ->setSize(6)
                                     ->setMaxlength(510))
+
                     ->add(Definition::new($this, 'input_redirect')
                                     ->setOptional(true)
                                     ->setLabel('Input redirect')
                                     ->setSize(6)
                                     ->setMaxlength(64))
+
                     ->add(Definition::new($this, 'output_redirect')
                                     ->setOptional(true)
                                     ->setLabel('Output redirect')
                                     ->setSize(6)
                                     ->setMaxlength(510))
+
                     ->add(Definition::new($this, 'restrictions')
                                     ->setOptional(true)
                                     ->setLabel('FsRestrictions')
                                     ->setSize(6)
                                     ->setMaxlength(510))
+
                     ->add(Definition::new($this, 'packages')
                                     ->setOptional(true)
                                     ->setLabel('Packages')
                                     ->setSize(6)
                                     ->setMaxlength(510))
+
                     ->add(Definition::new($this, 'pre_exec')
                                     ->setOptional(true)
                                     ->setLabel('Pre execute')
                                     ->setSize(6)
                                     ->setMaxlength(510))
+
                     ->add(Definition::new($this, 'post_exec')
                                     ->setOptional(true)
                                     ->setLabel('Post execute')
                                     ->setSize(6)
                                     ->setMaxlength(510))
+
                     ->add(Definition::new($this, 'accepted_exit_codes')
                                     ->setOptional(true, [0])
                                     ->setLabel('Accepted Exit Codes')
@@ -1562,6 +1602,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setInputType(EnumInputType::array_json)
                                     ->setSize(6)
                                     ->setMaxlength(64))
+
                     ->add(Definition::new($this, 'results')
                                     ->setOptional(true)
                                     ->setReadonly(true)
@@ -1570,6 +1611,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setSize(12)
                                     ->setMaxlength(16_777_215)
                                     ->setReadonly(true))
+
                     ->add(Definition::new($this, 'pid')
                                     ->setOptional(true)
                                     ->setReadonly(true)
@@ -1580,6 +1622,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isDbId();
                                     }))
+
                     ->add(Definition::new($this, 'exit_code')
                                     ->setOptional(true)
                                     ->setReadonly(true)
@@ -1588,6 +1631,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setSize(2)
                                     ->setMin(0)
                                     ->setMax(255))
+
                     ->add(Definition::new($this, 'log_file')
                                     ->setOptional(true)
                                     ->setReadonly(true)
@@ -1595,6 +1639,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setInputType(EnumInputType::text)
                                     ->setSize(6)
                                     ->setMaxLength(512))
+
                     ->add(Definition::new($this, 'pid_file')
                                     ->setOptional(true)
                                     ->setReadonly(true)
@@ -1602,8 +1647,11 @@ class Task extends DataEntry implements TaskInterface
                                     ->setInputType(EnumInputType::text)
                                     ->setSize(6)
                                     ->setMaxLength(512))
+
                     ->add(DefinitionFactory::newComments($this)
                                            ->setHelpText(tr('A description for this task')));
+
+        return $this;
     }
 
 

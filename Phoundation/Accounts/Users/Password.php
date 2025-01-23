@@ -22,7 +22,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\Validator;
@@ -41,11 +41,9 @@ class Password extends DataEntry implements PasswordInterface
     /**
      * DataEntry class constructor
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
+     * @param IdentifierInterface|array|string|int|null $identifier
      */
-    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(IdentifierInterface|array|string|int|null $identifier = null)
     {
         if (!$identifier) {
             throw new OutOfBoundsException(tr('Cannot instantiate Password object, a valid user ID is required'));
@@ -58,7 +56,7 @@ class Password extends DataEntry implements PasswordInterface
             ]));
         }
 
-        parent::__construct($identifier, $meta_enabled, $init);
+        parent::__construct($identifier);
     }
 
 
@@ -443,8 +441,10 @@ class Password extends DataEntry implements PasswordInterface
      * Sets and returns the field definitions for the data fields in this DataEntry object
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return Password
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(Definition::new($this, 'current')
                                     ->setRender(true)
@@ -456,6 +456,7 @@ class Password extends DataEntry implements PasswordInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isStrongPassword();
                                     }))
+
                     ->add(Definition::new($this, 'password')
                                     ->setRender(true)
                                     ->setVirtual(true)
@@ -466,6 +467,7 @@ class Password extends DataEntry implements PasswordInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isStrongPassword();
                                     }))
+
                     ->add(Definition::new($this, 'passwordv')
                                     ->setRender(true)
                                     ->setVirtual(true)
@@ -476,5 +478,7 @@ class Password extends DataEntry implements PasswordInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isEqualTo('password');
                                     }));
+
+        return $this;
     }
 }

@@ -1151,6 +1151,24 @@ class DefinitionFactory
 
 
     /**
+     * Returns a Definition object for a column containing a number
+     *
+     * @param DataEntryInterface|null $data_entry
+     * @param string|null             $column
+     * @param int|null                $default
+     *
+     * @return DefinitionInterface
+     */
+    public static function newPort(?DataEntryInterface $data_entry, ?string $column = 'number', ?int $default = null): DefinitionInterface
+    {
+        return static::newNumber($data_entry, $column, $default)
+                     ->setInputType(EnumInputType::dbid)
+                     ->setMin(1)
+                     ->setMax(65535);
+    }
+
+
+    /**
      * Returns a Definition object for a column containing a variable
      *
      * @param DataEntryInterface|null $data_entry

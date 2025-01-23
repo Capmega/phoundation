@@ -22,6 +22,7 @@ use Phoundation\Core\Meta\Meta;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Interfaces\ListOperationsInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\IteratorCore;
@@ -941,11 +942,11 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
     /**
      * Creates a new DataEntry object and returns it
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|null $identifier
      *
      * @return DataEntryInterface
      */
-    protected function newObject(array|DataEntryInterface|string|int|null $identifier = null): DataEntryInterface
+    protected function newObject(IdentifierInterface|array|string|int|null $identifier = null): DataEntryInterface
     {
         return $this->getAcceptedDataType()::new($identifier, init: false)
                                            ->setDebug($this->debug)

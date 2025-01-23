@@ -124,7 +124,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry;
 
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 
 
 class DataEntry extends DataEntryCore
@@ -132,14 +132,12 @@ class DataEntry extends DataEntryCore
     /**
      * Returns a new DataEntry object
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
+     * @param IdentifierInterface|array|string|int|null $identifier
      *
      * @return static
      */
-    public static function new(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true): static
+    public static function new(IdentifierInterface|array|string|int|null $identifier = null): static
     {
-        return new static($identifier, $meta_enabled, $init);
+        return new static($identifier);
     }
 }

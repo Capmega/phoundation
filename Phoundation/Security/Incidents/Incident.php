@@ -92,10 +92,8 @@ class Incident extends DataEntry implements IncidentInterface
      * Incident class constructor
      *
      * @param array|int|string|DataEntryInterface|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
      */
-    public function __construct(array|int|string|DataEntryInterface|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(array|int|string|DataEntryInterface|null $identifier = null)
     {
         if (!isset($this->meta_columns)) {
             // By default, the Notification object has created_by NOT meta so that it can set it manually
@@ -108,7 +106,7 @@ class Incident extends DataEntry implements IncidentInterface
             ];
         }
 
-        parent::__construct($identifier, $meta_enabled, $init);
+        parent::__construct($identifier);
 
         if ($this->isNew()) {
             // By default, the object is created by the current user
@@ -493,7 +491,7 @@ class Incident extends DataEntry implements IncidentInterface
      *
      * @param DefinitionsInterface $definitions
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->removeKeys('new-divider')
 

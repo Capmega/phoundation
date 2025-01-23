@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Trait TraitDataMetaEnabled
+ * Trait TraitDataIgnoreDeleted
  *
  *
  *
@@ -17,14 +17,14 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 
-trait TraitDataMetaEnabled
+trait TraitDataIgnoreDeleted
 {
     /**
      * Tracks if the meta-system is enabled or disabled for this (type of) DataEntry
      *
-     * @var bool $meta_enabled
+     * @var bool $ignore_deleted
      */
-    protected bool $meta_enabled = true;
+    protected bool $ignore_deleted = true;
 
 
     /**
@@ -32,26 +32,26 @@ trait TraitDataMetaEnabled
      *
      * @return bool
      */
-    public function getMetaEnabled(): bool
+    public function getIgnoreDeleted(): bool
     {
-        return $this->meta_enabled;
+        return $this->ignore_deleted;
     }
 
 
     /**
      * Sets if the meta-system is enabled or disabled for this (type of) DataEntry
      *
-     * @param bool|null $meta_enabled
+     * @param bool|null $ignore_deleted
      * @return static
      */
-    public function setMetaEnabled(?bool $meta_enabled): static
+    public function setIgnoreDeleted(?bool $ignore_deleted): static
     {
-        if ($meta_enabled === null) {
-            // Don't modify the meta_enabled flag, keep the default
+        if ($ignore_deleted === null) {
+            // Don't modify the ignore_deleted flag, keep the default
             return $this;
         }
 
-        $this->meta_enabled = $meta_enabled;
+        $this->ignore_deleted = $ignore_deleted;
         return $this;
     }
 }

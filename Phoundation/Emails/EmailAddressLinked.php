@@ -75,13 +75,17 @@ class EmailAddressLinked extends DataEntry
      * Sets and returns the field definitions for the data fields in this DataEntry object
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return EmailAddressLinked
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newDatabaseId($this, 'emails_id')
                                            ->setRender(false))
+
                     ->add(DefinitionFactory::newDatabaseId($this, 'address_id')
                                            ->setRender(false))
+
                     ->add(Definition::new($this, 'type')
                                     ->setRender(false)
                                     ->setDataSource([
@@ -91,7 +95,11 @@ class EmailAddressLinked extends DataEntry
                                         'bcc'  => tr('Bcc'),
                                     ])
                                     ->setMaxlength(4))
+
                     ->add(DefinitionFactory::newEmail($this))
+
                     ->add(DefinitionFactory::newName($this));
+
+        return $this;
     }
 }

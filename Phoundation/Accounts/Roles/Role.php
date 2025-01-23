@@ -31,7 +31,7 @@ use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameLowercaseDash;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
@@ -47,19 +47,6 @@ class Role extends DataEntry implements RoleInterface
 {
     use TraitDataEntryNameLowercaseDash;
     use TraitDataEntryDescription;
-
-
-    /**
-     * Role class constructor
-     *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
-     */
-    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
-    {
-        return parent::__construct(static::convertToLowerCaseDash($identifier), $meta_enabled, $init);
-    }
 
 
     /**
@@ -92,6 +79,18 @@ class Role extends DataEntry implements RoleInterface
     public static function getUniqueColumn(): ?string
     {
         return 'seo_name';
+    }
+
+
+    /**
+     * Sets if the meta-system is enabled or disabled for this (type of) DataEntry
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier
+     *
+     * @return static
+     */
+    public function setIdentifier(IdentifierInterface|array|int|string|null $identifier): static {
+        return parent::setIdentifier(static::convertNameIdentifierToLowerCaseDash($identifier));
     }
 
 
@@ -204,17 +203,12 @@ class Role extends DataEntry implements RoleInterface
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool                                     $meta_enabled
-     * @param bool                                     $init
-     * @param bool                                     $ignore_deleted
-     *
      * @return Role
      */
-    public static function load(DataEntryInterface|array|string|int|null $identifier, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): static
+    public function load(): static
     {
         try {
-            return parent::load(static::convertToLowerCaseDash($identifier), $meta_enabled, $init, $ignore_deleted);
+            return parent::load();
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new RoleNotExistsException($e);
@@ -292,7 +286,7 @@ class Role extends DataEntry implements RoleInterface
      *
      * @param DefinitionsInterface $definitions
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newName($this)
                                            ->setOptional(false)

@@ -12,6 +12,7 @@ use Phoundation\Data\DataEntry\DataEntryCore;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Interfaces\EntryInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
@@ -24,16 +25,6 @@ use Stringable;
 
 interface DataEntryInterface extends EntryInterface, IntegerableInterface
 {
-    /**
-     * Initializes the DataEntry object
-     *
-     * @param bool $identifier_must_exist
-     * @param bool $ignore_deleted
-     *
-     * @return static
-     */
-    public function init(bool $identifier_must_exist = true, bool $ignore_deleted = false): static;
-
     /**
      * Returns true if the ID column is the specified column
      *
@@ -72,14 +63,9 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool                                     $meta_enabled
-     * @param bool                                     $init
-     * @param bool                                     $ignore_deleted
-     *
-     * @return DataEntryInterface
+     * @return static
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): static;
+    public function load(): static;
 
     /**
      * Returns if this DataEntry validates data before saving
@@ -595,13 +581,6 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
     public function addMetaAction(?string $action, ?string $comments = null, Stringable|array|string|null $data = null): static;
 
     /**
-     * Reload the contents for this DataEntry object
-     *
-     * @return static
-     */
-    public function reload(bool $ignore_deleted = false): static;
-
-    /**
      * Returns the name of the database connector where this DataEntry is stored
      *
      * @return string
@@ -699,4 +678,35 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * @return static
      */
     public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = false): static;
+
+    /**
+     * Returns if the meta-system is enabled or disabled for this (type of) DataEntry
+     *
+     * @return IdentifierInterface|array|string|int|null
+     */
+    public function getIdentifier(): IdentifierInterface|array|string|int|null;
+
+    /**
+     * Sets if the meta-system is enabled or disabled for this (type of) DataEntry
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier
+     *
+     * @return static
+     */
+    public function setIdentifier(IdentifierInterface|array|string|int|null $identifier): static;
+
+    /**
+     * Returns if the meta-system is enabled or disabled for this (type of) DataEntry
+     *
+     * @return bool
+     */
+    public function getIgnoreDeleted(): bool;
+
+    /**
+     * Sets if the meta-system is enabled or disabled for this (type of) DataEntry
+     *
+     * @param bool|null $ignore_deleted
+     * @return static
+     */
+    public function setIgnoreDeleted(?bool $ignore_deleted): static;
 }

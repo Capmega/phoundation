@@ -78,8 +78,10 @@ class Page extends DataEntry implements PageInterface
      * Sets and returns the field definitions for the data fields in this DataEntry object
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
 //`view_rights_id` bigint DEFAULT NULL,
 //`collections_id` bigint NOT NULL,
@@ -103,6 +105,7 @@ class Page extends DataEntry implements PageInterface
                                                          ->isDbId()
                                                          ->isQueryResult('SELECT `id` FROM `pages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
                                            }))
+
                     ->add(DefinitionFactory::newParent($this)
                                            ->setCliAutoComplete([
                                                'word'   => function ($word) {
@@ -142,5 +145,7 @@ class Page extends DataEntry implements PageInterface
 
                     ->add(DefinitionFactory::newContent($this)
                                            ->setHelpText(tr('The content for this page')));
+
+        return $this;
     }
 }

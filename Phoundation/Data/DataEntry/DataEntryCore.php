@@ -44,11 +44,13 @@ use Phoundation\Data\DataEntry\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryBadException;
 use Phoundation\Data\DataEntry\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntry\Exception\DataEntryException;
+use Phoundation\Data\DataEntry\Exception\DataEntryNoIdentifierSpecifiedException;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotSavedException;
 use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntry\Exception\DataEntryStateMismatchException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryDefinitions;
 use Phoundation\Data\EntryCore;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -56,6 +58,8 @@ use Phoundation\Data\Traits\TraitDataConfigPath;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Data\Traits\TraitDataDisabled;
+use Phoundation\Data\Traits\TraitDataIdentifier;
+use Phoundation\Data\Traits\TraitDataIgnoreDeleted;
 use Phoundation\Data\Traits\TraitDataInsertUpdate;
 use Phoundation\Data\Traits\TraitDataMaxIdRetries;
 use Phoundation\Data\Traits\TraitDataMetaColumns;
@@ -100,6 +104,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     use TraitDataDebug;
     use TraitDataDisabled;
     use TraitDataEntryDefinitions;
+    use TraitDataIdentifier;
+    use TraitDataIgnoreDeleted;
     use TraitDataInsertUpdate;
     use TraitDataMaxIdRetries;
     use TraitDataMetaEnabled;
@@ -242,13 +248,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     protected int $id_upper_limit = PHP_INT_MAX;
 
     /**
-     * The identifier for this DataEntry object
-     *
-     * @var array|DataEntryInterface|string|int|null $identifier
-     */
-    protected array|DataEntryInterface|string|int|null $identifier;
-
-    /**
      * Tracks if this DataEntry object may be destroyed with unsaved modifications
      *
      * @var bool|null $allow_modified_destruct
@@ -259,11 +258,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     /**
      * DataEntry class constructor
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
+     * @param IdentifierInterface|array|string|int|null $identifier
      */
-    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(IdentifierInterface|array|string|int|null $identifier = null)
     {
         // Try to load the DataEntry from the database with the given identifier and column
         if (!isset($this->meta_columns)) {
@@ -271,16 +268,15 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         }
 
         // Set up the columns for this object
-        $this->setMetaDefinitions();
-        $this->setDefinitions($this->definitions);
-
         // Store meta_enabled and identifier information
-        $this->setMetaEnabled($meta_enabled)
-             ->identifier = $identifier;
+        // Initialize meta data and copy empty data to source
+        $this->setMetaDefinitions()
+             ->setDefinitions($this->definitions)
+             ->setIdentifier($identifier)
+             ->setMetaData()
+             ->copyValuesToSource([], false)
+             ->columns_filter_on_insert = [static::getIdColumn()];
 
-        if ($init) {
-            $this->init(false, false);
-        }
     }
 
 
@@ -369,11 +365,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     /**
      * Initializes the DataEntry object
      *
-     * @param bool $identifier_must_exist
-     *
      * @return void
      */
-    protected function initIdentifier(bool $identifier_must_exist): void
+    protected function initIdentifier(): void
     {
         $this->loadFromDatabase($this->identifier);
 
@@ -385,78 +379,28 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
                 return;
             }
 
-            if ($identifier_must_exist) {
-                throw DataEntryNotExistsException::new(tr('Cannot load ":class" class object, specified column ":column" with identifier ":identifier" does not exist', [
-                    ':class'      => static::getClassName(),
-                    ':column'     => static::determineColumn($this->identifier),
-                    ':identifier' => $this->identifier,
-                ]))->addData([
-                    'class'      => static::getClassName(),
-                    'column'     => static::determineColumn($this->identifier),
-                    'identifier' => $this->identifier,
-                ]);
-            }
+            throw DataEntryNotExistsException::new(tr('Cannot load ":class" class object, specified column ":column" with identifier ":identifier" does not exist', [
+                ':class'      => static::getClassName(),
+                ':column'     => static::determineColumn($this->identifier),
+                ':identifier' => $this->identifier,
+            ]))->addData([
+                'class'      => static::getClassName(),
+                'column'     => static::determineColumn($this->identifier),
+                'identifier' => $this->identifier,
+            ]);
         }
-    }
-
-
-    /**
-     * Initializes the DataEntry object
-     *
-     * @param bool $identifier_must_exist
-     * @param bool $ignore_deleted
-     *
-     * @todo add caching support. If I load CLASSPATH+identifier twice, the second time should come from process cache
-     * @return static
-     */
-    public function init(bool $identifier_must_exist = true, bool $ignore_deleted = false): static
-    {
-        $this->is_initializing = true;
-
-        if ($this->connector === null) {
-            // Use the default connector for this DataEntry object
-            $this->setConnectorObject(static::getDefaultConnectorObject());
-        }
-
-        $this->columns_filter_on_insert = [static::getIdColumn()];
-
-        if ($this->identifier) {
-            if ($this->identifier instanceof DataEntryInterface) {
-                // Identifier is a DataEntry itself. Copy the DataEntry source directly and we're done!
-                $this->source = $this->identifier->getSource();
-
-            } else {
-                // Load data from database
-                $this->initIdentifier($identifier_must_exist);
-            }
-
-            // This entry exists in the database, yay! Is it not deleted, though?
-            if ($this->isDeleted()) {
-                $this->processDeleted($ignore_deleted);
-            }
-
-        } else {
-            // No identifier specified, this is a new DataEntry object
-            $this->setMetaData()
-                 ->copyValuesToSource([], false);
-        }
-
-        $this->is_initializing = false;
-        return $this;
     }
 
 
     /**
      * Processes what to do if the found DataEntry is deleted
      *
-     * @param bool $ignore_deleted
-     *
      * @return void
      */
-    protected function processDeleted(bool $ignore_deleted): void
+    protected function processDeleted(): void
     {
         // This entry has been deleted and can only be viewed by user with the "access_deleted" right
-        if ($ignore_deleted or Session::getUserObject()->hasAllRights('access_deleted')) {
+        if ($this->ignore_deleted or Session::getUserObject()->hasAllRights('access_deleted')) {
             Log::warning(tr('Continuing load of dataEntry object ":class" with identifier ":identifier" and log id ":log_id" with status "deleted"', [
                 ':class'      => static::class,
                 ':identifier' => $this->identifier,
@@ -507,11 +451,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     /**
      * Returns either the specified valid column, or if empty, a default column
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|null $identifier
      *
      * @return string|null
      */
-    protected static function determineColumn(array|DataEntryInterface|string|int|null $identifier): ?string
+    protected static function determineColumn(IdentifierInterface|array|string|int|null $identifier): ?string
     {
         if (!$identifier) {
             // No identifier specified, this is just an empty DataEntry object
@@ -624,9 +568,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      *  setNullReadonly() boolean            false       If "value" for entry is null, then use this for "readonly"
      *  setNullType()     boolean            false       If "value" for entry is null, then use this for "type"
      *
-     * @return void
+     * @return static
      */
-    protected function setMetaDefinitions(): void
+    protected function setMetaDefinitions(): static
     {
         $definitions = Definitions::new($this)->setTable(static::getTable());
 
@@ -676,6 +620,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
                                                                     // Only render this when displaying meta-elements
                                                                     $definition->setRender(!$this->isNew() and $this->getDefinitionsObject()->getMetaVisible());
                                                                 }));
+
+        return $this;
     }
 
 
@@ -914,13 +860,83 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
 
     /**
-     * Reload the contents for this DataEntry object
+     * Returns a new DataEntry object from the specified array source
+     *
+     * @param DataEntryInterface|array $source
      *
      * @return static
      */
-    public function reload(bool $ignore_deleted = false): static
+    public static function newFromSource(DataEntryInterface|array $source): static
     {
-        return $this->init(true, $ignore_deleted);
+        if ($source instanceof DataEntryInterface) {
+            if ($source instanceof static) {
+                return clone $source;
+            }
+
+            throw new DataEntryBadException(
+                tr('The specified source ":source" must be either an array or an instance of ":static"', [
+                    ':static' => static::class,
+                    ':source' => get_class($source),
+                ])
+            );
+        }
+
+        $entry = new static();
+        return $entry->setSource($source);
+    }
+
+
+    /**
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or NULL if NULL
+     * identifier was specified
+     *
+     * @return static|null
+     */
+    public function loadOrNull(): ?static
+    {
+        if ($this->identifiersAreNull($this->identifier)) {
+            return $this->load();
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or the current
+     * object
+     *
+     * @return static
+     */
+    public function loadOrThis(): static
+    {
+        if ($this->identifiersAreNull($this->identifier)) {
+            return $this->load();
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns a random DataEntry object
+     *
+     * @return static|null
+     */
+    public static function loadRandom(): ?static
+    {
+        $identifier = sql(static::getDefaultConnector())->getInteger('SELECT   `id` 
+                                                                      FROM     `' . static::getTable() . '` 
+                                                                      ORDER BY RAND() 
+                                                                      LIMIT    1;');
+
+        if ($identifier) {
+            return static::new($identifier)->load();
+        }
+
+        throw new OutOfBoundsException(tr('Cannot select random record for table ":table", no records found', [
+            ':table' => static::getTable(),
+        ]));
     }
 
 
@@ -940,49 +956,61 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      * @note The test to see if a DataEntry object exists in the database can be either DataEntry::isNew() or
      *       DataEntry::getId(), which should return a valid database id
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool                                     $meta_enabled
-     * @param bool                                     $init
-     * @param bool                                     $ignore_deleted
-     *
      * @return static
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): static
+    public function load(): static
     {
-        if (!$identifier) {
-            // No identifier specified, an identifier is required to load a DataEntry
-            throw DataEntryNotExistsException::new(tr('Cannot load ":class" class object, no identifier specified', [
-                ':class' => static::getClassName(),
+        if (empty($this->identifier)) {
+            throw DataEntryNoIdentifierSpecifiedException::new(tr('Cannot load data for DataEntry object ":class", no identifier specified', [
+                ':class' => $this::class
             ]))->addData([
-                'class' => static::class,
+                'class' => static::getClassName(),
             ]);
         }
 
-        if (is_object($identifier)) {
+        if (is_object($this->identifier)) {
             // This already is a DataEntry object, no need to create one. Validate that this is the same class
-            if (!$identifier instanceof static) {
-                if (!is_subclass_of(static::class, get_class($identifier), true)) {
-                    throw new OutOfBoundsException(tr('Specified DataEntry identifier has the class ":has" but should have this object\'s class ":should"', [
-                        ':has' => get_class($identifier),
+            if (!$this->identifier instanceof static) {
+                if (!is_subclass_of(static::class, get_class($this->identifier), true)) {
+                    throw new OutOfBoundsException(tr('Specified DataEntry identifier ":has" is incompatible with this object\'s class ":should"', [
+                        ':has' => get_class($this->identifier),
                         ':should' => static::class,
                     ]));
                 }
 
                 // This class extended the specified identifier, copy its source inside, and we should be good to go?
                 // EXPERIMENTAL
-                return static::newFromSource($identifier->getSource());
+                return static::newFromSource($this->identifier->getSource());
             }
 
-            return $identifier;
+            // The specified identifer is the exact same class as THIS class, just return it
+            return $this->identifier;
         }
 
-        $return = static::new($identifier, $meta_enabled, false);
+        // Start loading the object
+        $this->is_initializing = true;
 
-        if ($init) {
-            $return->init(true, $ignore_deleted);
+        if ($this->connector === null) {
+            // Use the default connector for this DataEntry object
+            $this->setConnectorObject(static::getDefaultConnectorObject());
         }
 
-        return $return;
+        if ($this->identifier instanceof DataEntryInterface) {
+            // Identifier is a compatible DataEntry object. Copy the DataEntry source directly and we're done!
+            $this->source = $this->identifier->getSource();
+
+        } else {
+            // Load data from database
+            $this->initIdentifier();
+
+            // This entry exists in the database, yay! Is it not deleted, though?
+            if ($this->isDeleted()) {
+                $this->processDeleted();
+            }
+        }
+
+        $this->is_initializing = false;
+        return $this;
     }
 
 
@@ -1007,33 +1035,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     public static function idColumnIs(string $column): bool
     {
         return static::getIdColumn() === $column;
-    }
-
-
-    /**
-     * Returns a new DataEntry object from the specified array source
-     *
-     * @param DataEntryInterface|array $source
-     *
-     * @return static
-     */
-    public static function newFromSource(DataEntryInterface|array $source): static
-    {
-        if ($source instanceof DataEntryInterface) {
-            if ($source instanceof static) {
-                return clone $source;
-            }
-
-            throw new DataEntryBadException(
-                tr('The specified source ":source" must be either an array or an instance of ":static"', [
-                    ':static' => static::class,
-                    ':source' => get_class($source),
-                ])
-            );
-        }
-
-        $entry = new static();
-        return $entry->setSource($source);
     }
 
 
@@ -1175,9 +1176,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      * null_type      boolean            false          If "value" for entry is null, then use this for "type"
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void {
+    protected function setDefinitions(DefinitionsInterface $definitions): static
+    {
         // Each DataEntry object should set its own definitions!
+        return $this;
     }
 
 
@@ -1212,7 +1217,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
     {
-        if ($source) {
+        // Initialize the object
+        $this->is_initializing = true;
+
+        if (empty($source)) {
+            $this->source = [];
+
+        } else {
             if ($source instanceof IteratorInterface) {
                 $source = $source->getSource();
 
@@ -1235,14 +1246,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             // Load data with object init
             $this->setMetaData($source)
                  ->copyValuesToSource($source, false);
-
-        } else {
-            $this->source = [];
         }
 
-        $this->is_modified = false;
-        $this->is_loading  = false;
-        $this->is_saved    = false;
+        // Done!
+        $this->is_initializing = false;
+        $this->is_modified     = false;
+        $this->is_loading      = false;
+        $this->is_saved        = false;
 
         return $this;
     }
@@ -2287,16 +2297,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     /**
      * Returns if either $identifiers is NULL, or $identifiers contains an array with only NULL values
      *
-     * @param array|DataEntryInterface|string|int|null $identifiers
+     * @param IdentifierInterface|array|string|int|null $identifiers
      *
      * @return bool
      */
-    protected static function identifiersAreNull(array|DataEntryInterface|string|int|null $identifiers): bool
+    protected static function identifiersAreNull(IdentifierInterface|array|string|int|null $identifiers): bool
     {
         if ($identifiers === null) {
             return true;
+        }
 
-        } elseif (is_array($identifiers)) {
+        if (is_array($identifiers)) {
             foreach ($identifiers as $identifier) {
                 if ($identifier === null) {
                     continue;
@@ -2309,73 +2320,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         }
 
         return false;
-    }
-
-
-    /**
-     * Returns a DataEntry object matching the specified identifier in the database if it exists, or a new object with
-     * specified identifier, or NULL if NULL identifier was specified
-     *
-     * @param array|DataEntryInterface|string|int|null $identifiers
-     * @param bool                                     $meta_enabled
-     * @param bool                                     $init
-     *
-     * @return static|null
-     */
-    public static function newOrNull(array|DataEntryInterface|string|int|null $identifiers, bool $meta_enabled = false, bool $init = true): ?static
-    {
-        if (static::identifiersAreNull($identifiers)) {
-            return null;
-        }
-
-        return static::new($identifiers, $meta_enabled, $init);
-    }
-
-
-    /**
-     * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or NULL if NULL
-     * identifier was specified
-     *
-     * @param array|DataEntryInterface|string|int|null $identifiers
-     * @param bool                                     $meta_enabled
-     * @param bool                                     $init
-     * @param bool                                     $ignore_deleted
-     *
-     * @return static|null
-     */
-    public static function loadOrNull(array|DataEntryInterface|string|int|null $identifiers, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): ?static
-    {
-        if (static::identifiersAreNull($identifiers)) {
-            return null;
-        }
-
-        return static::load($identifiers, $meta_enabled, $init, $ignore_deleted);
-    }
-
-
-    /**
-     * Returns a random DataEntry object
-     *
-     * @param bool $meta_enabled
-     * @param bool $init
-     * @param bool $ignore_deleted
-     *
-     * @return static|null
-     */
-    public static function loadRandom(bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): ?static
-    {
-        $identifier = sql(static::getDefaultConnector())->getInteger('SELECT   `id` 
-                                                                      FROM     `' . static::getTable() . '` 
-                                                                      ORDER BY RAND() 
-                                                                      LIMIT    1;');
-
-        if ($identifier) {
-            return static::load($identifier, $meta_enabled, $init, $ignore_deleted);
-        }
-
-        throw new OutOfBoundsException(tr('Cannot select random record for table ":table", no records found', [
-            ':table' => static::getTable(),
-        ]));
     }
 
 

@@ -55,39 +55,55 @@ class EmailAttachment extends DataEntry
     /**
      * @inheritDoc
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newUsersEmail($this)
                                            ->setRender(false))
+
                     ->add(DefinitionFactory::newUsersId($this)
                                            ->setRender(false))
+
                     ->add(DefinitionFactory::newRolesId($this, 'view_roles_id')
                                            ->setRender(false))
+
                     ->add(DefinitionFactory::newRolesName($this, 'view_roles_name')
                                            ->setRender(false))
+
                     ->add(DefinitionFactory::newRolesId($this, 'send_roles_id')
                                            ->setRender(false))
+
                     ->add(DefinitionFactory::newRolesName($this, 'send_roles_name')
                                            ->setRender(false))
-                    ->add(DefinitionFactory::getHost($this, 'smtp_host')
+
+                    ->add(DefinitionFactory::newHostname($this, 'smtp_host')
                                            ->setRender(false))
-                    ->add(DefinitionFactory::getPort($this, 'smtp_port')
+
+                    ->add(DefinitionFactory::newPort($this, 'smtp_port')
                                            ->setRender(false))
+
                     ->add(Definition::new($this, 'smtp_auth')
                                     ->setInputType(EnumInputType::checkbox)
                                     ->setRender(false))
+
                     ->add(Definition::new($this, 'smtp_secure')
                                     ->setInputType(EnumInputType::text)
                                     ->setDataSource(['tls' => tr('TLS')])
                                     ->setRender(false))
+
                     ->add(DefinitionFactory::newName($this)
                                            ->setSize(3))
+
                     ->add(DefinitionFactory::newSeoName($this)
                                            ->setSize(3))
+
                     ->add(DefinitionFactory::newUsername($this)
                                            ->setSize(3))
+
                     ->add(DefinitionFactory::newPassword($this)
                                            ->setSize(3))
+
                     ->add(DefinitionFactory::newDescription($this));
+
+        return $this;
     }
 }

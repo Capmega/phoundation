@@ -131,8 +131,10 @@ class Email extends DataEntry
      * Sets and returns the field definitions for the data fields in this DataEntry object
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return Email
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newUsersEmail($this)
                                            ->setRender(false))
@@ -191,5 +193,7 @@ class Email extends DataEntry
                                     ->setSize(3)
                                     ->setSize(12)
                                     ->setMaxlength(16_777_215));
+
+        return $this;
     }
 }

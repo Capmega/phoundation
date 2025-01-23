@@ -19,7 +19,6 @@ namespace Phoundation\Filesystem\UserFiles;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryDescription;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Filesystem\PhoDirectory;
@@ -29,20 +28,6 @@ use Phoundation\Web\Html\Enums\EnumInputType;
 class UserFile extends DataEntry
 {
     use TraitDataEntryDescription;
-
-
-    /**
-     * Role class constructor
-     *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
-     */
-    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
-    {
-        return parent::__construct($identifier, $meta_enabled, $init);
-    }
-
 
     /**
      * Returns the table name used by this object
@@ -82,7 +67,7 @@ class UserFile extends DataEntry
      *
      * @param DefinitionsInterface $definitions
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newFile($this, PhoDirectory::newUserFilesObject())
                         ->setOptional(false)
