@@ -19,7 +19,6 @@ namespace Phoundation\Data\DataEntry;
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 
-
 class DataIterator extends DataIteratorCore
 {
     /**
