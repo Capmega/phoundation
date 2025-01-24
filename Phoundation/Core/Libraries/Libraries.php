@@ -706,6 +706,7 @@ class Libraries
      * @param bool $plugin
      * @param bool $template
      *
+     * @todo Fix PhoRestrictions!!!!! Are now for filesystem root, which negates any protections!
      * @return array
      */
     public static function getPhpStatistics(bool $system = true, bool $plugin = true, bool $template = true): array
@@ -714,21 +715,21 @@ class Libraries
 
         if ($system) {
             // Get statistics for all system libraries
-            $return['system'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_SYSTEM, PhoRestrictions::newReadonly([LIBRARIES::CLASS_DIRECTORY_SYSTEM]))
+            $return['system'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_SYSTEM, PhoRestrictions::newFilesystemRoot())
                                             ->getPhpStatistics(true);
             $return['totals'] = Arrays::addValues($return['totals'], $return['system']);
         }
 
         if ($plugin) {
             // Get statistics for all plugin libraries
-            $return['plugins'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_PLUGINS, PhoRestrictions::newReadonly([LIBRARIES::CLASS_DIRECTORY_PLUGINS]))
+            $return['plugins'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_PLUGINS, PhoRestrictions::newFilesystemRoot())
                                              ->getPhpStatistics(true);
             $return['totals']  = Arrays::addValues($return['totals'], $return['plugins']);
         }
 
         if ($template) {
             // Get statistics for all template libraries
-            $return['templates'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_TEMPLATES, PhoRestrictions::newReadonly([LIBRARIES::CLASS_DIRECTORY_TEMPLATES]))
+            $return['templates'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_TEMPLATES, PhoRestrictions::newFilesystemRoot())
                                                ->getPhpStatistics(true);
             $return['totals']    = Arrays::addValues($return['totals'], $return['templates']);
         }
