@@ -32,6 +32,6 @@ abstract class ResourceElement extends ResourceElementCore
     public function __construct(?string $content = null)
     {
         parent::__construct($content);
-        $this->empty = tr('No results available');
+        $this->component_empty_label = tr('No results available');
     }
 }

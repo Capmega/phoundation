@@ -648,8 +648,8 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
             return $this->renderBodyEmpty();
         }
 
-        if ($this->none) {
-            return '<option' . $this->renderOptionClassString() . $this->renderSelectedString(null, null) . ' value="">' . $this->none . '</option>' . $return;
+        if ($this->not_selected_label) {
+            return '<option' . $this->renderOptionClassString() . $this->renderSelectedString(null, null) . ' value="">' . $this->not_selected_label . '</option>' . $return;
         }
 
         return $return;
@@ -783,7 +783,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
 
         $return = '';
 
-        if ($this->auto_select and ((count($this->source) == 1) and !$this->none)) {
+        if ($this->auto_select and ((count($this->source) == 1) and !$this->not_selected_label)) {
             // Auto select the only available element
             // TODO implement
         }
@@ -917,8 +917,8 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
     protected function renderBodyEmpty(): ?string
     {
         // No content (other than maybe the "none available" entry) was added
-        if ($this->empty) {
-            return '<option' . $this->renderOptionClassString() . ' selected value="">' . $this->empty . '</option>';
+        if ($this->component_empty_label) {
+            return '<option' . $this->renderOptionClassString() . ' selected value="">' . $this->component_empty_label . '</option>';
         }
 
         return null;

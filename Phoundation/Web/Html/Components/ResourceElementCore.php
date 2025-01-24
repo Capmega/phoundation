@@ -35,16 +35,16 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
     /**
      * The text displayed for "none selected"
      *
-     * @var string|null $none
+     * @var string|null $not_selected_label
      */
-    protected ?string $none = null;
+    protected ?string $not_selected_label = null;
 
     /**
      * The text displayed when the specified resource is empty
      *
-     * @var string|null $empty
+     * @var string|null $component_empty_label
      */
-    protected ?string $empty = null;
+    protected ?string $component_empty_label = null;
 
     /**
      * The text displayed when the specified resource is empty
@@ -101,22 +101,22 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
      *
      * @return string|null
      */
-    public function getNone(): ?string
+    public function getNotSelectedLabel(): ?string
     {
-        return $this->none;
+        return $this->not_selected_label;
     }
 
 
     /**
      * Set the HTML none element attribute
      *
-     * @param string|null $none
+     * @param string|null $label
      *
      * @return static
      */
-    public function setNotSelectedLabel(?string $none): static
+    public function setNotSelectedLabel(?string $label): static
     {
-        $this->none = $none;
+        $this->not_selected_label = $label;
 
         return $this;
     }
@@ -127,22 +127,22 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
      *
      * @return string|null
      */
-    public function getEmpty(): ?string
+    public function getComponentEmptyLabel(): ?string
     {
-        return $this->empty;
+        return $this->component_empty_label;
     }
 
 
     /**
      * Sets the HTML empty element attribute
      *
-     * @param string|null $empty
+     * @param string|null $label
      *
      * @return static
      */
-    public function setComponentEmptyLabel(?string $empty): static
+    public function setComponentEmptyLabel(?string $label): static
     {
-        $this->empty = $empty;
+        $this->component_empty_label = $label;
 
         return $this;
     }
