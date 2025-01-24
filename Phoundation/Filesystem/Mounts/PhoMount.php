@@ -124,6 +124,8 @@ class PhoMount extends DataEntry implements PhoMountInterface
     public function load(): static
     {
         try {
+            $column = $this->determineColumn($this->identifier);
+
             return parent::load();
 
         } catch (DataEntryNotExistsException $e) {
@@ -131,18 +133,24 @@ class PhoMount extends DataEntry implements PhoMountInterface
             // column
             switch ($column) {
                 case 'name':
-                    $mount = Config::getArray('filesystem.mounts.' . $identifier);
-                    return static::newFromSource($mount, $meta_enabled);
+                    $mount = Config::getArray('filesystem.mounts.' . $this->identifier);
+
+                    return static::newFromSource($mount)->setMetaEnabled($this->meta_enabled)
+                                                        ->setIgnoreDeleted($this>$this->ignore_deleted);
 
                 case 'source_path':
                     // This is a mount that SHOULD already exist on the system
-                    $mount = FsMounts::getMountSources(new PhoDirectory($identifier));
-                    return static::new($mount, meta_enabled: $meta_enabled);
+                    $mount = FsMounts::getMountSources(new PhoDirectory($this->identifier));
+
+                    return static::new($mount)->setMetaEnabled($this>$this->meta_enabled)
+                                              ->setIgnoreDeleted($this>$this->ignore_deleted);
 
                 case 'target_path':
                     // This is a mount that SHOULD already exist on the system
-                    $mount = FsMounts::getMountTargets(new PhoDirectory($identifier));
-                    return static::new($mount, meta_enabled: $meta_enabled);
+                    $mount = FsMounts::getMountTargets(new PhoDirectory($this->identifier));
+
+                    return static::new($mount)->setMetaEnabled($this>$this->meta_enabled)
+                                              ->setIgnoreDeleted($this>$this->ignore_deleted);
             }
 
             throw $e;

@@ -285,6 +285,8 @@ class Role extends DataEntry implements RoleInterface
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return static
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
@@ -302,5 +304,7 @@ class Role extends DataEntry implements RoleInterface
 
                     ->add(DefinitionFactory::newDescription($this)
                                            ->setHelpText(tr('The description for this role')));
+
+        return $this;
     }
 }

@@ -76,7 +76,7 @@ class EmailAddressLinked extends DataEntry
      *
      * @param DefinitionsInterface $definitions
      *
-     * @return EmailAddressLinked
+     * @return static
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {

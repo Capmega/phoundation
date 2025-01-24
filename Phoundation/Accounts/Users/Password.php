@@ -442,7 +442,7 @@ class Password extends DataEntry implements PasswordInterface
      *
      * @param DefinitionsInterface $definitions
      *
-     * @return Password
+     * @return static
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {

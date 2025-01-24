@@ -372,7 +372,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
      *
      * @param DefinitionsInterface $definitions
      *
-     * @return ProfileImage
+     * @return static
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {

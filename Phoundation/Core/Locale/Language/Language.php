@@ -164,7 +164,7 @@ class Language extends DataEntry implements LanguageInterface
      *
      * @param DefinitionsInterface $definitions
      *
-     * @return Language
+     * @return static
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {

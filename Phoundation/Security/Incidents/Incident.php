@@ -490,6 +490,8 @@ class Incident extends DataEntry implements IncidentInterface
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return Incident
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
@@ -608,5 +610,7 @@ class Incident extends DataEntry implements IncidentInterface
                                     ->setSize(12)
                                     ->setRows(15)
                                     ->setMaxlength(16_777_200));
+
+        return $this;
     }
 }

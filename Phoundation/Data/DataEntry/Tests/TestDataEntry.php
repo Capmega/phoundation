@@ -95,7 +95,7 @@ class TestDataEntry extends DataEntry
      *
      * @param DefinitionsInterface $definitions
      *
-     * @return TestDataEntry
+     * @return static
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {

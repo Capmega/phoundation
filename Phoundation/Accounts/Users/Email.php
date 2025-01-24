@@ -160,7 +160,7 @@ class Email extends DataEntry implements EmailInterface
      *
      * @param DefinitionsInterface $definitions
      *
-     * @return Email
+     * @return static
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {

@@ -30,7 +30,6 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryData;
-use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaException;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaInvalidDataException;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaTestException;
@@ -52,11 +51,9 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
      * PhoMeta class constructor
      *
      * @param int|array|string|DataEntryInterface|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
      */
-    public function __construct(int|array|string|DataEntryInterface|null $identifier = null, ?bool $meta_enabled = null, bool $init = true) {
-
+    public function __construct(int|array|string|DataEntryInterface|null $identifier = null)
+    {
         parent::__construct($identifier);
         $this->setGlobalId(Core::getGlobalId());
     }

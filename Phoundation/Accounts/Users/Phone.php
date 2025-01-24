@@ -204,7 +204,7 @@ class Phone extends DataEntry implements PhoneInterface
      *
      * @param DefinitionsInterface $definitions
      *
-     * @return Phone
+     * @return static
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {

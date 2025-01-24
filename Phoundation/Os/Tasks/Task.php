@@ -1262,6 +1262,17 @@ class Task extends DataEntry implements TaskInterface
 
 
     /**
+     * Returns comments for this task
+     *
+     * @return string|null
+     */
+    public function getComments(): ?string
+    {
+        return $this->getTypesafe('string', 'comments');
+    }
+
+
+    /**
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
@@ -1652,16 +1663,5 @@ class Task extends DataEntry implements TaskInterface
                                            ->setHelpText(tr('A description for this task')));
 
         return $this;
-    }
-
-
-    /**
-     * Returns comments for this task
-     *
-     * @return string|null
-     */
-    public function getComments(): ?string
-    {
-        return $this->getTypesafe('string', 'comments');
     }
 }

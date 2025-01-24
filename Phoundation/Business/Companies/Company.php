@@ -115,9 +115,13 @@ class Company extends DataEntry implements CompanyInterface
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return Company
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions;
+
+        return $this;
     }
 }

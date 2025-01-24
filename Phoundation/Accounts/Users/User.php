@@ -85,6 +85,7 @@ use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
@@ -277,30 +278,31 @@ class User extends DataEntry implements UserInterface
      *
      * @note Will throw a NotExistsException if the specified role does not exist
      *
-     * @param RoleInterface|array|string|int|null $role
+     * @param RoleInterface|array|string|int $role
      *
      * @return UserInterface
      * @throws SqlMultipleResultsException, NotExistsException
      */
-    public static function getForRole(RoleInterface|array|string|int|null $role): UserInterface
+    public static function newForRole(RoleInterface|array|string|int $role): UserInterface
     {
-        $role = Role::load($role);
-        $id   = sql()->getColumn('SELECT `accounts_users`.`id`
-                                 FROM   `accounts_users`
-                                 JOIN   `accounts_users_roles`
-                                   ON   `accounts_users_roles`.`users_id` = `accounts_users`.`id`
-                                 WHERE  `accounts_users_roles`.`roles_id` = :roles_id
-                                   AND  `accounts_users_roles`.`status`   IS NULL', [
-            ':roles_id' => $role->getId(),
+        throw new UnderConstructionException('User::newForRole(): This would VERY likely return multiple users!');
+        $role     = Role::new($role)->load();
+        $users_id = sql()->getColumn('SELECT `accounts_users`.`id`
+                                      FROM   `accounts_users`
+                                      JOIN   `accounts_users_roles`
+                                        ON   `accounts_users_roles`.`users_id` = `accounts_users`.`id`
+                                      WHERE  `accounts_users_roles`.`roles_id` = :roles_id
+                                        AND  `accounts_users_roles`.`status`   IS NULL', [
+                                            ':roles_id' => $role->getId(),
         ]);
 
-        if (empty($user)) {
+        if (empty($users_id)) {
             throw new NotExistsException(tr('No user exists that has the role ":role"', [
                 ':role' => $role,
             ]));
         }
 
-        return static::load($id);
+        return static::new($users_id)->load();
     }
 
 
@@ -315,7 +317,7 @@ class User extends DataEntry implements UserInterface
             $user = parent::load();
 
         } catch (DataEntryNotExistsException $e) {
-            $user = static::loadFromAlternativeEmail();
+            $user = $this->loadFromAlternativeEmail();
 
             if (!$user) {
                 // The requested user identifier doesn't exist
@@ -332,33 +334,34 @@ class User extends DataEntry implements UserInterface
      *
      * @return static|null
      */
-    protected static function loadFromAlternativeEmail(): ?static
+    protected function loadFromAlternativeEmail(): ?static
     {
-        if (static::determineColumn($identifier) === 'email') {
+        if (static::determineColumn($this->identifier) === 'email') {
             if ((static::getDefaultConnector() === 'system') and (static::getTable() === 'accounts_users')) {
                 // Try to find the user by alternative email address
                 $user = sql()->get('SELECT `users_id`, `verified_on`
                                     FROM   `accounts_emails` 
                                     WHERE  `email` = :email 
                                       AND  `status` IS NULL', [
-                    ':email' => $identifier['email'],
+                    ':email' => $this->identifier['email'],
                 ]);
 
                 if ($user) {
-                    if ($user['verified_on'] or !Config::getBoolean('security.accounts.identify.alternates.require-verified', true)) {
+                    if ($user['verified_on'] or !Config::getBoolean('security.accounts.identify.email.verification.required', true)) {
                         $user = static::new($user['users_id'])->setMetaEnabled($this->meta_enabled)
                                                               ->setIgnoreDeleted($this->ignore_deleted)
+                                                              ->load();
 
                         Log::warning(tr('Identified user ":user" with alternate email ":email"', [
                             ':user'  => $user->getLogId(),
-                            ':email' => $identifier,
+                            ':email' => $this->identifier,
                         ]));
 
                         return $user;
                     }
 
                     Log::warning(tr('Cannot identify user ":user" on alternate email, the email does not have the required verification', [
-                        ':user' => $identifier,
+                        ':user' => $this->identifier,
                     ]));
                 }
             }
@@ -391,6 +394,7 @@ class User extends DataEntry implements UserInterface
             // This is a system type user, either system or guest
             return Strings::log($this->getId()) . ' / ' . $this->getNickname();
         }
+
         $id    = $this->getTypesafe('int', $this->getIdColumn());
         $label = $this->getTypesafe('string|int', static::getUniqueColumn() ?? 'id');
 
@@ -2606,7 +2610,7 @@ class User extends DataEntry implements UserInterface
      *
      * @param DefinitionsInterface $definitions
      *
-     * @return User
+     * @return static
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {

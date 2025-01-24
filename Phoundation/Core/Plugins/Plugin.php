@@ -558,7 +558,7 @@ class Plugin extends DataEntry implements PluginInterface
      *
      * @param DefinitionsInterface $definitions
      *
-     * @return Plugin
+     * @return static
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {

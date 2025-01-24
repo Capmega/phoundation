@@ -363,7 +363,7 @@ class Upload extends DataEntry implements UploadInterface
      *
      * @param DefinitionsInterface $definitions
      *
-     * @return Upload
+     * @return static
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {

@@ -164,7 +164,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
      *
      * @param DefinitionsInterface $definitions
      *
-     * @return SshAccount
+     * @return static
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {

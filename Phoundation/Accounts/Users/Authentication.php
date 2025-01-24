@@ -441,6 +441,8 @@ class Authentication extends DataEntry implements AuthenticationInterface
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return Authentication
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
@@ -549,5 +551,6 @@ class Authentication extends DataEntry implements AuthenticationInterface
                                     ->setOptional(true)
                                     ->setMaxlength(4090)
                                     ->setSize(4));
+        return $this;
     }
 }
