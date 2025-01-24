@@ -40,7 +40,7 @@ $argv = ArgvValidator::new()
 
 
 // Delete the account
-SshAccount::load($argv['name'])
+SshAccount::new($argv['name'])->load()
           ->setSshKey('')
           ->save()
           ->delete();

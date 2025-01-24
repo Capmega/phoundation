@@ -70,7 +70,7 @@ $argv = ArgvValidator::new()
 // Ensure that specified roles exist
 if ($argv['roles']) {
     foreach ($argv['roles'] as &$role) {
-        $role = Role::load($role);
+        $role = Role::new($role)->load();
     }
 
     unset($role);

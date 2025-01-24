@@ -120,7 +120,7 @@ class Emails extends DataIterator implements EmailsInterface
      */
     public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
     {
-        $this->parent  = User::load($this->parent);
+        $this->parent  = User::new($this->parent)->load();
         $this->execute = [':users_id' => $this->parent->getId()];
 
         return parent::load();
@@ -217,7 +217,7 @@ class Emails extends DataIterator implements EmailsInterface
             $diff = Arrays::deleteDiff($diff, $emails);
 
             foreach ($diff['delete'] as $id => $email) {
-                Email::load($id)->delete();
+                Email::new($id)->load()->delete();
 
                 $this->removeKeys($id);
             }
@@ -233,7 +233,7 @@ class Emails extends DataIterator implements EmailsInterface
 
             // Update all other email addresses
             foreach ($diff['keep'] as $id => $email) {
-                Email::load($id)
+                Email::new($id)->load()
                      ->apply(false, $emails[$email])
                      ->setUsersId($this->parent->getId())
                      ->save();

@@ -62,7 +62,7 @@ trait TraitDataEntryTask
     public function getTask(): ?TaskInterface
     {
         if (!isset($this->task)) {
-            $this->task = Task::loadOrNull($this->getTasksId());
+            $this->task = Task::new($this->getTasksId())->loadOrNull();
         }
 
         return $this->task;
@@ -109,6 +109,6 @@ trait TraitDataEntryTask
      */
     public function setTasksCode(?string $code): static
     {
-        return $this->setTask(Task::load($code));
+        return $this->setTask(Task::new($code)->load());
     }
 }

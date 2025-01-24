@@ -63,7 +63,7 @@ trait TraitDataEntryProvider
     public function getProviderObject(): ?ProviderInterface
     {
         if (empty($this->o_provider)) {
-            $this->o_provider = Provider::loadOrNull($this->getTypesafe('int', 'providers_id'));
+            $this->o_provider = Provider::new($this->getTypesafe('int', 'providers_id'))->loadOrNull();
         }
 
         return $this->o_provider;
@@ -105,6 +105,6 @@ trait TraitDataEntryProvider
      */
     public function setProvidersName(?string $providers_name): static
     {
-        return $this->setProviderObject(Provider::loadOrNull(['name' => $providers_name]));
+        return $this->setProviderObject(Provider::new(['name' => $providers_name])->loadOrNull());
     }
 }

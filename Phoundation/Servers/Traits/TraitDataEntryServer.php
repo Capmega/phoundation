@@ -63,7 +63,7 @@ trait TraitDataEntryServer
     public function getServer(): ?ServerInterface
     {
         if (!isset($this->server)) {
-            $this->server = Server::loadOrNull($this->getServersId());
+            $this->server = Server::new($this->getServersId())->loadOrNull();
         }
 
         return $this->server;
@@ -110,6 +110,6 @@ trait TraitDataEntryServer
      */
     public function setServersHostname(?string $hostname): static
     {
-        return $this->setServer(Server::load($hostname));
+        return $this->setServer(Server::new($hostname)->load());
     }
 }

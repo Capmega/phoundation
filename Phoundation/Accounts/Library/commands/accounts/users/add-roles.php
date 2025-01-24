@@ -62,18 +62,18 @@ try {
     // Ensure that specified roles exist
     if ($argv['roles']) {
         foreach ($argv['roles'] as &$role) {
-            $role = Role::load($role);
+            $role = Role::new($role)->load();
         }
 
         unset($role);
     }
 
     // Get user and add roles
-    $user  = User::load($argv['user']);
+    $user  = User::new($argv['user'])->load();
     $roles = $user->getRolesObject();
 
     foreach ($argv['roles'] as $role) {
-        $roles->add(Role::load($role));
+        $roles->add(Role::new($role)->load());
     }
 
     if ($roles->save()) {

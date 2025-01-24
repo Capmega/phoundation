@@ -68,7 +68,7 @@ trait TraitDataEntryUsersId
             $users_id = $this->getTypesafe('int', 'users_id');
 
             if ($users_id) {
-                $this->user = User::load($users_id);
+                $this->user = User::new($users_id)->load();
             }
         }
 

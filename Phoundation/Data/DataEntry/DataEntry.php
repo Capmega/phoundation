@@ -61,7 +61,7 @@
  * on a per extending class basis)
  *
  * DataEntry objects contain a definition of both the table and the structure of said table. This makes it that the
- * entry can read and write data simply with DataEntry::load() or DataEntry::save(). Each DataEntry object will know
+ * entry can read and write data simply with DataEntry::new() or DataEntry::save()->load(). Each DataEntry object will know
  * exactly what columns are available to this entry, and will also know how to properly validate each column. When any
  * value inside the object is changed, the object cannot write to disk without first validating each column value. If
  * any validation fails, a ValidationFailedException will be thrown. DataEntry objects also have definition information

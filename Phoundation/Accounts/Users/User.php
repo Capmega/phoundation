@@ -553,7 +553,7 @@ class User extends DataEntry implements UserInterface
     protected static function doAuthenticate(array $identifier, string $password, AuthenticationInterface $authentication, ?string $domain, bool $test = false): static
     {
         try {
-            $user = static::load($identifier);
+            $user = static::new($identifier)->load();
 
             if ($user->passwordMatch($password)) {
                 static::authenticateDomain($identifier, $user, $authentication, $domain, $test);
@@ -766,7 +766,7 @@ class User extends DataEntry implements UserInterface
             if ($roles) {
                 // Add all default roles one by one
                 foreach (Arrays::force($roles) as $role) {
-                    $o_roles->add(Role::load($role));
+                    $o_roles->add(Role::new($role)->load());
                 }
 
                 // Write the default roles to the database
@@ -1651,7 +1651,7 @@ class User extends DataEntry implements UserInterface
     public function setLeadersEmail(?string $leaders_email): static
     {
         if ($leaders_email) {
-            $leaders_id = User::load(['email' => $leaders_email])->getId();
+            $leaders_id = User::new(['email' => $leaders_email])->load()->getId();
         }
 
         return $this->setLeadersId(isset_get($leaders_id));
@@ -1689,7 +1689,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getLeader(): ?UserInterface
     {
-        return static::loadOrNull($this->getTypesafe('int', 'leaders_id'));
+        return static::new($this->getTypesafe('int', 'leaders_id'))->loadOrNull();
     }
 
 
@@ -2383,17 +2383,17 @@ class User extends DataEntry implements UserInterface
     /**
      * Returns true if the user has the specified role
      *
-     * @param RolesInterface|Stringable|string $role
-     * @param string|null                      $message
+     * @param RolesInterface|RoleInterface|Stringable|string $roles
+     * @param string|null                                    $message
      *
      * @return static
      */
-    public function checkRole(RolesInterface|Stringable|string $role, ?string $message = null): static
+    public function checkRoles(RolesInterface|RoleInterface|Stringable|string $roles, ?string $message = null): static
     {
-        if (!$this->hasRole($role)) {
-            throw new NotExistsException($message ?? tr('The user ":user" does not have the required role ":role"', [
-                ':user' => $this->getLogId(),
-                ':role' => $role,
+        if (!$this->hasRoles($roles)) {
+            throw new NotExistsException($message ?? tr('The user ":user" does not have the required role(s) ":roles"', [
+                ':user'  => $this->getLogId(),
+                ':roles' => $roles,
             ]));
         }
 
@@ -2404,14 +2404,25 @@ class User extends DataEntry implements UserInterface
     /**
      * Returns true if the user has the specified role
      *
-     * @param RolesInterface|Stringable|string $role
+     * @param RolesInterface|RoleInterface|Stringable|string $roles
      *
      * @return bool
      */
-    public function hasRole(RolesInterface|Stringable|string $role): bool
+    public function hasRoles(RolesInterface|RoleInterface|Stringable|string $roles): bool
     {
-        return $this->getRolesObject()
-                    ->keyExists($role);
+        $result = true;
+        $roles  = Arrays::force($roles);
+
+        foreach ($roles as $role) {
+            $exists = $this->getRolesObject()->keyExists($role);
+
+            if ($exists) {
+                $result = false;
+                break;
+            }
+        }
+
+        return $result;
     }
 
 
@@ -2554,7 +2565,7 @@ class User extends DataEntry implements UserInterface
 
         if ($profile_images_id) {
             // Return the user's profile image
-            return ProfileImage::load($profile_images_id);
+            return ProfileImage::new($profile_images_id)->load();
         }
 
         // No profile image was set, return the default

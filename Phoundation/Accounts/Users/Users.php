@@ -216,7 +216,7 @@ class Users extends DataIterator implements UsersInterface
 
             } else {
                 // Add single right. Since this is a User object, the entry already exists in the database
-                $value = User::load($value);
+                $value = User::new($value)->load();
 
                 // User already exists for this parent?
                 if ($this->hasUser($value)) {
@@ -282,7 +282,7 @@ class Users extends DataIterator implements UsersInterface
 
         } else {
             // Add a single user. Since this is a User object, the entry already exists in the database
-            $user = User::load($keys);
+            $user = User::new($keys)->load();
 
             if ($this->parent instanceof RoleInterface) {
                 Log::action(tr('Removing user ":user" from role ":role"', [
@@ -540,7 +540,7 @@ class Users extends DataIterator implements UsersInterface
      */
     public function loadForRole(RoleInterface|Stringable|string $role): static
     {
-        $role = Role::load($role);
+        $role = Role::new($role)->load();
 
         $this->getQueryBuilder()
              ->addSelect('`accounts_users`.`id` AS `key`,

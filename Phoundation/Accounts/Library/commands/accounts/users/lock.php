@@ -59,5 +59,5 @@ if (ALL) {
 
 } else {
     // Lock this user
-    User::load($argv['user'])->lock();
+    User::new($argv['user'])->load()->lock();
 }

@@ -48,4 +48,4 @@ $argv = ArgvValidator::new()
 
 
 // Undelete the user
-User::load($argv['user'])->undelete();
+User::new($argv['user'])->load()->undelete();

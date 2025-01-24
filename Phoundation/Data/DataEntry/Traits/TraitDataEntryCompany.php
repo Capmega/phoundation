@@ -63,7 +63,7 @@ trait TraitDataEntryCompany
     public function getCompanyObject(): ?CompanyInterface
     {
         if (empty($this->o_company)) {
-            $this->o_company = Company::loadOrNull($this->getTypesafe('int', 'companies_id'));
+            $this->o_company = Company::new($this->getTypesafe('int', 'companies_id'))->loadOrNull();
         }
 
         return $this->o_company;
@@ -105,6 +105,6 @@ trait TraitDataEntryCompany
      */
     public function setCompaniesName(?string $companies_name): static
     {
-        return $this->setCompanyObject(Company::loadOrNull(['name' => $companies_name]));
+        return $this->setCompanyObject(Company::new(['name' => $companies_name])->loadOrNull());
     }
 }

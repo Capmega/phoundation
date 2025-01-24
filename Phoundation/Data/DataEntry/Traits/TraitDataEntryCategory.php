@@ -63,7 +63,7 @@ trait TraitDataEntryCategory
     public function getCategoryObject(): ?CategoryInterface
     {
         if (empty($this->o_category)) {
-            $this->o_category = Category::loadOrNull($this->getTypesafe('int', 'categories_id'));
+            $this->o_category = Category::new($this->getTypesafe('int', 'categories_id'))->loadOrNull();
         }
 
         return $this->o_category;
@@ -105,6 +105,6 @@ trait TraitDataEntryCategory
      */
     public function setCategoriesName(?string $categories_name): static
     {
-        return $this->setCategoryObject(Category::loadOrNull(['name' => $categories_name]));
+        return $this->setCategoryObject(Category::new(['name' => $categories_name])->loadOrNull());
     }
 }

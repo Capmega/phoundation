@@ -63,7 +63,7 @@ trait TraitDataEntryCountry
     public function getCountryObject(): ?CountryInterface
     {
         if (empty($this->o_country)) {
-            $this->o_country = Country::loadOrNull($this->getTypesafe('int', 'countries_id'));
+            $this->o_country = Country::new($this->getTypesafe('int', 'countries_id'))->loadOrNull();
         }
 
         return $this->o_country;
@@ -105,6 +105,6 @@ trait TraitDataEntryCountry
      */
     public function setCountriesName(?string $countries_name): static
     {
-        return $this->setCountryObject(Country::loadOrNull(['name' => $countries_name]));
+        return $this->setCountryObject(Country::new(['name' => $countries_name])->loadOrNull());
     }
 }

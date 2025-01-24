@@ -54,7 +54,7 @@ if (Request::isPostRequestMethod()) {
                              ->validate();
 
         try {
-            $user = User::load($post['email']);
+            $user = User::new($post['email'])->load();
             $key  = $user->getSigninKey()->generate(Url::new('/update-lost-password.html')->makeWww());
 
             $mail = new PHPMailer();

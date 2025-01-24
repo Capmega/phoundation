@@ -49,7 +49,7 @@ Company::notExists(['name' => $argv['name']], null, true);
 // Ensure that specified companies exist
 if ($argv['rights']) {
     foreach ($argv['rights'] as &$right) {
-        $right = Company::load($right);
+        $right = Company::new($right)->load();
     }
 
     unset($right);

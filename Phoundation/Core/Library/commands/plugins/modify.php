@@ -55,7 +55,7 @@ $argv = ArgvValidator::new()
 
 
 // Get plugin
-$plugin = Plugin::load($argv['plugin']);
+$plugin = Plugin::new($argv['plugin'])->load();
 
 
 // Modify plugin

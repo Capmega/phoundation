@@ -116,7 +116,7 @@ class SshAccounts extends DataIterator
      */
     public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
     {
-        parent::load($identifiers, $clear, $only_if_empty);
+        parent::new($identifiers, $clear, $only_if_empty)->load();
 
         // If any of the accounts have the "file" key, replace that key with ssh_key value
         foreach ($this->source as &$entry) {

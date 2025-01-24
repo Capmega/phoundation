@@ -899,7 +899,7 @@ class Session implements SessionInterface
         // Create a new user object and ensure it's still good to go
         try {
             // This user is loaded by the session object and should NOT use meta-tracking!
-            return User::load($users_id);
+            return User::new($users_id)->load();
 
         } catch (DataEntryNotExistsException) {
             Log::warning(tr('The session user ":id" does not exist, removing session entry and dropping to guest user', [
@@ -1344,7 +1344,7 @@ class Session implements SessionInterface
                     ]))
                     ->setDetails([
                         'user'                => static::getUserObject()->getLogId(),
-                        'impersonating'       => User::load($_SESSION['user']['impersonate_id'])->getLogId(),
+                        'impersonating'       => User::new($_SESSION['user']['impersonate_id'])->load()->getLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
                     ->setNotifyRoles('security')
@@ -1617,19 +1617,19 @@ class Session implements SessionInterface
                             ->setType('User impersonation')
                             ->setSeverity(EnumSeverity::low)
                             ->setTitle(tr('The user ":user" stopped impersonating user ":impersonate"', [
-                                ':user'        => User::load($users_id)->getLogId(),
-                                ':impersonate' => User::load($impersonate_id)->getLogId(),
+                                ':user'        => User::new($users_id)->load()->getLogId(),
+                                ':impersonate' => User::new($impersonate_id)->load()->getLogId(),
                             ]))
                             ->setDetails([
-                                'user'        => User::load($users_id)->getLogId(),
-                                'impersonate' => User::load($impersonate_id)->getLogId(),
+                                'user'        => User::new($users_id)->load()->getLogId(),
+                                'impersonate' => User::new($impersonate_id)->load()->getLogId(),
                             ])
                             ->setNotifyRoles('security')
                             ->save();
 
                     Response::getFlashMessagesObject()
                             ->addSuccess(tr('You have stopped impersonating user ":user"', [
-                                ':user' => User::load($users_id)->getLogId(),
+                                ':user' => User::new($users_id)->load()->getLogId(),
                             ]));
 
                     Response::redirect($url);

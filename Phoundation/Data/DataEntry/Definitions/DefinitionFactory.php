@@ -1728,7 +1728,7 @@ class DefinitionFactory
                                      return InputText::new()
                                                      ->setDisabled(true)
                                                      ->addClasses('text-center')
-                                                     ->setValue(User::load($source[$key])
+                                                     ->setValue(User::new($source[$key])->load()
                                                          ->getDisplayName());
                                  } else {
                                      return InputText::new()
@@ -1858,7 +1858,7 @@ class DefinitionFactory
                                      return InputText::new()
                                                      ->setDisabled(true)
                                                      ->addClasses('text-center')
-                                                     ->setValue(User::load($source[$key])
+                                                     ->setValue(User::new($source[$key])->load()
                                                          ->getDisplayName());
                                  } else {
                                      return InputText::new()

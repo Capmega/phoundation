@@ -26,6 +26,6 @@ $get = GetValidator::new()
 
 
 // Update notification status to READ and return it
-JsonPage::new()->reply(Notification::load($get['id'])
+JsonPage::new()->reply(Notification::new($get['id'])->load()
                             ->setStatus('READ')
                             ->__toArray());

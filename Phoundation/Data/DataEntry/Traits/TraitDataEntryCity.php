@@ -63,7 +63,7 @@ trait TraitDataEntryCity
     public function getCityObject(): ?CityInterface
     {
         if (empty($this->o_city)) {
-            $this->o_city = City::loadOrNull($this->getTypesafe('int', 'cities_id'));
+            $this->o_city = City::new($this->getTypesafe('int', 'cities_id'))->loadOrNull();
         }
 
         return $this->o_city;
@@ -105,6 +105,6 @@ trait TraitDataEntryCity
      */
     public function setCitiesName(?string $cities_name): static
     {
-        return $this->setCityObject(City::loadOrNull(['name' => $cities_name]));
+        return $this->setCityObject(City::new(['name' => $cities_name])->loadOrNull());
     }
 }

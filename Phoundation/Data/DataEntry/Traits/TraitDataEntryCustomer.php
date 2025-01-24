@@ -63,7 +63,7 @@ trait TraitDataEntryCustomer
     public function getCustomerObject(): ?CustomerInterface
     {
         if (empty($this->o_customer)) {
-            $this->o_customer = Customer::loadOrNull($this->getTypesafe('int', 'customers_id'));
+            $this->o_customer = Customer::new($this->getTypesafe('int', 'customers_id'))->loadOrNull();
         }
 
         return $this->o_customer;
@@ -105,6 +105,6 @@ trait TraitDataEntryCustomer
      */
     public function setCustomersName(?string $customers_name): static
     {
-        return $this->setCustomerObject(Customer::loadOrNull(['name' => $customers_name]));
+        return $this->setCustomerObject(Customer::new(['name' => $customers_name])->loadOrNull());
     }
 }

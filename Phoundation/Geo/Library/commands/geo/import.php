@@ -83,7 +83,7 @@ if (!$argv['no_import']) {
 
     // Load the datafiles into a geonames database
     Log::action(tr('Loading geonames files into temporary database'));
-    Import::load($argv['target_path'] . '_processed', $argv['database']);
+    Import::new($argv['target_path'] . '_processed', $argv['database'])->load();
 }
 
 

@@ -53,7 +53,7 @@ if (Request::isPostRequestMethod()) {
                              ->select('email')->isEmail()
                              ->validate();
 
-        $user = User::load(['email' => $post['email']]);
+        $user = User::new(['email' => $post['email']])->load();
 
         if ($user->isLocked() or $user->isDeleted()) {
             // Yikes, this account is locked or deleted, no password request can be sent!

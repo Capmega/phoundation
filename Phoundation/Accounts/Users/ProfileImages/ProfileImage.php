@@ -261,7 +261,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                 // Assign the profile image to the specified user
                 if (empty($o_user)) {
                     // We need a user object
-                    $o_user = User::load($users_id);
+                    $o_user = User::new($users_id)->load();
                 }
 
                 $cdn_directory = PhoDirectory::newCdnObject(true, '/img/files/profile/' . $users_id)

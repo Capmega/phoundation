@@ -81,7 +81,7 @@ $argv = ArgvValidator::new()
 
 
 // Send emails directly using PHPMailer
-$to   = User::load($argv['to']);
+$to   = User::new($argv['to'])->load();
 $mail = new PHPMailer();
 
 $mail->Host    = "10.10.0.9";
@@ -95,7 +95,7 @@ $mail->addAddress($to->getEmail(), $to->getDisplayName());
 
 try {
     if ($argv['from']) {
-        $from = User::load($argv['from']);
+        $from = User::new($argv['from'])->load();
         $mail->setFrom($from->getEmail(), $from->getDisplayName());
 
     } else {

@@ -49,7 +49,7 @@ $argv = ArgvValidator::new()
 
 
 // Display user data
-$user = User::load($argv['user']);
+$user = User::new($argv['user'])->load();
 $user->displayCliForm();
 
 

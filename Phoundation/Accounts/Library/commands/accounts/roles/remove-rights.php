@@ -48,14 +48,14 @@ try {
     // Ensure that specified $rights exist
     if ($argv['rights']) {
         foreach ($argv['rights'] as &$right) {
-            $right = Right::load($right);
+            $right = Right::new($right)->load();
         }
 
         unset($right);
     }
 
     // Get role and add rights
-    $role = Role::load($argv['role']);
+    $role = Role::new($argv['role'])->load();
     $role->getRightsObject()->delete($argv['rights']);
 
 } catch (DataEntryNotExistsException $e) {
