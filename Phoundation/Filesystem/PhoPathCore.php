@@ -594,6 +594,19 @@ class PhoPathCore implements PhoPathInterface
 
 
     /**
+     * Returns the specified path with a trailing slash if it is a directory
+     */
+    protected static function ensureDirectorySlash(string $path): string
+    {
+        if (is_dir($path)) {
+            $path = Strings::ensureEndsWith($path, '/');
+        }
+
+        return $path;
+    }
+
+
+    /**
      * Makes the specified path absolute if it's not
      *
      * The start character will be treated as follows:
@@ -620,17 +633,17 @@ class PhoPathCore implements PhoPathInterface
 
         if ($absolute_prefix === false) {
             // Don't make it absolute at all
-            return (string) $path;
+            return static::ensureDirectorySlash((string) $path);
         }
 
         if (!$path) {
             // No path specified? Return the absolute prefix
-            return static::resolveAbsolutePrefix($absolute_prefix);
+            return static::ensureDirectorySlash(static::resolveAbsolutePrefix($absolute_prefix));
         }
 
         if (static::onDomain($path)) {
             // This is a domain:/file URL, it's already absolute
-            return $path;
+            return static::ensureDirectorySlash($path);
         }
 
         // Validate the specified path, it must be an actual path
@@ -691,7 +704,7 @@ class PhoPathCore implements PhoPathInterface
             // The path doesn't exist, but apparently that's okay! Continue!
         }
 
-        return InstanceCache::set($return, 'path::absolutePath', $path);
+        return InstanceCache::set(static::ensureDirectorySlash($return), 'path::absolutePath', $path);
     }
 
 
@@ -713,7 +726,7 @@ class PhoPathCore implements PhoPathInterface
         $absolute_prefix = trim((string) $absolute_prefix);
 
         // Try to apply default prefixes
-        return match ($absolute_prefix) {
+        $return = match ($absolute_prefix) {
             ''                       => DIRECTORY_ROOT,
             'css'                    => DIRECTORY_CDN . LANGUAGE . '/css/',
             'js', 'javascript'       => DIRECTORY_CDN . LANGUAGE . '/js/',
@@ -722,6 +735,8 @@ class PhoPathCore implements PhoPathInterface
             'video', 'videos'        => DIRECTORY_CDN . LANGUAGE . '/video/',
             default                  => $absolute_prefix,
         };
+
+        return static::ensureDirectorySlash($return);
     }
 
 
@@ -2118,6 +2133,7 @@ class PhoPathCore implements PhoPathInterface
      * While PHP realpath() call may return false if the specified path does not exist, this method will both ensure the
      * parent directory of the specified path exists and a valid absolute and real path is always returned
      *
+     * @todo add InstanceCache support
      * @param string                      $path
      * @param Stringable|string|bool|null $absolute_prefix
      * @param bool                        $must_exist
@@ -2149,10 +2165,10 @@ class PhoPathCore implements PhoPathInterface
         $real = realpath(Strings::slash($parent) . $base);
 
         if ($real) {
-            return $real;
+            return static::ensureDirectorySlash($real);
         }
 
-        return Strings::slash($parent) . $base;
+        return static::ensureDirectorySlash(Strings::slash($parent) . $base);
     }
 
 

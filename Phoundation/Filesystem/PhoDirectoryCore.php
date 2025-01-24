@@ -889,7 +889,6 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
              ->setWhitelistExtensions(array_keys($return['file_extensions']))
              ->onFiles(function (string $path) use (&$return) {
                 try {
-
                     $file      = PhoFile::new($path, $this->restrictions);
                     $extension = $file->getExtension();
 

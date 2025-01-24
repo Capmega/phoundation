@@ -941,6 +941,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
     /**
      * Returns an array with PHP code statistics for this file
      *
+     * @todo refactor this method: Move it to a separate PhoFileStatistics class, then split this huge method into various smaller methods
      * @return array
      */
     public function getPhpStatistics(): array
@@ -983,10 +984,12 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
 
             if ($block_comment) {
                 $return['comment_lines']++;
+
                 // End of comment block
                 if (str_contains($line, '*/')) {
                     $block_comment = false;
                     $line          = Strings::from($line, '*/');
+
                 } else {
                     // Nope, still block comment
                     continue;
@@ -998,6 +1001,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
                 $return['comment_lines']++;
                 continue;
             }
+
             // Comment block
             if (str_contains($line, '/*')) {
                 $block_comment = true;
@@ -1074,6 +1078,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
                 $return['code_lines']++;
             }
         }
+
         $return['lines'] += count($data);
 
         return $return;

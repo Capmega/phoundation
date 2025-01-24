@@ -434,14 +434,17 @@ class PhoExecute extends PhoDirectory implements PhoExecuteInterface
 
         // Get al files in this directory
         $this->source = PhoPath::absolutePath($this->source);
+
         // Skip this directory?
         if ($this->skip($this->source)) {
             return 0;
         }
+
         if ($this->mode) {
             // Temporarily change mode for this callback
             $mode = $this->switchMode($this->mode);
         }
+
         try {
             $files = scandir($this->source);
 
@@ -455,6 +458,7 @@ class PhoExecute extends PhoDirectory implements PhoExecuteInterface
                 // skip these
                 continue;
             }
+
             if ($file[0] === '.') {
                 if (!$this->follow_hidden) {
                     Log::warning(tr('Not following directory ":directory", hidden files are ignored', [
