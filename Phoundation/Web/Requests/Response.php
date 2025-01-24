@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
 
@@ -1670,7 +1670,7 @@ class Response implements ResponseInterface
      *
      * @return array
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
          * @package   http
      * @see       htt_noCache()
@@ -1881,7 +1881,7 @@ class Response implements ResponseInterface
      * Send the required headers to ensure that the page will not be cached ever
      *
      * @return void
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
          * @package   http
      * @see       Http::cache()

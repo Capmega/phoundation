@@ -6,7 +6,7 @@
  * This is the standard Phoundation string functionality extension class
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category  Class reference
  * @package   Phoundation\Utils
@@ -855,7 +855,7 @@ class Strings extends Utils
      *
      * @return string The result
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @package   strings
      * @version   2.6.25: Added function and documentation
@@ -975,7 +975,7 @@ class Strings extends Utils
      *
      * @return string The $source string between the first occurrences of start and $stop
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @package   str
      * @see       Strings::from()

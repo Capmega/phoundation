@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
 
@@ -34,7 +34,7 @@ class InputSelectSubmit extends InputSelect
         /*
          * Return HTML for a multi select submit button. This button, once clicked, will show a list of selectable submit buttons.
          *
-         * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+         * @copyright Copyright © 2022 Sven Olaf Oostenbrink
          * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
          * @category Function reference
          * @package html

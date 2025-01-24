@@ -8,7 +8,7 @@
  * @see       DataEntry
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Security
  * @todo      Incidents should be able to throw exceptions depending on type. AuthenticationFailureExceptions, for
  *            example, should be thrown from here so that it is no longer required for the developer to both register

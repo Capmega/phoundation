@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
 
@@ -148,7 +148,7 @@ class Html
      * This function will generate the entrire HTML header, from <!DOCTYPE> until </head><body>
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
@@ -301,7 +301,7 @@ class Html
      * Generate all <meta> tags
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
@@ -343,7 +343,7 @@ class Html
      * Generate all open graph <meta> tags
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
@@ -471,7 +471,7 @@ class Html
      * This function should be called in your c_page() function
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
@@ -567,7 +567,7 @@ class Html
      * This function should be called in your c_page() function
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
@@ -614,7 +614,7 @@ class Html
 //     * This function will scan the $_SESSION[flash] array for messages to be displayed as flash messages. If $class is specified, only messages that have the specified class will be displayed. If multiple flash messages are available, all will be returned. Messages that are returned will be removed from the $_SESSION[flash] array.
 //     *
 //     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+//     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package html
@@ -787,7 +787,7 @@ class Html
 //     * Each message requires a type, which can be one of info, warning, error, or success. Depending on the type, the shown flash message will be one of those four types
 //     *
 //     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+//     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package html
@@ -958,7 +958,7 @@ class Html
     /*
      * Return HTML for a multi select submit button. This button, once clicked, will show a list of selectable submit buttons.
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
@@ -1004,7 +1004,7 @@ class Html
      * This function is the go-to function when <select> boxes must be created.
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
@@ -1082,7 +1082,7 @@ class Html
      * This function returns only the body (<option> tags) for a <select> list. Typically, html_select() would be used, but this function is useful in situations where only the <option> tags would be required, like for example a web page that dynamically wants to change the contents of a <select> box using an AJAX call
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
@@ -1141,7 +1141,7 @@ class Html
      * Generate HTML <script> tags, and depending on load_delayed, return them immediately or attach them to $core->resource[footer]
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
@@ -1587,7 +1587,7 @@ class Html
      *
      * @return string The result
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
          * @package   image
      * @version   2.5.161: Added function and documentation
@@ -2357,7 +2357,7 @@ class Html
      *
      * This function works by assuming that each checkbox with name NAME has a hidden field with name _NAME. If NAME is missing, _NAME will be moved to NAME
      *
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
@@ -2382,7 +2382,7 @@ class Html
 //     * attached
 //     *
 //     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+//     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package html
@@ -2439,7 +2439,7 @@ class Html
 //     * Returns the current global tabindex and automatically increases it
 //     *
 //     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+//     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package html
@@ -2456,7 +2456,7 @@ class Html
 //     * Set the base URL for CDN requests from javascript
 //     *
 //     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+//     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package html
@@ -2473,7 +2473,7 @@ class Html
      * Filter the specified tags from the specified HTML
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
@@ -2522,7 +2522,7 @@ class Html
      * This function typically should be executed in the c_page_header() call, and the HTML output of this function should be inserted at the beginning of the HTML that that function generates. This way, the loader screen will be the first thing (right after the <body> tag) that the browser will render, hiding all the other elements that are buiding up.
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
@@ -2648,7 +2648,7 @@ class Html
      * This function will strip all attributes except for those attributes specified in $allowed_attributes
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html

@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Date
  * @see https://momentjs.com/docs/#/displaying/format/ for JavaScript date/time formatting options
  * @see https://www.php.net/manual/en/datetime.format.php for PHP date/time formatting options
