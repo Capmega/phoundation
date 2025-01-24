@@ -119,7 +119,7 @@ class Phones extends DataIterator implements PhonesInterface
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
+    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false): static
     {
         $this->parent  = User::new($this->parent)->load();
         $this->execute = [':users_id' => $this->parent->getId()];

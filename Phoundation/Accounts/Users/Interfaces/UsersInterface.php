@@ -48,7 +48,7 @@ interface UsersInterface extends DataIteratorInterface
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false): static;
+    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false): static;
 
     /**
      * Save the data for this users list in the database

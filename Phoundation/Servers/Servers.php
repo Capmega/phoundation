@@ -114,7 +114,7 @@ class Servers extends DataIterator
     /**
      * @inheritDoc
      */
-    public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
+    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false): static
     {
         throw new UnderConstructionException();
         $this->source = sql()->list('SELECT `servers`.`id`, `servers`.`hostname`, `servers`.`created_on`, `servers`.`status` 

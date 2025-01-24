@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class DataException
+ * Class DataIteratorException
  *
- * This is the standard exception for DataEntry classes
+ * This is the standard exception for DataIterator classes
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -19,7 +19,6 @@ namespace Phoundation\Data\DataEntry\Exception;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryExceptionInterface;
 use Phoundation\Data\Exception\DataException;
 
-
-class DataEntryException extends DataException implements DataEntryExceptionInterface
+class DataIteratorException extends DataException implements DataEntryExceptionInterface
 {
 }

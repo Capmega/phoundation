@@ -75,7 +75,7 @@ class Connectors extends DataIterator implements ConnectorsInterface
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false, bool $ignore_sql_exceptions = false): static
+    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false, bool $ignore_sql_exceptions = false): static
     {
         try {
             parent::new($identifiers, $clear, $only_if_empty)->load();
