@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Filesystem
  */
 
@@ -43,17 +43,15 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
      * FsMimetype class constructor
      *
      * @param array|int|string|DataEntryInterface|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
      */
-    public function __construct(array|int|string|DataEntryInterface|null $identifier = null, ?bool $meta_enabled = null, bool $init = false)
+    public function __construct(array|int|string|DataEntryInterface|null $identifier = null)
     {
         $this->min_priority = 0;
         $this->max_priority = 5;
 
         $this->setDefaultPriority(0);
 
-        parent::__construct($identifier, $meta_enabled, $init);
+        parent::__construct($identifier);
     }
 
 
@@ -348,7 +346,7 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
      *
      * @param DefinitionsInterface $definitions
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newName($this)
                                            ->setOptional(false)

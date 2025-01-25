@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
 
@@ -51,7 +51,7 @@ $argv = ArgvValidator::new()
 
 
 // Load account, ensure the new account name doesn't exist yet
-$account = SshAccount::load($argv['identifier']);
+$account = SshAccount::new()->load($argv['identifier']);
 
 
 // Add SSH key for this account either from file or from CLI input

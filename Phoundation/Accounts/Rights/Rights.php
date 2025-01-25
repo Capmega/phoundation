@@ -8,7 +8,7 @@
  * @see       DataIterator
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
 
@@ -283,7 +283,7 @@ class Rights extends DataIterator implements RightsInterface
 
             } else {
                 // Add single right. Since this is a Right object, the entry already exists in the database
-                $value = Right::load($value);
+                $value = Right::new()->load($value);
 
                 // Right already exists for this parent?
                 if ($this->hasRight($value)) {
@@ -318,7 +318,7 @@ class Rights extends DataIterator implements RightsInterface
 
                     // Update all roles with this right to get the new right as well!
                     foreach ($this->parent->getUsersObject() as $user) {
-                        User::load($user)
+                        User::new()->load($user)
                             ->getRightsObject()
                             ->add($value);
                     }
@@ -389,7 +389,7 @@ class Rights extends DataIterator implements RightsInterface
 
         } else {
             // Add single right. Since this is a Right object, the entry already exists in the database
-            $right = Right::load($keys);
+            $right = Right::new()->load($keys);
 
             if ($this->parent instanceof UserInterface) {
                 Log::action(tr('Removing right ":right" from user ":user"', [
@@ -418,7 +418,7 @@ class Rights extends DataIterator implements RightsInterface
 
                 // Update all users with this role to get the new right as well!
                 foreach ($this->parent->getUsersObject() as $user) {
-                    User::load($user)
+                    User::new()->load($user)
                         ->getRightsObject()
                         ->removeKeys($right);
                 }
@@ -474,7 +474,7 @@ class Rights extends DataIterator implements RightsInterface
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
+    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false): static
     {
         if ($this->parent) {
             // Load only rights for specified parent

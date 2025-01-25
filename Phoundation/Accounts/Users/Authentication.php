@@ -8,7 +8,7 @@
  * @see       DataEntry
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
 
@@ -58,15 +58,12 @@ class Authentication extends DataEntry implements AuthenticationInterface
     use TraitDataEntryUserAgent;
     use TraitDataEntrySetCreatedBy;
 
-
     /**
      * Authentication class constructor
      *
      * @param array|int|string|DataEntryInterface|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
      */
-    public function __construct(array|int|string|DataEntryInterface|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(array|int|string|DataEntryInterface|null $identifier = null)
     {
         if (!isset($this->meta_columns)) {
             // By default, the Authentication object has created_by NOT meta so that it can set it manually
@@ -79,7 +76,7 @@ class Authentication extends DataEntry implements AuthenticationInterface
             ];
         }
 
-        parent::__construct($identifier, $meta_enabled, $init);
+        parent::__construct($identifier);
 
         if ($this->isNew()) {
             try {
@@ -444,8 +441,10 @@ class Authentication extends DataEntry implements AuthenticationInterface
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return Authentication
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         // Ensure status will be limited to the defined possible states
         $definitions->removeKeys('new-divider')
@@ -552,5 +551,6 @@ class Authentication extends DataEntry implements AuthenticationInterface
                                     ->setOptional(true)
                                     ->setMaxlength(4090)
                                     ->setSize(4));
+        return $this;
     }
 }

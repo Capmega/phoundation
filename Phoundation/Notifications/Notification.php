@@ -8,7 +8,7 @@
  * @see       DataEntry
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Notification
  */
 
@@ -28,7 +28,7 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryCode;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryDetails;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryFile;
@@ -130,11 +130,9 @@ class Notification extends DataEntry implements NotificationInterface
     /**
      * Notification class constructor
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
+     * @param IdentifierInterface|array|string|int|null $identifier
      */
-    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(IdentifierInterface|array|string|int|null $identifier = null)
     {
         static::$auto_log = Config::getBoolean('notifications.auto-log', false);
 
@@ -157,7 +155,7 @@ class Notification extends DataEntry implements NotificationInterface
             ];
         }
 
-        parent::__construct($identifier, $meta_enabled, $init);
+        parent::__construct($identifier);
 
         if ($this->isNew()) {
             if (Session::isInitialized()) {
@@ -460,7 +458,7 @@ FILES variables:
             // Save and send this notification to all users that are members of the specified roles
             foreach ($this->getRolesObject() as $role) {
                 try {
-                    $users = Role::load($role)->getUsersObject();
+                    $users = Role::new()->load($role)->getUsersObject();
 
                     foreach ($users as $user) {
                         try {
@@ -716,7 +714,7 @@ FILES variables:
         }
 
         $sending = true;
-        $user    = User::load($user);
+        $user    = User::new()->load($user);
 
         if (Config::getBoolean('notifications.send.disable', false) and !$this->override_non_production_lockout) {
             // We're not in production environment, don't send any notifications!
@@ -820,7 +818,7 @@ FILES variables:
      *
      * @param DefinitionsInterface $definitions
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newCreatedBy($this))
 

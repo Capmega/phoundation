@@ -8,7 +8,7 @@
  * @author Harrison Macey <harrison@medinet.ca>
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Network
  */
 
@@ -30,8 +30,8 @@ CliDocumentation::setAutoComplete(User::getAutoComplete([
         '-p,--port'     => true,
         '-m,--message'  => true,
         '-f,--file' => [
-            'word'   => function ($word) { return PhoDirectory::new(DIRECTORY_DATA . 'sources/medinet-mediweb/', PhoRestrictions::newReadonly(DIRECTORY_DATA . 'sources/medinet-mediweb/'))->scan($word . '*.txt'); },
-            'noword' => function ()      { return PhoDirectory::new(DIRECTORY_DATA . 'sources/medinet-mediweb/', PhoRestrictions::newReadonly(DIRECTORY_DATA . 'sources/medinet-mediweb/'))->scan('*.txt'); },
+            'word'   => function ($word) { return PhoDirectory::new(DIRECTORY_DATA . 'sources/medinet-tracker/', PhoRestrictions::newReadonly(DIRECTORY_DATA . 'sources/medinet-tracker/'))->scan($word . '*.txt'); },
+            'noword' => function ()      { return PhoDirectory::new(DIRECTORY_DATA . 'sources/medinet-tracker/', PhoRestrictions::newReadonly(DIRECTORY_DATA . 'sources/medinet-tracker/'))->scan('*.txt'); },
         ],
         '-r,--repeat'   => true,
         '-i,--interval' => true,

@@ -8,7 +8,7 @@
  * @see       DataIterator
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
 
@@ -118,9 +118,9 @@ class Emails extends DataIterator implements EmailsInterface
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
+    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false): static
     {
-        $this->parent  = User::load($this->parent);
+        $this->parent  = User::new()->load($this->parent);
         $this->execute = [':users_id' => $this->parent->getId()];
 
         return parent::load();
@@ -217,7 +217,7 @@ class Emails extends DataIterator implements EmailsInterface
             $diff = Arrays::deleteDiff($diff, $emails);
 
             foreach ($diff['delete'] as $id => $email) {
-                Email::load($id)->delete();
+                Email::new()->load($id)->delete();
 
                 $this->removeKeys($id);
             }
@@ -233,7 +233,7 @@ class Emails extends DataIterator implements EmailsInterface
 
             // Update all other email addresses
             foreach ($diff['keep'] as $id => $email) {
-                Email::load($id)
+                Email::new()->load($id)
                      ->apply(false, $emails[$email])
                      ->setUsersId($this->parent->getId())
                      ->save();

@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
 
@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Seo\Seo;
 
 
@@ -59,7 +60,7 @@ trait TraitDataEntryNameLowercaseDash
         } else {
             // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
             // the entry if it does!
-            $name     = static::convertToLowerCaseDash($name);
+            $name     = static::convertNameIdentifierToLowerCaseDash($name);
             $seo_name = Seo::unique(substr($name, 0, $this->definitions->get('name')
                                                                        ->getMaxlength()), static::getTable(), $this->getTypesafe('int', 'id'), 'seo_name');
             $this->set($seo_name, 'seo_name', true);
@@ -72,11 +73,11 @@ trait TraitDataEntryNameLowercaseDash
     /**
      * Converts the given string to lowercase, dash separated string by replacing spaces and underscores to dashes
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|null $identifier
      *
-     * @return array|DataEntryInterface|string|int|null
+     * @return IdentifierInterface|array|string|int|null
      */
-    protected static function convertToLowerCaseDash(array|DataEntryInterface|string|int|null $identifier): array|DataEntryInterface|string|int|null
+    protected static function convertNameIdentifierToLowerCaseDash(IdentifierInterface|array|string|int|null $identifier): IdentifierInterface|array|string|int|null
     {
         if (!$identifier) {
             // NULL or "", return it

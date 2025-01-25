@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
 
@@ -186,7 +186,7 @@ class Web
 //     * @param null boolean $allow_url_cloak
 //     * @return string the URL
 //     *@author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+//     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -203,7 +203,7 @@ class Web
 //     * Return complete URL for the specified AJAX URL section with HTTP and all
 //     *
 //     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+//     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system

@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
 
@@ -1151,6 +1151,24 @@ class DefinitionFactory
 
 
     /**
+     * Returns a Definition object for a column containing a number
+     *
+     * @param DataEntryInterface|null $data_entry
+     * @param string|null             $column
+     * @param int|null                $default
+     *
+     * @return DefinitionInterface
+     */
+    public static function newPort(?DataEntryInterface $data_entry, ?string $column = 'number', ?int $default = null): DefinitionInterface
+    {
+        return static::newNumber($data_entry, $column, $default)
+                     ->setInputType(EnumInputType::dbid)
+                     ->setMin(1)
+                     ->setMax(65535);
+    }
+
+
+    /**
      * Returns a Definition object for a column containing a variable
      *
      * @param DataEntryInterface|null $data_entry
@@ -1710,7 +1728,7 @@ class DefinitionFactory
                                      return InputText::new()
                                                      ->setDisabled(true)
                                                      ->addClasses('text-center')
-                                                     ->setValue(User::load($source[$key])
+                                                     ->setValue(User::new()->load($source[$key])
                                                          ->getDisplayName());
                                  } else {
                                      return InputText::new()
@@ -1840,7 +1858,7 @@ class DefinitionFactory
                                      return InputText::new()
                                                      ->setDisabled(true)
                                                      ->addClasses('text-center')
-                                                     ->setValue(User::load($source[$key])
+                                                     ->setValue(User::new()->load($source[$key])
                                                          ->getDisplayName());
                                  } else {
                                      return InputText::new()

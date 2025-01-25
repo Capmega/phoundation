@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
 
@@ -32,6 +32,7 @@ trait TraitInputElement
     use TraitDataDescription;
     use TraitDataIcon;
     use TraitMode;
+
 
     /**
      * Input element type
@@ -77,6 +78,7 @@ trait TraitInputElement
         // Set all attributes from the definition file
         foreach ($attributes as $key => $value) {
             $method = 'set' . Strings::capitalize($key);
+
             if (method_exists($element, $method)) {
                 $element->$method($value);
             }
@@ -171,7 +173,7 @@ trait TraitInputElement
      */
     public function getValue(): ?string
     {
-        return $this->value;
+        return $this->value ?? $this->null_display;
     }
 
 
@@ -187,6 +189,7 @@ trait TraitInputElement
     {
         if ($make_safe) {
             $this->value = Html::safe($value);
+
         } else {
             $this->value = $value;
         }

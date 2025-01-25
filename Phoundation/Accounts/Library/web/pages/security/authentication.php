@@ -39,7 +39,7 @@ $get = GetValidator::new()
 
 
 // Build the page content
-$authentication = Authentication::load($get['id']);
+$authentication = Authentication::new()->load($get['id']);
 
 
 // Validate POST and submit

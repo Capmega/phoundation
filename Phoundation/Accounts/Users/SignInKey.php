@@ -8,7 +8,7 @@
  * @see       \Phoundation\Core\Libraries\Updates
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
 
@@ -27,7 +27,7 @@ use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryRedirect;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryUser;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryUuid;
@@ -48,17 +48,14 @@ class SignInKey extends DataEntry implements SignInKeyInterface
     use TraitDataEntryUuid;
     use TraitDataEntryRedirect;
 
-
     /**
      * SignInKey class constructor
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
+     * @param IdentifierInterface|array|string|int|null $identifier
      */
-    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(IdentifierInterface|array|string|int|null $identifier = null)
     {
-        parent::__construct($identifier, $meta_enabled, $init);
+        parent::__construct($identifier);
         $this->setAllowNavigation(false);
     }
 
@@ -309,7 +306,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
     /**
      * @inheritDoc
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newUsersId($this))
 
@@ -322,5 +319,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
 
                     ->add(DefinitionFactory::newBoolean($this, 'allow_navigation')
                                            ->setLabel(tr('Allow navigation')));
+
+        return $this;
     }
 }

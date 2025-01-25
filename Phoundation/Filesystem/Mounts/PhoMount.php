@@ -7,7 +7,7 @@
  * @note      On Ubuntu requires packages nfs-utils cifs-utils psmisc
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Filesystem
  */
 
@@ -24,14 +24,13 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryOptions;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryTimeout;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Filesystem\PhoDirectory;
-use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\Interfaces\PhoMountInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\Mounts\Exception\MountsException;
@@ -50,18 +49,15 @@ class PhoMount extends DataEntry implements PhoMountInterface
     use TraitDataEntryOptions;
     use TraitDataEntryTimeout;
 
-
     /**
      * FsMount class constructor
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
-     * @param PhoRestrictionsInterface|null            $restrictions
+     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param PhoRestrictionsInterface|null             $restrictions
      */
-    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true, ?PhoRestrictionsInterface $restrictions = null)
+    public function __construct(IdentifierInterface|array|string|int|null $identifier = null, ?PhoRestrictionsInterface $restrictions = null)
     {
-        parent::__construct($identifier, $meta_enabled, $init);
+        parent::__construct($identifier);
 
         $this->restrictions = $this->ensureRestrictions($restrictions);
     }
@@ -125,28 +121,36 @@ class PhoMount extends DataEntry implements PhoMountInterface
     /**
      * @inheritDoc
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): static
+    public function load(): static
     {
         try {
-            return parent::load($identifier, $meta_enabled, $init, $ignore_deleted);
+            $column = $this->determineColumn($this->identifier);
+
+            return parent::load();
 
         } catch (DataEntryNotExistsException $e) {
             // FsMount was not found in the database. Get it from configuration instead but that DOES require the name
             // column
             switch ($column) {
                 case 'name':
-                    $mount = Config::getArray('filesystem.mounts.' . $identifier);
-                    return static::newFromSource($mount, $meta_enabled);
+                    $mount = Config::getArray('filesystem.mounts.' . $this->identifier);
+
+                    return static::newFromSource($mount)->setMetaEnabled($this->meta_enabled)
+                                                        ->setIgnoreDeleted($this>$this->ignore_deleted);
 
                 case 'source_path':
                     // This is a mount that SHOULD already exist on the system
-                    $mount = FsMounts::getMountSources(new PhoDirectory($identifier));
-                    return static::new($mount, meta_enabled: $meta_enabled);
+                    $mount = FsMounts::getMountSources(new PhoDirectory($this->identifier));
+
+                    return static::new($mount)->setMetaEnabled($this>$this->meta_enabled)
+                                              ->setIgnoreDeleted($this>$this->ignore_deleted);
 
                 case 'target_path':
                     // This is a mount that SHOULD already exist on the system
-                    $mount = FsMounts::getMountTargets(new PhoDirectory($identifier));
-                    return static::new($mount, meta_enabled: $meta_enabled);
+                    $mount = FsMounts::getMountTargets(new PhoDirectory($this->identifier));
+
+                    return static::new($mount)->setMetaEnabled($this>$this->meta_enabled)
+                                              ->setIgnoreDeleted($this>$this->ignore_deleted);
             }
 
             throw $e;
@@ -452,7 +456,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
     /**
      * @inheritDoc
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newName($this)
                                            ->setInputType(EnumInputType::name)

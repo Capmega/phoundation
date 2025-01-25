@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
 
@@ -1080,8 +1080,8 @@ class HtmlTable extends ResourceElementCore implements HtmlTableInterface
         // No content (other than maybe the "none available" entry) was added
         $return = '<tbody>';
 
-        if ($this->empty) {
-            $return .= '<tr class="empty-row"><td class="text-center">' . $this->empty . '</td></tr>';
+        if ($this->component_empty_label) {
+            $return .= '<tr class="empty-row"><td class="text-center">' . $this->component_empty_label . '</td></tr>';
         }
 
         return $return . '</tbody>';

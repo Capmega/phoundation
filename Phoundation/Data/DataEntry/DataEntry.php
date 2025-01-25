@@ -61,7 +61,7 @@
  * on a per extending class basis)
  *
  * DataEntry objects contain a definition of both the table and the structure of said table. This makes it that the
- * entry can read and write data simply with DataEntry::load() or DataEntry::save(). Each DataEntry object will know
+ * entry can read and write data simply with DataEntry::new()->load() or DataEntry::save(). Each DataEntry object will know
  * exactly what columns are available to this entry, and will also know how to properly validate each column. When any
  * value inside the object is changed, the object cannot write to disk without first validating each column value. If
  * any validation fails, a ValidationFailedException will be thrown. DataEntry objects also have definition information
@@ -115,7 +115,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
 
@@ -124,21 +124,19 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry;
 
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 
 class DataEntry extends DataEntryCore
 {
     /**
      * Returns a new DataEntry object
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
+     * @param IdentifierInterface|array|string|int|null $identifier
      *
      * @return static
      */
-    public static function new(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true): static
+    public static function new(IdentifierInterface|array|string|int|null $identifier = null): static
     {
-        return new static($identifier, $meta_enabled, $init);
+        return new static($identifier);
     }
 }

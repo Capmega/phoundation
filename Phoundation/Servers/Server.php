@@ -8,7 +8,7 @@
  * @see       DataEntry
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Servers
  */
 
@@ -26,7 +26,7 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryCategory;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryCity;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryCode;
@@ -66,19 +66,16 @@ class Server extends DataEntry implements ServerInterface
     use TraitDataEntryState;
     use TraitDataEntryCity;
 
-
     /**
      * Server class constructor
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
+     * @param IdentifierInterface|array|string|int|null $identifier
      */
-    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(IdentifierInterface|array|string|int|null $identifier = null)
     {
         $this->configuration_path = 'servers';
 
-        parent::__construct($identifier, $meta_enabled, $init);
+        parent::__construct($identifier);
     }
 
 
@@ -470,8 +467,10 @@ class Server extends DataEntry implements ServerInterface
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(Definition::new($this, 'seo_hostname')
                                     ->setVirtual(true)
@@ -845,5 +844,7 @@ class Server extends DataEntry implements ServerInterface
 
                     ->add(DefinitionFactory::newDescription($this)
                                            ->setHelpText(tr('A description for this server')));
+
+        return $this;
     }
 }

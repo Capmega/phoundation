@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   \Phoundation\Developer
  */
 
@@ -61,6 +61,7 @@ class Project implements ProjectInterface
     use TraitGit {
         __construct as protected ___construct;
     }
+
 
     /**
      * The project name
@@ -409,7 +410,7 @@ class Project implements ProjectInterface
      *
      * @return string|null
      */
-    public static function load(): ?string
+    public function load(): ?string
     {
         $project      = file_get_contents(DIRECTORY_ROOT . 'config/project');
         $project      = static::sanitize($project);

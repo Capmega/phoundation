@@ -8,7 +8,7 @@
  * @see       DataEntry
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
 
@@ -27,11 +27,10 @@ use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameLowercaseDash;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
 
@@ -40,16 +39,15 @@ class Right extends DataEntry implements RightInterface
     use TraitDataEntryNameLowercaseDash;
     use TraitDataEntryDescription;
 
+
     /**
      * Right class constructor
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
+     * @param IdentifierInterface|array|string|int|null $identifier
      */
-    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(IdentifierInterface|array|string|int|null $identifier = null)
     {
-        return parent::__construct(static::convertToLowerCaseDash($identifier), $meta_enabled, $init);
+        return parent::__construct(static::convertNameIdentifierToLowerCaseDash($identifier));
     }
 
 
@@ -93,17 +91,12 @@ class Right extends DataEntry implements RightInterface
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool                                     $meta_enabled
-     * @param bool                                     $init
-     * @param bool                                     $ignore_deleted
-     *
      * @return Right
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): static
+    public function load(): static
     {
         try {
-            return parent::load(static::convertToLowerCaseDash($identifier), $meta_enabled, $init, $ignore_deleted);
+            return parent::load();
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new RightNotExistsException($e);
@@ -174,8 +167,9 @@ class Right extends DataEntry implements RightInterface
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
+     * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newName($this)
                                            ->setInputType(EnumInputType::name)
@@ -185,8 +179,12 @@ class Right extends DataEntry implements RightInterface
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isUnique();
                                            }))
+
                     ->add(DefinitionFactory::newSeoName($this))
+
                     ->add(DefinitionFactory::newDescription($this)
                                            ->setHelpText(tr('The description for this right')));
+
+        return $this;
     }
 }

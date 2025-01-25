@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
 
@@ -45,7 +45,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                 <div class="card-body">
                     <div class="form-group">
                         <label for="inputName">Project Name</label>
-                        <input type="text" id="inputName" class="form-control" value="Mediweb">
+                        <input type="text" id="inputName" class="form-control" value="Tracker">
                     </div>
                     <div class="form-group">
                         <label for="inputDescription">Project Description</label>

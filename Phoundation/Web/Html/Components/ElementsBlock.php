@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
 
@@ -98,13 +98,7 @@ abstract class ElementsBlock extends Iterator implements ElementsBlockInterface
             return $this->content;
         }
 
-        $renderer_class = Request::getTemplate()->getRendererClass($this);
-
-        Log::write(tr('Using renderer class ":class" for ":this"', [
-            ':class' => $renderer_class,
-            ':this'  => get_class($this),
-        ]), 'debug', 2);
-
+        $renderer_class  = Request::getTemplate()->getRendererClass($this);
         $render_function = function (?string $render = null) {
             if ($this->form) {
                 return $this->form
@@ -118,6 +112,11 @@ abstract class ElementsBlock extends Iterator implements ElementsBlockInterface
         };
 
         if ($renderer_class) {
+            Log::write(tr('Using renderer class ":class" for ":this"', [
+                ':class' => $renderer_class,
+                ':this'  => get_class($this),
+            ]), 'debug', 2);
+
             TemplateRenderer::ensureClass($renderer_class, $this);
 
             return $renderer_class::new($this)

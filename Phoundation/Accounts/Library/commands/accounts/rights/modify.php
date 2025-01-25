@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
 
@@ -43,7 +43,7 @@ $argv = ArgvValidator::new()
 
 
 // Get right, ensure new name doesn't exist yet, and modify it
-$right = Right::load($argv['right']);
+$right = Right::new()->load($argv['right']);
 
 if ($argv['name']) {
     // If changing name, ensure it doesn't exist yet as it's a unique identifier

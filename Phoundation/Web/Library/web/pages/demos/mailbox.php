@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
 
@@ -182,7 +182,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
                                 <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Sven
                                         Olaf Oostenbrink</a></td>
-                                <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
+                                <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
                                 <td class="mailbox-attachment"></td>
@@ -198,7 +198,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star-o text-warning"></i></a></td>
                                 <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Corey
                                         Henrichsen</a></td>
-                                <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
+                                <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
                                 <td class="mailbox-attachment"><i class="fas fa-paperclip"></i></td>
@@ -214,7 +214,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star-o text-warning"></i></a></td>
                                 <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Corey
                                         Henrichsen</a></td>
-                                <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
+                                <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
                                 <td class="mailbox-attachment"><i class="fas fa-paperclip"></i></td>
@@ -230,7 +230,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
                                 <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Kate
                                         Culter</a></td>
-                                <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
+                                <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
                                 <td class="mailbox-attachment"></td>
@@ -246,7 +246,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
                                 <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Doug
                                         Poulin</a></td>
-                                <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
+                                <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
                                 <td class="mailbox-attachment"><i class="fas fa-paperclip"></i></td>
@@ -262,7 +262,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star-o text-warning"></i></a></td>
                                 <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Corey
                                         Henrichsen</a></td>
-                                <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
+                                <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
                                 <td class="mailbox-attachment"><i class="fas fa-paperclip"></i></td>
@@ -278,7 +278,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star-o text-warning"></i></a></td>
                                 <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Dana
                                         Alderson</a></td>
-                                <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
+                                <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
                                 <td class="mailbox-attachment"><i class="fas fa-paperclip"></i></td>
@@ -294,7 +294,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
                                 <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Dana
                                         Alderson</a></td>
-                                <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
+                                <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
                                 <td class="mailbox-attachment"></td>
@@ -310,7 +310,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
                                 <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Dianne
                                         Hrisook</a></td>
-                                <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
+                                <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
                                 <td class="mailbox-attachment"></td>
@@ -326,7 +326,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star-o text-warning"></i></a></td>
                                 <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Doug
                                         Poulin</a></td>
-                                <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
+                                <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
                                 <td class="mailbox-attachment"></td>
@@ -342,7 +342,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star-o text-warning"></i></a></td>
                                 <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Kate
                                         Culter</a></td>
-                                <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
+                                <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
                                 <td class="mailbox-attachment"><i class="fas fa-paperclip"></i></td>
@@ -358,7 +358,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
                                 <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Sven
                                         Olaf Oostenbrink</a></td>
-                                <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
+                                <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
                                 <td class="mailbox-attachment"></td>
@@ -374,7 +374,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star-o text-warning"></i></a></td>
                                 <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Sven
                                         Olaf Oostenbrink</a></td>
-                                <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
+                                <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
                                 <td class="mailbox-attachment"><i class="fas fa-paperclip"></i></td>
@@ -390,7 +390,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
                                 <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Corey
                                         Henrichsen</a></td>
-                                <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
+                                <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
                                 <td class="mailbox-attachment"><i class="fas fa-paperclip"></i></td>
@@ -406,7 +406,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
                                 <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Corey
                                         Henrichsen</a></td>
-                                <td class="mailbox-subject"><b>Mediweb system rocks!</b> - Trying to find a solution to
+                                <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
                                 <td class="mailbox-attachment"><i class="fas fa-paperclip"></i></td>

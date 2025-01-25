@@ -8,7 +8,7 @@
  * @see       DataEntry
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
 
@@ -57,6 +57,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryAddress;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryCode;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryComments;
@@ -84,6 +85,7 @@ use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
@@ -193,11 +195,9 @@ class User extends DataEntry implements UserInterface
     /**
      * DataEntry class constructor
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
+     * @param IdentifierInterface|array|string|int|null $identifier
      */
-    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(IdentifierInterface|array|string|int|null $identifier = null)
     {
         if (empty($this->protected_columns)) {
             $this->protected_columns = [
@@ -220,7 +220,7 @@ class User extends DataEntry implements UserInterface
                 return;
         }
 
-        parent::__construct($identifier, $meta_enabled, $init);
+        parent::__construct($identifier);
 
         if ($this->hasStatus('system')) {
             // This is the guest user loaded manually
@@ -278,50 +278,46 @@ class User extends DataEntry implements UserInterface
      *
      * @note Will throw a NotExistsException if the specified role does not exist
      *
-     * @param RoleInterface|array|string|int|null $role
+     * @param RoleInterface|array|string|int $role
      *
      * @return UserInterface
      * @throws SqlMultipleResultsException, NotExistsException
      */
-    public static function getForRole(RoleInterface|array|string|int|null $role): UserInterface
+    public static function newForRole(RoleInterface|array|string|int $role): UserInterface
     {
-        $role = Role::load($role);
-        $id   = sql()->getColumn('SELECT `accounts_users`.`id`
-                                 FROM   `accounts_users`
-                                 JOIN   `accounts_users_roles`
-                                   ON   `accounts_users_roles`.`users_id` = `accounts_users`.`id`
-                                 WHERE  `accounts_users_roles`.`roles_id` = :roles_id
-                                   AND  `accounts_users_roles`.`status`   IS NULL', [
-            ':roles_id' => $role->getId(),
+        throw new UnderConstructionException('User::newForRole(): This would VERY likely return multiple users!');
+        $role     = Role::new()->load($role);
+        $users_id = sql()->getColumn('SELECT `accounts_users`.`id`
+                                      FROM   `accounts_users`
+                                      JOIN   `accounts_users_roles`
+                                        ON   `accounts_users_roles`.`users_id` = `accounts_users`.`id`
+                                      WHERE  `accounts_users_roles`.`roles_id` = :roles_id
+                                        AND  `accounts_users_roles`.`status`   IS NULL', [
+                                            ':roles_id' => $role->getId(),
         ]);
 
-        if (empty($user)) {
+        if (empty($users_id)) {
             throw new NotExistsException(tr('No user exists that has the role ":role"', [
                 ':role' => $role,
             ]));
         }
 
-        return static::load($id);
+        return static::new()->load($users_id);
     }
 
 
     /**
      * Returns a single user object for a single user that has the specified alternate email address.
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool                                     $meta_enabled
-     * @param bool                                     $init
-     * @param bool                                     $ignore_deleted
-     *
      * @return static
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): static
+    public function load(): static
     {
         try {
-            $user = parent::load($identifier, $meta_enabled, $init, $ignore_deleted);
+            $user = parent::load();
 
         } catch (DataEntryNotExistsException $e) {
-            $user = static::loadFromAlternativeEmail($identifier, $meta_enabled, $init, $ignore_deleted);
+            $user = $this->loadFromAlternativeEmail();
 
             if (!$user) {
                 // The requested user identifier doesn't exist
@@ -336,39 +332,36 @@ class User extends DataEntry implements UserInterface
     /**
      * Will attempt to load the user by the alternative email
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool                                     $meta_enabled
-     * @param bool                                     $init
-     * @param bool                                     $ignore_deleted
-     *
      * @return static|null
      */
-    protected static function loadFromAlternativeEmail(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): ?static
+    protected function loadFromAlternativeEmail(): ?static
     {
-        if (static::determineColumn($identifier) === 'email') {
+        if (static::determineColumn($this->identifier) === 'email') {
             if ((static::getDefaultConnector() === 'system') and (static::getTable() === 'accounts_users')) {
                 // Try to find the user by alternative email address
                 $user = sql()->get('SELECT `users_id`, `verified_on`
                                     FROM   `accounts_emails` 
                                     WHERE  `email` = :email 
                                       AND  `status` IS NULL', [
-                    ':email' => $identifier['email'],
+                    ':email' => $this->identifier['email'],
                 ]);
 
                 if ($user) {
-                    if ($user['verified_on'] or !Config::getBoolean('security.accounts.identify.alternates.require-verified', true)) {
-                        $user = static::load($user['users_id'], $meta_enabled, $init, $ignore_deleted);
+                    if ($user['verified_on'] or !Config::getBoolean('security.accounts.identify.email.verification.required', true)) {
+                        $user = static::new($user['users_id'])->setMetaEnabled($this->meta_enabled)
+                                                              ->setIgnoreDeleted($this->ignore_deleted)
+                                                              ->load();
 
                         Log::warning(tr('Identified user ":user" with alternate email ":email"', [
                             ':user'  => $user->getLogId(),
-                            ':email' => $identifier,
+                            ':email' => $this->identifier,
                         ]));
 
                         return $user;
                     }
 
                     Log::warning(tr('Cannot identify user ":user" on alternate email, the email does not have the required verification', [
-                        ':user' => $identifier,
+                        ':user' => $this->identifier,
                     ]));
                 }
             }
@@ -401,6 +394,7 @@ class User extends DataEntry implements UserInterface
             // This is a system type user, either system or guest
             return Strings::log($this->getId()) . ' / ' . $this->getNickname();
         }
+
         $id    = $this->getTypesafe('int', $this->getIdColumn());
         $label = $this->getTypesafe('string|int', static::getUniqueColumn() ?? 'id');
 
@@ -559,7 +553,7 @@ class User extends DataEntry implements UserInterface
     protected static function doAuthenticate(array $identifier, string $password, AuthenticationInterface $authentication, ?string $domain, bool $test = false): static
     {
         try {
-            $user = static::load($identifier);
+            $user = static::new()->load($identifier);
 
             if ($user->passwordMatch($password)) {
                 static::authenticateDomain($identifier, $user, $authentication, $domain, $test);
@@ -772,7 +766,7 @@ class User extends DataEntry implements UserInterface
             if ($roles) {
                 // Add all default roles one by one
                 foreach (Arrays::force($roles) as $role) {
-                    $o_roles->add(Role::load($role));
+                    $o_roles->add(Role::new()->load($role));
                 }
 
                 // Write the default roles to the database
@@ -806,18 +800,33 @@ class User extends DataEntry implements UserInterface
                         ->save();
 
             } else {
-                Incident::new()
-                        ->setSeverity(EnumSeverity::low)
-                        ->setType('security')
-                        ->setTitle(tr('User modified'))
-                        ->setBody(tr('The administrator ":admin" modified the user ":user", see audit ":meta_id" for more information', [
-                            ':admin'   => Session::getUserObject()->getLogId(),
-                            ':user'    => $this->getLogId(),
-                            ':meta_id' => $this->getMetaId(),
-                        ]))
-                        ->setDetails(['user' => $this->getLogId()])
-                        ->setNotifyRoles('accounts')
-                        ->save();
+                if (Session::getUserObject()->getId() === $this->getId()) {
+                    Incident::new()
+                            ->setSeverity(EnumSeverity::low)
+                            ->setType('security')
+                            ->setTitle(tr('User modified'))
+                            ->setBody(tr('The user ":user" modified their account, see audit ":meta_id" for more information', [
+                                ':user'    => $this->getLogId(),
+                                ':meta_id' => $this->getMetaId(),
+                            ]))
+                            ->setDetails(['user' => $this->getLogId()])
+                            ->setNotifyRoles('accounts')
+                            ->save();
+
+                } else {
+                    Incident::new()
+                            ->setSeverity(EnumSeverity::low)
+                            ->setType('security')
+                            ->setTitle(tr('User modified'))
+                            ->setBody(tr('The administrator ":admin" modified the user ":user", see audit ":meta_id" for more information', [
+                                ':admin'   => Session::getUserObject()->getLogId(),
+                                ':user'    => $this->getLogId(),
+                                ':meta_id' => $this->getMetaId(),
+                            ]))
+                            ->setDetails(['user' => $this->getLogId()])
+                            ->setNotifyRoles('accounts')
+                            ->save();
+                }
             }
         }
     }
@@ -1642,7 +1651,7 @@ class User extends DataEntry implements UserInterface
     public function setLeadersEmail(?string $leaders_email): static
     {
         if ($leaders_email) {
-            $leaders_id = User::load(['email' => $leaders_email])->getId();
+            $leaders_id = User::new()->load(['email' => $leaders_email])->getId();
         }
 
         return $this->setLeadersId(isset_get($leaders_id));
@@ -1680,7 +1689,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getLeader(): ?UserInterface
     {
-        return static::loadOrNull($this->getTypesafe('int', 'leaders_id'));
+        return static::new($this->getTypesafe('int', 'leaders_id'))->loadOrNull();
     }
 
 
@@ -2374,17 +2383,17 @@ class User extends DataEntry implements UserInterface
     /**
      * Returns true if the user has the specified role
      *
-     * @param RolesInterface|Stringable|string $role
-     * @param string|null                      $message
+     * @param RolesInterface|RoleInterface|Stringable|string $roles
+     * @param string|null                                    $message
      *
      * @return static
      */
-    public function checkRole(RolesInterface|Stringable|string $role, ?string $message = null): static
+    public function checkRoles(RolesInterface|RoleInterface|Stringable|string $roles, ?string $message = null): static
     {
-        if (!$this->hasRole($role)) {
-            throw new NotExistsException($message ?? tr('The user ":user" does not have the required role ":role"', [
-                ':user' => $this->getLogId(),
-                ':role' => $role,
+        if (!$this->hasRoles($roles)) {
+            throw new NotExistsException($message ?? tr('The user ":user" does not have the required role(s) ":roles"', [
+                ':user'  => $this->getLogId(),
+                ':roles' => $roles,
             ]));
         }
 
@@ -2395,14 +2404,25 @@ class User extends DataEntry implements UserInterface
     /**
      * Returns true if the user has the specified role
      *
-     * @param RolesInterface|Stringable|string $role
+     * @param RolesInterface|RoleInterface|Stringable|string $roles
      *
      * @return bool
      */
-    public function hasRole(RolesInterface|Stringable|string $role): bool
+    public function hasRoles(RolesInterface|RoleInterface|Stringable|string $roles): bool
     {
-        return $this->getRolesObject()
-                    ->keyExists($role);
+        $result = true;
+        $roles  = Arrays::force($roles);
+
+        foreach ($roles as $role) {
+            $exists = $this->getRolesObject()->keyExists($role);
+
+            if ($exists) {
+                $result = false;
+                break;
+            }
+        }
+
+        return $result;
     }
 
 
@@ -2545,7 +2565,7 @@ class User extends DataEntry implements UserInterface
 
         if ($profile_images_id) {
             // Return the user's profile image
-            return ProfileImage::load($profile_images_id);
+            return ProfileImage::new()->load($profile_images_id);
         }
 
         // No profile image was set, return the default
@@ -2601,11 +2621,11 @@ class User extends DataEntry implements UserInterface
      *
      * @param DefinitionsInterface $definitions
      *
-     * @return void
+     * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
-        $definitions->get('status')->setNullDefault(tr('Ok'));
+        $definitions->get('status')->setNullDisplay(tr('Ok'));
         $definitions->add(Definition::new($this, 'remote_id')
                                     ->setOptional(true)
                                     ->setRender(false)
@@ -2618,7 +2638,7 @@ class User extends DataEntry implements UserInterface
                                     ->setDbNullInputType(EnumInputType::text)
                                     ->addClasses('text-center')
                                     ->setSize(3)
-                                    ->setNullDefault(tr('Never signed yet'))
+                                    ->setNullDisplay(tr('Never signed yet'))
                                     ->setLabel('Last sign in'))
 
                     ->add(Definition::new($this, 'sign_in_count')
@@ -2633,6 +2653,7 @@ class User extends DataEntry implements UserInterface
                                     ->setOptional(true)
                                     ->setDisabled(true)
                                     ->setInputType(EnumInputType::number)
+                                    ->setMin(0)
                                     ->setNullDefault(0)
                                     ->addClasses('text-center')
                                     ->setSize(3)
@@ -2643,7 +2664,7 @@ class User extends DataEntry implements UserInterface
                                     ->setDisabled(true)
                                     ->setInputType(EnumInputType::datetime_local)
                                     ->setDbNullInputType(EnumInputType::text)
-                                    ->setNullDefault(tr('Not locked'))
+                                    ->setNullDisplay(tr('Not locked'))
                                     ->addClasses('text-center')
                                     ->setSize(3)
                                     ->setLabel(tr('Locked until')))
@@ -2977,10 +2998,11 @@ class User extends DataEntry implements UserInterface
                                     }))
 
                     ->add(DefinitionFactory::newUrl($this, 'redirect')
+                                           // Normal users always start with "/force-password-update.html" URL because they lack a password, but remote users should already have a password.
                                            ->setSize(4)
                                            ->setDataSource(Url::new('system/accounts/users/redirect/autosuggest.json')->makeAjax())
                                            ->setInputType(EnumInputType::auto_suggest)
-                                           ->setInitialDefault(Config::getString('security.accounts.users.new.defaults.redirect', '/force-password-update.html'))
+                                           ->setInitialDefault($this->getRemoteId() ? null : Url::new(Config::getString('security.accounts.users.new.defaults.redirect', '/force-password-update.html'))->makeWww())
                                            ->setLabel(tr('Redirect URL'))
                                            ->setHelpGroup(tr('Account information'))
                                            ->setHelpText(tr('The URL where this user will be forcibly redirected to upon sign in')))
@@ -3006,7 +3028,7 @@ class User extends DataEntry implements UserInterface
                                            ->setSize(2)
                                            ->setDisabled(true)
                                            ->setDbNullInputType(EnumInputType::text)
-                                           ->setNullDefault(tr('Not verified'))
+                                           ->setNullDisplay(tr('Not verified'))
                                            ->addClasses('text-center')
                                            ->setLabel(tr('Account verified on'))
                                            ->setHelpGroup(tr('Account information'))
@@ -3047,7 +3069,7 @@ class User extends DataEntry implements UserInterface
                                     ->setCliAutoComplete(true)
                                     ->setInputType(EnumInputType::password)
                                     ->setMaxlength(64)
-                                    ->setNullDefault(false)
+                                    ->setNullDisplay(false)
                                     ->setHelpText(tr('The password for this user'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isStrongPassword();
@@ -3079,5 +3101,7 @@ class User extends DataEntry implements UserInterface
                                            }))
 
                     ->add(DefinitionFactory::newData($this, 'data'));
+
+        return $this;
     }
 }

@@ -62,7 +62,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  * @see       Route::404()
  * @see       Route::mappedDomain()
@@ -112,7 +112,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   route
  */
 
@@ -127,16 +127,16 @@ use Templates\Phoundation\Mdb\Mdb;
 require(substr($_SERVER['DOCUMENT_ROOT'], 0, -4) . 'vendor/autoload.php');
 
 
-// Setup URL translations map
-Route::getMapping()->add('/^(\w{2})\//',
-                         Map::new('en', null),
-                         Map::new('fr', [
-                             'feuilles-de-temps' => 'timesheet',
-                         ]),
-                         Map::new('nl', [
-                             'rooster' => 'timesheet',
-                         ])
-);
+//// Setup URL translations map
+//Route::getMapping()->add('/^(\w{2})\//',
+//                         Map::new('en', null),
+//                         Map::new('fr', [
+//                             'feuilles-de-temps' => 'timesheet',
+//                         ]),
+//                         Map::new('nl', [
+//                             'rooster' => 'timesheet',
+//                         ])
+//);
 
 
 // Set routing parameters to be applied for the various page types
@@ -153,14 +153,22 @@ Route::getParametersObject()
 
 
 // Apply routing rules
-Route::try('/^(\w{2})\/([a-z0-9-\/]+)\/([a-z0-9-]+)\+([0-9a-z-]+)?\.html$/', 'pages/$2/$3.php?id=$4');            // Show the requested existing entry page
-Route::try('/^(\w{2})\/([a-z0-9-\/]+)\/([a-z0-9-]+)\.html$/', 'pages/$2/$3.php');                                 // Show the requested new entry page
-Route::try('/^(\w{2})\/([a-z0-9-]+)\.html$/', 'pages/$2.php');                                                    // Show the requested page
-Route::try('/^(\w{2})\/ajax\/(.+?)\.json$/', 'ajax/$2.php', 'Q');                                                 // Execute the requested AJAX page
-Route::try('/^(\w{2})\/timesheets\/(\d{4}\/\d{2}\/\d{2})\.html$/', 'pages/timesheets/day.php?date=$2');           // Timesheet page
-Route::try('/^(\w{2})\/?$/', '/index.html', 'R301');                                                              // Redirect to index page
-Route::try('/^$/', '/index.html', 'R301');         // Redirect to index page
-//Route::try('/^(\w{2})\/sso\/([a-z0-9-]+).html/', 'pages/sso/$1.php', 'Q'); // SAML SSO sign-on
+Route::try('/^(\w{2})\/([a-z0-9-\/]+)\/([a-z0-9-]+)(?:\+([0-9a-z-]+))?\.html$/', 'pages/$2/$3.php?id=$4', 'Q');         // Show the requested table or entry page
+Route::try('/^(\w{2})\/([a-z0-9-]+)(?:\+([0-9a-z-]+))?\.html$/'                , 'pages/$2.php?id=$3'   , 'Q');         // Show the requested page
+Route::try('/^(\w{2})\/(ajax|api)\/(.+?)(?:\+([0-9a-z-]+))?\.json$/'           , '$2/$3.php?id=$4'      , 'Q');         // Execute the requested API or AJAX page
+Route::try('/^(\w{2})\/timesheets\/(\d{4}\/\d{2}\/\d{2})\.html$/'              , 'pages/timesheets/day.php?date=$2');   // Timesheet page
+Route::try('/^((\w{2})\/?)?$/'                                                 , '/index.html'          , 'R301');      // Redirect to index page
+
+
+//// Apply routing rules
+//Route::try('/^(\w{2})\/([a-z0-9-\/]+)\/([a-z0-9-]+)\+([0-9a-z-]+)?\.html$/', 'pages/$2/$3.php?id=$4');            // Show the requested existing entry page
+//Route::try('/^(\w{2})\/([a-z0-9-\/]+)\/([a-z0-9-]+)\.html$/', 'pages/$2/$3.php');                                 // Show the requested new entry page
+//Route::try('/^(\w{2})\/([a-z0-9-]+)\.html$/', 'pages/$2.php');                                                    // Show the requested page
+//Route::try('/^(\w{2})\/ajax\/(.+?)\.json$/', 'ajax/$2.php', 'Q');                                                 // Execute the requested AJAX page
+//Route::try('/^(\w{2})\/timesheets\/(\d{4}\/\d{2}\/\d{2})\.html$/', 'pages/timesheets/day.php?date=$2');           // Timesheet page
+//Route::try('/^(\w{2})\/?$/', '/index.html', 'R301');                                                              // Redirect to index page
+//Route::try('/^$/', '/index.html', 'R301');         // Redirect to index page
+////Route::try('/^(\w{2})\/sso\/([a-z0-9-]+).html/', 'pages/sso/$1.php', 'Q'); // SAML SSO sign-on
 
 
 //// System files / downloadable files

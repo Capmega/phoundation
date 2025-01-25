@@ -12,11 +12,11 @@ interface ResourceElementInterface extends ElementInterface
     /**
      * Set the HTML none element attribute
      *
-     * @param string|null $none
+     * @param string|null $label
      *
      * @return static
      */
-    public function setNotSelectedLabel(?string $none): static;
+    public function setNotSelectedLabel(?string $label): static;
 
 
     /**
@@ -24,7 +24,7 @@ interface ResourceElementInterface extends ElementInterface
      *
      * @return string|null
      */
-    public function getNone(): ?string;
+    public function getNotSelectedLabel(): ?string;
 
 
     /**
@@ -32,17 +32,17 @@ interface ResourceElementInterface extends ElementInterface
      *
      * @return string|null
      */
-    public function getEmpty(): ?string;
+    public function getComponentEmptyLabel(): ?string;
 
 
     /**
      * Sets the HTML empty element attribute
      *
-     * @param string|null $empty
+     * @param string|null $label
      *
      * @return static
      */
-    public function setComponentEmptyLabel(?string $empty): static;
+    public function setComponentEmptyLabel(?string $label): static;
 
 
     /**

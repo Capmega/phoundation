@@ -8,7 +8,7 @@
  * @see       DataIterator
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
 
@@ -203,7 +203,7 @@ class Roles extends DataIterator implements RolesInterface
 
             } else {
                 // Add single right. Since this is a Role object, the entry already exists in the database
-                $value = Role::load($value);
+                $value = Role::new()->load($value);
 
                 // Role already exists for this parent?
                 if ($this->hasRole($value)) {
@@ -247,7 +247,7 @@ class Roles extends DataIterator implements RolesInterface
 
                     // Update all users with this right to get the new right as well!
                     foreach ($this->parent->getUsersObject() as $user) {
-                        User::load($user)
+                        User::new()->load($user)
                             ->getRightsObject()
                             ->add($this->parent);
                     }
@@ -286,7 +286,7 @@ class Roles extends DataIterator implements RolesInterface
 
         } else {
             // Delete a single role. Since this is a Role object, the entry already exists in the database
-            $role = Role::load($keys);
+            $role = Role::new()->load($keys);
 
             if ($this->parent instanceof UserInterface) {
                 Log::action(tr('Removing role ":role" from user ":user"', [
@@ -331,7 +331,7 @@ class Roles extends DataIterator implements RolesInterface
 
                 // Update all users with this right to remove the new right as well!
                 foreach ($this->parent->getUsersObject() as $user) {
-                    User::load($user)
+                    User::new()->load($user)
                         ->getRightsObject()
                         ->removeKeys($this->parent);
                 }
@@ -376,7 +376,7 @@ class Roles extends DataIterator implements RolesInterface
 
 
     /**
-     * Load the data for this roles list into the object
+     * Load the data for this "roles" list into the object
      *
      * @param array|string|int|null $identifiers
      * @param bool                  $clear
@@ -384,7 +384,7 @@ class Roles extends DataIterator implements RolesInterface
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
+    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false): static
     {
         if ($this->parent) {
             if ($this->parent instanceof UserInterface) {

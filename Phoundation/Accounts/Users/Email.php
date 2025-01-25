@@ -8,7 +8,7 @@
  * @see       DataEntry
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
 
@@ -33,6 +33,7 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryUsersEmail;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryUsersId;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryVerificationCode;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryVerifiedOn;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Utils\Arrays;
@@ -141,17 +142,12 @@ class Email extends DataEntry implements EmailInterface
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool                                     $meta_enabled
-     * @param bool                                     $init
-     * @param bool                                     $ignore_deleted
-     *
      * @return Email
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): static
+    public function load(): static
     {
         try {
-            return parent::load($identifier, $meta_enabled, $init, $ignore_deleted);
+            return parent::load();
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new EmailNotExistsException($e);
@@ -163,8 +159,10 @@ class Email extends DataEntry implements EmailInterface
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newCode($this, 'verification_code')
                                            ->setOptional(true)
@@ -224,7 +222,7 @@ class Email extends DataEntry implements EmailInterface
                                            ->setReadonly(true)
                                            ->setSize(3)
                                            ->setDbNullInputType(EnumInputType::text)
-                                           ->setNullDefault(tr('Not verified'))
+                                           ->setNullDisplay(tr('Not verified'))
                                            ->addClasses('text-center')
                                            ->setLabel(tr('Verified on'))
                                            ->setHelpGroup(tr('Account information'))
@@ -239,5 +237,7 @@ class Email extends DataEntry implements EmailInterface
 
                     ->add(DefinitionFactory::newDescription($this)
                                            ->setHelpText(tr('The description for this email')));
+
+        return $this;
     }
 }

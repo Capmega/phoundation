@@ -8,7 +8,7 @@
  * @see       \Phoundation\Data\DataEntry\DataEntry
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Core
  */
 
@@ -163,13 +163,17 @@ class Language extends DataEntry implements LanguageInterface
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newName($this)
                                            ->setDisabled(true)
                                            ->setHelpText(tr('The name for this language')))
+
                     ->add(DefinitionFactory::newSeoName($this))
+
                     ->add(Definition::new($this, 'code_639_1')
                                     ->setDisabled(true)
                                     ->setInputType(EnumInputType::code)
@@ -178,6 +182,7 @@ class Language extends DataEntry implements LanguageInterface
                                     ->setSize(12)
                                     ->setMaxlength(2)
                                     ->setHelpText(tr('The ISO 639-1 code for this language')))
+
                     ->add(Definition::new($this, 'code_639_2_t')
                                     ->setDisabled(true)
                                     ->setInputType(EnumInputType::code)
@@ -186,6 +191,7 @@ class Language extends DataEntry implements LanguageInterface
                                     ->setSize(12)
                                     ->setMaxlength(3)
                                     ->setHelpText(tr('The ISO 639-2/T code for this language')))
+
                     ->add(Definition::new($this, 'code_639_2_b')
                                     ->setDisabled(true)
                                     ->setInputType(EnumInputType::code)
@@ -194,6 +200,7 @@ class Language extends DataEntry implements LanguageInterface
                                     ->setSize(12)
                                     ->setMaxlength(3)
                                     ->setHelpText(tr('The ISO 639-2/B code for this language')))
+
                     ->add(Definition::new($this, 'code_639_3')
                                     ->setDisabled(true)
                                     ->setInputType(EnumInputType::code)
@@ -202,7 +209,10 @@ class Language extends DataEntry implements LanguageInterface
                                     ->setSize(12)
                                     ->setMaxlength(3)
                                     ->setHelpText(tr('The ISO 639-3 code for this language')))
+
                     ->add(DefinitionFactory::newDescription($this)
                                            ->setHelpText(tr('The description for this language')));
+
+        return $this;
     }
 }

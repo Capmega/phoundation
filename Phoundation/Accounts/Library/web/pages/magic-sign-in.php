@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
 
@@ -54,7 +54,7 @@ if (Request::isPostRequestMethod()) {
                              ->validate();
 
         try {
-            $user = User::load($post['email']);
+            $user = User::new()->load($post['email']);
             $key  = $user->getSigninKey()->generate(Url::new('/update-lost-password.html')->makeWww());
 
             $mail = new PHPMailer();

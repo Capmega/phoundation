@@ -13,7 +13,7 @@
  * @todo      Revise this class, it has multiple open issues. PhoMeta::parsePhoMessage() and PhoMeta::parsePhoMessageV1() make no sense.
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Network
  */
 
@@ -28,6 +28,7 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryData;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaException;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaInvalidDataException;
@@ -50,12 +51,10 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
      * PhoMeta class constructor
      *
      * @param int|array|string|DataEntryInterface|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
      */
-    public function __construct(int|array|string|DataEntryInterface|null $identifier = null, ?bool $meta_enabled = null, bool $init = true) {
-
-        parent::__construct($identifier, $meta_enabled, $init);
+    public function __construct(int|array|string|DataEntryInterface|null $identifier = null)
+    {
+        parent::__construct($identifier);
         $this->setGlobalId(Core::getGlobalId());
     }
 
@@ -63,15 +62,13 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
     /**
      * Returns a new PhoMeta object
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
+     * @param IdentifierInterface|array|string|int|null $identifier
      *
      * @return static
      */
-    public static function new(int|array|string|DataEntryInterface|null $identifier = null, ?bool $meta_enabled = null, bool $init = true): static
+    public static function new(IdentifierInterface|array|string|int|null $identifier = null): static
     {
-        return parent::new($identifier, $meta_enabled, $init)->setGlobalId(Core::resetGlobalId());
+        return parent::new($identifier)->setGlobalId(Core::resetGlobalId());
     }
 
 
@@ -429,8 +426,10 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newCode($this, 'global_id')
                                            ->setMaxlength(32)
@@ -442,5 +441,7 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
 
                     ->add(DefinitionFactory::newData($this)
                                            ->setLabel('Message meta data'));
+
+        return $this;
     }
 }

@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
 
@@ -64,7 +64,7 @@ trait TraitDataEntryState
     public function getStateObject(): ?StateInterface
     {
         if (empty($this->o_state)) {
-            $this->o_state = State::loadOrNull($this->getTypesafe('int', 'states_id'));
+            $this->o_state = State::new($this->getTypesafe('int', 'states_id'))->loadOrNull();
         }
 
         return $this->o_state;
@@ -106,6 +106,6 @@ trait TraitDataEntryState
      */
     public function setStatesName(?string $states_name): static
     {
-        return $this->setStateObject(State::loadOrNull(['name' => $states_name]));
+        return $this->setStateObject(State::new(['name' => $states_name])->loadOrNull());
     }
 }

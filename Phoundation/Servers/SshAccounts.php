@@ -8,7 +8,7 @@
  * @see       DataIterator
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Business
  */
 
@@ -114,9 +114,9 @@ class SshAccounts extends DataIterator
     /**
      * @inheritDoc
      */
-    public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
+    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false): static
     {
-        parent::load($identifiers, $clear, $only_if_empty);
+        parent::new()->load($identifiers, $clear, $only_if_empty);
 
         // If any of the accounts have the "file" key, replace that key with ssh_key value
         foreach ($this->source as &$entry) {

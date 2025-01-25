@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
 
@@ -109,7 +109,7 @@ class Non200Url extends DataEntry
     /**
      * @inheritDoc
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(Definition::new($this, 'ip_address_binary')
                                     ->setIgnored(true)
@@ -187,5 +187,7 @@ class Non200Url extends DataEntry
                     ->add(DefinitionFactory::newComments($this)
                                            ->setOptional(true)
                                            ->setHelpText(tr('Comments on this failed request')));
+
+        return $this;
     }
 }

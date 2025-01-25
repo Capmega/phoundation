@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
 
@@ -123,8 +123,8 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                     <!-- /.card-header -->
                     <div class="card-body p-0">
                         <div class="mailbox-read-info">
-                            <h5>Mediweb system rocks!</h5>
-                            <h6>From: sven@mediweb.ca
+                            <h5>Tracker system rocks!</h5>
+                            <h6>From: sven@medinet.ca
                                 <span class="mailbox-read-time float-right">15 Feb. 2015 11:03 PM</span></h6>
                         </div>
                         <!-- /.mailbox-read-info -->

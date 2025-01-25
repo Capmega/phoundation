@@ -7,7 +7,7 @@
  * @todo      Update this to extend DataEntry instead of EntryCore, adjust DataEntry to support redis, mongo, etc
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Network
  */
 
@@ -254,8 +254,10 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newVariable($this, 'component')
                                            ->setMaxlength(32)
@@ -277,5 +279,7 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
                     ->add(DefinitionFactory::newNumber($this, 'duration')
                                            ->setMin(0)
                                            ->setLabel('Test duration in microseconds'));
+
+        return $this;
     }
 }

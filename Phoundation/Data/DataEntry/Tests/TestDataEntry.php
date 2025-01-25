@@ -8,7 +8,7 @@
  * @see       DataEntry
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
 
@@ -89,13 +89,15 @@ class TestDataEntry extends DataEntry
         return $this->set($value, 'test_column');
     }
 
-    
+
     /**
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newName($this)
                                            ->setOptional(false)
@@ -115,5 +117,7 @@ class TestDataEntry extends DataEntry
 
                     ->add(DefinitionFactory::newDescription($this)
                                            ->setHelpText(tr('The description for this TestDataEntry')));
+
+        return $this;
     }
 }

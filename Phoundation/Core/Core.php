@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Core
  */
 
@@ -92,7 +92,7 @@ class Core implements CoreInterface
     /**
      * Framework version and minimum required PHP version
      */
-    public const string FRAMEWORK_CODE_VERSION = '4.12.0';
+    public const string FRAMEWORK_CODE_VERSION = '4.13.0';
 
     public const string PHP_MINIMUM_VERSION    = '8.3.0';
 
@@ -1260,7 +1260,7 @@ class Core implements CoreInterface
      *
      * @return bool
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @package   system
      * @see       exit()
@@ -2584,6 +2584,21 @@ class Core implements CoreInterface
         if (!Core::processIsRoot()) {
             throw ProcessRequiresRootException::new(tr('This process requires root privileges to execute correctly.'))
                                               ->setWarning(!Core::inBootState());
+        }
+    }
+
+
+    /**
+     * Checks if the current process is running as root. If not, the current process will be restarted with sudo
+     *
+     * @return void
+     * @throws ProcessRequiresRootException
+     */
+    public static function ensureProcessIsRoot(): void
+    {
+        // This class requires running with root privileges
+        if (!Core::processIsRoot()) {
+            CliCommand::restartAsRoot();
         }
     }
 

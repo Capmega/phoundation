@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
 
@@ -63,7 +63,7 @@ trait TraitDataEntryServer
     public function getServer(): ?ServerInterface
     {
         if (!isset($this->server)) {
-            $this->server = Server::loadOrNull($this->getServersId());
+            $this->server = Server::new($this->getServersId())->loadOrNull();
         }
 
         return $this->server;
@@ -110,6 +110,6 @@ trait TraitDataEntryServer
      */
     public function setServersHostname(?string $hostname): static
     {
-        return $this->setServer(Server::load($hostname));
+        return $this->setServer(Server::new()->load($hostname));
     }
 }

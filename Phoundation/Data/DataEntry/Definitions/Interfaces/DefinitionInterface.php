@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
 
@@ -1172,11 +1172,10 @@ interface DefinitionInterface
      * Validate this column according to the column definitions
      *
      * @param ValidatorInterface $validator
-     * @param string|null        $prefix
      *
      * @return bool
      */
-    public function validate(ValidatorInterface $validator, ?string $prefix): bool;
+    public function validate(ValidatorInterface $validator): bool;
 
 
     /**
@@ -1512,4 +1511,40 @@ interface DefinitionInterface
      * @see  Definition::setRender()
      */
     public function setLinkedTo(?string $linked_to = null): static;
+
+    /**
+     * Returns if this column should be stored with NULL in the database if empty
+     *
+     * @return bool
+     */
+    public function getForceNull(): bool;
+
+    /**
+     * Sets if this column should be stored with NULL in the database if empty
+     *
+     * @note Defaults to false
+     *
+     * @param bool $value
+     *
+     * @return static
+     */
+    public function setForceNull(bool $value): static;
+
+    /**
+     * Returns the value that will be displayed when the real value is NULL
+     *
+     * @return string|float|int|bool|null
+     */
+    public function getNullDisplay(): string|float|int|bool|null;
+
+    /**
+     * Sets the value that will be displayed when the real value is NULL
+     *
+     * @note Defaults to false
+     *
+     * @param string|float|int|bool|null $value
+     *
+     * @return static
+     */
+    public function setNullDisplay(string|float|int|bool|null $value = null): static;
 }

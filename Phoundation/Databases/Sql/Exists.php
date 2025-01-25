@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation/Databases
  */
 
@@ -30,7 +30,7 @@ class SqlExists
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      */
     public static function databaseExists($database, $query = null, $connector = null)
     {
@@ -76,7 +76,7 @@ class SqlExists
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
          */
     public static function tableExists($table, $query = null, $connector = null)
     {
@@ -113,7 +113,7 @@ class SqlExists
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists
      *
@@ -158,7 +158,7 @@ class SqlExists
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists
      *
@@ -203,7 +203,7 @@ class SqlExists
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists
      *
@@ -257,7 +257,7 @@ class SqlExists
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists
      *
@@ -309,7 +309,7 @@ class SqlExists
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists
      *

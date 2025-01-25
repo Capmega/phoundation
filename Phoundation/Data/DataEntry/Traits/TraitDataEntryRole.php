@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
 
@@ -63,7 +63,7 @@ trait TraitDataEntryRole
     public function getRole(): ?RoleInterface
     {
         if (!isset($this->role)) {
-            $this->role = Role::loadOrNull($this->getRolesId());
+            $this->role = Role::new($this->getRolesId())->loadOrNull();
         }
 
         return $this->role;
@@ -110,6 +110,6 @@ trait TraitDataEntryRole
      */
     public function setRolesName(?string $name): static
     {
-        return $this->setRole(Role::load(['name' => $name]));
+        return $this->setRole(Role::new()->load(['name' => $name]));
     }
 }

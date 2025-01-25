@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
 
@@ -32,6 +32,6 @@ abstract class ResourceElement extends ResourceElementCore
     public function __construct(?string $content = null)
     {
         parent::__construct($content);
-        $this->empty = tr('No results available');
+        $this->component_empty_label = tr('No results available');
     }
 }

@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   \Phoundation\Developer
  */
 
@@ -328,18 +328,22 @@ abstract class Updates implements UpdatesInterface
     protected function getNextVersion(array &$source, string|int $current_version): ?string
     {
         $found = null;
+
         foreach ($source as $version => $callback) {
             if ($version === 'post_always') {
                 // Ignore here, we'll execute that manually
                 continue;
             }
+
             switch (Version::compare($version, $current_version)) {
                 case -1:
                     // This is a previous version, ignore it.
                     break;
+
                 case 0:
                     // It's the same version, ignore it
                     break;
+
                 case 1:
                     // This IS a higher version! But is it the next? Let's see...
                     // Either it's the first we found ($found ie empty) or it's lower than the currently found one.
@@ -416,6 +420,7 @@ abstract class Updates implements UpdatesInterface
             // Never register this in the versions table as this one is ALWAYS executed
             return;
         }
+
         sql()->insert('core_versions', [
             'library'  => $this->library,
             'version'  => Version::getInteger($version),
@@ -434,6 +439,7 @@ abstract class Updates implements UpdatesInterface
     public function initPost(?string $comments = null): bool
     {
         $result = false;
+
         // Only execute post_* files if we're not in TEST mode
         // Execute the post_once
         if (array_key_exists('post_once', $this->updates)) {
@@ -442,16 +448,20 @@ abstract class Updates implements UpdatesInterface
                 Log::action(tr('Executing "post_once" for library ":library"', [
                     ':library' => $this->vendor . '/' . $this->library,
                 ]));
+
                 $this->updates['post_once']();
                 $this->addVersion('post_once', $comments);
+
                 $result = true;
             }
         }
+
         // Execute the post_always
         if (array_key_exists('post_always', $this->updates)) {
             Log::action(tr('Executing "post_always" for library ":library"', [
                 ':library' => $this->vendor . '/' . $this->library,
             ]));
+
             $this->updates['post_always']();
             $result = true;
         }
@@ -472,16 +482,17 @@ abstract class Updates implements UpdatesInterface
         if (!$this->versionsTableExists()) {
             return false;
         }
+
         if (!is_int($version)) {
             // Get the integer version of the version
             $version = Version::getInteger($version);
         }
 
         return (bool) sql()->getColumn('SELECT `version`
-                                             FROM   `core_versions`
-                                             WHERE  `vendor`  = :vendor
-                                               AND  `library` = :library
-                                               AND  `version` = :version', [
+                                        FROM   `core_versions`
+                                        WHERE  `vendor`  = :vendor
+                                          AND  `library` = :library
+                                          AND  `version` = :version', [
             ':vendor'  => $this->vendor,
             ':library' => $this->library,
             ':version' => $version,
@@ -499,11 +510,14 @@ abstract class Updates implements UpdatesInterface
     protected function hasBeenExecuted(string $version): bool
     {
         $database_version = $this->getDatabaseVersion();
+
         if ($database_version === null) {
             // This library has had no init executed whatsoever, so no, it had not been executed, whatever the version
             return false;
         }
+
         $result = version_compare($version, $database_version);
+
         switch ($result) {
             case 1:
                 // The init version is later than the specified version
@@ -520,6 +534,7 @@ abstract class Updates implements UpdatesInterface
 
                 return true;
         }
+
         throw new UnexpectedValueException(tr('Php version_compare() gave the unexpected output ":output"', [
             ':output' => $result,
         ]));

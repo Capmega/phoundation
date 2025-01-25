@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
 
@@ -107,11 +107,13 @@ if ($argv['library']) {
     Log::cli(CliColor::apply(Strings::size(tr('Statistics:'), 28), 'white'));
 
     foreach ($types as $type) {
-        $statistics[$type]['total_statistics']['size'] = Numbers::getHumanReadableBytes($statistics[$type]['total_statistics']['size']);
+        if (empty($argv['type']) or ($argv['type'] === $type)) {
+            $statistics[$type]['total_statistics']['size'] = Numbers::getHumanReadableBytes(isset_get($statistics[$type]['total_statistics']['size'], 0));
 
-        Log::cli(' ');
-        Log::cli(CliColor::apply(tr('Statistics for ":type" libraries:', [':type' => $type]), 'information'));
-        Cli::displayForm($statistics[$type]['total_statistics']);
-        Log::cli(' ');
+            Log::cli(' ');
+            Log::cli(CliColor::apply(tr('Statistics for ":type" libraries:', [':type' => $type]), 'information'));
+            Cli::displayForm(isset_get($statistics[$type]['total_statistics']), 0);
+            Log::cli(' ');
+        }
     }
 }

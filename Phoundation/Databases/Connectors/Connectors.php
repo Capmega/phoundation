@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Databases
  */
 
@@ -75,10 +75,10 @@ class Connectors extends DataIterator implements ConnectorsInterface
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false, bool $ignore_sql_exceptions = false): static
+    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false, bool $ignore_sql_exceptions = false): static
     {
         try {
-            parent::load($identifiers, $clear, $only_if_empty);
+            parent::new()->load($identifiers, $clear, $only_if_empty);
 
         } catch (SqlException $e) {
             if (!$ignore_sql_exceptions) {

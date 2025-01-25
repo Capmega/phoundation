@@ -8,7 +8,7 @@
  * @see       DataEntry
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Core
  */
 
@@ -113,16 +113,11 @@ class Plugin extends DataEntry implements PluginInterface
      *       returned class will be Plugins\Phoundation\Phoundation\Library\Plugin, instead of
      *       Phoundation\Core\Plugins\Plugin
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool                                     $meta_enabled
-     * @param bool                                     $init
-     * @param bool                                     $ignore_deleted
-     *
      * @return static
      */
-    public static function load(array|DataEntryInterface|string|int|null $identifier, bool $meta_enabled = false, bool $init = true, bool $ignore_deleted = false): static
+    public function load(): static
     {
-        $plugin = parent::load($identifier, $meta_enabled, $init, $ignore_deleted);
+        $plugin = parent::load();
         $file   = DIRECTORY_ROOT . $plugin->getDirectory() . 'Library/Plugin.php';
         $class  = Library::getClassPath($file);
         $class  = Library::includeClassFile($class);
@@ -562,8 +557,10 @@ class Plugin extends DataEntry implements PluginInterface
      * Sets the available data keys for the User class
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(Definition::new($this, 'disabled')
                                     ->setInputType(EnumInputType::boolean)
@@ -678,5 +675,7 @@ class Plugin extends DataEntry implements PluginInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isBoolean();
                                     }));
+
+        return $this;
     }
 }

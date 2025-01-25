@@ -8,7 +8,7 @@
  * @see       DataIterator
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
 
@@ -216,7 +216,7 @@ class Users extends DataIterator implements UsersInterface
 
             } else {
                 // Add single right. Since this is a User object, the entry already exists in the database
-                $value = User::load($value);
+                $value = User::new()->load($value);
 
                 // User already exists for this parent?
                 if ($this->hasUser($value)) {
@@ -282,7 +282,7 @@ class Users extends DataIterator implements UsersInterface
 
         } else {
             // Add a single user. Since this is a User object, the entry already exists in the database
-            $user = User::load($keys);
+            $user = User::new()->load($keys);
 
             if ($this->parent instanceof RoleInterface) {
                 Log::action(tr('Removing user ":user" from role ":role"', [
@@ -540,7 +540,7 @@ class Users extends DataIterator implements UsersInterface
      */
     public function loadForRole(RoleInterface|Stringable|string $role): static
     {
-        $role = Role::load($role);
+        $role = Role::new()->load($role);
 
         $this->getQueryBuilder()
              ->addSelect('`accounts_users`.`id` AS `key`,
@@ -573,7 +573,7 @@ class Users extends DataIterator implements UsersInterface
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
+    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false): static
     {
         if (empty($this->query) and empty($this->query_builder)) {
             if ($this->parent) {

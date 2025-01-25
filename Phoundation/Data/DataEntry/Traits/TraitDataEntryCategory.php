@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
 
@@ -63,7 +63,7 @@ trait TraitDataEntryCategory
     public function getCategoryObject(): ?CategoryInterface
     {
         if (empty($this->o_category)) {
-            $this->o_category = Category::loadOrNull($this->getTypesafe('int', 'categories_id'));
+            $this->o_category = Category::new($this->getTypesafe('int', 'categories_id'))->loadOrNull();
         }
 
         return $this->o_category;
@@ -105,6 +105,6 @@ trait TraitDataEntryCategory
      */
     public function setCategoriesName(?string $categories_name): static
     {
-        return $this->setCategoryObject(Category::loadOrNull(['name' => $categories_name]));
+        return $this->setCategoryObject(Category::new(['name' => $categories_name])->loadOrNull());
     }
 }

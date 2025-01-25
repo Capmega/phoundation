@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
 
@@ -109,7 +109,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
      */
     public function getRole(): ?RoleInterface
     {
-        return Role::loadOrNull($this->getRolesId());
+        return Role::new($this->getRolesId())->loadOrNull();
     }
 
 
@@ -131,7 +131,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
      */
     public function getRight(): ?RightInterface
     {
-        return Right::loadOrNull($this->getRolesId());
+        return Right::new($this->getRolesId())->loadOrNull();
     }
 
 

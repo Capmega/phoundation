@@ -18,7 +18,7 @@
 // *
 // * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-// * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+// * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
 // * @package Phoundation\Databases
 // */
 //class SqlSimple
@@ -282,7 +282,7 @@
 //    /**
 //     * Return a valid PDO execute array
 //     *
-//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+//     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package sql

@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
 
@@ -83,7 +83,8 @@ if (!$argv['no_import']) {
 
     // Load the datafiles into a geonames database
     Log::action(tr('Loading geonames files into temporary database'));
-    Import::load($argv['target_path'] . '_processed', $argv['database']);
+    TODO FIX IMPORT
+    Import::new($argv['target_path'] . '_processed', $argv['database'])->load();
 }
 
 

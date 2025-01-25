@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
 
@@ -49,7 +49,7 @@ $argv = ArgvValidator::new()
 // Ensure that specified roles exist
 if ($argv['rights']) {
     foreach ($argv['rights'] as &$right) {
-        $right = Right::load($right);
+        $right = Right::new()->load($right);
     }
 
     unset($right);
@@ -57,7 +57,7 @@ if ($argv['rights']) {
 
 
 // Load role, ensure the new name doesn't exist yet, then modify it, save it
-$role = Role::load($argv['role']);
+$role = Role::new()->load($argv['role']);
 
 if ($argv['name']) {
     // If changing name, ensure it doesn't exist yet as it's a unique identifier

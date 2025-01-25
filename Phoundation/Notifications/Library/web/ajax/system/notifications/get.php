@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
 
@@ -26,6 +26,6 @@ $get = GetValidator::new()
 
 
 // Update notification status to READ and return it
-JsonPage::new()->reply(Notification::load($get['id'])
+JsonPage::new()->reply(Notification::new($get['id'])->load()
                             ->setStatus('READ')
                             ->__toArray());

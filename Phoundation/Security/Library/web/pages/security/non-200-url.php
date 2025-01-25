@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Security
  */
 
@@ -33,7 +33,7 @@ $get = GetValidator::new()
 
 
 // Build the page content
-$url  = Non200Url::load($get['id']);
+$url  = Non200Url::new()->load($get['id']);
 $form = $url->getHtmlDataEntryFormObject();
 $card = Card::new()
             ->setTitle($url->getDisplayName())

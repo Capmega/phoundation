@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Core
  */
 
@@ -56,7 +56,7 @@ if (ALL) {
     // Get all plugins
     $plugin = Plugins::new()->load()->eachField(function ($plugin, $plugin_name) {
         // Disable plugin
-        Plugin::load($plugin_name)->disable();
+        Plugin::new()->load($plugin_name)->disable();
     });
 
     // Done!
@@ -66,7 +66,7 @@ if (ALL) {
     // Get specified plugins
     foreach ($argv['plugins'] as $plugin) {
         // Disable plugin
-        Plugin::load($plugin)->disable();
+        Plugin::new()->load($plugin)->disable();
     }
 
     // Done!

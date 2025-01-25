@@ -8,7 +8,7 @@
  * @see       \Phoundation\Data\DataEntry\DataEntry
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
 
@@ -134,9 +134,9 @@ class Category extends DataEntry implements CategoryInterface
      *
      * @param DefinitionsInterface $definitions
      *
-     * @return void
+     * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(Definition::new($this, 'parents_id')
                                     ->setOptional(true)
@@ -155,6 +155,7 @@ class Category extends DataEntry implements CategoryInterface
                                                   ->isDbId()
                                                   ->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
                                     }))
+
                     ->add(Definition::new($this, 'parent')
                                     ->setOptional(true)
                                     ->setVirtual(true)
@@ -175,13 +176,18 @@ class Category extends DataEntry implements CategoryInterface
                                                   ->isName(64)
                                                   ->setColumnFromQuery('parents_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$parent']);
                                     }))
+
                     ->add(DefinitionFactory::newName($this)
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isFalse(function ($value, $source) {
                                                    Category::exists(['name' => $value], isset_get($source['id']));
                                                }, tr('already exists'));
                                            }))
+
                     ->add(DefinitionFactory::newSeoName($this))
+
                     ->add(DefinitionFactory::newDescription($this));
+
+        return $this;
     }
 }

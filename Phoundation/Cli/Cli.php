@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Cli
  */
 
@@ -236,14 +236,14 @@ class Cli
     /**
      * Display the data in the specified source array in a neat looking form
      *
-     * @param array       $source
-     * @param string|null $key_header
-     * @param string|null $value_header
-     * @param int         $offset If specified, the text will be set $offset number of characters to the right
+     * @param array                 $source
+     * @param string|float|int|null $key_header
+     * @param string|null           $value_header
+     * @param int                   $offset If specified, the text will be set $offset number of characters to the right
      *
      * @return void
      */
-    public static function displayForm(array $source, ?string $key_header = null, string $value_header = null, int $offset = 0): void
+    public static function displayForm(array $source, string|float|int|null $key_header = null, string $value_header = null, int $offset = 0): void
     {
         // Validate arguments
         if ($offset < 0) {

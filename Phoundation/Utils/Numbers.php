@@ -6,7 +6,7 @@
  * This is the standard Phoundation string functionality extension class
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category  Class reference
  * @package   Phoundation\Utils
@@ -337,7 +337,7 @@ class Numbers
      * Return the "step" for use in HTML <input type="number"> tags from the specified list of numbers
      *
      * @return string The step that can be used in the html <input type="number">
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
          * @package   numbers
      * @version   2.2.7: Added function and documentation

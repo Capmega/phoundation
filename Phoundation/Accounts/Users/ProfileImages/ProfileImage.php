@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
 
@@ -26,9 +26,11 @@ use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryFile;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryUsersId;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
@@ -50,17 +52,14 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
         setUsersId as protected __setUsersId;
     }
 
-
     /**
      * ProfileImage class constructor
      *
-     * @param array|DataEntryInterface|string|int|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
+     * @param IdentifierInterface|array|string|int|null $identifier
      */
-    public function __construct(array|DataEntryInterface|string|int|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(IdentifierInterface|array|string|int|null $identifier = null)
     {
-        parent::__construct($identifier, $meta_enabled, $init);
+        parent::__construct($identifier);
 
         $this->restrictions = PhoRestrictions::newWritable([DIRECTORY_TMP, DIRECTORY_CDN]);
     }
@@ -262,7 +261,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                 // Assign the profile image to the specified user
                 if (empty($o_user)) {
                     // We need a user object
-                    $o_user = User::load($users_id);
+                    $o_user = User::new()->load($users_id);
                 }
 
                 $cdn_directory = PhoDirectory::newCdnObject(true, '/img/files/profile/' . $users_id)
@@ -372,8 +371,10 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newUsersId($this))
 
@@ -392,5 +393,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                                            }))
 
                     ->add(DefinitionFactory::newDescription($this));
+
+        return $this;
     }
 }

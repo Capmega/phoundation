@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   \Phoundation\Core
  */
 
@@ -53,7 +53,7 @@ if (Request::isPostRequestMethod()) {
                              ->select('email')->isEmail()
                              ->validate();
 
-        $user = User::load(['email' => $post['email']]);
+        $user = User::new()->load(['email' => $post['email']]);
 
         if ($user->isLocked() or $user->isDeleted()) {
             // Yikes, this account is locked or deleted, no password request can be sent!

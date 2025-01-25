@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
 
@@ -30,6 +30,6 @@ class UrlTest extends TestCase
     public function testGetWww()
     {
         $url = Url::newCurrent();
-        $this->assertEquals('http://mediweb.medinet.ca.local/en/', $url->getSource(), 'The result array should equal the sample array');
+        $this->assertEquals('http://tracker.medinet.ca.local/en/', $url->getSource(), 'The result array should equal the sample array');
     }
 }

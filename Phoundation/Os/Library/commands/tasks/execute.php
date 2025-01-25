@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
 
@@ -53,7 +53,7 @@ $argv = ArgvValidator::new()
 if ($argv['task']) {
     try {
         // Execute a specific task
-        $task = Task::load($argv['task'])->execute();
+        $task = Task::new()->load($argv['task'])->execute();
 
     } catch (TaskAlreadyExecutedException) {
         throw TaskAlreadyExecutedException::new(tr('Task ":task" has already been executed', [

@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
 
@@ -1146,7 +1146,7 @@ class Route
     {
         // Do we allow any $_GET queries from the REQUEST_URI?
         if (!static::$pass_get_variables) {
-            if (!GetValidator::new()->isEmpty()) {
+            if (GetValidator::new()->isNotEmpty()) {
                 // Client specified variables on a URL that does not allow queries, cancel the match
                 Log::warning(tr('Matched route ":route" does not allow query variables while client specified them, cancelling match', [
                     ':route' => static::$route,

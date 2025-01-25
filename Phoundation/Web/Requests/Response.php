@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
  */
 
@@ -615,8 +615,10 @@ class Response implements ResponseInterface
     public static function versionFile(string $url, string $type): string
     {
         static $minified;
+
         // Ensure the extension is stripped
         $url = Strings::until($url, '.' . $url);
+
         // Should we load the minified version? This is optional as long as the file itself does not have .min specified
         if (str_ends_with($url, '.min')) {
             if (!isset($minified)) {
@@ -624,6 +626,7 @@ class Response implements ResponseInterface
                 $minified = (Config::get('web.minified', true) ? '.min' : '');
             }
         }
+
         if (Config::getBoolean('cache.version-files', true)) {
             // Determine the absolute file path
             // then get timestamp and inject it into the given file
@@ -754,11 +757,15 @@ class Response implements ResponseInterface
 
         $scripts = [];
 
-        // Convert the given URL (parts) to real URLs and add it to the scripts list
+        // Convert the given URL (parts) to real URLs and add it to the "scripts" list
         foreach (Arrays::force($urls, ',') as $url) {
-            $url           = Strings::ensureEndsNotWith($url, '.js');
-            $url           = Strings::ensureEndsNotWith($url, '.min');
-            $url           = static::versionFile($url, 'js');
+            if (!Url::isValidUrl($url)) {
+                // Pre-process local URL's
+                $url = Strings::ensureEndsNotWith($url, '.js');
+                $url = Strings::ensureEndsNotWith($url, '.min');
+                $url = static::versionFile($url, 'js');
+            }
+
             $scripts[$url] = [
                 'type' => 'text/javascript',
                 'src'  => Url::new($url)->makeJs(),
@@ -799,9 +806,13 @@ class Response implements ResponseInterface
 
         // Convert the given URL (parts) to real URLs
         foreach (Arrays::force($urls, '') as $url) {
-            $url           = Strings::ensureEndsNotWith($url, '.css');
-            $url           = Strings::ensureEndsNotWith($url, '.min');
-            $url           = static::versionFile($url, 'css');
+            if (!Url::isValidUrl($url)) {
+                // Pre-process local URL's
+                $url = Strings::ensureEndsNotWith($url, '.css');
+                $url = Strings::ensureEndsNotWith($url, '.min');
+                $url = static::versionFile($url, 'css');
+            }
+
             $scripts[$url] = [
                 'rel'  => 'stylesheet',
                 'href' => Url::new($url)->makeCss(),
@@ -875,7 +886,7 @@ class Response implements ResponseInterface
     public static function getLanguage(): LanguageInterface
     {
         if (empty(static::$language_code)) {
-            static::$language = Language::load(static::getLanguageCode());
+            static::$language = Language::new()->load(static::getLanguageCode());
         }
 
         return static::$language;
@@ -1659,7 +1670,7 @@ class Response implements ResponseInterface
      *
      * @return array
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
          * @package   http
      * @see       htt_noCache()
@@ -1870,7 +1881,7 @@ class Response implements ResponseInterface
      * Send the required headers to ensure that the page will not be cached ever
      *
      * @return void
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
          * @package   http
      * @see       Http::cache()

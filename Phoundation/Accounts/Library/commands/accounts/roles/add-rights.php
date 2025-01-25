@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
 
@@ -48,14 +48,14 @@ try {
     // Ensure that specified $rights exist
     if ($argv['rights']) {
         foreach ($argv['rights'] as &$right) {
-            $right = Right::load($right);
+            $right = Right::new()->load($right);
         }
 
         unset($right);
     }
 
     // Check role exists, get role, and add rights
-    $role = Role::load($argv['role']);
+    $role = Role::new()->load($argv['role']);
     $role->getRightsObject()->add($argv['rights']);
 
 } catch (DataEntryNotExistsException $e) {

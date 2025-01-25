@@ -8,7 +8,7 @@
  * @see       DataEntry
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Security
  * @todo      Incidents should be able to throw exceptions depending on type. AuthenticationFailureExceptions, for
  *            example, should be thrown from here so that it is no longer required for the developer to both register
@@ -92,10 +92,8 @@ class Incident extends DataEntry implements IncidentInterface
      * Incident class constructor
      *
      * @param array|int|string|DataEntryInterface|null $identifier
-     * @param bool|null                                $meta_enabled
-     * @param bool                                     $init
      */
-    public function __construct(array|int|string|DataEntryInterface|null $identifier = null, ?bool $meta_enabled = null, bool $init = true)
+    public function __construct(array|int|string|DataEntryInterface|null $identifier = null)
     {
         if (!isset($this->meta_columns)) {
             // By default, the Notification object has created_by NOT meta so that it can set it manually
@@ -108,7 +106,7 @@ class Incident extends DataEntry implements IncidentInterface
             ];
         }
 
-        parent::__construct($identifier, $meta_enabled, $init);
+        parent::__construct($identifier);
 
         if ($this->isNew()) {
             // By default, the object is created by the current user
@@ -492,8 +490,10 @@ class Incident extends DataEntry implements IncidentInterface
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
+     *
+     * @return Incident
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->removeKeys('new-divider')
 
@@ -610,5 +610,7 @@ class Incident extends DataEntry implements IncidentInterface
                                     ->setSize(12)
                                     ->setRows(15)
                                     ->setMaxlength(16_777_200));
+
+        return $this;
     }
 }

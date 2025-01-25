@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
 
@@ -63,7 +63,7 @@ trait TraitDataEntryCountry
     public function getCountryObject(): ?CountryInterface
     {
         if (empty($this->o_country)) {
-            $this->o_country = Country::loadOrNull($this->getTypesafe('int', 'countries_id'));
+            $this->o_country = Country::new($this->getTypesafe('int', 'countries_id'))->loadOrNull();
         }
 
         return $this->o_country;
@@ -105,6 +105,6 @@ trait TraitDataEntryCountry
      */
     public function setCountriesName(?string $countries_name): static
     {
-        return $this->setCountryObject(Country::loadOrNull(['name' => $countries_name]));
+        return $this->setCountryObject(Country::new(['name' => $countries_name])->loadOrNull());
     }
 }

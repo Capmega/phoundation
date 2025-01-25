@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
 
@@ -49,7 +49,7 @@ Provider::notExists(['name' => $argv['name']], null, true);
 // Ensure that specified providers exist
 if ($argv['rights']) {
     foreach ($argv['rights'] as &$right) {
-        $right = Provider::load($right);
+        $right = Provider::new()->load($right);
     }
 
     unset($right);

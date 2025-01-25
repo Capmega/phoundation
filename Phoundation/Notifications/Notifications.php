@@ -8,7 +8,7 @@
  * @see       DataIterator
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundations\Notifications
  */
 
@@ -141,7 +141,7 @@ class Notifications extends DataIterator implements NotificationsInterface
 //    /**
 //     * @inheritDoc
 //     */
-//    public function load(array|string|int|null $identifiers = null, bool $clear = true, bool $only_if_empty = false): static
+//    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false): static
 //    {
 //        $this->source = sql()->list('SELECT `notifications`.`id`, `notifications`.`title`
 //                                   FROM     `notifications`

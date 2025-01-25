@@ -8,7 +8,7 @@
  * @see       \Phoundation\Core\Libraries\Updates
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
 
@@ -663,7 +663,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             $entries = sql()->query('SELECT `id`, `rights_id`, `name` FROM `accounts_users_rights`');
 
             foreach ($entries as $entry) {
-                $right = Right::load($entry['rights_id']);
+                $right = Right::new()->load($entry['rights_id']);
 
                 sql()->update('accounts_users_rights', [
                     'name'     => $right->getName(),
@@ -834,9 +834,9 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             }
 
             // Various rights go together...
-            Role::load('Audit')->getRightsObject()->add('Admin');
-            Role::load('Security')->getRightsObject()->add('Admin');
-            Role::load('Impersonate')
+            Role::new()->load('Audit')->getRightsObject()->add('Admin');
+            Role::new()->load('Security')->getRightsObject()->add('Admin');
+            Role::new()->load('Impersonate')
                 ->getRightsObject()
                     ->add('Admin')
                     ->add('Accounts');

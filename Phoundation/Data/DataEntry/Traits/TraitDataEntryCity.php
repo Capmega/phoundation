@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
 
@@ -63,7 +63,7 @@ trait TraitDataEntryCity
     public function getCityObject(): ?CityInterface
     {
         if (empty($this->o_city)) {
-            $this->o_city = City::loadOrNull($this->getTypesafe('int', 'cities_id'));
+            $this->o_city = City::new($this->getTypesafe('int', 'cities_id'))->loadOrNull();
         }
 
         return $this->o_city;
@@ -105,6 +105,6 @@ trait TraitDataEntryCity
      */
     public function setCitiesName(?string $cities_name): static
     {
-        return $this->setCityObject(City::loadOrNull(['name' => $cities_name]));
+        return $this->setCityObject(City::new(['name' => $cities_name])->loadOrNull());
     }
 }

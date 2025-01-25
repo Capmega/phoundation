@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
 
@@ -52,7 +52,7 @@ $argv = ArgvValidator::new()
 
 
 try {
-    $role = Role::load($argv['role']);
+    $role = Role::new()->load($argv['role']);
 
     // Display role data and rights
     Cli::displayForm($role->getSource());

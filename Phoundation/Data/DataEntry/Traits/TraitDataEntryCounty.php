@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
 
@@ -63,7 +63,7 @@ trait TraitDataEntryCounty
     public function getCountyObject(): ?CountyInterface
     {
         if (empty($this->o_county)) {
-            $this->o_county = County::loadOrNull($this->getTypesafe('int', 'counties_id'));
+            $this->o_county = County::new($this->getTypesafe('int', 'counties_id'))->loadOrNull();
         }
 
         return $this->o_county;
@@ -105,6 +105,6 @@ trait TraitDataEntryCounty
      */
     public function setCountiesName(?string $counties_name): static
     {
-        return $this->setCountyObject(County::loadOrNull(['name' => $counties_name]));
+        return $this->setCountyObject(County::new(['name' => $counties_name])->loadOrNull());
     }
 }

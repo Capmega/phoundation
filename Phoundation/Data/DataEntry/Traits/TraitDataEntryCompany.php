@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
 
@@ -63,7 +63,7 @@ trait TraitDataEntryCompany
     public function getCompanyObject(): ?CompanyInterface
     {
         if (empty($this->o_company)) {
-            $this->o_company = Company::loadOrNull($this->getTypesafe('int', 'companies_id'));
+            $this->o_company = Company::new($this->getTypesafe('int', 'companies_id'))->loadOrNull();
         }
 
         return $this->o_company;
@@ -105,6 +105,6 @@ trait TraitDataEntryCompany
      */
     public function setCompaniesName(?string $companies_name): static
     {
-        return $this->setCompanyObject(Company::loadOrNull(['name' => $companies_name]));
+        return $this->setCompanyObject(Company::new(['name' => $companies_name])->loadOrNull());
     }
 }

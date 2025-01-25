@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
 
@@ -41,7 +41,7 @@ $get = GetValidator::new()
 
 
 // Get the requested user and modify form design
-$user = User::loadOrNull($get['id']);
+$user = User::new($get['id']);
 $user->getDefinitionsObject()->setRender('latitude'        , false)
                              ->setRender('longitude'       , false)
                              ->setRender('offset_latitude' , false)
@@ -76,6 +76,7 @@ if (Request::isPostRequestMethod()) {
                                      ->validate(false);
 
                 // Update user, roles, emails, and phones
+                // :TODO: Validation failures in (for example) Phones object would still have the user saved! Make it ATOMIC by first applying EVERYTHING then saving everything
                 $user->apply(false)->save();
                 $user->getRolesObject()->setRoles($post['roles_id']);
                 $user->getEmailsObject()->apply(false)->save();

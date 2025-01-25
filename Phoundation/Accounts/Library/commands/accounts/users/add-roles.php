@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Scripts
  */
 
@@ -62,18 +62,18 @@ try {
     // Ensure that specified roles exist
     if ($argv['roles']) {
         foreach ($argv['roles'] as &$role) {
-            $role = Role::load($role);
+            $role = Role::new()->load($role);
         }
 
         unset($role);
     }
 
     // Get user and add roles
-    $user  = User::load($argv['user']);
+    $user  = User::new()->load($argv['user']);
     $roles = $user->getRolesObject();
 
     foreach ($argv['roles'] as $role) {
-        $roles->add(Role::load($role));
+        $roles->add(Role::new()->load($role));
     }
 
     if ($roles->save()) {

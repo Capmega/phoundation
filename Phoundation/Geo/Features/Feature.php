@@ -8,7 +8,7 @@
  * @see       \Phoundation\Data\DataEntry\DataEntry
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Geo
  */
 
@@ -65,11 +65,13 @@ class Feature extends DataEntry implements FeatureInterface
      *
      * @param DefinitionsInterface $definitions
      *
-     * @return void
+     * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): void
+    protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions;
+
+        return $this;
 //        throw new UnderConstructionException();
 //
 //        $data = $validator

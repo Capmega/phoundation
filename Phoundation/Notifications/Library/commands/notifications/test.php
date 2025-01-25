@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package Phoundation\Notifications
  */
 
@@ -31,7 +31,7 @@ $argv  = ArgvValidator::new()
 
 if ($argv['users']) {
     foreach ($argv['users'] as $user) {
-        $user = User::load($user);
+        $user = User::new()->load($user);
 
         // Send the test notification to all specified users
         Notification::new()
