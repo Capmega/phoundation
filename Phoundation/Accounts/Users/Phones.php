@@ -121,7 +121,7 @@ class Phones extends DataIterator implements PhonesInterface
      */
     public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false): static
     {
-        $this->parent  = User::new($this->parent)->load();
+        $this->parent  = User::new()->load($this->parent);
         $this->execute = [':users_id' => $this->parent->getId()];
 
         return parent::load();
@@ -239,7 +239,7 @@ class Phones extends DataIterator implements PhonesInterface
             $diff = Arrays::deleteDiff($diff, $phones);
 
             foreach ($diff['delete'] as $id => $phone) {
-                Phone::new($id)->load()->delete();
+                Phone::new()->load($id)->delete();
 
                 $this->removeKeys($id);
             }

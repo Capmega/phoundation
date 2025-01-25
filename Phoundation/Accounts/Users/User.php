@@ -286,7 +286,7 @@ class User extends DataEntry implements UserInterface
     public static function newForRole(RoleInterface|array|string|int $role): UserInterface
     {
         throw new UnderConstructionException('User::newForRole(): This would VERY likely return multiple users!');
-        $role     = Role::new($role)->load();
+        $role     = Role::new()->load($role);
         $users_id = sql()->getColumn('SELECT `accounts_users`.`id`
                                       FROM   `accounts_users`
                                       JOIN   `accounts_users_roles`
@@ -302,7 +302,7 @@ class User extends DataEntry implements UserInterface
             ]));
         }
 
-        return static::new($users_id)->load();
+        return static::new()->load($users_id);
     }
 
 
@@ -553,7 +553,7 @@ class User extends DataEntry implements UserInterface
     protected static function doAuthenticate(array $identifier, string $password, AuthenticationInterface $authentication, ?string $domain, bool $test = false): static
     {
         try {
-            $user = static::new($identifier)->load();
+            $user = static::new()->load($identifier);
 
             if ($user->passwordMatch($password)) {
                 static::authenticateDomain($identifier, $user, $authentication, $domain, $test);
@@ -766,7 +766,7 @@ class User extends DataEntry implements UserInterface
             if ($roles) {
                 // Add all default roles one by one
                 foreach (Arrays::force($roles) as $role) {
-                    $o_roles->add(Role::new($role)->load());
+                    $o_roles->add(Role::new()->load($role));
                 }
 
                 // Write the default roles to the database
@@ -1651,7 +1651,7 @@ class User extends DataEntry implements UserInterface
     public function setLeadersEmail(?string $leaders_email): static
     {
         if ($leaders_email) {
-            $leaders_id = User::new(['email' => $leaders_email])->load()->getId();
+            $leaders_id = User::new()->load(['email' => $leaders_email])->getId();
         }
 
         return $this->setLeadersId(isset_get($leaders_id));
@@ -2565,7 +2565,7 @@ class User extends DataEntry implements UserInterface
 
         if ($profile_images_id) {
             // Return the user's profile image
-            return ProfileImage::new($profile_images_id)->load();
+            return ProfileImage::new()->load($profile_images_id);
         }
 
         // No profile image was set, return the default

@@ -52,7 +52,7 @@ Role::notExists(['name' => $argv['name']], null, true);
 // Ensure that specified rights exist
 if ($argv['rights']) {
     foreach ($argv['rights'] as &$right) {
-        $right = Right::new($right)->load();
+        $right = Right::new()->load($right);
     }
 
     unset($right);

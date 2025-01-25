@@ -203,7 +203,7 @@ class Roles extends DataIterator implements RolesInterface
 
             } else {
                 // Add single right. Since this is a Role object, the entry already exists in the database
-                $value = Role::new($value)->load();
+                $value = Role::new()->load($value);
 
                 // Role already exists for this parent?
                 if ($this->hasRole($value)) {
@@ -247,7 +247,7 @@ class Roles extends DataIterator implements RolesInterface
 
                     // Update all users with this right to get the new right as well!
                     foreach ($this->parent->getUsersObject() as $user) {
-                        User::new($user)->load()
+                        User::new()->load($user)
                             ->getRightsObject()
                             ->add($this->parent);
                     }
@@ -286,7 +286,7 @@ class Roles extends DataIterator implements RolesInterface
 
         } else {
             // Delete a single role. Since this is a Role object, the entry already exists in the database
-            $role = Role::new($keys)->load();
+            $role = Role::new()->load($keys);
 
             if ($this->parent instanceof UserInterface) {
                 Log::action(tr('Removing role ":role" from user ":user"', [
@@ -331,7 +331,7 @@ class Roles extends DataIterator implements RolesInterface
 
                 // Update all users with this right to remove the new right as well!
                 foreach ($this->parent->getUsersObject() as $user) {
-                    User::new($user)->load()
+                    User::new()->load($user)
                         ->getRightsObject()
                         ->removeKeys($this->parent);
                 }

@@ -258,9 +258,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     /**
      * DataEntry class constructor
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
      */
-    public function __construct(IdentifierInterface|array|string|int|null $identifier = null)
+    public function __construct()
     {
         // Try to load the DataEntry from the database with the given identifier and column
         if (!isset($this->meta_columns)) {
@@ -272,7 +271,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         // Initialize meta data and copy empty data to source
         $this->setMetaDefinitions()
              ->setDefinitions($this->definitions)
-             ->setIdentifier($identifier)
              ->setMetaData()
              ->copyValuesToSource([], false)
              ->columns_filter_on_insert = [static::getIdColumn()];
@@ -890,12 +888,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or NULL if NULL
      * identifier was specified
      *
+     * @param IdentifierInterface|array|string|int|null $identifier
+     *
      * @return static|null
      */
-    public function loadOrNull(): ?static
+    public function loadOrNull(IdentifierInterface|array|string|int|null $identifier = null): ?static
     {
-        if ($this->identifiersAreNull($this->identifier)) {
-            return $this->load();
+        if ($this->identifiersAreNull($identifier)) {
+            return $this->load($identifier);
         }
 
         return null;
@@ -906,12 +906,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or the current
      * object
      *
+     * @param IdentifierInterface|array|string|int|null $identifier
+     *
      * @return static
      */
-    public function loadOrThis(): static
+    public function loadOrThis(IdentifierInterface|array|string|int|null $identifier = null): static
     {
-        if ($this->identifiersAreNull($this->identifier)) {
-            return $this->load();
+        if ($this->identifiersAreNull($identifier)) {
+            return $this->load($identifier);
         }
 
         return $this;
@@ -931,7 +933,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
                                                                       LIMIT    1;');
 
         if ($identifier) {
-            return static::new($identifier)->load();
+            return static::new()->load($identifier);
         }
 
         throw new OutOfBoundsException(tr('Cannot select random record for table ":table", no records found', [
@@ -956,11 +958,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      * @note The test to see if a DataEntry object exists in the database can be either DataEntry::isNew() or
      *       DataEntry::getId(), which should return a valid database id
      *
+     * @param IdentifierInterface|array|string|int|null $identifier
+     *
      * @return static
      */
-    public function load(): static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null): static
     {
-        if (empty($this->identifier)) {
+        if (empty($identifier)) {
             throw DataEntryNoIdentifierSpecifiedException::new(tr('Cannot load data for DataEntry object ":class", no identifier specified', [
                 ':class' => $this::class
             ]))->addData([
@@ -968,12 +972,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             ]);
         }
 
+        $this->setIdentifier($identifier);
+
         if (is_object($this->identifier)) {
             // This already is a DataEntry object, no need to create one. Validate that this is the same class
             if (!$this->identifier instanceof static) {
                 if (!is_subclass_of(static::class, get_class($this->identifier), true)) {
                     throw new OutOfBoundsException(tr('Specified DataEntry identifier ":has" is incompatible with this object\'s class ":should"', [
-                        ':has' => get_class($this->identifier),
+                        ':has'    => get_class($this->identifier),
                         ':should' => static::class,
                     ]));
                 }
@@ -983,7 +989,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
                 return static::newFromSource($this->identifier->getSource());
             }
 
-            // The specified identifer is the exact same class as THIS class, just return it
+            // The specified identifier is the exact same class as THIS class, just return it
             return $this->identifier;
         }
 

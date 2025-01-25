@@ -110,6 +110,6 @@ trait TraitDataEntryServer
      */
     public function setServersHostname(?string $hostname): static
     {
-        return $this->setServer(Server::new($hostname)->load());
+        return $this->setServer(Server::new()->load($hostname));
     }
 }

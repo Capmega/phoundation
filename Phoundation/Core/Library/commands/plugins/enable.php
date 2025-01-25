@@ -56,7 +56,7 @@ if (ALL) {
     // Get all plugins
     $plugin = Plugins::new()->load()->eachField(function ($plugin, $plugin_name) {
         // Enable plugin
-        Plugin::new($plugin_name)->load()->enable();
+        Plugin::new()->load($plugin_name)->enable();
     });
 
     // Done!
@@ -66,7 +66,7 @@ if (ALL) {
     // Get specified plugins
     foreach ($argv['plugins'] as $plugin) {
         // Enable plugin
-        Plugin::new($plugin)->load()->enable();
+        Plugin::new()->load($plugin)->enable();
     }
 
     // Done!

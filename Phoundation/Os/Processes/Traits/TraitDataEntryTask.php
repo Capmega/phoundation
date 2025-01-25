@@ -109,6 +109,6 @@ trait TraitDataEntryTask
      */
     public function setTasksCode(?string $code): static
     {
-        return $this->setTask(Task::new($code)->load());
+        return $this->setTask(Task::new()->load($code));
     }
 }

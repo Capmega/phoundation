@@ -66,7 +66,7 @@ $argv = ArgvValidator::new()
 
 // Get user
 try {
-    $user = User::new($argv['user'])->load();
+    $user = User::new()->load($argv['user']);
 
 } catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();

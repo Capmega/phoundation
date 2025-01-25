@@ -49,7 +49,7 @@ $argv = ArgvValidator::new()
 // Ensure that specified roles exist
 if ($argv['rights']) {
     foreach ($argv['rights'] as &$right) {
-        $right = Right::new($right)->load();
+        $right = Right::new()->load($right);
     }
 
     unset($right);
@@ -57,7 +57,7 @@ if ($argv['rights']) {
 
 
 // Load role, ensure the new name doesn't exist yet, then modify it, save it
-$role = Role::new($argv['role'])->load();
+$role = Role::new()->load($argv['role']);
 
 if ($argv['name']) {
     // If changing name, ensure it doesn't exist yet as it's a unique identifier

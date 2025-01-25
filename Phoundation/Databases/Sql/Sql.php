@@ -218,7 +218,7 @@ class Sql implements SqlInterface
                 $configuration = Config::getArray('databases.connectors.' . $connector);
 
             } else {
-                $configuration = Connector::new($connector)->load()->getSource();
+                $configuration = Connector::new()->load($connector)->getSource();
             }
         }
 

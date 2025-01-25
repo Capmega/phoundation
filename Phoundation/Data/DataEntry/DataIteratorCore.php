@@ -25,7 +25,6 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Interfaces\ListOperationsInterface;
-use Phoundation\Data\Exception\IteratorKeyNotExistsException;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\IteratorCore;
 use Phoundation\Data\Traits\TraitDataConfigPath;
@@ -819,7 +818,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
                 if (is_data_scalar($value)) {
                     // Try to load the specified value from the database, assuming $value is the unique identifier
                     try {
-                        $value = static::getDefaultContentDataType()::new($value)->load();
+                        $value = static::getDefaultContentDataType()::new()->load($value);
 
                     } catch (DataEntryNotExistsException) {
                         throw new OutOfBoundsException(tr('Cannot add specified value ":value" it must be an instance of DataEntryInterface or a unique identifier value for the class ":class"', [

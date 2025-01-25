@@ -31,7 +31,7 @@ $get = GetValidator::new()
                    ->select('id')->isDbId()
                    ->validate();
 
-$plugin = Plugin::new($get['id'])->load();
+$plugin = Plugin::new()->load($get['id']);
 
 
 // Build the "plugin" form

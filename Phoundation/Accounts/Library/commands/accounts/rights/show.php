@@ -51,7 +51,7 @@ $argv = ArgvValidator::new()
 
 try {
     // Display user data
-    Cli::displayForm(Right::new($argv['user'])->load()->getSource());
+    Cli::displayForm(Right::new()->load($argv['user'])->getSource());
 
 } catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();

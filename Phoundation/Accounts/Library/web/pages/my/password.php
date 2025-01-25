@@ -36,7 +36,7 @@ use Phoundation\Web\Requests\Response;
 
 
 // Get current user and password objects
-$user     = User::new(Session::getUserObject()->getId())->load();
+$user     = User::new()->getId())->load(Session::getUserObject();
 $password = $user->getPassword();
 $password->getDefinitionsObject()->setMetaVisible(false);
 

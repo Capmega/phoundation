@@ -65,7 +65,7 @@ trait TraitDataEntryUserEmail
             $email = $this->getTypesafe('string', 'email');
 
             if ($email) {
-                $this->user = User::new($email)->load();
+                $this->user = User::new()->load($email);
             }
         }
 

@@ -61,7 +61,7 @@ $argv = ArgvValidator::new()
 
 
 // Setup the database connector
-$connector = Connector::new($argv['connector'])->load();
+$connector = Connector::new()->load($argv['connector']);
 
 if ($argv['database']) {
     $connector->setDatabase($argv['database']);

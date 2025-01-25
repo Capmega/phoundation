@@ -47,4 +47,4 @@ $argv = ArgvValidator::new()
 
 
 // Delete the user
-User::new($argv['user'])->load()->delete();
+User::new()->load($argv['user'])->delete();

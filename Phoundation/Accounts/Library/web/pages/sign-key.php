@@ -30,7 +30,7 @@ $get = GetValidator::new()
                    ->validate();
 
 try {
-    SignInKey::new(['uuid' => $get['id']])->load()->execute();
+    SignInKey::new()->load(['uuid' => $get['id']])->execute();
 
 } catch (SignInKeyUsedException $e) {
     // Show authentication failed but add a message

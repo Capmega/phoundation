@@ -31,7 +31,7 @@ $argv  = ArgvValidator::new()
 
 if ($argv['users']) {
     foreach ($argv['users'] as $user) {
-        $user = User::new($user)->load();
+        $user = User::new()->load($user);
 
         // Send the test notification to all specified users
         Notification::new()

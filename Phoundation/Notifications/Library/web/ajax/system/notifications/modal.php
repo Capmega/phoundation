@@ -30,7 +30,7 @@ $get = GetValidator::new()
 
 
 // Get notification
-$notification = Notification::new($get['id'])->load();
+$notification = Notification::new()->load($get['id']);
 
 
 // Update notification status to READ

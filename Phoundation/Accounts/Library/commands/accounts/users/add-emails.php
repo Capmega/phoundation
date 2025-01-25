@@ -61,7 +61,7 @@ try {
     // Ensure that specified roles exist
     if ($argv['roles']) {
         foreach ($argv['roles'] as &$role) {
-            $role = Role::new($role)->load();
+            $role = Role::new()->load($role);
         }
 
         unset($role);

@@ -50,7 +50,7 @@ trait TraitDataServer
      */
     public function setServer(ServerInterface|string|null $server): static
     {
-        $this->server = $server ? Server::new($server)->load() : null;
+        $this->server = $server ? Server::new()->load($server) : null;
 
         return $this;
     }

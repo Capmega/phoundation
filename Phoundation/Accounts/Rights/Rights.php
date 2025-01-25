@@ -283,7 +283,7 @@ class Rights extends DataIterator implements RightsInterface
 
             } else {
                 // Add single right. Since this is a Right object, the entry already exists in the database
-                $value = Right::new($value)->load();
+                $value = Right::new()->load($value);
 
                 // Right already exists for this parent?
                 if ($this->hasRight($value)) {
@@ -318,7 +318,7 @@ class Rights extends DataIterator implements RightsInterface
 
                     // Update all roles with this right to get the new right as well!
                     foreach ($this->parent->getUsersObject() as $user) {
-                        User::new($user)->load()
+                        User::new()->load($user)
                             ->getRightsObject()
                             ->add($value);
                     }
@@ -389,7 +389,7 @@ class Rights extends DataIterator implements RightsInterface
 
         } else {
             // Add single right. Since this is a Right object, the entry already exists in the database
-            $right = Right::new($keys)->load();
+            $right = Right::new()->load($keys);
 
             if ($this->parent instanceof UserInterface) {
                 Log::action(tr('Removing right ":right" from user ":user"', [
@@ -418,7 +418,7 @@ class Rights extends DataIterator implements RightsInterface
 
                 // Update all users with this role to get the new right as well!
                 foreach ($this->parent->getUsersObject() as $user) {
-                    User::new($user)->load()
+                    User::new()->load($user)
                         ->getRightsObject()
                         ->removeKeys($right);
                 }

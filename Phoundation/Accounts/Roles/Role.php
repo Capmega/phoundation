@@ -169,7 +169,7 @@ class Role extends DataEntry implements RoleInterface
      */
     public function mergeFrom(RoleInterface|string|int|null $from_identifier = null): static
     {
-        $from = Role::new($from_identifier)->load();
+        $from = Role::new()->load($from_identifier);
 
         if (!$this->getId()) {
             throw new OutOfBoundsException(tr('Cannot merge role ":from" to this role ":this" because this role does not yet exist in the database', [

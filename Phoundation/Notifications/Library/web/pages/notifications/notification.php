@@ -37,7 +37,7 @@ $get = GetValidator::new()
 
 
 // Get notification and update status to read
-$notification = Notification::new($get['id'])->load();
+$notification = Notification::new()->load($get['id']);
 $notification->setStatus('READ');
 
 

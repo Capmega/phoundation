@@ -39,7 +39,7 @@ $get = GetValidator::new()
                    ->select('id')->isDbId()
                    ->validate();
 
-$user     = User::new($get['id'])->load();
+$user     = User::new()->load($get['id']);
 $password = $user->getPassword();
 
 

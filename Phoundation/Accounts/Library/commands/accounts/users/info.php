@@ -47,7 +47,7 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-$user = User::new($argv['user'])->load();
+$user = User::new()->load($argv['user']);
 
 
 // Display user data

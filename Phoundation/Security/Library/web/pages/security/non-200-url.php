@@ -33,7 +33,7 @@ $get = GetValidator::new()
 
 
 // Build the page content
-$url  = Non200Url::new($get['id'])->load();
+$url  = Non200Url::new()->load($get['id']);
 $form = $url->getHtmlDataEntryFormObject();
 $card = Card::new()
             ->setTitle($url->getDisplayName())

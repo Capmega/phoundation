@@ -28,7 +28,7 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 
-$user = User::new(Session::getUserObject()->getId())->load();
+$user = User::new()->getId())->load(Session::getUserObject();
 
 
 // Validate POST and submit

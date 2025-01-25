@@ -52,7 +52,7 @@ $argv = ArgvValidator::new()
 
 
 try {
-    $role = Role::new($argv['role'])->load();
+    $role = Role::new()->load($argv['role']);
 
     // Display role data and rights
     Cli::displayForm($role->getSource());

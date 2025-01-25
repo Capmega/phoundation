@@ -70,7 +70,7 @@ class OperatingSystem extends DataEntry implements OperatingSystemInterface
             return static::detect();
         }
 
-        return static::new($operating_system)->load();
+        return static::new()->load($operating_system);
     }
 
 

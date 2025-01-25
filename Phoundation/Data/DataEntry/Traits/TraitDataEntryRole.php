@@ -110,6 +110,6 @@ trait TraitDataEntryRole
      */
     public function setRolesName(?string $name): static
     {
-        return $this->setRole(Role::new(['name' => $name])->load());
+        return $this->setRole(Role::new()->load(['name' => $name]));
     }
 }

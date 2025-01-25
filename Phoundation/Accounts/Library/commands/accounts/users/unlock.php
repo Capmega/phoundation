@@ -48,4 +48,4 @@ $argv = ArgvValidator::new()
 
 
 // Unlock this user
-User::new($argv['user'])->load()->unlock();
+User::new()->load($argv['user'])->unlock();

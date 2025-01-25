@@ -203,7 +203,7 @@ class Import extends \Phoundation\Developer\Project\Import
             }
             throw $e;
         }
-        static::new($target_path)->load();
+        static::new()->load($target_path);
 
         return $target_path;
     }

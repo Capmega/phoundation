@@ -458,7 +458,7 @@ FILES variables:
             // Save and send this notification to all users that are members of the specified roles
             foreach ($this->getRolesObject() as $role) {
                 try {
-                    $users = Role::new($role)->load()->getUsersObject();
+                    $users = Role::new()->load($role)->getUsersObject();
 
                     foreach ($users as $user) {
                         try {
@@ -714,7 +714,7 @@ FILES variables:
         }
 
         $sending = true;
-        $user    = User::new($user)->load();
+        $user    = User::new()->load($user);
 
         if (Config::getBoolean('notifications.send.disable', false) and !$this->override_non_production_lockout) {
             // We're not in production environment, don't send any notifications!
