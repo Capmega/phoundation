@@ -1246,7 +1246,13 @@ function execute(): ?string
  */
 function execute_hook(string $__file, HookInterface $hook): mixed
 {
-    return include($__file);
+    $return = include($__file);
+
+    if ($return === 1) {
+        return null;
+    }
+
+    return $return;
 }
 
 

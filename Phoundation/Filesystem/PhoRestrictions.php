@@ -310,7 +310,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      */
     public static function newHooks(bool $write = false, ?string $sub_directory = null): static
     {
-        return new static(DIRECTORY_HOOKS . $sub_directory, $write);
+        return PhoRestrictions::newFilesystemRoot(write: $write);
     }
 
 
