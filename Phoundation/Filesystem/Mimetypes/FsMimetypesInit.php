@@ -55,7 +55,7 @@ class FsMimetypesInit
 
         $types = PhoFile::new(
             DIRECTORY_ROOT . 'Phoundation/Filesystem/Library/data/sources/filesystem/mimetypes.txt',
-            PhoRestrictions::newRoot(false, 'Phoundation/Filesystem/Library/data/sources/filesystem')
+            PhoRestrictions::newRootObject(false, 'Phoundation/Filesystem/Library/data/sources/filesystem')
         )->getContentsAsString();
 
         Log::action(tr('Registering mimetypes'), echo_newline: false);

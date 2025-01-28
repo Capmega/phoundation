@@ -445,7 +445,7 @@ class Libraries
 
             // Library paths MUST be directories
             if (is_dir($file)) {
-                $return[$file] = new Library(new PhoDirectory($file, PhoRestrictions::newReadonly(DIRECTORY_ROOT)));
+                $return[$file] = new Library(new PhoDirectory($file, PhoRestrictions::newReadonlyObject(DIRECTORY_ROOT)));
             }
         }
 
@@ -521,7 +521,7 @@ class Libraries
 
         // Get temporary directory to build cache and the current cache directory
         $temporary = PhoDirectory::newTemporaryObject();
-        $cache     = PhoDirectory::new(DIRECTORY_COMMANDS, PhoRestrictions::newWritable([
+        $cache     = PhoDirectory::new(DIRECTORY_COMMANDS, PhoRestrictions::newWritableObject([
                                                                       DIRECTORY_COMMANDS,
                                                                       DIRECTORY_TMP,
                                                                       DIRECTORY_ROOT . 'commands/'
@@ -537,7 +537,7 @@ class Libraries
             $library->rebuildCommandsCache($cache, $temporary);
         }
 
-        $target = PhoFile::new(DIRECTORY_ROOT . 'commands', PhoRestrictions::newRoot(true))->delete();
+        $target = PhoFile::new(DIRECTORY_ROOT . 'commands', PhoRestrictions::newRootObject(true))->delete();
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
@@ -558,7 +558,7 @@ class Libraries
     {
         Log::action(tr('Clearing commands caches (symlinks only)'), 3);
 
-        PhoDirectory::new(DIRECTORY_COMMANDS, PhoRestrictions::newFilesystemRoot(true))
+        PhoDirectory::new(DIRECTORY_COMMANDS, PhoRestrictions::newFilesystemRootObject(true))
             ->clearTreeSymlinks(true)
             ->ensure();
 
@@ -579,7 +579,7 @@ class Libraries
 
         // Get temporary directory to build cache and the current cache directory
         $temporary = PhoDirectory::newTemporaryObject();
-        $cache     = PhoDirectory::new(DIRECTORY_HOOKS, PhoRestrictions::newWritable([
+        $cache     = PhoDirectory::new(DIRECTORY_HOOKS, PhoRestrictions::newWritableObject([
             DIRECTORY_HOOKS,
             DIRECTORY_TMP,
             DIRECTORY_ROOT . 'hooks/'
@@ -595,7 +595,7 @@ class Libraries
             $library->rebuildHooksCache($cache, $temporary);
         }
 
-        $target = PhoFile::new(DIRECTORY_ROOT . 'hooks', PhoRestrictions::newRoot(true))->delete();
+        $target = PhoFile::new(DIRECTORY_ROOT . 'hooks', PhoRestrictions::newRootObject(true))->delete();
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
@@ -616,7 +616,7 @@ class Libraries
     {
         Log::action(tr('Clearing hooks caches (symlinks only)'), 3);
 
-        PhoDirectory::new(DIRECTORY_HOOKS, PhoRestrictions::newFilesystemRoot(true))
+        PhoDirectory::new(DIRECTORY_HOOKS, PhoRestrictions::newFilesystemRootObject(true))
                    ->clearTreeSymlinks(true)
                    ->ensure();
 
@@ -684,7 +684,7 @@ class Libraries
                         ]));
                     }
 
-                    $return = new Library(new PhoDirectory($directory . $library, PhoRestrictions::newReadonly($directory)));
+                    $return = new Library(new PhoDirectory($directory . $library, PhoRestrictions::newReadonlyObject($directory)));
                 }
             }
         }
@@ -715,21 +715,21 @@ class Libraries
 
         if ($system) {
             // Get statistics for all system libraries
-            $return['system'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_SYSTEM, PhoRestrictions::newFilesystemRoot())
+            $return['system'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_SYSTEM, PhoRestrictions::newFilesystemRootObject())
                                             ->getPhpStatistics(true);
             $return['totals'] = Arrays::addValues($return['totals'], $return['system']);
         }
 
         if ($plugin) {
             // Get statistics for all plugin libraries
-            $return['plugins'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_PLUGINS, PhoRestrictions::newFilesystemRoot())
+            $return['plugins'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_PLUGINS, PhoRestrictions::newFilesystemRootObject())
                                              ->getPhpStatistics(true);
             $return['totals']  = Arrays::addValues($return['totals'], $return['plugins']);
         }
 
         if ($template) {
             // Get statistics for all template libraries
-            $return['templates'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_TEMPLATES, PhoRestrictions::newFilesystemRoot())
+            $return['templates'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_TEMPLATES, PhoRestrictions::newFilesystemRootObject())
                                                ->getPhpStatistics(true);
             $return['totals']    = Arrays::addValues($return['totals'], $return['templates']);
         }
@@ -772,7 +772,7 @@ class Libraries
 
         // Get temporary directory to build cache and the current cache directory
         $temporary = PhoDirectory::newTemporaryObject();
-        $cache     = PhoDirectory::new(DIRECTORY_WEB, PhoRestrictions::newWritable([
+        $cache     = PhoDirectory::new(DIRECTORY_WEB, PhoRestrictions::newWritableObject([
             DIRECTORY_WEB,
             DIRECTORY_TMP,
             DIRECTORY_ROOT . 'web/'
@@ -788,7 +788,7 @@ class Libraries
             $library->rebuildWebCache($cache, $temporary);
         }
 
-        $target = PhoFile::new(DIRECTORY_ROOT . 'web', PhoRestrictions::newRoot(true))->delete();
+        $target = PhoFile::new(DIRECTORY_ROOT . 'web', PhoRestrictions::newRootObject(true))->delete();
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
@@ -807,7 +807,7 @@ class Libraries
     {
         Log::action(tr('Clearing web caches (symlinks only)'), 3);
 
-        PhoDirectory::new(DIRECTORY_WEB, PhoRestrictions::newFilesystemRoot(true))
+        PhoDirectory::new(DIRECTORY_WEB, PhoRestrictions::newFilesystemRootObject(true))
                    ->clearTreeSymlinks(true)
                    ->ensure();
     }
@@ -826,7 +826,7 @@ class Libraries
 
         // Get temporary directory to build cache and the current cache directory
         $temporary = PhoDirectory::newTemporaryObject();
-        $cache     = PhoDirectory::new(DIRECTORY_CRON, PhoRestrictions::newWritable([
+        $cache     = PhoDirectory::new(DIRECTORY_CRON, PhoRestrictions::newWritableObject([
             DIRECTORY_CRON,
             DIRECTORY_TMP,
             DIRECTORY_ROOT . 'cron/'
@@ -842,7 +842,7 @@ class Libraries
             $library->rebuildCronCache($cache, $temporary);
         }
 
-        $target = PhoFile::new(DIRECTORY_ROOT . 'cron', PhoRestrictions::newRoot(true))->delete();
+        $target = PhoFile::new(DIRECTORY_ROOT . 'cron', PhoRestrictions::newRootObject(true))->delete();
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
@@ -861,7 +861,7 @@ class Libraries
     {
         Log::action(tr('Clearing cron caches (symlinks only)'), 3);
 
-        PhoDirectory::new(DIRECTORY_CRON, PhoRestrictions::newFilesystemRoot(true))
+        PhoDirectory::new(DIRECTORY_CRON, PhoRestrictions::newFilesystemRootObject(true))
             ->clearTreeSymlinks(true)
             ->ensure();
     }
@@ -880,7 +880,7 @@ class Libraries
 
         // Get temporary directory to build cache and the current cache directory
         $temporary = PhoDirectory::newTemporaryObject();
-        $cache     = PhoDirectory::new(DIRECTORY_SYSTEM . 'cache/system/Tests', PhoRestrictions::newWritable([
+        $cache     = PhoDirectory::new(DIRECTORY_SYSTEM . 'cache/system/Tests', PhoRestrictions::newWritableObject([
                                                                                          DIRECTORY_SYSTEM . 'cache/system/Tests',
                                                                                          DIRECTORY_TMP,
                                                                                          DIRECTORY_ROOT . 'Tests/'
@@ -896,7 +896,7 @@ class Libraries
             $library->rebuildTestsCache($cache, $temporary);
         }
 
-        $target = PhoFile::new(DIRECTORY_ROOT . 'Tests', PhoRestrictions::newRoot(true))->delete();
+        $target = PhoFile::new(DIRECTORY_ROOT . 'Tests', PhoRestrictions::newRootObject(true))->delete();
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
@@ -915,7 +915,7 @@ class Libraries
     {
         Log::action(tr('Clearing test caches (symlinks only)'), 3);
 
-        PhoDirectory::new(DIRECTORY_TESTS, PhoRestrictions::newFilesystemRoot(true))
+        PhoDirectory::new(DIRECTORY_TESTS, PhoRestrictions::newFilesystemRootObject(true))
                    ->clearTreeSymlinks(true)
                    ->ensure();
     }
@@ -971,7 +971,7 @@ class Libraries
 
         Find::new(PhoDirectory::new(
             $path,
-            PhoRestrictions::newReadonly($path)
+            PhoRestrictions::newReadonlyObject($path)
         ))->setType('f')
           ->setName('*.php')
           ->setCallback(function ($file) {
@@ -1028,7 +1028,7 @@ class Libraries
 
             Find::new(PhoDirectory::new(
                 $path,
-                PhoRestrictions::newReadonly($path)
+                PhoRestrictions::newReadonlyObject($path)
             ))->setType('f')
               ->setName('*.php')
               ->setCallback(function ($file) {

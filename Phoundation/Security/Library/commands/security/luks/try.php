@@ -65,7 +65,7 @@ $argv['sections'] = explode(' ', $argv['sections']);
 
 
 // Open the LUKS file
-$device = Device::new($argv['file'], PhoRestrictions::newWritable($argv['file']));
+$device = Device::new($argv['file'], PhoRestrictions::newWritableObject($argv['file']));
 
 if (FORCE) {
     $device->luksClose(true);

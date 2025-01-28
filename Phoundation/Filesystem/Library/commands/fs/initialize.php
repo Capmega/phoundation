@@ -21,7 +21,7 @@ use Phoundation\Filesystem\PhoPath;
 use Phoundation\Filesystem\PhoRestrictions;
 
 
-$restrictions = PhoRestrictions::newWritable('/');
+$restrictions = PhoRestrictions::newWritableObject('/');
 
 CliDocumentation::setAutoComplete([
     'arguments' => [
@@ -71,5 +71,5 @@ $argv = ArgvValidator::new()
 
 
 // Initialize the specified file
-PhoPath::newExisting($argv['path'], PhoRestrictions::newWritable('/'))
+PhoPath::newExisting($argv['path'], PhoRestrictions::newWritableObject('/'))
       ->initialize($argv['data'], $argv['block_size'], $argv['randomized']);

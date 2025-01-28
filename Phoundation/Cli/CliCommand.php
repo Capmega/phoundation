@@ -240,7 +240,7 @@ class CliCommand
             return null;
         }
 
-        return new PhoFile(static::$command_file, PhoRestrictions::newRoot());
+        return new PhoFile(static::$command_file, PhoRestrictions::newRootObject());
     }
 
 
@@ -302,7 +302,7 @@ class CliCommand
         // Execute the command and finish execution
         try {
             CliCommand::setProcessTitle();
-            Request::setRestrictions(PhoRestrictions::newFilesystemRoot());
+            Request::setRestrictions(PhoRestrictions::newFilesystemRootObject());
             Request::execute(static::$command_file . '.php');
 
         } catch (SqlNoTimezonesException $e) {
@@ -363,7 +363,7 @@ class CliCommand
      */
     protected static function hasSystemDConfigure(): bool
     {
-        $results = PhoFile::new(static::$command_file . '.php', PhoRestrictions::newFilesystemRoot())
+        $results = PhoFile::new(static::$command_file . '.php', PhoRestrictions::newFilesystemRootObject())
                           ->grep(['SystemDService::configure('], 100);
 
         return !empty($results);
@@ -1353,7 +1353,7 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
         global $argv;
 
         if ($argv['usage']) {
-            $results = PhoFile::new(static::$command_file . '.php', PhoRestrictions::newFilesystemRoot())
+            $results = PhoFile::new(static::$command_file . '.php', PhoRestrictions::newFilesystemRootObject())
                               ->grep(['CliDocumentation::setUsage('], 100);
 
             if (empty($results)) {
@@ -1394,7 +1394,7 @@ return 'under construction';
         global $argv;
 
         if ($argv['help']) {
-            $results = PhoFile::new(static::$command_file . '.php', PhoRestrictions::newFilesystemRoot())
+            $results = PhoFile::new(static::$command_file . '.php', PhoRestrictions::newFilesystemRootObject())
                               ->grep(['CliDocumentation::setHelp('], 100);
 
             if (empty($results)) {

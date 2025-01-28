@@ -203,12 +203,14 @@ class Role extends DataEntry implements RoleInterface
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      *
-     * @return Role
+     * @param IdentifierInterface|array|string|int|null $identifier
+     *
+     * @return static
      */
-    public function load(): static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null): static
     {
         try {
-            return parent::load();
+            return parent::load($identifier);
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new RoleNotExistsException($e);

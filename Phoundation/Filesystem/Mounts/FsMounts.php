@@ -131,7 +131,7 @@ class FsMounts extends DataIterator implements MountsInterface
     protected static function listMounts(string $key): static
     {
         $return = static::new();
-        $mounts = PhoFile::new('/proc/mounts', PhoRestrictions::newReadonly('/proc/'))
+        $mounts = PhoFile::new('/proc/mounts', PhoRestrictions::newReadonlyObject('/proc/'))
                          ->getContentsAsArray();
 
         foreach ($mounts as $mount) {

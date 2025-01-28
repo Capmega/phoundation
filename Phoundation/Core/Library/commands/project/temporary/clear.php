@@ -49,5 +49,5 @@ $argv['path'] = Strings::from($argv['path'], ($argv['public'] ? DIRECTORY_PUBTMP
 // Clear the specified temporary directory and we're done
 PhoFile::new(
     ($argv['public'] ? DIRECTORY_PUBTMP : DIRECTORY_TMP) . $argv['path'],
-    PhoRestrictions::newWritable($argv['public'] ? DIRECTORY_PUBTMP : DIRECTORY_TMP)
+    PhoRestrictions::newWritableObject($argv['public'] ? DIRECTORY_PUBTMP : DIRECTORY_TMP)
 )->delete();

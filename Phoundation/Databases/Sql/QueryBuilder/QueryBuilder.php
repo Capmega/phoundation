@@ -20,6 +20,7 @@ use PDOStatement;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataFilterForm;
 use Phoundation\Data\Traits\TraitDataMetaEnabled;
@@ -248,16 +249,17 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      *
      * @note Will cause an exception if the parent has not been set
      *
+     * @param IdentifierInterface|array|string|int|null $identifier
+     *
      * @return static
-     * @throws OutOfBoundsException
      */
-    public function load(): static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null): static
     {
         if (empty($this->parent)) {
             throw new OutOfBoundsException(tr('Cannot load parent data from query, no parent has been specified'));
         }
 
-        $this->parent->load();
+        $this->parent->load($identifier);
         return $this;
     }
 }

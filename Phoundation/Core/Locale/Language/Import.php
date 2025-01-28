@@ -52,7 +52,7 @@ class Import extends \Phoundation\Developer\Project\Import
             Log::notice('Ignoring "demo" mode for Languages, this does not do anything for this library');
         }
 
-        $file  = PhoFile::new(DIRECTORY_DATA . 'sources/languages/languages', PhoRestrictions::newReadonly(DIRECTORY_DATA))
+        $file  = PhoFile::new(DIRECTORY_DATA . 'sources/languages/languages', PhoRestrictions::newReadonlyObject(DIRECTORY_DATA))
                         ->open(EnumFileOpenMode::readOnly);
 
         $table = sql()->getSchemaObject()

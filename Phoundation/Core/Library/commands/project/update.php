@@ -31,8 +31,8 @@ CliDocumentation::setAutoComplete([
           'noword' => function ($word) { return Phoundation::new()->getPhoundationBranches()->getSourceKeys();                     },
       ],
       '-p,--phoundation' => [
-          'word'   => function ($word) { return PhoDirectory::new('/var/www/html', PhoRestrictions::newReadonly('/var/www/html'))->scan($word, '/.*?$/'); },
-          'noword' => function ($word) { return PhoDirectory::new('/var/www/html', PhoRestrictions::newReadonly('/var/www/html'))->scan($word, '/.*?$/'); },
+          'word'   => function ($word) { return PhoDirectory::new('/var/www/html', PhoRestrictions::newReadonlyObject('/var/www/html'))->scan($word, '/.*?$/'); },
+          'noword' => function ($word) { return PhoDirectory::new('/var/www/html', PhoRestrictions::newReadonlyObject('/var/www/html'))->scan($word, '/.*?$/'); },
       ],
       '-c,--check'       => false,
       '-l,--local'       => false,

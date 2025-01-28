@@ -50,7 +50,7 @@ class Audio extends PhoFile
     public function __construct(Stringable|string|null $source = null, bool|PhoRestrictionsInterface|null $restrictions = null, bool|Stringable|string|null $absolute_prefix = false)
     {
         if (!$source instanceof PhoPathInterface) {
-            $restrictions = $restrictions ?? PhoRestrictions::newReadonly(DIRECTORY_DATA . 'audio');
+            $restrictions = $restrictions ?? PhoRestrictions::newReadonlyObject(DIRECTORY_DATA . 'audio');
         }
 
         parent::__construct($source, $restrictions, $absolute_prefix);
@@ -71,7 +71,7 @@ class Audio extends PhoFile
         if (Config::getBoolean('audio.local.enabled', true)) {
             if (!defined('NOAUDIO') or !NOAUDIO) {
                 try {
-                    Mpg123::new(new PhoDirectory(DIRECTORY_DATA . 'audio', PhoRestrictions::newData()))
+                    Mpg123::new(new PhoDirectory(DIRECTORY_DATA . 'audio', PhoRestrictions::newDataObject()))
                           ->setTimeout($this->timeout)
                           ->setSignal($this->signal)
                           ->setFileObject($this->makeAbsolute(DIRECTORY_DATA . 'audio'))

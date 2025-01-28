@@ -71,7 +71,7 @@ if ($files->getCount()) {
         $result    = Strings::from($path, DIRECTORY_COMMANDS);
         $result    = Strings::until($result, '.php');
         $result    = str_replace('/', ' ', $result);
-        $path      = PhoFile::new($path, PhoRestrictions::newReadonly(DIRECTORY_COMMANDS));
+        $path      = PhoFile::new($path, PhoRestrictions::newReadonlyObject(DIRECTORY_COMMANDS));
         $real_path = ($path->isLink() ? $path->getLinkTarget()->getRootname() : ('*** ' . $path->getRootname()));
         $path      = $path->getRootname();
 

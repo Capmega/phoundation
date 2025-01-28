@@ -58,7 +58,7 @@ class MaxMind extends GeoIp
      */
     public function __construct()
     {
-        $this->directory = new PhoDirectory(DIRECTORY_DATA . 'sources/geoip/maxmind/', PhoRestrictions::newReadonly(DIRECTORY_DATA . 'sources/geoip/maxmind/'));
+        $this->directory = new PhoDirectory(DIRECTORY_DATA . 'sources/geoip/maxmind/', PhoRestrictions::newReadonlyObject(DIRECTORY_DATA . 'sources/geoip/maxmind/'));
         $this->pro       = Config::getBoolean('geo.ip.maxmind.pro', false);
     }
 

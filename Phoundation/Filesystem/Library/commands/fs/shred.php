@@ -22,7 +22,7 @@ use Phoundation\Filesystem\PhoPath;
 use Phoundation\Filesystem\PhoRestrictions;
 
 
-$restrictions = PhoRestrictions::newWritable('/');
+$restrictions = PhoRestrictions::newWritableObject('/');
 
 CliDocumentation::setAutoComplete([
     'arguments' => [
@@ -66,4 +66,4 @@ $argv = ArgvValidator::new()
 
 
 // Shred the specified file
-PhoPath::newExisting($argv['path'], PhoRestrictions::newWritable('/'))->shred($argv['passes'], $argv['random']);
+PhoPath::newExisting($argv['path'], PhoRestrictions::newWritableObject('/'))->shred($argv['passes'], $argv['random']);

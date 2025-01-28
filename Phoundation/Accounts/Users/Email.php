@@ -26,6 +26,7 @@ use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntry\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryAccountType;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryDescription;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryEmail;
@@ -142,12 +143,14 @@ class Email extends DataEntry implements EmailInterface
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      *
-     * @return Email
+     * @param IdentifierInterface|array|string|int|null $identifier
+     *
+     * @return static
      */
-    public function load(): static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null): static
     {
         try {
-            return parent::load();
+            return parent::load($identifier);
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new EmailNotExistsException($e);

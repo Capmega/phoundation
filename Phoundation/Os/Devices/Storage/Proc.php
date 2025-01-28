@@ -33,7 +33,7 @@ class Proc
     {
         $types = PhoFile::new(
             '/proc/filesystems',
-            PhoRestrictions::newReadonly('/proc/filesystems')
+            PhoRestrictions::newReadonlyObject('/proc/filesystems')
         )->getContentsAsArray();
 
         foreach ($types as &$type) {

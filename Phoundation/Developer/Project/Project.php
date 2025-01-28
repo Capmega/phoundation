@@ -94,7 +94,7 @@ class Project implements ProjectInterface
     {
         if (!$directory) {
             // Default to the directory of this project
-            $directory = new PhoDirectory(DIRECTORY_ROOT, PhoRestrictions::newWritable(DIRECTORY_ROOT));
+            $directory = new PhoDirectory(DIRECTORY_ROOT, PhoRestrictions::newWritableObject(DIRECTORY_ROOT));
         }
 
         $this->___construct($directory);
@@ -116,7 +116,7 @@ class Project implements ProjectInterface
                 throw new OutOfBoundsException(tr('Project file "config/project" already exist'));
             }
 
-            PhoFile::new(DIRECTORY_ROOT . 'config/project', PhoRestrictions::newWritable(DIRECTORY_ROOT))
+            PhoFile::new(DIRECTORY_ROOT . 'config/project', PhoRestrictions::newWritableObject(DIRECTORY_ROOT))
                   ->delete();
         }
 

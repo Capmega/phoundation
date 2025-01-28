@@ -24,7 +24,7 @@ use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Security\Luks\Device;
 
 
-$restrictions = PhoRestrictions::newWritable('/');
+$restrictions = PhoRestrictions::newWritableObject('/');
 
 CliDocumentation::setAutoComplete([
     'arguments' => [

@@ -423,7 +423,7 @@ class Repositories extends IteratorCore implements RepositoriesInterface
         foreach ($directories as $directory) {
             $return[$directory] = PhoDirectory::new(
                 $directory,
-                PhoRestrictions::newWritable($directory)
+                PhoRestrictions::newWritableObject($directory)
             );
         }
 
@@ -487,7 +487,7 @@ class Repositories extends IteratorCore implements RepositoriesInterface
 
                     $repository = new Repository(
                         $path,
-                        PhoRestrictions::newWritable($path->getParentDirectory() . $path)
+                        PhoRestrictions::newWritableObject($path->getParentDirectory() . $path)
                     );
 
                     if (!$repository->isRepository()) {

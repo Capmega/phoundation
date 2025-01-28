@@ -38,4 +38,4 @@ CliDocumentation::setAutoComplete([
 
 
 // Close the LUKS file
-$device = Device::new($argv['file'], PhoRestrictions::newWritable($argv['file']))->luksClose(FORCE);
+$device = Device::new($argv['file'], PhoRestrictions::newWritableObject($argv['file']))->luksClose(FORCE);

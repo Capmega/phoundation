@@ -93,7 +93,7 @@ Export::new()
       ->setDatabase($argv['database'])
       ->setTimeout($argv['timeout'])
       ->setGzip($argv['gzip'])
-      ->dump(PhoFile::new($argv['file'], PhoRestrictions::newWritable([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP])));
+      ->dump(PhoFile::new($argv['file'], PhoRestrictions::newWritableObject([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP])));
 
 
 // Done!

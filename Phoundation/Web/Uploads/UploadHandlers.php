@@ -757,7 +757,7 @@ throw new UnderConstructionException(tr('IMPLEMENT FILE VALIDATIONS'));
      */
     protected function quarantineAllUploadedFiles(): static
     {
-        $directory = new PhoDirectory(DIRECTORY_DATA . 'quarantine', PhoRestrictions::newData());
+        $directory = new PhoDirectory(DIRECTORY_DATA . 'quarantine', PhoRestrictions::newDataObject());
         $directory = $directory->addDirectory(Session::getUserObject()->getId());
         $directory = $directory->addDirectory(PhoDateTime::new()->format('file'));
 

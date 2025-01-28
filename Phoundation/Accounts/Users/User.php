@@ -309,12 +309,14 @@ class User extends DataEntry implements UserInterface
     /**
      * Returns a single user object for a single user that has the specified alternate email address.
      *
+     * @param IdentifierInterface|array|string|int|null $identifier
+     *
      * @return static
      */
-    public function load(): static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null): static
     {
         try {
-            $user = parent::load();
+            $user = parent::load($identifier);
 
         } catch (DataEntryNotExistsException $e) {
             $user = $this->loadFromAlternativeEmail();

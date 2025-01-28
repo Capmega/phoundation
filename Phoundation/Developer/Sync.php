@@ -298,7 +298,7 @@ class Sync
     protected function getPhoCommand(?ServerInterface $server, array|string|null $pho_commands = null): PhoInterface
     {
         if ($server) {
-            return Pho::new(null, PhoFile::new($this->configuration['path'] . 'pho', PhoRestrictions::newReadonly($this->configuration['path'])))
+            return Pho::new(null, PhoFile::new($this->configuration['path'] . 'pho', PhoRestrictions::newReadonlyObject($this->configuration['path'])))
                       ->setPhoCommands($pho_commands)
                       ->setEnvironment($this->environment)
                       ->setServer($server)

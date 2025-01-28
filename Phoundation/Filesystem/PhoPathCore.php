@@ -3007,6 +3007,11 @@ class PhoPathCore implements PhoPathInterface
              ->checkClosed('open')
              ->mountIfNeeded();
 
+        Log::notice(tr('Opening file ":file" with mode ":mode"', [
+            ':file' => $this->source,
+            ':mode' => $mode->value,
+        ]), 2);
+
         try {
             $stream = fopen($this->source, $mode->value, false, $context);
         } catch (Throwable $e) {
@@ -3138,6 +3143,10 @@ class PhoPathCore implements PhoPathInterface
                 ]));
             }
         }
+
+        Log::notice(tr('Closing file ":file"', [
+            ':file' => $this->source,
+        ]), 2);
 
         fclose($this->stream);
 
@@ -4446,7 +4455,7 @@ class PhoPathCore implements PhoPathInterface
         }
 
         if (is_string($directory)) {
-            $directory = PhoDirectory::new($directory, PhoRestrictions::newReadonly($directory));
+            $directory = PhoDirectory::new($directory, PhoRestrictions::newReadonlyObject($directory));
         }
 
         return str_starts_with($this->getRealPath(), $directory->getRealPath());

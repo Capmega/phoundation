@@ -91,12 +91,14 @@ class Right extends DataEntry implements RightInterface
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      *
-     * @return Right
+     * @param IdentifierInterface|array|string|int|null $identifier
+     *
+     * @return static
      */
-    public function load(): static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null): static
     {
         try {
-            return parent::load();
+            return parent::load($identifier);
 
         } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
             throw new RightNotExistsException($e);

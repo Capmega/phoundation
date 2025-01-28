@@ -121,12 +121,12 @@ class PhoMount extends DataEntry implements PhoMountInterface
     /**
      * @inheritDoc
      */
-    public function load(): static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null): static
     {
-        try {
-            $column = $this->determineColumn($this->identifier);
+        $column = $this->determineColumn($identifier);
 
-            return parent::load();
+        try {
+            return parent::load($identifier);
 
         } catch (DataEntryNotExistsException $e) {
             // FsMount was not found in the database. Get it from configuration instead but that DOES require the name

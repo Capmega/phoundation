@@ -49,7 +49,7 @@ class Analyze
     {
         if (!$path) {
             // Default to the root directory of this project
-            $path = new PhoPath(DIRECTORY_ROOT, PhoRestrictions::newReadonly(DIRECTORY_ROOT));
+            $path = new PhoPath(DIRECTORY_ROOT, PhoRestrictions::newReadonlyObject(DIRECTORY_ROOT));
         }
 
         return $this->__setPath($path);
