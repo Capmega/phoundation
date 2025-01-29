@@ -213,9 +213,7 @@ class Hook implements HookInterface
                 // fall through
             }
 
-            throw HooksException::new(tr('Execution of hook ":hook" failed', [
-                ':hook' => $file
-            ]), $e);
+            throw $e;
         }
     }
 

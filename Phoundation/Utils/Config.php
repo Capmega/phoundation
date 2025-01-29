@@ -266,17 +266,17 @@ class Config implements ConfigInterface
             return Strings::toBoolean($return);
 
         } catch (OutOfBoundsException) {
-            if (($default === null) and static::$allow_no_environment) {
-                // In the allow no environment mode, we can return default (if not specified, default will be false)
-                return false;
+            if ($default === null) {
+                if (!static::$allow_no_environment) {
+                    throw new ConfigException(tr('The configuration path ":path" should be a boolean value (Accepted are true, "true", "yes", "y", "1", false, "false", "no", "n", or 1), but has value ":value" instead', [
+                        ':path'  => $path,
+                        ':value' => $return,
+                    ]));
+                }
             }
 
-            // Do nothing, following exception will do the job
-
-            throw new ConfigException(tr('The configuration path ":path" should be a boolean value (Accepted are true, "true", "yes", "y", "1", false, "false", "no", "n", or 1), but has value ":value" instead', [
-                ':path'  => $path,
-                ':value' => $return,
-            ]));
+            // In the allow no environment mode, we can return default (if not specified, default will be false)
+            return $default ?? false;
         }
     }
 
@@ -444,15 +444,17 @@ class Config implements ConfigInterface
             return $return;
         }
 
-        if (($default === null) and static::$allow_no_environment) {
-            // In the allow no environment mode, we can return default (if not specified, default will be 0)
-            return 0;
+        if ($default === null) {
+            if (!static::$allow_no_environment) {
+                throw new ConfigException(tr('The configuration path ":path" should be an integer number but has value ":value"', [
+                    ':path'  => $path,
+                    ':value' => $return,
+                ]));
+            }
         }
 
-        throw new ConfigException(tr('The configuration path ":path" should be an integer number but has value ":value"', [
-            ':path'  => $path,
-            ':value' => $return,
-        ]));
+        // In the allow no environment mode, we can return default (if not specified, default will be false)
+        return $default ?? 0;
     }
 
 
@@ -474,15 +476,17 @@ class Config implements ConfigInterface
             return $return;
         }
 
-        if (($default === null) and static::$allow_no_environment) {
-            // In the allow no environment mode, we can return default (if not specified, default will be 0)
-            return 0;
+        if ($default === null) {
+            if (!static::$allow_no_environment) {
+                throw new ConfigException(tr('The configuration path ":path" should be a natural number, integer 0 or above, but has value ":value"', [
+                    ':path'  => $path,
+                    ':value' => $return,
+                ]));
+            }
         }
 
-        throw new ConfigException(tr('The configuration path ":path" should be a natural number, integer 0 or above, but has value ":value"', [
-            ':path'  => $path,
-            ':value' => $return,
-        ]));
+        // In the allow no environment mode, we can return default (if not specified, default will be false)
+        return $default ?? 0;
     }
 
 
@@ -504,15 +508,17 @@ class Config implements ConfigInterface
             return $return;
         }
 
-        if (($default === null) and static::$allow_no_environment) {
-            // In the allow no environment mode, we can return default (if not specified, default will be 0)
-            return 0;
+        if ($default === null) {
+            if (!static::$allow_no_environment) {
+                throw new ConfigException(tr('The configuration path ":path" should be a float but has value ":value"', [
+                    ':path'  => $path,
+                    ':value' => $return,
+                ]));
+            }
         }
 
-        throw new ConfigException(tr('The configuration path ":path" should be a number but has value ":value"', [
-            ':path'  => $path,
-            ':value' => $return,
-        ]));
+        // In the allow no environment mode, we can return default (if not specified, default will be false)
+        return $default ?? 0;
     }
 
 
@@ -553,15 +559,17 @@ class Config implements ConfigInterface
             return $return;
         }
 
-        if (($default === null) and static::$allow_no_environment) {
-            // In the allow no environment mode, we can return default (if not specified, default will be array)
-            return [];
+        if ($default === null) {
+            if (!static::$allow_no_environment) {
+                throw new ConfigException(tr('The configuration path ":path" should be an array but has value ":value"', [
+                    ':path'  => $path,
+                    ':value' => $return,
+                ]));
+            }
         }
 
-        throw new ConfigException(tr('The configuration path ":path" should be an array but has value ":value"', [
-            ':path'  => $path,
-            ':value' => $return,
-        ]));
+        // In the allow no environment mode, we can return default (if not specified, default will be false)
+        return $default ?? [];
     }
 
 
@@ -611,15 +619,17 @@ class Config implements ConfigInterface
             return $return;
         }
 
-        if (($default === null) and static::$allow_no_environment) {
-            // In the allow no environment mode, we can return default (if not specified, default will be "")
-            return '';
+        if ($default === null) {
+            if (!static::$allow_no_environment) {
+                throw new ConfigException(tr('The configuration path ":path" should be a string but has value ":value"', [
+                    ':path'  => $path,
+                    ':value' => $return,
+                ]));
+            }
         }
 
-        throw new ConfigException(tr('The configuration path ":path" should be a string but has value ":value"', [
-            ':path'  => $path,
-            ':value' => $return,
-        ]));
+        // In the allow no environment mode, we can return default (if not specified, default will be "")
+        return $default ?? '';
     }
 
 
@@ -641,15 +651,17 @@ class Config implements ConfigInterface
             return $return;
         }
 
-        if (($default === null) and static::$allow_no_environment) {
-            // In the allow no environment mode, we can return default (if not specified, default will be false)
-            return false;
+        if ($default === null) {
+            if (!static::$allow_no_environment) {
+                throw new ConfigException(tr('The configuration path ":path" should be a string but has value ":value"', [
+                    ':path'  => $path,
+                    ':value' => $return,
+                ]));
+            }
         }
 
-        throw new ConfigException(tr('The configuration path ":path" should be a string but has value ":value"', [
-            ':path'  => $path,
-            ':value' => $return,
-        ]));
+        // In the allow no environment mode, we can return default (if not specified, default will be "")
+        return $default ?? '';
     }
 
 
