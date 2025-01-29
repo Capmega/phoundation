@@ -36,7 +36,7 @@ class Cdn
      */
     public static function addFiles(string|array $files, string $section = 'pub', $group = null, bool $delete = true): void
     {
-        if (!Config::get('web.cdn.enabled', true)) {
+        if (!config()->get('web.cdn.enabled', true)) {
             return;
         }
         Log::action(tr('Adding files ":files" to CDN', [':files' => $files]));

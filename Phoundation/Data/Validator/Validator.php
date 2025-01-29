@@ -2145,7 +2145,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             // Ensure we have formats to work with
             if (!$formats) {
                 // Default to a number of acceptable formats
-                $formats = Config::get('locale.formats.time', [
+                $formats = config()->get('locale.formats.time', [
                     'h:i a',
                     'H:i',
                     'h:i:s a',

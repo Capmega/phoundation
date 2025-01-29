@@ -345,11 +345,11 @@ class Sync
         $this->executeHook('pre-import-connectors');
 
         // Get connectors from target environment
-        Config::setEnvironment($this->getEnvironmentForServer($server));
-        $connectors = Config::getArray('databases.connectors');
+        Config::setDefaultEnvironment($this->getEnvironmentForServer($server));
+        $connectors = config()->getArray('databases.connectors');
 
         // Return Config to default environment
-        Config::setEnvironment(ENVIRONMENT);
+        Config::setDefaultEnvironment(ENVIRONMENT);
 
         // Dump all connectors
         foreach ($this->dump_files as $connector_name => $file) {
@@ -609,11 +609,11 @@ class Sync
         $this->executeHook('pre-dump-all-connectors');
 
         // Get connectors from target environment
-        Config::setEnvironment($this->getEnvironmentForServer($server));
-        $connectors = Config::getArray('databases.connectors');
+        Config::setDefaultEnvironment($this->getEnvironmentForServer($server));
+        $connectors = config()->getArray('databases.connectors');
 
         // Return Config to default environment
-        Config::setEnvironment(ENVIRONMENT);
+        Config::setDefaultEnvironment(ENVIRONMENT);
 
         // Dump all connectors
         foreach ($connectors as $name => $connector) {
@@ -945,14 +945,14 @@ class Sync
 
         try {
             $this->environment   = $environment;
-            $this->configuration = Config::forSection('deploy', $environment)->get();
+            $this->configuration = Config::fromSection('deploy', $environment)->get();
 
             // Return Config to the default section
-            Config::setSection('', ENVIRONMENT);
+            Config::fromSection('', ENVIRONMENT);
 
         } catch (ConfigFileDoesNotExistsException $e) {
             // Return Config to the default section
-            Config::setSection('', ENVIRONMENT);
+            Config::fromSection('', ENVIRONMENT);
 
             throw SyncEnvironmentDoesNotExistsException::new(tr('The specified target environment ":environment" does not exist', [
                 ':environment' => $environment,
@@ -1002,7 +1002,7 @@ class Sync
 
         // Setup remote server, MUST be from configuration!
         try {
-            $server       = Config::get('servers.' . Config::escape($this->configuration['server']));
+            $server       = config()->get('servers.' . Config::escape($this->configuration['server']));
             $this->server = Server::newFromSource($server);
 
         } catch (ConfigPathDoesNotExistsException) {

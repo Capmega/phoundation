@@ -286,7 +286,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     public function __destruct()
     {
         if ($this->is_modified and !$this->readonly) {
-            $enabled = Config::getBoolean('development.dataentries.destruct.modified.check', false);
+            $enabled = config()->getBoolean('development.dataentries.destruct.modified.check', false);
 
             if ($enabled) {
                 // Cannot destroy a modified DataEntry object without either resetting it or saving it
@@ -317,7 +317,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     public function getAllowModifiedDestruct(): bool
     {
         if ($this->allow_modified_destruct === null) {
-            return Config::getBoolean('development.data-entries.modified-destruct.allow', false);
+            return config()->getBoolean('development.data-entries.modified-destruct.allow', false);
         }
 
         return $this->allow_modified_destruct;
@@ -1326,7 +1326,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     protected function loadFromConfiguration(string $path, string|int $identifier): ?array
     {
-        $source = Config::getArray(Strings::ensureEndsWith($path, '.') . Config::escape($identifier), []);
+        $source = config()->getArray(Strings::ensureEndsWith($path, '.') . Config::escape($identifier), []);
 
         if (count($source)) {
             // Found the entry in configuration! Make it a readonly DataEntry object

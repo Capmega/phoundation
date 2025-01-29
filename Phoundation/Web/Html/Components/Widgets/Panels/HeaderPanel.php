@@ -37,7 +37,7 @@ class HeaderPanel extends Panel
     public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null)
     {
         parent::__construct($source);
-        $this->mini = Config::getBoolean('web.panels.header.mini', false);
+        $this->mini = config()->getBoolean('web.panels.header.mini', false);
     }
 
 

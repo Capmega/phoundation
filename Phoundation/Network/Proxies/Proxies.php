@@ -21,7 +21,7 @@ class Proxies
 //    public static function list($url, $file = '', $restrictionsurl = null): array
 //    {
 //        if (!$restrictionsurl) {
-//            $restrictionsurl = Config::getArray('curl.proxies');
+//            $restrictionsurl = config()->getArray('curl.proxies');
 //        }
 //
 //        if (is_array($restrictionsurl)) {
@@ -38,7 +38,7 @@ class Proxies
 //
 //        log_console(tr('Using proxy ":proxy"', array(':proxy' => Strings::cut(Strings::Log($restrictionsurl), '://', '/'))), 'VERBOSE');
 //
-//        $data = curl_get(array('url'        => Strings::endsWith($restrictionsurl, '?apikey='.Config::getArray('curl.apikey') . '&url=') . urlencode($url),
+//        $data = curl_get(array('url'        => Strings::endsWith($restrictionsurl, '?apikey='.config()->getArray('curl.apikey') . '&url=') . urlencode($url),
 //            'getheaders' => false,
 //            'proxies'    => false));
 //

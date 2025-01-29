@@ -95,7 +95,7 @@ class Css
 //            $return .= $html."\n";
 //        }
 //
-//        if (Config::get('cdn')) {
+//        if (config()->get('cdn')) {
 //            Html::addToFooter($return);
 //        }
 //

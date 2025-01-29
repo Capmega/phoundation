@@ -99,7 +99,7 @@ try {
         $mail->setFrom($from->getEmail(), $from->getDisplayName());
 
     } else {
-        $mail->setFrom(Config::getString('email.from.email'), Config::getString('email.from.name', 'Your Phoundation project'));
+        $mail->setFrom(config()->getString('email.from.email'), config()->getString('email.from.name', 'Your Phoundation project'));
     }
 
 } catch (ConfigPathDoesNotExistsException $e) {

@@ -91,7 +91,7 @@ class Connectors extends DataIterator implements ConnectorsInterface
         }
 
         // Get connectors from the configuration
-        $connectors = Config::getArray(Connector::new()->getConfigurationPath());
+        $connectors = config()->getArray(Connector::new()->getConfigurationPath());
         $count      = 0;
 
         // Load all connectors by type

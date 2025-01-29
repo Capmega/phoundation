@@ -85,7 +85,7 @@ class ImgCore extends SpanCore implements ImgInterface
         parent::__construct($content);
         parent::setElement('img');
 
-        $this->setLazyLoad(Config::get('web.images.lazy-load', true));
+        $this->setLazyLoad(config()->get('web.images.lazy-load', true));
         $this->requires_closing_tag = false;
     }
 
@@ -111,7 +111,7 @@ class ImgCore extends SpanCore implements ImgInterface
     public function setLazyLoad(?bool $lazy_load): static
     {
         if ($lazy_load === null) {
-            $lazy_load = Config::get('web.images.lazy-load', true);
+            $lazy_load = config()->get('web.images.lazy-load', true);
         }
 
         if ($lazy_load) {
@@ -887,13 +887,13 @@ class ImgCore extends SpanCore implements ImgInterface
 //        }
 //
 //        // Automatically convert the image to the specified format for automatically optimized images
-//        $target_part = Strings::untilReverse($this->source, '.') . '.' . Config::get('cdn.images.convert.' . $this->format);
-//        $target      = Strings::untilReverse($this->source , '.') . '.' . Config::get('cdn.images.convert.' . $this->format);
+//        $target_part = Strings::untilReverse($this->source, '.') . '.' . config()->get('cdn.images.convert.' . $this->format);
+//        $target      = Strings::untilReverse($this->source , '.') . '.' . config()->get('cdn.images.convert.' . $this->format);
 //
 //        Log::action(tr('Automatically converting ":format" format image ":src" to format ":target"', [
 //            ':format' => $this->format,
 //            ':src'    => $this->source,
-//            ':target' => Config::get('cdn.images.convert.' . $this->format)
+//            ':target' => config()->get('cdn.images.convert.' . $this->format)
 //        ]));
 //
 //        try {
@@ -909,7 +909,7 @@ class ImgCore extends SpanCore implements ImgInterface
 //                        Image::new()->convert($this->source)
 //                            ->setFile($target)
 //                            ->setMethod('custom')
-//                            ->setFormat(Config::get('cdn.images.convert.' . $this->format))
+//                            ->setFormat(config()->get('cdn.images.convert.' . $this->format))
 //                            ->execute();
 //                    });
 //            }
@@ -923,7 +923,7 @@ class ImgCore extends SpanCore implements ImgInterface
 //            $e->makeWarning(true);
 //            $e->addMessages(tr('Failed to auto convert image ":src" to format ":format". Leaving image as-is', [
 //                ':src'    => $this->src,
-//                ':format' => Config::get('cdn.images.convert.' . $this->format)
+//                ':format' => config()->get('cdn.images.convert.' . $this->format)
 //            ]));
 //
 //            Notification($e);

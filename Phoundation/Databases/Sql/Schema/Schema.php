@@ -102,7 +102,7 @@ class Schema implements SchemaInterface
     {
         if (!$database) {
             // Default to system database
-            $database = Config::getString('databases.connectors.system.database');
+            $database = config()->getString('databases.connectors.system.database');
         }
 
         // If we don't have this database object  yet, create it now

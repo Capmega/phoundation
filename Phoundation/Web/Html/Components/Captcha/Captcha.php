@@ -35,14 +35,14 @@ abstract class Captcha extends ElementsBlock implements CaptchaInterface
      */
     public static function new(IteratorInterface|array|string|PDOStatement|null $source = null): static
     {
-        switch (Config::getString('security.web.captcha.provider', 'recaptcha')) {
+        switch (config()->getString('security.web.captcha.provider', 'recaptcha')) {
             case 'recaptcha':
                 return new ReCaptcha2($source);
             case '':
                 throw new OutOfBoundsException(tr('No captcha provider specified'));
             default:
                 throw new OutOfBoundsException(tr('Unknown captcha provider ":provider" specified', [
-                    ':provider' => Config::getString('', 'recaptcha'),
+                    ':provider' => config()->getString('', 'recaptcha'),
                 ]));
         }
     }

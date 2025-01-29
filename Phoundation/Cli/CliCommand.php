@@ -167,7 +167,7 @@ class CliCommand
      */
     public static function getRequireDefault(): bool
     {
-        return static::$require_default;
+        return CliCommand::$require_default;
     }
 
 
@@ -178,7 +178,7 @@ class CliCommand
      */
     public function hasStartedUp(): bool
     {
-        return static::$started_up;
+        return CliCommand::$started_up;
     }
 
 
@@ -191,7 +191,7 @@ class CliCommand
      */
     public static function setRequireDefault(bool $require_default): void
     {
-        static::$require_default = $require_default;
+        CliCommand::$require_default = $require_default;
     }
 
 
@@ -236,11 +236,11 @@ class CliCommand
      */
     public function getCommandFile(): ?PhoFileInterface
     {
-        if (empty(static::$command_file)) {
+        if (empty(CliCommand::$command_file)) {
             return null;
         }
 
-        return new PhoFile(static::$command_file, PhoRestrictions::newRootObject());
+        return new PhoFile(CliCommand::$command_file, PhoRestrictions::newRootObject());
     }
 
 
@@ -253,7 +253,7 @@ class CliCommand
      */
     public static function setProcessTitle(?string $title = null): void
     {
-        $title = ($title ?? 'pho: ' . static::getCommandsString());
+        $title = ($title ?? 'pho: ' . CliCommand::getCommandsString());
 
         cli_set_process_title($title);
         file_put_contents('/proc/' . getmypid() . '/comm', $title);
@@ -286,35 +286,35 @@ class CliCommand
     #[NoReturn] public static function execute(): void
     {
         // Get parameters, get the command to execute, get a run file
-        $parameters = static::startup();
+        $parameters = CliCommand::startup();
 
-        static::setCommandOrExecuteDocumentation($parameters);
-        static::$run_file = new CliRunFile(static::$command_file);
+        CliCommand::setCommandOrExecuteDocumentation($parameters);
+        CliCommand::$run_file = new CliRunFile(CliCommand::$command_file);
 
         // TODO Move this to the Request object
-        static::addExecutedPath(static::$command_file);
+        CliCommand::addExecutedPath(CliCommand::$command_file);
 
         // Should we execute usage or help documentation instead?
-        static::checkUsage();
-        static::checkHelp();
-        static::processServiceCommands();
+        CliCommand::checkUsage();
+        CliCommand::checkHelp();
+        CliCommand::processServiceCommands();
 
         // Execute the command and finish execution
         try {
             CliCommand::setProcessTitle();
             Request::setRestrictions(PhoRestrictions::newFilesystemRootObject());
-            Request::execute(static::$command_file . '.php');
+            Request::execute(CliCommand::$command_file . '.php');
 
         } catch (SqlNoTimezonesException $e) {
-            static::fixMysqlTimezoneException($e);
+            CliCommand::fixMysqlTimezoneException($e);
         }
 
         // Make sure that the CLI auto-completion is configured for this shell.
         CliAutoComplete::ensureAvailable();
 
-        if (!stream_isatty(STDIN) and !static::$stdin_has_been_read) {
+        if (!stream_isatty(STDIN) and !CliCommand::$stdin_has_been_read) {
             // STDIN might happen with commands executed. Test the input stream if there was any data at all in it
-            if (static::getStdInStream()) {
+            if (CliCommand::getStdInStream()) {
                 Log::warning(tr('Warning: STDIN stream was specified but not used'));
             }
         }
@@ -331,13 +331,13 @@ class CliCommand
      */
     protected static function processServiceCommands(): bool
     {
-        if (static::$service) {
-            if (static::hasSystemDConfigure()) {
+        if (CliCommand::$service) {
+            if (CliCommand::hasSystemDConfigure()) {
                 return true;
             }
 
             throw ServiceUnavailableException::new(tr('The command ":command" cannot be run as a service', [
-                ':command' => static::getCommandsString(),
+                ':command' => CliCommand::getCommandsString(),
             ]))->makeWarning();
         }
 
@@ -352,7 +352,7 @@ class CliCommand
      */
     public static function getServiceCommands(): ?string
     {
-        return static::$service;
+        return CliCommand::$service;
     }
 
 
@@ -363,7 +363,7 @@ class CliCommand
      */
     protected static function hasSystemDConfigure(): bool
     {
-        $results = PhoFile::new(static::$command_file . '.php', PhoRestrictions::newFilesystemRootObject())
+        $results = PhoFile::new(CliCommand::$command_file . '.php', PhoRestrictions::newFilesystemRootObject())
                           ->grep(['SystemDService::configure('], 100);
 
         return !empty($results);
@@ -377,7 +377,7 @@ class CliCommand
      */
     public static function startup(): array
     {
-        if (static::$started_up) {
+        if (CliCommand::$started_up) {
             throw new CliCommandException(tr('Cannot startup the CliCommand class, it has already been started up'));
         }
 
@@ -385,16 +385,16 @@ class CliCommand
         Core::boot();
 
         // Startup sequence for the command line
-        static::onlyCommandLine();
-        static::initalizeSignalHandlers();
-        static::checkPhoNotWorldExecutable();
-        static::detectProcessUidMatchesPhoundationOwner();
-        static::processSystemArguments();
-        static::ensureProcessUidMatchesPhoundationOwner();
-        static::initializeReadLine();
+        CliCommand::onlyCommandLine();
+        CliCommand::initalizeSignalHandlers();
+        CliCommand::checkPhoNotWorldExecutable();
+        CliCommand::detectProcessUidMatchesPhoundationOwner();
+        CliCommand::processSystemArguments();
+        CliCommand::ensureProcessUidMatchesPhoundationOwner();
+        CliCommand::initializeReadLine();
 
         // Startup the Core object and return command limits information
-        return static::startupCore();
+        return CliCommand::startupCore();
     }
 
 
@@ -498,7 +498,7 @@ class CliCommand
     protected static function detectProcessUidMatchesPhoundationOwner(): void
     {
         try {
-            static::$pho_uid = Core::getPhoUid();
+            CliCommand::$pho_uid = Core::getPhoUid();
 
         } catch (Throwable $e) {
             // Wut? What happened? Does the pho command exist? If it does, how did we got here? ./pho renamed, perhaps?
@@ -506,14 +506,14 @@ class CliCommand
             exit();
         }
 
-        if (Core::getProcessUid() === static::$pho_uid) {
+        if (Core::getProcessUid() === CliCommand::$pho_uid) {
             // Correct user, yay!
-            static::$pho_uid_match = true;
+            CliCommand::$pho_uid_match = true;
             return;
         }
 
         // UID does NOT match, disable logging for now to avoid issues
-        static::$pho_uid_match = false;
+        CliCommand::$pho_uid_match = false;
     }
 
 
@@ -527,7 +527,7 @@ class CliCommand
      */
     public static function phoUidMatch(bool $root_matches = false): ?bool
     {
-        return static::$pho_uid_match or !Core::getProcessUid();
+        return CliCommand::$pho_uid_match or !Core::getProcessUid();
     }
 
 
@@ -541,7 +541,7 @@ class CliCommand
      */
     protected static function ensureProcessUidMatchesPhoundationOwner(bool $auto_switch = true, bool $permit_root = true): void
     {
-        if (static::phoUidMatch()) {
+        if (CliCommand::phoUidMatch()) {
             // Correct user, yay!
             return;
         }
@@ -562,7 +562,7 @@ class CliCommand
             ]));
         }
 
-        $user = posix_getpwuid(static::$pho_uid);
+        $user = posix_getpwuid(CliCommand::$pho_uid);
 
         if ($user) {
             // Restart the process using the correct user
@@ -570,7 +570,7 @@ class CliCommand
         }
 
         throw new OutOfBoundsException(tr('Failed to fetch user information for user id ":id"', [
-            ':id' => static::$pho_uid,
+            ':id' => CliCommand::$pho_uid,
         ]));
     }
 
@@ -670,7 +670,7 @@ class CliCommand
             exit($exit_code);
         }
 
-        if (!Config::getEnvironment()) {
+        if (!config()->getEnvironment()) {
             // Config class didn't get environment, this means the process died somewhere during startup.
             // We can't log using the Log class, so die with the exit message
             if (PLATFORM_CLI) {
@@ -690,12 +690,12 @@ class CliCommand
         }
 
         if ($exit_code) {
-            static::setExitCode($exit_code, true);
+            CliCommand::setExitCode($exit_code, true);
         }
 
         // Terminate the run file
-        if (isset(static::$run_file)) {
-            static::$run_file->delete();
+        if (isset(CliCommand::$run_file)) {
+            CliCommand::$run_file->delete();
         }
 
         // Did we encounter an exception?
@@ -705,7 +705,7 @@ class CliCommand
 
                 Log::warning($e->getMessage());
                 Log::warning(tr('Command ":command" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
-                    ':command'  => static::getCommandsString(),
+                    ':command'  => CliCommand::getCommandsString(),
                     ':time'     => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'    => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                     ':exitcode' => $exit_code,
@@ -716,7 +716,7 @@ class CliCommand
 
                 Log::error($e->getMessage());
                 Log::error(tr('Command ":command" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
-                    ':command'  => static::getCommandsString(),
+                    ':command'  => CliCommand::getCommandsString(),
                     ':time'     => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'    => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                     ':exitcode' => $exit_code,
@@ -731,7 +731,7 @@ class CliCommand
                 } else {
                     // Script ended with warning
                     Log::warning(tr('Command ":command" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
-                        ':command'  => static::getCommandsString(),
+                        ':command'  => CliCommand::getCommandsString(),
                         ':time'     => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
                         ':usage'    => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code,
@@ -745,7 +745,7 @@ class CliCommand
                 } else {
                     // Script ended with error
                     Log::error(tr('Command ":command" failed with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
-                        ':command'  => static::getCommandsString(),
+                        ':command'  => CliCommand::getCommandsString(),
                         ':time'     => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
                         ':usage'    => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                         ':exitcode' => $exit_code,
@@ -766,7 +766,7 @@ class CliCommand
 
                 // Script ended successfully
                 Log::success(tr('Finished command ":command" with PID ":pid" in ":time" with ":usage" peak memory usage', [
-                    ':command' => static::getCommandsString(),
+                    ':command' => CliCommand::getCommandsString(),
                     ':pid'     => getmypid(),
                     ':time'    => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'   => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
@@ -796,8 +796,8 @@ class CliCommand
      */
     public static function getCommandsString(): string
     {
-        if (static::$commands) {
-            return implode(' ', static::$commands);
+        if (CliCommand::$commands) {
+            return implode(' ', CliCommand::$commands);
         }
 
         return 'N/A';
@@ -844,7 +844,7 @@ class CliCommand
             throw new ScriptException(tr('This can only be done from command line'));
         }
         if ($exclusive) {
-            static::runOnceLocal();
+            CliCommand::runOnceLocal();
         }
     }
 
@@ -977,30 +977,30 @@ class CliCommand
     protected static function setCommandOrExecuteDocumentation(array $parameters): void
     {
         if (CliAutoComplete::isActive()) {
-            static::$command_file = static::autoComplete();
+            CliCommand::$command_file = CliCommand::autoComplete();
 
         } else {
             try {
                 // Get the command file to execute
-                static::$command_file = static::findCommand();
+                CliCommand::$command_file = CliCommand::findCommand();
 
             } catch (CliNoCommandSpecifiedException) {
-                if (static::$service) {
+                if (CliCommand::$service) {
                     throw ServiceUnavailableException::new(tr('Cannot start pho as a service without a valid command'))
                                                      ->makeWarning();
                 }
 
                 // See if the command execution should be stopped for some reason.
-                static::limitCommand(isset_get($parameters['limit']), isset_get($parameters['reason']));
+                CliCommand::limitCommand(isset_get($parameters['limit']), isset_get($parameters['reason']));
 
-                static::documentation();
+                CliCommand::documentation();
                 CliAutoComplete::ensureAvailable();
                 exit();
             }
         }
 
         // See if the command execution should be stopped for some reason.
-        static::limitCommand(isset_get($parameters['limit']), isset_get($parameters['reason']));
+        CliCommand::limitCommand(isset_get($parameters['limit']), isset_get($parameters['reason']));
     }
 
 
@@ -1012,16 +1012,16 @@ class CliCommand
     #[NoReturn] protected static function autoComplete(): ?string
     {
         Log::action(tr('Executing auto complete with command: :command', [
-            ':command' => static::getCommandline()
+            ':command' => CliCommand::getCommandline()
         ]), 7, echo_screen: false);
 
         try {
             // Get the command file to execute and execute auto complete for within this command, if available
-            $command = static::findCommand();
+            $command = CliCommand::findCommand();
 
             // AutoComplete::getPosition() might become -1 if one were to <TAB> right at the end of the last command.
             // If this is the case, we actually have to expand the command, NOT yet the command parameters!
-            if ((CliAutoComplete::getPosition() - count(static::$commands)) === 0) {
+            if ((CliAutoComplete::getPosition() - count(CliCommand::$commands)) === 0) {
                 throw CliCommandNotExistsException::new(tr('The specified command file ":file" does exist but requires auto complete extension', [
                     ':file' => $command,
                 ]))
@@ -1048,7 +1048,7 @@ class CliCommand
 
         } catch (CliNoCommandSpecifiedException | CliCommandNotFoundException | CliCommandNotExistsException $e) {
             // Auto complete the command
-            CliAutoComplete::processCommands(static::$commands, $e->getData());
+            CliAutoComplete::processCommands(CliCommand::$commands, $e->getData());
         }
     }
 
@@ -1092,11 +1092,11 @@ class CliCommand
 
         // Process commands
         foreach ($commands as $position => $command) {
-            if (!static::validateCommand($command)) {
+            if (!CliCommand::validateCommand($command)) {
                 continue;
             }
 
-            static::$commands[] = $command;
+            CliCommand::$commands[] = $command;
 
             // Start processing arguments as commands here
             $file .= $command;
@@ -1203,7 +1203,7 @@ class CliCommand
      */
     public static function getCommands(): array
     {
-        return static::$commands;
+        return CliCommand::$commands;
     }
 
 
@@ -1280,7 +1280,7 @@ class CliCommand
      */
     protected static function documentation(): void
     {
-        if (static::$require_default) {
+        if (CliCommand::$require_default) {
             CliDocumentation::setUsage('./pho METHODS [ARGUMENTS]
 ./pho intro
 ./pho info
@@ -1300,7 +1300,7 @@ class CliCommand
 GLOBAL SYSTEM ARGUMENTS
             
             
-') . static::getHelpGlobalArguments(), false);
+') . CliCommand::getHelpGlobalArguments(), false);
 
             Log::cli(tr('This is the Phoundation CLI command "pho". It can be used to execute all internal Phoundation commands. 
 For more basic information please execute the command ./pho intro which will print an introduction text to Phoundation
@@ -1321,7 +1321,7 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
     protected static function limitCommand(array|string|null $limits, Throwable|string|null $reason): void
     {
         if ($limits) {
-            $test = Strings::from(static::$command_file, 'commands/');
+            $test = Strings::from(CliCommand::$command_file, 'commands/');
 
             foreach (Arrays::force($limits) as $limit) {
                 if (str_starts_with($test, $limit)) {
@@ -1353,13 +1353,13 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
         global $argv;
 
         if ($argv['usage']) {
-            $results = PhoFile::new(static::$command_file . '.php', PhoRestrictions::newFilesystemRootObject())
+            $results = PhoFile::new(CliCommand::$command_file . '.php', PhoRestrictions::newFilesystemRootObject())
                               ->grep(['CliDocumentation::setUsage('], 100);
 
             if (empty($results)) {
                 if ($exception) {
                     throw CliCommandException::new(tr('The command ":command" has no usage information available', [
-                        ':command' => static::getExecutedPath(true),
+                        ':command' => CliCommand::getExecutedPath(true),
                     ]))->makeWarning();
                 }
 
@@ -1394,13 +1394,13 @@ return 'under construction';
         global $argv;
 
         if ($argv['help']) {
-            $results = PhoFile::new(static::$command_file . '.php', PhoRestrictions::newFilesystemRootObject())
+            $results = PhoFile::new(CliCommand::$command_file . '.php', PhoRestrictions::newFilesystemRootObject())
                               ->grep(['CliDocumentation::setHelp('], 100);
 
             if (empty($results)) {
                 if ($exception) {
                     throw CliCommandException::new(tr('The command ":command" has no help information available', [
-                        ':command' => static::getExecutedPath(true),
+                        ':command' => CliCommand::getExecutedPath(true),
                     ]))->makeWarning();
                 }
 
@@ -1494,7 +1494,7 @@ return 'under construction';
      */
     public static function getStdInStream(bool $binary_safe = true): ?string
     {
-        if (empty(static::$stdin_data)) {
+        if (empty(CliCommand::$stdin_data)) {
             if (stream_isatty(STDIN)) {
                 // There is no STDIN stream, its a TTY
                 return null;
@@ -1518,11 +1518,11 @@ return 'under construction';
                 $return .= $data;
             }
 
-            static::$stdin_has_been_read = true;
-            static::$stdin_data          = $return;
+            CliCommand::$stdin_has_been_read = true;
+            CliCommand::$stdin_data          = $return;
         }
 
-        return static::$stdin_data;
+        return CliCommand::$stdin_data;
     }
 
 
@@ -1533,7 +1533,7 @@ return 'under construction';
      */
     public static function getExitCode(): int
     {
-        return static::$exit_code;
+        return CliCommand::$exit_code;
     }
 
 
@@ -1553,8 +1553,8 @@ return 'under construction';
             ]));
         }
 
-        if (!$only_if_null or !static::$exit_code) {
-            static::$exit_code = $code;
+        if (!$only_if_null or !CliCommand::$exit_code) {
+            CliCommand::$exit_code = $code;
         }
     }
 
@@ -1581,7 +1581,7 @@ return 'under construction';
      */
     public static function exclusive(bool $global = false): void
     {
-        static::limitCount(1, $global);
+        CliCommand::limitCount(1, $global);
     }
 
 
@@ -1595,7 +1595,7 @@ return 'under construction';
      */
     public static function limitCount(int $count, bool $global = false): void
     {
-        static::$run_file->getCount();
+        CliCommand::$run_file->getCount();
     }
 
 
@@ -1617,7 +1617,7 @@ return 'under construction';
      */
     public static function stdInHasBeenRead(): bool
     {
-        return static::$stdin_has_been_read;
+        return CliCommand::$stdin_has_been_read;
     }
 
 
@@ -1650,7 +1650,7 @@ return 'under construction';
      */
     public static function getPhoUidMatch(): bool
     {
-        return static::$pho_uid_match;
+        return CliCommand::$pho_uid_match;
     }
 
 
@@ -1661,7 +1661,7 @@ return 'under construction';
      */
     public static function getPhoUid(): int
     {
-        return static::$pho_uid;
+        return CliCommand::$pho_uid;
     }
 
 
@@ -1758,33 +1758,32 @@ return 'under construction';
 //            'no_password_validation' => false
 //    ];
 
-        // Check what environment we're in
+        // Parse command line arguments in JSON format
+        if ($argv['json_input']) {
+            // We received arguments in JSON format
+            $argv = CliCommand::applyJsonArguments($argv);
+        }
+
+        // Initialize environment
         if ($argv['environment']) {
             // The Environment was manually specified on the command line
-            $env = $argv['environment'];
+            $environment = $argv['environment'];
 
         } else {
             // Get environment variable from the shell environment
-            $env = getenv('PHOUNDATION_' . PROJECT . '_ENVIRONMENT');
+            $environment = getenv('PHOUNDATION_ENVIRONMENT_' . PROJECT);
         }
 
-        if (empty($env)) {
-            Core::requireCliEnvironment((bool)$argv['auto_complete']);
+        if (empty($environment)) {
+            CliCommand::requireEnvironment((bool) $argv['auto_complete']);
         }
 
-        if ($argv['json_input']) {
-            // We received arguments in JSON format
-            $argv = static::applyJsonArguments($argv);
-        }
-
-        // Set environment and protocol
-        define('ENVIRONMENT', $env);
-
-        Config::setEnvironment(ENVIRONMENT);
+        // Set environment
+        Core::setEnvironment($environment);
 
         // Define basic platform constants
         define('ADMIN'     , '');
-        define('PROTOCOL'  , Config::get('web.protocol', 'https://'));
+        define('PROTOCOL'  , config()->get('web.protocol', 'https://'));
         define('PWD'       , Strings::slash(isset_get($_SERVER['PWD'])));
         define('QUIET'     , ($argv['very_quiet'] or $argv['quiet']));
         define('VERY_QUIET', $argv['very_quiet']);
@@ -1798,10 +1797,10 @@ return 'under construction';
         define('PAGE'      , $argv['page']);
         define('OUTPUT'    , $argv['json_output'] ? 'json' : 'normal');
         define('NOAUDIO'   , $argv['no_audio'] or $argv['auto_complete']); // auto complete mode disables audio
-        define('LIMIT'     , get_null($argv['limit']) ?? Config::getNatural('paging.limit', 50));
+        define('LIMIT'     , get_null($argv['limit']) ?? config()->getNatural('paging.limit', 50));
 
         // Set requested language
-        Core::writeRegister($argv['language'] ?? Config::getString('languages.default', 'en'), 'system', 'language');
+        Core::writeRegister($argv['language'] ?? config()->getString('languages.default', 'en'), 'system', 'language');
 
         if ($argv['auto_complete']) {
             // We're in auto complete mode. Show only direct output, don't use any color, don't log to screen
@@ -1869,7 +1868,7 @@ return 'under construction';
             Log::setEchoPrefix(true);
         }
 
-        if (!static::phoUidMatch()) {
+        if (!CliCommand::phoUidMatch()) {
             // The rest of the options will NOT be set because we'll try to restart soon!
             return;
         }
@@ -1913,34 +1912,34 @@ return 'under construction';
 
         // set terminal data
         // TODO REWRITE TERMINAL SIZE DETECTION
-//        static::$register['cli'] = ['term' => Cli::getTerm()];
+//        CliCommand::$register['cli'] = ['term' => Cli::getTerm()];
 //
-//        if (static::$register['cli']['term']) {
-//            static::$register['cli']['columns'] = Cli::getColumns();
-//            static::$register['cli']['lines']   = Cli::getLines();
+//        if (CliCommand::$register['cli']['term']) {
+//            CliCommand::$register['cli']['columns'] = Cli::getColumns();
+//            CliCommand::$register['cli']['lines']   = Cli::getLines();
 //
-//            if (!static::$register['cli']['columns']) {
-//                static::$register['cli']['size'] = 'unknown';
+//            if (!CliCommand::$register['cli']['columns']) {
+//                CliCommand::$register['cli']['size'] = 'unknown';
 //
-//            } elseif (static::$register['cli']['columns'] <= 80) {
-//                static::$register['cli']['size'] = 'small';
+//            } elseif (CliCommand::$register['cli']['columns'] <= 80) {
+//                CliCommand::$register['cli']['size'] = 'small';
 //
-//            } elseif (static::$register['cli']['columns'] <= 160) {
-//                static::$register['cli']['size'] = 'medium';
+//            } elseif (CliCommand::$register['cli']['columns'] <= 160) {
+//                CliCommand::$register['cli']['size'] = 'medium';
 //
 //            } else {
-//                static::$register['cli']['size'] = 'large';
+//                CliCommand::$register['cli']['size'] = 'large';
 //            }
 //        }
 
         // Set security umask
-        umask(Config::get('filesystem.umask', 0007));
+        umask(config()->get('filesystem.umask', 0007));
 
         // Get required language.
         try {
-            $language = not_empty($argv['language'], Config::get('language.default', 'en'));
+            $language = not_empty($argv['language'], config()->get('language.default', 'en'));
 
-            if (Config::get('language.default', ['en']) and Config::exists('language.supported.' . $language)) {
+            if (config()->get('language.default', ['en']) and Config::exists('language.supported.' . $language)) {
                 throw new CoreException(tr('Unknown language ":language" specified', [':language' => $language]));
             }
 
@@ -1960,13 +1959,13 @@ return 'under construction';
 
         // Setup locale and character encoding
         // TODO Check this mess!
-        ini_set('default_charset', Config::get('languages.encoding.charset', 'UTF-8'));
+        ini_set('default_charset', config()->get('languages.encoding.charset', 'UTF-8'));
         Core::setLocale();
 
         // Prepare for unicode usage
-        if (Config::get('languages.encoding.charset', 'UTF-8') === 'UTF-8') {
+        if (config()->get('languages.encoding.charset', 'UTF-8') === 'UTF-8') {
 // TODO Fix this godawful mess!
-            mb_init(not_empty(Config::get('locale.LC_CTYPE', ''), Config::get('locale.LC_ALL', '')));
+            mb_init(not_empty(config()->get('locale.LC_CTYPE', ''), config()->get('locale.LC_ALL', '')));
 
             if (function_exists('mb_internal_encoding')) {
                 mb_internal_encoding('UTF-8');
@@ -1984,9 +1983,9 @@ return 'under construction';
 
 // TODO Reimplement terminal size detection
 //                Log::notice(tr('Detected ":size" terminal with ":columns" columns and ":lines" lines', [
-//                    ':size'    => static::$register['cli']['size'],
-//                    ':columns' => static::$register['cli']['columns'],
-//                    ':lines'   => static::$register['cli']['lines'],
+//                    ':size'    => CliCommand::$register['cli']['size'],
+//                    ':columns' => CliCommand::$register['cli']['columns'],
+//                    ':lines'   => CliCommand::$register['cli']['lines'],
 //                ]));
             }
         }
@@ -2065,7 +2064,27 @@ return 'under construction';
         // Ensure any extra dashed arguments are "undashed"
         ArgvValidator::unDoubleDash();
 
-        static::$service = $argv['service'];
+        CliCommand::$service = $argv['service'];
+    }
+
+
+    /**
+     * Displays the correct "environment required" message for normal and CLI auto complete mode
+     *
+     * @param bool $auto_complete
+     *
+     * @return never
+     */
+    #[NoReturn] public static function requireEnvironment(bool $auto_complete): never
+    {
+        $message = 'No required cli environment specified for project "' . PROJECT . '". Use -E ENVIRONMENT or ensure that your ~/.bashrc file contains a line like "export PHOUNDATION_ENVIRONMENT_' . PROJECT . '=ENVIRONMENT" and then execute "source ~/.bashrc"';
+
+        if ($auto_complete) {
+            Core::exit(2, str_replace(' ', '-', $message));
+        }
+
+        Config::allowNoEnvironment();
+        Core::exit(2, $message);
     }
 
 

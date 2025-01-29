@@ -41,7 +41,7 @@ trait TraitBootstrapColor
     public function getBootstrapForegroundColor(): EnumBootstrapColor
     {
         if (empty($this->foreground_color)) {
-            $this->foreground_color = EnumBootstrapColor::from(SessionConfig::get('web.bootstrap.theme.colors.foreground', EnumBootstrapColor::light->value));
+            $this->foreground_color = EnumBootstrapColor::from(Sessionconfig()->get('web.bootstrap.theme.colors.foreground', EnumBootstrapColor::light->value));
         }
 
         return $this->foreground_color;
@@ -58,7 +58,7 @@ trait TraitBootstrapColor
     public function setBootstrapForegroundColor(EnumBootstrapColor $color): static
     {
         // Configurable theming allows colors to be remapped from configuration
-        $this->foreground_color = EnumBootstrapColor::from(SessionConfig::get('web.bootstrap.theme.colors.' . $color->value, $color->value));
+        $this->foreground_color = EnumBootstrapColor::from(Sessionconfig()->get('web.bootstrap.theme.colors.' . $color->value, $color->value));
 
         return $this;
     }
@@ -72,7 +72,7 @@ trait TraitBootstrapColor
     public function getBootstrapBackgroundColor(): EnumBootstrapColor
     {
         if (empty($this->background_color)) {
-            $this->background_color = EnumBootstrapColor::from(SessionConfig::get('web.bootstrap.theme.colors.background', EnumBootstrapColor::dark->value));
+            $this->background_color = EnumBootstrapColor::from(Sessionconfig()->get('web.bootstrap.theme.colors.background', EnumBootstrapColor::dark->value));
         }
 
         return $this->background_color;
@@ -89,7 +89,7 @@ trait TraitBootstrapColor
     public function setBootstrapBackgroundColor(EnumBootstrapColor $color): static
     {
         // Configurable theming allows colors to be remapped from configuration
-        $this->background_color = EnumBootstrapColor::from(SessionConfig::get('web.bootstrap.theme.colors.' . $color->value, $color->value));
+        $this->background_color = EnumBootstrapColor::from(Sessionconfig()->get('web.bootstrap.theme.colors.' . $color->value, $color->value));
 
         return $this;
     }

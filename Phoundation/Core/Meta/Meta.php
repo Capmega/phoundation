@@ -106,8 +106,8 @@ class Meta implements MetaInterface
     public function __construct(?int $id = null, bool $load = true)
     {
         if (!isset(static::$buffer)) {
-            static::$buffer     = Config::getBoolean('meta.buffer.enabled', false);
-            static::$max_buffer = Config::getInteger('meta.buffer.max-size', 100);
+            static::$buffer     = config()->getBoolean('meta.buffer.enabled', false);
+            static::$max_buffer = config()->getInteger('meta.buffer.max-size', 100);
         }
 
         if ($id) {

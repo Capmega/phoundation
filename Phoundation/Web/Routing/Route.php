@@ -19,6 +19,7 @@ namespace Phoundation\Web\Routing;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Core;
+use Phoundation\Core\Exception\CoreStartupFailedException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\CookieValidator;
@@ -27,6 +28,8 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Developer\Debug;
+use Phoundation\Exception\EnvironmentNotDefinedException;
+use Phoundation\Exception\EnvironmentNotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Exception\RegexException;
@@ -36,10 +39,13 @@ use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
+use Phoundation\Utils\Exception\ConfigFileDoesNotExistsException;
+use Phoundation\Utils\Exception\ConfigParseFailedException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Exception\RouteException;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Domains;
+use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
@@ -250,6 +256,117 @@ class Route
         // Hiding $_FILES data requires the users_id and is done in Request::executeWebTarget()
         GetValidator::hideData();
         PostValidator::hideData();
+    }
+
+
+    /**
+     * Initialize the system for web requests
+     *
+     * @return void
+     */
+    public static function startup(): void
+    {
+        try {
+            // Check what environment we're in
+            $environment = get_null(getenv('PHOUNDATION_ENVIRONMENT_' . PROJECT));
+
+            if (empty($environment)) {
+                // No environment set in ENV, maybe given by parameter?
+                Config::allowNoEnvironment();
+                throw EnvironmentNotDefinedException::new('No required web environment specified for project "' . PROJECT . '"')
+                                                    ->setCode(500);
+            }
+
+            // Set environment and protocol
+            Core::setEnvironment($environment);
+
+            if (str_ends_with($_SERVER['REQUEST_URI'], 'favicon.ico')) {
+                // By default, increase logger threshold on all favicon.ico requests to avoid log clutter
+                Log::setThreshold(config()->getInteger('log.levels.web.favicon', 10));
+            }
+
+            // Register basic HTTP information
+//                    static::$register['http']['accepts'] = Request::accepts();
+//                    static::$register['http']['accepts_languages'] = Request::acceptsLanguages();
+
+            // Define basic platform constants
+            define('ADMIN'     , '');
+            define('PROTOCOL'  , config()->get('web.protocol', 'https://'));
+            define('PWD'       , Strings::slash(isset_get($_SERVER['PWD'])));
+            define('PAGE'      , $_GET['page'] ?? 1);
+            define('QUIET'     , (get_null(getenv('QUIET')) or get_null(getenv('VERY_QUIET'))) ?? false);
+            define('ALL'       , get_null(getenv('ALL'))        ?? false);
+            define('DELETED'   , get_null(getenv('DELETED'))    ?? false);
+            define('FORCE'     , get_null(getenv('FORCE'))      ?? false);
+            define('ORDERBY'   , get_null(getenv('ORDERBY'))    ?? '');
+            define('STATUS'    , get_null(getenv('STATUS'))     ?? '');
+            define('VERY_QUIET', get_null(getenv('VERY_QUIET')) ?? false);
+            define('TEST'      , get_null(getenv('TEST'))       ?? false);
+            define('VERBOSE'   , get_null(getenv('VERBOSE'))    ?? false);
+            define('NOAUDIO'   , get_null(getenv('NOAUDIO'))    ?? false);
+            define('LIMIT'     , get_null(getenv('LIMIT'))      ?? config()->getNatural('paging.limit', 50));
+            define('NOWARNINGS', get_null(getenv('NOWARNINGS')) ?? false);
+
+            // Check HEAD and OPTIONS requests. If HEAD was requested, just return basic HTTP headers
+// :TODO: Should pages themselves not check for this and perhaps send other headers?
+            switch ($_SERVER['REQUEST_METHOD']) {
+                case 'OPTIONS':
+                    throw new UnderConstructionException();
+            }
+
+            // Set security umask
+            umask(config()->get('filesystem.umask', 0007));
+
+            // Set language and locale
+            Core::setLanguage();
+            Core::setLocale();
+
+            // Prepare for unicode usage
+            if (config()->get('languages.encoding.charset', 'UTF-8') === 'UTF-8') {
+                mb_init(not_empty(config()->get('locale.LC_CTYPE', ''), config()->get('locale.LC_ALL', '')));
+
+                if (function_exists('mb_internal_encoding')) {
+                    mb_internal_encoding('UTF-8');
+                }
+            }
+
+            // Check for configured maintenance mode
+            if (config()->getBoolean('system.maintenance', false)) {
+                // We are in maintenance mode, have to show maintenance page.
+                Request::executeSystem(503);
+            }
+
+            Core::setTimeZone();
+
+            // If POST request, automatically untranslate translated POST entries
+            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+//                        Html::untranslate();
+//                        Html::fixCheckboxValues();
+                if (config()->get('security.web.csrf.enabled', true) === 'force') {
+                    // Force CSRF checks on every submit!
+//                            Http::checkCsrf();
+                }
+            }
+
+            // Set the CDN url for javascript and validate HTTP GET request data
+// TODO Below
+//                    Html::setJsCdnUrl();
+            Http::validateGet();
+
+        } catch (ConfigFileDoesNotExistsException $e) {
+            throw new EnvironmentNotExistsException(tr('Failed to start platform ":platform", the configured or requested environment ":environment" does not exist', [
+                ':environment' => ENVIRONMENT,
+                ':platform'    => PLATFORM
+            ]), $e);
+
+        } catch (ConfigParseFailedException $e) {
+            throw new EnvironmentNotExistsException(tr('Failed to start platform ":platform", the configuration could not be parsed', [
+                ':platform' => PLATFORM
+            ]), $e);
+
+        } catch (Throwable $e) {
+            throw new CoreStartupFailedException(tr('Failed to start because: :e', [':e' => $e->getMessage()]), $e);
+        }
     }
 
 
@@ -1322,7 +1439,7 @@ class Route
      */
     protected static function applyStaticRoutes(): void
     {
-        if ((static::$rule_count === 1) and Config::get('web.route.static', false)) {
+        if ((static::$rule_count === 1) and config()->get('web.route.static', false)) {
             if (static::$apply_static_routes) {
                 // Check if remote IP is registered for special routing
                 $exists = sql()->get('SELECT   `id`, `url`, `regex`, `route`, `flags`

@@ -1834,6 +1834,7 @@ class Strings extends Utils
         if (is_bool($source)) {
             return $source;
         }
+
         switch (strtolower((string) $source)) {
             case 'true':
                 // no break
@@ -1859,10 +1860,39 @@ class Strings extends Utils
 
             default:
                 if ($exception) {
-                    throw new OutOfBoundsException(tr('Unknown value ":value" specified', [':value' => $source]));
+                    throw new OutOfBoundsException(tr('Unknown value ":value" specified', [
+                        ':value' => $source
+                    ]));
                 }
 
                 return null;
+        }
+    }
+
+
+    /**
+     * Returns true if the specified source value can be interpreted as a boolean, even if the value is string or
+     * integer
+     *
+     * @param Stringable|string|int|bool|null $source
+     *
+     * @return bool
+     *
+     * @example The value 1       will return true
+     * @example The value  true   will return true
+     * @example The value "true"  will return true
+     * @example The value "false" will return true
+     * @example The value "test"  will return false
+     * @example The value 634     will return false
+     */
+    public static function isBoolean(Stringable|string|int|bool|null $source): bool
+    {
+        try {
+            static::toBoolean($source);
+            return true;
+
+        } catch (OutOfBoundsException) {
+            return false;
         }
     }
 
@@ -2176,7 +2206,7 @@ class Strings extends Utils
      */
     public static function unique(string $hash = 'sha512', Stringable|string $prefix = ''): string
     {
-        return hash($hash, uniqid((string) $prefix, true) . microtime(true) . Config::get('security.seed', ''));
+        return hash($hash, uniqid((string) $prefix, true) . microtime(true) . config()->get('security.seed', ''));
     }
 
 

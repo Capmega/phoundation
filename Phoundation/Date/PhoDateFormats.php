@@ -99,7 +99,7 @@ class PhoDateFormats
      */
     public static function getSupportedPhp(): IteratorInterface
     {
-        return SessionConfig::getIterator('locale.formats.date', static::$defaults);
+        return Sessionconfig()->getIteratorObject('locale.formats.date', static::$defaults);
     }
 
 
@@ -484,7 +484,7 @@ class PhoDateFormats
      */
     public static function getUser1224(): int
     {
-        $format = SessionConfig::getInteger('formats.date.force1224', 24);
+        $format = Sessionconfig()->getInteger('formats.date.force1224', 24);
 
         switch ($format) {
             case '12':

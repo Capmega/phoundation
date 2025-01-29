@@ -249,8 +249,8 @@ class Response implements ResponseInterface
             'link'       => [],
             'javascript' => [],
             'meta'       => [
-                'charset'  => Config::get('languages.encoding.charset', 'UTF-8'),
-                'viewport' => Config::get('web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no'),
+                'charset'  => config()->get('languages.encoding.charset', 'UTF-8'),
+                'viewport' => config()->get('web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no'),
             ],
         ];
         static::$page_footers = [
@@ -454,7 +454,7 @@ class Response implements ResponseInterface
             static::$header_title = get_null((string) $header_title);
 
             if (!static::$page_title) {
-                static::$page_title = Config::get('project.name', 'Phoundation') . ' - ' . $header_title;
+                static::$page_title = config()->get('project.name', 'Phoundation') . ' - ' . $header_title;
             }
         }
     }
@@ -623,11 +623,11 @@ class Response implements ResponseInterface
         if (str_ends_with($url, '.min')) {
             if (!isset($minified)) {
                 // All files are minified or none are
-                $minified = (Config::get('web.minified', true) ? '.min' : '');
+                $minified = (config()->get('web.minified', true) ? '.min' : '');
             }
         }
 
-        if (Config::getBoolean('cache.version-files', true)) {
+        if (config()->getBoolean('cache.version-files', true)) {
             // Determine the absolute file path
             // then get timestamp and inject it into the given file
             $file = DIRECTORY_DATA . 'content/cdn/' . LANGUAGE . '/' . $type . '/' . $url . $minified . $type;
@@ -746,7 +746,7 @@ class Response implements ResponseInterface
     public static function loadJavascript(string|array $urls, ?bool $header = null, bool $prefix = false): void
     {
         if ($header === null) {
-            $header = !Config::getBoolean('web.javascript.delay', true);
+            $header = !config()->getBoolean('web.javascript.delay', true);
         }
 
         if ($header and static::$html_headers_sent) {
@@ -1248,7 +1248,7 @@ class Response implements ResponseInterface
     protected static function cacheTest($etag = null): bool
     {
         static::$etag = sha1(PROJECT . $_SERVER['SCRIPT_FILENAME'] . filemtime($_SERVER['SCRIPT_FILENAME']) . $etag);
-        if (!Config::get('web.cache.enabled', 'auto')) {
+        if (!config()->get('web.cache.enabled', 'auto')) {
             return false;
         }
         if (Request::isRequestType(EnumRequestTypes::ajax) or Request::isRequestType(EnumRequestTypes::api)) {
@@ -1528,7 +1528,7 @@ class Response implements ResponseInterface
          * was issued before the startup finished, then this could leave the system without defined language
          */
         if (!defined('LANGUAGE')) {
-            define('LANGUAGE', Config::get('http.language.default', 'en'));
+            define('LANGUAGE', config()->get('http.language.default', 'en'));
         }
 
         // Create ETAG, possibly send out HTTP304 if the client sent matching ETAG
@@ -1572,7 +1572,7 @@ class Response implements ResponseInterface
                 ]));
         }
 
-        $headers[] = 'Content-Type: ' . static::$content_type . '; charset=' . Config::get('languages.encoding.charset', 'UTF-8');
+        $headers[] = 'Content-Type: ' . static::$content_type . '; charset=' . config()->get('languages.encoding.charset', 'UTF-8');
         $headers[] = 'Content-Language: ' . LANGUAGE;
         $headers[] = 'Content-Length: ' . ob_get_length();
 
@@ -1587,15 +1587,15 @@ class Response implements ResponseInterface
 
         // Add noindex, nofollow and nosnipped headers for non production environments and non normal HTTP pages.
         // These pages should NEVER be indexed
-        if (!Core::isProductionEnvironment() or !Request::isRequestType(EnumRequestTypes::html) or Config::get('web.noindex', false)) {
+        if (!Core::isProductionEnvironment() or !Request::isRequestType(EnumRequestTypes::html) or config()->get('web.noindex', false)) {
             $headers[] = 'X-Robots-Tag: noindex, nofollow, nosnippet, noarchive, noydir';
         }
 
         // CORS headers
-        if (Config::get('web.security.cors', true) or static::$cors) {
+        if (config()->get('web.security.cors', true) or static::$cors) {
             // Add CORS / Access-Control-Allow-.... headers
             // TODO This will cause issues if configured web.cors is not an array!
-            static::$cors = array_merge(Arrays::force(Config::get('web.cors', [])), static::$cors);
+            static::$cors = array_merge(Arrays::force(config()->get('web.cors', [])), static::$cors);
 
             foreach (static::$cors as $key => $value) {
                 switch ($key) {
@@ -1639,7 +1639,7 @@ class Response implements ResponseInterface
     protected static function cacheEtag(): bool
     {
         // ETAG requires HTTP caching enabled. Ajax and API calls do not use ETAG
-        if (!Config::get('web.cache.enabled', 'auto') or Request::isRequestType(EnumRequestTypes::ajax) or Request::isRequestType(EnumRequestTypes::api)) {
+        if (!config()->get('web.cache.enabled', 'auto') or Request::isRequestType(EnumRequestTypes::ajax) or Request::isRequestType(EnumRequestTypes::api)) {
             static::$etag = null;
 
             return false;
@@ -1680,14 +1680,14 @@ class Response implements ResponseInterface
      */
     protected static function addHttpCacheHeaders(array $headers): array
     {
-        if (Config::get('web.cache.enabled', 'auto') === 'auto') {
+        if (config()->get('web.cache.enabled', 'auto') === 'auto') {
             // PHP will take care of the cache headers
             return $headers;
         }
 
-        if (Config::get('web.cache.enabled', 'auto') === true) {
+        if (config()->get('web.cache.enabled', 'auto') === true) {
             // Place headers using phoundation algorithms
-            if (!Config::get('web.cache.enabled', 'auto') or (static::$http_code != 200)) {
+            if (!config()->get('web.cache.enabled', 'auto') or (static::$http_code != 200)) {
                 // Non HTTP 200 / 304 pages should NOT have cache enabled! For example, 404, 503 etc...
                 $headers[]    = 'Cache-Control: no-store, max-age=0';
                 static::$etag = null;
@@ -1707,10 +1707,10 @@ class Response implements ResponseInterface
                     default:
                         // Session pages for specific users should not be stored on proxy servers either
                         if (!empty($_SESSION['user']['id'])) {
-                            Config::get('web.cache.cacheability', 'private');
+                            config()->get('web.cache.cacheability', 'private');
                         }
 
-                        $headers[] = 'Cache-Control: ' . Config::get('web.cache.cacheability', 'private') . ', ' . Config::get('web.cache.expiration', 'max-age=604800') . ', ' . Config::get('web.cache.revalidation', 'must-revalidate') . Config::get('web.cache.other', 'no-transform');
+                        $headers[] = 'Cache-Control: ' . config()->get('web.cache.cacheability', 'private') . ', ' . config()->get('web.cache.expiration', 'max-age=604800') . ', ' . config()->get('web.cache.revalidation', 'must-revalidate') . config()->get('web.cache.other', 'no-transform');
 
                         if (!empty(static::$etag)) {
                             $headers[] = 'ETag: "' . static::$etag . '"';

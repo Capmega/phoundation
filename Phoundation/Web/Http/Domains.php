@@ -115,7 +115,7 @@ class Domains
         }
 
         // Ensure $domain doesn't end with . (Which IS valid, but would mess up
-        $domain = Strings::from(Config::getString('web.domains.primary.web'), '//');
+        $domain = Strings::from(config()->getString('web.domains.primary.web'), '//');
         $domain = Strings::until($domain, '/');
         $domain = Strings::ensureEndsNotWith($domain, '.');
 
@@ -260,7 +260,7 @@ class Domains
     protected static function loadConfiguration(): void
     {
         if (!isset(static::$domains_configuration)) {
-            $configuration = Config::get('web.domains');
+            $configuration = config()->get('web.domains');
 
             if ($configuration === null) {
                 if (!Core::isState('setup')) {

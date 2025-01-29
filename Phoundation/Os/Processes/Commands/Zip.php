@@ -48,7 +48,7 @@ class Zip extends Command implements ZipInterface
         parent::__construct($execution_directory, $operating_system, $packages);
 
         $this->timeout = 300;
-        $this->compression_level = Config::getInteger('filesystem.compression.zip.level.default', 6);
+        $this->compression_level = config()->getInteger('filesystem.compression.zip.level.default', 6);
     }
 
 

@@ -116,7 +116,7 @@ class Bundler
     protected function bundle(array $files, string $extension): ?string
     {
 // :TODO: Add support for individual bundles that require async loading
-        if (!Config::get('web.bundle', true)) {
+        if (!config()->get('web.bundle', true)) {
             // Bundler has been disabled
             return null;
         }
@@ -133,12 +133,12 @@ class Bundler
         if ($this->count) {
             // Purge the file from duplicate content
             if ($this->extension === 'css') {
-                if (Config::get('web.css.purge', true)) {
+                if (config()->get('web.css.purge', true)) {
                     $this->bundle_file = $this->purgeCss();
                 }
             }
             // Send the file to the CDN
-            if (!Config::get('web.cdn.enabled', true)) {
+            if (!config()->get('web.cdn.enabled', true)) {
                 $this->bundle_file = Cdn::addFiles($this->bundle_file);
             }
             // Add the bundle file to the page
@@ -163,7 +163,7 @@ class Bundler
     protected function newBundle(array $files, string $extension): void
     {
         $admin_path = (Request::isRequestType(EnumRequestTypes::admin) ? 'admin/' : '');
-        $this->extension   = (Config::get('web.minify', true) ? '.min.' . $extension : '.' . $extension);
+        $this->extension   = (config()->get('web.minify', true) ? '.min.' . $extension : '.' . $extension);
         $this->directory   = DIRECTORY_WEB . LANGUAGE . '/' . $admin_path . 'pub/' . $extension . '/';
         $this->bundle_file = Strings::force($files);
         $this->bundle_file = substr(sha1($this->bundle . Core::FRAMEWORK_CODE_VERSION), 1, 32);
@@ -195,7 +195,7 @@ class Bundler
             return false;
         }
         // Bundle files are essentially cached files. Ensure the cache is not too old
-        if (Config::get('cache.bundler.max-age', 3600) and (filemtime($bundle_file) + Config::get('cache.bundler.max-age', 3600)) < time()) {
+        if (config()->get('cache.bundler.max-age', 3600) and (filemtime($bundle_file) + config()->get('cache.bundler.max-age', 3600)) < time()) {
             Log::warning(tr('Deleting expired cached bundle file ":file"', [':file' => $bundle_file]));
             PhoFile::new($bundle_file, $this->restrictions)
                 ->delete();
@@ -250,14 +250,14 @@ class Bundler
                          }
                          if (Debug::isEnabled()) {
                              PhoFile::new($this->bundle_file, $this->restrictions)
-                                 ->append("\n/* *** BUNDLER FILE \"" . $org_file . "\" *** */\n" . $data . (Config::get('web.minify', true) ? '' : "\n"));
+                                 ->append("\n/* *** BUNDLER FILE \"" . $org_file . "\" *** */\n" . $data . (config()->get('web.minify', true) ? '' : "\n"));
 
                          } else {
                              PhoFile::new($this->bundle_file, $this->restrictions)
-                                 ->append($data . (Config::get('web.minify', true) ? '' : "\n"));
+                                 ->append($data . (config()->get('web.minify', true) ? '' : "\n"));
                          }
                          if ($this->count) {
-                             chmod($this->bundle_file, Config::get('filesystem.mode.files', 0640));
+                             chmod($this->bundle_file, config()->get('filesystem.mode.files', 0640));
                          }
                      }
                  });

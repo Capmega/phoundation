@@ -133,7 +133,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
             // column
             switch ($column) {
                 case 'name':
-                    $mount = Config::getArray('filesystem.mounts.' . $this->identifier);
+                    $mount = config()->getArray('filesystem.mounts.' . $this->identifier);
 
                     return static::newFromSource($mount)->setMetaEnabled($this->meta_enabled)
                                                         ->setIgnoreDeleted($this>$this->ignore_deleted);
@@ -260,7 +260,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
      */
     public function autoMount(): ?bool
     {
-        if (Config::getBoolean('filesystem.automounts.enabled', false)) {
+        if (config()->getBoolean('filesystem.automounts.enabled', false)) {
             return false;
         }
         // This path is inside a mount

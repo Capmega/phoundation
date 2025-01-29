@@ -66,7 +66,7 @@ if (Request::isPostRequestMethod()) {
         } catch (AuthenticationException $e) {
             // Oops! The Current password was wrong
             Response::getFlashMessagesObject()->addWarning(tr('Please specify at least ":count" characters for the password', [
-                ':count' => Config::getInteger('security.passwords.size.minimum', 10),
+                ':count' => config()->getInteger('security.passwords.size.minimum', 10),
             ]));
 
         } catch (ValidationFailedException $e) {

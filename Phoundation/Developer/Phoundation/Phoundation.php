@@ -370,7 +370,7 @@ class Phoundation extends Project
     public function patch(?string $branch, ?string $message, ?bool $sign = null, bool $checkout = true, bool $update = true): void
     {
         $project = new Project();
-        $sign    = $sign ?? Config::getBoolean('developer.phoundation.patch.sign', true);
+        $sign    = $sign ?? config()->getBoolean('developer.phoundation.patch.sign', true);
         $branch  = $project->getBranch($branch);
 
         Log::action(tr('Patching branch ":branch" on your local Phoundation repository from this project', [

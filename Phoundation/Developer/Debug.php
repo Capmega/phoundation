@@ -99,7 +99,7 @@ class Debug
      */
     public static function printStatistics(): bool
     {
-        return Config::getBoolean('debug.statistics', false);
+        return config()->getBoolean('debug.statistics', false);
     }
 
 
@@ -284,7 +284,7 @@ class Debug
             }
 
             $loop            = true;
-            static::$enabled = Config::getBoolean('debug.enabled', false);
+            static::$enabled = config()->getBoolean('debug.enabled', false);
             $loop            = false;
         }
 
@@ -337,7 +337,7 @@ class Debug
 
         if ($full_backtrace === null) {
             // Show debug backtraces starting from commands or full?
-            $full_backtrace = Config::getBoolean('debug.backtrace.full', false);
+            $full_backtrace = config()->getBoolean('debug.backtrace.full', false);
         }
 
         try {
@@ -1167,7 +1167,7 @@ class Debug
         if (!Debug::isEnabled()) {
             return '';
         }
-        $enabled = Config::get('debug.bar.enabled', false);
+        $enabled = config()->get('debug.bar.enabled', false);
         if ($enabled === false) {
             return null;
         }
@@ -1183,7 +1183,7 @@ class Debug
             }
         } elseif ($enabled !== true) {
             throw new CoreException(tr('Unknown configuration option ":option" specified. Please specify true, false, or "limited"', [
-                ':option' => Config::get('debug.bar', false),
+                ':option' => config()->get('debug.bar', false),
             ]));
         }
         // Add debug bar javascript directly to the footer, as this debug bar is added AFTER html_generate_js() and so

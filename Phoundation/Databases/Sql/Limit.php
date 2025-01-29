@@ -30,6 +30,6 @@ class Limit
      */
     static function shellAutoCompletion(int $limit = 100_000): int
     {
-        return Config::getInteger('shell.autocomplete.limit', $limit);
+        return config()->getInteger('shell.autocomplete.limit', $limit);
     }
 }

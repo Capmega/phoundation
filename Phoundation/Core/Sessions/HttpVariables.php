@@ -47,7 +47,7 @@ abstract class HttpVariables extends Iterator
      */
     public static function decodeVariables(array &$variables): void
     {
-        if (!Config::getBoolean('www.http.variables.encode', false)) {
+        if (!config()->getBoolean('www.http.variables.encode', false)) {
             // Don't encode / decode HTTP variables
             return;
         }
@@ -70,7 +70,7 @@ abstract class HttpVariables extends Iterator
      */
     protected static function encodeVariables(array &$variables): void
     {
-        if (!Config::getBoolean('www.http.variables.encode', false)) {
+        if (!config()->getBoolean('www.http.variables.encode', false)) {
             // Don't encode / decode HTTP variables
             return;
         }

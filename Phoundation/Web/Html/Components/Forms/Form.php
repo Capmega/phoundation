@@ -98,7 +98,7 @@ class Form extends Element implements FormInterface
 
         $this->setRequestMethod(EnumHttpRequestMethod::post)
              ->setElement('form')
-             ->setAcceptCharset(Config::get('languages.encoding.', 'utf-8'));
+             ->setAcceptCharset(config()->get('languages.encoding.', 'utf-8'));
     }
 
 

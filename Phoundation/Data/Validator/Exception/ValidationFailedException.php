@@ -43,7 +43,7 @@ class ValidationFailedException extends ValidatorException implements Validation
         parent::__construct($messages, $previous);
         $this->makeWarning();
 
-        if (!Core::inBootState() and Config::getBoolean('security.validation.failures.log', true) and !Config::getBoolean('debug.exceptions.log.auto.enabled', false)) {
+        if (!Core::inBootState() and config()->getBoolean('security.validation.failures.log', true) and !config()->getBoolean('debug.exceptions.log.auto.enabled', false)) {
             // Automatically log validation failures, but only once!
             if (empty($previous)) {
                 Log::warning($this);

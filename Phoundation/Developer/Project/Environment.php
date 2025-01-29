@@ -187,7 +187,7 @@ class Environment
     public function remove(): bool
     {
         // Use the requested environment
-        Config::setEnvironment($this->name);
+        Config::setDefaultEnvironment($this->name);
         Log::action(tr('Removing environment ":env"', [':env' => strtolower($this->name)]));
         // Drop core database
         try {
@@ -203,8 +203,8 @@ class Environment
             ]));
         }
         // Stop using this environment, if it was used
-        if (Config::getEnvironment() === $this->name) {
-            Config::setEnvironment('');
+        if (config()->getEnvironment() === $this->name) {
+            Config::setDefaultEnvironment('');
         }
         // delete the environment configuration file
         PhoFile::new(static::getConfigurationFile($this->name), PhoRestrictions::new(DIRECTORY_ROOT . 'config/', true))
@@ -227,11 +227,11 @@ class Environment
             ]));
             // Create production configuration
             if ($this->name !== 'production') {
-                Config::setEnvironment('production');
+                Config::setDefaultEnvironment('production');
                 Config::import($this->getConfiguration());
                 Config::save();
             }
-            Config::setEnvironment($this->name);
+            Config::setDefaultEnvironment($this->name);
             Config::import($this->getConfiguration());
             Config::save();
 

@@ -186,8 +186,8 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
         // Log all exceptions EXCEPT LogExceptions as those can cause endless loops
         if (!$this instanceof LogException) {
             if (Debug::isEnabled()) {
-                if (Config::getBoolean('debug.exceptions.log.auto.enabled', false)) {
-                    if (Config::getBoolean('debug.exceptions.log.auto.full', true)) {
+                if (config()->getBoolean('debug.exceptions.log.auto.enabled', false)) {
+                    if (config()->getBoolean('debug.exceptions.log.auto.full', true)) {
                         $this->message = $messages;
                         Log::error($this, 2);
 
@@ -725,7 +725,7 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
             $warning = false;
         }
 
-        if (!Core::inBootState() and !Config::getBoolean('debug.exceptions.warnings', true)) {
+        if (!Core::inBootState() and !config()->getBoolean('debug.exceptions.warnings', true)) {
             // No warnings allowed from the configuration
             $warning = false;
         }

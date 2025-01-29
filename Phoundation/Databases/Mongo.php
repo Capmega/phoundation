@@ -170,7 +170,7 @@ class Mongo implements DatabaseInterface
 //        $this->instance = $instance;
 //
 //        try {
-//            $configuration = Config::get('databases.mongo.connectors.' . $instance);
+//            $configuration = config()->get('databases.mongo.connectors.' . $instance);
 //        } catch (ConfigPathDoesNotExistsException $e) {
 //            throw new MongoException(tr('The specified mongo instance ":instance" is not configured', [
 //                ':instance' => $instance

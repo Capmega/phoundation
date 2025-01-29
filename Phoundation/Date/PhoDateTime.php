@@ -232,7 +232,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public static function newFirstDayOfWeek(DateTimeZone|string|null $timezone = null): static
     {
-        return new static(SessionConfig::getString('datetime.week.start', 'monday') . ' this week', PhoDateTimeZone::new($timezone));
+        return new static(Sessionconfig()->getString('datetime.week.start', 'monday') . ' this week', PhoDateTimeZone::new($timezone));
     }
 
 
@@ -245,7 +245,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public static function newLastDayOfWeek(DateTimeZone|string|null $timezone = null): static
     {
-        return new static(SessionConfig::getString('datetime.week.stop', 'sunday') . ' this week', PhoDateTimeZone::new($timezone));
+        return new static(Sessionconfig()->getString('datetime.week.stop', 'sunday') . ' this week', PhoDateTimeZone::new($timezone));
     }
 
 
@@ -336,16 +336,16 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
     {
         switch (strtolower($format)) {
             case 'human_time':
-                return SessionConfig::getString('locale.dates.formats.human.time', 'H:i:s');
+                return Sessionconfig()->getString('locale.dates.formats.human.time', 'H:i:s');
 
             case 'human_date':
-                return SessionConfig::getString('locale.dates.formats.human.date', PhoDateFormats::getDefaultPhp());
+                return Sessionconfig()->getString('locale.dates.formats.human.date', PhoDateFormats::getDefaultPhp());
 
             case 'human_datetime':
                 // no break
 
             case 'human_date_time':
-                return SessionConfig::getString('locale.dates.formats.human.datetime', PhoDateTimeFormats::getDefaultPhp());
+                return Sessionconfig()->getString('locale.dates.formats.human.datetime', PhoDateTimeFormats::getDefaultPhp());
 
             case 'iso_date':
                 return 'd-m-Y';

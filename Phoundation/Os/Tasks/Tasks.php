@@ -52,7 +52,7 @@ class Tasks extends DataIterator implements TasksInterface
     public function __construct(ArrayableInterface|array|null $source = null)
     {
         if (!isset(static::$max_task_workers)) {
-            static::$max_task_workers = Config::getInteger('tasks.workers.maximum', 25);
+            static::$max_task_workers = config()->getInteger('tasks.workers.maximum', 25);
         }
 
         parent::__construct($source);

@@ -74,7 +74,7 @@ class Sanitize
     public function phoneNumber(): static
     {
         $value  = trim((string) $this->source);
-        $prefix = (str_starts_with($value, '+') ? '+' : SessionConfig::getString('validation.defaults.phones.country-code', '+1'));
+        $prefix = (str_starts_with($value, '+') ? '+' : Sessionconfig()->getString('validation.defaults.phones.country-code', '+1'));
         $ext    = Strings::from($value, 'ext', needle_required: true);
         $value  = preg_replace('/[^0-9]+/', '', $value);
         $ext    = preg_replace('/[^0-9]+/', '', $ext);

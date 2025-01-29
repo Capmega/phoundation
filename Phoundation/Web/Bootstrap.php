@@ -36,6 +36,6 @@ class Bootstrap implements BootstrapInterface
             $default_to = $default_to->value;
         }
 
-        return EnumContainerTier::from(Config::getString('web.bootstrap.grid.container-tier', $default_to));
+        return EnumContainerTier::from(config()->getString('web.bootstrap.grid.container-tier', $default_to));
     }
 }

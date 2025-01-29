@@ -40,6 +40,6 @@ class PhoDateTimeFormats extends PhoDateFormats
      */
     public static function getSupportedPhp(): IteratorInterface
     {
-        return Config::getIterator('locale.formats.datetime', static::$defaults);
+        return config()->getIteratorObject('locale.formats.datetime', static::$defaults);
     }
 }

@@ -285,7 +285,7 @@ class Plugins extends DataIterator implements PluginsInterface
 
                 Log::error($e);
 
-                if (Config::getBoolean('plugins.error.startup.disable', true)) {
+                if (config()->getBoolean('plugins.error.startup.disable', true)) {
                     if (!Debug::isEnabled()) {
                         Log::warning(tr('Disabling plugin ":vendor/:plugin" because it failed on startup', [
                             ':vendor' => $plugin['vendor'],
@@ -401,7 +401,7 @@ class Plugins extends DataIterator implements PluginsInterface
      */
     protected static function loadBlacklist(): array
     {
-        $blacklist = Config::getArray('plugins.blacklist', []);
+        $blacklist = config()->getArray('plugins.blacklist', []);
         $return    = [];
 
         if ($blacklist) {

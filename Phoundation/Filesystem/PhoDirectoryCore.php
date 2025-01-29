@@ -473,11 +473,11 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
 
         // Check configuration
         if (!$length) {
-            $length = Config::getInteger('filesystem.target-directory.size', 8);
+            $length = config()->getInteger('filesystem.target-directory.size', 8);
         }
 
         if ($single === null) {
-            $single = Config::getBoolean('filesystem.target-directory.single', false);
+            $single = config()->getBoolean('filesystem.target-directory.single', false);
         }
 
         $this->source = Strings::unslash(PhoDirectory::new($this->source, $this->restrictions)
@@ -539,7 +539,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
      */
     public function ensure(string|int|null $mode = null, ?bool $clear = false, bool $sudo = false): static
     {
-        $mode = Config::get('filesystem.mode.directories', 0750, $mode);
+        $mode = config()->get('filesystem.mode.directories', $mode ?? 0750);
 
         if ($clear) {
             // Delete the currently existing directory, so we can  be sure we have a clean directory to work with
@@ -603,7 +603,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
             // Some other file is in the way. Delete the file, and retry.
             // Ensure that the "file" is not accidentally specified as a directory ending in a /
             PhoFile::new(Strings::ensureEndsNotWith($this->source, '/'), $this->restrictions)
-                ->delete(false, $sudo);
+                   ->delete(false, $sudo);
 
             return $this->ensure($mode, $clear, $sudo);
         }
@@ -982,7 +982,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
     public function ensureWritable(?int $mode = null): static
     {
         // Get configuration. We need file and directory default modes
-        $mode = Config::get('filesystem.mode.default.directory', 0750, $mode);
+        $mode = config()->get('filesystem.mode.default.directory', 0750, $mode);
 
         if (!$this->ensureFileWritable($mode)) {
             Log::action(tr('Creating non existing directory ":file" with file mode ":mode"', [

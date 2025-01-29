@@ -224,10 +224,10 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
         parent::__construct($from);
 
         // Set defaults
-        $this->setPagingEnabled(Config::getBoolean('data.paging.enabled', true))
-             ->setPagingType(EnumPagingType::from(Config::getString('data.paging.type', 'simple_numbers')))
-             ->setPageLength(Config::getInteger('data.paging.limit', 25))
-             ->setOrderClassesEnabled(Config::getBoolean('data.paging.order-classes', true))
+        $this->setPagingEnabled(config()->getBoolean('data.paging.enabled', true))
+             ->setPagingType(EnumPagingType::from(config()->getString('data.paging.type', 'simple_numbers')))
+             ->setPageLength(config()->getInteger('data.paging.limit', 25))
+             ->setOrderClassesEnabled(config()->getBoolean('data.paging.order-classes', true))
              ->setButtons([
                  'copy',
                  'csv',

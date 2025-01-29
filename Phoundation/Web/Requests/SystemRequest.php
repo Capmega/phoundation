@@ -155,7 +155,7 @@ class SystemRequest implements SystemRequestInterface
             Log::warning('Not registering request as non HTTP-200 URL, invalid environment specified');
 
         } else {
-            if (Config::getBoolean('security.web.monitor.urls.non-200', true)) {
+            if (config()->getBoolean('security.web.monitor.urls.non-200', true)) {
                 if (!Core::getReadonly()) {
                     Non200Url::new()
                         ->generate($http_code)
@@ -343,10 +343,10 @@ class SystemRequest implements SystemRequestInterface
         Log::warning(tr('Found no applicable routes or webserver called for 404, testing for hacks'));
 
         // Test the URI for known hacks. If so, apply configured response
-        if (Config::get('web.route.known-hacks', false)) {
+        if (config()->get('web.route.known-hacks', false)) {
             Log::warning(tr('Applying known hacking rules'));
 
-            foreach (Config::get('web.route.known-hacks') as $hacks) {
+            foreach (config()->get('web.route.known-hacks') as $hacks) {
                 // TODO Fix this. This is old code and the specified method doesn't even exist anymore
                 static::try($hacks['regex'], isset_get($hacks['url']), isset_get($hacks['flags']));
             }

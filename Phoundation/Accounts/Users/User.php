@@ -349,7 +349,7 @@ class User extends DataEntry implements UserInterface
                 ]);
 
                 if ($user) {
-                    if ($user['verified_on'] or !Config::getBoolean('security.accounts.identify.email.verification.required', true)) {
+                    if ($user['verified_on'] or !config()->getBoolean('security.accounts.identify.email.verification.required', true)) {
                         $user = static::new($user['users_id'])->setMetaEnabled($this->meta_enabled)
                                                               ->setIgnoreDeleted($this->ignore_deleted)
                                                               ->load();
@@ -762,7 +762,7 @@ class User extends DataEntry implements UserInterface
     {
         if ($this->isCreated()) {
             // Get user default roles and the user roles object
-            $roles   = Config::get('security.accounts.roles.default', '');
+            $roles   = config()->get('security.accounts.roles.default', '');
             $o_roles = $this->getRolesObject();
 
             if ($roles) {
@@ -846,13 +846,13 @@ class User extends DataEntry implements UserInterface
             $key = $this->getSigninKey()->generate(Url::new('/force-password-update.html')->makeWww());
 
             $this->notify()?->setTitle(tr('An account has been created for you on :project', [
-                                  ':project' => Config::getString('project.name', 'Phoundation')
+                                  ':project' => config()->getString('project.name', 'Phoundation')
                               ]))
                               ->setMessage(tr('An account has been created on :project by :user. To enter the system, you can click the link :link or copy/paste the :url in your browser. This will immediately take you to your account where you only have to enter your desired password', [
                                   ':url'     => $key->getUrl(),
                                   ':link'    => '<a href="' . $key->getUrl() . '">' . tr('here') . '</a>',
                                   ':user'    => Session::getUserObject()->getDisplayName(),
-                                  ':project' => Config::getString('project.name', 'Phoundation'),
+                                  ':project' => config()->getString('project.name', 'Phoundation'),
                               ]))
                               ->save()
                               ->send();
@@ -874,7 +874,7 @@ class User extends DataEntry implements UserInterface
         }
 
         $this->notify()?->setTitle(tr('Your :project account has been modified', [
-                            ':project' => Config::getString('project.name', 'Phoundation')
+                            ':project' => config()->getString('project.name', 'Phoundation')
                         ]))
                         ->setMessage($message)
                         ->save()
@@ -3004,7 +3004,7 @@ class User extends DataEntry implements UserInterface
                                            ->setSize(4)
                                            ->setDataSource(Url::new('system/accounts/users/redirect/autosuggest.json')->makeAjax())
                                            ->setInputType(EnumInputType::auto_suggest)
-                                           ->setInitialDefault($this->getRemoteId() ? null : Url::new(Config::getString('security.accounts.users.new.defaults.redirect', '/force-password-update.html'))->makeWww())
+                                           ->setInitialDefault($this->getRemoteId() ? null : Url::new(config()->getString('security.accounts.users.new.defaults.redirect', '/force-password-update.html'))->makeWww())
                                            ->setLabel(tr('Redirect URL'))
                                            ->setHelpGroup(tr('Account information'))
                                            ->setHelpText(tr('The URL where this user will be forcibly redirected to upon sign in')))

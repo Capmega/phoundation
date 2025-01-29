@@ -21,8 +21,10 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Hooks\Interfaces\HookInterface;
+use Phoundation\Core\Interfaces\ConfigInterface;
 use Phoundation\Core\Interfaces\FloatableInterface;
 use Phoundation\Core\Interfaces\IntegerableInterface;
+use Phoundation\Core\Log\Interfaces\LogInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
@@ -896,12 +898,12 @@ function pick_random_multiple(int $count, mixed ...$arguments): string|array
 function show(mixed $source = null, bool $sort = true, int $trace_offset = 1, bool $quiet = false, bool $var_dump = false): mixed
 {
     if (Debug::isEnabled()) {
-        if (Core::inStartupState() and Config::getBoolean('debug.startup', false)) {
+        if (Core::inStartupState() and config()->getBoolean('debug.startup', false)) {
             // Startup debugging may not have all libraries loaded required for Debug::show(), use show_system() instead
             return show_system($source, false);
         }
 
-        if (Core::inShutdownState() and Config::getBoolean('debug.shutdown', false)) {
+        if (Core::isStateShutdown() and config()->getBoolean('debug.shutdown', false)) {
             return Debug::show($source, $sort, $trace_offset, $quiet, var_dump: $var_dump);
         }
 
@@ -987,12 +989,12 @@ function showbacktrace(int $count = 0, int $trace_offset = 2, bool $quiet = fals
 #[NoReturn] function showdie(mixed $source = null, bool $sort = true, int $trace_offset = 2, bool $quiet = false, bool $var_dump = false): void
 {
     if (Debug::isEnabled()) {
-        if (Core::inStartupState() and Config::getBoolean('debug.startup', false)) {
+        if (Core::inStartupState() and config()->getBoolean('debug.startup', false)) {
             // Startup debugging may not have all libraries loaded required for Debug::show(), use show_system() instead
             show_system($source);
         }
 
-        if (Core::inShutdownState() and Config::getBoolean('debug.shutdown', false)) {
+        if (Core::isStateShutdown() and config()->getBoolean('debug.shutdown', false)) {
             Debug::showdie($source, $sort, $trace_offset, $quiet, $var_dump);
         }
 
@@ -1410,10 +1412,10 @@ function show_system(mixed $source = null, bool $die = true, bool $sort = true):
     if (!Core::userScriptRunning()) {
         $do = true;
 
-    } elseif (Core::inShutdownState() and Config::getBoolean('debug.shutdown', false)) {
+    } elseif (Core::isStateShutdown() and config()->getBoolean('debug.shutdown', false)) {
         $do = true;
 
-    } elseif (Core::inStartupState() and Config::getBoolean('debug.startup', false)) {
+    } elseif (Core::inStartupState() and config()->getBoolean('debug.startup', false)) {
         $do = true;
     }
 
@@ -1763,6 +1765,33 @@ function datatype_is_class(string $datatype): bool
         'NULL'  => false,
         default => true
     };
+}
+
+
+/**
+ * Returns a ConfigInterface object for the specified section and environment
+ *
+ * @param string      $section
+ * @param string|null $environment
+ *
+ * @return ConfigInterface
+ */
+function config(string $section = 'default', ?string $environment = null): ConfigInterface
+{
+    return Config::fromSection($section, $environment);
+}
+
+
+/**
+ * Returns a LogInterface object that will log to the specified file
+ *
+ * @param string $file
+ *
+ * @return LogInterface
+ */
+function logmsg(string $file = 'syslog'): LogInterface
+{
+    return Log::toFile($file);
 }
 
 

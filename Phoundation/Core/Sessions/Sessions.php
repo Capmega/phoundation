@@ -43,7 +43,7 @@ class Sessions
     public static function clean(?int $age_in_minutes): void
     {
         if (!$age_in_minutes) {
-            $age_in_minutes = Config::getInteger('tmp.clean.age', 1440);
+            $age_in_minutes = config()->getInteger('tmp.clean.age', 1440);
         }
 
         Log::action(tr('Cleaning session files older than ":age" minutes', [

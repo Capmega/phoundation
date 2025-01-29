@@ -106,7 +106,7 @@ if (Request::isPostRequestMethod()) {
         ]);
 
         $mail->Subject = tr('[:project] Lost password request', [
-            ':project' => Config::getString('project.name', 'Phoundation') . ((ENVIRONMENT === 'production') ? ' - ' . strtoupper(ENVIRONMENT) : ''),
+            ':project' => config()->getString('project.name', 'Phoundation') . ((ENVIRONMENT === 'production') ? ' - ' . strtoupper(ENVIRONMENT) : ''),
         ]);
 
 //        $mail->SMTPDebug = SMTP::DEBUG_SERVER;

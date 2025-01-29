@@ -92,7 +92,7 @@ class PushNotification extends PushOver implements PushNotificationInterface
      */
     public function setDriver(?string $driver, ?string $token): static
     {
-        $driver = $driver ?? Config::getString('notifications.push.drivers.default', 'pushover');
+        $driver = $driver ?? config()->getString('notifications.push.drivers.default', 'pushover');
 
         switch ($driver) {
             case 'pushover':

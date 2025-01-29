@@ -83,7 +83,7 @@ class Web
 //
 //        // Use url_prefix, for URL's like domain.com/en/admin/page.html, where "/admin/" is the prefix
 //        if ($prefix === null) {
-//            $prefix = Config::get('web.url.prefix', '');
+//            $prefix = config()->get('web.url.prefix', '');
 //        }
 //
 //        $prefix   = Strings::startsNotWith(Strings::endsWith($prefix, '/'), '/');
@@ -103,7 +103,7 @@ class Web
 //
 //        // Do language mapping, but only if routemap has been set
 //// :TODO: This will fail when using multiple CDN servers (WHY?)
-//        if (!empty(Config::get('language.supported', [])) and ($domain !== Config::get('cdn.domain', '') . '/')) {
+//        if (!empty(config()->get('language.supported', [])) and ($domain !== config()->get('cdn.domain', '') . '/')) {
 //            if ($from_language !== 'en') {
 //                /*
 //                 * Translate the current non-English URL to English first
@@ -158,7 +158,7 @@ class Web
 //            $return = Strings::until($return, '?');
 //        }
 //
-//        if ($allow_cloak and Config::get('web.url.cloaking.enabled', false)) {
+//        if ($allow_cloak and config()->get('web.url.cloaking.enabled', false)) {
 //            // Cloak the URL before returning it
 //            $return = Url::cloak($return);
 //        }

@@ -32,7 +32,7 @@ class ApacheVirtualHost extends Virtualhost
     {
         // Build the apache virtualhost file & target link
         $domain  = $this->domain;
-        $domain  = Config::getString('web.domains.' . $domain . '.' . $this->type);
+        $domain  = config()->getString('web.domains.' . $domain . '.' . $this->type);
         $domain  = Strings::from($domain, '//');
         $domain  = Strings::until($domain, '/');
         $secure  = !str_ends_with($domain, '.local');

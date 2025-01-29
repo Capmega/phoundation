@@ -381,7 +381,7 @@ class Repositories extends IteratorCore implements RepositoriesInterface
         $this->scanned_paths = new Iterator();
 
         // Allow for configured search paths
-        $directories = Config::getArray('development.repositories.search.paths', [
+        $directories = config()->getArray('development.repositories.search.paths', [
             '~/projects/',
             '~/PhpstormProjects/',
             '~/PhpStormProjects/',

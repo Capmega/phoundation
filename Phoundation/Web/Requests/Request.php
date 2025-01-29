@@ -459,7 +459,7 @@ class Request implements RequestInterface
      */
     public static function detectRequestedLanguage(): string
     {
-        $languages = Config::getArray('language.supported', []);
+        $languages = config()->getArray('language.supported', []);
 
         switch (count($languages)) {
             case 0:
@@ -474,7 +474,7 @@ class Request implements RequestInterface
 
                 if (empty($requested)) {
                     // Go for default language
-                    return Config::getString('languages.default', 'en');
+                    return config()->getString('languages.default', 'en');
                 }
 
                 foreach ($requested as $locale) {
@@ -496,7 +496,7 @@ class Request implements RequestInterface
                             ]))
                             ->send();
 
-                return Config::getString('languages.default', 'en');
+                return config()->getString('languages.default', 'en');
         }
     }
 
@@ -523,8 +523,8 @@ class Request implements RequestInterface
             // No accept language headers were specified
             $return = [
                 '1.0' => [
-                    'language' => Config::get('languages.default', 'en'),
-                    'locale'   => Strings::cut(Config::get('locale.LC_ALL', 'US'), '_', '.'),
+                    'language' => config()->get('languages.default', 'en'),
+                    'locale'   => Strings::cut(config()->get('locale.LC_ALL', 'US'), '_', '.'),
                 ],
             ];
 
@@ -556,7 +556,7 @@ class Request implements RequestInterface
                     'locale'   => (str_contains($requested, '-') ? Strings::from($requested, '-') : null),
                 ];
 
-                if (empty(Config::get('language.supported', [])[$requested['language']])) {
+                if (empty(config()->get('language.supported', [])[$requested['language']])) {
                     continue;
                 }
 
@@ -581,10 +581,10 @@ class Request implements RequestInterface
             return (int) $_SERVER['SERVER_PORT'];
         }
         // We're on a command line
-        $config = Config::getArray('web.domains.primary');
+        $config = config()->getArray('web.domains.primary');
         if (array_key_exists('port', $config)) {
             // Return configured WWW port
-            return Config::getInteger('web.domains.primary.port');
+            return config()->getInteger('web.domains.primary.port');
         }
         if (substr($config['web'], 4, 1) === 's') {
             // Return default HTTPS port
@@ -651,7 +651,7 @@ class Request implements RequestInterface
             return $_SERVER['REQUEST_SCHEME'];
         }
 
-        return Strings::until(Config::getString('web.domains.primary.web'), '://');
+        return Strings::until(config()->getString('web.domains.primary.web'), '://');
     }
 
 
@@ -669,7 +669,7 @@ class Request implements RequestInterface
         }
 
         // This is a command line process, things like the request scheme are not available!
-        $url = Config::getString('web.domains.primary.web');
+        $url = config()->getString('web.domains.primary.web');
         $url = str_replace(':LANGUAGE', Session::getLanguage(), $url);
 
         return $url;
@@ -1093,7 +1093,7 @@ class Request implements RequestInterface
             } elseif (str_starts_with($_SERVER['SERVER_NAME'], 'cdn')) {
                 $request_type = EnumRequestTypes::file;
 
-            } elseif (Config::get('web.html.amp.enabled', false) and (!empty($_GET['amp']) or (str_starts_with($_SERVER['SERVER_NAME'], 'amp')))) {
+            } elseif (config()->get('web.html.amp.enabled', false) and (!empty($_GET['amp']) or (str_starts_with($_SERVER['SERVER_NAME'], 'amp')))) {
                 $request_type = EnumRequestTypes::amp;
 
             } elseif (is_numeric(substr($target, -3, 3))) {

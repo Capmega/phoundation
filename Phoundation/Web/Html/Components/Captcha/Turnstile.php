@@ -89,7 +89,7 @@ class Turnstile extends Captcha
         if (!$secret) {
             // Use configured secret key
             if (Core::isProductionEnvironment()) {
-                $secret = Config::getString('security.web.captcha.turnstile.secret');
+                $secret = config()->getString('security.web.captcha.turnstile.secret');
 
             } else {
                 // This is a test key, should only be used in non production environments
@@ -138,7 +138,7 @@ class Turnstile extends Captcha
         // Get captcha public key
         // TODO: Change this to some testing mode, taken from Core
         if (Core::isProductionEnvironment()) {
-            $key = Config::getString('security.web.captcha.turnstile.key');
+            $key = config()->getString('security.web.captcha.turnstile.key');
         } else {
             // This is a test key, should only be used in non production environments
             $key = '';

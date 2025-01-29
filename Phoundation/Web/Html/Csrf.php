@@ -58,7 +58,7 @@ class Csrf
     public static function getHiddenElement(string $method = 'post'): ?string
     {
         if ($method === 'post') {
-            if (Config::getBoolean('security.web.csrf.enabled', true)) {
+            if (config()->getBoolean('security.web.csrf.enabled', true)) {
                 return '<input type="hidden" name="__csrf" value="' . Csrf::get() . '">';
             }
         }
@@ -76,7 +76,7 @@ class Csrf
     public static function init(?string $prefix = null): string
     {
         // Generate CSRF code and cache it
-        if (Config::getBoolean('security.web.csrf.strict', true)) {
+        if (config()->getBoolean('security.web.csrf.strict', true)) {
             static::validateBuffer();
 
             $csrf = $prefix . Strings::unique('sha256');
@@ -170,7 +170,7 @@ class Csrf
             }
 
             // Execute the CSRF check
-            if (Config::getBoolean('security.web.csrf.strict', true)) {
+            if (config()->getBoolean('security.web.csrf.strict', true)) {
                 // Execute a strict CSRF check
                 return static::checkStrict($csrf);
             }
@@ -255,8 +255,8 @@ class Csrf
         unset($_SESSION['csrf'][$csrf]);
 
         // Code timed out?
-        if (Config::get('security.web.csrf.timeout', 3600)) {
-            if (($timestamp + Config::get('security.web.csrf.timeout')) < $now->getTimestamp()) {
+        if (config()->get('security.web.csrf.timeout', 3600)) {
+            if (($timestamp + config()->get('security.web.csrf.timeout')) < $now->getTimestamp()) {
                 throw CsrfFailedException::new(tr('Specified CSRF ":code" timed out, removed it from session buffer', [
                     ':code' => $csrf,
                 ]))->makeWarning();
@@ -280,7 +280,7 @@ class Csrf
      */
     protected static function validateCsrf(?string $csrf): bool
     {
-        if (!Config::get('security.web.csrf.enabled', true)) {
+        if (!config()->get('security.web.csrf.enabled', true)) {
             // CSRF check system has been disabled
             return false;
         }
@@ -317,7 +317,7 @@ class Csrf
     protected static function validateBuffer(): void
     {
         // Avoid people messing around
-        $max_count = Config::get('security.web.csrf.buffer.size', 50);
+        $max_count = config()->get('security.web.csrf.buffer.size', 50);
 
         if (isset($_SESSION['csrf'])) {
             if (!is_array($_SESSION['csrf'])) {

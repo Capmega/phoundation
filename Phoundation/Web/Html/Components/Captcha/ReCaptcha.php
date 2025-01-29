@@ -89,7 +89,7 @@ class ReCaptcha extends Captcha
         if (!$secret) {
             // Use configured secret key
             if (Core::isProductionEnvironment()) {
-                $secret = Config::getString('security.web.captcha.recaptcha.secret');
+                $secret = config()->getString('security.web.captcha.recaptcha.secret');
 
             } else {
                 // This is a test key, should only be used in non production environments
@@ -138,7 +138,7 @@ class ReCaptcha extends Captcha
         // Get captcha public key
         // TODO: Change this to some testing mode, taken from Core
         if (Core::isProductionEnvironment()) {
-            $key = Config::getString('security.web.captcha.recaptcha.key');
+            $key = config()->getString('security.web.captcha.recaptcha.key');
 
         } else {
             // This is a test key, should only be used in non production environments

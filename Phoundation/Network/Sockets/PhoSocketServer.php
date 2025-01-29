@@ -40,7 +40,7 @@ class PhoSocketServer extends PhoSocketServerCore
             $this->setListenAddress($address)
                  ->setListenPort($port)
                  ->setTimeout($timeout)
-                 ->setUSleep(Config::getInteger('network.sockets.usleep', 10));
+                 ->setUSleep(config()->getInteger('network.sockets.usleep', 10));
 
         } catch (Throwable $e) {
             throw SocketServerException::new($e->getMessage(), $e);

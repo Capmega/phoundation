@@ -39,7 +39,7 @@ class PhoDateTimeZone extends \DateTimeZone implements PhoDateTimeZoneInterface
                     // Default to system timezone
 
                 case 'system':
-                    $detected = Config::get('locale.timezone', 'UTC');
+                    $detected = config()->get('locale.timezone', 'UTC');
                     break;
 
                 case 'server':
@@ -98,7 +98,7 @@ class PhoDateTimeZone extends \DateTimeZone implements PhoDateTimeZoneInterface
 
         if (empty($timezone)) {
             try {
-                $timezone = Config::get('server.timezone', exec('date +%Z'));
+                $timezone = config()->get('server.timezone', exec('date +%Z'));
 
             } catch (Throwable $e) {
                 throw new DateTimeZoneException(tr('Failed to get server timezone'), $e);

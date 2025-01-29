@@ -56,7 +56,7 @@ class Tag implements TagInterface
      */
     public function tag(string $message, string $annotation, ?string $commit = null, ?bool $signed = null): static
     {
-        $signed = $signed ?? Config::getBoolean('versioning.git.sign', true);
+        $signed = $signed ?? config()->getBoolean('versioning.git.sign', true);
 
         $this->git->clearArguments()
                   ->addArgument('tag')

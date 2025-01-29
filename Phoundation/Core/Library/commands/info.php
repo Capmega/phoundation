@@ -48,14 +48,14 @@ try {
 } catch (SqlUnknownDatabaseException $e) {
     $no_db = tr('Database does not exist');
 
-    define('FRAMEWORKDBVERSION', tr('Database ":db" does not exist', [':db' => Config::get('databases.sql.instances.system.name')]));
-    define('PROJECTDBVERSION', tr('Database ":db" does not exist', [':db' => Config::get('databases.sql.instances.system.name')]));
+    define('FRAMEWORKDBVERSION', tr('Database ":db" does not exist', [':db' => config()->get('databases.connectors.system.database')]));
+    define('PROJECTDBVERSION', tr('Database ":db" does not exist', [':db' => config()->get('databases.connectors.system.database')]));
 
 } catch (SqlAccessDeniedException $e) {
     $no_db = tr('Access denied');
 
-    define('FRAMEWORKDBVERSION', tr('Access denied to server or database ":db"', [':db' => Config::get('databases.sql.instances.system.name')]));
-    define('PROJECTDBVERSION', tr('Access denied to server or database ":db"', [':db' => Config::get('databases.sql.instances.system.name')]));
+    define('FRAMEWORKDBVERSION', tr('Access denied to server or database ":db"', [':db' => config()->get('databases.connectors.system.database')]));
+    define('PROJECTDBVERSION', tr('Access denied to server or database ":db"', [':db' => config()->get('databases.connectors.system.database')]));
 }
 
 $system_size    = 0;
@@ -68,7 +68,7 @@ $plugins   = Libraries::listLibraries(false, true, false);
 $templates = Libraries::listLibraries(false, false, true);
 
 //$framework_status = version_compare(Core::FRAMEWORKCODEVERSION, Core::getVersion('framework'));
-//$project_status   = version_compare(Config::get('project.version')  , Core::getVersion('project'));
+//$project_status   = version_compare(config()->get('project.version')  , Core::getVersion('project'));
 
 Log::cli(CliColor::apply(Strings::size(tr('Framework:'), 28), 'white') . ' ' . 'PHOUNDATION');
 Log::cli(CliColor::apply(Strings::size(tr('Project name:'), 28), 'white') . ' ' . PROJECT);
@@ -76,7 +76,7 @@ Log::cli(CliColor::apply(Strings::size(tr('Current platform:'), 28), 'white') . 
 Log::cli(CliColor::apply(Strings::size(tr('Environment:'), 28), 'white') . ' ' . ENVIRONMENT);
 Log::cli(CliColor::apply(Strings::size(tr('Production:'), 28), 'white') . ' ' . Strings::fromBoolean(Core::isProductionEnvironment()));
 Log::cli(CliColor::apply(Strings::size(tr('Debug:'), 28), 'white') . ' ' . Strings::fromBoolean(Debug::isEnabled()));
-Log::cli(CliColor::apply(Strings::size(tr('Core database:'), 28), 'white') . ' ' . Config::get('databases.sql.instances.system.name', 'unknown') . ($no_db ? ' (' . CliColor::apply(tr('NOT CONNECTED BECAUSE ":reason"', [':reason' => $no_db]), 'red') . ')' : ''));
+Log::cli(CliColor::apply(Strings::size(tr('Core database:'), 28), 'white') . ' ' . config()->get('databases.connectors.system.database', 'unknown') . ($no_db ? ' (' . CliColor::apply(tr('NOT CONNECTED BECAUSE ":reason"', [':reason' => $no_db]), 'red') . ')' : ''));
 
 Log::cli(' ');
 Log::cli(CliColor::apply(Strings::size(tr('System libraries:'), 28) . ' ' . Strings::size(tr('Code version'), 14) . Strings::size(tr('Database version'), 18) . Strings::size(tr('Size'), 14), 'white'));

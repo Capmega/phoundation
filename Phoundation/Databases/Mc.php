@@ -116,7 +116,7 @@ class Mc implements DatastoreInterface
 //    protected function readConfiguration(): void
 //    {
 //        // Read the configuration
-//        $this->configuration = Config::getArray('databases.connectors.' . $this->instance_name);
+//        $this->configuration = config()->getArray('databases.connectors.' . $this->instance_name);
 //
 //        // Ensure that all required keys are available
 //        Arrays::ensure($this->configuration, 'connections');
@@ -169,7 +169,7 @@ class Mc implements DatastoreInterface
         }
 
         // Memcached disabled?
-        if (!Config::get('databases.memcached.enabled', true)) {
+        if (!config()->get('databases.memcached.enabled', true)) {
             Log::warning('Not using memcached, its disabled by configuration "memcached.enabled"', 4);
 
         } else {

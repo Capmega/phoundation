@@ -99,7 +99,7 @@
  * An entire DataEntry object can be disabled, or made readonly (causing the HTML output to have all fields disabled or
  * readonly) using DataEntry::setReadonly(), DataEntry::getDisabled(), etc.
  *
- * DataEntry tables support loading from the database, but also loading from configuration using Config::getArray()).
+ * DataEntry tables support loading from the database, but also loading from configuration using config()->getArray()).
  * This requires the DataEntry::$configuration_path to be set and to load the DataEntry either with column null or
  * column equal to the DataEntry::getUniqueColumn() value for that DataEntry class. Please note that configuration
  * loaded DataEntry objects are readonly and do not have any metadata support

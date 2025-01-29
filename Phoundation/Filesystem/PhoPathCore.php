@@ -1215,7 +1215,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function attemptAutoMount(): bool
     {
-        if (Config::getBoolean('filesystem.automounts.enabled', false)) {
+        if (config()->getBoolean('filesystem.automounts.enabled', false)) {
             return false;
         }
 
@@ -3007,13 +3007,16 @@ class PhoPathCore implements PhoPathInterface
              ->checkClosed('open')
              ->mountIfNeeded();
 
-        Log::notice(tr('Opening file ":file" with mode ":mode"', [
-            ':file' => $this->source,
-            ':mode' => $mode->value,
-        ]), 2);
+//        if (Core::isState('script')) {
+//            Log::notice(tr('Opening file ":file" with mode ":mode"', [
+//                ':file' => $this->getRootname(),
+//                ':mode' => $mode->value,
+//            ]), 2);
+//        }
 
         try {
             $stream = fopen($this->source, $mode->value, false, $context);
+
         } catch (Throwable $e) {
             // Failed to open the target file
             $this->checkReadable('target', $e);
@@ -3145,7 +3148,7 @@ class PhoPathCore implements PhoPathInterface
         }
 
         Log::notice(tr('Closing file ":file"', [
-            ':file' => $this->source,
+            ':file' => $this->getRootname(),
         ]), 2);
 
         fclose($this->stream);
@@ -3249,6 +3252,11 @@ class PhoPathCore implements PhoPathInterface
      */
     public function putContents(string $data, int $flags = 0, $context = null): static
     {
+        Log::notice(tr('Putting ":count" bytes to file ":file"', [
+            ':file'  => $this->getRootname(),
+            ':count' => strlen($data)
+        ]), 2);
+
         // Make sure the file path exists. NOTE: FsRestrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
         $this->checkRestrictions(true)
@@ -3273,6 +3281,11 @@ class PhoPathCore implements PhoPathInterface
      */
     public function appendData(string $data, ?int $length = null): static
     {
+        Log::notice(tr('Appending ":count" bytes to file ":file"', [
+            ':file'  => $this->getRootname(),
+            ':count' => strlen($data)
+        ]), 2);
+
         if ($this->isOpen()) {
             return $this->write($data, $length);
         }
@@ -3326,9 +3339,11 @@ class PhoPathCore implements PhoPathInterface
         if ($this->exists()) {
             // Just touch it, I dare you.
             touch($this->source);
+
         } elseif ($this instanceof PhoDirectoryInterface) {
             // If this is supposed to be a directory, create it
             return $this->ensure();
+
         } else {
             // Create it by touching it. Or something like that
             touch($this->source);

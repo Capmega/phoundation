@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class StartupException
+ * Class ConfigReadFailedException
  *
- * This exception is thrown when the Core::startup() fails
+ * This exception is thrown when the specified configuration file could not be read
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -14,8 +14,8 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Core\Exception;
+namespace Phoundation\Utils\Exception;
 
-class StartupException extends CoreException
+class ConfigReadFailedException extends ConfigException
 {
 }

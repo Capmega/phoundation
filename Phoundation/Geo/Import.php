@@ -160,7 +160,7 @@ class Import extends \Phoundation\Developer\Project\Import
     {
         // Determine what target path to use
         $restrictions = $restrictions ?? PhoRestrictions::new(DIRECTORY_DATA, true);
-        $target_path  = Config::getString('geo.geonames.path', DIRECTORY_DATA . 'sources/geo/geonames/', $target_path);
+        $target_path  = config()->getString('geo.geonames.path', DIRECTORY_DATA . 'sources/geo/geonames/', $target_path);
         $target_path  = PhoPath::absolutePath($target_path, DIRECTORY_ROOT, false);
         PhoDirectory::new($target_path, $restrictions)
                  ->ensure();

@@ -169,14 +169,14 @@ class Sql implements SqlInterface
         }
 
         if ($this->configuration['log'] === null) {
-            $this->configuration['log'] = Config::getBoolean('databases.sql.log', false);
+            $this->configuration['log'] = config()->getBoolean('databases.sql.log', false);
         }
 
         if ($this->configuration['statistics'] === null) {
-            $this->configuration['statistics'] = Config::getBoolean('databases.sql.statistics', false);
+            $this->configuration['statistics'] = config()->getBoolean('databases.sql.statistics', false);
         }
 
-        $this->debug      = $this->configuration['log'] or Config::getBoolean('databases.sql.log', false);
+        $this->debug      = $this->configuration['log'] or config()->getBoolean('databases.sql.log', false);
         $this->statistics = $this->configuration['statistics'];
 
         if ($connect) {
@@ -215,7 +215,7 @@ class Sql implements SqlInterface
             $this->connector = $connector;
 
             if ($connector === 'system') {
-                $configuration = Config::getArray('databases.connectors.' . $connector);
+                $configuration = config()->getArray('databases.connectors.' . $connector);
 
             } else {
                 $configuration = Connector::new()->load($connector)->getSource();
@@ -1831,7 +1831,7 @@ class Sql implements SqlInterface
     {
         throw new UnderConstructionException();
 
-        $expires = Config::get('databases.cache.expires');
+        $expires = config()->get('databases.cache.expires');
         $hash    = hash('sha1', $table . $where . $column . json_encode($execute));
         $count   = $this->getColumn('SELECT `count` FROM `counts` WHERE `hash` = :hash AND `until` > NOW()', 'count', [
             ':hash' => $hash,

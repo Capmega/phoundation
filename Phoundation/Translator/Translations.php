@@ -54,7 +54,7 @@ class Translations extends DataIterator
      */
     public function getLanguages(): array
     {
-        return Config::getArray('translations.languages', ['en']);
+        return config()->getArray('translations.languages', ['en']);
     }
 
 

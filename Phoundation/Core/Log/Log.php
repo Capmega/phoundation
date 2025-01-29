@@ -18,15 +18,13 @@ namespace Phoundation\Core\Log;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use PDOStatement;
-use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Cli\CliColor;
 use Phoundation\Core\Core;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Exception\LogException;
-use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Core\Log\Interfaces\LogInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Developer\Debug;
@@ -42,31 +40,29 @@ use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Requests\Request;
 use Stringable;
 use Throwable;
-use Traversable;
 
 
-class Log
+class Log implements LogInterface
 {
     /**
      * Used to display only classes and functions in backtraces
      */
-    public const BACKTRACE_DISPLAY_FUNCTION = 1;
+    public const int BACKTRACE_DISPLAY_FUNCTION = 1;
 
     /**
      * Used to display only files and line numbers in backtraces
      */
-    public const BACKTRACE_DISPLAY_FILE = 2;
+    public const int BACKTRACE_DISPLAY_FILE = 2;
 
     /**
      * Used to display both classes and function and files and line numbers in backtraces
      */
-    public const BACKTRACE_DISPLAY_BOTH = 3;
+    public const int BACKTRACE_DISPLAY_BOTH = 3;
 
     /**
      * Singleton variable
@@ -219,10 +215,10 @@ class Log
                     // Be... normal, I guess
                     if (Debug::isEnabled()) {
                         // Debug shows a bit more
-                        $threshold = Config::getInteger('log.threshold', Core::errorState() ? 1 : 3);
+                        $threshold = config()->getInteger('log.threshold', Core::errorState() ? 1 : 3);
 
                     } else {
-                        $threshold = Config::getInteger('log.threshold', Core::errorState() ? 1 : 5);
+                        $threshold = config()->getInteger('log.threshold', Core::errorState() ? 1 : 5);
                     }
 
                     if ($threshold === 1) {
@@ -238,13 +234,13 @@ class Log
             }
 
             static::$restrictions = PhoRestrictions::newWritableObject(DIRECTORY_DATA . 'log/');
-            static::setFile(Config::get('log.file', DIRECTORY_ROOT . 'data/log/syslog'));
-            static::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_BOTH));
+            static::setFile(config()->get('log.file', DIRECTORY_ROOT . 'data/log/syslog'));
+            static::setBacktraceDisplay(config()->get('log.backtrace-display', self::BACKTRACE_DISPLAY_BOTH));
 
         } catch (Throwable $e) {
             // Likely configuration read failed. Set defaults
             static::$restrictions = PhoRestrictions::new(DIRECTORY_DATA . 'log/', true, 'Log');
-            static::setThreshold(10);
+            static::setThreshold(1); // Since somehting went wrong, log everything
             static::setFile(DIRECTORY_ROOT . 'data/log/syslog');
             static::setBacktraceDisplay(self::BACKTRACE_DISPLAY_BOTH);
         }
@@ -340,7 +336,7 @@ class Log
             static::$syslog_filter_applied = true;
         }
 
-        $additional_headers = $additional_headers ?? Config::get('log.headers', '');
+        $additional_headers = $additional_headers ?? config()->get('log.headers', '');
 
         if ($messages instanceof ArrayableInterface) {
             $messages = $messages->__toArray();
@@ -715,7 +711,14 @@ class Log
      */
     public static function write(mixed $messages = null, ?string $class = null, int $threshold = 10, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
     {
+//        if (empty(static::$file)) {
+//            static::toAlternateLog('Log has not been opened yet');
+//            static::toAlternateLog($messages);
+//            return true;
+//        }
+
         if (!static::$enabled) {
+            // Logging has been disabled, don't do anything
             return false;
         }
 
@@ -729,8 +732,10 @@ class Log
                         static::toAlternateLog('Phoundation: exception location : ' . $message->getFile() . '@' . $message->getLine());
 
                         $trace = Debug::formatBackTrace($message->getTrace());
-                        foreach ($trace as $step)
-                        static::toAlternateLog('Phoundation: exception trace    : ' . $step);
+
+                        foreach ($trace as $step) {
+                            static::toAlternateLog('Phoundation: exception trace    : ' . $step);
+                        }
 
                         if ($message instanceof PhoException) {
                             static::toAlternateLog('Phoundation: exception data     : ' . Strings::force($message->getData()));
@@ -881,7 +886,7 @@ class Log
                 $prefix = PhoDateTime::new(null, 'server')->format('Y-m-d H:i:s.v') . ' ' .
                           ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' .
                           Strings::size(getmypid(), 7, ' ', true) . ' ' .
-                          Core::getGlobalId() . ' ' . (PLATFORM_CLI ? 'C' : 'W') . ' ' . Core::getLocalId() . (Core::isShuttingDown() ? '#' : ' ');
+                          Core::getGlobalId() . ' ' . (PLATFORM_CLI ? 'C' : 'W') . ' ' . Core::getLocalId() . (Core::isStateShutdown() ? '#' : ' ');
             } else {
                 $prefix = $echo_prefix;
             }
@@ -1154,8 +1159,8 @@ class Log
 
             // Open the specified log file
             static::$streams[$file] = PhoFile::new($file, static::$restrictions)
-                                             ->ensureWritable(0640)          // Log file should always be 0640
-                                             ->setForceAccess(true)     // Log file must always be accessible
+                                             ->ensureWritable(0640) // Log file should always be 0640
+                                             ->setForceAccess(true) // Log file must always be accessible
                                              ->open(EnumFileOpenMode::writeOnlyAppend);
 
             // Set the class file to the specified file and return the old value and
@@ -1921,7 +1926,7 @@ class Log
     public static function clean(?int $age_in_days): void
     {
         if (!$age_in_days) {
-            $age_in_days = Config::getInteger('log.clean.age', 30);
+            $age_in_days = config()->getInteger('log.clean.age', 30);
         }
 
         Log::action(tr('Cleaning log files older than ":age" days', [

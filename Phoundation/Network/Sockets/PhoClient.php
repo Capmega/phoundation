@@ -75,7 +75,7 @@ class PhoClient
      */
     public static function newFromConfiguration(string $configuration_path): static
     {
-        $configuration = Config::getArray($configuration_path, require_keys: ['address', 'port', 'listen_port']);
+        $configuration = config()->getArray($configuration_path, require_keys: ['address', 'port', 'listen_port']);
 
         return new static($configuration['address'], $configuration['port'] ?? $configuration['listen_port']);
     }

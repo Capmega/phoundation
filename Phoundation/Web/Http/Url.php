@@ -234,14 +234,14 @@ class Url implements UrlInterface
     {
         $url        = (string) $url;
         $configured = match (Strings::until($url, '.html')) {
-            'dashboard', 'index'   => Config::getString('web.pages.index'   , '/index'),
-            'sign-in'  , 'signin'  => Config::getString('web.pages.sign-in' , '/sign-in'),
-            'sign-up'  , 'signup'  => Config::getString('web.pages.sign-up' , '/sign-up'),
-            'sign-out' , 'signout' => Config::getString('web.pages.sign-out', '/sign-out') . (Session::isUser() ? '?redirect=' . urlencode(Url::newCurrent()->getSource()) : null),
-            'sign-key' , 'signkey' => Config::getString('web.pages.sign-key', '/sign-key+:key'),
-            'profile'              => Config::getString('web.pages.profile' , '/my/profile'),
-            'settings'             => Config::getString('web.pages.settings', '/my/settings'),
-            default                => Config::getString('web.pages.' . $url , '')
+            'dashboard', 'index'   => config()->getString('web.pages.index'   , '/index'),
+            'sign-in'  , 'signin'  => config()->getString('web.pages.sign-in' , '/sign-in'),
+            'sign-up'  , 'signup'  => config()->getString('web.pages.sign-up' , '/sign-up'),
+            'sign-out' , 'signout' => config()->getString('web.pages.sign-out', '/sign-out') . (Session::isUser() ? '?redirect=' . urlencode(Url::newCurrent()->getSource()) : null),
+            'sign-key' , 'signkey' => config()->getString('web.pages.sign-key', '/sign-key+:key'),
+            'profile'              => config()->getString('web.pages.profile' , '/my/profile'),
+            'settings'             => config()->getString('web.pages.settings', '/my/settings'),
+            default                => config()->getString('web.pages.' . $url , '')
         };
 
         if ($configured) {
@@ -316,7 +316,7 @@ class Url implements UrlInterface
      */
     public static function newPrimaryDomainRootUrl(): static
     {
-        return Url::new(Config::getString('web.domains.primary.web'))->makeWww();
+        return Url::new(config()->getString('web.domains.primary.web'))->makeWww();
     }
 
 
@@ -864,7 +864,7 @@ class Url implements UrlInterface
             return $extension;
         }
 
-        if (Config::get('web.minify', true)) {
+        if (config()->get('web.minify', true)) {
             return '.min.' . $extension;
         }
 
@@ -886,7 +886,7 @@ class Url implements UrlInterface
         Log::notice(tr('Cleaning up `url_cloaks` table'));
 
         $r = sql()->query('DELETE FROM `url_cloaks` 
-                                 WHERE `created_on` < DATE_SUB(NOW(), INTERVAL ' . Config::get('web.url.cloaking.expires', 86400) . ' SECOND);');
+                                 WHERE `created_on` < DATE_SUB(NOW(), INTERVAL ' . config()->get('web.url.cloaking.expires', 86400) . ' SECOND);');
 
         Log::success(tr('Removed ":count" expired entries from the `url_cloaks` table', [
             ':count' => $r->rowCount(),
@@ -1196,7 +1196,7 @@ class Url implements UrlInterface
          * Do language mapping, but only if routemap has been set
          */
         // :TODO: This will fail when using multiple CDN servers (WHY?)
-        if (!empty(Config::get('language.supported', [])) and ($this->url_params['domain'] !== $_CONFIG['cdn']['domain'] . '/')) {
+        if (!empty(config()->get('language.supported', [])) and ($this->url_params['domain'] !== $_CONFIG['cdn']['domain'] . '/')) {
             if ($this->url_params['from_language'] !== 'en') {
                 /*
                  * Translate the current non-English URL to English first
@@ -1310,7 +1310,7 @@ class Url implements UrlInterface
     {
         // Get all domain names and check if its primary or subdomain of those.
         $url_domain = $this->getDomain();
-        $domains    = Config::get('web.domains');
+        $domains    = config()->get('web.domains');
 
         foreach ($domains as $domain) {
             // Get CDN and WWW domains

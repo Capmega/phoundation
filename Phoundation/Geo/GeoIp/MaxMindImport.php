@@ -59,7 +59,7 @@ class MaxMindImport extends GeoIpImport
      */
     public static function download(): PhoDirectoryInterface
     {
-        $license_key = Config::getString('geo.ip.max-mind.api-key');
+        $license_key = config()->getString('geo.ip.max-mind.api-key');
         $wget        = Wget::new();
         $directory   = $wget->setTimeout(1200)
                             ->setExecutionDirectoryToTemp()
@@ -128,7 +128,7 @@ class MaxMindImport extends GeoIpImport
     {
         // Determine what target path to use
         if (empty($target_directory)) {
-            $configured       = Config::getString('geo.ip.max-mind.path', DIRECTORY_DATA . 'sources/geoip/maxmind/');
+            $configured       = config()->getString('geo.ip.max-mind.path', DIRECTORY_DATA . 'sources/geoip/maxmind/');
             $configured       = PhoDirectory::absolutePath($configured, DIRECTORY_ROOT, false);
             $target_directory = PhoDirectory::new($configured, PhoRestrictions::newWritableObject($configured));
         }

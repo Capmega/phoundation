@@ -68,7 +68,7 @@ class Audio extends PhoFile
      */
     public function playLocal(bool $background): static
     {
-        if (Config::getBoolean('audio.local.enabled', true)) {
+        if (config()->getBoolean('audio.local.enabled', true)) {
             if (!defined('NOAUDIO') or !NOAUDIO) {
                 try {
                     Mpg123::new(new PhoDirectory(DIRECTORY_DATA . 'audio', PhoRestrictions::newDataObject()))
@@ -78,7 +78,7 @@ class Audio extends PhoFile
                           ->play($background);
 
                 } catch (FileNotExistException | ProcessesException $e) {
-                    if ((defined('NOWARNINGS') and NOWARNINGS) or !Config::getBoolean('debug.exceptions.warnings', true)) {
+                    if ((defined('NOWARNINGS') and NOWARNINGS) or !config()->getBoolean('debug.exceptions.warnings', true)) {
                         Log::error(tr('Failed to play the requested audio file because of the following exception'));
                         Log::error($e);
 
@@ -106,7 +106,7 @@ class Audio extends PhoFile
      */
     public function playRemote(?string $class = null): static
     {
-        if (Config::getBoolean('audio.remote.enabled', true)) {
+        if (config()->getBoolean('audio.remote.enabled', true)) {
             switch (Request::getRequestType()) {
                 case EnumRequestTypes::html:
                     // no break

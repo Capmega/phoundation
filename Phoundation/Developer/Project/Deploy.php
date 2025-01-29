@@ -22,6 +22,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Deploy\Exception\DeployException;
 use Phoundation\Developer\Project\Interfaces\DeployInterface;
 use Phoundation\Developer\Project\Interfaces\ProjectInterface;
+use Phoundation\Developer\Tests\BomDirectory;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Os\Processes\Commands\Rsync;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
@@ -48,46 +49,26 @@ class Deploy implements DeployInterface
      * @var array $keys
      */
     protected array $keys = [
-        'server'            => [],
-        // The target server to which we will deploy
-        'hooks'             => [],
-        // The hooks to execute
-        'ignore_changes'    => false,
-        // If true, git changes will be ignored and deploy will be executed anyway
-        'content_check'     => true,
-        // If true will check content
-        'execute_hooks'     => true,
-        // If true will execute configured deployment hooks
-        'sync'              => true,
-        // If true will sync before (optionally) executing an init before deploying
-        'init'              => true,
-        // If true will execute a project init before deploying
-        'notify'            => true,
-        // If true will send out notifications about this deploy
-        'minify'            => true,
-        // If true will execute CDN file minification
-        'push'              => true,
-        // If true will push changes to the remote git repository
-        'parallel'          => true,
-        // If true will rsync to a parallel copy of the project instead of to the project directly. This can cause the project to be in an unknown state during deployment
-        'translate'         => true,
-        // If true will translate the project before deploying
-        'bom_check'         => true,
-        // If true the system will execute a BOM check on the files
-        'update_file_modes' => true,
-        // If true will fix file modes after rsync
-        'backup'            => true,
-        // If true the system will make a backup on the target environments
-        'stash'             => true,
-        // If true, git will stash changes (if any) and pop those afterwards
-        'update_sitemap'    => true,
-        // If true will update the sitemap before deploying
-        'force'             => false,
-        // If true will ignore halting issue and force deploy. DANGEROUS
-        'test_syntax'       => true,
-        // If true will perform a syntax check before deploying
-        'test_unit'         => true,
-        // If true will execute a unit test before deploying
+        'server'            => [],    // The target server to which we will deploy
+        'hooks'             => [],    // The hooks to execute
+        'ignore_changes'    => false, // If true, git changes will be ignored and deploy will be executed anyway
+        'content_check'     => true,  // If true will check content
+        'execute_hooks'     => true,  // If true will execute configured deployment hooks
+        'sync'              => true,  // If true will sync before (optionally) executing an init before deploying
+        'init'              => true,  // If true will execute a project init before deploying
+        'notify'            => true,  // If true will send out notifications about this deploy
+        'minify'            => true,  // If true will execute CDN file minification
+        'push'              => true,  // If true will push changes to the remote git repository
+        'parallel'          => true,  // If true will rsync to a parallel copy of the project instead of to the project directly. This can cause the project to be in an unknown state during deployment
+        'translate'         => true,  // If true will translate the project before deploying
+        'bom_check'         => true,  // If true the system will execute a BOM check on the files
+        'update_file_modes' => true,  // If true will fix file modes after rsync
+        'backup'            => true,  // If true the system will make a backup on the target environments
+        'stash'             => true,  // If true, git will stash changes (if any) and pop those afterwards
+        'update_sitemap'    => true,  // If true will update the sitemap before deploying
+        'force'             => false, // If true will ignore halting issue and force deploy. DANGEROUS
+        'test_syntax'       => true,  // If true will perform a syntax check before deploying
+        'test_unit'         => true,  // If true will execute a unit test before deploying
     ];
 
     /**
@@ -134,19 +115,7 @@ class Deploy implements DeployInterface
      */
     protected function getConfig(): array
     {
-        try {
-            Config::setEnvironment('deploy/deploy', false);
-            $configuration = Config::get('');
-            Config::setEnvironment(ENVIRONMENT);
-            Arrays::ensure($configuration, 'targets');
-
-            return $configuration;
-
-        } catch (Throwable $e) {
-            // Whatever went wrong, make sure that the configuration environment is set back to normal
-            Config::setEnvironment(ENVIRONMENT);
-            throw $e;
-        }
+        return Config->forEnvironment('deploy')->getArray('', require_keys: 'targets');
     }
 
 
@@ -160,6 +129,7 @@ class Deploy implements DeployInterface
         if (!$this->targets) {
             throw new OutOfBoundsException(tr('No deployment target environments configured or specified on the commandline'));
         }
+
         foreach ($this->targets as $environment) {
             // Read environment config, update global config and then check which sections should be executed
             $env_config = $this->getEnvironmentConfig($environment);
@@ -173,25 +143,15 @@ class Deploy implements DeployInterface
                     throw new DeployException(tr('The project has pending git changes. Please commit or stash first'));
                 }
             }
-            static::executeHook('start,pre-content-check');
-            if (!$env_config['content_check']) {
-                Log::action(tr('Executing content check'));
 
-            }
-            static::executeHook('post-content-check,pre-bom-check');
-            if ($env_config['bom_check']) {
-                Log::action(tr('Executing BOM check'));
-//                BomDirectory::new(DIRECTORY_ROOT, DIRECTORY_ROOT)->clearBom();
-            }
-            static::executeHook('post-bom-check,pre-test-syntax');
-            if ($env_config['test_syntax']) {
-                Log::action(tr('Executing syntax check'));
-            }
-            static::executeHook('post-test-syntax,pre-test-unit');
-            if ($env_config['test_unit']) {
-                Log::action(tr('Executing unit Tests'));
+            $this->executeHook('start')
+                 ->executeContentCheck()
+                 ->executeBomCheck()
+                 ->executeSyntaxCheck()
+                 ->executeUnitTests();
 
-            }
+            // TODO: Convert the rest of this method to separate methods
+
             static::executeHook('post-test-unit,pre-sync');
             if ($env_config['sync']) {
                 Log::action(tr('Executing system synchronisation'));
@@ -301,6 +261,88 @@ class Deploy implements DeployInterface
 
 
     /**
+     * Executes the content check
+     *
+     * ???
+     *
+     * @return static
+     */
+    protected function executeUnitTests(): static
+    {
+        static::executeHook('pre-unit-test');
+
+        if (!$env_config['unit_test']) {
+            Log::action(tr('Executing unit tests'));
+
+        }
+
+        static::executeHook('post-unit-test');
+        return $this;
+    }
+
+
+    /**
+     * Executes the content check
+     *
+     * ???
+     *
+     * @return static
+     */
+    protected function executeContentCheck(): static
+    {
+        static::executeHook('pre-content-check');
+
+        if (!$env_config['content_check']) {
+            Log::action(tr('Executing content check'));
+
+        }
+
+        static::executeHook('post-content-check');
+        return $this;
+    }
+
+
+    /**
+     * ???
+     *
+     * @return static
+     */
+    protected function executeSyntaxCheck(): static
+    {
+        static::executeHook('pre-test-syntax');
+
+        if ($env_config['bom_check']) {
+            Log::action(tr('Executing BOM check'));
+
+        }
+
+        static::executeHook('post-test-syntax');
+        return $this;
+    }
+
+
+    /**
+     * Executes the BOM (Byte Order Marker) check
+     *
+     * This method will execute a test on all files to ensure they do not start with the 4 byte UTF BOM string
+     *
+     * @return static
+     */
+    public function executeBomCheck(): static
+    {
+        static::executeHook('pre-bom-check');
+
+        if ($env_config['bom_check']) {
+            Log::action(tr('Executing BOM check'));
+//                BomDirectory::new(DIRECTORY_ROOT, DIRECTORY_ROOT)->clearBom();
+        }
+
+        static::executeHook('post-bom-check');
+        return $this;
+    }
+
+
+    /**
      * Loads and returns the configuration for the specified environment
      *
      * @param $environment
@@ -310,43 +352,40 @@ class Deploy implements DeployInterface
     protected function getEnvironmentConfig($environment): array
     {
         $return = [];
-        try {
-            if (!Config::environmentExists('deploy/' . $environment)) {
-                throw new DeployException(tr('The specified environment ":environment" has no configuration file available in DIRECTORY_ROOT/config/deploy/', [
-                    ':environment' => $environment,
-                ]));
-            }
-            Config::setEnvironment('deploy/' . $environment, false);
-            $config = Config::get('');
-            Config::setEnvironment(ENVIRONMENT);
-            foreach ($this->keys as $key => $default) {
-                $key = str_replace('-', '_', $key);
-                switch ($key) {
-                    case 'server':
-                        Arrays::default($return, $key, isset_get_typed('array', $config[$key], $default));
-                        Arrays::ensure($return[$key], 'host,path,port,user,sudo');
-                        break;
-                    case 'hooks':
-                        Arrays::default($return, $key, isset_get_typed('array', $config[$key], $default));
-                        break;
-                    default:
-                        Arrays::default($return, $key, isset_get_typed('bool', $config[$key], $default));
-                }
-                if (array_key_exists($key, $this->modifiers)) {
-                    if ($this->modifiers[$key] !== null) {
-                        // Override was specified on the command line
-                        $return[$key] = $this->modifiers[$key];
-                    }
-                }
-            }
 
-            return $return;
-
-        } catch (Throwable $e) {
-            // Whatever went wrong, make sure that the configuration environment is set back to normal
-            Config::setEnvironment(ENVIRONMENT);
-            throw $e;
+        if (!Config::environmentExists('deploy/' . $environment)) {
+            throw new DeployException(tr('The specified environment ":environment" has no configuration file available in DIRECTORY_ROOT/config/deploy/', [
+                ':environment' => $environment,
+            ]));
         }
+
+        $config = Config::fromSection('deploy', $environment)->get('');
+
+        foreach ($this->keys as $key => $default) {
+            $key = str_replace('-', '_', $key);
+            switch ($key) {
+                case 'server':
+                    Arrays::default($return, $key, isset_get_typed('array', $config[$key], $default));
+                    Arrays::ensure($return[$key], 'host,path,port,user,sudo');
+                    break;
+
+                case 'hooks':
+                    Arrays::default($return, $key, isset_get_typed('array', $config[$key], $default));
+                    break;
+
+                default:
+                    Arrays::default($return, $key, isset_get_typed('bool', $config[$key], $default));
+            }
+
+            if (array_key_exists($key, $this->modifiers)) {
+                if ($this->modifiers[$key] !== null) {
+                    // Override was specified on the command line
+                    $return[$key] = $this->modifiers[$key];
+                }
+            }
+        }
+
+        return $return;
     }
 
 

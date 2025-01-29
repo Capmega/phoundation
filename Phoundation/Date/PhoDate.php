@@ -118,7 +118,7 @@ class PhoDate
             $to_timezone = TIMEZONE;
         }
         if ($from_timezone === null) {
-            $from_timezone = Config::get('system.timezone.system', 'UTC');
+            $from_timezone = config()->get('system.timezone.system', 'UTC');
         }
         // Ensure we have a valid format
         switch ($requested_format) {
@@ -140,9 +140,9 @@ class PhoDate
                 $format = 'Y-m-d';
                 break;
             default:
-                if (Config::get('formats.date.' . $requested_format, false)) {
+                if (config()->get('formats.date.' . $requested_format, false)) {
                     // Use predefined format
-                    $format = Config::get('formats.date.' . $requested_format, false);
+                    $format = config()->get('formats.date.' . $requested_format, false);
                 } else {
                     // Use custom format
                     $format = $requested_format;
@@ -154,7 +154,7 @@ class PhoDate
             $format = $requested_format;
 
         } else {
-            switch (Config::get('formats.date.force1224', '24')) {
+            switch (config()->get('formats.date.force1224', '24')) {
                 case false:
                     break;
                 case '12':
@@ -172,7 +172,7 @@ class PhoDate
                     break;
                 default:
                     throw new OutOfBoundsException(tr('Invalid force1224 hour format ":format" specified. Must be either false, "12", or "24". See configuration formats.date.force1224', [
-                        ':format' => Config::get('formats.date.' . $requested_format, '24'),
+                        ':format' => config()->get('formats.date.' . $requested_format, '24'),
                     ]));
             }
         }

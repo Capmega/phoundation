@@ -101,11 +101,11 @@ class Cache
      */
     protected static function driver(): Mc|Mongo|Redis|SqlInterface|NullDb|null
     {
-        if (!Config::get('cache.enabled', false)) {
+        if (!config()->get('cache.enabled', false)) {
             return null;
         }
 
-        $driver = Config::get('cache.driver', 'memcached');
+        $driver = config()->get('cache.driver', 'memcached');
 
         switch ($driver) {
             case 'memcache':
@@ -216,7 +216,7 @@ class Cache
      */
     public static function systemAutoGitCommit(?string $section = null, ?bool $auto_commit = null, ?bool $signed = null, ?string $message = null): void
     {
-        $auto_commit = $auto_commit ?? Config::getBoolean('cache.system.commit.auto', false);
+        $auto_commit = $auto_commit ?? config()->getBoolean('cache.system.commit.auto', false);
 
         if ($auto_commit) {
             // Is there anything to commit?
@@ -224,12 +224,12 @@ class Cache
             $git       = Git::new($directory);
 
             if ($git->getStatusFilesObject()->getCount()) {
-                $signed  = $signed  ?? Config::getBoolean('versioning.git.sign', false);
+                $signed  = $signed  ?? config()->getBoolean('versioning.git.sign', false);
                 $message = $message ?? tr('Rebuilt system cache');
 
                 // Commit the system cache
                 $git->add($directory)
-                    ->commit($message, Config::getBoolean('cache.system.commit.signed', false) or $signed);
+                    ->commit($message, config()->getBoolean('cache.system.commit.signed', false) or $signed);
 
                 Log::success(tr('Committed system cache update to git'));
             }

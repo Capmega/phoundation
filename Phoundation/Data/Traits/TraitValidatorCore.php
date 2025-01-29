@@ -894,7 +894,7 @@ trait TraitValidatorCore
         // Check if there is still a field selected that has no test applied.
         // If so, fail, because all fields must be tested
         if ($this->selected_field and !$this->test_count) {
-            if (!Config::getBoolean('security.validation.disabled', false)) {
+            if (!config()->getBoolean('security.validation.disabled', false)) {
                 throw new ValidatorException(tr('Cannot validate because the last selected field ":field" has no validations performed yet', [
                     ':field' => $this->selected_field,
                 ]));
@@ -972,7 +972,7 @@ trait TraitValidatorCore
         if ($this->failures) {
             $values = Arrays::keepKeys($this->source, array_keys($this->failures));
 
-            if (Core::inBootState() or Config::getBoolean('security.validation.enabled', true)) {
+            if (Core::inBootState() or config()->getBoolean('security.validation.enabled', true)) {
                 throw ValidationFailedException::new(tr('Data validation failed with the following issues:'))
                                                ->addData([
                                                    'failures' => $this->failures,
@@ -986,7 +986,7 @@ trait TraitValidatorCore
         }
 
         if (isset($unclean)) {
-            if (Config::getBoolean('security.validation.enabled', true)) {
+            if (config()->getBoolean('security.validation.enabled', true)) {
                 throw ValidationFailedException::new(tr('Data validation failed because of the following unknown fields'))
                                                ->addData($unclean)
                                                ->makeWarning();

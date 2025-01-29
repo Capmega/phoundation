@@ -71,8 +71,8 @@ class GeoIp
     {
         try {
             $provider = null;
-            $enabled  = Config::get('geo.ip.enabled', true);
-            $provider = Config::get('geo.ip.provider', '', $provider);
+            $enabled  = config()->get('geo.ip.enabled', true);
+            $provider = config()->get('geo.ip.provider', '', $provider);
 
             if (!$enabled) {
                 // GeoIP detection has been disabled

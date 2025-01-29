@@ -312,7 +312,7 @@ class Git extends Versioning implements GitInterface
      */
     public function commit(string $message, bool $signed = null): static
     {
-        $signed = $signed ?? Config::getBoolean('versioning.git.sign', false);
+        $signed = $signed ?? config()->getBoolean('versioning.git.sign', false);
         $output = $this->git->clearArguments()
                             ->addArgument('commit')
                             ->addArgument('-m')

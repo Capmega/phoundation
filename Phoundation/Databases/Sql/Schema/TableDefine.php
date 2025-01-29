@@ -286,7 +286,7 @@ class TableDefine extends SchemaAbstract
             $query .= ",\n" . Strings::ensureEndsNotWith(trim($foreign_keys), ',') . "\n";
         }
 
-        $query .= ') ENGINE=InnoDB AUTO_INCREMENT = ' . Config::get('databases.sql.connectors.system.auto-increment', 1) . ' DEFAULT CHARSET="' . Config::get('databases.sql.connectors.system.charset', 'utf8mb4') . '" COLLATE="' . Config::get('databases.sql.connectors.system.collate', 'utf8mb4_general_ci') . '";';
+        $query .= ') ENGINE=InnoDB AUTO_INCREMENT = ' . config()->get('databases.sql.connectors.system.auto-increment', 1) . ' DEFAULT CHARSET="' . config()->get('databases.sql.connectors.system.charset', 'utf8mb4') . '" COLLATE="' . config()->get('databases.sql.connectors.system.collate', 'utf8mb4_general_ci') . '";';
 
         Log::warning(tr('Creating table ":table" in database ":database" for SQL instance ":instance"', [
             ':table'    => $this->name,

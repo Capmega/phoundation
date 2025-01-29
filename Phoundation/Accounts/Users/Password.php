@@ -142,7 +142,7 @@ class Password extends DataEntry implements PasswordInterface
     {
         if (!static::isStrong($password)) {
             throw new PasswordWeakException(tr('The specified password is not strong enough. Please specify a password with at least ":count" characters, and contains uppercase, lowercase, numeric, and special characters', [
-                ':count' => Config::getInteger('security.password.min-length', 10),
+                ':count' => config()->getInteger('security.password.min-length', 10),
             ]));
         }
     }
@@ -158,7 +158,7 @@ class Password extends DataEntry implements PasswordInterface
     public static function isStrong(string $password): bool
     {
         $strength = static::getStrength($password, null);
-        $strong   = ($strength > Config::getInteger('security.password.strength', 50));
+        $strong   = ($strength > config()->getInteger('security.password.strength', 50));
 
         if (!$strong and Validator::disabled()) {
             Log::warning(tr('Ignoring weak password because validation is disabled'));
@@ -181,7 +181,7 @@ class Password extends DataEntry implements PasswordInterface
     protected static function isWeak(string $password, ?string $email): bool
     {
         $strength = static::getStrength($password, $email);
-        $weak     = ($strength < Config::getInteger('security.password.strength', 50));
+        $weak     = ($strength < config()->getInteger('security.password.strength', 50));
 
         if ($weak and Validator::disabled()) {
             Log::warning(tr('Ignoring weak password because validation is disabled'));
@@ -208,7 +208,7 @@ class Password extends DataEntry implements PasswordInterface
         $strength = 10;
         $length   = strlen($password);
 
-        if ($length < Config::getInteger('security.password.min-length', 10)) {
+        if ($length < config()->getInteger('security.password.min-length', 10)) {
             if (!$length) {
                 throw new NoPasswordSpecifiedException(tr('No password specified'));
             }
@@ -362,7 +362,7 @@ class Password extends DataEntry implements PasswordInterface
      */
     protected static function seed(int $id, string $password): string
     {
-        return Config::get('security.seed', 'phoundation') . $id . $password;
+        return config()->get('security.seed', 'phoundation') . $id . $password;
     }
 
 
@@ -381,7 +381,7 @@ class Password extends DataEntry implements PasswordInterface
         }
 
         return password_hash(static::seed($id, $password), PASSWORD_BCRYPT, [
-            'cost' => Config::get('security.passwords.cost', 10),
+            'cost' => config()->get('security.passwords.cost', 10),
         ]);
     }
 
@@ -402,7 +402,7 @@ class Password extends DataEntry implements PasswordInterface
      */
     public static function findBestEncryptionCost(int $tries = 20): int
     {
-        $time  = Config::get('security.password.time', 50) / 1000;
+        $time  = config()->get('security.password.time', 50) / 1000;
         $costs = [];
         $try   = 0;
         while (++$try < $tries) {

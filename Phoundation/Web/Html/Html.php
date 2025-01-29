@@ -119,7 +119,7 @@ class Html
      */
     public static function minify(string $html, bool $force = false): string
     {
-        if ($force or Config::getBoolean('web.minify', false)) {
+        if ($force or config()->getBoolean('web.minify', false)) {
             return Minifier::html($html);
         }
 

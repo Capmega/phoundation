@@ -342,7 +342,7 @@ class MySql extends Command
      */
     protected function getInstanceConfigForDatabase(string $database): array
     {
-        return Config::getArray('databases.connectors.' . $database);
+        return config()->getArray('databases.connectors.' . $database);
         foreach (Sql::getConnectors() as $connector) {
 
         }

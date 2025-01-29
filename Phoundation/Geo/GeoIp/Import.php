@@ -64,7 +64,7 @@ class Import extends \Phoundation\Developer\Project\Import
      */
     public static function getProvider(?string $provider = null): GeoIpImportInterface
     {
-        $provider = Config::get('geo.ip.provider', null, $provider);
+        $provider = config()->get('geo.ip.provider', null, $provider);
         switch ($provider) {
             case 'maxmind':
                 return new MaxMindImport();

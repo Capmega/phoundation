@@ -39,7 +39,7 @@ trait TraitDataBufferSize
     public function getBufferSize(?int $buffer_size = null): int
     {
         // Buffer is by default 4K
-        $buffer_size = $buffer_size ?? Config::get('filesystem.buffer.size', 4096);
+        $buffer_size = $buffer_size ?? config()->get('filesystem.buffer.size', 4096);
         if ($buffer_size < 1024) {
             // Minimal buffer size is 1K
             $buffer_size = 1024;

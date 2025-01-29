@@ -1146,7 +1146,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
      */
     protected function loadFromConfiguration(): array
     {
-        $source      = Config::getArray(Strings::ensureEndsNotWith($this->configuration_path, '.'), []);
+        $source      = config()->getArray(Strings::ensureEndsNotWith($this->configuration_path, '.'), []);
         $entry       = static::getDefaultContentDataType();
         $entry       = new $entry();
         $definitions = $entry->getDefinitionsObject();

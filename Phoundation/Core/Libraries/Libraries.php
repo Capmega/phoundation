@@ -94,7 +94,7 @@ class Libraries
         Log::warning('Executing system reset, dropping all init enabled databases!');
         Log::warning('Check your configuration to see which databases are configured with the init flag!');
 
-        $connectors = Config::getArray('databases.connectors');
+        $connectors = config()->getArray('databases.connectors');
 
         foreach ($connectors as $connector => $configuration) {
             switch (isset_get($configuration['driver'])) {
@@ -372,7 +372,7 @@ class Libraries
 
             } catch (NotExistsException $e) {
                 // The plugins path does not exist. No biggie, note it in the logs and create it for next time.
-                mkdir(static::CLASS_DIRECTORY_PLUGINS, Config::get('filesystem.mode.default.directory', 0750));
+                mkdir(static::CLASS_DIRECTORY_PLUGINS, config()->get('filesystem.mode.default.directory', 0750));
             }
         }
 
@@ -383,7 +383,7 @@ class Libraries
 
             } catch (NotExistsException $e) {
                 // The templates path does not exist. No biggie, note it in the logs and create it for next time.
-                mkdir(static::CLASS_DIRECTORY_TEMPLATES, Config::get('filesystem.mode.default.directory', 0750));
+                mkdir(static::CLASS_DIRECTORY_TEMPLATES, config()->get('filesystem.mode.default.directory', 0750));
             }
         }
 

@@ -68,9 +68,9 @@ class Http
      */
     public static function setSslDefaultContext(?bool $verify_peer = null, ?bool $verify_peer_name = null, ?bool $allow_self_signed = null)
     {
-        $verify_peer       = not_null($verify_peer, Config::get('security.ssl.verify.peer', true));
-        $verify_peer_name  = not_null($verify_peer, Config::get('security.ssl.verify.peer_name', true));
-        $allow_self_signed = not_null($verify_peer, Config::get('security.ssl.verify.self_signed', true));
+        $verify_peer       = not_null($verify_peer, config()->get('security.ssl.verify.peer', true));
+        $verify_peer_name  = not_null($verify_peer, config()->get('security.ssl.verify.peer_name', true));
+        $allow_self_signed = not_null($verify_peer, config()->get('security.ssl.verify.self_signed', true));
 
         return stream_context_set_default([
             'ssl' => [
@@ -115,7 +115,7 @@ class Http
         unset($value);
 // TODO Implement
 // TODO This would break Route class when no query variables may be passed!
-//        $_GET['limit'] = (integer) ensure_value(isset_get($_GET['limit'], Config::get('paging.limit', 50)), array_keys(Config::get('paging.list', [10 => tr('Show 10 entries')])), Config::get('paging.limit', 50));
+//        $_GET['limit'] = (integer) ensure_value(isset_get($_GET['limit'], config()->get('paging.limit', 50)), array_keys(config()->get('paging.list', [10 => tr('Show 10 entries')])), config()->get('paging.limit', 50));
     }
 
 
@@ -209,7 +209,7 @@ class Http
 //
 //            if (!$url or ($url == $_SERVER['REQUEST_URI'])) {
 //                // Don't redirect to the same page! If the referrer was this page, then drop back to the index page
-//                $url = Config::get('web.redirects.index', '/');
+//                $url = config()->get('web.redirects.index', '/');
 //            }
 //
 //        } elseif ($url === false) {
@@ -218,7 +218,7 @@ class Http
 //
 //        } elseif (!$url) {
 //            // No target specified, redirect to index page
-//            $url = Config::get('web.redirects.index', '/');
+//            $url = config()->get('web.redirects.index', '/');
 //        }
 //
 //        if (empty($http_code)) {
@@ -269,7 +269,7 @@ class Http
 //        }
 //
 //        if ((!str_starts_with($url, '/')) and (!str_starts_with($url, 'http://')) and (!str_starts_with($url, 'https://'))) {
-//            $url = Config::get('web.url.prefix', '') . $url;
+//            $url = config()->get('web.url.prefix', '') . $url;
 //        }
 //
 //        $url = Response::redirect($url);
@@ -501,7 +501,7 @@ class Http
 //                    $requested = array('language' => Strings::until($requested, '-'),
 //                        'locale' => (str_contains($requested, '-') ? Strings::from($requested, '-') : null));
 //
-//                    if (empty(Config::get('language.supported', [])[$requested['language']])) {
+//                    if (empty(config()->get('language.supported', [])[$requested['language']])) {
 //                        continue;
 //                    }
 //

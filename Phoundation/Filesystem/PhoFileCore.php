@@ -142,7 +142,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
     {
         // Check filesystem restrictions
         $directory = dirname($this->source);
-        $mode      = Config::get('filesystem.modes.defaults.file', 0640, $mode);
+        $mode      = config()->get('filesystem.modes.defaults.file', 0640, $mode);
 
         $this->restrictions->check($directory, true);
 
@@ -782,7 +782,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
                     continue;
                 }
                 if (is_null($mode)) {
-                    $this->filemode = Config::get('filesystem.modes.defaults.directories', 0640, $mode);
+                    $this->filemode = config()->get('filesystem.modes.defaults.directories', 0640, $mode);
                 } elseif (is_link($source . $this->source)) {
                     // No file permissions for symlinks
                     $this->filemode = false;
@@ -1113,7 +1113,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
     public function ensureReadable(?int $mode = null): static
     {
         // Get configuration. We need file and directory default modes
-        $mode = Config::get('filesystem.mode.default.file', 0440, $mode);
+        $mode = config()->get('filesystem.mode.default.file', 0440, $mode);
 
         if (!$this->ensureFileReadable($mode)) {
             touch($this->source);
@@ -1137,7 +1137,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
     public function ensureWritable(?int $mode = null): static
     {
         // Get configuration. We need file and directory default modes
-        $mode = Config::get('filesystem.mode.default.file', 0640, $mode);
+        $mode = config()->get('filesystem.mode.default.file', 0640, $mode);
 
         if (!$this->ensureFileWritable($mode)) {
             Log::action(tr('Creating non existing file ":file" with file mode ":mode"', [
