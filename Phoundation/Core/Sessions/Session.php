@@ -1701,7 +1701,7 @@ class Session implements SessionInterface
                         'user' => static::getUserObject()->getLogId(),
                     ])
                     ->save()
-                    ->setNotifyRoles('developers');
+                    ->setNotifyRoles('developer');
         }
 
         // Attempt sign-out
