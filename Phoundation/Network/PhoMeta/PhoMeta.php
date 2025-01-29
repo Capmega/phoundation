@@ -22,12 +22,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Network\PhoMeta;
 
-use PDOStatement;
 use Phoundation\Core\Core;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryData;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaException;
@@ -49,12 +47,10 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
 
     /**
      * PhoMeta class constructor
-     *
-     * @param int|array|string|DataEntryInterface|null $identifier
      */
-    public function __construct(int|array|string|DataEntryInterface|null $identifier = null)
+    public function __construct()
     {
-        parent::__construct($identifier);
+        parent::__construct();
         $this->setGlobalId(Core::getGlobalId());
     }
 

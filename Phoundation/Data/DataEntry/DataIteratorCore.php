@@ -390,6 +390,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
     /**
      * Sets what SQL columns will be used in loading data
      *
+     * @todo Clarify the title of this documentation, what does it mean "will be used" ????
      * @param string|null $columns
      *
      * @return static
