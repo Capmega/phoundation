@@ -287,12 +287,11 @@ if ($user->getId()) {
 $picture_card = Card::new()
                     ->setTitle(tr('Users profile picture'))
                     ->setId('profile-picture-card')
-                    ->setContent($user
-                        ->getProfileImageObject()
-                            ->getHtmlImgObject()
-                                ->setId('profile-picture')
-                                ->addClasses('w100')
-                                ->setAlt(tr('My profile picture')));
+                    ->setContent($user->getProfileImageObject()
+                                      ->getHtmlImgObject()
+                                          ->setId('profile-picture')
+                                          ->addClasses('w100')
+                                          ->setAlt(tr('My profile picture')));
 
 
 // Build relevant links

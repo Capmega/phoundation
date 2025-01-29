@@ -124,18 +124,21 @@ trait TraitDataConnector
     /**
      * Sets the database connector
      *
-     * @param ConnectorInterface $o_connector
-     * @param string|null        $database
+     * @note  If the specified $o_connector is NULL, it will be ignored
+     * @param ConnectorInterface|null $o_connector
+     * @param string|null             $database
      *
      * @return static
      */
-    public function setConnectorObject(ConnectorInterface $o_connector, ?string $database = null): static
+    public function setConnectorObject(?ConnectorInterface $o_connector = null, ?string $database = null): static
     {
-        $this->o_connector = $o_connector;
-        $this->connector   = $o_connector->getName();
+        if ($o_connector) {
+            $this->o_connector = $o_connector;
+            $this->connector   = $o_connector->getName();
 
-        if ($database) {
-            $this->o_connector->setDatabase($database);
+            if ($database) {
+                $this->o_connector->setDatabase($database);
+            }
         }
 
         return $this;

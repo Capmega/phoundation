@@ -822,7 +822,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         }
 
         if (!$this->is_modified and !$definition->getIgnoreModify()) {
-            $this->is_modified = (isset_get($this->source[$key]) !== $value);
+            if (isset_get($this->source[$key]) !== $value) {
+                $this->is_modified = true;
+                $this->is_saved    = false;
+            }
 
             if ($this->debug) {
                 Log::debug('MODIFIED FIELD "' . get_class($this) . '>' . $key . '" FROM "' . $this->source[$key] . '" [' . gettype(isset_get($this->source[$key])) . '] TO "' . $value . '" [' . gettype($value) . '], MARKED MODIFIED: ' . Strings::fromBoolean($this->is_modified), 10, echo_header: false);
@@ -1216,12 +1219,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     /**
      * Loads the specified data into this DataEntry object
      *
-     * @param IteratorInterface|PDOStatement|array|string|null $source
-     * @param array|null                                       $execute
+     * @param DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null                                                          $execute
+     * @param bool                                                                $filter_meta
      *
      * @return static
      */
-    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
+    public function setSource(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, bool $filter_meta = false): static
     {
         // Initialize the object
         $this->is_initializing = true;
@@ -1230,7 +1234,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             $this->source = [];
 
         } else {
-            if ($source instanceof IteratorInterface) {
+            if (($source instanceof DataEntryInterface) or ($source instanceof IteratorInterface)) {
                 $source = $source->getSource();
 
             } elseif ($source instanceof PDOStatement) {
@@ -1250,8 +1254,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             $this->is_loading = true;
 
             // Load data with object init
-            $this->setMetaData($source)
-                 ->copyValuesToSource($source, false);
+            $this->copyValuesToSource($source, false);
+
+            if (!$filter_meta) {
+                // Load meta data too
+                $this->setMetaData($source);
+            }
         }
 
         // Done!
@@ -2278,10 +2286,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             $execute[':id'] = $not_id;
         }
 
-        return sql(static::getDefaultConnector())->get('SELECT `id`, `status` 
-                                                        FROM   `' . static::getTable() . '` 
+        return sql(static::getDefaultConnector())->get('SELECT `id`, `status`
+                                                        FROM   `' . static::getTable() . '`
                                                         WHERE  ' . $where . '
-                                        ' . ($not_id ? '  AND  `id` != :id' : '') . ' 
+                                        ' . ($not_id ? '  AND  `id` != :id' : '') . '
                                                         LIMIT  1', $execute);
     }
 

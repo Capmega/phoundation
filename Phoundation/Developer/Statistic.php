@@ -72,7 +72,7 @@ class Statistic
         $this->line     = Debug::currentLine(-1);
         $this->file     = new PhoFile(
             Debug::currentFile(-1),
-            PhoRestrictions::newRoot(false, 'Statistic::__construct()')
+            PhoRestrictions::newRootObject(false, 'Statistic::__construct()')
         );
     }
 

@@ -91,7 +91,7 @@ class Library implements LibraryInterface
     public function __construct(PhoDirectoryInterface $directory)
     {
         // Extract vendor and library names
-        $this->directory = new PhoDirectory($directory, PhoRestrictions::newRoot());
+        $this->directory = new PhoDirectory($directory, PhoRestrictions::newRootObject());
 
         $directory     = Strings::slash($directory);
         $this->library = Strings::fromReverse(Strings::unslash($directory), '/');
@@ -183,7 +183,7 @@ class Library implements LibraryInterface
      */
     public static function getClassPath(string $file): string
     {
-        $restrictions = PhoRestrictions::newFilesystemRoot();
+        $restrictions = PhoRestrictions::newFilesystemRootObject();
 
         if (!PhoFile::new($file, $restrictions)->isPhp()) {
             throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
@@ -315,7 +315,7 @@ class Library implements LibraryInterface
         $file = DIRECTORY_ROOT . $file . '.php';
 
         if ($check_php) {
-            if (!PhoFile::new($file, PhoRestrictions::newFilesystemRoot())->isPhp()) {
+            if (!PhoFile::new($file, PhoRestrictions::newFilesystemRootObject())->isPhp()) {
                 throw new OutOfBoundsException(tr('The specified file ":file" is not a PHP file', [':file' => $file]));
             }
         }
@@ -721,7 +721,7 @@ class Library implements LibraryInterface
         ]), 3);
 
         $path         = Strings::slash($this->directory) . 'Library/commands/';
-        $restrictions = PhoRestrictions::newWritable([$path, DIRECTORY_TMP]);
+        $restrictions = PhoRestrictions::newWritableObject([$path, DIRECTORY_TMP]);
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
@@ -749,7 +749,7 @@ class Library implements LibraryInterface
         ]), 3);
 
         $path         = Strings::slash($this->directory) . 'Library/hooks/';
-        $restrictions = PhoRestrictions::newWritable([$path, DIRECTORY_TMP]);
+        $restrictions = PhoRestrictions::newWritableObject([$path, DIRECTORY_TMP]);
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
@@ -777,7 +777,7 @@ class Library implements LibraryInterface
         ]), 3);
 
         $path         = Strings::slash($this->directory) . 'Library/web/';
-        $restrictions = PhoRestrictions::newWritable([$path, DIRECTORY_TMP]);
+        $restrictions = PhoRestrictions::newWritableObject([$path, DIRECTORY_TMP]);
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
@@ -805,7 +805,7 @@ class Library implements LibraryInterface
         ]), 3);
 
         $path         = Strings::slash($this->directory) . 'Library/Tests/';
-        $restrictions = PhoRestrictions::newWritable([$path, DIRECTORY_TMP]);
+        $restrictions = PhoRestrictions::newWritableObject([$path, DIRECTORY_TMP]);
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
@@ -833,7 +833,7 @@ class Library implements LibraryInterface
         ]), 3);
 
         $path         = Strings::slash($this->directory) . 'Library/cron/';
-        $restrictions = PhoRestrictions::newWritable([$path, DIRECTORY_TMP]);
+        $restrictions = PhoRestrictions::newWritableObject([$path, DIRECTORY_TMP]);
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {

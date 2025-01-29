@@ -47,7 +47,7 @@ SshAccount::notExists(['name' => $argv['username']], null, true);
 
 // Add password for this account
 if ($argv['ssh_key_file']) {
-    $argv['ssh_key'] = PhoFile::new($argv['ssh_key_file'], PhoRestrictions::newReadonly('/'))
+    $argv['ssh_key'] = PhoFile::new($argv['ssh_key_file'], PhoRestrictions::newReadonlyObject('/'))
                               ->ensureReadable()
                               ->getContentsAsString();
 

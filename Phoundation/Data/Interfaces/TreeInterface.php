@@ -31,6 +31,8 @@ interface TreeInterface extends IteratorInterface
     /**
      * Sets the source of this tree from the specified JSON data
      *
+     * @param string|null $json
+     *
      * @return static
      */
     public function setJson(?string $json): static;
@@ -39,7 +41,7 @@ interface TreeInterface extends IteratorInterface
     /**
      * @inheritDoc
      */
-    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
+    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, bool $filter_meta = false): static;
 
 
     /**

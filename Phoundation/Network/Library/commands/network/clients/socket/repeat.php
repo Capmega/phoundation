@@ -30,8 +30,8 @@ CliDocumentation::setAutoComplete(User::getAutoComplete([
         '-p,--port'     => true,
         '-m,--message'  => true,
         '-f,--file' => [
-            'word'   => function ($word) { return PhoDirectory::new(DIRECTORY_DATA . 'sources/medinet-tracker/', PhoRestrictions::newReadonly(DIRECTORY_DATA . 'sources/medinet-tracker/'))->scan($word . '*.txt'); },
-            'noword' => function ()      { return PhoDirectory::new(DIRECTORY_DATA . 'sources/medinet-tracker/', PhoRestrictions::newReadonly(DIRECTORY_DATA . 'sources/medinet-tracker/'))->scan('*.txt'); },
+            'word'   => function ($word) { return PhoDirectory::newDataSourcesProjectObject()->scan($word . '*.txt'); },
+            'noword' => function ()      { return PhoDirectory::newDataSourcesProjectObject()->scan('*.txt'); },
         ],
         '-r,--repeat'   => true,
         '-i,--interval' => true,

@@ -157,7 +157,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
     {
         // Initialize private temp directory and return
         $path = ($public ? DIRECTORY_PUBTMP : DIRECTORY_TMP) . $identifier;
-        $path = PhoDirectory::new($path, PhoRestrictions::newWritable($path))
+        $path = PhoDirectory::new($path, PhoRestrictions::newWritableObject($path))
                             ->delete()
                             ->ensure();
 
@@ -1413,7 +1413,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
      */
     public function mount(Stringable|string|null $source, ?string $filesystem = null, ?array $options = null): static
     {
-        FsMounts::mount(PhoFile::new($source, PhoRestrictions::newReadonly($source)), $this,
+        FsMounts::mount(PhoFile::new($source, PhoRestrictions::newReadonlyObject($source)), $this,
                         $filesystem, $options);
 
         return $this;

@@ -126,7 +126,6 @@ namespace Phoundation\Data\DataEntry;
 
 use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 
-
 class DataEntry extends DataEntryCore
 {
     /**

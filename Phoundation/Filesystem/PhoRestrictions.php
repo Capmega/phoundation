@@ -154,7 +154,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      *
      * @return static
      */
-    public static function newWritable(Stringable|string|array|null $directories = null, ?string $label = null): static
+    public static function newWritableObject(Stringable|string|array|null $directories = null, ?string $label = null): static
     {
         return new static($directories, true, $label);
     }
@@ -168,7 +168,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      *
      * @return static
      */
-    public static function newReadonly(Stringable|string|array|null $directories = null, ?string $label = null): static
+    public static function newReadonlyObject(Stringable|string|array|null $directories = null, ?string $label = null): static
     {
         return new static($directories, false, $label);
     }
@@ -182,7 +182,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      *
      * @return static
      */
-    public static function newRoot(bool $write = false, ?string $sub_directory = null): static
+    public static function newRootObject(bool $write = false, ?string $sub_directory = null): static
     {
         return new static(DIRECTORY_ROOT . $sub_directory, $write);
     }
@@ -196,7 +196,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      *
      * @return static
      */
-    public static function newFilesystemRoot(bool $write = false, ?string $sub_directory = null): static
+    public static function newFilesystemRootObject(bool $write = false, ?string $sub_directory = null): static
     {
         return new static('/' . $sub_directory, $write);
     }
@@ -210,7 +210,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      *
      * @return static
      */
-    public static function newData(bool $write = false, ?string $sub_directory = null): static
+    public static function newDataObject(bool $write = false, ?string $sub_directory = null): static
     {
         return new static(DIRECTORY_DATA . $sub_directory, $write);
     }
@@ -224,9 +224,37 @@ class PhoRestrictions implements PhoRestrictionsInterface
      *
      * @return static
      */
-    public static function newDataSources(bool $write = false, ?string $sub_directory = null): static
+    public static function newDataSourcesObject(bool $write = false, ?string $sub_directory = null): static
     {
         return new static(DIRECTORY_DATA . 'sources/' . $sub_directory, $write);
+    }
+
+
+    /**
+     * Returns a new PhoDirectory object for the path DIRECTORY_DATA / PROJECT
+     *
+     * @param bool        $writable
+     * @param string|null $sub_directory
+     *
+     * @return static
+     */
+    public static function newDataProjectObject(bool $writable = false, ?string $sub_directory = null): static
+    {
+        return new static(DIRECTORY_DATA . PROJECT . '/' . $sub_directory, $writable);
+    }
+
+
+    /**
+     * Returns a new PhoDirectory object for the path DIRECTORY_DATA
+     *
+     * @param bool        $writable
+     * @param string|null $sub_directory
+     *
+     * @return static
+     */
+    public static function newDataSourcesProjectObject(bool $writable = false, ?string $sub_directory = null): static
+    {
+        return new static(DIRECTORY_DATA . 'sources/' . PROJECT . '/' . $sub_directory, $writable);
     }
 
 
@@ -310,7 +338,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      */
     public static function newHooks(bool $write = false, ?string $sub_directory = null): static
     {
-        return PhoRestrictions::newFilesystemRoot(write: $write);
+        return PhoRestrictions::newFilesystemRootObject(write: $write);
     }
 
 
@@ -561,10 +589,11 @@ class PhoRestrictions implements PhoRestrictionsInterface
      *
      * @param IteratorInterface|PDOStatement|array|string|null $source
      * @param array|null                                       $execute
+     * @param bool                                             $filter_meta
      *
      * @return static
      */
-    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
+    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, bool $filter_meta = false): static
     {
         $this->source = [];
 

@@ -471,7 +471,7 @@ class Plugins extends Project
      */
     public function getLocalPlugins(): IteratorInterface
     {
-        return PhoDirectory::new(DIRECTORY_ROOT . 'Plugins/', PhoRestrictions::newRoot(false, 'Plugins/'))
+        return PhoDirectory::new(DIRECTORY_ROOT . 'Plugins/', PhoRestrictions::newRootObject(false, 'Plugins/'))
                            ->scan()
                            ->eachField(function (&$value, $key) {
                               $value = Strings::ensureEndsNotWith($value, '/');
@@ -506,7 +506,7 @@ class Plugins extends Project
         $paths = $this->git
                       ->getStatusFilesObject(
                           PhoDirectory::new(DIRECTORY_ROOT . 'Plugins/',
-                          PhoRestrictions::newRoot(false, 'Plugins/')
+                          PhoRestrictions::newRootObject(false, 'Plugins/')
                       ));
 
         foreach ($paths as $path => $info) {

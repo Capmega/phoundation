@@ -67,10 +67,11 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
     /**
      * @param IteratorInterface|array|string|PDOStatement|null $source
      * @param array|null                                       $execute
+     * @param bool                                             $filter_meta
      *
      * @return static
      */
-    public function setSource(IteratorInterface|array|string|PDOStatement|null $source = null, ?array $execute = null): static
+    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, bool $filter_meta = false): static
     {
         parent::setSource($source);
         return $this->init();

@@ -684,7 +684,7 @@ class CliAutoComplete
         $command          = explode('/', $command);
         static::$position = static::$position - count($command);
 
-        return !empty(PhoFile::new(static::$command . '.php', PhoRestrictions::newFilesystemRoot())
+        return !empty(PhoFile::new(static::$command . '.php', PhoRestrictions::newFilesystemRootObject())
                              ->grep(['Documentation::setAutoComplete('], 500));
     }
 
@@ -696,7 +696,7 @@ class CliAutoComplete
      */
     public static function ensureAvailable(): void
     {
-        $file = PhoFile::new('~/.bash_completion', PhoRestrictions::newWritable('~/.bash_completion'))
+        $file = PhoFile::new('~/.bash_completion', PhoRestrictions::newWritableObject('~/.bash_completion'))
                        ->makeAbsolute(must_exist: false);
 
         if ($file->exists()) {

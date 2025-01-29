@@ -61,7 +61,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
     {
         parent::__construct($identifier);
 
-        $this->restrictions = PhoRestrictions::newWritable([DIRECTORY_TMP, DIRECTORY_CDN]);
+        $this->restrictions = PhoRestrictions::newWritableObject([DIRECTORY_TMP, DIRECTORY_CDN]);
     }
 
 

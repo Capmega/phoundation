@@ -54,7 +54,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
     public function __construct(IdentifierInterface|array|string|int|null $identifier = null)
     {
         $this->configuration_path = 'ssh.accounts';
-        $this->restrictions       = PhoRestrictions::newFilesystemRoot();
+        $this->restrictions       = PhoRestrictions::newFilesystemRootObject();
 
         parent::__construct($identifier);
     }
@@ -150,7 +150,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
 
             if (array_key_exists('file', $this->source)) {
                 if ($this->source['file']) {
-                    $this->source['ssh_key'] = PhoFile::new($this->source['file'], PhoRestrictions::newFilesystemRoot())->getContentsAsString();
+                    $this->source['ssh_key'] = PhoFile::new($this->source['file'], PhoRestrictions::newFilesystemRootObject())->getContentsAsString();
                 }
             }
         }

@@ -237,7 +237,7 @@ class Log
                 static::setThreshold($threshold);
             }
 
-            static::$restrictions = PhoRestrictions::newWritable(DIRECTORY_DATA . 'log/');
+            static::$restrictions = PhoRestrictions::newWritableObject(DIRECTORY_DATA . 'log/');
             static::setFile(Config::get('log.file', DIRECTORY_ROOT . 'data/log/syslog'));
             static::setBacktraceDisplay(Config::get('log.backtrace-display', self::BACKTRACE_DISPLAY_BOTH));
 
@@ -1878,7 +1878,7 @@ class Log
     public static function rotate(): PhoFileInterface
     {
         $current = static::$file;
-        $file    = PhoFile::new(static::$file, PhoRestrictions::newWritable(DIRECTORY_DATA . 'log/'));
+        $file    = PhoFile::new(static::$file, PhoRestrictions::newWritableObject(DIRECTORY_DATA . 'log/'));
         $target  = $file->getSource() . '~' . PhoDateTime::new()->format('Ymd');
         $target  = PhoFile::getAvailableVersion($target, '.gz');
 
@@ -1928,7 +1928,7 @@ class Log
             ':age' => $age_in_days,
         ]));
 
-        Find::new(new PhoDirectory(DIRECTORY_DATA . 'log/', PhoRestrictions::newWritable(DIRECTORY_DATA . 'log/')))
+        Find::new(new PhoDirectory(DIRECTORY_DATA . 'log/', PhoRestrictions::newWritableObject(DIRECTORY_DATA . 'log/')))
             ->setMtime('+' . ($age_in_days * 1440))
             ->setExec('rf {} -rf')
             ->executeNoReturn();

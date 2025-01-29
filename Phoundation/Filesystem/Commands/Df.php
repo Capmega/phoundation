@@ -119,7 +119,7 @@ class Df extends Command
 
         foreach ($results as $filesystem => $result) {
             if (str_starts_with($filesystem, '/dev/')) {
-                $filesystem = PhoFile::new($filesystem, PhoRestrictions::newReadonly('/dev/'))
+                $filesystem = PhoFile::new($filesystem, PhoRestrictions::newReadonlyObject('/dev/'))
                                      ->followLink(true)
                                      ->getSource();
             }

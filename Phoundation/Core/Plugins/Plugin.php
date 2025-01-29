@@ -27,6 +27,7 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryDirectory;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryPriority;
@@ -113,11 +114,13 @@ class Plugin extends DataEntry implements PluginInterface
      *       returned class will be Plugins\Phoundation\Phoundation\Library\Plugin, instead of
      *       Phoundation\Core\Plugins\Plugin
      *
+     * @param IdentifierInterface|array|string|int|null $identifier
+     *
      * @return static
      */
-    public function load(): static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null): static
     {
-        $plugin = parent::load();
+        $plugin = parent::load($identifier);
         $file   = DIRECTORY_ROOT . $plugin->getDirectory() . 'Library/Plugin.php';
         $class  = Library::getClassPath($file);
         $class  = Library::includeClassFile($class);
@@ -150,7 +153,7 @@ class Plugin extends DataEntry implements PluginInterface
 
         $vendor = Strings::until(Strings::from($directory, 'Plugins/'), '/');
 
-        return new PhoDirectory($directory, PhoRestrictions::newReadonly(DIRECTORY_ROOT . 'Plugins/' . $vendor . '/'));
+        return new PhoDirectory($directory, PhoRestrictions::newReadonlyObject(DIRECTORY_ROOT . 'Plugins/' . $vendor . '/'));
     }
 
 
@@ -547,7 +550,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function setDirectory(PhoDirectoryInterface|string|null $directory, ?PhoRestrictionsInterface $restrictions = null): static
     {
-        $restrictions = $restrictions ?? PhoRestrictions::newReadonly(DIRECTORY_ROOT . 'Plugins');
+        $restrictions = $restrictions ?? PhoRestrictions::newReadonlyObject(DIRECTORY_ROOT . 'Plugins');
 
         return $this->set(is_string($directory) ? new PhoDirectory($directory, $restrictions) : $directory, 'directory');
     }
@@ -588,7 +591,7 @@ class Plugin extends DataEntry implements PluginInterface
                     // TODO setInDirectories should have a smaller scope
                     ->add(Definition::new($this, 'directory')
                                     ->setLabel(tr('Directory'))
-                                    ->setInDirectories(new PhoDirectory('/', PhoRestrictions::newFilesystemRoot()))
+                                    ->setInDirectories(new PhoDirectory('/', PhoRestrictions::newFilesystemRootObject()))
                                     ->setInputType(EnumInputType::path)
                                     ->setMaxlength(128)
                                     ->setReadonly(true)

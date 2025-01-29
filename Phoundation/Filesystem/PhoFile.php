@@ -28,18 +28,71 @@ class PhoFile extends PhoFileCore
     use TraitPathConstructor;
     use TraitPathNew;
 
-
     /**
      * Returns a new file object for a file in data/...
      *
-     * @param string                   $file
-     * @param PhoRestrictionsInterface $restrictions
+     * @param string                        $file
+     * @param PhoRestrictionsInterface|null $restrictions
      *
      * @return PhoFileInterface
      */
-    public static function newDataObject(string $file, PhoRestrictionsInterface $restrictions): PhoFileInterface
+    public static function newDataObject(string $file, ?PhoRestrictionsInterface $restrictions = null): PhoFileInterface
     {
-        return static::new(DIRECTORY_DATA . $file, $restrictions);
+        return static::new(
+            DIRECTORY_DATA . $file,
+            $restrictions
+        );
+    }
+
+
+    /**
+     * Returns a new file object for a file in data/sources/...
+     *
+     * @param string                        $file
+     * @param PhoRestrictionsInterface|null $restrictions
+     *
+     * @return PhoFileInterface
+     */
+    public static function newDataSourcesObject(string $file, ?PhoRestrictionsInterface $restrictions = null): PhoFileInterface
+    {
+        return static::new(
+            DIRECTORY_DATA . 'sources/' . $file,
+            $restrictions ?? PhoRestrictions::newDataSourcesObject()
+        );
+    }
+
+
+    /**
+     * Returns a new file object for a file in data/sources/...
+     *
+     * @param string                        $file
+     * @param PhoRestrictionsInterface|null $restrictions
+     *
+     * @return PhoFileInterface
+     */
+    public static function newDataSourcesProjectObject(string $file, ?PhoRestrictionsInterface $restrictions = null): PhoFileInterface
+    {
+        return static::new(
+            DIRECTORY_DATA . 'sources/' . PROJECT . '/' . $file,
+            $restrictions ?? PhoRestrictions::newDataSourcesProjectObject()
+        );
+    }
+
+
+    /**
+     * Returns a new file object for a file in data/sources/...
+     *
+     * @param string                        $file
+     * @param PhoRestrictionsInterface|null $restrictions
+     *
+     * @return PhoFileInterface
+     */
+    public static function newDataProjectObject(string $file, ?PhoRestrictionsInterface $restrictions = null): PhoFileInterface
+    {
+        return static::new(
+            DIRECTORY_DATA . PROJECT . '/' . $file,
+                $restrictions ?? PhoRestrictions::newDataProjectObject()
+        );
     }
 
 
@@ -53,11 +106,11 @@ class PhoFile extends PhoFileCore
      *
      * @return static
      */
-    public static function getTemporaryObject(bool $public = false, ?string $name = null, bool $create = true, bool $persist = false): static
+    public static function newTemporaryObject(bool $public = false, ?string $name = null, bool $create = true, bool $persist = false): static
     {
         $directory = PhoDirectory::newTemporaryObject($public, $persist);
         $name      = ($name ?? Strings::getUuid());
-        $file      = static::new($directory->getSource() . $name, PhoRestrictions::newWritable($directory->getSource() . $name));
+        $file      = static::new($directory->getSource() . $name, PhoRestrictions::newWritableObject($directory->getSource() . $name));
 
         if ($create) {
             $file->create();

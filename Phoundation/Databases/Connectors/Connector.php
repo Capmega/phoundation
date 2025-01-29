@@ -172,9 +172,11 @@ class Connector extends DataEntry implements ConnectorInterface
      * @note The test to see if a DataEntry object exists in the database can be either DataEntry::isNew() or
      *       DataEntry::getId(), which should return a valid database id
      *
-     * @return Connector
+     * @param IdentifierInterface|array|string|int|null $identifier
+     *
+     * @return static
      */
-    public function load(): static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null): static
     {
         if (is_numeric($this->identifier) and ($this->identifier < 0)) {
             // Negative identifier is a configured connector!
@@ -182,7 +184,7 @@ class Connector extends DataEntry implements ConnectorInterface
         }
 
         try {
-            return parent::load();
+            return parent::load($identifier);
 
         } catch (DataEntryNotExistsException $e) {
             throw ConnectorNotExistsException::new(tr('The connector ":connector" does not exist', [

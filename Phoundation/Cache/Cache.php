@@ -67,7 +67,7 @@ class Cache
 
         Log::action(tr('Clearing file caches'), 3);
 
-        PhoPath::new(DIRECTORY_SYSTEM . 'cache/files/', PhoRestrictions::newWritable(DIRECTORY_SYSTEM . 'cache/files/'))
+        PhoPath::new(DIRECTORY_SYSTEM . 'cache/files/', PhoRestrictions::newWritableObject(DIRECTORY_SYSTEM . 'cache/files/'))
             ->delete();
 
         static::driver()?->clear();

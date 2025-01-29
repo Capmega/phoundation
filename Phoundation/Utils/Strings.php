@@ -2673,4 +2673,28 @@ class Strings extends Utils
 
         return $source;
     }
+
+
+    /**
+     * Strips all control characters (ASCII characters under 32) unless they are specified to keep
+     *
+     * @param string            $source  The string to strip the characters from
+     * @param string            $replace The string to replace the control characters with
+     * @param array|string|null $keep    Which (if any) control characters to NOT replace
+     *
+     * @return string                    The string with the control characters stripped or replaced
+     */
+    public static function stripControlCharacters(string $source, string $replace = '', array|string|null $keep = null): string
+    {
+        $search = [chr(0) , chr(1) , chr(2) , chr(3) , chr(4) , chr(5) , chr(6) , chr(7) , chr(8) , chr(9) ,
+                   chr(10), chr(11), chr(12), chr(13), chr(14), chr(15), chr(16), chr(17), chr(18), chr(19),
+                   chr(20), chr(21), chr(22), chr(23), chr(24), chr(25), chr(26), chr(27), chr(28), chr(29),
+                   chr(30), chr(31)];
+
+        if ($keep) {
+            $search = Arrays::removeValues($search, $keep);
+        }
+
+        return str_replace($search, $replace, $source);
+    }
 }

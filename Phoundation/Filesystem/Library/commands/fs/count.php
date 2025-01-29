@@ -21,7 +21,7 @@ use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
 
 
-$restrictions = PhoRestrictions::newReadonly('/');
+$restrictions = PhoRestrictions::newReadonlyObject('/');
 
 CliDocumentation::setAutoComplete([
     'positions' => [
