@@ -123,7 +123,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
      */
     public function load(IdentifierInterface|array|string|int|null $identifier = null): static
     {
-        $column = $this->determineColumn($identifier);
+        $column = static::determineColumn($identifier);
 
         try {
             return parent::load($identifier);

@@ -91,11 +91,29 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
+     * Returns a new DateTime object, or if the specified datetime is empty, NULL
+     *
+     * @param PhoDateTimeInterface|string|int|null $datetime
+     * @param DateTimeZone|string|null             $timezone
+     *
+     * @return PhoDateTime|null
+     */
+    public static function newOrNull(PhoDateTimeInterface|string|int|null $datetime = 'now', DateTimeZone|string|null $timezone = null): ?static
+    {
+        if (empty($datetime)) {
+            return null;
+        }
+
+        return new static($datetime, $timezone);
+    }
+
+
+    /**
      * Returns this DateTime object as a string in ISO 8601 format without switching timezone
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getSource();
     }

@@ -296,11 +296,11 @@ class Plugin extends DataEntry implements PluginInterface
      *
      * @param string|null $comments
      *
-     * @return void
+     * @return static
      */
-    public function disable(?string $comments = null): void
+    public function disable(?string $comments = null): static
     {
-        $this->setStatus('disabled', $comments);
+        return $this->setStatus('disabled', $comments);
     }
 
 
@@ -309,11 +309,11 @@ class Plugin extends DataEntry implements PluginInterface
      *
      * @param string|null $comments
      *
-     * @return void
+     * @return static
      */
-    public function enable(?string $comments = null): void
+    public function enable(?string $comments = null): static
     {
-        $this->setStatus(null, $comments);
+        return $this->setStatus(null, $comments);
     }
 
 

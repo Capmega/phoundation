@@ -128,7 +128,7 @@ class Plugins extends DataIterator implements PluginsInterface
 
         foreach (static::scanPluginsPath() as $name => $class) {
             try {
-                $plugin = $class::new(['name' => $name]);
+                $plugin = $class::new()->loadOrNew(['name' => $name]);
 
                 if ($plugin->isNew()) {
                     $plugin->register();
@@ -292,7 +292,9 @@ class Plugins extends DataIterator implements PluginsInterface
                             ':plugin' => $plugin['name'],
                         ]));
 
-                        Plugin::new($id)->disable();
+                        Plugin::new()->load($id)
+                                     ->disable()
+                                     ->save();
 
                     } else {
                         Log::warning(tr('NOT automatically disabling failed plugin ":vendor/:plugin" because the system is running in debug mode', [

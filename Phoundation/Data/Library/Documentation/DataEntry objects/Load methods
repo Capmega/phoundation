@@ -1,0 +1,79 @@
+DataEntry objects have 5 different types of load methods, each with different behavior for the specified identifier(s)
+
+DataEntry::load($identifier)            Will load the DataEntry with the specified identifier from the database.
+                                        An identifier is required and the entry MUST exist
+
+DataEntry::loadOrNull($identifier)      Will load the DataEntry with the specified identifier from the database.
+                                        An identifier is optional and if specified, the entry MUST exist.
+                                        NULL will be returned if the specified identifier is empty
+
+DataEntry::loadOrThis($identifier)      Will load the DataEntry with the specified identifier from the database.
+                                        An identifier is optional and if specified, the entry MUST exist.
+                                        The empty object will be returned if the specified identifier is empty
+
+DataEntry::loadOrNullNew($identifier)   Will load the DataEntry with the specified identifier from the database.
+                                        An identifier is optional and if specified, and the entry does not exist, $this
+                                        empty object will be returned.
+                                        If the specified identifier is empty, $this empty object will be returned
+
+DataEntry::loadOrThisNew($identifier)   Will load the DataEntry with the specified identifier from the database.
+                                        An identifier is optional and if specified, and the entry does not exist, $this
+                                        empty object will be returned.
+                                        If the specified identifier is empty, NULL will be returned
+
+See the identifier / return table below for a comprehensive view of how each method responds.
+
+
+
+* Load methods always require an identifier. This identifier can be NULL, integer, string, array, a
+  DataIteratorInterface object, or a DataEntryInterface object
+
+* Empty or NULL means no identifier, but also an array identifier for which all values are considered empty. Empty is
+  the PHP definition of empty, anything that can be interpreted as null like NULL, FALSE, "", 0, [], etc.
+
+* Empty identifiers are handled differently by each different load method. See the description above, and the table
+  below for more information
+
+* If the specified identifier is numeric, it will *always* be used like a database id and checked against the
+  database ID column specified in DataEntry::getIdColumn() If the database id is positive, the DataEntry object will
+  fetch the data from the database defined in the connector for the object. If the entry is negative and the DataEntry
+  object has DataEntry::getConfigurationPath() return a string path, the data will be pulled from the (Yaml)
+  configuration files using the string path. If DataEntry::getConfigurationPath() returns NULL, a
+  DataEntryInvalidIdentifierException will be thrown instead.
+
+* If the specified identifier is a non numeric string, and the DataEntry::getUniqueColumn() method returns a string
+  value, the key will be searched against the DataEntry::getUniqueColumn() instead of the DataEntry::getIdColumn()
+  column. If DataEntry::getUniqueColumn() returns NULL, an OutOfBoundsException exception will be thrown. If the method
+  DataEntry::getUniqueColumn() returns a column that is not defined in the DataEntry Definitions object, an
+  OutOfBoundsException will be thrown.
+
+* If the specified identifier is an array, it should be a [key => value] array with one or more entries. Each entry
+  will use the key as an SQL column and the value as the value that the SQL column should have. Care must be taken with
+  ensuring that the specified combination (however many keys may be specified) returns 1 or less results. If the
+  specified key => value combinations yield multiple results, an SqlMultipleResultsException will be thrown.
+
+* DataIteratorInterface objects will be treated as if they were arrays, internally, the method will
+  $identifier = $identifier->getSource() before continuing
+
+* DataEntryInterface objects will be checked first if they are compatible. Compatible means that the class of the
+  object is either the current class, or a parent class of the current object. When the specified identifier is a
+  parent DataEntryInterface class, it will return the current class with the data from the parent class.
+  For example: The class "Accounts\SystemUser" is a child class of the class "Accounts\User". When executing the code
+  $user = SystemUser::new()->load(User::new()->load(9238423)); the variable $user will have a system user with the data
+  from the user with database id 9238423
+
+
+
+Identifier / return table:
+
+Method  /  identifier(s):    Empty (NULL, 0, "", etc)                          Existing                                          Non existing
+
+DataEntry::load()            DataEntryNoIdentifierSpecifiedException           DataEntry object with data                        DataEntryNotExistsException
+
+DataEntry::loadOrNull()      NULL                                              DataEntry object with data                        DataEntryNotExistsException
+
+DataEntry::loadOrThis()      $this                                             DataEntry object with data                        DataEntryNotExistsException
+
+DataEntry::loadOrNullNew()   NULL                                              DataEntry object with data                        $this (being a new, empty object of the used class)
+
+DataEntry::loadOrThisNew()   $this                                             DataEntry object with data                        $this (being a new, empty object of the used class)

@@ -24,15 +24,25 @@ class SystemConnector extends Connector
      */
     public function __construct()
     {
-        $this->configuration_path = 'databases.connectors';
-        $this->connector          = 'system';
+        $this->connector = 'system';
 
         parent::__construct('system', false, false);
 
-        $source = $this->loadFromConfiguration($this->configuration_path, 'system');
+        $source = $this->loadFromConfiguration(static::getConfigurationPath(), 'system');
 
         $this->setSource($source)
              ->setReadonly(true);
+    }
+
+
+    /**
+     * Returns the configuration path for this DataEntry object, if it has one, or NULL instead
+     *
+     * @return string|null
+     */
+    public static function getConfigurationPath(): ?string
+    {
+        return 'databases.connectors';
     }
 
 

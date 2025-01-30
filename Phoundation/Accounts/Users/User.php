@@ -285,7 +285,7 @@ class User extends DataEntry implements UserInterface
      */
     public static function newForRole(RoleInterface|array|string|int $role): UserInterface
     {
-        throw new UnderConstructionException('User::newForRole(): This would VERY likely return multiple users!');
+throw new UnderConstructionException('User::newForRole(): This would VERY likely return multiple users!');
         $role     = Role::new()->load($role);
         $users_id = sql()->getColumn('SELECT `accounts_users`.`id`
                                       FROM   `accounts_users`
@@ -350,9 +350,9 @@ class User extends DataEntry implements UserInterface
 
                 if ($user) {
                     if ($user['verified_on'] or !config()->getBoolean('security.accounts.identify.email.verification.required', true)) {
-                        $user = static::new($user['users_id'])->setMetaEnabled($this->meta_enabled)
-                                                              ->setIgnoreDeleted($this->ignore_deleted)
-                                                              ->load();
+                        $user = static::new()->setMetaEnabled($this->meta_enabled)
+                                             ->setIgnoreDeleted($this->ignore_deleted)
+                                             ->load($user['users_id']);
 
                         Log::warning(tr('Identified user ":user" with alternate email ":email"', [
                             ':user'  => $user->getLogId(),
@@ -1270,7 +1270,8 @@ class User extends DataEntry implements UserInterface
 
         if ($this->getRemoteId()) {
             // There is a remote user, it's just not initialized yet. Instantiate the object and link it to this user
-            return $this->remote_user = $class::new($this->getRemoteId(), $column)
+            return $this->remote_user = $class::new()
+                                              ->load([$column => $this->getRemoteId()])
                                               ->setRemoteUser($this);
         }
 
@@ -1691,7 +1692,7 @@ class User extends DataEntry implements UserInterface
      */
     public function getLeader(): ?UserInterface
     {
-        return static::new($this->getTypesafe('int', 'leaders_id'))->loadOrNull();
+        return static::new()->loadOrNull($this->getTypesafe('int', 'leaders_id'));
     }
 
 
@@ -2214,7 +2215,7 @@ class User extends DataEntry implements UserInterface
     {
         // Delete the users data directory, then erase the user from the database
         PhoDirectory::new(DIRECTORY_DATA . 'home/' . $this->getId(), PhoRestrictions::new(DIRECTORY_DATA . 'home/', true))
-                 ->delete(DIRECTORY_DATA . 'home/');
+                    ->delete(DIRECTORY_DATA . 'home/');
 
         return parent::erase();
     }

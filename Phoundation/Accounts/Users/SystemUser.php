@@ -21,6 +21,7 @@ use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Accounts\Users\Interfaces\SystemUserInterface;
 use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 
+
 class SystemUser extends User implements SystemUserInterface
 {
     /**
@@ -32,7 +33,7 @@ class SystemUser extends User implements SystemUserInterface
     {
         parent::__construct('system');
 
-        $this->roles  = Roles::new(['god' => 'god']);
-        $this->rights = Rights::new(['god' => 'god']);
+        $this->roles  = Roles::new()->load(['name' => 'god']);
+        $this->rights = Rights::new()->load(['name' => 'god']);
     }
 }

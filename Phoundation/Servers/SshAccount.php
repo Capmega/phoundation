@@ -46,6 +46,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
     use TraitDataEntryUsername;
     use TraitDataEntryFile;
 
+
     /**
      * SshAccount class constructor
      *
@@ -53,10 +54,19 @@ class SshAccount extends DataEntry implements SshAccountInterface
      */
     public function __construct(IdentifierInterface|array|string|int|null $identifier = null)
     {
-        $this->configuration_path = 'ssh.accounts';
-        $this->restrictions       = PhoRestrictions::newFilesystemRootObject();
-
+        $this->restrictions = PhoRestrictions::newFilesystemRootObject();
         parent::__construct($identifier);
+    }
+
+
+    /**
+     * Returns the configuration path for this DataEntry object, if it has one, or NULL instead
+     *
+     * @return string|null
+     */
+    public static function getConfigurationPath(): ?string
+    {
+        return 'ssh.accounts';
     }
 
 

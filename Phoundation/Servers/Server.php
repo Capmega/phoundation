@@ -66,6 +66,7 @@ class Server extends DataEntry implements ServerInterface
     use TraitDataEntryState;
     use TraitDataEntryCity;
 
+
     /**
      * Server class constructor
      *
@@ -73,9 +74,18 @@ class Server extends DataEntry implements ServerInterface
      */
     public function __construct(IdentifierInterface|array|string|int|null $identifier = null)
     {
-        $this->configuration_path = 'servers';
-
         parent::__construct($identifier);
+    }
+
+
+    /**
+     * Returns the configuration path for this DataEntry object, if it has one, or NULL instead
+     *
+     * @return string|null
+     */
+    public static function getConfigurationPath(): ?string
+    {
+        return 'servers';
     }
 
 

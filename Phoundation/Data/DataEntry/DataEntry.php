@@ -124,19 +124,18 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry;
 
-use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 
 class DataEntry extends DataEntryCore
 {
     /**
      * Returns a new DataEntry object
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param mixed|null $placeholder_to_detect_incorrect_dataentry_constructor_or_new_calls
      *
      * @return static
      */
-    public static function new(IdentifierInterface|array|string|int|null $identifier = null): static
+    public static function new(mixed $placeholder_to_detect_incorrect_dataentry_constructor_or_new_calls = null): static
     {
-        return new static($identifier);
+        return new static($placeholder_to_detect_incorrect_dataentry_constructor_or_new_calls);
     }
 }

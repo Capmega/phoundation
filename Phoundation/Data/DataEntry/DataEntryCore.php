@@ -44,6 +44,7 @@ use Phoundation\Data\DataEntry\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryBadException;
 use Phoundation\Data\DataEntry\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntry\Exception\DataEntryException;
+use Phoundation\Data\DataEntry\Exception\DataEntryInvalidIdentifierException;
 use Phoundation\Data\DataEntry\Exception\DataEntryNoIdentifierSpecifiedException;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotSavedException;
@@ -54,7 +55,6 @@ use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryDefinitions;
 use Phoundation\Data\EntryCore;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Traits\TraitDataConfigPath;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Data\Traits\TraitDataDisabled;
@@ -99,7 +99,6 @@ use Throwable;
 
 class DataEntryCore extends EntryCore implements DataEntryInterface
 {
-    use TraitDataConfigPath;
     use TraitDataConnector;
     use TraitDataDebug;
     use TraitDataDisabled;
@@ -259,8 +258,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      * DataEntry class constructor
      *
      */
-    public function __construct()
+    public function __construct(mixed $placeholder_to_detect_incorrect_dataentry_constructor_or_new_calls = null)
     {
+        if ($placeholder_to_detect_incorrect_dataentry_constructor_or_new_calls) {
+            throw new OutOfBoundsException(tr('The ":class" DataEntry object was created incorrectly, please put the identifier in the ->load() method instead of the constructor', [
+                ':class' => static::class,
+            ]));
+        }
+
         // Try to load the DataEntry from the database with the given identifier and column
         if (!isset($this->meta_columns)) {
             $this->meta_columns = static::getDefaultMetaColumns();
@@ -447,6 +452,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
 
     /**
+     * Returns the configuration path for this DataEntry object, if it has one, or NULL instead
+     *
+     * @return string|null
+     */
+    public static function getConfigurationPath(): ?string
+    {
+        return null;
+    }
+
+
+    /**
      * Returns either the specified valid column, or if empty, a default column
      *
      * @param IdentifierInterface|array|string|int|null $identifier
@@ -462,6 +478,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
         // If the identifier is numeric, then the column MUST be the ID column
         if (is_numeric($identifier)) {
+            if ($identifier < 0) {
+                // This identifier is negative so cannot be a database identifier, and can only be a configuration
+                // source identifier. This can ONLY be valid if the DataEntry has DataEntry::$configuration_path set to
+                // pull the entry from configuration.
+                if (empty(static::getConfigurationPath())) {
+                    throw new DataEntryInvalidIdentifierException(tr('Invalid identifier ":identifier" specified for ":class" DataEntry object, it is a negative number but the class has no configuration path specified', [
+                        ':class'      => static::class,
+                        ':identifier' => $identifier,
+                    ]));
+                }
+            }
             return static::getIdColumn();
         }
 
@@ -924,24 +951,44 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
 
     /**
-     * Returns a random DataEntry object
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or the current
+     * object
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier
+     *
+     * @return static
+     */
+    public function loadOrThisNew(IdentifierInterface|array|string|int|null $identifier = null): static
+    {
+        try {
+            return $this->loadOrThis($identifier);
+
+        } catch (DataEntryNotExistsException) {
+            // This entry does not yet exist! Ignore, and just presume we want to make THIS particular entry.
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or the current
+     * object
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier
      *
      * @return static|null
      */
-    public static function loadRandom(): ?static
+    public function loadOrNullNew(IdentifierInterface|array|string|int|null $identifier = null): ?static
     {
-        $identifier = sql(static::getDefaultConnector())->getInteger('SELECT   `id` 
-                                                                      FROM     `' . static::getTable() . '` 
-                                                                      ORDER BY RAND() 
-                                                                      LIMIT    1;');
+        try {
+            return $this->loadOrNull($identifier);
 
-        if ($identifier) {
-            return static::new()->load($identifier);
+        } catch (DataEntryNotExistsException) {
+            // This entry does not yet exist! Ignore, and just presume we want to make THIS particular entry.
         }
 
-        throw new OutOfBoundsException(tr('Cannot select random record for table ":table", no records found', [
-            ':table' => static::getTable(),
-        ]));
+        return $this;
     }
 
 
@@ -1020,6 +1067,28 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
         $this->is_initializing = false;
         return $this;
+    }
+
+
+    /**
+     * Returns a random DataEntry object
+     *
+     * @return static|null
+     */
+    public static function loadRandom(): ?static
+    {
+        $identifier = sql(static::getDefaultConnector())->getInteger('SELECT   `id` 
+                                                                      FROM     `' . static::getTable() . '` 
+                                                                      ORDER BY RAND() 
+                                                                      LIMIT    1;');
+
+        if ($identifier) {
+            return static::new()->load($identifier);
+        }
+
+        throw new OutOfBoundsException(tr('Cannot select random record for table ":table", no records found', [
+            ':table' => static::getTable(),
+        ]));
     }
 
 
@@ -1353,10 +1422,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     protected function loadFromDatabase(array|string|int $identifier): static
     {
         $this->is_loading = true;
+
         if (is_array($identifier)) {
             // Filter on multiple columns, multi column filter always pretends filtered column was id column
             static::buildManualQuery($identifier, $where, $joins, $group, $order, $execute);
             $column = null;
+
         } else {
             // For single column queries, determine the column we should use
             $column  = static::determineColumn($identifier);
@@ -2306,7 +2377,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      *                                               a DataEntryNotExistsException
      *
      * @return bool
-     * @throws OutOfBoundsException|DataEntryNotExistsException|DataEntryDeletedException
+     * @throws OutOfBoundsException | DataEntryNotExistsException | DataEntryDeletedException
      */
     public static function exists(array|Stringable|string|int $identifier, ?int $not_id = null, bool $throw_exception = false): bool
     {
@@ -2897,14 +2968,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     public function delete(?string $comments = null): static
     {
-        if (static::getUniqueColumn()) {
-            if ($this->isModified()) {
-                throw new OutOfBoundsException(tr('Cannot delete DataEntry ":class" with identifier ":identifier" because it has modifications that have not yet been saved', [
-                    ':class'      => static::class,
-                    ':identifier' => $this->getUniqueColumnValue(),
-                ]));
-            }
+        if ($this->isModified()) {
+            throw new OutOfBoundsException(tr('Cannot delete DataEntry ":class" with identifier ":identifier" because it has modifications that have not yet been saved', [
+                ':class'      => static::class,
+                ':identifier' => $this->getUniqueColumnValue(),
+            ]));
+        }
 
+        if (static::getUniqueColumn()) {
             // When deleting an entry, the unique column goes to NULL
             $this->source[static::getUniqueColumn()] = null;
             $this->save(true, true);
@@ -2965,9 +3036,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     public function erase(): static
     {
-        $this->checkReadonly('erase')
-             ->getMetaObject()
-                ->erase();
+        $this->checkReadonly('erase')->getMetaObject()->erase();
 
         sql($this->o_connector)->erase(static::getTable(), ['id' => $this->getId()]);
 

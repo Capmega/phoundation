@@ -1534,7 +1534,7 @@ class Session implements SessionInterface
         if (empty(static::$key)) {
             if (isset($_SESSION['sign-key'])) {
                 try {
-                    static::$key = SignInKey::new(['uuid' => $_SESSION['sign-key']]);
+                    static::$key = SignInKey::new()->load(['uuid' => $_SESSION['sign-key']]);
 
                 } catch (DataEntryNotExistsException) {
                     // This session key doesn't exist, WTF? If it exists in session, it should exist in the DB. Since it

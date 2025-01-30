@@ -120,9 +120,9 @@ interface PluginInterface
      *
      * @param string|null $comments
      *
-     * @return void
+     * @return static
      */
-    public function enable(?string $comments = null): void;
+    public function enable(?string $comments = null): static;
 
 
     /**
@@ -130,7 +130,7 @@ interface PluginInterface
      *
      * @param string|null $comments
      *
-     * @return void
+     * @return static
      */
-    public function disable(?string $comments = null): void;
+    public function disable(?string $comments = null): static;
 }

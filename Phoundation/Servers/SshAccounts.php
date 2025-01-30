@@ -18,11 +18,8 @@ declare(strict_types=1);
 namespace Phoundation\Servers;
 
 use Phoundation\Data\DataEntry\DataIterator;
-use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
-use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
@@ -31,13 +28,13 @@ use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 class SshAccounts extends DataIterator
 {
     /**
-     * SshAccounts class constructor
+     * Returns the configuration path for this DataEntry object, if it has one, or NULL instead
+     *
+     * @return string|null
      */
-    public function __construct()
+    public static function getConfigurationPath(): ?string
     {
-        $this->configuration_path = 'ssh.accounts';
-
-        parent::__construct();
+        return 'ssh.accounts';
     }
 
 

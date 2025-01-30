@@ -27,7 +27,6 @@ use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Interfaces\ListOperationsInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\IteratorCore;
-use Phoundation\Data\Traits\TraitDataConfigPath;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Data\Traits\TraitDataFilterForm;
@@ -41,7 +40,6 @@ use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputSelect;
@@ -58,7 +56,6 @@ use Stringable;
 class DataIteratorCore extends IteratorCore implements DataIteratorInterface
 {
     use TraitDataStatusFilter;
-    use TraitDataConfigPath;
     use TraitDataConnector;
     use TraitDataDebug;
     use TraitDataFilterForm;
@@ -187,8 +184,20 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
 
 
     /**
+     * Returns the configuration path for this DataEntry object, if it has one, or NULL instead
+     *
+     * @return string|null
+     */
+    public static function getConfigurationPath(): ?string
+    {
+        return null;
+    }
+
+
+    /**
      * Access the direct list operations for this class
      *
+     * @todo Remove this. "Direct operations" was a bad idea and should be removed when we have some time
      * @return ListOperationsInterface
      */
     public static function directOperations(): ListOperationsInterface
@@ -1116,7 +1125,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
             $this->source = sql($this->getConnectorObject())->setDebug($this->debug)
                                                             ->listKeyValues($this->query, $this->execute);
 
-            if ($this->configuration_path) {
+            if (static::getConfigurationPath()) {
                 $this->source = array_merge($this->source, $this->loadFromConfiguration());
             }
 
@@ -1147,7 +1156,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
      */
     protected function loadFromConfiguration(): array
     {
-        $source      = config()->getArray(Strings::ensureEndsNotWith($this->configuration_path, '.'), []);
+        $source      = config()->getArray(Strings::ensureEndsNotWith(static::getConfigurationPath(), '.'), []);
         $entry       = static::getDefaultContentDataType();
         $entry       = new $entry();
         $definitions = $entry->getDefinitionsObject();
