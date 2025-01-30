@@ -27,7 +27,6 @@ use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
-use Phoundation\Utils\Config;
 use Phoundation\Utils\Numbers;
 use Phoundation\Web\Uploads\Interfaces\UploadInterface;
 

@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace Phoundation\Core\Sessions;
 
 use Phoundation\Data\Iterator;
-use Phoundation\Utils\Config;
 
 
 abstract class HttpVariables extends Iterator

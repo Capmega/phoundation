@@ -20,7 +20,6 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Notifications\Exception\NotificationsException;
-use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use PHPMailer\PHPMailer\PHPMailer;
 

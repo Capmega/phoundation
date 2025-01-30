@@ -18,7 +18,6 @@ namespace Phoundation\Translator;
 
 use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 

@@ -26,7 +26,6 @@ use Phoundation\Filesystem\PhoFilesystem;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Notifications\Notification;
-use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Url;

@@ -20,7 +20,6 @@ use Phoundation\Content\Images\ImageFile;
 use Phoundation\Content\Images\Interfaces\ImageFileInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Filesystem\PhoRestrictions;
-use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Interfaces\ImgInterface;
 use Phoundation\Web\Html\Exception\HtmlException;

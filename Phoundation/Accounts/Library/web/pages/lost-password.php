@@ -25,7 +25,6 @@ use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\PhoException;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\EnumSeverity;
-use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Pages\LostPasswordPage;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;

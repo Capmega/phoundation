@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace Phoundation\Date;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Utils\Config;
 
 
 class PhoDateTimeFormats extends PhoDateFormats

@@ -22,7 +22,6 @@ use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
 use Phoundation\Databases\Sql\Exception\DatabasesConnectorException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Seo\Seo;
-use Phoundation\Utils\Config;
 use Stringable;
 
 

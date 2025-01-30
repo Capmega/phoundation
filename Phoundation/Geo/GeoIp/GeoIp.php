@@ -22,7 +22,6 @@ use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Geo\GeoIp\Exception\GeoIpException;
-use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Throwable;
 

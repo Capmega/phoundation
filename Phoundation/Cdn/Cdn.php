@@ -18,7 +18,6 @@ namespace Phoundation\Cdn;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 
 

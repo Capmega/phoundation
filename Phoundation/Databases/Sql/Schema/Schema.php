@@ -22,7 +22,6 @@ use Phoundation\Databases\Sql\Schema\Interfaces\SchemaInterface;
 use Phoundation\Databases\Sql\Schema\Interfaces\TableInterface;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Config;
 
 
 class Schema implements SchemaInterface

@@ -31,7 +31,6 @@ use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Os\Processes\Process;
-use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Stringable;
 

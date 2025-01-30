@@ -27,7 +27,6 @@ use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Os\Enums\EnumSignal;
 use Phoundation\Os\Processes\Commands\Mpg123;
 use Phoundation\Os\Processes\Exception\ProcessesException;
-use Phoundation\Utils\Config;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;

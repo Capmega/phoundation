@@ -19,7 +19,6 @@ namespace Phoundation\Web\Http;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Web\Requests\JsonPage;

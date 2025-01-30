@@ -19,7 +19,6 @@ namespace Phoundation\Geo\GeoIp;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Geo\GeoIp\Interfaces\GeoIpImportInterface;
-use Phoundation\Utils\Config;
 
 
 class Import extends \Phoundation\Developer\Project\Import

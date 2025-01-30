@@ -22,7 +22,6 @@ use Phoundation\Core\Sessions\Interfaces\SessionInterface;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Os\Processes\Commands\Find;
-use Phoundation\Utils\Config;
 
 
 class Sessions

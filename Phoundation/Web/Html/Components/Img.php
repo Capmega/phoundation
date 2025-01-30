@@ -43,7 +43,6 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components;
 
 use Phoundation\Content\Images\Interfaces\ImageFileInterface;
-use Phoundation\Utils\Config;
 
 
 class Img extends ImgCore

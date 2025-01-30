@@ -20,7 +20,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\TagInterface;
 use Phoundation\Os\Processes\Interfaces\ProcessInterface;
-use Phoundation\Utils\Config;
 
 
 class Tag implements TagInterface

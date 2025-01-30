@@ -19,7 +19,6 @@ namespace Phoundation\Network\Sockets;
 
 use Phoundation\Network\Sockets\Exception\SocketException;
 use Phoundation\Network\Sockets\Exception\SocketServerException;
-use Phoundation\Utils\Config;
 use Throwable;
 
 

@@ -49,7 +49,6 @@ use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Exception\Interfaces\IncidentsExceptionInterface;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenusInterface;

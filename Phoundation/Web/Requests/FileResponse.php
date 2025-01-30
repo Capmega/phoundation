@@ -29,7 +29,6 @@ use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\Traits\TraitPathConstructor;
-use Phoundation\Utils\Config;
 use Phoundation\Web\Http\Exception;
 use Stringable;
 

@@ -28,7 +28,6 @@ use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Geo\GeoIp\Exception\GeoIpNoDatabaseException;
 use Phoundation\Network\Network;
 use Phoundation\Notifications\Notification;
-use Phoundation\Utils\Config;
 use Phoundation\Web\Http\Url;
 use Throwable;
 

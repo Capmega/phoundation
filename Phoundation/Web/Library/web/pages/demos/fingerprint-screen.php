@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 use Phoundation\Core\Core;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;

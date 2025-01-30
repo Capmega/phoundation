@@ -26,7 +26,6 @@ use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\PhoPath;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Wget;
-use Phoundation\Utils\Config;
 use Stringable;
 use Throwable;
 

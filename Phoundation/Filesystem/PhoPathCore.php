@@ -89,7 +89,6 @@ use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Servers\Traits\TraitDataServer;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Stringable;
 use Throwable;

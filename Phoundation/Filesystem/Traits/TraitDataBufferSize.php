@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Traits;
 
-use Phoundation\Utils\Config;
 
 
 trait TraitDataBufferSize

@@ -18,7 +18,6 @@ namespace Phoundation\Notifications\PushNotifications;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Notifications\PushNotifications\Interfaces\PushNotificationInterface;
-use Phoundation\Utils\Config;
 use Serhiy\Pushover\Recipient;
 
 

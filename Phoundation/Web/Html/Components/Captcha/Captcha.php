@@ -19,7 +19,6 @@ namespace Phoundation\Web\Html\Components\Captcha;
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Captcha\Interfaces\CaptchaInterface;
 use Phoundation\Web\Html\Components\ElementsBlock;
 

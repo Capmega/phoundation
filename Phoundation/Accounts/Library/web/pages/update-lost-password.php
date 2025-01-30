@@ -23,7 +23,6 @@ use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Passwords\Exception\NoPasswordSpecifiedException;
 use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
 use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
-use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Pages\LostPasswordUpdatedPage;
 use Phoundation\Web\Html\Pages\UpdateLostPasswordPage;
 use Phoundation\Web\Requests\Request;

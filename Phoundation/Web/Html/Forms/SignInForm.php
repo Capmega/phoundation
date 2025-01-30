@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Forms;
 
-use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Forms\Form;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Http\Interfaces\UrlInterface;

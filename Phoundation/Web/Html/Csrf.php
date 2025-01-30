@@ -24,7 +24,6 @@ use Phoundation\Data\Validator\Exception\CsrfFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;

@@ -40,7 +40,6 @@ use Phoundation\Filesystem\Exception\FileNotWritableException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
-use Phoundation\Utils\Config;
 use Stringable;
 
 

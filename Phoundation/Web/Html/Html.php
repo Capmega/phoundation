@@ -22,7 +22,6 @@ use Phoundation\Core\Core;
 use Phoundation\Developer\Debug;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Exception\HtmlException;

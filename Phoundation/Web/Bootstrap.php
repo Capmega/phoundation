@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web;
 
-use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Enums\EnumContainerTier;
 use Phoundation\Web\Interfaces\BootstrapInterface;
 

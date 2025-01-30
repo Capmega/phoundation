@@ -19,7 +19,6 @@ namespace Phoundation\Web\Server;
 use Phoundation\Core\Log\Log;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
-use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 
 

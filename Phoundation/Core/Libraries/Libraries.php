@@ -32,7 +32,6 @@ use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Notifications\Notification;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Tables\HtmlTable;

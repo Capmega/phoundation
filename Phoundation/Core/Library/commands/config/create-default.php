@@ -18,7 +18,6 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Utils\Config;
 
 
 CliDocumentation::setUsage('./pho config create-default');

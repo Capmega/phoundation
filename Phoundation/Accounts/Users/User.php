@@ -95,7 +95,6 @@ use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
 use Phoundation\Seo\Seo;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Json\Users;

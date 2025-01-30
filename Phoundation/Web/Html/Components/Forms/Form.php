@@ -22,7 +22,6 @@ use Phoundation\Data\Traits\TraitDataRequestMethod;
 use Phoundation\Data\Validator\Exception\GetValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Components\Element;
 use Phoundation\Web\Html\Components\Forms\Interfaces\FormInterface;
 use Phoundation\Web\Html\Components\Input\InputCheckbox;

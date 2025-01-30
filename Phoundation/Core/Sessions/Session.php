@@ -48,7 +48,6 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;

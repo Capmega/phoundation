@@ -21,7 +21,6 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Passwords\Exception\NoPasswordSpecifiedException;
 use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
 use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
-use Phoundation\Utils\Config;
 use Phoundation\Web\Html\Pages\ForcePasswordUpdatePage;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;

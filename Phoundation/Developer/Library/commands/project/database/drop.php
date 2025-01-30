@@ -30,7 +30,6 @@ declare(strict_types=1);
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Utils\Config;
 
 
 // Ensure no arguments

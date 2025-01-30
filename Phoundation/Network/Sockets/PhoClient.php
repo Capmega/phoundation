@@ -19,7 +19,6 @@ declare(strict_types=1);
 namespace Phoundation\Network\Sockets;
 
 use Phoundation\Network\Enums\EnumNetworkSocketDomain;
-use Phoundation\Utils\Config;
 
 class PhoClient
 {

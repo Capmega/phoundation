@@ -37,7 +37,6 @@ use Phoundation\Os\Processes\Commands\Tar;
 use Phoundation\Os\Processes\Commands\Zip;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Config;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Stringable;

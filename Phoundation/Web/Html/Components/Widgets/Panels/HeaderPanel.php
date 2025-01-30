@@ -18,7 +18,6 @@ namespace Phoundation\Web\Html\Components\Widgets\Panels;
 
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Utils\Config;
 
 
 class HeaderPanel extends Panel
