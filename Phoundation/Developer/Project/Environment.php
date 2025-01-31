@@ -22,6 +22,7 @@ use Phoundation\Exception\EnvironmentException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Utils\Config;
 use Throwable;
 
 
@@ -224,29 +225,35 @@ class Environment
             Log::action(tr('Generating configuration for environment ":env"...', [
                 ':env' => strtolower($this->name),
             ]));
+
             // Create production configuration
             if ($this->name !== 'production') {
                 Config::setDefaultEnvironment('production');
-                Config::import($this->getConfiguration());
-                Config::save();
+                Config::fromSection()->import($this->getConfiguration());
+                Config::fromSection()->save();
             }
+
             Config::setDefaultEnvironment($this->name);
-            Config::import($this->getConfiguration());
-            Config::save();
+            Config::fromSection()->import($this->getConfiguration());
+            Config::fromSection()->save();
 
         } catch (Throwable $e) {
             if (str_contains($e->getMessage(), 'must not be accessed before initialization')) {
                 throw new EnvironmentException(tr('Failed to generate new environment configuration because not all setup parameters were copied into the project environment configuration. Please check your setup script.'));
             }
+
             throw new EnvironmentException(tr('Failed to generate new environment configuration because ":e"', [
                 ':e' => $e->getMessage(),
             ]));
         }
+
         Log::action(tr('Ensuring system database is gone'));
+
         sql(null, false)
             ->getSchemaObject()
             ->getDatabaseObject()
             ->drop();
+
         Log::action(tr('Initializing system...'));
         Libraries::initialize(true, true, true, 'System setup');
     }

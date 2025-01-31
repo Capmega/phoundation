@@ -116,6 +116,6 @@ trait TraitDataEntrySshAccount
      */
     public function setSshAccountsName(?string $ssh_accounts_name): static
     {
-        return $this->setSshAccountObject(SshAccount::new(['name' => $ssh_accounts_name])->loadOrNull());
+        return $this->setSshAccountObject(SshAccount::new()->loadOrNull(['name' => $ssh_accounts_name]));
     }
 }

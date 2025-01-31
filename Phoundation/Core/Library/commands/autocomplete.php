@@ -16,12 +16,7 @@ declare(strict_types=1);
 
 use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Date\DateTime;
-use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\PhoFile;
-use Phoundation\Filesystem\FsRestrictions;
 
 
 CliDocumentation::setUsage('./pho system clear [OPTIONS]

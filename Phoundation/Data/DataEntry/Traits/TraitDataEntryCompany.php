@@ -105,6 +105,6 @@ trait TraitDataEntryCompany
      */
     public function setCompaniesName(?string $companies_name): static
     {
-        return $this->setCompanyObject(Company::new(['name' => $companies_name])->loadOrNull());
+        return $this->setCompanyObject(Company::new()->loadOrNull(['name' => $companies_name]));
     }
 }

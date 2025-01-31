@@ -105,6 +105,6 @@ trait TraitDataEntryCustomer
      */
     public function setCustomersName(?string $customers_name): static
     {
-        return $this->setCustomerObject(Customer::new(['name' => $customers_name])->loadOrNull());
+        return $this->setCustomerObject(Customer::new()->loadOrNull(['name' => $customers_name]));
     }
 }

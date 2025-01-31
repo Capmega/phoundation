@@ -26,8 +26,8 @@ use Phoundation\Core\Core;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryData;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaException;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaInvalidDataException;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaTestException;
@@ -37,6 +37,8 @@ use Phoundation\Network\PhoMeta\Interfaces\PhoMetaTestInterface;
 use Phoundation\Utils\Json;
 use Throwable;
 
+
+throw new UnderConstructionException(tr('Fix all TODOS in PhoMeta!!'));
 
 class PhoMeta extends DataEntry implements PhoMetaInterface
 {
@@ -58,13 +60,13 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
     /**
      * Returns a new PhoMeta object
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param mixed|null $placeholder_to_detect_incorrect_dataentry_constructor_or_new_calls
      *
      * @return static
      */
-    public static function new(IdentifierInterface|array|string|int|null $identifier = null): static
+    public static function new(mixed $placeholder_to_detect_incorrect_dataentry_constructor_or_new_calls = null): static
     {
-        return parent::new($identifier)->setGlobalId(Core::resetGlobalId());
+        return parent::new($placeholder_to_detect_incorrect_dataentry_constructor_or_new_calls)->setGlobalId(Core::resetGlobalId());
     }
 
 
@@ -113,14 +115,12 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
         $source = parent::getSource($filter_meta);
 
         try {
-            $data = Json::ensureDecoded($source['data']);
+            $source['data'] = Json::ensureDecoded($source['data']);
 
         } catch (Throwable $e) {
-            Throw PhoMetaInvalidDataException::new(tr('Error decoding this PhoMeta source'))
-                                             ->addData($e);
+            throw PhoMetaInvalidDataException::new(tr('Failed to decode PhoMeta source data'), $e);
         }
 
-        $source['data'] = $data;
         return $source;
     }
 
@@ -135,10 +135,11 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
     public function extractPhoMetaData(string $message): string
     {
         if (PhoMeta::hasPhoMetaHeader($message)) {
-            // Message is json and contains 'meta' and 'data'
+            // The message is JSON and contains 'meta' and 'data'
             $message = $this->parsePhoMessage($message);
 
         } else {
+            // TODO This library can NOT depend on HL7 messages!
             // Set hash based on HL7 message
             $this->setHash(hash('sha256', $message));
         }
@@ -192,14 +193,18 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
 
         } catch (Throwable $e) {
             throw PhoMetaException::new(tr('Specified PhoMeta enabled message could not be JSON decoded and is likely invalid'), $e)
-                                  ->addData(['message' => $message]);
+                                  ->addData([
+                                      'message' => $message
+                                  ]);
         }
 
         foreach (['data', 'meta'] as $part) {
             if (!array_key_exists($part, $json)) {
                 throw PhoMetaException::new(tr('The specified PhoMeta enabled message is missing the ":part" section', [
                     ':part' => $part
-                ]))->addData(['message' => $message]);
+                ]))->addData([
+                    'message' => $message
+                ]);
             }
         }
 
@@ -405,13 +410,13 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
 
         try {
             if ($test_data['component'] === $component) {
+// TODO Fix this new() call to use some load() method. What is $test_data? How should this be loaded?
                 PhoMetaTest::new($test_data)->finish();
                 return true;
             }
 
         } catch (PhoMetaTestException $e) {
-            throw PhoMetaException::new(tr('Failed to save PhoMetaTest Data'))
-                                  ->addData($e);
+            throw PhoMetaException::new(tr('Failed to save PhoMetaTest Data'), $e);
         }
 
         return false;

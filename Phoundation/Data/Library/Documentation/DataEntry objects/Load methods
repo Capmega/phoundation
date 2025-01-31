@@ -1,25 +1,25 @@
 DataEntry objects have 5 different types of load methods, each with different behavior for the specified identifier(s)
 
-DataEntry::load($identifier)            Will load the DataEntry with the specified identifier from the database.
-                                        An identifier is required and the entry MUST exist
+DataEntry::load($identifier)                 Will load the DataEntry with the specified identifier from the database.
+                                             An identifier is required and the entry MUST exist
 
-DataEntry::loadOrNull($identifier)      Will load the DataEntry with the specified identifier from the database.
-                                        An identifier is optional and if specified, the entry MUST exist.
-                                        NULL will be returned if the specified identifier is empty
+DataEntry::loadOrNull($identifier)           Will load the DataEntry with the specified identifier from the database.
+                                             An identifier is optional and if specified, the entry MUST exist. NULL
+                                             will be returned if the specified identifier is empty
 
-DataEntry::loadOrThis($identifier)      Will load the DataEntry with the specified identifier from the database.
-                                        An identifier is optional and if specified, the entry MUST exist.
-                                        The empty object will be returned if the specified identifier is empty
+DataEntry::loadOrThis($identifier)           Will load the DataEntry with the specified identifier from the database.
+                                             An identifier is optional and if specified, the entry MUST exist. The
+                                             empty object will be returned if the specified identifier is empty
 
-DataEntry::loadOrNullNew($identifier)   Will load the DataEntry with the specified identifier from the database.
-                                        An identifier is optional and if specified, and the entry does not exist, $this
-                                        empty object will be returned.
-                                        If the specified identifier is empty, $this empty object will be returned
+DataEntry::loadOrNullInitialize($identifier) Will load the DataEntry with the specified identifier from the database.
+                                             An identifier is optional and if specified, and the entry does not
+                                             exist, $this empty object will be returned. If the specified identifier
+                                             is empty, $this empty object will be returned
 
-DataEntry::loadOrThisNew($identifier)   Will load the DataEntry with the specified identifier from the database.
-                                        An identifier is optional and if specified, and the entry does not exist, $this
-                                        empty object will be returned.
-                                        If the specified identifier is empty, NULL will be returned
+DataEntry::loadOrThisInitialize($identifier) Will load the DataEntry with the specified identifier from the database.
+                                             An identifier is optional and if specified, and the entry does not
+                                             exist, $this empty object will be returned. If the specified identifier
+                                             is empty, NULL will be returned
 
 See the identifier / return table below for a comprehensive view of how each method responds.
 
@@ -66,14 +66,14 @@ See the identifier / return table below for a comprehensive view of how each met
 
 Identifier / return table:
 
-Method  /  identifier(s):    Empty (NULL, 0, "", etc)                          Existing                                          Non existing
+Method  /  identifier(s):         Empty (NULL, 0, "", etc)                          Existing                                          Non existing
 
-DataEntry::load()            DataEntryNoIdentifierSpecifiedException           DataEntry object with data                        DataEntryNotExistsException
+DataEntry::load()                 DataEntryNoIdentifierSpecifiedException           DataEntry object with data                        DataEntryNotExistsException
 
-DataEntry::loadOrNull()      NULL                                              DataEntry object with data                        DataEntryNotExistsException
+DataEntry::loadOrNull()           NULL                                              DataEntry object with data                        DataEntryNotExistsException
 
-DataEntry::loadOrThis()      $this                                             DataEntry object with data                        DataEntryNotExistsException
+DataEntry::loadOrThis()           $this                                             DataEntry object with data                        DataEntryNotExistsException
 
-DataEntry::loadOrNullNew()   NULL                                              DataEntry object with data                        $this (being a new, empty object of the used class)
+DataEntry::loadOrNullInitialize() NULL                                              DataEntry object with data                        $this, being a same object but initialized with the specified identifier value(s)
 
-DataEntry::loadOrThisNew()   $this                                             DataEntry object with data                        $this (being a new, empty object of the used class)
+DataEntry::loadOrThisInitialize() $this                                             DataEntry object with data                        $this, being a same object but initialized with the specified identifier value(s)

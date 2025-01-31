@@ -51,6 +51,7 @@ use Phoundation\Data\DataEntry\Exception\DataEntryNotSavedException;
 use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntry\Exception\DataEntryStateMismatchException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryDefinitions;
 use Phoundation\Data\EntryCore;
@@ -84,6 +85,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhoException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
@@ -272,7 +274,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
         // Set up the columns for this object
         // Store meta_enabled and identifier information
-        // Initialize meta data and copy empty data to source
+        // Initialize meta-data and copy empty data to source
         $this->setMetaDefinitions()
              ->setDefinitions($this->definitions)
              ->setMetaData()
@@ -286,6 +288,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      * DataEntry destructor
      *
      * @todo For now this check is only performed when enabled with configuration as this can cause a lot of unexpected behaviour. Improve this later
+     * @todo in the future  this should check if the Core is in uncaught exception state. If so, do nothing. If Core is in script execution state, this should throw an DataEntryNotSavedException
      */
     public function __destruct()
     {
@@ -674,11 +677,23 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     /**
      * Returns id for this database entry
      *
+     * @param bool $exception
+     *
      * @return int|null
      */
-    public function getId(): int|null
+    public function getId(bool $exception = true): int|null
     {
-        return $this->getTypesafe('int', $this->getIdColumn());
+        $id = $this->getTypesafe('int', static::getIdColumn());
+
+        if (empty($id)) {
+            if ($exception) {
+                throw new DataEntryNotSavedException(tr('Cannot return ID for ":class" class object, it has not been saved yet', [
+                    ':class' => static::getClassName(),
+                ]));
+            }
+        }
+
+        return $id;
     }
 
 
@@ -689,16 +704,29 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     public function getDisplayId(): ?string
     {
-        return $this->formatDisplayVariables($this->getId());
+        return $this->formatDisplayVariables($this->getId(false));
+    }
+
+
+    /**
+     * Returns id for this database entry that can be used in logs
+     *
+     * @return string
+     */
+    public function getLogId(): string
+    {
+        return $this->getId(false) . ' / ' . (static::getUniqueColumn() ? $this->getTypesafe('string', static::getUniqueColumn()) : '-');
     }
 
 
     /**
      * Returns the unique identifier for this database entry, which will be the ID column if it does not have any
      *
+     * @param bool $exception
+     *
      * @return string|float|int|null
      */
-    public function getUniqueColumnValue(): string|float|int|null
+    public function getUniqueColumnValue(bool $exception = true): string|float|int|null
     {
         $key = static::getUniqueColumn();
 
@@ -714,7 +742,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             ]));
         }
 
-        return $this->getId();
+        return $this->getId($exception);
     }
 
 
@@ -914,6 +942,48 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
 
     /**
+     * Initializes this DataEntry with the specified identifier data
+     *
+     * @note The ID column will NEVER be initialized
+     *
+     * @note This method should never receive NULL identifiers since those should be handled by the various load methods
+     *
+     * @note This method should never receive DataEntryInterface objects since this would always load
+     *
+     * @param DataIteratorInterface|array|string|int $identifier
+     *
+     * @return $this
+     */
+    protected function initialize(DataIteratorInterface|array|string|int $identifier): static
+    {
+        if (is_numeric($identifier)) {
+            // NEVER initialize the ID column
+            return $this;
+        }
+
+        if (is_string($identifier)) {
+            // Initialize only the unique column
+            return $this->set($identifier, static::getUniqueColumn());
+        }
+
+        if (is_array($identifier)) {
+            // Initialize all columns that are NOT the ID column for this DataEntry object
+            foreach($identifier as $column => $value) {
+                if ($column !== static::getIdColumn()) {
+                    $this->set($value, $column);
+                }
+            }
+
+        } elseif ($identifier instanceof DataIteratorInterface) {
+            // Get the source from the DataIteratorInterface and try again
+            return $this->initialize($identifier->getSource());
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or NULL if NULL
      * identifier was specified
      *
@@ -957,16 +1027,15 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      *
      * @return static
      */
-    public function loadOrThisNew(IdentifierInterface|array|string|int|null $identifier = null): static
+    public function loadOrThisInitialize(IdentifierInterface|array|string|int|null $identifier = null): static
     {
         try {
             return $this->loadOrThis($identifier);
 
         } catch (DataEntryNotExistsException) {
             // This entry does not yet exist! Ignore, and just presume we want to make THIS particular entry.
+            return $this->initialize($identifier);
         }
-
-        return $this;
     }
 
 
@@ -978,16 +1047,15 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      *
      * @return static|null
      */
-    public function loadOrNullNew(IdentifierInterface|array|string|int|null $identifier = null): ?static
+    public function loadOrNullInitialize(IdentifierInterface|array|string|int|null $identifier = null): ?static
     {
         try {
             return $this->loadOrNull($identifier);
 
         } catch (DataEntryNotExistsException) {
             // This entry does not yet exist! Ignore, and just presume we want to make THIS particular entry.
+            return $this->initialize($identifier);
         }
-
-        return $this;
     }
 
 
@@ -2931,17 +2999,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         }
 
         return (string) $this->getId();
-    }
-
-
-    /**
-     * Returns id for this database entry that can be used in logs
-     *
-     * @return string
-     */
-    public function getLogId(): string
-    {
-        return $this->getTypesafe('int', static::getIdColumn()) . ' / ' . (static::getUniqueColumn() ? $this->getTypesafe('string', static::getUniqueColumn()) : '-');
     }
 
 

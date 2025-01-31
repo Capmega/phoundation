@@ -35,10 +35,10 @@ use Phoundation\Web\Requests\Response;
 
 // Validate GET and get the requested requirement
 $get = GetValidator::new()
-    ->select('id')->isOptional()->isDbId()
-    ->validate();
+                   ->select('id')->isOptional()->isDbId()
+                   ->validate();
 
-$requirement = Requirement::new($get['id']);
+$requirement = Requirement::new()->loadOrThis($get['id']);
 
 
 // Validate POST and submit
@@ -48,8 +48,8 @@ if (Request::isPostRequestMethod()) {
             case tr('Save'):
                 // Validate roles
                 $post = PostValidator::new()
-                    ->select('roles_id')->isOptional()->isArray()->eachField()->isOptional()->isDbId()
-                    ->validate(false);
+                                     ->select('roles_id')->isOptional()->isArray()->eachField()->isOptional()->isDbId()
+                                     ->validate(false);
 
                 // Update requirement, roles, emails, and phones
                 $requirement->apply(false)->save();
@@ -69,22 +69,6 @@ if (Request::isPostRequestMethod()) {
 
                 Response::redirect();
 
-            case tr('Lock'):
-                $requirement->lock();
-                Response::getFlashMessagesObject()->addSuccess(tr('The requirement ":requirement" has been locked', [
-                    ':requirement' => $requirement->getDisplayName()
-                ]));
-
-                Response::redirect();
-
-            case tr('Unlock'):
-                $requirement->unlock();
-                Response::getFlashMessagesObject()->addSuccess(tr('The requirement ":requirement" has been unlocked', [
-                    ':requirement' => $requirement->getDisplayName()
-                ]));
-
-                Response::redirect();
-
             case tr('Undelete'):
                 $requirement->undelete();
                 Response::getFlashMessagesObject()->addSuccess(tr('The requirement ":requirement" has been undeleted', [
@@ -95,7 +79,7 @@ if (Request::isPostRequestMethod()) {
         }
 
     } catch (IncidentsException | ValidationFailedException $e) {
-        // Oops! Show validation errors and remain on page
+        // Oops! Show validation errors and remain on the page
         Response::getFlashMessagesObject()->addMessage($e);
         $requirement->forceApply();
     }
@@ -174,10 +158,10 @@ $requirement_card = Card::new()
 $picture = Card::new()
     ->setTitle(tr('Requirement profile picture'))
     ->setContent(Img::new()
-        ->addClasses('w100')
-        ->setSrc(Url::new('img/profiles/default.png')->makeImg())
-//        ->setSrc($requirement->getPicture())
-        ->setAlt(tr('Profile picture for :requirement', [':requirement' => $requirement->getDisplayName()])));
+                    ->addClasses('w100')
+                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
+//                    ->setSrc($requirement->getPicture())
+                    ->setAlt(tr('Profile picture for :requirement', [':requirement' => $requirement->getDisplayName()])));
 
 
 // Build relevant links
@@ -192,20 +176,8 @@ $documentation = Card::new()
     ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Documentation'))
     ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
-                         <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
-                         <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
-
-
-// Render and return the page grid
-$grid = Grid::new()
-    ->addGridColumn(GridColumn::new()
-        // The requirement card and all additional cards
-        ->addContent($requirement_card)
-        ->setSize(9)
-        ->useForm(true))
-    ->addGridColumn($picture->render() . $relevant->render() . $documentation->render(), EnumDisplaySize::three);
-
-echo $grid->render();
+                  <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
+                  <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
 // Set page meta data
@@ -219,3 +191,13 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/phoundation/file-systems/requirements.html' => tr('Requirements'),
     ''                                            => $requirement->getDisplayName()
 ]));
+
+
+// Return the page grid
+return Grid::new()
+           ->addGridColumn(GridColumn::new()
+                                     // The requirement card and all additional cards
+                                     ->addContent($requirement_card)
+                                     ->setSize(9)
+                                     ->useForm(true))
+           ->addGridColumn($picture->render() . $relevant->render() . $documentation->render(), EnumDisplaySize::three);
