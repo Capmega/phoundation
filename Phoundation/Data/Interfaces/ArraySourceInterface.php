@@ -40,11 +40,10 @@ interface ArraySourceInterface extends ArrayableInterface, Countable
      *
      * @param IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null
      * @param array|null                                       $execute
-     * @param bool                                             $filter_meta
      *
      * @return static
      */
-    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, bool $filter_meta = false): static;
+    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
 
     /**
      * Returns the number of items contained in this object
