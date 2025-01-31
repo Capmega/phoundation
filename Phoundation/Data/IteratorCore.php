@@ -78,7 +78,9 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     }
     use TraitDataRestrictions;
     use TraitDataRowCallbacks;
-    use TraitDataSourceArray;
+    use TraitDataSourceArray{
+        setSource as protected __setSource;
+    }
     use TraitDataName {
         getName as protected __getName;
     }
@@ -137,6 +139,25 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     public static function getDefaultContentDataType(): ?string
     {
         return 'mixed';
+    }
+
+
+    /**
+     * Sets the source
+     *
+     * @param IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null
+     * @param array|null                                       $execute
+     *
+     * @return static
+     *
+     * @TODO: implement $filter_meta for iterators
+     *
+     */
+    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
+    {
+        $this->source = Arrays::extractSourceArray($source, $execute);
+
+        return $this;
     }
 
 

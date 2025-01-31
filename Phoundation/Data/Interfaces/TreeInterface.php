@@ -41,7 +41,7 @@ interface TreeInterface extends IteratorInterface
     /**
      * @inheritDoc
      */
-    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, bool $filter_meta = false): static;
+    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
 
 
     /**
