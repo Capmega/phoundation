@@ -106,6 +106,6 @@ trait TraitDataEntryState
      */
     public function setStatesName(?string $states_name): static
     {
-        return $this->setStateObject(State::new(['name' => $states_name])->loadOrNull());
+        return $this->setStateObject(State::new()->loadOrNull(['name' => $states_name]));
     }
 }

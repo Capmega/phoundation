@@ -105,6 +105,6 @@ trait TraitDataEntryCity
      */
     public function setCitiesName(?string $cities_name): static
     {
-        return $this->setCityObject(City::new(['name' => $cities_name])->loadOrNull());
+        return $this->setCityObject(City::new()->loadOrNull(['name' => $cities_name]));
     }
 }

@@ -76,12 +76,12 @@ class Mount extends Command
      */
     public static function isSource(Stringable|string $path, bool $exception = true): ?bool
     {
-        $path      = PhoDirectory::new($path, PhoRestrictions::new('/'))
-                                 ->getSource(true);
+        $path      = PhoDirectory::new($path, PhoRestrictions::new('/'))->getSource(remove_terminating_slash: true);
         $sources   = FsMounts::listMountSources();
         $targets   = FsMounts::listMountTargets();
         $is_source = $sources->keyExists($path);
         $is_target = $targets->keyExists($path);
+
         if ($is_source) {
             if ($is_target) {
                 // Wut? its target that was used as a source? Could be a bind? Should this be logged?
@@ -95,6 +95,7 @@ class Mount extends Command
             if ($is_target) {
                 return false;
             }
+
             // Not even mounted!
             if ($exception) {
                 throw new NotMountedException(tr('Cannot check path ":path" to see if it is a mount source, is neither a mount source or target', [

@@ -105,6 +105,6 @@ trait TraitDataEntryProvider
      */
     public function setProvidersName(?string $providers_name): static
     {
-        return $this->setProviderObject(Provider::new(['name' => $providers_name])->loadOrNull());
+        return $this->setProviderObject(Provider::new()->loadOrNull(['name' => $providers_name]));
     }
 }

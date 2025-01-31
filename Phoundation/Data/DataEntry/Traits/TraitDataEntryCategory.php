@@ -105,6 +105,6 @@ trait TraitDataEntryCategory
      */
     public function setCategoriesName(?string $categories_name): static
     {
-        return $this->setCategoryObject(Category::new(['name' => $categories_name])->loadOrNull());
+        return $this->setCategoryObject(Category::new()->loadOrNull(['name' => $categories_name]));
     }
 }

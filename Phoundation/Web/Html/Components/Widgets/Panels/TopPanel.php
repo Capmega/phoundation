@@ -36,13 +36,13 @@ class TopPanel extends Panel
                                     ->addSource([
                                         tr('Home') => (string) Url::newCurrentDomainRootUrl(),
                                     ]);
-        if (
-            Session::getUserObject()
-                   ->hasAllRights('demos')
-        ) {
+
+        if (Session::getUserObject()->hasAllRights('demos')) {
             $this->source['menu']->add((string) Url::new('demos.html')->makeWww(), tr('Demos'));
         }
+
         parent::__construct($content);
+
         $this->elements = Iterator::new([
             'search',
             'notifications',
@@ -65,11 +65,13 @@ class TopPanel extends Panel
                  ->setNotificationsUrl('/notifications/notification-:ID.html')
                  ->setAllNotificationsUrl('/notifications/unread.html');
         }
+
         if ($this->elements->valueExists('messages')) {
             $this->getMessagesDropDown()
                  ->setMessages(null)
                  ->setMessagesUrl('/messages/unread.html');
         }
+
         if ($this->elements->valueExists('languages')) {
             $this->getLanguagesDropDown()
                  ->setLanguages(null)

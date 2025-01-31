@@ -107,6 +107,7 @@
  * Multiple DataEntries can be contained in DataIterator class objects of a similar type, usually having the same name
  * but in plural. User class objects, for example, can be stored in a Users class object.
  *
+ * @see Library/Documentation/DataEntry/*
  * @see \Phoundation\Data\Entry
  * @see \Phoundation\Data\DataEntry\DataEntryCore
  * @see \Phoundation\Data\DataEntry\Definitions\Definitions

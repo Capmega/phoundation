@@ -27,6 +27,7 @@ use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
+use Phoundation\Security\Incidents\Incident;
 
 class Mode implements ModeInterface
 {
@@ -64,9 +65,17 @@ class Mode implements ModeInterface
         $this->datetime = $mode_file?->getMtime() ?? new PhoDateTime();
 
         try {
-            $this->user = $mode_file ? User::new(['email' => $mode_file->getBasename()]) : new SystemUser();
+            $this->user = $mode_file ? User::new()->loadOrThis(['email' => $mode_file->getBasename()]) : new SystemUser();
 
-        } catch (DataEntryNotExistsException | SqlUnknownDatabaseException | SqlTableDoesNotExistException) {
+        } catch (DataEntryNotExistsException | SqlUnknownDatabaseException | SqlTableDoesNotExistException $e) {
+            Incident::new()
+                    ->setException($e)
+                    ->setTitle(tr('Specified user ":user" for mode file ":file" does not exist, using system user instead', [
+                        ':user' => $mode_file?->getBasename(),
+                        ':mode' => $mode_file?->getRootname()
+                    ]))
+                    ->save();
+
             $this->user = new SystemUser();
         }
     }

@@ -105,6 +105,6 @@ trait TraitDataEntryCountry
      */
     public function setCountriesName(?string $countries_name): static
     {
-        return $this->setCountryObject(Country::new(['name' => $countries_name])->loadOrNull());
+        return $this->setCountryObject(Country::new()->loadOrNull(['name' => $countries_name]));
     }
 }

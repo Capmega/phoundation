@@ -105,6 +105,6 @@ trait TraitDataEntryCounty
      */
     public function setCountiesName(?string $counties_name): static
     {
-        return $this->setCountyObject(County::new(['name' => $counties_name])->loadOrNull());
+        return $this->setCountyObject(County::new()->loadOrNull(['name' => $counties_name]));
     }
 }

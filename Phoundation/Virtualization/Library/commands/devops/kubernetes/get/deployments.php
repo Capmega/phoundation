@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Virtualization\Kubernetes\Deployments\Deployment;
 use Phoundation\Virtualization\Kubernetes\Deployments\Deployments;
@@ -31,9 +32,11 @@ $argv = ArgvValidator::new()
     ->select('name')->isOptional()->matchesRegex('/^[a-z0-9-]+$/')
     ->validate();
 
+
 if ($argv['name']) {
     // Display the specified deployment only
-    echo Deployment::new($argv['name'])->getYaml();
+    Log::cli(Deployment::new()->load($argv['name'])->getYaml());
+
 } else {
     // Display all deployments
     $output = Deployments::new();

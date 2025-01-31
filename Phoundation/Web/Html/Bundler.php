@@ -75,7 +75,7 @@ class Bundler
         $this->setRestrictions(PhoRestrictions::new([
             DIRECTORY_CDN . 'js',
             DIRECTORY_CDN . 'css',
-        ],                                         true, 'Bundler'));
+        ], true, 'Bundler'));
     }
 
 

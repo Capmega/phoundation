@@ -129,6 +129,98 @@ function nl(): void
  *
  * @return string
  */
+function ts(string $text, ?array $replace = null, bool $clean = true, bool $check = true): string
+{
+    // Only on non-production machines, crash when not all entries were replaced as an extra check.
+    if (!Core::isProductionEnvironment() and $check) {
+        preg_match_all('/:\w+/', $text, $matches);
+
+        if (!empty($matches[0])) {
+            if (empty($replace)) {
+                throw new OutOfBoundsException(ts('The ts() text ":text" contains key(s) ":keys" but no replace values were specified', [
+                    ':keys' => Strings::force($matches[0], ', '),
+                    ':text' => $text,
+                ]));
+            }
+
+            // Verify that all specified text keys are available in the replacement array
+            foreach ($matches[0] as $match) {
+                if (!array_key_exists($match, $replace)) {
+                    throw new OutOfBoundsException(ts('The ts() text key ":key" does not exist in the specified replace values for the text ":text"', [
+                        ':key'  => $match,
+                        ':text' => $text,
+                    ]));
+                }
+            }
+        }
+
+        if ($replace) {
+            if (empty($matches[0])) {
+                throw new OutOfBoundsException(ts('The ts() replace array contains key(s) ":keys" but the text ":text" contains no keys', [
+                    ':keys' => Strings::force(array_keys($replace), ', '),
+                    ':text' => $text,
+                ]));
+            }
+
+            // Verify that all specified replacement keys are available in the text
+            $matches = array_flip($matches[0]);
+
+            foreach ($replace as $key => $value) {
+                if (!array_key_exists($key, $matches)) {
+                    throw new OutOfBoundsException(ts('The ts() replace key ":key" does not exist in the specified text ":text"', [
+                        ':key'  => $key,
+                        ':text' => $text,
+                    ]));
+                }
+            }
+        }
+    }
+
+    if ($replace) {
+        if ($clean) {
+            foreach ($replace as &$value) {
+                $value = Strings::log($value);
+            }
+
+        } else {
+            // Ensure all replacements are strings to avoid a crash
+            foreach ($replace as &$value) {
+                $value = Strings::force($value);
+            }
+        }
+
+        unset($value);
+        return str_replace(array_keys($replace), array_values($replace), $text);
+    }
+
+    return $text;
+}
+
+
+/**
+ * Translator marker.
+ *
+ * tr() is a translation marker function. It basic function is to tell the translation system that the text within
+ * should be translated.
+ *
+ * Since text may contain data from either variables or function output, and translators should not be burdened with
+ * copying variables or function calls, all variable data should be identified in the text by a :marker, and the :marker
+ * should be a key (with its value) in the $replace array.
+ *
+ * $replace values are always processed first by Strings::log() to ensure they are readable texts, so the texts sent to
+ * tr() do NOT require Strings::log().
+ *
+ * On non-production systems, tr() will perform a check on both the $text and $replace data to ensure that all markers
+ * have been replaced, and non were forgotten. If results were found, an exception will be thrown. This behaviour does
+ * NOT apply to production systems.
+ *
+ * @param string     $text
+ * @param array|null $replace
+ * @param bool       $clean
+ * @param bool       $check
+ *
+ * @return string
+ */
 function tr(string $text, ?array $replace = null, bool $clean = true, bool $check = true): string
 {
     // Only on non-production machines, crash when not all entries were replaced as an extra check.
@@ -1092,6 +1184,7 @@ function is_really_integer(mixed $source, ?int $larger_than = null): bool
     if ($source != (int) $source) {
         return false;
     }
+
     if ($larger_than === null) {
         return true;
     }

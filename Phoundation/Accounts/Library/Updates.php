@@ -685,121 +685,130 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             GuestUser::new('guest');
 
             // Create default rights and roles
-            $god = Right::new(['name' => 'God'])
+            $god = Right::new()
+                        ->loadOrThis(['name' => 'God'])
                         ->setName('God')
                         ->setDescription('This right will give the user access to everything, everywhere')
                         ->save();
 
-            $admin = Right::new(['name' => 'Admin'])
+            $admin = Right::new()
+                          ->loadOrThis(['name' => 'Admin'])
                           ->setName('Admin')
                           ->setDescription('This right will give the user access to the administrative area of the site, but no specific pages yet')
                           ->save();
 
-            $developer = Right::new(['name' => 'Developer'])
+            $developer = Right::new()
+                              ->loadOrThis(['name' => 'Developer'])
                               ->setName('Developer')
                               ->setDescription('This right will give the user access to the developer area of the site')
                               ->save();
 
-            $accounts = Right::new(['name' => 'Accounts'])
+            $accounts = Right::new()
+                             ->loadOrThis(['name' => 'Accounts'])
                              ->setName('Accounts')
                              ->setDescription('This right will give the user access to the administrative user accounts management section of the site')
                              ->save();
 
-            $security = Right::new(['name' => 'Security'])
+            $security = Right::new()
+                             ->loadOrThis(['name' => 'Security'])
                              ->setName('Security')
                              ->setDescription('This right will give the user access to the administrative security pages of the site')
                              ->save();
 
-            $phoundation = Right::new(['name' => 'Phoundation'])
+            $phoundation = Right::new()
+                                ->loadOrThis(['name' => 'Phoundation'])
                                 ->setName('Phoundation')
                                 ->setDescription('This right will give the user access to the administrative phoundation system management section of the site')
                                 ->save();
 
-            $audit = Right::new(['name' => 'Audit'])
+            $audit = Right::new()
+                          ->loadOrThis(['name' => 'Audit'])
                           ->setName('Audit')
                           ->setDescription('This right will give the user access to the audit information system of the site')
                           ->save();
 
-            $test = Right::new(['name' => 'Test'])
+            $test = Right::new()
+                         ->loadOrThis(['name' => 'Test'])
                          ->setDescription('This right will make certain pages run in test mode. Information from this user may, for example, not show up in reports as it is a test user, generating test data')
                          ->save();
 
-            $demo = Right::new(['name' => 'Demo'])
+            $demo = Right::new()
+                         ->loadOrThis(['name' => 'Demo'])
                          ->setDescription('This right will make certain pages run in demo mode. Information from this user may, for example, not show up in reports as it is a demonstration user, generating demo data')
                          ->save();
 
-            Role::new(['name' => 'Test'])
+            Role::new()
+                ->loadOrThis(['name' => 'Test'])
                 ->setDescription('This role gives the user the test right. See demo right for more information.')
                 ->save()
-                ->getRightsObject()
-                ->add($test);
+                ->getRightsObject()->add($test);
 
-            Role::new(['name' => 'Demo'])
+            Role::new()
+                ->loadOrThis(['name' => 'Demo'])
                 ->setDescription('This role gives the user the demo right. See demo right for more information.')
                 ->save()
-                ->getRightsObject()
-                ->add($demo);
+                ->getRightsObject()->add($demo);
 
             // Define basic roles
-            Role::new(['name' => 'God'])
+            Role::new()
+                ->loadOrThis(['name' => 'God'])
                 ->setName('God')
                 ->setDescription('This role will give the user the "God" right which will give it access to everything, everywhere')
                 ->save()
-                ->getRightsObject()
-                ->add($god);
+                ->getRightsObject()->add($god);
 
-            Role::new(['name' => 'Audit'])
+            Role::new()
+                ->loadOrThis(['name' => 'Audit'])
                 ->setName('Audit')
                 ->setDescription('This role will give the user access to the audit system')
                 ->save()
-                ->getRightsObject()
-                ->add($audit);
+                ->getRightsObject()->add($audit);
 
-            Role::new(['name' => 'Accounts'])
+            Role::new()
+                ->loadOrThis(['name' => 'Accounts'])
                 ->setName('Accounts')
                 ->setDescription('This role will give the user access to the accounts management system')
                 ->save()
-                ->getRightsObject()
-                ->add($accounts);
+                ->getRightsObject()->add($accounts);
 
-            Role::new(['name' => 'Security'])
+            Role::new()
+                ->loadOrThis(['name' => 'Security'])
                 ->setName('Security')
                 ->setDescription('This role will give the user access to the security system')
                 ->save()
-                ->getRightsObject()
-                ->add($security);
+                ->getRightsObject()->add($security);
 
-            Role::new(['name' => 'Administrator'])
+            Role::new()
+                ->loadOrThis(['name' => 'Administrator'])
                 ->setName('Administrator')
                 ->setDescription('This role gives access to all the administrative pages except user account management')
                 ->save()
-                ->getRightsObject()
-                ->add($admin)
-                ->add($audit)
-                ->add($security)
-                ->add($phoundation);
+                ->getRightsObject()->add($admin)
+                                   ->add($audit)
+                                   ->add($security)
+                                   ->add($phoundation);
 
-            Role::new(['name' => 'Accounts administrator'])
+            Role::new()
+                ->loadOrThis(['name' => 'Accounts administrator'])
                 ->setName('Accounts administrator')
                 ->setDescription('This role gives access to only the administrative user account pages')
                 ->save()
-                ->getRightsObject()
-                ->add($admin)
-                ->add($accounts);
+                ->getRightsObject()->add($admin)
+                                   ->add($accounts);
 
-            Role::new(['name' => 'Developer'])
+            Role::new()
+                ->loadOrThis(['name' => 'Developer'])
                 ->setName('Developer')
                 ->setDescription('This role will give the user access to the developer pages of the site')
                 ->save()
-                ->getRightsObject()
-                ->add($developer);
+                ->getRightsObject()->add($developer);
 
-            Role::new(['name' => 'Moderator'])
+            Role::new()
+                ->loadOrThis(['name' => 'Moderator'])
                 ->setName('Moderator')
                 ->setDescription('This role will give the user basic access to the administrative pages of the site')
                 ->save()
-                ->getRightsObject()
-                ->add($admin);
+                ->getRightsObject()->add($admin);
 
             // Create some default roles and rights
             $rights = [
@@ -816,7 +825,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             // Add default rights
             foreach ($rights as $right) {
                 if (!Right::exists(['name' => $right])) {
-                    Right::new(['name' => $right])
+                    Right::new()
+                         ->loadOrThis(['name' => $right])
                          ->setName($right)
                          ->save();
                 }
@@ -825,11 +835,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             // Add default roles and assign the default rights to them
             foreach ($rights as $role) {
                 if (!Role::exists(['name' => $role])) {
-                    Role::new(['name' => $role])
+                    Role::new()
+                        ->loadOrThis(['name' => $role])
                         ->setName($role)
                         ->save()
-                        ->getRightsObject()
-                        ->add($role);
+                        ->getRightsObject()->add($role);
                 }
             }
 

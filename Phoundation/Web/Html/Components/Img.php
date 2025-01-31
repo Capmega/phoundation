@@ -50,10 +50,10 @@ class Img extends ImgCore
     /**
      * Img constructor
      *
-     * @param ImageFileInterface|string $src
-     * @param string|null               $alt
+     * @param ImageFileInterface|string|null $src
+     * @param string|null                    $alt
      */
-    public function __construct(ImageFileInterface|string $src, ?string $alt = null)
+    public function __construct(ImageFileInterface|string|null $src = null, ?string $alt = null)
     {
         parent::___construct();
 
@@ -72,12 +72,12 @@ class Img extends ImgCore
     /**
      * Returns an Img object
      *
-     * @param ImageFileInterface|string $src
-     * @param string|null               $alt
+     * @param ImageFileInterface|string|null $src
+     * @param string|null                    $alt
      *
      * @return static
      */
-    public static function new(ImageFileInterface|string $src, ?string $alt = null): static
+    public static function new(ImageFileInterface|string|null $src = null, ?string $alt = null): static
     {
         return new static($src, $alt);
     }

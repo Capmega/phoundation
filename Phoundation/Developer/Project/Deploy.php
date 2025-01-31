@@ -29,6 +29,7 @@ use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Servers\Server;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
 use Phoundation\Utils\Strings;
 use Throwable;
 
@@ -358,7 +359,7 @@ class Deploy implements DeployInterface
             ]));
         }
 
-        $config = Config::fromSection('deploy', $environment)->get('');
+        $config = config('deploy', $environment)->get('');
 
         foreach ($this->keys as $key => $default) {
             $key = str_replace('-', '_', $key);

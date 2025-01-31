@@ -26,9 +26,9 @@ CliDocumentation::setHelp('This command deletes the specified Kubernetes deploym
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('name', true)->matchesRegex('/^[a-z0-9-]+$/')
-    ->validate();
+                     ->select('name', true)->matchesRegex('/^[a-z0-9-]+$/')
+                     ->validate();
 
 
-// Create new deployment and apply it
-$deployment = Deployment::new($argv['name'])->delete();
+// Create a new deployment and apply it
+$deployment = Deployment::new()->load($argv['name'])->delete();
