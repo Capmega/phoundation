@@ -48,7 +48,7 @@ trait TraitDataReadonly
             ]));
         }
         if (($this instanceof DataEntryInterface) and $this->isReadonly()) {
-            if ($this->isConfigured()) {
+            if ($this->sourceLoadedFromConfiguration()) {
                 throw new DataEntryReadonlyException(tr('Unable to perform action ":action", the ":object" object is readonly because it was read from configuration', [
                     ':action' => $action,
                     ':object' => Strings::fromReverse(get_class($this), '\\'),

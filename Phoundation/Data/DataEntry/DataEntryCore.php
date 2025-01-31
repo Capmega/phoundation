@@ -670,7 +670,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     public function isNew(): bool
     {
-        return $this->getId() === null;
+        return $this->getId(false) === null;
     }
 
 
@@ -680,6 +680,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      * @param bool $exception
      *
      * @return int|null
+     * @throws DataEntryNotSavedException
      */
     public function getId(bool $exception = true): int|null
     {
@@ -704,7 +705,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     public function getDisplayId(): ?string
     {
-        return $this->formatDisplayVariables($this->getId(false));
+        return $this->formatDisplayVariables(($this->getId(false) ?? ts('N/A')));
     }
 
 
@@ -715,7 +716,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     public function getLogId(): string
     {
-        return $this->getId(false) . ' / ' . (static::getUniqueColumn() ? $this->getTypesafe('string', static::getUniqueColumn()) : '-');
+        return ($this->getId(false) ?? ts('N/A')) . ' / ' . (static::getUniqueColumn() ? $this->getTypesafe('string', static::getUniqueColumn()) : '-');
     }
 
 
@@ -1707,12 +1708,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             }
         }
 
-        if ($this->getId() < 0) {
+        if ($this->sourceLoadedFromConfiguration()) {
             $this->readonly = true;
         }
 
         $this->is_validated = $validated;
-        $this->previous_id  = $this->getId();
+        $this->previous_id  = $this->getId(false);
 
         return $this;
     }
@@ -2027,18 +2028,18 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     protected function doApply(bool $clear_source, ValidatorInterface|array|null &$source, bool $force): static
     {
         // Are we allowed to create or modify this DataEntry?
-        if ($this->getId()) {
-            if (!$this->allow_modify) {
-                // auto modify is not allowed, sorry!
-                throw new ValidationFailedException(tr('Cannot modify :entry', [
+        if ($this->isNew()) {
+            if (!$this->allow_create) {
+                // auto create is not allowed, sorry!
+                throw new ValidationFailedException(tr('Cannot create new :entry', [
                     ':entry' => static::getEntryName(),
                 ]));
             }
 
         } else {
-            if (!$this->allow_create) {
-                // auto create is not allowed, sorry!
-                throw new ValidationFailedException(tr('Cannot create new :entry', [
+            if (!$this->allow_modify) {
+                // auto modify is not allowed, sorry!
+                throw new ValidationFailedException(tr('Cannot modify :entry', [
                     ':entry' => static::getEntryName(),
                 ]));
             }
@@ -2145,7 +2146,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         // Set ID so that the array validator can do unique lookups, etc.
         // Tell the validator what table this DataEntry is using and get the column prefix so that the validator knows
         // what columns to select
-        $validator->setId($this->getId())
+        $validator->setId($this->getId(false))
                   ->setDefinitionsObject($this->definitions)
                   ->setColumnPrefix($prefix)
                   ->setMetaColumns($this->getMetaColumns())
@@ -2327,7 +2328,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
                 switch ($this->state_mismatch_handling) {
                     case EnumStateMismatchHandling::ignore:
                         Log::warning(tr('Ignoring database and user meta-state mismatch for ":type" type record with ID ":id" and old state ":old" and new state ":new"', [
-                            ':id'   => $this->getId(),
+                            ':id'   => $this->getId(false) ?? ts('N/A'),
                             ':type' => static::getEntryName(),
                             ':old'  => $this->getMetaState(),
                             ':new'  => $data['meta_state'],
@@ -2342,7 +2343,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
                     case EnumStateMismatchHandling::restrict:
                         throw new DataEntryStateMismatchException(tr('Database and user meta-state for ":type" type record with ID ":id" do not match', [
-                            ':id'   => $this->getId(),
+                            ':id'   => $this->getId(false) ?? ts('N/A'),
                             ':type' => static::getEntryName(),
                         ]));
                 }
@@ -2827,7 +2828,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     public function isReadonly(): bool
     {
-        return $this->readonly or $this->isConfigured();
+        return $this->readonly or $this->sourceLoadedFromConfiguration();
     }
 
 
@@ -2838,9 +2839,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      *
      * @return bool
      */
-    public function isConfigured(): bool
+    public function sourceLoadedFromConfiguration(): bool
     {
-        return $this->getId() < 0;
+        return $this->getId(false) < 0;
     }
 
 
@@ -2854,6 +2855,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         return $this->is_created;
     }
 
+
     /**
      * Returns the previous ID
      *
@@ -2863,6 +2865,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     {
         return $this->previous_id;
     }
+
 
     /**
      * Returns the lowest possible ID that will be auto generated
@@ -2998,7 +3001,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             return isset_get($this->source[static::getUniqueColumn()]);
         }
 
-        return (string) $this->getId();
+        return (string) $this->getId(false);
     }
 
 
@@ -3060,7 +3063,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
         $this->checkReadonly('set-status "' . $status . '"');
 
-        if ($this->getId()) {
+        if ($this->getId(false)) {
             SqlDataEntry::new(sql($this->o_connector), $this)
                         ->setDebug($this->debug)
                         ->setStatus($status, $comments);
@@ -3121,7 +3124,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
         if ($meta_id === null) {
             throw new DataEntryException(tr('DataEntry ":id" does not have meta_id information', [
-                ':id' => $this->getId(),
+                ':id' => $this->getLogId(),
             ]));
         }
 
@@ -3360,7 +3363,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         if (!$this->is_modified and !$force) {
             // Nothing changed, no reason to save
             if ($this->debug) {
-                Log::debug('NOT SAVING IN DB, NOTHING CHANGED FOR "' . get_class($this) . '" ID "' . $this->getId() . '"', 10, echo_header: false);
+                Log::debug('NOT SAVING IN DB, NOTHING CHANGED FOR "' . get_class($this) . '" ID "' . $this->getLogId() . '"', 10, echo_header: false);
             }
 
             return false;
@@ -3387,7 +3390,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
         // Debug this specific entry?
         if ($this->debug) {
-            Log::debug('SAVING DATA ENTRY "' . get_class($this) . '" WITH ID "' . $this->getId() . '"', 10, echo_header: false);
+            Log::debug('SAVING DATA ENTRY "' . get_class($this) . '" WITH ID "' . $this->getLogId() . '"', 10, echo_header: false);
             sql($this->o_connector)->setDebug($this->debug);
         }
 
@@ -3397,7 +3400,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
                                                                  ->write($comments));
 
         if ($this->debug) {
-            Log::information('SAVED DATA ENTRY "' . get_class($this) . '" WITH ID "' . $this->getId() . '"', 10);
+            Log::information('SAVED DATA ENTRY "' . get_class($this) . '" WITH ID "' . $this->getLogId() . '"', 10);
         }
 
         // Write the list, if exists
@@ -3421,7 +3424,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     public function getObjectState(): array
     {
         return [
-            'id'              => $this->getId(),
+            'id'              => $this->getId(false),
             'is_saved'        => $this->is_saved,
             'is_new'          => $this->isNew(),
             'is_created'      => $this->is_created,
@@ -3520,7 +3523,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             } else {
                 // The data in this object hasn't been validated yet! Do so now...
                 if ($this->debug) {
-                    Log::debug('VALIDATING "' . get_class($this) . '" DATA ENTRY WITH ID "' . $this->getId() . '"', echo_header: false);
+                    Log::debug('VALIDATING "' . get_class($this) . '" DATA ENTRY WITH ID "' . $this->getLogId() . '"', echo_header: false);
                 }
 
                 // Gather data that required validation
