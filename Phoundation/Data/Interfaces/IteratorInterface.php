@@ -200,6 +200,7 @@ interface IteratorInterface extends IteratorBaseInterface
      */
     public function addSource(IteratorInterface|array|string|null $source, bool $clear_keys = false, bool $exception = true): static;
 
+
     /**
      * Sets the internal source directly
      *

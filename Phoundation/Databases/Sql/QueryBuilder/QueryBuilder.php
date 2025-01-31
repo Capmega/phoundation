@@ -174,6 +174,65 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
 
 
     /**
+     * Executes the query and returns array with each complete row in a subarray
+     *
+     * Each subarray will have a numeric index key starting from 0
+     *
+     * @param bool $debug
+     *
+     * @return array
+     */
+    public function listArray(bool $debug = false): array
+    {
+        return sql($this->o_connector)->listArray($this->getQuery($debug), $this->execute);
+    }
+
+
+    /**
+     * Executes the single column query and returns array with only scalar values.
+     *
+     * Each key will be a numeric index starting from 0
+     *
+     * @param bool $debug
+     *
+     * @return array
+     */
+    public function listScalar(bool $debug = false): array
+    {
+        return sql($this->o_connector)->listScalar($this->getQuery($debug), $this->execute);
+    }
+
+
+    /**
+     * Executes the query for two columns and will return the results as a key => static value array
+     *
+     * @param bool $debug
+     *
+     * @return array
+     */
+    public function listKeyValue(bool $debug = false): array
+    {
+        return sql($this->o_connector)->listKeyValue($this->getQuery($debug), $this->execute);
+    }
+
+
+    /**
+     * Executes the query for two or more columns and will return the results as a key => values-in-array array
+     *
+     * The key will be the first selected column but will be included in the value array
+     *
+     * @param bool        $debug
+     * @param string|null $column
+     *
+     * @return array
+     */
+    public function listKeyValues(bool $debug = false, ?string $column = null): array
+    {
+        return sql($this->o_connector)->listKeyValues($this->getQuery($debug), $this->execute, $column);
+    }
+
+
+    /**
      * Returns true if this query builder object has all values built to generate a query
      *
      * @return bool
