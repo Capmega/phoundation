@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Library\tests\Phoundation\Web\Http;
+namespace Phoundation\Web\Library\Tests\Phoundation\Web\Http;
 
 use Phoundation\Web\Http\Url;
 use PHPUnit\Framework\TestCase;

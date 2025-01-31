@@ -213,7 +213,7 @@ $documentation_card = Card::new()
 // Set page meta data
 Response::setPageTitle(tr('Connector :connector', [':connector' => $connector->getDisplayName()]));
 Response::setHeaderTitle(tr('Connector'));
-Response::setHeaderSubTitle($connector->getDisplayName() . ($connector->isConfigured() ? ' [' . tr('Configured') . ']' : ''));
+Response::setHeaderSubTitle($connector->getDisplayName() . ($connector->sourceLoadedFromConfiguration() ? ' [' . tr('Configured') . ']' : ''));
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                                                 => tr('Home'),
     '/system-administration.html'                       => tr('System administration'),
