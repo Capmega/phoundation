@@ -113,10 +113,10 @@ class Project implements ProjectInterface
     {
         if (static::projectFileExists()) {
             if (!$force) {
-                throw new OutOfBoundsException(tr('Project file "config/project" already exist'));
+                throw new OutOfBoundsException(tr('Project file "config/project/name" already exist'));
             }
 
-            PhoFile::new(DIRECTORY_ROOT . 'config/project', PhoRestrictions::newWritableObject(DIRECTORY_ROOT))
+            PhoFile::new(DIRECTORY_ROOT . 'config/project/name', PhoRestrictions::newWritableObject(DIRECTORY_ROOT))
                   ->delete();
         }
 
@@ -132,7 +132,7 @@ class Project implements ProjectInterface
      */
     public static function projectFileExists(): bool
     {
-        return file_exists(DIRECTORY_ROOT . 'config/project');
+        return file_exists(DIRECTORY_ROOT . 'config/project/name');
     }
 
 
@@ -178,7 +178,7 @@ class Project implements ProjectInterface
      */
     protected static function saveName(): void
     {
-        file_put_contents(DIRECTORY_ROOT . 'config/project', static::$name);
+        file_put_contents(DIRECTORY_ROOT . 'config/project/name', static::$name);
     }
 
 
@@ -280,8 +280,8 @@ class Project implements ProjectInterface
         }
 
         // Remove the project file
-        Log::warning(tr('Removing project file "config/project"'));
-        PhoFile::new(DIRECTORY_ROOT . 'config/project', PhoRestrictions::new(DIRECTORY_ROOT . 'config/project', true))
+        Log::warning(tr('Removing project file "config/project/name"'));
+        PhoFile::new(DIRECTORY_ROOT . 'config/project/name', PhoRestrictions::new(DIRECTORY_ROOT . 'config/project/name', true))
             ->delete();
     }
 
@@ -358,7 +358,7 @@ class Project implements ProjectInterface
     {
         if (!$project) {
             throw OutOfBoundsException::new(tr('No project name specified in the project file ":file"', [
-                ':file' => 'config/project'
+                ':file' => 'config/project/name'
             ]))->makeWarning();
         }
 
@@ -412,7 +412,7 @@ class Project implements ProjectInterface
      */
     public function load(): ?string
     {
-        $project      = file_get_contents(DIRECTORY_ROOT . 'config/project');
+        $project      = file_get_contents(DIRECTORY_ROOT . 'config/project/name');
         $project      = static::sanitize($project);
         static::$name = $project;
 
