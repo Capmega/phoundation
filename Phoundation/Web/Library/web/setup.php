@@ -5,7 +5,7 @@
  *
  * This is the setup page that will be shown when the system has no project file configured
  *
- * The project file is located in config/project and should contain a valid project name
+ * The project file is located in config/project/name and should contain a valid project name
  *
  * A valid project name matches regex /^[a-z_]+$/
  *

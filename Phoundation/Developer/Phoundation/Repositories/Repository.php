@@ -134,7 +134,7 @@ class Repository extends PhoDirectory implements RepositoryInterface
         // All these files and directories must NOT be available.
         $files = [
             'Templates',
-            'config/version',
+            'config/project/version',
         ];
 
         foreach ($files as $file) {
@@ -144,7 +144,7 @@ class Repository extends PhoDirectory implements RepositoryInterface
         }
 
         // The project file must contain "phoundation"
-        $project = PhoFile::new($this . 'config/project', $this->getRestrictions())->getContentsAsString();
+        $project = PhoFile::new($this . 'config/project/name', $this->getRestrictions())->getContentsAsString();
         $project = trim($project);
 
         if ($project === 'phoundation') {
@@ -193,8 +193,8 @@ class Repository extends PhoDirectory implements RepositoryInterface
             'Tests',
             'pho',
             'Templates',
-            'config/project',
-            'config/version',
+            'config/project/name',
+            'config/project/version',
         ];
 
         foreach ($files as $file) {

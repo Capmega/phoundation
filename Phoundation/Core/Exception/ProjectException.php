@@ -3,7 +3,7 @@
 /**
  * Class NoProjectException
  *
- * This exception is thrown when the config/project file does not exist (or is not readable)
+ * This exception is thrown when the config/project/name file does not exist (or is not readable)
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

@@ -181,7 +181,7 @@ class Phoundation extends Project
     public function isPhoundation(string $directory): bool
     {
         try {
-            $file    = PhoFile::new($directory . 'config/project', $this->restrictions)
+            $file    = PhoFile::new($directory . 'config/project/name', $this->restrictions)
                               ->checkReadable()
                               ->getSource();
             $project = file_get_contents($file);
@@ -192,7 +192,7 @@ class Phoundation extends Project
         } catch (FilesystemException $e) {
             // Failed to read the project file for this project
             Log::warning(tr('Failed to read project file ":file" because ":e"', [
-                ':file' => $directory . 'config/project',
+                ':file' => $directory . 'config/project/name',
                 ':e'    => $e->getMessage()
             ]));
             return false;

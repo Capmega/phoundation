@@ -69,7 +69,7 @@ if (!Project::projectFileExists()) {
 
 } elseif ($argv['project']) {
     if (!FORCE) {
-        throw new OutOfBoundsException(tr('Cannot setup system, project file "config/project" already exists. Please re-run this script with -F / --force option'));
+        throw new OutOfBoundsException(tr('Cannot setup system, project file "config/project/name" already exists. Please re-run this script with -F / --force option'));
     }
 
     Project::remove();

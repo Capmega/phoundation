@@ -533,7 +533,7 @@ class Core implements CoreInterface
     /**
      * Detect and set the project name
      *
-     * The project name is configured in the project file, located in config/project
+     * The project name is configured in the project file, located in config/project/name
      *
      * A valid project name matches regex /^[a-z_]+$/i
      *
@@ -543,15 +543,15 @@ class Core implements CoreInterface
     {
         // Get the project name
         try {
-            $project = strtoupper(trim(file_get_contents(DIRECTORY_ROOT . 'config/project')));
+            $project = strtoupper(trim(file_get_contents(DIRECTORY_ROOT . 'config/project/name')));
 
             if (!$project) {
-                throw new OutOfBoundsException('No project definition found in DIRECTORY_ROOT/config/project file');
+                throw new OutOfBoundsException('No project definition found in DIRECTORY_ROOT/config/project/name file');
             }
 
             if (!preg_match('/^[A-Z_]+$/', $project)) {
                 // Invalid project name
-                throw new OutOfBoundsException('The project name "' . $project . '" specified in config/project is invalid. Please make sure it matches the regular expression /^[a-z_]+$/');
+                throw new OutOfBoundsException('The project name "' . $project . '" specified in config/project/name is invalid. Please make sure it matches the regular expression /^[a-z_]+$/');
             }
 
             define('PROJECT', $project);
@@ -563,29 +563,29 @@ class Core implements CoreInterface
             define('DIRECTORY_PROJECT', DIRECTORY_DATA . 'sources/' . PROJECT . '/');
 
             if ($e instanceof OutOfBoundsException) {
-                throw new ProjectException(tr('Project file is empty. Please ensure that the file "' . DIRECTORY_ROOT . 'config/project" has a valid project name (only letters and dashes)'));
+                throw new ProjectException(tr('Project file is empty. Please ensure that the file "' . DIRECTORY_ROOT . 'config/project/name" has a valid project name (only letters and dashes)'));
             }
 
             // Project file is not readable
-            if (!is_readable(DIRECTORY_ROOT . 'config/project')) {
-                if (file_exists(DIRECTORY_ROOT . 'config/project')) {
+            if (!is_readable(DIRECTORY_ROOT . 'config/project/name')) {
+                if (file_exists(DIRECTORY_ROOT . 'config/project/name')) {
                     // Okay, we have a problem here! The project file DOES exist but is not readable. This is either
                     // (likely) a security file owner / group / mode issue, or a filesystem problem. Either way, we
                     // won't be able to work our way around this.
-                    throw new ProjectException(tr('Project file "config/project" does exist but is not readable. Please check the owner, group and mode for this file'));
+                    throw new ProjectException(tr('Project file "config/project/name" does exist but is not readable. Please check the owner, group and mode for this file'));
                 }
 
                 // The file doesn't exist, that is good. Go to setup mode
-                Log::toAlternateLog('Project file "config/project" does not exist, entering setup mode');
+                Log::toAlternateLog('Project file "config/project/name" does not exist, entering setup mode');
 
                 Core::startPlatform();
                 Core::$state = 'setup';
 
-                throw new ProjectException('Project file "' . DIRECTORY_ROOT . 'config/project" cannot be read. Please ensure it exists');
+                throw new ProjectException('Project file "' . DIRECTORY_ROOT . 'config/project/name" cannot be read. Please ensure it exists');
             }
 
             // Unknown error
-            throw new ProjectException(tr('Failed to get project name, please ensure that the file "' . DIRECTORY_ROOT . 'config/project" is readable'), $e);
+            throw new ProjectException(tr('Failed to get project name, please ensure that the file "' . DIRECTORY_ROOT . 'config/project/name" is readable'), $e);
         }
     }
 
@@ -2010,13 +2010,14 @@ class Core implements CoreInterface
         if (empty($version)) {
             // Get the project version
             try {
-                $version = strtolower(trim(file_get_contents(DIRECTORY_ROOT . 'config/version')));
+                $version = strtolower(trim(file_get_contents(DIRECTORY_ROOT . 'config/project/version')));
+
                 if (!strlen($version)) {
-                    throw new OutOfBoundsException(tr('No version defined in DIRECTORY_ROOT/config/project file'));
+                    throw new OutOfBoundsException(tr('No version defined in DIRECTORY_ROOT/project/version file'));
                 }
 
                 if (!is_version($version)) {
-                    throw new OutOfBoundsException(tr('Invalid version ":version" defined in DIRECTORY_ROOT/config/project file', [
+                    throw new OutOfBoundsException(tr('Invalid version ":version" defined in DIRECTORY_ROOT/config/project/version file', [
                         ':version' => $version,
                     ]));
                 }
@@ -2031,22 +2032,22 @@ class Core implements CoreInterface
                 }
 
                 // Project file is not readable
-                if (!is_readable(DIRECTORY_ROOT . 'config/version')) {
-                    if (file_exists(DIRECTORY_ROOT . 'config/version')) {
+                if (!is_readable(DIRECTORY_ROOT . 'config/project/version')) {
+                    if (file_exists(DIRECTORY_ROOT . 'config/project/version')) {
                         // Okay, we have a problem here! The project file DOES exist but is not readable. This is either
                         // (likely) a security file owner / group / mode issue, or a filesystem problem. Either way, we
                         // won't be able to work our way around this.
-                        throw new CoreException(tr('Project version file "config/version" does exist but is not readable. Please check the owner, group and mode for this file'));
+                        throw new CoreException(tr('Project version file "config/project/version" does exist but is not readable. Please check the owner, group and mode for this file'));
                     }
 
                     // The file doesn't exist, that is good. Go to setup mode
-                    Log::toAlternateLog('Project version file "config/version" does not exist, entering setup mode');
+                    Log::toAlternateLog('Project version file "config/project/version" does not exist, entering setup mode');
 
                     Core::startPlatform();
                     Core::$state = 'setup';
 
                     throw new ProjectException(tr('Project version file ":path" cannot be read. Please ensure it exists', [
-                        ':path' => DIRECTORY_ROOT . 'config/version',
+                        ':path' => DIRECTORY_ROOT . 'config/project/version',
                     ]));
                 }
             }
