@@ -22,6 +22,14 @@ use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 trait TraitDataEntryParent
 {
     /**
+     * Cache for the clinician data
+     *
+     * @var DataEntryInterface|null $o_parent
+     */
+    protected ?DataEntryInterface $o_parent = null;
+
+
+    /**
      * Returns the parents_id for this object
      *
      * @return int|null
@@ -57,23 +65,6 @@ trait TraitDataEntryParent
 
 
     /**
-     * Returns the parents_id for this object
-     *
-     * @return DataEntryInterface|null
-     */
-    public function getParent(): ?DataEntryInterface
-    {
-        $parents_id = $this->getTypesafe('int', 'parents_id');
-
-        if ($parents_id) {
-            return new static($parents_id);
-        }
-
-        return null;
-    }
-
-
-    /**
      * Sets the parents_name for this object
      *
      * @param string|null $parents_name
@@ -83,5 +74,45 @@ trait TraitDataEntryParent
     public function setParentsName(?string $parents_name): static
     {
         return $this->set($parents_name, 'parents_name');
+    }
+
+
+    /**
+     * Returns the parent DataEntry object for this object
+     *
+     * @return DataEntryInterface|null
+     */
+    public function getParent(): ?DataEntryInterface
+    {
+        return $this->o_parent;
+    }
+
+
+    /**
+     * Sets the parent DataEntry object for this object
+     *
+     * @param DataEntryInterface|null $o_parent
+     *
+     * @return static
+     */
+    public function aetParent(?DataEntryInterface $o_parent): static
+    {
+        return $this->setParentData($o_parent);
+    }
+
+
+    /**
+     * Sets the clinician ID, Practitioner Number, and Email
+     *
+     * @param DataEntryInterface|null $o_parent
+     *
+     * @return static
+     */
+    protected function setParentData(?DataEntryInterface $o_parent): static
+    {
+        $this->o_parent = $o_parent;
+
+        return $this->set($o_parent?->getId()  , 'parents_id')
+                    ->set($o_parent?->getName(), 'parents_name');
     }
 }

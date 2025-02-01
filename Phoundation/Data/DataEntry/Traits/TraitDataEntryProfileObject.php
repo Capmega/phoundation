@@ -23,6 +23,14 @@ use Plugins\Phoundation\Hardware\Devices\Profile;
 trait TraitDataEntryProfileObject
 {
     /**
+     * Cache for the profile data
+     *
+     * @var ProfileInterface|null $o_profile
+     */
+    protected ?ProfileInterface $o_profile = null;
+
+
+    /**
      * Returns the profiles_id for this object
      *
      * @return int|null
@@ -36,29 +44,39 @@ trait TraitDataEntryProfileObject
     /**
      * Sets the profiles_id for this object
      *
-     * @param int|null $profiles_id
+     * @param int|null $id
      *
      * @return static
      */
-    public function setProfilesId(?int $profiles_id): static
+    public function setProfilesId(?int $id): static
     {
-        return $this->set($profiles_id, 'profiles_id');
+        return $this->setProfileData(Profile::new()->loadOrNull($id));
     }
 
 
     /**
-     * Returns the profiles_id for this profile
+     * Returns the profiles_code for this profile
      *
-     * @return ProfileInterface|null
+     * @return string|null
      */
-    public function getProfile(): ?ProfileInterface
+    public function getProfilesCode(): ?string
     {
-        $profiles_id = $this->getTypesafe('int', 'profiles_id');
-        if ($profiles_id) {
-            return Profile::get($profiles_id, 'id');
-        }
+        return $this->getTypesafe('string', 'profiles_code');
+    }
 
-        return null;
+
+    /**
+     * Sets the profiles_code for this profile
+     *
+     * @param string|null $code
+     *
+     * @return static
+     */
+    public function setProfilesCode(?string $code): static
+    {
+        return $this->setProfileData(Profile::new()->loadOrNull([
+            'code' => $code
+        ]));
     }
 
 
@@ -76,12 +94,55 @@ trait TraitDataEntryProfileObject
     /**
      * Sets the profiles_name for this profile
      *
-     * @param string|null $profiles_name
+     * @param string|null $name
      *
      * @return static
      */
-    public function setProfilesName(?string $profiles_name): static
+    public function setProfilesName(?string $name): static
     {
-        return $this->set($profiles_name, 'profiles_name');
+        return $this->setProfileData(Profile::new()->loadOrNull([
+            'name' => $name
+        ]));
+    }
+
+
+    /**
+     * Returns the ProfileInterface for this object
+     *
+     * @return ProfileInterface|null
+     */
+    public function getProfile(): ?ProfileInterface
+    {
+        return $this->o_profile;
+    }
+
+
+    /**
+     * Sets the ProfileInterface for this object
+     *
+     * @param ProfileInterface|null $profile
+     *
+     * @return static
+     */
+    public function setProfile(?ProfileInterface $profile): static
+    {
+        return $this->setProfileData($profile);
+    }
+
+
+    /**
+     * Sets the profile data
+     *
+     * @param ProfileInterface|null $o_profile
+     *
+     * @return static
+     */
+    protected function setProfileData(?ProfileInterface $o_profile): static
+    {
+        $this->o_profile = $o_profile;
+
+        return $this->set($o_profile?->getId()  , 'profiles_id')
+                    ->set($o_profile?->getCode(), 'profiles_code')
+                    ->set($o_profile?->getName(), 'profiles_name');
     }
 }
