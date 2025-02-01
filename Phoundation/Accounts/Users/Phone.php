@@ -211,20 +211,20 @@ class Phone extends DataEntry implements PhoneInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
-        $definitions->add(DefinitionFactory::newCode($this, 'verification_code')
+        $definitions->add(DefinitionFactory::newCode('verification_code')
                                            ->setOptional(true)
                                            ->setRender(false)
                                            ->setReadonly(true))
 
-                    ->add(DefinitionFactory::newUsersId($this)
+                    ->add(DefinitionFactory::newUsersId()
                                            ->setRender(false))
 
-                    ->add(DefinitionFactory::newPhone($this)
+                    ->add(DefinitionFactory::newPhone()
                                            ->setSize(4)
                                            ->setOptional(false)
                                            ->setHelpText(tr('An extra phone for the user')))
 
-                    ->add(Definition::new($this, 'account_type')
+                    ->add(Definition::new('account_type')
                                     ->setOptional(true)
                                     ->setElement(EnumElement::select)
                                     ->setSize(3)
@@ -253,7 +253,7 @@ class Phone extends DataEntry implements PhoneInterface
                                     ->setLabel(tr('Type'))
                                     ->setHelpText(tr('The type of phone')))
 
-                    ->add(DefinitionFactory::newDateTime($this, 'verified_on')
+                    ->add(DefinitionFactory::newDateTime('verified_on')
                                            ->setReadonly(true)
                                            ->setSize(3)
                                            ->setDbNullInputType(EnumInputType::text)
@@ -263,14 +263,14 @@ class Phone extends DataEntry implements PhoneInterface
                                            ->setHelpGroup(tr('Account information'))
                                            ->setHelpText(tr('The date when this user was phone verified. Empty if not yet verified')))
 
-                    ->add(DefinitionFactory::newButton($this, 'delete')
+                    ->add(DefinitionFactory::newButton('delete')
                                            ->setInputType(EnumInputType::submit)
                                            ->setSize(2)
                                            ->setLabel(tr('Delete'))
                                            ->addClasses('btn btn-outline-warning')
                                            ->setValue(tr('Delete')))
 
-                    ->add(DefinitionFactory::newDescription($this)
+                    ->add(DefinitionFactory::newDescription()
                                            ->setHelpText(tr('The description for this phone')));
 
         return $this;

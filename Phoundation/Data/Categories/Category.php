@@ -138,7 +138,7 @@ class Category extends DataEntry implements CategoryInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
-        $definitions->add(Definition::new($this, 'parents_id')
+        $definitions->add(Definition::new('parents_id')
                                     ->setOptional(true)
                                     ->setElement(EnumElement::select)
                                     ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
@@ -156,7 +156,7 @@ class Category extends DataEntry implements CategoryInterface
                                                   ->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
                                     }))
 
-                    ->add(Definition::new($this, 'parent')
+                    ->add(Definition::new('parent')
                                     ->setOptional(true)
                                     ->setVirtual(true)
                                     ->setCliColumn('--parent PARENT CATEGORY NAME')
@@ -177,16 +177,16 @@ class Category extends DataEntry implements CategoryInterface
                                                   ->setColumnFromQuery('parents_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$parent']);
                                     }))
 
-                    ->add(DefinitionFactory::newName($this)
+                    ->add(DefinitionFactory::newName()
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isFalse(function ($value, $source) {
                                                    Category::exists(['name' => $value], isset_get($source['id']));
                                                }, tr('already exists'));
                                            }))
 
-                    ->add(DefinitionFactory::newSeoName($this))
+                    ->add(DefinitionFactory::newSeoName())
 
-                    ->add(DefinitionFactory::newDescription($this));
+                    ->add(DefinitionFactory::newDescription());
 
         return $this;
     }

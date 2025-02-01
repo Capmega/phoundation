@@ -153,13 +153,24 @@ class Definition implements DefinitionInterface
     /**
      * UsesNewColumn class constructor
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      */
-    public function __construct(?DataEntryInterface $data_entry, ?string $column = null)
+    public function __construct(?string $column = null)
     {
-        $this->setColumn($column)
-             ->data_entry = $data_entry;
+        $this->setColumn($column);
+    }
+
+
+    /**
+     * Returns a new static object
+     *
+     * @param string|null $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function new(?string $column = null): DefinitionInterface
+    {
+        return new static($column);
     }
 
 
@@ -221,20 +232,6 @@ class Definition implements DefinitionInterface
         $this->source[$key] = $value;
 
         return $this;
-    }
-
-
-    /**
-     * Returns a new static object
-     *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
-     *
-     * @return DefinitionInterface
-     */
-    public static function new(?DataEntryInterface $data_entry, ?string $column = null): DefinitionInterface
-    {
-        return new static($data_entry, $column);
     }
 
 

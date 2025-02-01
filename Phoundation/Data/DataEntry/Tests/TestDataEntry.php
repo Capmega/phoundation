@@ -99,7 +99,7 @@ class TestDataEntry extends DataEntry
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
-        $definitions->add(DefinitionFactory::newName($this)
+        $definitions->add(DefinitionFactory::newName()
                                            ->setOptional(false)
                                            ->setInputType(EnumInputType::name)
                                            ->setSize(12)
@@ -109,13 +109,13 @@ class TestDataEntry extends DataEntry
                                                $validator->isUnique();
                                            }))
 
-                    ->add(DefinitionFactory::newSeoName($this))
+                    ->add(DefinitionFactory::newSeoName())
 
-                    ->add(DefinitionFactory::newCode($this, 'test_column'))
+                    ->add(DefinitionFactory::newCode('test_column'))
 
-                    ->add(DefinitionFactory::newParentsId($this))
+                    ->add(DefinitionFactory::newParentsId())
 
-                    ->add(DefinitionFactory::newDescription($this)
+                    ->add(DefinitionFactory::newDescription()
                                            ->setHelpText(tr('The description for this TestDataEntry')));
 
         return $this;

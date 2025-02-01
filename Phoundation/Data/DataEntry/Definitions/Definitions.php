@@ -55,7 +55,8 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function __construct(?DataEntryInterface $data_entry = null)
     {
-        $this->data_entry = $data_entry;
+        $this->setAcceptedDataTypes(DefinitionInterface::class)
+             ->setDataEntry($data_entry);
     }
 
 
@@ -82,11 +83,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     protected function ensureValueAndPrefix(mixed $value): void
     {
-        if (!($value instanceof DefinitionInterface)) {
-            throw new OutOfBoundsException(tr('Cannot add variable ":value" to the DataEntry definitions list, it is not a DefinitionInterface object', [
-                ':value' => $value,
-            ]));
-        }
+        $value->setDataEntry($this->data_entry);
 
         if ($this->prefix) {
             $value->setColumn($this->prefix . $value->getColumn());

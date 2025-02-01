@@ -603,7 +603,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         foreach ($this->meta_columns as $meta_column) {
             switch ($meta_column) {
                 case 'id':
-                    $definitions->add(Definition::new($this, 'id')
+                    $definitions->add(Definition::new('id')
                                                 ->setDisabled(true)
                                                 ->setInputType(EnumInputType::dbid)
                                                 ->addClasses('text-center')
@@ -614,24 +614,24 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
                     break;
 
                 case 'created_on':
-                    $definitions->add(DefinitionFactory::newCreatedOn($this));
+                    $definitions->add(DefinitionFactory::newCreatedOn());
                     break;
 
                 case 'created_by':
-                    $definitions->add(DefinitionFactory::newCreatedBy($this));
+                    $definitions->add(DefinitionFactory::newCreatedBy());
                     break;
 
                 case 'meta_id':
-                    $definitions->add(DefinitionFactory::newMetaId($this));
+                    $definitions->add(DefinitionFactory::newMetaId());
                     break;
 
                 case 'status':
-                    $definitions->add(DefinitionFactory::newStatus($this)
+                    $definitions->add(DefinitionFactory::newStatus()
                                                        ->setNullDisplay(tr('Ok')));
                     break;
 
                 case 'meta_state':
-                    $definitions->add(DefinitionFactory::newMetaState($this));
+                    $definitions->add(DefinitionFactory::newMetaState());
                     break;
 
                 default:
@@ -641,7 +641,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             }
         }
 
-        $this->definitions = $definitions->add(DefinitionFactory::newDivider($this, 'new-divider')
+        $this->definitions = $definitions->add(DefinitionFactory::newDivider('new-divider')
                                                                 ->addPreRenderFunctions(function(DefinitionInterface $definition, array $source, mixed $value) {
                                                                     // Only render this when displaying meta-elements
                                                                     $definition->setRender(!$this->isNew() and $this->getDefinitionsObject()->getMetaVisible());

@@ -78,7 +78,7 @@ class Requirement extends DataEntry
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
-        $definitions->add(DefinitionFactory::newName($this)
+        $definitions->add(DefinitionFactory::newName()
                                            ->setInputType(EnumInputType::name)
                                            ->setSize(12)
                                            ->setMaxlength(128)
@@ -87,8 +87,8 @@ class Requirement extends DataEntry
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isUnique();
                                            }))
-                    ->add(DefinitionFactory::newSeoName($this))
-                    ->add(Definition::new($this, 'path')
+                    ->add(DefinitionFactory::newSeoName())
+                    ->add(Definition::new('path')
                                     ->setInputType(EnumInputType::name)
                                     ->setSize(6)
                                     ->setMaxlength(255)
@@ -97,7 +97,7 @@ class Requirement extends DataEntry
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isFile();
                                     }))
-                    ->add(Definition::new($this, 'filesystem')
+                    ->add(Definition::new('filesystem')
                                     ->setInputType(EnumInputType::select)
                                     ->setDataSource([
                                         ''             => tr('No requirements'),
@@ -127,7 +127,7 @@ class Requirement extends DataEntry
                                     ->setMaxlength(16)
                                     ->setLabel(tr('Filesystem'))
                                     ->setHelpText(tr('The filesystem this should use')))
-                    ->add(Definition::new($this, 'file_type')
+                    ->add(Definition::new('file_type')
                                     ->setInputType(EnumInputType::select)
                                     ->setDataSource([
                                         ''                 => tr('No requirements'),
@@ -142,7 +142,7 @@ class Requirement extends DataEntry
                                     ->setMaxlength(16)
                                     ->setLabel(tr('File type'))
                                     ->setHelpText(tr('The type of file this should be')))
-                    ->add(DefinitionFactory::newDescription($this)
+                    ->add(DefinitionFactory::newDescription()
                                            ->setHelpText(tr('The description for this mount')));
     }
 }

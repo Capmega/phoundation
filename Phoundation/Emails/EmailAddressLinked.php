@@ -80,13 +80,13 @@ class EmailAddressLinked extends DataEntry
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
-        $definitions->add(DefinitionFactory::newDatabaseId($this, 'emails_id')
+        $definitions->add(DefinitionFactory::newDatabaseId('emails_id')
                                            ->setRender(false))
 
-                    ->add(DefinitionFactory::newDatabaseId($this, 'address_id')
+                    ->add(DefinitionFactory::newDatabaseId('address_id')
                                            ->setRender(false))
 
-                    ->add(Definition::new($this, 'type')
+                    ->add(Definition::new('type')
                                     ->setRender(false)
                                     ->setDataSource([
                                         'from' => tr('From'),
@@ -96,9 +96,9 @@ class EmailAddressLinked extends DataEntry
                                     ])
                                     ->setMaxlength(4))
 
-                    ->add(DefinitionFactory::newEmail($this))
+                    ->add(DefinitionFactory::newEmail())
 
-                    ->add(DefinitionFactory::newName($this));
+                    ->add(DefinitionFactory::newName());
 
         return $this;
     }

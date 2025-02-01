@@ -178,17 +178,17 @@ class SshAccount extends DataEntry implements SshAccountInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
-        $definitions->add(DefinitionFactory::newName($this)
+        $definitions->add(DefinitionFactory::newName()
                                            ->setSize(6)
                                            ->setUnique(true)
                                            ->setHelpGroup(tr('Identification'))
                                            ->setHelpText(tr('The name for this account')))
 
-                    ->add(Definition::new($this, 'seo_name')
+                    ->add(Definition::new('seo_name')
                                     ->setRender(false)
                                     ->setReadonly(true))
 
-                    ->add(Definition::new($this, 'username')
+                    ->add(Definition::new('username')
                                     ->setLabel(tr('Username'))
                                     ->setInputType(EnumInputType::username)
                                     ->setCliColumn(tr('-u,--username NAME'))
@@ -197,10 +197,10 @@ class SshAccount extends DataEntry implements SshAccountInterface
                                     ->setMaxlength(64)
                                     ->setHelpText(tr('The username on the server for this account')))
 
-                    ->add(DefinitionFactory::newDescription($this)
+                    ->add(DefinitionFactory::newDescription()
                                            ->setHelpText(tr('The description for this account')))
 
-                    ->add(DefinitionFactory::newFile($this)
+                    ->add(DefinitionFactory::newFile()
                                            ->setLabel(tr('SSH key file'))
                                            ->setCliColumn(tr('-i,--ssh-key-file FILE'))
                                            ->setHelpText(tr('The SSH key file for this account'))
@@ -208,7 +208,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
                                                $validator->isFile(PhoDirectory::newFilesystemRootObject());
                                            }))
 
-                    ->add(Definition::new($this, 'ssh_key')
+                    ->add(Definition::new('ssh_key')
                                     ->setLabel(tr('SSH key'))
                                     ->setCliColumn(tr('-k,--ssh-key "KEY"'))
                                     ->setCliAutoComplete(true)

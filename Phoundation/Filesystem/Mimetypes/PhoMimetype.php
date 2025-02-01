@@ -348,16 +348,16 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
-        $definitions->add(DefinitionFactory::newName($this)
+        $definitions->add(DefinitionFactory::newName()
                                            ->setOptional(false)
                                            ->setInputType(EnumInputType::name)
                                            ->setSize(6)
                                            ->setMaxlength(128)
                                            ->setHelpText(tr('The name for this mimetype')))
 
-                    ->add(DefinitionFactory::newSeoName($this))
+                    ->add(DefinitionFactory::newSeoName())
 
-                    ->add(DefinitionFactory::newCode($this, 'extension')
+                    ->add(DefinitionFactory::newCode('extension')
                                            ->setOptional(false)
                                            ->setInputType(EnumInputType::code)
                                            ->setSize(2)
@@ -365,21 +365,21 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
                                            ->setLabel('Extension')
                                            ->setHelpText(tr('The extension for this mimetype')))
 
-                    ->add(DefinitionFactory::newCode($this, 'primary_part')
+                    ->add(DefinitionFactory::newCode('primary_part')
                                            ->setRender(false)
                                            ->setDisabled(true)
                                            ->setOptional(true)
                                            ->setLabel('Primary part')
                                            ->setMaxlength(32))
 
-                    ->add(DefinitionFactory::newCode($this, 'secondary_part')
+                    ->add(DefinitionFactory::newCode('secondary_part')
                                            ->setRender(false)
                                            ->setDisabled(true)
                                            ->setOptional(true)
                                            ->setLabel('Secondary part')
                                            ->setMaxlength(96))
 
-                    ->add(DefinitionFactory::newCode($this, 'mimetype')
+                    ->add(DefinitionFactory::newCode('mimetype')
                                            ->setOptional(false)
                                            ->setInputType(EnumInputType::code)
                                            ->setSize(4)
@@ -390,7 +390,7 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
                                                $validator->matchesRegex('/\w+\/[a-z0-9-.]+/');
                                            }))
 
-                    ->add(DefinitionFactory::newNumber($this, 'priority')
+                    ->add(DefinitionFactory::newNumber('priority')
                                            ->setOptional(true, 0)
                                            ->setSize(2)
                                            ->setMin(0)
@@ -399,7 +399,7 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
                                            ->setLabel('Priority')
                                            ->setHelpText(tr('The priority for this mimetype / extension')))
 
-                    ->add(DefinitionFactory::newDescription($this)
+                    ->add(DefinitionFactory::newDescription()
                                            ->setSize(10)
                                            ->setHelpText(tr('The description for this mimetype')));
     }
