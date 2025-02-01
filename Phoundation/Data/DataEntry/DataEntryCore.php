@@ -258,15 +258,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     /**
      * DataEntry class constructor
      *
+     * @param IdentifierInterface|array|string|int|null $identifier = null
      */
-    public function __construct(mixed $placeholder_to_detect_incorrect_dataentry_constructor_or_new_calls = null)
+    public function __construct(IdentifierInterface|array|string|int|null $identifier = null)
     {
-        if ($placeholder_to_detect_incorrect_dataentry_constructor_or_new_calls) {
-            throw new OutOfBoundsException(tr('The ":class" DataEntry object was created incorrectly, please put the identifier in the ->load() method instead of the constructor', [
-                ':class' => static::class,
-            ]));
-        }
-
         // Try to load the DataEntry from the database with the given identifier and column
         if (!isset($this->meta_columns)) {
             $this->meta_columns = static::getDefaultMetaColumns();
@@ -281,6 +276,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
              ->copyValuesToSource([], false)
              ->columns_filter_on_insert = [static::getIdColumn()];
 
+        // Load existing DataEntry immediately?
+        if ($identifier) {
+            $this->load($identifier);
+        }
     }
 
 
