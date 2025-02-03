@@ -164,10 +164,10 @@ class Library implements LibraryInterface
             ]));
 
             PhoException::new($e)
-                     ->log()
-                     ->registerIncident()
-                     ->getNotificationObject()
-                     ->send();
+                        ->log()
+                        ->registerIncident()
+                        ->getNotificationObject()
+                        ->send();
 
             $this->updates = null;
         }

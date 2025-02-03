@@ -820,9 +820,9 @@ FILES variables:
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
-        $definitions->add(DefinitionFactory::newCreatedBy($this))
+        $definitions->add(DefinitionFactory::newCreatedBy())
 
-                    ->add(Definition::new($this, 'users_id')
+                    ->add(Definition::new('users_id')
                                     ->setRender(false)
                                     ->setInputType(EnumInputType::dbid)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -832,7 +832,7 @@ FILES variables:
                                                                    WHERE  `id` = :id', [':id' => '$users_id']);
                                     }))
 
-                    ->add(Definition::new($this, 'code')
+                    ->add(Definition::new('code')
                                     ->setOptional(true)
                                     ->setReadonly(true)
                                     ->setLabel(tr('Code'))
@@ -844,7 +844,7 @@ FILES variables:
                                         $validator->isPrintable();
                                     }))
 
-                    ->add(Definition::new($this, 'mode')
+                    ->add(Definition::new('mode')
                                     ->setLabel(tr('Mode'))
                                     ->setReadonly(true)
                                     ->setOptional(true, EnumDisplayMode::notice)
@@ -855,12 +855,12 @@ FILES variables:
                                         $validator->isDisplayMode();
                                     }))
 
-                    ->add(Definition::new($this, 'icon')
+                    ->add(Definition::new('icon')
                                     ->setRender(false)
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::url))
 
-                    ->add(Definition::new($this, 'priority')
+                    ->add(Definition::new('priority')
                                     ->setReadonly(true)
                                     ->setInputType(EnumInputType::integer)
                                     ->setLabel(tr('Priority'))
@@ -870,7 +870,7 @@ FILES variables:
                                     ->setMax(9)
                                     ->setSize(3))
 
-                    ->add(Definition::new($this, 'title')
+                    ->add(Definition::new('title')
                                     ->setReadonly(true)
                                     ->setLabel(tr('Title'))
                                     ->setMaxlength(255)
@@ -879,7 +879,7 @@ FILES variables:
                                         $validator->isPrintable();
                                     }))
 
-                    ->add(Definition::new($this, 'message')
+                    ->add(Definition::new('message')
                                     ->setReadonly(true)
                                     ->setElement(EnumElement::textarea)
                                     ->setLabel(tr('Message'))
@@ -889,7 +889,7 @@ FILES variables:
                                         $validator->isPrintable();
                                     }))
 
-                    ->add(Definition::new($this, 'url')
+                    ->add(Definition::new('url')
                                     ->setReadonly(true)
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::url)
@@ -897,7 +897,7 @@ FILES variables:
                                     ->setMaxlength(2048)
                                     ->setSize(12))
 
-                    ->add(Definition::new($this, 'details')
+                    ->add(Definition::new('details')
                                     ->setReadonly(true)
                                     ->setOptional(true)
                                     ->setElement(EnumElement::textarea)
@@ -936,7 +936,7 @@ FILES variables:
                                         }
                                     }))
 
-                    ->add(Definition::new($this, 'file')
+                    ->add(Definition::new('file')
                                     ->setReadonly(true)
                                     ->setOptional(true)
                                     ->setRender(false)
@@ -945,7 +945,7 @@ FILES variables:
                                     ->setMaxlength(255)
                                     ->setSize(8))
 
-                    ->add(Definition::new($this, 'line')
+                    ->add(Definition::new('line')
                                     ->setReadonly(true)
                                     ->setOptional(true)
                                     ->setRender(false)
@@ -954,7 +954,7 @@ FILES variables:
                                     ->setMin(1)
                                     ->setSize(4))
 
-                    ->add(Definition::new($this, 'trace')
+                    ->add(Definition::new('trace')
                                     ->setReadonly(true)
                                     ->setOptional(true)
                                     ->setRender(false)

@@ -393,7 +393,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     {
         if ($this->hasStatus('system')) {
             // This is a system type user, either system or guest
-            return Strings::log($this->getId()) . ' / ' . $this->getNickname();
+            return Strings::log(($this->getId(false)) ?? tr('N/A')) . ' / ' . $this->getNickname();
         }
 
         $id    = $this->getTypesafe('int', $this->getIdColumn());
@@ -1087,14 +1087,9 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         }
 
         if (empty($this->rights) or $reload) {
-            if ($this->getId()) {
-                $this->rights = RightsBySeoName::new()
-                                               ->setParentObject($this)
-                                               ->load($order ? ['$order' => ['right' => 'asc']] : null);
-
-            } else {
-                $this->rights = RightsBySeoName::new()->setParentObject($this);
-            }
+            $this->rights = RightsBySeoName::new()
+                                           ->setParentObject($this)
+                                           ->load($order ? ['$order' => ['right' => 'asc']] : null);
         }
 
         return $this->rights;
@@ -2459,7 +2454,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function isNew(): bool
     {
-        $new = $this->getId() === null;
+        $new = $this->getId(false) === null;
 
         if ($new) {
             // System and Guest users are never new!
@@ -2628,12 +2623,12 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
         $definitions->get('status')->setNullDisplay(tr('Ok'));
-        $definitions->add(Definition::new($this, 'remote_id')
+        $definitions->add(Definition::new('remote_id')
                                     ->setOptional(true)
                                     ->setRender(false)
                                     ->setInputType(EnumInputType::number))
 
-                    ->add(Definition::new($this, 'last_sign_in')
+                    ->add(Definition::new('last_sign_in')
                                     ->setOptional(true)
                                     ->setDisabled(true)
                                     ->setInputType(EnumInputType::datetime_local)
@@ -2643,7 +2638,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setNullDisplay(tr('Never signed yet'))
                                     ->setLabel('Last sign in'))
 
-                    ->add(Definition::new($this, 'sign_in_count')
+                    ->add(Definition::new('sign_in_count')
                                     ->setOptional(true, 0)
                                     ->setDisabled(true)
                                     ->setInputType(EnumInputType::text)
@@ -2651,7 +2646,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setSize(3)
                                     ->setLabel(tr('Sign in count')))
 
-                    ->add(Definition::new($this, 'authentication_failures')
+                    ->add(Definition::new('authentication_failures')
                                     ->setOptional(true)
                                     ->setDisabled(true)
                                     ->setInputType(EnumInputType::number)
@@ -2661,7 +2656,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setSize(3)
                                     ->setLabel(tr('Authentication failures')))
 
-                    ->add(Definition::new($this, 'locked_until')
+                    ->add(Definition::new('locked_until')
                                     ->setOptional(true)
                                     ->setDisabled(true)
                                     ->setInputType(EnumInputType::datetime_local)
@@ -2671,7 +2666,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setSize(3)
                                     ->setLabel(tr('Locked until')))
 
-                    ->add(DefinitionFactory::newEmail($this)
+                    ->add(DefinitionFactory::newEmail()
                                            ->setOptional(true)
                                            ->setSize(3)
                                            ->setHelpGroup(tr('Personal information'))
@@ -2693,7 +2688,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                                }
                                            }))
 
-                    ->add(Definition::new($this, 'domain')
+                    ->add(Definition::new('domain')
                                     ->setOptional(true)
                                     ->setMaxlength(128)
                                     ->setSize(3)
@@ -2705,7 +2700,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                         $validator->isDomain();
                                     }))
 
-                    ->add(Definition::new($this, 'username')
+                    ->add(Definition::new('username')
                                     ->setOptional(true)
                                     ->setSize(3)
                                     ->setCliColumn('-u,--username')
@@ -2717,32 +2712,32 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                         $validator->isName(64);
                                     }))
 
-                    ->add(DefinitionFactory::newName($this, 'nickname')
+                    ->add(DefinitionFactory::newName('nickname')
                                            ->setOptional(true)
                                            ->setLabel(tr('Nickname'))
                                            ->setCliColumn('--nickname NAME')
                                            ->setHelpGroup(tr('Personal information'))
                                            ->setHelpText(tr('The nickname for this user')))
 
-                    ->add(DefinitionFactory::newName($this, 'first_names')
+                    ->add(DefinitionFactory::newName('first_names')
                                            ->setOptional(true)
                                            ->setCliColumn('-f,--first-names NAMES')
                                            ->setLabel(tr('First names'))
                                            ->setHelpGroup(tr('Personal information'))
                                            ->setHelpText(tr('The firstnames for this user')))
 
-                    ->add(DefinitionFactory::newName($this, 'last_names')
+                    ->add(DefinitionFactory::newName('last_names')
                                            ->setOptional(true)
                                            ->setCliColumn('-n,--last-names')
                                            ->setLabel(tr('Last names'))
                                            ->setHelpGroup(tr('Personal information'))
                                            ->setHelpText(tr('The lastnames / surnames for this user')))
 
-                    ->add(DefinitionFactory::newTitle($this)
+                    ->add(DefinitionFactory::newTitle()
                                            ->setHelpGroup(tr('Personal information'))
                                            ->setHelpText(tr('The title added to this users name')))
 
-                    ->add(Definition::new($this, 'gender')
+                    ->add(Definition::new('gender')
                                     ->setOptional(true)
                                     ->setElement(EnumElement::select)
                                     ->setSize(3)
@@ -2776,7 +2771,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                         $validator->hasMaxCharacters(6);
                                     }))
 
-                    ->add(DefinitionFactory::newUsersEmail($this, 'leaders_email')
+                    ->add(DefinitionFactory::newUsersEmail('leaders_email')
                                            ->setCliColumn('--leader USER-EMAIL')
                                            ->clearValidationFunctions()
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -2785,7 +2780,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                                          ->setColumnFromQuery('leaders_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leaders_email']);
                                            }))
 
-                    ->add(DefinitionFactory::newUsersId($this, 'leaders_id')
+                    ->add(DefinitionFactory::newUsersId('leaders_id')
                                            ->setCliColumn('--leaders-id USERS-DATABASE-ID')
                                            ->setLabel(tr('Leader'))
                                            ->setHelpGroup(tr('Hierarchical information'))
@@ -2796,7 +2791,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                                          ->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$leaders_id']);
                                            }))
 
-                    ->add(Definition::new($this, 'is_leader')
+                    ->add(Definition::new('is_leader')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::checkbox)
                                     ->setSize(3)
@@ -2809,11 +2804,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                         $validator->isBoolean();
                                     }))
 
-                    ->add(DefinitionFactory::newCode($this, 'code')
+                    ->add(DefinitionFactory::newCode('code')
                                            ->setHelpGroup(tr('Personal information'))
                                            ->setHelpText(tr('The code associated with this user')))
 
-                    ->add(Definition::new($this, 'priority')
+                    ->add(Definition::new('priority')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::number)
                                     ->setSize(3)
@@ -2827,7 +2822,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                         $validator->isInteger();
                                     }))
 
-                    ->add(DefinitionFactory::newDate($this, 'birthdate')
+                    ->add(DefinitionFactory::newDate('birthdate')
                                            ->setLabel(tr('Birthdate'))
                                            ->setCliColumn('-b,--birthdate')
                                            ->setHelpGroup(tr('Personal information'))
@@ -2837,7 +2832,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                                          ->isBefore(PhoDateTime::newTomorrow());
                                            }))
 
-                    ->add(DefinitionFactory::newPhone($this)
+                    ->add(DefinitionFactory::newPhone()
                                            ->setSize(3)
                                            ->setHelpGroup(tr('Personal information'))
                                            ->setHelpText(tr('Main phone number where this user may be contacted'))
@@ -2846,13 +2841,13 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                                $validator->isUnique(tr('already exists as a primary phone number'));
                                            }))
 
-                    ->add(DefinitionFactory::newLanguage($this)
+                    ->add(DefinitionFactory::newLanguage()
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The display language for this user')))
 
-                    ->add(DefinitionFactory::newLanguagesId($this))
+                    ->add(DefinitionFactory::newLanguagesId())
 
-                    ->add(Definition::new($this, 'address')
+                    ->add(Definition::new('address')
                                     ->setOptional(true)
                                     ->setMaxlength(255)
                                     ->setSize(3)
@@ -2865,7 +2860,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                         $validator->isPrintable();
                                     }))
 
-                    ->add(Definition::new($this, 'zipcode')
+                    ->add(Definition::new('zipcode')
                                     ->setOptional(true)
                                     ->setMinlength(4)
                                     ->setMaxlength(8)
@@ -2879,39 +2874,39 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                         $validator->isPrintable();
                                     }))
 
-                    ->add(DefinitionFactory::newCountry($this)
+                    ->add(DefinitionFactory::newCountry()
                                            ->setSize(2)
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The country where this user resides')))
 
-                    ->add(DefinitionFactory::newCountriesId($this)
+                    ->add(DefinitionFactory::newCountriesId()
                                            ->setSize(2))
 
-                    ->add(DefinitionFactory::newState($this)
+                    ->add(DefinitionFactory::newState()
                                            ->setSize(2)
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The state where this user resides')))
 
-                    ->add(DefinitionFactory::newStatesId($this)
+                    ->add(DefinitionFactory::newStatesId()
                                            ->setSize(2))
 
-                    ->add(DefinitionFactory::newCity($this)
+                    ->add(DefinitionFactory::newCity()
                                            ->setSize(2)
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The city where this user resides')))
 
-                    ->add(DefinitionFactory::newCitiesId($this)
+                    ->add(DefinitionFactory::newCitiesId()
                                            ->setSize(2))
 
-                    ->add(DefinitionFactory::newTimezone($this)
+                    ->add(DefinitionFactory::newTimezone()
                                            ->setSize(2)
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The timezone where this user resides')))
 
-                    ->add(DefinitionFactory::newTimezonesId($this)
+                    ->add(DefinitionFactory::newTimezonesId()
                                            ->setSize(2))
 
-                    ->add(Definition::new($this, 'latitude')
+                    ->add(Definition::new('latitude')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::number)
                                     ->setSize(3)
@@ -2924,7 +2919,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                         $validator->isLatitude();
                                     }))
 
-                    ->add(Definition::new($this, 'longitude')
+                    ->add(Definition::new('longitude')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::number)
                                     ->setSize(3)
@@ -2937,7 +2932,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                         $validator->isLongitude();
                                     }))
 
-                    ->add(Definition::new($this, 'offset_latitude')
+                    ->add(Definition::new('offset_latitude')
                                     ->setOptional(true)
                                     ->setReadonly(true)
                                     ->setInputType(EnumInputType::number)
@@ -2947,7 +2942,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setHelpGroup(tr('Location information'))
                                     ->setHelpText(tr('The latitude location for this user with a random offset within the configured range')))
 
-                    ->add(Definition::new($this, 'offset_longitude')
+                    ->add(Definition::new('offset_longitude')
                                     ->setOptional(true)
                                     ->setReadonly(true)
                                     ->setInputType(EnumInputType::number)
@@ -2957,7 +2952,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setHelpGroup(tr('Location information'))
                                     ->setHelpText(tr('The longitude location for this user with a random offset within the configured range')))
 
-                    ->add(Definition::new($this, 'accuracy')
+                    ->add(Definition::new('accuracy')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::number)
                                     ->setSize(3)
@@ -2972,7 +2967,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                         $validator->isFloat();
                                     }))
 
-                    ->add(Definition::new($this, 'type')
+                    ->add(Definition::new('type')
                                     ->setOptional(true)
                                     ->setMaxLength(16)
                                     ->setSize(3)
@@ -2985,7 +2980,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                         $validator->isName();
                                     }))
 
-                    ->add(Definition::new($this, 'keywords')
+                    ->add(Definition::new('keywords')
                                     ->setOptional(true)
                                     ->setMaxlength(255)
                                     ->setSize(3)
@@ -2999,7 +2994,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                         //$validator->sanitizeForceArray(' ')->eachField()->isWord()->sanitizeForceString()
                                     }))
 
-                    ->add(DefinitionFactory::newUrl($this, 'redirect')
+                    ->add(DefinitionFactory::newUrl('redirect')
                                            // Normal users always start with "/force-password-update.html" URL because they lack a password, but remote users should already have a password.
                                            ->setSize(4)
                                            ->setDataSource(Url::new('system/accounts/users/redirect/autosuggest.json')->makeAjax())
@@ -3009,7 +3004,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setHelpGroup(tr('Account information'))
                                            ->setHelpText(tr('The URL where this user will be forcibly redirected to upon sign in')))
 
-                    ->add(DefinitionFactory::newUrl($this, 'default_page')
+                    ->add(DefinitionFactory::newUrl('default_page')
                                            ->setSize(2)
                                            ->setDataSource(Url::new('system/accounts/users/redirect/autosuggest.json')->makeAjax())
                                            ->setInputType(EnumInputType::auto_suggest)
@@ -3017,7 +3012,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setHelpGroup(tr('Preferences'))
                                            ->setHelpText(tr('The user configurable default page where this user will be redirected to upon sign in')))
 
-                    ->add(Definition::new($this, 'url')
+                    ->add(Definition::new('url')
                                     ->setSize(4)
                                     ->setOptional(true)
                                     ->setMaxlength(2048)
@@ -3026,7 +3021,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setHelpGroup(tr('Account information'))
                                     ->setHelpText(tr('A URL specified by the user, usually containing more information about the user')))
 
-                    ->add(DefinitionFactory::newDateTime($this, 'verified_on')
+                    ->add(DefinitionFactory::newDateTime('verified_on')
                                            ->setSize(2)
                                            ->setDisabled(true)
                                            ->setDbNullInputType(EnumInputType::text)
@@ -3036,35 +3031,35 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setHelpGroup(tr('Account information'))
                                            ->setHelpText(tr('The date when this user was email verified. Empty if not yet verified')))
 
-                    ->add(DefinitionFactory::newDescription($this)
+                    ->add(DefinitionFactory::newDescription()
                                            ->setSize(6)
                                            ->setHelpGroup(tr('Account information'))
                                            ->setHelpText(tr('A public description about this user')))
 
-                    ->add(DefinitionFactory::newComments($this)
+                    ->add(DefinitionFactory::newComments()
                                            ->setSize(6)
                                            ->setHelpGroup(tr('Account information'))
                                            ->setHelpText(tr('Comments about this user by leaders or administrators that are not visible to the user')))
 
-                    ->add(DefinitionFactory::newCode($this, 'verification_code')
+                    ->add(DefinitionFactory::newCode('verification_code')
                                     ->setOptional(true)
                                     ->setRender(false)
                                     ->setReadonly(true))
 
-                    ->add(Definition::new($this, 'fingerprint')
+                    ->add(Definition::new('fingerprint')
                                     // TODO Implement
                                     ->setNoValidation(true)
                                     ->setOptional(true)
                                     ->setRender(false))
 
-                    ->add(DefinitionFactory::newCode($this, 'notifications_hash')
+                    ->add(DefinitionFactory::newCode('notifications_hash')
                                     // This hash is set directly so it won't really be touched by DataEntry
                                     ->setOptional(true)
                                     ->setDirectUpdate(true)
                                     ->setRender(false)
                                     ->setReadonly(true))
 
-                    ->add(Definition::new($this, 'password')
+                    ->add(Definition::new('password')
                                     ->setRender(false)
                                     ->setReadonly(true)
                                     ->setOptional(true)
@@ -3077,7 +3072,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                         $validator->isStrongPassword();
                                     }))
 
-                    ->add(DefinitionFactory::newId($this, 'profile_images_id')
+                    ->add(DefinitionFactory::newId('profile_images_id')
                                            ->setOptional(true)
                                            ->setRender(false)
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -3086,7 +3081,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                                }
                                             }))
 
-                    ->add(DefinitionFactory::newFile($this, null, null, 'profile_image')
+                    ->add(DefinitionFactory::newFile(null, null, 'profile_image')
                                            ->setLabel('Profile image')
                                            ->setOptional(true)
                                            ->setRender(false)
@@ -3102,7 +3097,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                                );
                                            }))
 
-                    ->add(DefinitionFactory::newData($this, 'data'));
+                    ->add(DefinitionFactory::newData('data'));
 
         return $this;
     }

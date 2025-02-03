@@ -26,6 +26,7 @@ use Phoundation\Core\Core;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryData;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaException;
@@ -49,10 +50,12 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
 
     /**
      * PhoMeta class constructor
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier
      */
-    public function __construct()
+    public function __construct(IdentifierInterface|array|string|int|null $identifier = null)
     {
-        parent::__construct();
+        parent::__construct($identifier);
         $this->setGlobalId(Core::getGlobalId());
     }
 
@@ -60,13 +63,12 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
     /**
      * Returns a new PhoMeta object
      *
-     * @param mixed|null $placeholder_to_detect_incorrect_dataentry_constructor_or_new_calls
-     *
+     * @param IdentifierInterface|array|string|int|null $identifier
      * @return static
      */
-    public static function new(mixed $placeholder_to_detect_incorrect_dataentry_constructor_or_new_calls = null): static
+    public static function new(IdentifierInterface|array|string|int|null $identifier = null): static
     {
-        return parent::new($placeholder_to_detect_incorrect_dataentry_constructor_or_new_calls)->setGlobalId(Core::resetGlobalId());
+        return parent::new($identifier)->setGlobalId(Core::getGlobalId());
     }
 
 
@@ -432,15 +434,15 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
-        $definitions->add(DefinitionFactory::newCode($this, 'global_id')
+        $definitions->add(DefinitionFactory::newCode('global_id')
                                            ->setMaxlength(32)
                                            ->setLabel('Global request identifier'))
 
-                    ->add(DefinitionFactory::newCode($this, 'hash')
+                    ->add(DefinitionFactory::newCode('hash')
                                            ->setMaxlength(64)
                                            ->setLabel('Message digest'))
 
-                    ->add(DefinitionFactory::newData($this)
+                    ->add(DefinitionFactory::newData()
                                            ->setLabel('Message meta data'));
 
         return $this;

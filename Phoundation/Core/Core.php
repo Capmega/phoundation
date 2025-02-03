@@ -88,7 +88,7 @@ class Core implements CoreInterface
     /**
      * Framework version and minimum required PHP version
      */
-    public const string FRAMEWORK_CODE_VERSION = '4.13.0';
+    public const string FRAMEWORK_CODE_VERSION = '4.14.0';
 
     public const string PHP_MINIMUM_VERSION    = '8.3.0';
 
@@ -283,12 +283,9 @@ class Core implements CoreInterface
         Core::$state                         = 'boot';
         Core::$register['system']['startup'] = microtime(true);
 
-        // Set local and global process identifiers
-        // TODO Implement support for global process identifier
+        // Start the boot up procedure
         Core::resetGlobalId();
-        Core::setLocalId(Core::getGlobalId());
-
-        // Set the platform, constants, load basic library functions, initialize error and signal handling
+        Core::setLocalId();
         Core::detectPlatform();
         Core::ensureModules();
         Core::loadLibraries();
@@ -481,7 +478,7 @@ class Core implements CoreInterface
     {
         try {
             if (Core::$init) {
-                throw new CoreException(tr('Core::startup() was run in the ":state" state. Check backtrace to see what caused this', [
+                throw new CoreStartupFailedException(tr('Core::startup() was run in the ":state" state. Check backtrace to see what caused this', [
                     ':state' => Core::$state,
                 ]));
             }
@@ -500,19 +497,20 @@ class Core implements CoreInterface
 
             if (defined('PLATFORM_WEB')) {
                 if (PLATFORM_WEB and headers_sent($file, $line)) {
+                    // TODO this headers sent part should be done using something like checking against WebHeadersSentException;
                     if (preg_match('/debug-.+\.php$/', $file)) {
-                        throw new CoreStartupFailedException(tr('Core->startup() failed because headers were already sent on ":location", so probably some added debug code caused this issue', [
+                        throw new CoreStartupFailedException(tr('Core failed to start because headers were already sent on ":location", so probably some added debug code caused this issue', [
                             ':location' => $file . '@' . $line,
                         ]), $e);
                     }
 
-                    throw new CoreStartupFailedException(tr('Core::startup() Failed because headers were already sent on ":location"', [
+                    throw new CoreStartupFailedException(tr('Core failed to start because headers were already sent on ":location"', [
                         ':location' => $file . '@' . $line,
                     ]), $e);
                 }
             }
 
-            throw $e;
+            throw new CoreStartupFailedException(tr('Core failed to start'), $e);
         }
     }
 
@@ -526,7 +524,10 @@ class Core implements CoreInterface
      */
     protected static function securePhpSettings(): void
     {
-        ini_set('yaml.decode_php', 'off'); // Do this to avoid the ability to unserialize PHP code
+        ini_set('yaml.decode_php'       , 'off'); // Do this to avoid the ability to unserialize PHP code
+        ini_set('display_startup_errors', 'off'); // Do this to avoid startup error messages being displayed
+        ini_set('display_errors'        , 'off'); // Do this to avoid error messages being displayed
+        ini_set('html_errors'           , 'off'); // Do this to avoid HTML error messages being displayed
     }
 
 
@@ -1015,7 +1016,6 @@ class Core implements CoreInterface
      */
     #[NoReturn] public static function uncaughtExceptionHandler(Throwable $e): never
     {
-        print_r($e);
         //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); exit();
 
         // Make sure that the uncaught exception handler doesn't end in a loop if it crashes by itself
@@ -1211,7 +1211,7 @@ class Core implements CoreInterface
             }
 
             // Set the value
-            Config::set('debug.production', $production);
+            config()->set('debug.production', $production);
             $loop = false;
 
             return $production;
@@ -1590,13 +1590,11 @@ class Core implements CoreInterface
      *
      * @note The global_id can be set only once to avoid log discrepancies
      *
-     * @param string $local_id
-     *
      * @return void
      */
-    protected static function setLocalId(string $local_id): void
+    protected static function setLocalId(): void
     {
-        Core::$local_id = $local_id;
+        Core::$local_id = Core::$global_id;
     }
 
 
@@ -1637,7 +1635,7 @@ class Core implements CoreInterface
      *
      * @return string
      */
-    public static function resetGlobalId(): string
+    protected static function resetGlobalId(): string
     {
         Core::setGlobalId(substr(Strings::getUuid(), 0, 8));
         return Core::getGlobalId();
@@ -2205,11 +2203,12 @@ class Core implements CoreInterface
     /**
      * Returns true if all Core systems like Log, Session, and Config are ready to go
      *
+     * @param string|null $state
      * @return bool
      */
-    public static function isReady(): bool
+    public static function isReady(?string $state = null): bool
     {
-        return match (Core::$state) {
+        return match ($state ?? Core::$state) {
             null, 'setup', 'boot', 'startup', => false,
             default                           => true
         };
@@ -3035,10 +3034,10 @@ class Core implements CoreInterface
             header_remove('Cache-Control');
             header_remove('Expires');
             header_remove('Content-Type');
-            Response::setHttpCode(500);
-            http_response_code(500);
             header('Content-Type: text/html');
             header('Content-length: 1048576'); // Required or browser won't show half the information
+            Response::setHttpCode(500);
+            http_response_code(500);
         }
 
         try {
@@ -3062,29 +3061,26 @@ class Core implements CoreInterface
         Core::removeShutdownCallback('route[postprocess]');
         Core::removeShutdownCallback('route_postprocess');
 
-        if (Core::inStartupState($state)) {
-            /*
-             * Configuration hasn't been loaded yet, we cannot even know
-             * if we are in debug mode or not!
-             *
-             * Try sending the right response code and content type
-             * headers so that at least there will be a visible page
-             * with the right mimetype
-             */
-            if (!headers_sent()) {
-                header('Content-Type: text/html', true);
-            }
-
-            if (method_exists($e, 'getMessages')) {
-                foreach ($e->getMessages() as $message) {
-                    Log::error($message);
+        if (Core::isReady($state)) {
+            if (!Config::hasSections()) {
+                // Configuration isn't available yet, we cannot even know if we are in debug mode or not!
+                // Try sending the right response code and content type headers so that at least there will be a visible
+                // page with the right mimetype
+                if (!headers_sent()) {
+                    header('Content-Type: text/html', true);
                 }
 
-            } else {
-                Log::error($e->getMessage());
-            }
+                if (method_exists($e, 'getMessages')) {
+                    foreach ($e->getMessages() as $message) {
+                        Log::error($message);
+                    }
 
-            Core::exit(1, tr('System startup exception. Please check your DIRECTORY_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
+                } else {
+                    Log::error($e->getMessage());
+                }
+
+                Core::exit(1, tr('System startup exception. Please check your DIRECTORY_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
+            }
         }
 
         if ($e->getCode() === 'validation') {

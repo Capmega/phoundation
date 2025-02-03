@@ -345,7 +345,7 @@ class Meta implements MetaInterface
             if (static::$buffer) {
                 static::$updates[++static::$pointer] = [
                     ':meta_id_' . static::$pointer    => $this->id,
-                    ':created_by_' . static::$pointer => Session::getUserObject()->getId(),
+                    ':created_by_' . static::$pointer => Session::getUserObject()->getId(false),
                     ':source_' . static::$pointer     => (string) (PLATFORM_WEB ? Url::newCurrent() : CliCommand::getExecutedPath()),
                     ':action_' . static::$pointer     => $action,
                     ':comments_' . static::$pointer   => $comments,
@@ -355,9 +355,9 @@ class Meta implements MetaInterface
             } else {
                 // Insert the action in the meta_history table
                 sql()->query('INSERT INTO `meta_history` (`meta_id`, `created_by`, `action`, `source`, `comments`, `data`) 
-                                    VALUES                     (:meta_id , :created_by , :action , :source , :comments , :data )', [
+                              VALUES                     (:meta_id , :created_by , :action , :source , :comments , :data )', [
                     ':meta_id'    => $this->id,
-                    ':created_by' => Session::getUserObject()->getId(),
+                    ':created_by' => Session::getUserObject()->getId(false),
                     ':source'     => (string) (PLATFORM_WEB ? Url::newCurrent() : CliCommand::getExecutedPath()),
                     ':action'     => $action,
                     ':comments'   => $comments,

@@ -69,7 +69,7 @@ class UserFile extends DataEntry
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
-        $definitions->add(DefinitionFactory::newFile($this, PhoDirectory::newUserFilesObject())
+        $definitions->add(DefinitionFactory::newFile(PhoDirectory::newUserFilesObject())
                         ->setOptional(false)
                         ->setSize(12)
                         ->setHelpText(tr('Filename'))
@@ -77,7 +77,7 @@ class UserFile extends DataEntry
                             $validator->isUnique();
                         }))
 
-                    ->add(DefinitionFactory::newFile($this, PhoDirectory::newUserFilesObject(), column: 'seo_file')
+                    ->add(DefinitionFactory::newFile(PhoDirectory::newUserFilesObject(), column: 'seo_file')
                         ->setOptional(false)
                         ->setRender(false)
                         ->setSize(12)
@@ -85,24 +85,24 @@ class UserFile extends DataEntry
                             $validator->isUnique();
                         }))
 
-                    ->add(DefinitionFactory::newUsersId($this)
+                    ->add(DefinitionFactory::newUsersId()
                         ->setOptional(false)
                         ->setSize(4)
                         ->setLabel('Shared from')
                         ->setHelpText(tr('The real owner of this file who shared it')))
 
-                    ->add(DefinitionFactory::newUsersId($this)
+                    ->add(DefinitionFactory::newUsersId()
                         ->setOptional(false)
                         ->setSize(4)
                         ->setLabel('Owner')
                         ->setHelpText(tr('The owner of this file')))
 
-                    ->add(DefinitionFactory::newDatabaseId($this, 'uploads_id')
+                    ->add(DefinitionFactory::newDatabaseId('uploads_id')
                         ->setOptional(true)
                         ->setRender(false)
                         ->setSize(4))
 
-                    ->add(DefinitionFactory::newCode($this, 'extension')
+                    ->add(DefinitionFactory::newCode('extension')
                         ->setOptional(false)
                         ->setInputType(EnumInputType::code)
                         ->setSize(2)
@@ -110,21 +110,21 @@ class UserFile extends DataEntry
                         ->setLabel('Extension')
                         ->setHelpText(tr('The extension for this file')))
 
-                    ->add(DefinitionFactory::newVariable($this, 'primary_part')
+                    ->add(DefinitionFactory::newVariable('primary_part')
                         ->setReadonly(true)
                         ->setOptional(true)
                         ->setSize(4)
                         ->setLabel('Primary mimetype')
                         ->setMaxlength(32))
 
-                    ->add(DefinitionFactory::newVariable($this, 'secondary_part')
+                    ->add(DefinitionFactory::newVariable('secondary_part')
                         ->setReadonly(true)
                         ->setOptional(true)
                         ->setSize(4)
                         ->setLabel('Secondary mimetype')
                         ->setMaxlength(96))
 
-                    ->add(DefinitionFactory::newVariable($this, 'mimetype')
+                    ->add(DefinitionFactory::newVariable('mimetype')
                         ->setOptional(false)
                         ->setReadonly(true)
                         ->setSize(4)
@@ -135,9 +135,9 @@ class UserFile extends DataEntry
                             $validator->matchesRegex('/\w+\/[a-z0-9-.]+/');
                         }))
 
-                    ->add(DefinitionFactory::newHash($this))
+                    ->add(DefinitionFactory::newHash())
 
-                    ->add(DefinitionFactory::newNumber($this, 'size')
+                    ->add(DefinitionFactory::newNumber('size')
                         ->setOptional(false)
                         ->setReadonly(true)
                         ->setSize(4)
@@ -146,7 +146,7 @@ class UserFile extends DataEntry
                         ->setLabel('Size')
                         ->setHelpText(tr('The size of this file in bytes')))
 
-                    ->add(DefinitionFactory::newNumber($this, 'sections')
+                    ->add(DefinitionFactory::newNumber('sections')
                         ->setOptional(false)
                         ->setReadonly(true)
                         ->setSize(4)
@@ -155,7 +155,7 @@ class UserFile extends DataEntry
                         ->setLabel('Sections')
                         ->setHelpText(tr('The amount of sections in the file path')))
 
-                    ->add(DefinitionFactory::newDescription($this)
+                    ->add(DefinitionFactory::newDescription()
                                 ->setHelpText(tr('The description for this role')));
     }
 }

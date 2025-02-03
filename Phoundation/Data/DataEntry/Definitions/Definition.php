@@ -22,6 +22,7 @@ use Phoundation\Data\DataEntry\Definitions\Exception\DefinitionException;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Traits\TraitDataDataEntry;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Data\Validator\Interfaces\ArgvValidatorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
@@ -50,6 +51,7 @@ class Definition implements DefinitionInterface
 {
     use TraitBeforeAfterButtons;
     use TraitDataRestrictions;
+    use TraitDataDataEntry;
 
 
 //    /**
@@ -84,13 +86,6 @@ class Definition implements DefinitionInterface
 //        'auto-suggest',
 //        'array_json',
 //    ];
-
-    /**
-     * The data entry where this definition belongs to
-     *
-     * @var DataEntryInterface|null $data_entry
-     */
-    protected ?DataEntryInterface $data_entry;
 
     /**
      * Validations to execute to ensure
@@ -153,13 +148,24 @@ class Definition implements DefinitionInterface
     /**
      * UsesNewColumn class constructor
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      */
-    public function __construct(?DataEntryInterface $data_entry, ?string $column = null)
+    public function __construct(?string $column = null)
     {
-        $this->setColumn($column)
-             ->data_entry = $data_entry;
+        $this->setColumn($column);
+    }
+
+
+    /**
+     * Returns a new static object
+     *
+     * @param string|null $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function new(?string $column = null): DefinitionInterface
+    {
+        return new static($column);
     }
 
 
@@ -221,20 +227,6 @@ class Definition implements DefinitionInterface
         $this->source[$key] = $value;
 
         return $this;
-    }
-
-
-    /**
-     * Returns a new static object
-     *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
-     *
-     * @return DefinitionInterface
-     */
-    public static function new(?DataEntryInterface $data_entry, ?string $column = null): DefinitionInterface
-    {
-        return new static($data_entry, $column);
     }
 
 
@@ -735,17 +727,6 @@ class Definition implements DefinitionInterface
     public function getData(): array
     {
         return isset_get_typed('array', $this->source['data'], []);
-    }
-
-
-    /**
-     * Returns the data entry for this definition
-     *
-     * @return DataEntryInterface|null
-     */
-    public function getDataEntry(): ?DataEntryInterface
-    {
-        return $this->data_entry;
     }
 
 

@@ -497,19 +497,19 @@ class Incident extends DataEntry implements IncidentInterface
     {
         $definitions->removeKeys('new-divider')
 
-                    ->add(DefinitionFactory::newCreatedBy($this)
+                    ->add(DefinitionFactory::newCreatedBy()
                                            ->setOptional(true))
 
-                    ->add(DefinitionFactory::newDivider($this, 'new-divider'))
+                    ->add(DefinitionFactory::newDivider('new-divider'))
 
-                    ->add(Definition::new($this, 'type')
+                    ->add(Definition::new('type')
                                     ->setLabel(tr('Incident type'))
                                     ->setReadonly(true)
                                     ->setDefault(tr('Unknown'))
                                     ->setSize(6)
                                     ->setMaxlength(64))
 
-                    ->add(Definition::new($this, 'severity')
+                    ->add(Definition::new('severity')
                                     ->setElement(EnumElement::select)
                                     ->setLabel(tr('Severity'))
                                     ->setReadonly(true)
@@ -523,14 +523,14 @@ class Incident extends DataEntry implements IncidentInterface
                                         EnumSeverity::severe->value => tr('Severe'),
                                     ]))
 
-                    ->add(Definition::new($this, 'title')
+                    ->add(Definition::new('title')
                                     ->setLabel(tr('Title'))
                                     ->setReadonly(true)
                                     ->setSize(12)
                                     ->setMinlength(4)
                                     ->setMaxlength(255))
 
-                    ->add(Definition::new($this, 'body')
+                    ->add(Definition::new('body')
                                     ->setElement(EnumElement::textarea)
                                     ->setLabel(tr('Body'))
                                     ->setReadonly(true)
@@ -539,7 +539,7 @@ class Incident extends DataEntry implements IncidentInterface
                                     ->setRows(10)
                                     ->setMaxlength(65_535))
 
-                    ->add(Definition::new($this, 'details')
+                    ->add(Definition::new('details')
                                     ->setElement(EnumElement::textarea)
                                     ->setLabel(tr('Details'))
                                     ->setOptional(true)
@@ -583,14 +583,14 @@ class Incident extends DataEntry implements IncidentInterface
                                         }
                                     }))
 
-                    ->add(Definition::new($this, 'url')
+                    ->add(Definition::new('url')
                                     ->setOptional(true)
                                     ->setReadonly(true)
                                     ->setLabel('URL')
                                     ->setSize(12)
                                     ->setMaxlength(2048))
 
-                    ->add(Definition::new($this, 'exception')
+                    ->add(Definition::new('exception')
                                     ->setElement(EnumElement::textarea)
                                     ->setOptional(true)
                                     ->setReadonly(true)
@@ -602,7 +602,7 @@ class Incident extends DataEntry implements IncidentInterface
                                         $validator->isPrintable();
                                     }))
 
-                    ->add(Definition::new($this, 'data')
+                    ->add(Definition::new('data')
                                     ->setOptional(true)
                                     ->setReadonly(true)
                                     ->setElement(EnumElement::textarea)

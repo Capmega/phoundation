@@ -457,7 +457,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
-        $definitions->add(DefinitionFactory::newName($this)
+        $definitions->add(DefinitionFactory::newName()
                                            ->setInputType(EnumInputType::name)
                                            ->setSize(12)
                                            ->setMaxlength(64)
@@ -467,9 +467,9 @@ class PhoMount extends DataEntry implements PhoMountInterface
                                                $validator->isUnique();
                                            }))
 
-                    ->add(DefinitionFactory::newSeoName($this))
+                    ->add(DefinitionFactory::newSeoName())
 
-                    ->add(Definition::new($this, 'source_path')
+                    ->add(Definition::new('source_path')
                                     ->setInputType(EnumInputType::name)
                                     ->setSize(4)
                                     ->setMaxlength(255)
@@ -479,7 +479,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
                                         $validator->isFile([PhoDirectory::newFilesystemRootObject(), PhoDirectory::newDomainObject('*')]);
                                     }))
 
-                    ->add(Definition::new($this, 'target_path')
+                    ->add(Definition::new('target_path')
                                     ->setInputType(EnumInputType::name)
                                     ->setSize(4)
                                     ->setMaxlength(255)
@@ -489,7 +489,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
                                         $validator->isDirectory(PhoDirectory::newFilesystemRootObject());
                                     }))
 
-                    ->add(Definition::new($this, 'filesystem')
+                    ->add(Definition::new('filesystem')
                                     ->setOptional(true)
                                     ->setSize(4)
                                     ->setDataSource([
@@ -519,7 +519,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
                                     ->setLabel(tr('Filesystem'))
                                     ->setHelpText(tr('The filesystem with which to mount this source')))
 
-                    ->add(Definition::new($this, 'options')
+                    ->add(Definition::new('options')
                                     ->setOptional(true)
                                     ->setSize(6)
                                     ->setDefault('defaults')
@@ -527,23 +527,23 @@ class PhoMount extends DataEntry implements PhoMountInterface
                                     ->setLabel(tr('Options'))
                                     ->setHelpText(tr('The options for this mount')))
 
-                    ->add(DefinitionFactory::newBoolean($this, 'auto_mount')
+                    ->add(DefinitionFactory::newBoolean('auto_mount')
                                            ->setSize(2)
                                            ->setHelpText(tr('If checked, this mount will automatically be mounted by the process using a path in this mount'))
                                            ->setLabel(tr('Auto mount')))
 
-                    ->add(DefinitionFactory::newBoolean($this, 'auto_unmount')
+                    ->add(DefinitionFactory::newBoolean('auto_unmount')
                                            ->setSize(2)
                                            ->setHelpText(tr('If checked, this mount will automatically be unmounted after use when the process using a path in this mount terminates'))
                                            ->setLabel(tr('Auto unmount')))
 
-                    ->add(DefinitionFactory::newNumber($this, 'timeout')
+                    ->add(DefinitionFactory::newNumber('timeout')
                                            ->setOptional(true, 3)
                                            ->setSize(2)
                                            ->setHelpText(tr('If specified, the mount attempt for this filesystem will be aborted after this number of seconds'))
                                            ->setLabel(tr('Timeout')))
 
-                    ->add(DefinitionFactory::newDescription($this)
+                    ->add(DefinitionFactory::newDescription()
                                            ->setHelpText(tr('The description for this mount')));
     }
 }

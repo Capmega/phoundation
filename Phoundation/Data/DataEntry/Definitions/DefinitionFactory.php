@@ -27,7 +27,6 @@ use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Geo\Cities\Cities;
@@ -49,14 +48,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for any database id
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newDatabaseId(?DataEntryInterface $data_entry, ?string $column = 'id'): DefinitionInterface
+    public static function newDatabaseId(?string $column = 'id'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::dbid)
                          ->setSize(3);
@@ -66,15 +64,14 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column categories_id
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
-     * @param array|null              $filters
+     * @param string|null $column
+     * @param array|null  $filters
      *
      * @return DefinitionInterface
      */
-    public static function newCategoriesId(?DataEntryInterface $data_entry, ?string $column = 'categories_id', array $filters = null): DefinitionInterface
+    public static function newCategoriesId(?string $column = 'categories_id', array $filters = null): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
                              return Categories::new()
@@ -103,14 +100,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column categories_name
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newCategory(?DataEntryInterface $data_entry, ?string $column = 'categories_name'): DefinitionInterface
+    public static function newCategory(?string $column = 'categories_name'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setRender(false)
                          ->setVirtual(true)
@@ -141,15 +137,14 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column servers_id
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
-     * @param array|null              $filters
+     * @param string|null $column
+     * @param array|null  $filters
      *
      * @return DefinitionInterface
      */
-    public static function newServersId(?DataEntryInterface $data_entry, ?string $column = 'servers_id', array $filters = null): DefinitionInterface
+    public static function newServersId(?string $column = 'servers_id', array $filters = null): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
                              return Servers::new()
@@ -178,14 +173,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column servers_name
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newServer(?DataEntryInterface $data_entry, ?string $column = 'servers_name'): DefinitionInterface
+    public static function newServer(?string $column = 'servers_name'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setRender(false)
                          ->setVirtual(true)
@@ -216,14 +210,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column parents_id
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newParentsId(?DataEntryInterface $data_entry, ?string $column = 'parents_id'): DefinitionInterface
+    public static function newParentsId(?string $column = 'parents_id'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setSize(6)
                          ->setLabel(tr('Parent'));
@@ -233,14 +226,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column parents_name
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newParent(?DataEntryInterface $data_entry, ?string $column = 'parents_name'): DefinitionInterface
+    public static function newParent(?string $column = 'parents_name'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setRender(false)
                          ->setVirtual(true)
@@ -252,15 +244,14 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column companies_id
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
-     * @param array|null              $filters
+     * @param string|null $column
+     * @param array|null  $filters
      *
      * @return DefinitionInterface
      */
-    public static function newCompaniesId(?DataEntryInterface $data_entry, ?string $column = 'companies_id', array $filters = null): DefinitionInterface
+    public static function newCompaniesId(?string $column = 'companies_id', array $filters = null): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
                              return Companies::new()
@@ -289,14 +280,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column company
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newCompany(?DataEntryInterface $data_entry, ?string $column = 'companies_name'): DefinitionInterface
+    public static function newCompany(?string $column = 'companies_name'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setRender(false)
                          ->setVirtual(true)
@@ -327,15 +317,14 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column languages_id
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
-     * @param array|null              $filters
+     * @param string|null $column
+     * @param array|null  $filters
      *
      * @return DefinitionInterface
      */
-    public static function newLanguagesId(?DataEntryInterface $data_entry, ?string $column = 'languages_id', array $filters = null): DefinitionInterface
+    public static function newLanguagesId(?string $column = 'languages_id', array $filters = null): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::number)
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
@@ -363,14 +352,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column language
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newLanguage(?DataEntryInterface $data_entry, ?string $column = 'languages_name'): DefinitionInterface
+    public static function newLanguage(?string $column = 'languages_name'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setRender(false)
                          ->setVirtual(true)
@@ -402,15 +390,14 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column providers_id
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
-     * @param array|null              $filters
+     * @param string|null $column
+     * @param array|null  $filters
      *
      * @return DefinitionInterface
      */
-    public static function newProvidersId(?DataEntryInterface $data_entry, ?string $column = 'providers_id', array $filters = null): DefinitionInterface
+    public static function newProvidersId(?string $column = 'providers_id', array $filters = null): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
                              return Providers::new()
@@ -439,14 +426,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column provider
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newProvider(?DataEntryInterface $data_entry, ?string $column = 'providers_name'): DefinitionInterface
+    public static function newProvider(?string $column = 'providers_name'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setSize(6)
                          ->setCliColumn('--provider PROVIDER-NAME')
@@ -476,15 +462,14 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column customers_id
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
-     * @param array|null              $filters
+     * @param string|null $column
+     * @param array|null  $filters
      *
      * @return DefinitionInterface
      */
-    public static function newCustomersId(?DataEntryInterface $data_entry, ?string $column = 'customers_id', array $filters = null): DefinitionInterface
+    public static function newCustomersId(?string $column = 'customers_id', array $filters = null): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
                              return Customers::new()
@@ -513,14 +498,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column customer
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newCustomer(?DataEntryInterface $data_entry, ?string $column = 'customers_name'): DefinitionInterface
+    public static function newCustomer(?string $column = 'customers_name'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setSize(6)
                          ->setCliColumn('--customer CUSTOMER-NAME')
@@ -550,15 +534,14 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column timezones_id
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
-     * @param array|null              $filters
+     * @param string|null $column
+     * @param array|null  $filters
      *
      * @return DefinitionInterface
      */
-    public static function newTimezonesId(?DataEntryInterface $data_entry, ?string $column = 'timezones_id', array $filters = null): DefinitionInterface
+    public static function newTimezonesId(?string $column = 'timezones_id', array $filters = null): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::number)
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
@@ -587,14 +570,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column timezone
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newTimezone(?DataEntryInterface $data_entry, ?string $column = 'timezones_name'): DefinitionInterface
+    public static function newTimezone(?string $column = 'timezones_name'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setRender(false)
                          ->setVirtual(true)
@@ -625,15 +607,14 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column countries_id
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
-     * @param array|null              $filters
+     * @param string|null $column
+     * @param array|null  $filters
      *
      * @return DefinitionInterface
      */
-    public static function newCountriesId(?DataEntryInterface $data_entry, ?string $column = 'countries_id', array $filters = null): DefinitionInterface
+    public static function newCountriesId(?string $column = 'countries_id', array $filters = null): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setElement(EnumElement::select)
                          ->setInputType(EnumInputType::number)
@@ -664,14 +645,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column timezone
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newCountry(?DataEntryInterface $data_entry, ?string $column = 'countries_name'): DefinitionInterface
+    public static function newCountry(?string $column = 'countries_name'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setRender(false)
                          ->setVirtual(true)
@@ -702,15 +682,14 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column states_id
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
-     * @param array|null              $filters
+     * @param string|null $column
+     * @param array|null  $filters
      *
      * @return DefinitionInterface
      */
-    public static function newStatesId(?DataEntryInterface $data_entry, ?string $column = 'states_id', array $filters = null): DefinitionInterface
+    public static function newStatesId(?string $column = 'states_id', array $filters = null): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::number)
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
@@ -743,14 +722,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column timezone
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newState(?DataEntryInterface $data_entry, ?string $column = 'states_name'): DefinitionInterface
+    public static function newState(?string $column = 'states_name'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setRender(false)
                          ->setVirtual(true)
@@ -783,15 +761,14 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column cities_id
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
-     * @param array|null              $filters
+     * @param string|null $column
+     * @param array|null  $filters
      *
      * @return DefinitionInterface
      */
-    public static function newCitiesId(?DataEntryInterface $data_entry, ?string $column = 'cities_id', array $filters = null): DefinitionInterface
+    public static function newCitiesId(?string $column = 'cities_id', array $filters = null): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::number)
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
@@ -824,14 +801,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column timezone
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newCity(?DataEntryInterface $data_entry, ?string $column = 'cities_name'): DefinitionInterface
+    public static function newCity(?string $column = 'cities_name'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setRender(false)
                          ->setVirtual(true)
@@ -864,15 +840,14 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column users_id
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
-     * @param array|null              $filters
+     * @param string|null $column
+     * @param array|null  $filters
      *
      * @return DefinitionInterface
      */
-    public static function newUsersId(?DataEntryInterface $data_entry, ?string $column = 'users_id', array $filters = null): DefinitionInterface
+    public static function newUsersId(?string $column = 'users_id', array $filters = null): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setRender(false)
                          ->setInputType(EnumInputType::dbid)
@@ -902,14 +877,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column id
      *
-     * @param DataEntryInterface|null $data_entry
      * @param string                  $column
      *
      * @return DefinitionInterface
      */
-    public static function newId(?DataEntryInterface $data_entry, string $column): DefinitionInterface
+    public static function newId(string $column): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setRender(false)
                          ->setInputType(EnumInputType::dbid)
@@ -921,14 +895,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column users_id
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newUsersEmail(?DataEntryInterface $data_entry, ?string $column = 'email'): DefinitionInterface
+    public static function newUsersEmail(?string $column = 'email'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setRender(false)
                          ->setVirtual(true)
@@ -957,14 +930,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column users_id
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newUsername(?DataEntryInterface $data_entry, ?string $column = 'username'): DefinitionInterface
+    public static function newUsername(?string $column = 'username'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setRender(true)
                          ->setInputType(EnumInputType::name)
@@ -977,15 +949,14 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column roles_id
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
-     * @param array|null              $filters
+     * @param string|null $column
+     * @param array|null  $filters
      *
      * @return DefinitionInterface
      */
-    public static function newRolesId(?DataEntryInterface $data_entry, ?string $column = 'roles_id', array $filters = null): DefinitionInterface
+    public static function newRolesId(?string $column = 'roles_id', array $filters = null): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::dbid)
                          ->setSize(3)
@@ -1014,14 +985,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column roles_id
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newRolesName(?DataEntryInterface $data_entry, ?string $column = 'name'): DefinitionInterface
+    public static function newRolesName(?string $column = 'name'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setRender(false)
                          ->setVirtual(true)
@@ -1050,14 +1020,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column code
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newCode(?DataEntryInterface $data_entry, ?string $column = 'code'): DefinitionInterface
+    public static function newCode(?string $column = 'code'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::code)
                          ->setSize(3)
@@ -1072,14 +1041,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column hash
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newHash(?DataEntryInterface $data_entry, ?string $column = 'hash'): DefinitionInterface
+    public static function newHash(?string $column = 'hash'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setReadonly(true)
                          ->setInputType(EnumInputType::code)
@@ -1094,14 +1062,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column datetime
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newDateTime(?DataEntryInterface $data_entry, ?string $column = 'datetime'): DefinitionInterface
+    public static function newDateTime(?string $column = 'datetime'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::datetime_local)
                          ->setSize(3)
@@ -1112,14 +1079,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column date
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newDate(?DataEntryInterface $data_entry, ?string $column = 'date'): DefinitionInterface
+    public static function newDate(?string $column = 'date'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::date)
                          ->setSize(3)
@@ -1131,14 +1097,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for a column containing a variable
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newHostname(?DataEntryInterface $data_entry, ?string $column = 'name'): DefinitionInterface
+    public static function newHostname(?string $column = 'name'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setMaxLength(255)
                          ->setOptional(true)
                          ->setSize(6)
@@ -1153,15 +1118,14 @@ class DefinitionFactory
     /**
      * Returns a Definition object for a column containing a number
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      * @param int|null                $default
      *
      * @return DefinitionInterface
      */
-    public static function newPort(?DataEntryInterface $data_entry, ?string $column = 'number', ?int $default = null): DefinitionInterface
+    public static function newPort(?string $column = 'number', ?int $default = null): DefinitionInterface
     {
-        return static::newNumber($data_entry, $column, $default)
+        return static::newNumber($column, $default)
                      ->setInputType(EnumInputType::dbid)
                      ->setMin(1)
                      ->setMax(65535);
@@ -1171,14 +1135,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for a column containing a variable
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newVariable(?DataEntryInterface $data_entry, ?string $column = 'name'): DefinitionInterface
+    public static function newVariable(?string $column = 'name'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setMaxLength(255)
                          ->setOptional(true)
                          ->setSize(6)
@@ -1193,15 +1156,14 @@ class DefinitionFactory
     /**
      * Returns a Definition object for a column containing a number
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      * @param int|null                $default
      *
      * @return DefinitionInterface
      */
-    public static function newNumber(?DataEntryInterface $data_entry, ?string $column = 'number', ?int $default = null): DefinitionInterface
+    public static function newNumber(?string $column = 'number', ?int $default = null): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true, $default)
                          ->setInputType(EnumInputType::number)
                          ->setSize(4)
@@ -1216,14 +1178,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column password
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newPassword(?DataEntryInterface $data_entry, ?string $column = 'password'): DefinitionInterface
+    public static function newPassword(?string $column = 'password'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setMaxLength(255)
                          ->setOptional(true)
                          ->setSize(6)
@@ -1238,14 +1199,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column date
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newTime(?DataEntryInterface $data_entry, ?string $column = 'time'): DefinitionInterface
+    public static function newTime(?string $column = 'time'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::time)
                          ->setSize(3)
@@ -1257,14 +1217,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column title
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newTitle(?DataEntryInterface $data_entry, ?string $column = 'title'): DefinitionInterface
+    public static function newTitle(?string $column = 'title'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setMaxLength(24)
                          ->setSize(3)
@@ -1280,14 +1239,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column name
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newName(?DataEntryInterface $data_entry, ?string $column = 'name'): DefinitionInterface
+    public static function newName(?string $column = 'name'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setMaxLength(128)
                          ->setOptional(true)
                          ->setSize(3)
@@ -1304,16 +1262,15 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column file
      *
-     * @param DataEntryInterface|null    $data_entry
      * @param PhoDirectoryInterface|null $exists_in_directory
      * @param PhoDirectoryInterface|null $prefix
      * @param string|null                $column
      *
      * @return DefinitionInterface
      */
-    public static function newFile(?DataEntryInterface $data_entry, ?PhoDirectoryInterface $exists_in_directory = null, ?PhoDirectoryInterface $prefix = null, ?string $column = 'file'): DefinitionInterface
+    public static function newFile(?PhoDirectoryInterface $exists_in_directory = null, ?PhoDirectoryInterface $prefix = null, ?string $column = 'file'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
             ->setMaxLength(2048)
             ->setOptional(true)
             ->setSize(3)
@@ -1332,14 +1289,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column filename
      *
-     * @param DataEntryInterface|null   $data_entry
-     * @param string|null               $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newFilename(?DataEntryInterface $data_entry, ?string $column = 'filename'): DefinitionInterface
+    public static function newFilename(?string $column = 'filename'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
             ->setMaxLength(2048)
             ->setOptional(true)
             ->setSize(3)
@@ -1356,14 +1312,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column email
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newEmail(?DataEntryInterface $data_entry, ?string $column = 'email'): DefinitionInterface
+    public static function newEmail(?string $column = 'email'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::email)
                          ->setMaxlength(128)
@@ -1376,14 +1331,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column url
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newUrl(?DataEntryInterface $data_entry, ?string $column = 'url'): DefinitionInterface
+    public static function newUrl(?string $column = 'url'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::url)
                          ->setMaxlength(2048)
@@ -1400,14 +1354,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column ip_address
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newIpAddress(?DataEntryInterface $data_entry, ?string $column = 'ip_address'): DefinitionInterface
+    public static function newIpAddress(?string $column = 'ip_address'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setReadonly(true)
                          ->setInputType(EnumInputType::text)
                          ->setSize(6)
@@ -1420,14 +1373,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column domain
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newDomain(?DataEntryInterface $data_entry, ?string $column = 'domain'): DefinitionInterface
+    public static function newDomain(?string $column = 'domain'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setReadonly(true)
                          ->setInputType(EnumInputType::text)
                          ->setSize(6)
@@ -1440,14 +1392,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column phone
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newPhone(?DataEntryInterface $data_entry, ?string $column = 'phone'): DefinitionInterface
+    public static function newPhone(?string $column = 'phone'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::phone)
                          ->setLabel(tr('Phone number'))
@@ -1462,14 +1413,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column phones
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newPhones(?DataEntryInterface $data_entry, ?string $column = 'phones'): DefinitionInterface
+    public static function newPhones(?string $column = 'phones'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setMinlength(10)
                          ->setMaxLength(64)
@@ -1489,14 +1439,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column seo_name
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newSeoName(?DataEntryInterface $data_entry, ?string $column = 'seo_name'): DefinitionInterface
+    public static function newSeoName(?string $column = 'seo_name'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setMaxlength(128)
                          ->setOptional(true)
                          ->setRender(false)
@@ -1507,14 +1456,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column description
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newUuid(?DataEntryInterface $data_entry, ?string $column = 'uuid'): DefinitionInterface
+    public static function newUuid(?string $column = 'uuid'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setReadonly(true)
                          ->setInputType(EnumInputType::text)
                          ->setSize(6)
@@ -1527,14 +1475,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for a boolean column (checkbox)
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newBoolean(?DataEntryInterface $data_entry, ?string $column): DefinitionInterface
+    public static function newBoolean(?string $column): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setDefault(false)
                          ->setInputType(EnumInputType::checkbox)
@@ -1548,14 +1495,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for generic data column
      *
-     * @param DataEntryInterface|null $data_entry
      * @param string             $column
      *
      * @return DefinitionInterface
      */
-    public static function newData(?DataEntryInterface $data_entry, string $column = 'data'): DefinitionInterface
+    public static function newData(string $column = 'data'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setElement(EnumElement::textarea)
                          ->setInputType(EnumInputType::array_json)
@@ -1570,14 +1516,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column description
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newDescription(?DataEntryInterface $data_entry, ?string $column = 'description'): DefinitionInterface
+    public static function newDescription(?string $column = 'description'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::description)
                          ->setSize(12)
@@ -1592,14 +1537,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column body
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newBody(?DataEntryInterface $data_entry, ?string $column = 'body'): DefinitionInterface
+    public static function newBody(?string $column = 'body'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::description)
                          ->setSize(12)
@@ -1614,14 +1558,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column content
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newContent(?DataEntryInterface $data_entry, ?string $column = 'content'): DefinitionInterface
+    public static function newContent(?string $column = 'content'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::text)
                          ->setSize(12)
@@ -1635,14 +1578,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for column comments
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newComments(?DataEntryInterface $data_entry, ?string $column = 'comments'): DefinitionInterface
+    public static function newComments(?string $column = 'comments'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::description)
                          ->setSize(12)
@@ -1657,14 +1599,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for buttons
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newButton(?DataEntryInterface $data_entry, ?string $column): DefinitionInterface
+    public static function newButton(?string $column): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->addClasses('btn-primary')
                          ->setRender(true)
@@ -1680,14 +1621,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for buttons
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newSubmit(?DataEntryInterface $data_entry, ?string $column): DefinitionInterface
+    public static function newSubmit(?string $column): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
             ->setOptional(true)
             ->addClasses('btn-primary')
             ->setRender(true)
@@ -1702,20 +1642,19 @@ class DefinitionFactory
     /**
      * Returns a Definition object for created_by
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function getCreatedBy(?DataEntryInterface $data_entry, ?string $column = 'created_by'): DefinitionInterface
+    public static function getCreatedBy(?string $column = 'created_by'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setDisabled(true)
                          ->setSize(3)
                          ->setLabel(tr('Created by'))
                          ->setTooltip(tr('This column contains the user who created this object. Other users may have made further edits to this object, that information may be found in the object\'s meta data'))
-                         ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($data_entry) {
-                             if ($data_entry->isNew()) {
+                         ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) {
+                             if ($definition->getDataEntry()->isNew()) {
                                  // This is a new DataEntry object, so the creator is.. Well, you!
                                  return InputText::new()
                                                  ->setDisabled(true)
@@ -1744,14 +1683,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for created_on
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function getCreatedOn(?DataEntryInterface $data_entry, ?string $column = 'created_on'): DefinitionInterface
+    public static function getCreatedOn(?string $column = 'created_on'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setDisabled(true)
                          ->setInputType(EnumInputType::datetime_local)
                          ->setDbNullInputType(EnumInputType::text)
@@ -1765,14 +1703,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for meta_id
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function getMetaId(?DataEntryInterface $data_entry, ?string $column = 'meta_id'): DefinitionInterface
+    public static function getMetaId(?string $column = 'meta_id'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setDisabled(true)
                          ->setRender(false)
                          ->setInputType(EnumInputType::dbid)
@@ -1785,14 +1722,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for status
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function getStatus(?DataEntryInterface $data_entry, ?string $column = 'status'): DefinitionInterface
+    public static function getStatus(?string $column = 'status'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setDisabled(true)
                          ->setInputType(EnumInputType::text)
@@ -1807,14 +1743,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for meta_state
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function getMetaState(?DataEntryInterface $data_entry, ?string $column = 'meta_state'): DefinitionInterface
+    public static function getMetaState(?string $column = 'meta_state'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setDisabled(true)
                          ->setRender(false)
                          ->setInputType(EnumInputType::text)
@@ -1827,14 +1762,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for created_by
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newCreatedBy(?DataEntryInterface $data_entry, ?string $column = 'created_by'): DefinitionInterface
+    public static function newCreatedBy(?string $column = 'created_by'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setDisabled(true)
                          ->setOptional(true)
                          ->setSize(3)
@@ -1844,8 +1778,8 @@ class DefinitionFactory
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              $validator->dbIdExists('accounts_users', tr('must be an existing user'));
                          })
-                         ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($data_entry) {
-                             if ($data_entry->isNew()) {
+                         ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) {
+                             if ($definition->getDataEntry()->isNew()) {
                                  // This is a new DataEntry object, so the creator is.. Well, you!
                                  return InputText::new()
                                                  ->setDisabled(true)
@@ -1874,14 +1808,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for created_on
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newCreatedOn(?DataEntryInterface $data_entry, ?string $column = 'created_on'): DefinitionInterface
+    public static function newCreatedOn(?string $column = 'created_on'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setDisabled(true)
                          ->setInputType(EnumInputType::datetime_local)
                          ->setDbNullInputType(EnumInputType::text)
@@ -1895,14 +1828,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for meta_id
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newMetaId(?DataEntryInterface $data_entry, ?string $column = 'meta_id'): DefinitionInterface
+    public static function newMetaId(?string $column = 'meta_id'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setDisabled(true)
                          ->setRender(false)
                          ->setInputType(EnumInputType::dbid)
@@ -1915,14 +1847,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for status
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newStatus(?DataEntryInterface $data_entry, ?string $column = 'status'): DefinitionInterface
+    public static function newStatus(?string $column = 'status'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setOptional(true)
                          ->setDisabled(true)
                          ->setInputType(EnumInputType::text)
@@ -1937,14 +1868,13 @@ class DefinitionFactory
     /**
      * Returns a Definition object for meta_state
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newMetaState(?DataEntryInterface $data_entry, ?string $column = 'meta_state'): DefinitionInterface
+    public static function newMetaState(?string $column = 'meta_state'): DefinitionInterface
     {
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setDisabled(true)
                          ->setRender(false)
                          ->setInputType(EnumInputType::text)
@@ -1956,18 +1886,17 @@ class DefinitionFactory
     /**
      * Returns a Definition object that will display an <hr> divider
      *
-     * @param DataEntryInterface|null $data_entry
-     * @param string|null             $column
+     * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newDivider(?DataEntryInterface $data_entry, ?string $column = null): DefinitionInterface
+    public static function newDivider(?string $column = null): DefinitionInterface
     {
         if (!$column) {
             $column = 'divider-' . Strings::getUuid();
         }
 
-        return Definition::new($data_entry, $column)
+        return Definition::new($column)
                          ->setVirtual(true)
                          ->setContainsData(false)
                          ->setElement(EnumElement::hr)

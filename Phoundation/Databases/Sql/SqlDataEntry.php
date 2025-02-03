@@ -333,7 +333,7 @@ class SqlDataEntry implements SqlDataEntryInterface
         }
 
         if ($this->data_entry->isMetaColumn('created_by')) {
-            $row['created_by'] = Session::getUserObject()->getId();
+            $row['created_by'] = Session::getUserObject()->getId(false);
         }
 
         if ($this->data_entry->isMetaColumn('meta_state')) {

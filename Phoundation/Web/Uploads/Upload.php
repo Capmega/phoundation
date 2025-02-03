@@ -366,43 +366,43 @@ class Upload extends DataEntry implements UploadInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
-        $definitions->add(DefinitionFactory::newFilename($this, 'name')
+        $definitions->add(DefinitionFactory::newFilename('name')
                                            ->setLabel(tr('File name'))
                                            ->setMaxlength(2048)
                                            ->setReadonly(true))
 
-                    ->add(DefinitionFactory::newFilename($this, 'full_path')
+                    ->add(DefinitionFactory::newFilename('full_path')
                                            ->setLabel(tr('Full file path'))
                                            ->setMaxlength(2048)
                                            ->setReadonly(true))
 
-                    ->add(DefinitionFactory::newFile($this, new PhoDirectory('/tmp/', PhoRestrictions::newWritableObject('/tmp/')), null,'tmp_name')
+                    ->add(DefinitionFactory::newFile(new PhoDirectory('/tmp/', PhoRestrictions::newWritableObject('/tmp/')), null,'tmp_name')
                                            ->setLabel(tr('Temporary file name'))
                                            ->setMaxlength(255)
                                            ->setReadonly(true))
 
-                    ->add(DefinitionFactory::newCode($this, 'type')
+                    ->add(DefinitionFactory::newCode('type')
                                            ->setLabel(tr('File mimetype'))
                                            ->setMaxlength(128)
                                            ->setReadonly(true))
 
-                    ->add(DefinitionFactory::newNumber($this, 'size')
+                    ->add(DefinitionFactory::newNumber('size')
                                            ->setLabel(tr('File size'))
                                            ->setMin(0)
                                            ->setReadonly(true))
 
-                    ->add(DefinitionFactory::newNumber($this, 'error')
+                    ->add(DefinitionFactory::newNumber('error')
                                            ->setLabel(tr('Upload error code'))
                                            ->setMin(0)
                                            ->setMax(8)
                                            ->setReadonly(true))
 
-                    ->add(DefinitionFactory::newCode($this, 'hash')
+                    ->add(DefinitionFactory::newCode('hash')
                                            ->setLabel(tr('File hash'))
                                            ->setMaxlength(128)
                                            ->setReadonly(true))
 
-                    ->add(DefinitionFactory::newComments($this));
+                    ->add(DefinitionFactory::newComments());
 
         return $this;
     }

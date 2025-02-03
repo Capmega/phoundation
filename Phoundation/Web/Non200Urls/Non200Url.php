@@ -111,18 +111,18 @@ class Non200Url extends DataEntry
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
-        $definitions->add(Definition::new($this, 'ip_address_binary')
+        $definitions->add(Definition::new('ip_address_binary')
                                     ->setIgnored(true)
                                     ->setRender(false))
 
-                    ->add(Definition::new($this, 'net_len')
+                    ->add(Definition::new('net_len')
                                     ->setIgnored(true)
                                     ->setRender(false))
 
-                    ->add(DefinitionFactory::newIpAddress($this, 'ip_address')
+                    ->add(DefinitionFactory::newIpAddress('ip_address')
                                            ->setReadonly(true))
 
-                    ->add(Definition::new($this, 'method')
+                    ->add(Definition::new('method')
                                     ->setReadonly(true)
                                     ->setInputType(EnumInputType::variable)
                                     ->setSize(4)
@@ -143,7 +143,7 @@ class Non200Url extends DataEntry
                                                   ]);
                                     }))
 
-                    ->add(Definition::new($this, 'http_code')
+                    ->add(Definition::new('http_code')
                                     ->setReadonly(true)
                                     ->setInputType(EnumInputType::number)
                                     ->setSize(4)
@@ -151,40 +151,40 @@ class Non200Url extends DataEntry
                                     ->setMax(599)
                                     ->setHelpText(tr('The HTTP method used for this request')))
 
-                    ->add(DefinitionFactory::newComments($this, 'reason')
+                    ->add(DefinitionFactory::newComments('reason')
                                            ->setOptional(true)
                                            ->setReadonly(true)
                                            ->setSize(12)
                                            ->setMaxlength(255)
                                            ->setHelpText(tr('Reason why this request failed')))
 
-                    ->add(DefinitionFactory::newUrl($this)
+                    ->add(DefinitionFactory::newUrl()
                                            ->setReadonly(true)
                                            ->setSize(12)
                                            ->setHelpText(tr('Request URL that failed')))
 
-                    ->add(DefinitionFactory::newData($this, 'headers')
+                    ->add(DefinitionFactory::newData('headers')
 ->setNoValidation(true)
                                            ->setOptional(true)
                                            ->setReadonly(true)
                                            ->setLabel(tr('Request headers'))
                                            ->setHelpText(tr('The HTTP headers that were received from the client for this request')))
 
-                    ->add(DefinitionFactory::newData($this, 'cookies')
+                    ->add(DefinitionFactory::newData('cookies')
 ->setNoValidation(true)
                                            ->setOptional(true)
                                            ->setReadonly(true)
                                            ->setLabel(tr('Request cookies'))
                                            ->setHelpText(tr('The cookies that were received from the client for this request')))
 
-                    ->add(DefinitionFactory::newData($this, 'post')
+                    ->add(DefinitionFactory::newData('post')
 ->setNoValidation(true)
                                            ->setOptional(true)
                                            ->setReadonly(true)
                                            ->setLabel(tr('Request POST data'))
                                            ->setHelpText(tr('The POST data that was  received from the client for this request')))
 
-                    ->add(DefinitionFactory::newComments($this)
+                    ->add(DefinitionFactory::newComments()
                                            ->setOptional(true)
                                            ->setHelpText(tr('Comments on this failed request')));
 

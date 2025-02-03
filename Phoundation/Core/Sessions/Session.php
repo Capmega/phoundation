@@ -48,7 +48,6 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Config;
 use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
@@ -465,7 +464,7 @@ class Session implements SessionInterface
                 break;
 
             case 'auto':
-                Config::set('sessions.cookies.domain', static::$domain);
+                config()->set('sessions.cookies.domain', static::$domain);
                 ini_set('session.cookie_domain', static::$domain);
                 break;
 

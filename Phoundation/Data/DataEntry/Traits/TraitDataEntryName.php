@@ -60,7 +60,7 @@ trait TraitDataEntryName
         // the entry if it does!
         try {
             if ($name) {
-                if ($this->getId() < 0) {
+                if ($this->isLoadedFromConfiguration()) {
                     // ID is negative, this comes from configuration. Just use any seo-name
                     return $this->setSeoName(Seo::string($name));
                 }
@@ -68,7 +68,7 @@ trait TraitDataEntryName
                 $seo_name = Seo::unique(
                     substr($name, 0, $this->definitions->get('name')->getMaxlength()),
                     static::getTable(),
-                    $this->getId(),
+                    $this->getId(false),
                     'seo_name'
                 );
 

@@ -136,12 +136,12 @@ class Email extends DataEntry
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
-        $definitions->add(DefinitionFactory::newUsersEmail($this)
+        $definitions->add(DefinitionFactory::newUsersEmail()
                                            ->setRender(false))
 
-                    ->add(DefinitionFactory::newUsersId($this))
+                    ->add(DefinitionFactory::newUsersId())
 
-                    ->add(Definition::new($this, 'parents_id')
+                    ->add(Definition::new('parents_id')
                                     ->setRender(false)
                                     ->setInputType(EnumInputType::dbid)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -152,15 +152,15 @@ class Email extends DataEntry
                                                   ]);
                                     }))
 
-                    ->add(Definition::new($this, 'main')
+                    ->add(Definition::new('main')
                                     ->setRender(false)
                                     ->setInputType(EnumInputType::checkbox))
 
-                    ->add(Definition::new($this, 'read')
+                    ->add(Definition::new('read')
                                     ->setRender(false)
                                     ->setInputType(EnumInputType::checkbox))
 
-                    ->add(Definition::new($this, 'categories_id')
+                    ->add(Definition::new('categories_id')
                                     ->setRender(false)
                                     ->setInputType(EnumInputType::dbid)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -171,7 +171,7 @@ class Email extends DataEntry
                                                   ]);
                                     }))
 
-                    ->add(Definition::new($this, 'templates_id')
+                    ->add(Definition::new('templates_id')
                                     ->setRender(false)
                                     ->setInputType(EnumInputType::dbid)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -182,14 +182,14 @@ class Email extends DataEntry
                                                   ]);
                                     }))
 
-                    ->add(DefinitionFactory::newCode($this)
+                    ->add(DefinitionFactory::newCode()
                                            ->setSize(3))
 
-                    ->add(Definition::new($this, 'subject')
+                    ->add(Definition::new('subject')
                                     ->setSize(3)
                                     ->setMaxlength(255))
 
-                    ->add(Definition::new($this, 'body')
+                    ->add(Definition::new('body')
                                     ->setSize(3)
                                     ->setSize(12)
                                     ->setMaxlength(16_777_215));

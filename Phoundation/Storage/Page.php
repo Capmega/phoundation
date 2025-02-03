@@ -91,7 +91,7 @@ class Page extends DataEntry implements PageInterface
 //`categories_id` bigint DEFAULT NULL,
 //`templates_id` bigint DEFAULT NULL,
 //`is_template` tinyint DEFAULT NULL,
-        $definitions->add(DefinitionFactory::newParentsId($this)
+        $definitions->add(DefinitionFactory::newParentsId()
                                            ->setElement(EnumElement::select)
                                            ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                                                return Pages::new()
@@ -106,7 +106,7 @@ class Page extends DataEntry implements PageInterface
                                                          ->isQueryResult('SELECT `id` FROM `pages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
                                            }))
 
-                    ->add(DefinitionFactory::newParent($this)
+                    ->add(DefinitionFactory::newParent()
                                            ->setCliAutoComplete([
                                                'word'   => function ($word) {
                                                    return Categories::new()
@@ -124,26 +124,26 @@ class Page extends DataEntry implements PageInterface
                                                          ->setColumnFromQuery('parents_id', 'SELECT `id` FROM `pages` WHERE `name` = :name AND `status` IS NULL', [':id' => '$parents_name']);
                                            }))
 
-                    ->add(DefinitionFactory::newCategoriesId($this))
+                    ->add(DefinitionFactory::newCategoriesId())
 
-                    ->add(DefinitionFactory::newCategory($this))
+                    ->add(DefinitionFactory::newCategory())
 
-                    ->add(DefinitionFactory::newCode($this)
+                    ->add(DefinitionFactory::newCode()
                                            ->setDefault(tr('-')))
 
-                    ->add(DefinitionFactory::newName($this)
+                    ->add(DefinitionFactory::newName()
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isFalse(function ($value, $source) {
                                                    static::exists(['name' => $value], isset_get($source['id']));
                                                }, tr('already exists'));
                                            }))
 
-                    ->add(DefinitionFactory::newSeoName($this))
+                    ->add(DefinitionFactory::newSeoName())
 
-                    ->add(DefinitionFactory::newDescription($this)
+                    ->add(DefinitionFactory::newDescription()
                                            ->setHelpText(tr('The description for this page')))
 
-                    ->add(DefinitionFactory::newContent($this)
+                    ->add(DefinitionFactory::newContent()
                                            ->setHelpText(tr('The content for this page')));
 
         return $this;

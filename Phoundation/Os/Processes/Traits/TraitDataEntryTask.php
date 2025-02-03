@@ -19,73 +19,13 @@ namespace Phoundation\Os\Processes\Traits;
 use Phoundation\Os\Processes\Interfaces\TaskInterface;
 use Phoundation\Os\Tasks\Task;
 
+
 trait TraitDataEntryTask
 {
     /**
-     * @var TaskInterface|null $task
+     * @var TaskInterface|null $o_task
      */
-    protected ?TaskInterface $task;
-
-
-    /**
-     * Sets the tasks_id for this object
-     *
-     * @param int|null $tasks_id
-     *
-     * @return static
-     */
-    public function setTasksId(?int $tasks_id): static
-    {
-        unset($this->task);
-
-        return $this->set($tasks_id, 'tasks_id');
-    }
-
-
-    /**
-     * Returns the tasks hostname for this object
-     *
-     * @return string|null
-     */
-    public function getTasksCode(): ?string
-    {
-        return $this->getTask()
-                    ?->getCode();
-    }
-
-
-    /**
-     * Returns the TaskInterface object for this object
-     *
-     * @return TaskInterface|null
-     */
-    public function getTask(): ?TaskInterface
-    {
-        if (!isset($this->task)) {
-            $this->task = Task::new($this->getTasksId())->loadOrNull();
-        }
-
-        return $this->task;
-    }
-
-
-    /**
-     * Sets the TaskInterface object for this object
-     *
-     * @param TaskInterface|null $task
-     *
-     * @return static
-     */
-    public function setTask(?TaskInterface $task): static
-    {
-        if ($task) {
-            $this->task = $task;
-
-            return $this->set($task->getId(), 'tasks_id');
-        }
-
-        return $this->setTasksId(null);
-    }
+    protected ?TaskInterface $o_task;
 
 
     /**
@@ -101,6 +41,30 @@ trait TraitDataEntryTask
 
 
     /**
+     * Sets the tasks_id for this object
+     *
+     * @param int|null $id
+     *
+     * @return static
+     */
+    public function setTasksId(?int $id): static
+    {
+        return $this->setTaskData(Task::new()->loadOrNull($id));
+    }
+
+
+    /**
+     * Returns the tasks hostname for this object
+     *
+     * @return string|null
+     */
+    public function getTasksCode(): ?string
+    {
+        return $this->getTypesafe('string', 'tasks_code');
+    }
+
+
+    /**
      * Sets the task code for this object
      *
      * @param string|null $code
@@ -109,6 +73,46 @@ trait TraitDataEntryTask
      */
     public function setTasksCode(?string $code): static
     {
-        return $this->setTask(Task::new()->load($code));
+        return $this->setTaskData(Task::new()->loadOrNull(['code' => $code]));
+    }
+
+
+    /**
+     * Returns the TaskInterface object for this object
+     *
+     * @return TaskInterface|null
+     */
+    public function getTask(): ?TaskInterface
+    {
+        return $this->o_task;
+    }
+
+
+    /**
+     * Sets the TaskInterface object for this object
+     *
+     * @param TaskInterface|null $task
+     *
+     * @return static
+     */
+    public function setTask(?TaskInterface $task): static
+    {
+        return $this->setTaskData($task);
+    }
+
+
+    /**
+     * Sets the task ID, Practitioner Number, and Email
+     *
+     * @param TaskInterface|null $o_task
+     *
+     * @return static
+     */
+    protected function setTaskData(?TaskInterface $o_task): static
+    {
+        $this->o_task = $o_task;
+
+        return $this->set($o_task?->getId(false), 'tasks_id')
+                    ->set($o_task?->getCode()   , 'tasks_code');
     }
 }

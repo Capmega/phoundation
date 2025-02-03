@@ -122,8 +122,8 @@ class Activities extends IteratorCore
                                                       AND  `created_on` >= :start
                                                       AND  `created_on` <= :stop', [
                                                           ':users_id' => $user->getId(),
-                                                          ':start' => $start->format('mysql'),
-                                                          ':stop'  => $start->format('mysql')
+                                                          ':start'    => $start->format('mysql'),
+                                                          ':stop'     => $start->format('mysql')
                         ]);
 
         return $this;

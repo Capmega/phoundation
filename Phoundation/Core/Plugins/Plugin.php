@@ -565,14 +565,14 @@ class Plugin extends DataEntry implements PluginInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
-        $definitions->add(Definition::new($this, 'disabled')
+        $definitions->add(Definition::new('disabled')
                                     ->setInputType(EnumInputType::boolean)
                                     ->setOptional(true)
                                     ->setVirtual(true)
                                     ->setRender(false)
                                     ->setCliColumn('-d,--disable'))
 
-                    ->add(Definition::new($this, 'vendor')
+                    ->add(Definition::new('vendor')
                                     ->setLabel(tr('Vendor'))
                                     ->setInputType(EnumInputType::text)
                                     ->setMaxlength(128)
@@ -580,16 +580,16 @@ class Plugin extends DataEntry implements PluginInterface
                                     ->setReadonly(true)
                                     ->setHelpText(tr('The vendor that manages this plugin')))
 
-                    ->add(DefinitionFactory::newName($this, 'seo_name')
+                    ->add(DefinitionFactory::newName('seo_name')
                                            ->setRender(false))
 
-                    ->add(DefinitionFactory::newName($this)
+                    ->add(DefinitionFactory::newName()
                                            ->setSize(6)
                                            ->setReadonly(true)
                                            ->setHelpText(tr('The name of this plugin')))
 
                     // TODO setInDirectories should have a smaller scope
-                    ->add(Definition::new($this, 'directory')
+                    ->add(Definition::new('directory')
                                     ->setLabel(tr('Directory'))
                                     ->setInDirectories(new PhoDirectory('/', PhoRestrictions::newFilesystemRootObject()))
                                     ->setInputType(EnumInputType::path)
@@ -598,7 +598,7 @@ class Plugin extends DataEntry implements PluginInterface
                                     ->setSize(5)
                                     ->setHelpText(tr('The filesystem directory where this plugin is located')))
 
-                    ->add(Definition::new($this, 'class')
+                    ->add(Definition::new('class')
                                     ->setLabel(tr('Class'))
                                     ->setInputType(EnumInputType::text)
                                     ->setMaxlength(255)
@@ -610,18 +610,18 @@ class Plugin extends DataEntry implements PluginInterface
                                                   ->matchesRegex('/Plugins\\\[\\\A-Za-z0-9]+\\\Plugin/');
                                     }))
 
-                    ->add(DefinitionFactory::newBoolean($this, 'can_start')
+                    ->add(DefinitionFactory::newBoolean('can_start')
                                     ->setLabel(tr('Can start'))
                                     ->setSize(2)
                                     ->setReadonly(true)
                                     ->setHelpText(tr('Indicates if this plugin can start automatically when the page loads, or is just a collection of components')))
 
-                    ->add(DefinitionFactory::newDescription($this)
+                    ->add(DefinitionFactory::newDescription()
                                            ->setReadonly(true))
 
-                    ->add(DefinitionFactory::newDivider($this))
+                    ->add(DefinitionFactory::newDivider())
 
-                    ->add(Definition::new($this, 'priority')
+                    ->add(Definition::new('priority')
                                     ->setOptional(true, 50)
                                     ->setInputType(EnumInputType::number)
                                     ->setSize(3)
@@ -635,7 +635,7 @@ class Plugin extends DataEntry implements PluginInterface
                                         $validator->isInteger();
                                     }))
 
-                    ->add(Definition::new($this, 'menu_priority')
+                    ->add(Definition::new('menu_priority')
                                     ->setOptional(true, 50)
                                     ->setInputType(EnumInputType::number)
                                     ->setSize(3)
@@ -649,7 +649,7 @@ class Plugin extends DataEntry implements PluginInterface
                                         $validator->isInteger();
                                     }))
 
-                    ->add(Definition::new($this, 'menu_enabled')
+                    ->add(Definition::new('menu_enabled')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::checkbox)
                                     ->setSize(2)
@@ -658,7 +658,7 @@ class Plugin extends DataEntry implements PluginInterface
                                     ->setLabel(tr('Menu enabled'))
                                     ->setHelpText(tr('Sets if the menu of this plugin will be available and visible, or not')))
 
-                    ->add(Definition::new($this, 'commands_enabled')
+                    ->add(Definition::new('commands_enabled')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::checkbox)
                                     ->setSize(2)
@@ -667,7 +667,7 @@ class Plugin extends DataEntry implements PluginInterface
                                     ->setLabel(tr('Commands enabled'))
                                     ->setHelpText(tr('Sets if the command line commands of this plugin will be available, or not')))
 
-                    ->add(Definition::new($this, 'web_enabled')
+                    ->add(Definition::new('web_enabled')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::checkbox)
                                     ->setSize(2)

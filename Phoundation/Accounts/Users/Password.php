@@ -445,7 +445,7 @@ class Password extends DataEntry implements PasswordInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
-        $definitions->add(Definition::new($this, 'current')
+        $definitions->add(Definition::new('current')
                                     ->setRender(true)
                                     ->setVirtual(true)
                                     ->setInputType(EnumInputType::password)
@@ -456,7 +456,7 @@ class Password extends DataEntry implements PasswordInterface
                                         $validator->isStrongPassword();
                                     }))
 
-                    ->add(Definition::new($this, 'password')
+                    ->add(Definition::new('password')
                                     ->setRender(true)
                                     ->setVirtual(true)
                                     ->setInputType(EnumInputType::password)
@@ -467,7 +467,7 @@ class Password extends DataEntry implements PasswordInterface
                                         $validator->isStrongPassword();
                                     }))
 
-                    ->add(Definition::new($this, 'passwordv')
+                    ->add(Definition::new('passwordv')
                                     ->setRender(true)
                                     ->setVirtual(true)
                                     ->setInputType(EnumInputType::password)

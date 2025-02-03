@@ -1791,6 +1791,7 @@ class Response implements ResponseInterface
                 // no break
             case 304:
                 if ($exit_message) {
+                    // Since we have a success HTTP code, do NOT display the message, that would mess up output
                     Log::success($exit_message);
                 }
 
@@ -1805,7 +1806,7 @@ class Response implements ResponseInterface
 
             default:
                 if ($exit_message) {
-                    Log::error($exit_message);
+                    echo $exit_message;
                 }
 
                 Log::error(tr('Script(s) ":script" ended with HTTP warning code ":http_code", sending ":sent" to client  in ":time" with ":usage" peak memory usage', [

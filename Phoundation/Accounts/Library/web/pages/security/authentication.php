@@ -48,12 +48,18 @@ if (Request::isPostRequestMethod()) {
         switch (PostValidator::new()->getSubmitButton()) {
             case tr('Delete'):
                 $authentication->delete();
-                Response::getFlashMessagesObject()->addSuccess(tr('The authentication ":authentication" has been deleted', [':authentication' => $authentication->getId()]));
+                Response::getFlashMessagesObject()->addSuccess(tr('The authentication ":authentication" has been deleted', [
+                    ':authentication' => $authentication->getDisplayId()
+                ]));
+
                 Response::redirect();
 
             case tr('Undelete'):
                 $authentication->undelete();
-                Response::getFlashMessagesObject()->addSuccess(tr('The authentication ":authentication" has been undeleted', [':authentication' => $authentication->getId()]));
+                Response::getFlashMessagesObject()->addSuccess(tr('The authentication ":authentication" has been undeleted', [
+                    ':authentication' => $authentication->getDisplayId()
+                ]));
+
                 Response::redirect();
         }
 

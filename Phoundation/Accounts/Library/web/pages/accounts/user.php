@@ -232,7 +232,7 @@ $user_card = Card::new()
 
 
 // Build the additional cards only if we're not working on a new user
-if ($user->getId()) {
+if (!$user->isNew()) {
     $roles_card = Card::new()
                       ->setCollapseSwitch(true)
                       ->setCollapsed(true)

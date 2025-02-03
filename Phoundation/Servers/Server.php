@@ -482,11 +482,11 @@ class Server extends DataEntry implements ServerInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
-        $definitions->add(Definition::new($this, 'seo_hostname')
+        $definitions->add(Definition::new('seo_hostname')
                                     ->setVirtual(true)
                                     ->setReadonly(true))
 
-                    ->add(Definition::new($this, 'categories_name')
+                    ->add(Definition::new('categories_name')
                                     ->setOptional(true)
                                     ->setVirtual(true)
                                     ->setCliColumn('--category CATEGORY-NAME')
@@ -499,7 +499,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->setColumnFromQuery('categories_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$categories_name']);
                                     }))
 
-                    ->add(Definition::new($this, 'providers_name')
+                    ->add(Definition::new('providers_name')
                                     ->setOptional(true)
                                     ->setVirtual(true)
                                     ->setCliColumn('--provider PROVIDER-NAME')
@@ -512,7 +512,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->setColumnFromQuery('providers_id', 'SELECT `id` FROM `business_providers` WHERE `name` = :name AND `status` IS NULL', [':name' => '$providers_name']);
                                     }))
 
-                    ->add(Definition::new($this, 'customers_name')
+                    ->add(Definition::new('customers_name')
                                     ->setOptional(true)
                                     ->setVirtual(true)
                                     ->setCliColumn('--customer CUSTOMER-NAME')
@@ -525,7 +525,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->setColumnFromQuery('customers_id', 'SELECT `id` FROM `business_customers` WHERE `name` = :name AND `status` IS NULL', [':name' => '$customers_name']);
                                     }))
 
-                    ->add(Definition::new($this, 'countries_name')
+                    ->add(Definition::new('countries_name')
                                     ->setOptional(true)
                                     ->setVirtual(true)
                                     ->setInputType(EnumInputType::text)
@@ -540,7 +540,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->setColumnFromQuery('countries_id', 'SELECT `id` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$countries_name']);
                                     }))
 
-                    ->add(Definition::new($this, 'states_name')
+                    ->add(Definition::new('states_name')
                                     ->setOptional(true)
                                     ->setVirtual(true)
                                     ->setInputType(EnumInputType::text)
@@ -555,7 +555,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->setColumnFromQuery('states_id', 'SELECT `id` FROM `geo_states` WHERE `name` = :name AND `status` IS NULL', [':name' => '$states_name']);
                                     }))
 
-                    ->add(Definition::new($this, 'cities_name')
+                    ->add(Definition::new('cities_name')
                                     ->setOptional(true)
                                     ->setVirtual(true)
                                     ->setInputType(EnumInputType::text)
@@ -570,7 +570,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->setColumnFromQuery('cities_id', 'SELECT `id` FROM `geo_cities` WHERE `name` = :name AND `status` IS NULL', [':name' => '$cities_name']);
                                     }))
 
-                    ->add(DefinitionFactory::newName($this)
+                    ->add(DefinitionFactory::newName()
                                            ->setOptional(false)
                                            ->setInputType(EnumInputType::name)
                                            ->setSize(12)
@@ -580,9 +580,9 @@ class Server extends DataEntry implements ServerInterface
                                                $validator->isUnique();
                                            }))
 
-                    ->add(DefinitionFactory::newSeoName($this))
+                    ->add(DefinitionFactory::newSeoName())
 
-                    ->add(Definition::new($this, 'hostname')
+                    ->add(Definition::new('hostname')
                                     ->setInputType(EnumInputType::text)
                                     ->setMaxlength(128)
                                     ->setSize(4)
@@ -592,7 +592,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setHelpText(tr('The unique hostname for this server'))
                                     ->setCliAutoComplete(true))
 
-                    ->add(Definition::new($this, 'ssh_accounts_name')
+                    ->add(Definition::new('ssh_accounts_name')
                                     ->setVirtual(true)
                                     ->setRender(false)
                                     ->setInputType(EnumInputType::name)
@@ -609,7 +609,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->setColumnFromQuery('ssh_accounts_id', 'SELECT `id` FROM `ssh_accounts` WHERE `name` = :name AND `status` IS NULL', [':name' => '$ssh_account']);
                                     }))
 
-                    ->add(Definition::new($this, 'ssh_accounts_id')
+                    ->add(Definition::new('ssh_accounts_id')
                                     ->setInputType(EnumInputType::dbid)
                                     ->setSize(4)
                                     ->setLabel(tr('Account'))
@@ -622,7 +622,7 @@ class Server extends DataEntry implements ServerInterface
                                         $validator->isQueryResult('SELECT `id` FROM `ssh_accounts` WHERE `id` = :id AND `status` IS NULL', [':id' => '$ssh_accounts_id']);
                                     }))
 
-                    ->add(Definition::new($this, 'port')
+                    ->add(Definition::new('port')
                                     ->setOptional(true, 22)
                                     ->setInputType(EnumInputType::integer)
                                     ->setMin(1)
@@ -633,7 +633,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setHelpGroup(tr('Identification and network'))
                                     ->setHelpText(tr('The port where one can connect to the servers SSH service')))
 
-                    ->add(Definition::new($this, 'code')
+                    ->add(Definition::new('code')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::text)
                                     ->setSize(2)
@@ -646,7 +646,7 @@ class Server extends DataEntry implements ServerInterface
                                         $validator->isAlphaNumeric();
                                     }))
 
-                    ->add(Definition::new($this, 'cost')
+                    ->add(Definition::new('cost')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::float)
                                     ->setMin(0)
@@ -657,7 +657,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setHelpGroup(tr('Payment'))
                                     ->setHelpText(tr('The cost per interval for this server')))
 
-                    ->add(Definition::new($this, 'bill_due_date')
+                    ->add(Definition::new('bill_due_date')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::date)
                                     ->setMin(0)
@@ -668,7 +668,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setHelpGroup(tr('Payment'))
                                     ->setHelpText(tr('The next date when payment for this server is due')))
 
-                    ->add(Definition::new($this, 'interval')
+                    ->add(Definition::new('interval')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::date)
                                     ->setSize(4)
@@ -687,7 +687,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setHelpGroup(tr('Payment'))
                                     ->setHelpText(tr('The interval for when this server must be paid')))
 
-                    ->add(Definition::new($this, 'categories_id')
+                    ->add(Definition::new('categories_id')
                                     ->setOptional(true)
                                     ->setCliColumn('--categories-id CATEGORIES-ID')
                                     ->setInputType(EnumInputType::dbid)
@@ -704,7 +704,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->isColumnFromQuery('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':name' => '$categories_id']);
                                     }))
 
-                    ->add(Definition::new($this, 'providers_id')
+                    ->add(Definition::new('providers_id')
                                     ->setOptional(true)
                                     ->setCliColumn('--providers-id PROVIDERS-ID')
                                     ->setHelpText(tr('The service provider where this server is hosted'))
@@ -721,7 +721,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->isColumnFromQuery('SELECT `id` FROM `business_providers` WHERE `id` = :id AND `status` IS NULL', [':name' => '$providers_id']);
                                     }))
 
-                    ->add(Definition::new($this, 'customers_id')
+                    ->add(Definition::new('customers_id')
                                     ->setOptional(true)
                                     ->setCliColumn('--customers-id CUSTOMERS-ID')
                                     ->setInputType(EnumInputType::dbid)
@@ -738,7 +738,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->isColumnFromQuery('SELECT `id` FROM `business_customers` WHERE `id` = :id AND `status` IS NULL', [':name' => '$customers_id']);
                                     }))
 
-                    ->add(Definition::new($this, 'countries_id')
+                    ->add(Definition::new('countries_id')
                                     ->setOptional(true)
                                     ->setCliColumn('--countries-id COUNTRIES-ID')
                                     ->setInputType(EnumInputType::dbid)
@@ -756,7 +756,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->isColumnFromQuery('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':name' => '$countries_id']);
                                     }))
 
-                    ->add(Definition::new($this, 'states_id')
+                    ->add(Definition::new('states_id')
                                     ->setOptional(true)
                                     ->setCliColumn('--states-id STATES-ID')
                                     ->setInputType(EnumInputType::dbid)
@@ -774,7 +774,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->isColumnFromQuery('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `status` IS NULL', [':name' => '$states_id']);
                                     }))
 
-                    ->add(Definition::new($this, 'cities_id')
+                    ->add(Definition::new('cities_id')
                                     ->setOptional(true)
                                     ->setCliColumn('--cities-id CITIES-ID')
                                     ->setInputType(EnumInputType::dbid)
@@ -790,7 +790,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->isColumnFromQuery('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `status` IS NULL', [':name' => '$cities_id']);
                                     }))
 
-                    ->add(Definition::new($this, 'os_name')
+                    ->add(Definition::new('os_name')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::text)
                                     ->setSize(9)
@@ -811,7 +811,7 @@ class Server extends DataEntry implements ServerInterface
                                     ])
                                     ->setHelpText(tr('The name of the operating system installed on this server')))
 
-                    ->add(Definition::new($this, 'os_version')
+                    ->add(Definition::new('os_version')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::text)
                                     ->setMinlength(9)
@@ -820,7 +820,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setCliColumn('-v,--os-version VERSION')
                                     ->setHelpText(tr('The current version of the installed operating system')))
 
-                    ->add(Definition::new($this, 'web_services')
+                    ->add(Definition::new('web_services')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::checkbox)
                                     ->setSize(3)
@@ -828,7 +828,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setCliColumn('-w,--web-services')
                                     ->setHelpText(tr('Sets if this server manages web services')))
 
-                    ->add(Definition::new($this, 'mail_services')
+                    ->add(Definition::new('mail_services')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::checkbox)
                                     ->setSize(3)
@@ -836,7 +836,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setCliColumn('-m,--mail-services')
                                     ->setHelpText(tr('Sets if this server manages mail services')))
 
-                    ->add(Definition::new($this, 'database_services')
+                    ->add(Definition::new('database_services')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::checkbox)
                                     ->setSize(3)
@@ -844,7 +844,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setCliColumn('-e,--database-services')
                                     ->setHelpText(tr('Sets if this server manages database services')))
 
-                    ->add(Definition::new($this, 'allow_sshd_modification')
+                    ->add(Definition::new('allow_sshd_modification')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::checkbox)
                                     ->setSize(3)
@@ -852,7 +852,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setCliColumn('-s,--allow-sshd-modification')
                                     ->setHelpText(tr('Sets if this server allows automated modification of SSH configuration')))
 
-                    ->add(DefinitionFactory::newDescription($this)
+                    ->add(DefinitionFactory::newDescription()
                                            ->setHelpText(tr('A description for this server')));
 
         return $this;
