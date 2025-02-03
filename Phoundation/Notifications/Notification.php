@@ -472,6 +472,7 @@ FILES variables:
                             Log::error($e);
                         }
                     }
+
                 } catch (RoleNotExistsException $e) {
                     Incident::new()
                             ->setException($e)
