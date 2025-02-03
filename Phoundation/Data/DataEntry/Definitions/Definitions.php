@@ -79,15 +79,17 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      *
      * @param mixed $value
      *
-     * @return void
+     * @return static
      */
-    protected function ensureValueAndPrefix(mixed $value): void
+    protected function ensureValueAndPrefix(mixed $value): static
     {
         $value->setDataEntry($this->data_entry);
 
         if ($this->prefix) {
             $value->setColumn($this->prefix . $value->getColumn());
         }
+
+        return $this;
     }
 
 
@@ -114,10 +116,9 @@ class Definitions extends IteratorCore implements DefinitionsInterface
             ]));
         }
 
-        $this->ensureValueAndPrefix($value);
-
         try {
-            return parent::append($value, $key, $skip_null_values, $exception);
+            parent::append($value, $key, $skip_null_values, $exception);
+            return $this->ensureValueAndPrefix($value);
 
         } catch (IteratorKeyExistsException $e) {
             throw $e->addData(['keys' => $this->getSourceKeys()]);
@@ -139,9 +140,8 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function prepend(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
-        $this->ensureValueAndPrefix($value);
-
-        return parent::prepend($value, $key ?? $value->getColumn(), $skip_null_values, $exception);
+        parent::prepend($value, $key ?? $value->getColumn(), $skip_null_values, $exception);
+        return $this->ensureValueAndPrefix($value);
     }
 
 
@@ -160,9 +160,8 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function prependBeforeKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $before = null, bool $skip_null_values = true, bool $exception = true): static
     {
-        $this->ensureValueAndPrefix($value);
-
-        return parent::prependBeforeKey($value, $key ?? $value->getColumn(), $before, $skip_null_values, $exception);
+        parent::prependBeforeKey($value, $key ?? $value->getColumn(), $before, $skip_null_values, $exception);
+        return $this->ensureValueAndPrefix($value);
     }
 
 
@@ -182,9 +181,8 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function prependBeforeValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $before = null, bool $strict = false, bool $skip_null_values = true, bool $exception = true): static
     {
-        $this->ensureValueAndPrefix($value);
-
-        return parent::prependBeforeValue($value, $key ?? $value->getColumn(), $before, $strict, $skip_null_values, $exception);
+        parent::prependBeforeValue($value, $key ?? $value->getColumn(), $before, $strict, $skip_null_values, $exception);
+        return $this->ensureValueAndPrefix($value);
     }
 
 
@@ -203,9 +201,8 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function appendAfterKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $after = null, bool $skip_null_values = true, bool $exception = true): static
     {
-        $this->ensureValueAndPrefix($value);
-
-        return parent::appendAfterKey($value, $key ?? $value->getColumn(), $after, $skip_null_values, $exception);
+        parent::appendAfterKey($value, $key ?? $value->getColumn(), $after, $skip_null_values, $exception);
+        return $this->ensureValueAndPrefix($value);
     }
 
 
@@ -225,9 +222,8 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function appendAfterValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $after = null, bool $strict = false, bool $skip_null_values = true, bool $exception = true): static
     {
-        $this->ensureValueAndPrefix($value);
-
-        return parent::appendAfterValue($value, $key ?? $value->getColumn(), $after, $strict, $skip_null_values, $exception);
+        parent::appendAfterValue($value, $key ?? $value->getColumn(), $after, $strict, $skip_null_values, $exception);
+        return $this->ensureValueAndPrefix($value);
     }
 
 

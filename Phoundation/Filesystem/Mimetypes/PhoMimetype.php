@@ -345,6 +345,7 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
+     * @return PhoMimetype
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
@@ -402,5 +403,7 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
                     ->add(DefinitionFactory::newDescription()
                                            ->setSize(10)
                                            ->setHelpText(tr('The description for this mimetype')));
+
+        return $this;
     }
 }

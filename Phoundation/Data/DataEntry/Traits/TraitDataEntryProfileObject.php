@@ -55,32 +55,6 @@ trait TraitDataEntryProfileObject
 
 
     /**
-     * Returns the profiles_code for this profile
-     *
-     * @return string|null
-     */
-    public function getProfilesCode(): ?string
-    {
-        return $this->getTypesafe('string', 'profiles_code');
-    }
-
-
-    /**
-     * Sets the profiles_code for this profile
-     *
-     * @param string|null $code
-     *
-     * @return static
-     */
-    public function setProfilesCode(?string $code): static
-    {
-        return $this->setProfileData(Profile::new()->loadOrNull([
-            'code' => $code
-        ]));
-    }
-
-
-    /**
      * Returns the profiles_name for this profile
      *
      * @return string|null
@@ -141,8 +115,7 @@ trait TraitDataEntryProfileObject
     {
         $this->o_profile = $o_profile;
 
-        return $this->set($o_profile?->getId()  , 'profiles_id')
-                    ->set($o_profile?->getCode(), 'profiles_code')
-                    ->set($o_profile?->getName(), 'profiles_name');
+        return $this->set($o_profile?->getId(false), 'profiles_id')
+                    ->set($o_profile?->getName()   , 'profiles_name');
     }
 }

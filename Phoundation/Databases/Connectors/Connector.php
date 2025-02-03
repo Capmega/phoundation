@@ -71,7 +71,6 @@ class Connector extends DataEntry implements ConnectorInterface
     public function __construct(IdentifierInterface|array|string|int|null $identifier = null)
     {
         $this->supports_seo_hostname = false;
-        static::getConfigurationPath()    = 'databases.connectors';
         $this->connector             = 'system';
 
         parent::__construct($identifier);
@@ -80,6 +79,17 @@ class Connector extends DataEntry implements ConnectorInterface
             // No identifier specified? This is a new object, apply defaults
             $this->source = $this->applyDefaults($this->source);
         }
+    }
+
+
+    /**
+     * Returns the configuration path for this DataEntry object, if it has one, or NULL instead
+     *
+     * @return string|null
+     */
+    public static function getConfigurationPath(): ?string
+    {
+        return 'databases.connectors';
     }
 
 

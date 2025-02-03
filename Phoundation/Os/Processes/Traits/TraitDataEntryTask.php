@@ -112,7 +112,7 @@ trait TraitDataEntryTask
     {
         $this->o_task = $o_task;
 
-        return $this->set($o_task?->getId()    , 'tasks_id')
-                    ->set($o_task?->get('code'), 'tasks_code');
+        return $this->set($o_task?->getId(false), 'tasks_id')
+                    ->set($o_task?->getCode()   , 'tasks_code');
     }
 }

@@ -22,6 +22,7 @@ use Phoundation\Data\DataEntry\Definitions\Exception\DefinitionException;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Traits\TraitDataDataEntry;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Data\Validator\Interfaces\ArgvValidatorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
@@ -50,6 +51,7 @@ class Definition implements DefinitionInterface
 {
     use TraitBeforeAfterButtons;
     use TraitDataRestrictions;
+    use TraitDataDataEntry;
 
 
 //    /**
@@ -84,13 +86,6 @@ class Definition implements DefinitionInterface
 //        'auto-suggest',
 //        'array_json',
 //    ];
-
-    /**
-     * The data entry where this definition belongs to
-     *
-     * @var DataEntryInterface|null $data_entry
-     */
-    protected ?DataEntryInterface $data_entry;
 
     /**
      * Validations to execute to ensure
@@ -732,17 +727,6 @@ class Definition implements DefinitionInterface
     public function getData(): array
     {
         return isset_get_typed('array', $this->source['data'], []);
-    }
-
-
-    /**
-     * Returns the data entry for this definition
-     *
-     * @return DataEntryInterface|null
-     */
-    public function getDataEntry(): ?DataEntryInterface
-    {
-        return $this->data_entry;
     }
 
 

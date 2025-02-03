@@ -211,12 +211,12 @@ interface PhoExceptionInterface extends Throwable, ArrayableInterface
     /**
      * Register this exception in the developer incidents log
      *
-     * @param EnumSeverity $severity
-     * @param string|null  $type
+     * @param EnumSeverity|null $severity
+     * @param string|null       $type
      *
      * @return static
      */
-    public function registerIncident(EnumSeverity $severity, ?string $type = null): static;
+    public function registerIncident(?EnumSeverity $severity = null, ?string $type = null): static;
 
     /**
      * Tracks if this exception has been logged

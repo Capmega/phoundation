@@ -393,7 +393,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     {
         if ($this->hasStatus('system')) {
             // This is a system type user, either system or guest
-            return Strings::log($this->getId()) . ' / ' . $this->getNickname();
+            return Strings::log(($this->getId(false)) ?? tr('N/A')) . ' / ' . $this->getNickname();
         }
 
         $id    = $this->getTypesafe('int', $this->getIdColumn());
@@ -1087,14 +1087,9 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         }
 
         if (empty($this->rights) or $reload) {
-            if ($this->getId()) {
-                $this->rights = RightsBySeoName::new()
-                                               ->setParentObject($this)
-                                               ->load($order ? ['$order' => ['right' => 'asc']] : null);
-
-            } else {
-                $this->rights = RightsBySeoName::new()->setParentObject($this);
-            }
+            $this->rights = RightsBySeoName::new()
+                                           ->setParentObject($this)
+                                           ->load($order ? ['$order' => ['right' => 'asc']] : null);
         }
 
         return $this->rights;
@@ -2459,7 +2454,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function isNew(): bool
     {
-        $new = $this->getId() === null;
+        $new = $this->getId(false) === null;
 
         if ($new) {
             // System and Guest users are never new!

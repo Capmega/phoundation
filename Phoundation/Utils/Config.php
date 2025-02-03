@@ -872,7 +872,7 @@ class Config implements ConfigInterface
 
 
     /**
-     * Scan the entire project from ROOT for config()->get() and Config::set() and generate a config/default.yaml file
+     * Scan the entire project from ROOT for config()->get() and config()->set() and generate a config/default.yaml file
      * with all default values
      *
      * @return int The number of configuration paths processed
@@ -882,7 +882,7 @@ class Config implements ConfigInterface
         $count = 0;
         $store = [];
 
-        // Scan all files for config()->get() and Config::set() calls
+        // Scan all files for config()->get() and config()->set() calls
         PhoDirectory::new(DIRECTORY_ROOT, PhoRestrictions::newWritableObject(DIRECTORY_ROOT))
                  ->execute()
                  ->addSkipDirectories([
@@ -896,7 +896,7 @@ class Config implements ConfigInterface
                      $files = PhoFile::new($file, PhoRestrictions::newReadonlyObject(DIRECTORY_ROOT))
                                      ->grep([
                                       'config()->get(\'',
-                                      'Config::set(\'',
+                                      'config()->set(\'',
                                   ]);
 
                      foreach ($files as $file) {
@@ -905,7 +905,7 @@ class Config implements ConfigInterface
                                  // Extract the configuration path and default value for each call
                                  if (!preg_match_all('/Config::[gs]et\s?\([\'"](.+?)[\'"](?:.+?)?(?:,\s?(.+?))\)/i', $line, $matches)) {
                                      if (!preg_match_all('/Config::[gs]et\s?\([\'"](.+?)[\'"](?:.+?)?(?:,\s?(.+?))?\)/i', $line, $matches)) {
-                                         Log::warning(tr('Failed to extract a config()->get() or Config::set() from line ":line" in file ":file"', [
+                                         Log::warning(tr('Failed to extract a config()->get() or config()->set() from line ":line" in file ":file"', [
                                              ':file' => $file,
                                              ':line' => $line,
                                          ]));
@@ -918,7 +918,7 @@ class Config implements ConfigInterface
                                      $path    = str_replace(['"', "'"], '', trim($matches[1][$match]));
                                      $default = str_replace(['"', "'"], '', trim($matches[2][$match]));
 
-                                     // Log all config()->get() and Config::set() calls that have the same configuration path but different
+                                     // Log all config()->get() and config()->set() calls that have the same configuration path but different
                                      // default values
                                      if (array_key_exists($path, $store)) {
                                          if ($store[$path] !== $default) {
@@ -1242,6 +1242,17 @@ class Config implements ConfigInterface
             $this->failed = 'Failed to load configuration file "' . isset_get($file) . '" because: ' . $e->getMessage();
             throw $e;
         }
+    }
+
+
+    /**
+     * Returns true if the Confg object has any sections available
+     *
+     * @return bool
+     */
+    public static function hasSections(): bool
+    {
+        return (bool) count(static::$sections);
     }
 
 

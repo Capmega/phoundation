@@ -112,7 +112,7 @@ trait TraitDataEntryParent
     {
         $this->o_parent = $o_parent;
 
-        return $this->set($o_parent?->getId()  , 'parents_id')
-                    ->set($o_parent?->getName(), 'parents_name');
+        return $this->set($o_parent?->getId(false), 'parents_id')
+                    ->set($o_parent?->getName()   , 'parents_name');
     }
 }
