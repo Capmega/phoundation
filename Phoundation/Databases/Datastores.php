@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Databases;
 
 use Exception;
+use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
@@ -27,7 +28,7 @@ use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\UnderConstructionException;
 
 
-class DataStores
+class Datastores
 {
     /**
      * The register with all SQL database connectors
@@ -92,6 +93,26 @@ class DataStores
 
 
     /**
+     * Returns a (cached) connector object for the specified connector name
+     *
+     * If the object already exists in the connectors list, it will return the cached connector instead.
+     *
+     * @param ConnectorInterface|string|null $connector
+     *
+     * @return ConnectorInterface
+     */
+    public static function getConnectorObject(ConnectorInterface|string|null $connector): ConnectorInterface
+    {
+        if ($connector instanceof ConnectorInterface) {
+            $connector = $connector->getName();
+        }
+
+        // Connectors::get() will automatically load the required connector object if it isn't loaded yet
+        return static::getConnectorsObject()->get($connector ?? 'system', false);
+    }
+
+
+    /**
      * Returns the database connectors object
      *
      * @return ConnectorsInterface
@@ -99,7 +120,7 @@ class DataStores
     public static function getConnectorsObject(): ConnectorsInterface
     {
         if (empty(static::$connectors)) {
-            static::$connectors = Connectors::new()->load();
+            static::$connectors = Connectors::new();
         }
 
         return static::$connectors;
@@ -118,7 +139,7 @@ class DataStores
     public static function fromConnector(ConnectorInterface $connector, bool $use_database = true): DatabaseInterface
     {
         return match ($connector->getType()) {
-            'sql'   => DataStores::sql($connector, $use_database),
+            'sql'   => Datastores::sql($connector, $use_database),
             default => throw new UnderConstructionException(),
         };
     }
@@ -149,7 +170,7 @@ class DataStores
         }
 
         if (!array_key_exists($connector_name, static::$sql)) {
-            // This connector isn't registered yet, so connect and add it to the connectors list
+            // This connector isn't registered yet, so connect and add it to the "connectors" list
             static::$sql[$connector_name] = new Sql($connector, $use_database, $connect);
         }
 

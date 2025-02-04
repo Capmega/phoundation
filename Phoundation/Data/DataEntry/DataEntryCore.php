@@ -258,9 +258,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     /**
      * DataEntry class constructor
      *
-     * @param IdentifierInterface|array|string|int|null $identifier = null
+     * @param IdentifierInterface|array|string|int|false|null $identifier The unique identifier for the data for this
+     *                                                                    DataEntry object. When specified, the
+     *                                                                    constructor will automatically load this data
+     *                                                                    using DataEntry::load(). If specified, the
+     *                                                                    identifier MUST exist either in database or
+     *                                                                    configuration.
      */
-    public function __construct(IdentifierInterface|array|string|int|null $identifier = null)
+    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = null)
     {
         // Try to load the DataEntry from the database with the given identifier and column
         if (!isset($this->meta_columns)) {
@@ -273,12 +278,20 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
         $this->setMetaDefinitions()
              ->setDefinitions($this->definitions)
              ->setMetaData()
-             ->copyValuesToSource([], false)
              ->columns_filter_on_insert = [static::getIdColumn()];
 
-        // Load existing DataEntry immediately?
         if ($identifier) {
+            // An identifier was specified, load data immediately using DataEntry::load() (Data MUST exist!)
             $this->load($identifier);
+
+        } elseif ($identifier !== false) {
+            // Ensure to always pre-initialize the DataEntry object unless the specified identifier is boolean FALSE
+            $this->copyValuesToSource([], false);
+
+            $this->is_initializing = false;
+            $this->is_modified     = false;
+            $this->is_loading      = false;
+            $this->is_saved        = false;
         }
     }
 
@@ -367,11 +380,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
 
     /**
-     * Initializes the DataEntry object
+     * Loads the data for the current identifier
      *
-     * @return void
+     * @return static
      */
-    protected function initIdentifier(): void
+    protected function loadIdentifier(): static
     {
         $this->loadFromDatabase();
 
@@ -380,7 +393,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
             // Does it perhaps have configuration load support and exist in configuration?
             if ($this->tryLoadFromConfiguration($this->identifier)) {
                 // Yay, found it in configuration!
-                return;
+                return $this;
             }
 
             throw DataEntryNotExistsException::new(tr('Cannot load ":class" class object, specified column ":column" with identifier ":identifier" does not exist', [
@@ -1081,53 +1094,70 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
      */
     public function load(IdentifierInterface|array|string|int|null $identifier = null): static
     {
-        if (empty($identifier)) {
-            throw DataEntryNoIdentifierSpecifiedException::new(tr('Cannot load data for DataEntry object ":class", no identifier specified', [
-                ':class' => $this::class
-            ]))->addData([
-                'class' => static::getClassName(),
+        if ($this->is_modified) {
+            throw DataEntryException::new(tr('Cannot load identifier ":identifier" for ":class" class, the source data has already been modified', [
+                ':identifier' => $identifier,
+                ':class'      => $this::class
+            ]))->setData([
+                'source'      => $this->source
             ]);
         }
 
-        $this->setIdentifier($identifier);
+        if ($this->isNew()) {
+            if (empty($identifier)) {
+                throw DataEntryNoIdentifierSpecifiedException::new(tr('Cannot load data for DataEntry object ":class", no identifier specified', [
+                    ':class' => $this::class
+                ]))->addData([
+                    'class' => static::getClassName(),
+                ]);
+            }
 
-        if (is_object($this->identifier)) {
-            // This already is a DataEntry object, no need to create one. Validate that this is the same class
-            if (($this->identifier instanceof static) or is_subclass_of(static::class, get_class($this->identifier))) {
-                // The identifier is the same as static, or extended static. Ccopy its source inside this object
-                $this->source = $this->identifier->getSource();
+            if (is_object($identifier)) {
+                // This already is a DataEntry object, no need to create one. Validate that this is the same class
+                if (($identifier instanceof static) or is_subclass_of(static::class, get_class($identifier))) {
+                    // The identifier is the same as static, or extended static. Ccopy its source inside this object
+                    return  $this->setIdentifier($identifier->getIdentifier())
+                                 ->setSource($identifier->getSource());
+                }
+
+                throw new OutOfBoundsException(tr('Specified DataEntry identifier ":has" is incompatible with this object\'s class ":should"', [
+                    ':has'    => get_class($identifier),
+                    ':should' => static::class,
+                ]));
+            }
+
+            // Start loading the object
+            $this->setIdentifier($identifier)
+                ->is_initializing = true;
+
+            if ($this->connector === null) {
+                // Use the default connector for this DataEntry object
+                $this->setConnectorObject(static::getDefaultConnectorObject());
+            }
+
+            if ($this->loadFromCache()) {
+                // We found this DataEntry in cache, we're done!
                 return $this;
             }
 
-            throw new OutOfBoundsException(tr('Specified DataEntry identifier ":has" is incompatible with this object\'s class ":should"', [
-                ':has'    => get_class($this->identifier),
-                ':should' => static::class,
-            ]));
-        }
+            // Load data from database
+            $this->loadIdentifier();
 
-        // Start loading the object
-        $this->is_initializing = true;
+            // This entry exists in the database, yay! Is it not deleted, though?
+            if ($this->isDeleted()) {
+                $this->processDeleted();
+            }
 
-        if ($this->connector === null) {
-            // Use the default connector for this DataEntry object
-            $this->setConnectorObject(static::getDefaultConnectorObject());
-        }
-
-        if ($this->loadFromCache()) {
-            // We found this DataEntry in cache, we're done!
+            $this->is_initializing = false;
             return $this;
         }
 
-        // Load data from database
-        $this->initIdentifier();
-
-        // This entry exists in the database, yay! Is it not deleted, though?
-        if ($this->isDeleted()) {
-            $this->processDeleted();
-        }
-
-        $this->is_initializing = false;
-        return $this;
+        throw DataEntryException::new(tr('Cannot load identifier ":identifier" for ":class" class, the source data is already initialized', [
+            ':identifier' => $identifier,
+            ':class'      => $this::class
+        ]))->setData([
+            'source'      => $this->source
+        ]);
     }
 
 
@@ -1139,9 +1169,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     protected function loadFromCache(): bool
     {
 // TODO Implement this
-//        $key = $this::class . $this->identifier . $this->o_connector->getIdentifier();
-
-
+//        $key = $this::class . $this->identifier . $this->o_connector->getLogId();
 
         return false;
     }
@@ -1498,6 +1526,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
     {
         $this->is_loading = true;
 
+        // TODO This may no longer be necessary with the upgraded setIdentifier() which already ensures identifier internally is an array!
         if (is_array($this->identifier)) {
             // Filter on multiple columns, multi column filter always pretends filtered column was id column
             static::buildManualQuery($this->identifier, $where, $joins, $group, $order, $execute);

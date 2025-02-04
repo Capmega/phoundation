@@ -194,9 +194,9 @@ class User extends DataEntry implements UserInterface
     /**
      * DataEntry class constructor
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      */
-    public function __construct(IdentifierInterface|array|string|int|null $identifier = null)
+    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = null)
     {
         if (empty($this->protected_columns)) {
             $this->protected_columns = [
@@ -3042,9 +3042,9 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setHelpText(tr('Comments about this user by leaders or administrators that are not visible to the user')))
 
                     ->add(DefinitionFactory::newCode('verification_code')
-                                    ->setOptional(true)
-                                    ->setRender(false)
-                                    ->setReadonly(true))
+                                           ->setOptional(true)
+                                           ->setRender(false)
+                                           ->setReadonly(true))
 
                     ->add(Definition::new('fingerprint')
                                     // TODO Implement

@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Connectors;
 
+use PDO;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
@@ -34,9 +36,12 @@ use Phoundation\Data\DataEntry\Traits\TraitDataEntryUsername;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Exception\ConnectorNotExistsException;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
-use Phoundation\Databases\DataStores;
+use Phoundation\Databases\Datastores;
+use Phoundation\Databases\Interfaces\DatabaseInterface;
+use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
@@ -62,23 +67,39 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     protected bool $backup = true;
 
+    /**
+     * The database for this connector
+     *
+     * @var DatabaseInterface|null $o_database
+     */
+    protected ?DatabaseInterface $o_database = null;
+
 
     /**
      * Connector class constructor
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      */
-    public function __construct(IdentifierInterface|array|string|int|null $identifier = null)
+    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false)
     {
+        $this->supports_seo_name     = false;
         $this->supports_seo_hostname = false;
         $this->connector             = 'system';
 
         parent::__construct($identifier);
+    }
 
-        if (!$identifier) {
-            // No identifier specified? This is a new object, apply defaults
-            $this->source = $this->applyDefaults($this->source);
-        }
+
+    /**
+     * Returns a new DataEntry object
+     *
+     * @param IdentifierInterface|array|string|int|false|null $identifier
+     *
+     * @return static
+     */
+    public static function new(IdentifierInterface|array|string|int|false|null $identifier = false): static
+    {
+        return new static($identifier);
     }
 
 
@@ -90,52 +111,6 @@ class Connector extends DataEntry implements ConnectorInterface
     public static function getConfigurationPath(): ?string
     {
         return 'databases.connectors';
-    }
-
-
-    /**
-     * Merges the given source with the connector defaults
-     *
-     * @param array $source
-     *
-     * @return array
-     */
-    protected function applyDefaults(array $source): array
-    {
-        return Arrays::mergeFull(static::getDefaultSource(), $source);
-    }
-
-
-    /**
-     * Returns default source for a connector
-     *
-     * @return array
-     */
-    protected static function getDefaultSource(): array
-    {
-        return [
-            'type'           => 'sql',
-            'driver'         => 'mysql',
-            'hostname'       => '127.0.0.1',
-            'port'           => null,
-            'database'       => '',
-            'username'       => '',
-            'password'       => '',
-            'auto_increment' => 1,
-            'persist'        => false,
-            'init'           => false,
-            'buffered'       => false,
-            'character_set'  => 'utf8mb4',
-            'collate'        => 'utf8mb4_general_ci',
-            'limit_max'      => 10000,
-            'mode'           => 'PIPES_AS_CONCAT,IGNORE_SPACE',
-            'log'            => null,
-            'statistics'     => null,
-            'ssh_tunnels_id' => null,
-            'pdo_attributes' => '',
-            'version'        => '0.0.0',
-            'timezones_name' => null,
-        ];
     }
 
 
@@ -167,6 +142,31 @@ class Connector extends DataEntry implements ConnectorInterface
 
 
     /**
+     * Returns the database for this Connector, if connected. Will return NULL if not connected
+     *
+     * @return DatabaseInterface|null
+     */
+    public function getDatabaseObject(): ?DatabaseInterface
+    {
+        return $this->o_database;
+    }
+
+
+    /**
+     * Returns the database for this Connector, if connected. Will return NULL if not connected
+     *
+     * @param DatabaseInterface|null $o_database
+     *
+     * @return static
+     */
+    public function setDatabaseObject(?DatabaseInterface $o_database): static
+    {
+        $this->o_database = $o_database;
+        return $this;
+    }
+
+
+    /**
      * Returns a DataEntry object matching the specified identifier that MUST exist in the database
      *
      * This method also accepts DataEntry objects of the same class, in which case it will simply return the specified
@@ -188,19 +188,55 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function load(IdentifierInterface|array|string|int|null $identifier = null): static
     {
-        if (is_numeric($this->identifier) and ($this->identifier < 0)) {
+        if (is_numeric($identifier) and ($identifier < 0)) {
             // Negative identifier is a configured connector!
-            return Connector::newFromSource(Connectors::new()->load()->get($this->identifier));
+            return Connector::newFromSource(Connectors::new()->load()->get($identifier));
         }
 
         try {
-            return parent::load($identifier);
+            // Load connector data and automatically cache it in the Datastores object
+            parent::load($identifier);
+            // TODO $this->identifier['name'] should always exist for a connector, but what if someone specified $identifier['id'] ???
+            Datastores::getConnectorsObject()->add($this, $this->identifier['name'], exception: false);
+            return $this;
 
         } catch (DataEntryNotExistsException $e) {
             throw ConnectorNotExistsException::new(tr('The connector ":connector" does not exist', [
-                ':connector' => $this->identifier,
+                ':connector' => $identifier,
             ]), $e);
         }
+    }
+
+
+    /**
+     * Loads the data for the current identifier
+     *
+     * This Connector::loadIdentifier() overrides DataEntry::loadIdentifier. It will check if the current database is
+     * connected and if not, immediately skip database access and use DataEntry::tryLoadFromConfiguration() instead
+     *
+     * @return static
+     */
+    protected function loadIdentifier(): static
+    {
+        if ($this->getDatabaseObject()?->isConnected()) {
+            return parent::loadIdentifier();
+        }
+
+        // We don't have a database connection, so don't even try to use the normal database load!
+        if ($this->tryLoadFromConfiguration($this->identifier)) {
+            // Yay, found it in configuration!
+            return $this;
+        }
+
+        throw DataEntryNotExistsException::new(tr('Cannot load ":class" class object, specified column ":column" with identifier ":identifier" does not exist', [
+            ':class'      => static::getClassName(),
+            ':column'     => static::determineColumn($this->identifier),
+            ':identifier' => $this->identifier,
+        ]))->addData([
+            'class'      => static::getClassName(),
+            'column'     => static::determineColumn($this->identifier),
+            'identifier' => $this->identifier,
+        ]);
     }
 
 
@@ -579,31 +615,21 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function test(): static
     {
-        DataStores::fromConnector($this)
-                 ->test();
+        Datastores::fromConnector($this)
+                  ->test();
 
         return $this;
     }
 
 
     /**
-     * Sets all data for this data entry at once with an array of information
+     * Returns the connector configuration in an array that can be understood by the MySQL driver
      *
-     * @param array $source The data for this DataEntry object
-     * @param bool  $modify
-     * @param bool  $directly
-     * @param bool  $force
-     *
-     * @return static
+     * @return array
      */
-    protected function copyValuesToSource(array $source, bool $modify, bool $directly = false, bool $force = false): static
+    public function getMysqlConfiguration(): array
     {
-        // Merge this source with the defaults
-        if (isset_get($source['id']) < 1) {
-            $source = $this->applyDefaults($source);
-        }
-
-        return parent::copyValuesToSource($this->applyDefaults($source), $modify, $directly, $force);
+        return $this->applyConfigurationTemplate($this->source);
     }
 
 
@@ -646,6 +672,88 @@ class Connector extends DataEntry implements ConnectorInterface
 
 
     /**
+     * Apply configuration template over the specified configuration array
+     *
+     * @param array $configuration
+     *
+     * @return array
+     */
+    protected function applyConfigurationTemplate(array $configuration): array
+    {
+        // Copy the configuration options over the template
+        $configuration = Arrays::mergeFull($this->getConfigurationTemplate(), $configuration);
+
+        switch ($configuration['driver']) {
+            case 'mysql':
+                // Do we have a MySQL driver available?
+                if (!defined('PDO::MYSQL_ATTR_USE_BUFFERED_QUERY')) {
+                    // Whelp, MySQL library is not available
+                    throw new PhpModuleNotAvailableException('Could not find the "MySQL" library for PDO. To install this on Ubuntu derivatives, please type "sudo apt install php-mysql');
+                }
+
+                // Build up ATTR_INIT_COMMAND
+                $command = 'SET @@SESSION.TIME_ZONE="+00:00"; ';
+
+                if ($configuration['character_set']) {
+                    // Set the default character set to use
+                    $command .= 'SET NAMES ' . strtoupper($configuration['character_set'] . '; ');
+                }
+
+                // Apply MySQL specific requirements that always apply
+                $configuration['pdo_attributes'][PDO::ATTR_ERRMODE]                  = PDO::ERRMODE_EXCEPTION;
+                $configuration['pdo_attributes'][PDO::MYSQL_ATTR_USE_BUFFERED_QUERY] = !$configuration['buffered'];
+                $configuration['pdo_attributes'][PDO::MYSQL_ATTR_INIT_COMMAND]       = $command;
+                break;
+
+            default:
+                // Here be dragons!
+                Log::warning(tr('Driver ":driver" is not supported', [
+                    ':driver' => $configuration['driver'],
+                ]));
+        }
+
+        return $configuration;
+    }
+
+
+    /**
+     * Returns an SQL connection configuration template
+     *
+     * @return array
+     */
+    protected function getConfigurationTemplate(): array
+    {
+        return [
+            'type'           => 'sql',
+            'driver'         => 'mysql',
+            'hostname'       => '127.0.0.1',
+            'port'           => null,
+            'database'       => '',
+            'username'       => '',
+            'password'       => '',
+            'auto_increment' => 1,
+            'init'           => false,
+            'buffered'       => false,
+            'character_set'  => 'utf8mb4',
+            'collate'        => 'utf8mb4_general_ci',
+            'limit_max'      => 10000,
+            'mode'           => 'PIPES_AS_CONCAT,IGNORE_SPACE',
+            'log'            => null,
+            'statistics'     => null,
+            'ssh_tunnel'     => [
+                'required'    => false,
+                'source_port' => null,
+                'hostname'    => '',
+                'usleep'      => 1200000,
+            ],
+            'pdo_attributes' => [],
+            'version'        => '0.0.0',
+            'timezones_name' => 'UTC',
+        ];
+    }
+
+
+    /**
      * @inheritDoc
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
@@ -661,8 +769,10 @@ class Connector extends DataEntry implements ConnectorInterface
 
                     ->add(Definition::new('environment')
                                     ->setSize(4)
-                                    ->setLabel('Environment')
+                                    ->setOptional(true)
+                                    ->setLabel('Restrict to environment')
                                     ->setElement(EnumElement::select)
+// TODO This datasource should list all available environments straight from the ROOT/config/environments path
                                     ->setDataSource([
                                         'production' => tr('Production'),
                                         'trial'      => tr('Trial'),
@@ -683,7 +793,6 @@ class Connector extends DataEntry implements ConnectorInterface
 
                     ->add(DefinitionFactory::newVariable('driver')
                                            ->setSize(4)
-                                           ->setOptional(true)
                                            ->setLabel('Driver')
                                            ->setInputType(null)
                                            ->setElement(EnumElement::select)
@@ -694,11 +803,19 @@ class Connector extends DataEntry implements ConnectorInterface
                                                'oracle'  => tr('Oracle'),
                                                'mssql'   => tr('MSSQL'),
                                            ]))
+
                     ->add(DefinitionFactory::newHostname('hostname')
+                                           ->setInputType(EnumInputType::text)
+                                           ->setOptional(true, 'localhost')
                                            ->setLabel(tr('Hostname'))
-                                           ->setSize(8))
+                                           ->setSize(8)
+                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+                                               $validator->isDomain();
+                                           }))
 
                     ->add(DefinitionFactory::newNumber('port')
+                                           ->setInputType(EnumInputType::positiveInteger)
+                                           ->setOptional(true)
                                            ->setLabel(tr('Port'))
                                            ->setSize(4)
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -707,45 +824,87 @@ class Connector extends DataEntry implements ConnectorInterface
                                            }))
 
                     ->add(DefinitionFactory::newVariable('username')
+                                           ->setInputType(EnumInputType::text)
                                            ->setSize(4)
-                                           ->setLabel(tr('Username')))
+                                           ->setLabel(tr('Username'))
+                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+                                               $validator->isUsername();
+                                           }))
 
                     ->add(DefinitionFactory::newPassword('password')
+                                           ->setInputType(EnumInputType::password)
                                            ->setSize(4)
-                                           ->setLabel(tr('Password')))
+                                           ->setLabel(tr('Password'))
+                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+                                               $validator->isUsername();
+                                           }))
 
                     ->add(DefinitionFactory::newVariable('database')
+                                           ->setInputType(EnumInputType::variable)
                                            ->setSize(4)
-                                           ->setLabel(tr('Database')))
+                                           ->setLabel(tr('Database'))
+                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+                                               $validator->hasMaxCharacters(64);
+                                           }))
 
                     ->add(Definition::new('mode')
+                                    ->setInputType(EnumInputType::text)
+                                    ->setOptional(true, 'PIPES_AS_CONCAT,IGNORE_SPACE')
                                     ->setLabel(tr('Mode'))
-                                    ->setSize(3))
+                                    ->setSize(3)
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->hasMaxCharacters(2048);
+                                    }))
 
                     ->add(Definition::new('pdo_attributes')
+                                    ->setInputType(EnumInputType::text)
+                                    ->setOptional(true)
                                     ->setLabel(tr('PDO attributes'))
-                                    ->setSize(3))
+                                    ->setSize(3)
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->hasMaxCharacters(2048);
+                                    }))
 
                     ->add(Definition::new('character_set')
+                                    ->setInputType(EnumInputType::text)
                                     ->setLabel(tr('Character set'))
-                                    ->setSize(3))
+                                    ->setOptional(true, config()->getString('languages.encoding.character_set', 'utf8mb4'))
+                                    ->setSize(3)
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+// TODO Improve validation of this column
+                                        $validator->hasMaxCharacters(64);
+                                    }))
 
                     ->add(Definition::new('collate')
+                                    ->setInputType(EnumInputType::text)
                                     ->setLabel(tr('Collate'))
-                                    ->setSize(3))
+                                    ->setSize(3)
+                                    ->setOptional(true, config()->getString('languages.encoding.collate', 'utf8mb4_general_ci'))
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+// TODO Improve validation of this column
+                                        $validator->hasMaxCharacters(64);
+                                    }))
 
                     ->add(DefinitionFactory::newTimezonesId('timezones_id')
+                                           ->setInputType(EnumInputType::dbid)
                                            ->setLabel(tr('Timezone'))
+                                           ->setOptional(true)
                                            ->setSize(2)
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->orColumn('timezones_name')
                                                          ->isDbId()
-                                                         ->setColumnFromQuery('timezones_name', 'SELECT `name` FROM `geo_timezones` WHERE `id` = :id AND `status` IS NULL', [':id' => '$timezones_id']);
+                                                         ->setColumnFromQuery('timezones_name', 'SELECT `name` 
+                                                                                                 FROM   `geo_timezones` 
+                                                                                                 WHERE  `id` = :id 
+                                                                                                   AND  `status` IS NULL', [
+                                                                                                       ':id' => '$timezones_id'
+                                                         ]);
                                            }))
 
                     ->add(DefinitionFactory::newTimezone('timezones_name')
+                                           ->setInputType(EnumInputType::variable)
                                            ->setLabel(tr('Timezone'))
-                                           ->setDefault(null)
+                                           ->setOptional(true, 'UTC')
                                            ->setVirtual(false)
                                            ->setRender(false)
                                            ->setSize(2)
@@ -759,49 +918,61 @@ class Connector extends DataEntry implements ConnectorInterface
                                            }))
 
                     ->add(Definition::new('ssh_tunnels_id')
+                                    ->setInputType(EnumInputType::dbid)
                                     ->setLabel(tr('SSL Tunnel'))
                                     ->setOptional(true)
                                     ->setDataSource([])
                                     ->setInputType(EnumInputType::select)
                                     ->setSize(2))
 
+                    ->add(DefinitionFactory::newNumber('limit_max')
+                                           ->setInputType(EnumInputType::positiveInteger)
+                                           ->setOptional(true, 1_000_000)
+                                           ->setLabel(tr('Maximum row limit'))
+                                           ->setInputType(EnumInputType::positiveInteger)
+                                           ->setSize(1)
+                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+                                               $validator->isLessThan(1_000_000_000);
+                                           }))
+
                     ->add(DefinitionFactory::newNumber('auto_increment')
                                            ->setLabel(tr('Auto increment'))
                                            ->setInputType(EnumInputType::positiveInteger)
-                                           ->setSize(1))
-
-                    ->add(DefinitionFactory::newNumber('limit_max')
-                                           ->setLabel(tr('Maximum row limit'))
-                                           ->setDefault(1_000_000)
-                                           ->setInputType(EnumInputType::positiveInteger)
+                                           ->setOptional(true, 1)
                                            ->setSize(1))
 
                     ->add(DefinitionFactory::newBoolean('persist')
                                            ->setLabel(tr('Persist'))
                                            ->setHelpText(tr('If enabled, Phoundation will use persistent connections. This may speed up database connections but may potentially cause your database to be overloaded with open connections'))
+                                           ->setOptional(true, false)
                                            ->setSize(1))
 
                     ->add(DefinitionFactory::newBoolean('sync')
                                            ->setLabel(tr('Sync'))
                                            ->setHelpText(tr('If enabled, Phoundation will sync this database when executing the sync command'))
+                                           ->setOptional(true, false)
                                            ->setSize(1))
 
                     ->add(DefinitionFactory::newBoolean('log')
                                            ->setLabel(tr('Log'))
                                            ->setHelpText(tr('If enabled, Phoundation will log all queries to this database'))
+                                           ->setOptional(true, false)
                                            ->setSize(1))
 
                     ->add(DefinitionFactory::newBoolean('init')
                                            ->setLabel(tr('Initializes'))
                                            ->setHelpText(tr('If enabled, Phoundation will try to initialize this database during the init phase'))
+                                           ->setOptional(true, false)
                                            ->setSize(1))
 
                     ->add(DefinitionFactory::newBoolean('buffered')
                                            ->setLabel(tr('Buffered'))
+                                           ->setOptional(true, false)
                                            ->setSize(1))
 
                     ->add(DefinitionFactory::newBoolean('statistics')
                                            ->setLabel(tr('Statistics'))
+                                           ->setOptional(true, false)
                                            ->setSize(1))
 
                     ->add(DefinitionFactory::newDescription());

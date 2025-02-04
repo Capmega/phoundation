@@ -133,11 +133,11 @@ class DataEntry extends DataEntryCore
     /**
      * Returns a new DataEntry object
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      *
      * @return static
      */
-    public static function new(IdentifierInterface|array|string|int|null $identifier = null): static
+    public static function new(IdentifierInterface|array|string|int|false|null $identifier = null): static
     {
         return new static($identifier);
     }

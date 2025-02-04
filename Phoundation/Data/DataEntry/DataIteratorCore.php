@@ -818,7 +818,9 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
     {
         // If the value is a DataEntry object, make sure its saved
         if ($value instanceof DataEntryInterface) {
-            if ($value->isModified() and !$value->isSaved()) {
+            if ($value->isModified()) {
+showbacktrace();
+showdie($value->getSource());
                 $value->save();
             }
 
@@ -851,10 +853,10 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
             if ($key) {
                 if (!$value->isNew() and ($key != $value->getUniqueColumnValue())) {
                     // Key must either not be specified or match the id of the DataEntry
-                    throw new OutOfBoundsException(tr('Cannot add ":type" type DataEntry with id ":id", the specified key ":key" must either match the value ":value" of the unique column ":unique" or be null', [
+                    throw new OutOfBoundsException(tr('Cannot add ":class" class DataEntry with id ":id", the specified key ":key" must either match the value ":value" of the unique column ":unique" or be null', [
                         ':value'  => $value->getUniqueColumnValue(),
                         ':unique' => $value::getUniqueColumn(),
-                        ':type'   => $value::getDataEntryName(),
+                        ':class'  => $value::class,
                         ':id'     => $value->getId() ?? 'N/A',
                         ':key'    => $key,
                     ]));
@@ -879,10 +881,10 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface
             if ($key) {
                 if (!$value->isNew() and ($key != $value->getId())) {
                     // Key must either not be specified or match the id of the DataEntry
-                    throw new OutOfBoundsException(tr('Cannot add ":type" type DataEntry with id ":id", the specified key ":key" must either match the id or be null', [
-                        ':type' => $value::getDataEntryName(),
-                        ':id'   => $value->getId(),
-                        ':key'  => $key,
+                    throw new OutOfBoundsException(tr('Cannot add ":class" class DataEntry with id ":id", the specified key ":key" must either match the id or be null', [
+                        ':class' => $value::class,
+                        ':id'    => $value->getId(),
+                        ':key'   => $key,
                     ]));
                 }
 

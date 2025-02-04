@@ -27,10 +27,12 @@ use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Timers;
-use Phoundation\Databases\Connectors\Connector;
+use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Databases\Connectors\Connectors;
+use Phoundation\Databases\Connectors\Exception\ConnectorException;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
+use Phoundation\Databases\Datastores;
 use Phoundation\Databases\Exception\DatabaseTestException;
 use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
@@ -62,6 +64,11 @@ use Throwable;
 
 class Sql implements SqlInterface
 {
+    use TraitDataConnector {
+        setConnectorObject as protected __setConnectorObject;
+    }
+
+
     /**
      * Dynamic database configurations
      *
@@ -75,13 +82,6 @@ class Sql implements SqlInterface
      * @var ConnectorsInterface
      */
     protected static ConnectorsInterface $connectors;
-
-    /**
-     * Identifier of this instance
-     *
-     * @var string|null $connector
-     */
-    protected ?string $connector = null;
 
     /**
      * All SQL database configuration
@@ -143,37 +143,20 @@ class Sql implements SqlInterface
     /**
      * Sql constructor
      *
-     * @param ConnectorInterface|string|null $connector
+     * @param ConnectorInterface|string|null $o_connector
      * @param bool                           $use_database
      * @param bool                           $connect
      */
-    public function __construct(ConnectorInterface|string|null $connector = null, bool $use_database = true, bool $connect = true)
+    public function __construct(ConnectorInterface|string|null $o_connector = null, bool $use_database = true, bool $connect = true)
     {
         $this->uniqueid = Strings::getRandom();
 
-        if ($connector instanceof ConnectorInterface) {
-            // Connector specified directly. Take configuration from connector and connect
-            $this->connector     = $connector->getName();
-            $this->configuration = static::readConfiguration($connector);
+        // Connector specified directly. Take configuration from connector and connect
+        $this->setConnectorObject(Datastores::getConnectorObject($o_connector));
 
-        } else {
-            // Connector specified by name (or null, default)
-            if ($connector === null) {
-                $connector = 'system';
-            }
-
-            // Read configuration and connect
-            $this->connector     = $connector;
-            $this->configuration = static::readConfiguration($connector);
-        }
-
-        if ($this->configuration['log'] === null) {
-            $this->configuration['log'] = config()->getBoolean('databases.sql.log', false);
-        }
-
-        if ($this->configuration['statistics'] === null) {
-            $this->configuration['statistics'] = config()->getBoolean('databases.sql.statistics', false);
-        }
+        // Some options can be configured separately as well
+        $this->configuration['log']        = $this->configuration['log']        ?? config()->getBoolean('databases.sql.log'       , false);
+        $this->configuration['statistics'] = $this->configuration['statistics'] ?? config()->getBoolean('databases.sql.statistics', false);
 
         $this->debug      = $this->configuration['log'] or config()->getBoolean('databases.sql.log', false);
         $this->statistics = $this->configuration['statistics'];
@@ -193,117 +176,6 @@ class Sql implements SqlInterface
     public function isConnected(): bool
     {
         return (bool) $this->pdo;
-    }
-
-
-    /**
-     * Reads, validates structure and returns the configuration for the specified instance
-     *
-     * @param ConnectorInterface|string $connector
-     *
-     * @return array
-     * @throws Exception
-     */
-    public function readConfiguration(ConnectorInterface|string $connector): array
-    {
-        if ($connector instanceof ConnectorInterface) {
-            $configuration = $connector->getSource();
-
-        } else {
-            // Read in the entire SQL configuration for the specified instance
-            $this->connector = $connector;
-
-            if ($connector === 'system') {
-                $configuration = config()->getArray('databases.connectors.' . $connector);
-
-            } else {
-                $configuration = Connector::new()->load($connector)->getSource();
-            }
-        }
-
-        return $this->applyConfigurationTemplate($configuration);
-    }
-
-
-    /**
-     * Apply configuration template over the specified configuration array
-     *
-     * @param array $configuration
-     *
-     * @return array
-     */
-    protected function applyConfigurationTemplate(array $configuration): array
-    {
-        // Copy the configuration options over the template
-        $configuration = Arrays::mergeFull(static::getConfigurationTemplate(), $configuration);
-
-        switch ($configuration['driver']) {
-            case 'mysql':
-                // Do we have a MySQL driver available?
-                if (!defined('PDO::MYSQL_ATTR_USE_BUFFERED_QUERY')) {
-                    // Whelp, MySQL library is not available
-                    throw new PhpModuleNotAvailableException('Could not find the "MySQL" library for PDO. To install this on Ubuntu derivatives, please type "sudo apt install php-mysql');
-                }
-
-                // Build up ATTR_INIT_COMMAND
-                $command = 'SET @@SESSION.TIME_ZONE="+00:00"; ';
-
-                if ($configuration['charset']) {
-                    // Set the default character set to use
-                    $command .= 'SET NAMES ' . strtoupper($configuration['charset'] . '; ');
-                }
-
-                // Apply MySQL specific requirements that always apply
-                $configuration['pdo_attributes'][PDO::ATTR_ERRMODE]                  = PDO::ERRMODE_EXCEPTION;
-                $configuration['pdo_attributes'][PDO::MYSQL_ATTR_USE_BUFFERED_QUERY] = !$configuration['buffered'];
-                $configuration['pdo_attributes'][PDO::MYSQL_ATTR_INIT_COMMAND]       = $command;
-                break;
-
-            default:
-                // Here be dragons!
-                Log::warning(static::getConnectorLogPrefix() . tr('WARNING: ":driver" DRIVER MAY WORK BUT IS NOT SUPPORTED', [
-                        ':driver' => $configuration['driver'],
-                    ]));
-        }
-
-        return $configuration;
-    }
-
-
-    /**
-     * Returns an SQL connection configuration template
-     *
-     * @return array
-     */
-    protected static function getConfigurationTemplate(): array
-    {
-        return [
-            'type'           => 'sql',
-            'driver'         => 'mysql',
-            'hostname'       => '127.0.0.1',
-            'port'           => null,
-            'database'       => '',
-            'username'       => '',
-            'password'       => '',
-            'auto_increment' => 1,
-            'init'           => false,
-            'buffered'       => false,
-            'charset'        => 'utf8mb4',
-            'collate'        => 'utf8mb4_general_ci',
-            'limit_max'      => 10000,
-            'mode'           => 'PIPES_AS_CONCAT,IGNORE_SPACE',
-            'log'            => null,
-            'statistics'     => null,
-            'ssh_tunnel'     => [
-                'required'    => false,
-                'source_port' => null,
-                'hostname'    => '',
-                'usleep'      => 1200000,
-            ],
-            'pdo_attributes' => [],
-            'version'        => '0.0.0',
-            'timezones_name' => 'UTC',
-        ];
     }
 
 
@@ -868,6 +740,9 @@ class Sql implements SqlInterface
                         ':connector' => $this->connector,
                         ':string'    => $connect_string,
                     ]), 3);
+
+                    // Add this database object to the connector so that it can always be accessed through the connector
+                    $this->o_connector->setDatabaseObject($this);
                     break;
 
                 } catch (Throwable $e) {
@@ -1230,24 +1105,26 @@ class Sql implements SqlInterface
 
 
     /**
-     * Returns the name of this SQL instance
+     * Sets the database connector
      *
-     * @return string
-     */
-    public function getConnector(): string
-    {
-        return $this->connector;
-    }
-
-
-    /**
-     * Returns the connector object for this SQL instance
+     * @note  If the specified $o_connector is NULL, it will be ignored
+     * @param ConnectorInterface|null $o_connector
+     * @param string|null             $database
      *
-     * @return ConnectorInterface
+     * @return static
      */
-    public function getConnectorObject(): ConnectorInterface
+    public function setConnectorObject(?ConnectorInterface $o_connector = null, ?string $database = null): static
     {
-        return static::$connectors->get($this->connector);
+        if ($this->isConnected()) {
+            throw new ConnectorException(tr('Cannot set connector ":connector", the database object ":database" is already connected', [
+                ':connector' => $o_connector->getLogId(),
+                ':database'  => $this->getConnectorLogPrefix()
+            ]));
+        }
+
+        $this->configuration = $o_connector->getMysqlConfiguration();
+
+        return $this->__setConnectorObject($o_connector, $database);
     }
 
 

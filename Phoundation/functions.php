@@ -28,7 +28,7 @@ use Phoundation\Core\Log\Interfaces\LogInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
-use Phoundation\Databases\DataStores;
+use Phoundation\Databases\Datastores;
 use Phoundation\Databases\Mc;
 use Phoundation\Databases\Mongo;
 use Phoundation\Databases\NullDb;
@@ -1406,7 +1406,7 @@ function variable_zts_safe(mixed $variable, int $level = 0): mixed
  */
 function sql(ConnectorInterface|string|null $connector = 'system', bool $use_database = true, bool $connect = true): SqlInterface
 {
-    return DataStores::sql($connector, $use_database, $connect);
+    return Datastores::sql($connector, $use_database, $connect);
 }
 
 
@@ -1420,7 +1420,7 @@ function sql(ConnectorInterface|string|null $connector = 'system', bool $use_dat
  */
 function mc(?string $instance_name = null): Mc
 {
-    return DataStores::mc($instance_name);
+    return Datastores::mc($instance_name);
 }
 
 
@@ -1433,7 +1433,7 @@ function mc(?string $instance_name = null): Mc
  */
 function mongo(?string $instance_name = null): Mongo
 {
-    return DataStores::mongo($instance_name);
+    return Datastores::mongo($instance_name);
 }
 
 
@@ -1447,7 +1447,7 @@ function mongo(?string $instance_name = null): Mongo
  */
 function redis(ConnectorInterface|string|null $connector = 'system-redis', bool $connect = true): Redis
 {
-    return DataStores::redis($connector, $connect);
+    return Datastores::redis($connector, $connect);
 }
 
 
@@ -1460,7 +1460,7 @@ function redis(ConnectorInterface|string|null $connector = 'system-redis', bool 
  */
 function null(?string $instance_name = null): NullDb
 {
-    return DataStores::nullDb($instance_name);
+    return Datastores::nullDb($instance_name);
 }
 
 

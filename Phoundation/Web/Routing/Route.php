@@ -322,7 +322,7 @@ class Route
             Core::setLocale();
 
             // Prepare for unicode usage
-            if (config()->get('languages.encoding.charset', 'UTF-8') === 'UTF-8') {
+            if (config()->get('languages.encoding.character-set', 'UTF-8') === 'UTF-8') {
                 mb_init(not_empty(config()->get('locale.LC_CTYPE', ''), config()->get('locale.LC_ALL', '')));
 
                 if (function_exists('mb_internal_encoding')) {

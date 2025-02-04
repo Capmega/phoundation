@@ -17,6 +17,7 @@ interface DatabaseInterface extends SchemaAbstractInterface
 
     public function getName(): ?string;
 
+
     /**
      * Sets the database name
      *
@@ -24,10 +25,11 @@ interface DatabaseInterface extends SchemaAbstractInterface
      * dumping the entire database and importing it under the new name and dropping the original. Depending on your
      * database size, this may take a while!
      *
+     * @param string|null $name
+     *
      * @return static
      */
-
-    public function setName(string $name): static;
+    public function setName(?string $name): static;
 
     /**
      * Create this database

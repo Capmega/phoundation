@@ -265,8 +265,13 @@ class TableDefine extends SchemaAbstract
      */
     public function create(): void
     {
+        $connector = $this->sql->getConnector();
+
         if ($this->parent->exists()) {
-            throw new SqlException(tr('Cannot create table ":name", it already exists', [':name' => $this->name]));
+            throw new SqlException(tr('Cannot create table ":name" in database ":database", it already exists', [
+                ':database' => $this->parent->getName(),
+                ':name'     => $this->name
+            ]));
         }
 
         // Prepare indices and FKs
@@ -285,7 +290,7 @@ class TableDefine extends SchemaAbstract
             $query .= ",\n" . Strings::ensureEndsNotWith(trim($foreign_keys), ',') . "\n";
         }
 
-        $query .= ') ENGINE=InnoDB AUTO_INCREMENT = ' . config()->get('databases.sql.connectors.system.auto-increment', 1) . ' DEFAULT CHARSET="' . config()->get('databases.sql.connectors.system.charset', 'utf8mb4') . '" COLLATE="' . config()->get('databases.sql.connectors.system.collate', 'utf8mb4_general_ci') . '";';
+        $query .= ') ENGINE=InnoDB AUTO_INCREMENT = ' . config()->get('databases.sql.connectors.' . $connector . '.auto-increment', 1) . ' DEFAULT CHARSET="' . config()->get('databases.sql.connectors.' . $connector . '.character-set', 'utf8mb4') . '" COLLATE="' . config()->get('databases.sql.connectors.' . $connector . '.collate', 'utf8mb4_general_ci') . '";';
 
         Log::warning(tr('Creating table ":table" in database ":database" for SQL instance ":instance"', [
             ':table'    => $this->name,
@@ -295,20 +300,5 @@ class TableDefine extends SchemaAbstract
 
         $this->sql->query($query);
         $this->parent->reload();
-    }
-
-
-    /**
-     * Sets the table name
-     *
-     * @param string $name
-     *
-     * @return static
-     */
-    protected function setName(string $name): static
-    {
-        $this->name = $name;
-
-        return $this;
     }
 }

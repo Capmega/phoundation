@@ -41,7 +41,7 @@ $get = GetValidator::new()
 
 
 // Get the requested user and modify form design
-$user = User::new($get['id']);
+$user = User::new()->loadOrThis($get['id']);
 $user->getDefinitionsObject()->setRender('latitude'        , false)
                              ->setRender('longitude'       , false)
                              ->setRender('offset_latitude' , false)

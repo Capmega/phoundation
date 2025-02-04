@@ -1959,11 +1959,11 @@ return 'under construction';
 
         // Setup locale and character encoding
         // TODO Check this mess!
-        ini_set('default_charset', config()->get('languages.encoding.charset', 'UTF-8'));
+        ini_set('default_charset', config()->get('languages.encoding.character_set', 'UTF-8'));
         Core::setLocale();
 
         // Prepare for unicode usage
-        if (config()->get('languages.encoding.charset', 'UTF-8') === 'UTF-8') {
+        if (config()->get('languages.encoding.character-set', 'UTF-8') === 'UTF-8') {
 // TODO Fix this godawful mess!
             mb_init(not_empty(config()->get('locale.LC_CTYPE', ''), config()->get('locale.LC_ALL', '')));
 

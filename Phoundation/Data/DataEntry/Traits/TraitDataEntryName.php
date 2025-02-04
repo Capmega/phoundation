@@ -26,6 +26,38 @@ use Phoundation\Seo\Seo;
 trait TraitDataEntryName
 {
     /**
+     * Tracks if this class supports SEO hostnames
+     *
+     * @var bool $supports_seo_name
+     */
+    protected bool $supports_seo_name = true;
+
+
+    /**
+     * Returns if this object supports SEO hostnames
+     *
+     * @return bool
+     */
+    public function getSupportsSeoName(): bool
+    {
+        return $this->supports_seo_name;
+    }
+
+
+    /**
+     * Sets if this object supports SEO hostnames
+     *
+     * @param bool $supports_seo_name
+     * @return static
+     */
+    public function setSupportsSeoName(bool $supports_seo_name): static
+    {
+        $this->supports_seo_name = $supports_seo_name;
+        return $this;
+    }
+
+
+    /**
      * Returns the SEO name for this object
      *
      * @return string|null
@@ -59,7 +91,7 @@ trait TraitDataEntryName
         // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
         // the entry if it does!
         try {
-            if ($name) {
+            if ($this->supports_seo_name and $name) {
                 if ($this->isLoadedFromConfiguration()) {
                     // ID is negative, this comes from configuration. Just use any seo-name
                     return $this->setSeoName(Seo::string($name));

@@ -91,6 +91,7 @@ trait TraitDataConnector
     /**
      * Returns a database connector for this DataEntry object
      *
+     * @todo Add caching here. Since we can have different default connectors per class, ensure this cache is an array with connector names being the key
      * @return ConnectorInterface
      */
     public static function getDefaultConnectorObject(): ConnectorInterface

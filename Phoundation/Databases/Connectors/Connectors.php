@@ -30,10 +30,12 @@ class Connectors extends DataIterator implements ConnectorsInterface
     /**
      * DataIterator class constructor
      */
-    public function __construct(?array $ids = null)
+    public function __construct()
     {
         parent::__construct();
-        $this->query = 'SELECT * FROM `databases_connectors`';
+
+        $this->keys_are_unique_column = true;
+        $this->query                  = 'SELECT * FROM `databases_connectors`';
     }
 
 
@@ -68,7 +70,6 @@ class Connectors extends DataIterator implements ConnectorsInterface
      * Load the id list from the database
      *
      * @param array|string|int|null $identifiers
-     * @param bool                  $clear
      * @param bool                  $only_if_empty
      * @param bool                  $ignore_sql_exceptions
      *
@@ -77,7 +78,7 @@ class Connectors extends DataIterator implements ConnectorsInterface
     public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false, bool $ignore_sql_exceptions = false): static
     {
         try {
-            parent::new()->load($identifiers, $clear, $only_if_empty);
+            parent::new()->load($identifiers, $only_if_empty);
 
         } catch (SqlException $e) {
             if (!$ignore_sql_exceptions) {
@@ -142,5 +143,27 @@ class Connectors extends DataIterator implements ConnectorsInterface
         $connector->setDatabase($database);
 
         return $connector;
+    }
+
+
+    /**
+     * Returns the connector with the specified identifier
+     *
+     * @note  If the specified connector does not yet exist, this method will try to load it automatically
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $exception
+     *
+     * @return mixed
+     */
+    public function get(float|Stringable|int|string $key, bool $exception = false): mixed
+    {
+        $o_connector = parent::get($key, $exception);
+
+        if (empty($o_connector)) {
+            $o_connector = Connector::new()->load($key ?: 'system');
+        }
+
+        return $o_connector;
     }
 }

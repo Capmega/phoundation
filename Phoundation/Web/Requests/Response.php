@@ -248,8 +248,8 @@ class Response implements ResponseInterface
             'link'       => [],
             'javascript' => [],
             'meta'       => [
-                'charset'  => config()->get('languages.encoding.charset', 'UTF-8'),
-                'viewport' => config()->get('web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no'),
+                'character_set' => config()->get('languages.encoding.character-set', 'UTF-8'),
+                'viewport'      => config()->get('web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no'),
             ],
         ];
         static::$page_footers = [
@@ -487,26 +487,26 @@ class Response implements ResponseInterface
 
 
     /**
-     * Returns the page charset
+     * Returns the page character_set
      *
      * @return string|null
      */
     public static function getCharset(): ?string
     {
-        return isset_get(static::$page_headers['meta']['charset']);
+        return isset_get(static::$page_headers['meta']['character_set']);
     }
 
 
     /**
-     * Sets the page charset
+     * Sets the page character_set
      *
-     * @param string|null $charset
+     * @param string|null $character_set
      *
      * @return void
      */
-    public static function setCharset(?string $charset): void
+    public static function setCharset(?string $character_set): void
     {
-        static::$page_headers['meta']['charset'] = $charset;
+        static::$page_headers['meta']['character_set'] = $character_set;
     }
 
 
@@ -1571,7 +1571,7 @@ class Response implements ResponseInterface
                 ]));
         }
 
-        $headers[] = 'Content-Type: ' . static::$content_type . '; charset=' . config()->get('languages.encoding.charset', 'UTF-8');
+        $headers[] = 'Content-Type: ' . static::$content_type . '; charset=' . (static::$page_headers['meta']['character_set'] ?? config()->get('languages.encoding.character-set', 'UTF-8'));
         $headers[] = 'Content-Language: ' . LANGUAGE;
         $headers[] = 'Content-Length: ' . ob_get_length();
 

@@ -1318,7 +1318,7 @@ class Core implements CoreInterface
     {
         // Setup locale and character encoding
         // TODO Check this mess!
-        ini_set('default_charset', config()->get('languages.encoding.charset', 'UTF-8'));
+        ini_set('default_charset', config()->get('languages.encoding.character-set', 'UTF-8'));
 
         $locale = config()->get('locale', [
             LC_ALL      => ':LANGUAGE_:COUNTRY.UTF8',

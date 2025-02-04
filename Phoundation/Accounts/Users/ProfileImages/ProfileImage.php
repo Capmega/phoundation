@@ -55,9 +55,9 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
     /**
      * ProfileImage class constructor
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      */
-    public function __construct(IdentifierInterface|array|string|int|null $identifier = null)
+    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = null)
     {
         parent::__construct($identifier);
 

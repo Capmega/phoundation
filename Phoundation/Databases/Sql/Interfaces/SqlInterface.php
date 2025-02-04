@@ -438,16 +438,6 @@ interface SqlInterface extends DatabaseInterface
 
 
     /**
-     * Reads, validates structure and returns the configuration for the specified instance
-     *
-     * @param string $connector
-     *
-     * @return array
-     */
-    public function readConfiguration(string $connector): array;
-
-
-    /**
      * Connects to this database and executes a test query
      *
      * @return static

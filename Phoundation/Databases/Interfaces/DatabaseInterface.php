@@ -10,6 +10,13 @@ use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 interface DatabaseInterface extends DatastoreInterface
 {
     /**
+     * Returns true if this database interface is connected to a database server
+     *
+     * @return bool
+     */
+    public function isConnected(): bool;
+
+    /**
      * Connects to this database and executes a test query
      *
      * @param PhoFileInterface $file

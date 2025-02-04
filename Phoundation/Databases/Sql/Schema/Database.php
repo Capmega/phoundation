@@ -68,13 +68,13 @@ class Database extends SchemaAbstract implements DatabaseInterface
      * dumping the entire database and importing it under the new name and dropping the original. Depending on your
      * database size, this may take a while!
      *
-     * @param string $name
+     * @param string|null $name
      *
      * @return static
      */
-    public function setName(string $name): static
+    public function setName(?string $name): static
     {
-        throw new UnderConstructionException();
+        throw new UnderConstructionException(tr('Cannot set database name yet, this would rename the database'));
     }
 
 
@@ -99,9 +99,9 @@ class Database extends SchemaAbstract implements DatabaseInterface
         ]));
 
         // This query can only partially use bound variables!
-        $this->sql->query('CREATE DATABASE `' . $this->sql->getDatabase() . '` DEFAULT CHARSET=:charset COLLATE=:collate', [
-            ':charset' => $this->configuration['charset'],
-            ':collate' => $this->configuration['collate'],
+        $this->sql->query('CREATE DATABASE `' . $this->sql->getDatabase() . '` DEFAULT CHARSET=:character_set COLLATE=:collate', [
+            ':character_set' => $this->configuration['character_set'],
+            ':collate'       => $this->configuration['collate'],
         ]);
 
         if ($use) {
