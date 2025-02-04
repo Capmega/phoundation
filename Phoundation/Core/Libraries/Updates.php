@@ -26,7 +26,7 @@ use Phoundation\Exception\UnexpectedValueException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Utils\Strings;
-
+use Phoundation\Web\Html\Components\P;
 
 abstract class Updates implements UpdatesInterface
 {
@@ -80,6 +80,7 @@ abstract class Updates implements UpdatesInterface
     {
         // Detect the library name
         $library = strtolower(get_class($this));
+        $plugin  = str_contains($library, 'plugins\\');
         $vendor  = Strings::from($library, 'plugins\\');
         $vendor  = Strings::until($vendor, '\\');
 
@@ -89,11 +90,14 @@ abstract class Updates implements UpdatesInterface
 
         } while ($test === 'library');
 
-        $library = $test;
+        if (!$plugin) {
+            $vendor = 'system';
+        }
 
         // Load the updates and the code version
         $this->updates();
 
+        $library      = $test;
         $code_version = $this->version();
 
         if (!$code_version) {
@@ -417,15 +421,24 @@ abstract class Updates implements UpdatesInterface
     protected function addVersion(string $version, ?string $comments = null): void
     {
         if ($version === 'post_always') {
-            // Never register this in the versions table as this one is ALWAYS executed
+            // Never register this in the core_versions table as this one is ALWAYS executed
             return;
         }
 
-        sql()->insert('core_versions', [
-            'library'  => $this->library,
-            'version'  => Version::getInteger($version),
-            'comments' => $comments,
-        ]);
+        if (version_compare(Library::new('Phoundation/Core')->getDatabaseVersion(), '0.6.0') === 1) {
+            sql()->insert('core_versions', [
+                'vendor'   => $this->vendor,
+                'library'  => $this->library,
+                'version'  => Version::getInteger($version),
+                'comments' => $comments,
+            ]);
+        } else {
+            sql()->insert('core_versions', [
+                'library'  => $this->library,
+                'version'  => Version::getInteger($version),
+                'comments' => $comments,
+            ]);
+        }
     }
 
 

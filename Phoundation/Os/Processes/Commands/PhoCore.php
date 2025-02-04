@@ -174,8 +174,6 @@ class PhoCore extends WorkersCore implements PhoInterface
      */
     public function executePassthru(): bool
     {
-showbacktrace();
-showdie();
         Log::action(tr('Executing passthru Pho command ":command"', [
             ':command' => implode(' ', $this->pho_commands)
         ]));

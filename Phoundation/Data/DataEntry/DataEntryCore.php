@@ -496,7 +496,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         if (is_numeric($identifier)) {
             if ($identifier < 0) {
                 // This identifier is negative so cannot be a database identifier, and can only be a configuration
-                // source identifier. This can ONLY be valid if the DataEntry has DataEntry::$configuration_path set to
+                // source identifier. This can ONLY be valid if the DataEntry has DataEntry::getConfigurationPath() set to
                 // pull the entry from configuration.
                 if (empty(static::getConfigurationPath())) {
                     throw new DataEntryInvalidIdentifierException(tr('Invalid identifier ":identifier" specified for ":class" DataEntry object, it is a negative number but the class has no configuration path specified', [

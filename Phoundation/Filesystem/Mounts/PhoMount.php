@@ -38,6 +38,7 @@ use Phoundation\Filesystem\PhoPath;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Os\Processes\Commands\Mount;
 use Phoundation\Os\Processes\Commands\UnMount;
+use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
 
@@ -90,6 +91,17 @@ class PhoMount extends DataEntry implements PhoMountInterface
 
 
     /**
+     * Returns the configuration path for this DataEntry object, if it has one, or NULL instead
+     *
+     * @return string|null
+     */
+    public static function getConfigurationPath(): ?string
+    {
+        return 'filesystem.mounts';
+    }
+
+
+    /**
      * Returns the mount object for the path that is mounted as close as possible to the specified path
      *
      * @param PhoPath|string           $path
@@ -132,21 +144,29 @@ class PhoMount extends DataEntry implements PhoMountInterface
             // column
             switch ($column) {
                 case 'name':
-                    $mount = config()->getArray('filesystem.mounts.' . $this->identifier);
+                    try {
+                        $mount = config()->getArray('filesystem.mounts.' . str_replace(' ', '-', $this->identifier['name']));
 
-                    return static::newFromSource($mount)->setMetaEnabled($this->meta_enabled)
-                                                        ->setIgnoreDeleted($this>$this->ignore_deleted);
+                        return static::newFromSource($mount)->setMetaEnabled($this->meta_enabled)
+                                     ->setIgnoreDeleted($this>$this->ignore_deleted);
+
+                    } catch (ConfigPathDoesNotExistsException) {
+                        // Yeah, this identifier does not exist
+                        throw $e;
+                    }
+
+                    break;
 
                 case 'source_path':
                     // This is a mount that SHOULD already exist on the system
-                    $mount = FsMounts::getMountSources(new PhoDirectory($this->identifier));
+                    $mount = FsMounts::getMountSources(new PhoDirectory($this->identifier['source_path']));
 
                     return static::new($mount)->setMetaEnabled($this>$this->meta_enabled)
                                               ->setIgnoreDeleted($this>$this->ignore_deleted);
 
                 case 'target_path':
                     // This is a mount that SHOULD already exist on the system
-                    $mount = FsMounts::getMountTargets(new PhoDirectory($this->identifier));
+                    $mount = FsMounts::getMountTargets(new PhoDirectory($this->identifier['target_path']));
 
                     return static::new($mount)->setMetaEnabled($this>$this->meta_enabled)
                                               ->setIgnoreDeleted($this>$this->ignore_deleted);
@@ -545,5 +565,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
 
                     ->add(DefinitionFactory::newDescription()
                                            ->setHelpText(tr('The description for this mount')));
+
+        return $this;
     }
 }

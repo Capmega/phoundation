@@ -973,7 +973,7 @@ showdie($value->getSource());
         return $this->getAcceptedDataType()::new()
                                            ->setDebug($this->debug)
                                            ->setConnectorObject($this->getConnectorObject())
-                                           ->load($identifier)
+                                           ->loadOrThis($identifier)
                                            ->setRestrictions($this->restrictions);
     }
 

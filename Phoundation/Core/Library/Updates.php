@@ -437,7 +437,9 @@ class Updates extends Libraries\Updates
             }
 
         })->addUpdate('0.6.0', function () {
-            // Add indexed "can_startup" column to core_plugins table
+            Log::action(tr('Fixing core versions vendor information'));
+
+            // Add indexed "vendor" column to core_plugins table
             $table = sql()->getSchemaObject()->getTableObject('core_versions');
 
             if (!$table->columnExists('vendor')) {
@@ -446,6 +448,16 @@ class Updates extends Libraries\Updates
                 if (!$table->indexExists('vendor')) {
                     $table->alter()->addIndex('KEY `vendor` (`vendor`)');
                 }
+            }
+
+            $entries = sql()->listKeyValues('SELECT * FROM `core_versions`');
+
+            foreach ($entries as $entry) {
+                sql()->update(
+                    'core_versions',
+                    ['vendor' => Libraries\Libraries::detectVendor($entry['library'])],
+                    ['id' => $entry['id']]
+                );
             }
         });
     }

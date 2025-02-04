@@ -18,6 +18,8 @@ namespace Phoundation\Core\Libraries;
 
 use Phoundation\Cache\Cache;
 use Phoundation\Core\Core;
+use Phoundation\Core\Libraries\Exception\LibraryMultipleVendorsException;
+use Phoundation\Core\Libraries\Exception\LibraryNotFoundException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Tmp;
 use Phoundation\Databases\Sql\Exception\DatabasesConnectorException;
@@ -1063,5 +1065,53 @@ class Libraries
                 })
                 ->executeNoReturn();
         }
+    }
+
+
+    /**
+     * Detects the vendor for the specified library
+     *
+     * @note Will throw a LibraryNotFoundException if the specified library does not exist
+     *
+     * @note Will throw a LibraryMultipleVendorsException if multiple vendors have a library with the specified name
+     *
+     * @param string $library
+     *
+     * @return string
+     */
+    public static function detectVendor(string $library): string
+    {
+        $libraries = Libraries::listLibraries();
+        $library   = strtolower($library);
+
+        foreach ($libraries as $library_name => $o_library) {
+            $library_name = Strings::untilReverse($library_name, '/');
+            $library_name = Strings::fromReverse($library_name, '/');
+            $library_name = strtolower($library_name);
+
+            if ($library === $library_name) {
+                if (empty($vendor)) {
+                    $vendor = $o_library->getVendor();
+                    continue;
+                }
+
+                throw LibraryMultipleVendorsException::new(tr('Failed to find vendor for library ":library", multiple vendors have a library with that name', [
+                    ':library' => $library,
+                ]))->setData([
+                    'vendors' => [
+                        $vendor,
+                        $o_library->getVendor()
+                    ]
+                ]);
+            }
+        }
+
+        if (empty($vendor)) {
+            throw new LibraryNotFoundException(tr('Failed to find vendor for library ":library", the library could not be found', [
+                ':library' => $library,
+            ]));
+        }
+
+        return $vendor;
     }
 }

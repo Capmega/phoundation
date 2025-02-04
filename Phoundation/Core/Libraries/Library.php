@@ -86,9 +86,9 @@ class Library implements LibraryInterface
     /**
      * Library constructor
      *
-     * @param PhoDirectoryInterface $directory
+     * @param PhoDirectoryInterface|string $directory
      */
-    public function __construct(PhoDirectoryInterface $directory)
+    public function __construct(PhoDirectoryInterface|string $directory)
     {
         // Extract vendor and library names
         $this->directory = new PhoDirectory($directory, PhoRestrictions::newRootObject());
@@ -104,11 +104,26 @@ class Library implements LibraryInterface
 
         if (str_starts_with($this->vendor, 'plugin')) {
             $this->vendor = Strings::from($this->vendor, 'plugins/');
+        } else {
+            $this->vendor = 'system';
         }
 
         // Get the Init object
         $this->loadUpdatesObject()
              ->loadPluginObject();
+    }
+
+
+    /**
+     * Returns a new static object
+     *
+     * @param PhoDirectoryInterface|string $directory
+     *
+     * @return static
+     */
+    public static function new(PhoDirectoryInterface|string $directory): static
+    {
+        return new static($directory);
     }
 
 
