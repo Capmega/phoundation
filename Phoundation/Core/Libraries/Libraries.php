@@ -1114,4 +1114,39 @@ class Libraries
 
         return $vendor;
     }
+
+
+    /**
+     * Returns true when the system has initialized to the point that core_versions supports vendors
+     *
+     * @param bool $force
+     *
+     * @return bool
+     */
+    public static function supportsVendors(bool $force = false): bool
+    {
+        static $true = false;
+
+        if ($true) {
+            return true;
+        }
+
+        if ($force) {
+            // Some outside function just told us that as of now, vendors are supported!
+            $true = true;
+
+        } else {
+            $version = (int) sql()->getColumn('SELECT MAX(`version`) AS `version` 
+                                               FROM   `core_versions` 
+                                               WHERE  `library` = "core"');
+
+            if ($version >= 6000) {
+                // Once core_versions supports vendors, it will ALWAYS support vendors, we're done!
+                $true = true;
+            }
+        }
+
+        return $true;
+
+    }
 }

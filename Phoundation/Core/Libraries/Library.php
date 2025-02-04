@@ -607,11 +607,13 @@ class Library implements LibraryInterface
     /**
      * Returns the database version for this library
      *
+     * @param bool $post
+     *
      * @return string|null
      */
-    public function getDatabaseVersion(): ?string
+    public function getDatabaseVersion(bool $post = false): ?string
     {
-        return $this->updates?->getDatabaseVersion();
+        return $this->updates?->getDatabaseVersion($post);
     }
 
 
@@ -677,16 +679,41 @@ class Library implements LibraryInterface
         $int_version = Version::getInteger($version);
 
         // Delete any version that is higher than the specified version
-        sql()->query('DELETE FROM `core_versions` WHERE `library` = :library AND `version` > :version', [
-            ':library' => $this->getName(),
-            ':version' => $int_version,
-        ]);
+        if (Libraries::supportsVendors()) {
+            sql()->query('DELETE FROM `core_versions` 
+                          WHERE       `vendor`  = :vendor 
+                            AND       `library` = :library 
+                            AND       `version` > :version', [
+                ':vendor'  => $this->getVendor(),
+                ':library' => $this->getName(),
+                ':version' => $int_version,
+            ]);
+
+        } else {
+            sql()->query('DELETE FROM `core_versions` WHERE `library` = :library AND `version` > :version', [
+                ':library' => $this->getName(),
+                ':version' => $int_version,
+            ]);
+        }
 
         // Get the highest version. If it's lower than requested, insert the requested version so that we're exactly at
         // the right version
-        $int_current = sql()->getColumn('SELECT MAX(`version`) FROM `core_versions` WHERE `library` = :library', [
-            ':library' => $this->getName(),
-        ]);
+        if (Libraries::supportsVendors()) {
+            $int_current = sql()->getColumn('SELECT MAX(`version`) 
+                                             FROM   `core_versions` 
+                                             WHERE  `vendor`  = :vendor 
+                                               AND  `library` = :library', [
+                ':vendor'  => $this->getVendor(),
+                ':library' => $this->getName(),
+            ]);
+
+        } else {
+            $int_current = sql()->getColumn('SELECT MAX(`version`) 
+                                             FROM   `core_versions` 
+                                             WHERE  `library` = :library', [
+                ':library' => $this->getName(),
+            ]);
+        }
 
         if ($int_current < $int_version) {
             if ($comments === null) {
@@ -694,11 +721,21 @@ class Library implements LibraryInterface
                 $comments = tr('Forced library to this version');
             }
 
-            sql()->insert('core_versions', [
-                'library'  => $this->library,
-                'version'  => $int_version,
-                'comments' => $comments,
-            ]);
+            if (Libraries::supportsVendors()) {
+                sql()->insert('core_versions', [
+                    'vendor'   => $this->vendor,
+                    'library'  => $this->library,
+                    'version'  => $int_version,
+                    'comments' => $comments,
+                ]);
+
+            } else {
+                sql()->insert('core_versions', [
+                    'library'  => $this->library,
+                    'version'  => $int_version,
+                    'comments' => $comments,
+                ]);
+            }
         }
     }
 

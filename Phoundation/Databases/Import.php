@@ -174,7 +174,7 @@ class Import
                 MySql::new()
                      ->setTimeout($this->timeout)
                      ->setConnectorObject($this->getConnectorObject())
-                     ->drop($this->drop ? $this->database ?? ($this->getConnectorObject()->getDatabase()) : null)
+                     ->drop($this->drop ? ($this->database ?? ($this->getConnectorObject()->getDatabase())) : null)
                      ->create($this->database ?? ($this->getConnectorObject()->getDatabase()))
                      ->import($this->file);
 

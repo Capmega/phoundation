@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Phoundation\Core\Library;
 
 use Phoundation\Core\Libraries;
+use Phoundation\Core\Libraries\Exception\LibraryNotFoundException;
 use Phoundation\Core\Locale\Language\Import;
 use Phoundation\Core\Log\Log;
 
@@ -448,17 +449,32 @@ class Updates extends Libraries\Updates
                 if (!$table->indexExists('vendor')) {
                     $table->alter()->addIndex('KEY `vendor` (`vendor`)');
                 }
+
+                // The unique key should now be vendor - library - version
+                $table->alter()->dropIndex('`library_version`')
+                               ->addIndex('UNIQUE KEY `library_version` (`vendor`, `library`, `version`)');
             }
 
+            // Fix all core_versions vendor columns
             $entries = sql()->listKeyValues('SELECT * FROM `core_versions`');
 
             foreach ($entries as $entry) {
-                sql()->update(
-                    'core_versions',
-                    ['vendor' => Libraries\Libraries::detectVendor($entry['library'])],
-                    ['id' => $entry['id']]
-                );
+                try {
+                    sql()->update(
+                        'core_versions',
+                        ['vendor' => Libraries\Libraries::detectVendor($entry['library'])],
+                        ['id'     => $entry['id']]
+                    );
+
+                } catch (LibraryNotFoundException) {
+                    Log::warning(tr('Not fixing vendor column for library ":library", the library could not be found', [
+                        ':library' => $entry['library']
+                    ]));
+                }
             }
+
+            // Notify the Libraries class that as of now, vendors are supported in core_versions!
+            Libraries\Libraries::supportsVendors(true);
         });
     }
 }

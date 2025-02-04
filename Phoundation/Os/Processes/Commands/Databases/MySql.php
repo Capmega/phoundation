@@ -30,6 +30,7 @@ use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Command;
+use Phoundation\Os\Processes\Commands\Tail;
 use Phoundation\Os\Processes\Commands\Zcat;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Exception\ProcessesException;
@@ -130,16 +131,18 @@ class MySql extends Command
                 $this->setCommand('mysql')
                      ->setTimeout($this->timeout)
                      ->addArguments([
-                         '-h',
-                         $this->o_connector->getHostname(),
-                         '-u',
-                         $this->o_connector->getUsername(),
+                         '-h',  $this->o_connector->getHostname(),
+                         '-u',  $this->o_connector->getUsername(),
                          '-p' . $this->o_connector->getPassword(),
-                         '-B',
-                         $this->o_connector->getDatabase(),
-                     ])
-                     ->setInputRedirect($file)
-                     ->executeNoReturn();
+                         '-B',  $this->o_connector->getDatabase(),
+                     ]);
+
+                    Tail::new()
+                        ->setTimeout($this->timeout)
+                        ->setFileObject($file)
+                        ->addArgument('+2') // Strip the line     /*!999999\- enable the sandbox mode */
+                        ->setPipe($this)
+                        ->execute();
                 break;
 
             case 'application/gzip':
@@ -158,7 +161,10 @@ class MySql extends Command
                 Zcat::new()
                     ->setTimeout($this->timeout)
                     ->setFileObject($file)
-                    ->setPipe($this)
+                    ->setPipe(Tail::new()
+                                  ->setTimeout($this->timeout)
+                                  ->addArgument('+2') // Strip the line     /*!999999\- enable the sandbox mode */
+                                  ->setPipe($this))
                     ->execute();
                 break;
 

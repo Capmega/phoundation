@@ -287,17 +287,32 @@ abstract class Updates implements UpdatesInterface
     /**
      * Returns the current database version for this library
      *
+     * @param bool $post
+     *
      * @return string|null
      */
-    public function getDatabaseVersion(): ?string
+    public function getDatabaseVersion(bool $post = false): ?string
     {
         if (!$this->versionsTableExists()) {
             return null;
         }
 
-        $version = sql()->getColumn('SELECT MAX(`version`) 
-                                           FROM   `core_versions` 
-                                           WHERE  `library` = :library', [':library' => $this->library]);
+        if (Libraries::supportsVendors()) {
+            $version = sql()->getColumn('SELECT ' . ($post ? 'MIN' : 'MAX') . '(`version`) 
+                                         FROM   `core_versions` 
+                                         WHERE  `vendor`  = :vendor
+                                           AND  `library` = :library', [
+                ':vendor'  => $this->vendor,
+                ':library' => $this->library
+            ]);
+
+        } else {
+            $version = sql()->getColumn('SELECT ' . ($post ? 'MIN' : 'MAX') . '(`version`) 
+                                         FROM   `core_versions` 
+                                         WHERE  `library` = :library', [
+                ':library' => $this->library
+            ]);
+        }
 
         return Version::getString($version);
     }
@@ -425,13 +440,14 @@ abstract class Updates implements UpdatesInterface
             return;
         }
 
-        if (version_compare(Library::new('Phoundation/Core')->getDatabaseVersion(), '0.6.0') === 1) {
+        if (Libraries::supportsVendors()) {
             sql()->insert('core_versions', [
                 'vendor'   => $this->vendor,
                 'library'  => $this->library,
                 'version'  => Version::getInteger($version),
                 'comments' => $comments,
             ]);
+
         } else {
             sql()->insert('core_versions', [
                 'library'  => $this->library,
@@ -443,7 +459,7 @@ abstract class Updates implements UpdatesInterface
 
 
     /**
-     * Execute the post init files
+     * Execute the post-init files
      *
      * @param string|null $comments
      *
@@ -501,12 +517,22 @@ abstract class Updates implements UpdatesInterface
             $version = Version::getInteger($version);
         }
 
+        if (Libraries::supportsVendors()) {
+            return (bool) sql()->getColumn('SELECT `version`
+                                            FROM   `core_versions`
+                                            WHERE  `vendor`  = :vendor
+                                              AND  `library` = :library
+                                              AND  `version` = :version', [
+                ':vendor'  => $this->vendor,
+                ':library' => $this->library,
+                ':version' => $version,
+            ]);
+        }
+
         return (bool) sql()->getColumn('SELECT `version`
                                         FROM   `core_versions`
-                                        WHERE  `vendor`  = :vendor
-                                          AND  `library` = :library
+                                        WHERE  `library` = :library
                                           AND  `version` = :version', [
-            ':vendor'  => $this->vendor,
             ':library' => $this->library,
             ':version' => $version,
         ]);
@@ -535,9 +561,11 @@ abstract class Updates implements UpdatesInterface
             case 1:
                 // The init version is later than the specified version
                 return false;
+
             case 0:
                 // The init version is the same as the current version, it has been executed
                 // no break
+
             case -1:
                 // The file version is newer than the specified version
                 Log::warning(tr('Skipping init version ":version" for library ":library" because it already has been executed', [

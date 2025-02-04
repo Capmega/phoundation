@@ -78,11 +78,11 @@ class Connectors extends DataIterator implements ConnectorsInterface
     public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false, bool $ignore_sql_exceptions = false): static
     {
         try {
-            parent::new()->load($identifiers, $only_if_empty);
+            parent::load($identifiers, $only_if_empty);
 
         } catch (SqlException $e) {
             if (!$ignore_sql_exceptions) {
-                // In some cases we need access to configured connectors while database connectors are not available
+                // In some cases, we need access to configured connectors while database connectors are not available
                 // because the database may not exist, or a database version may be so old that the databases_connectors
                 // table doesn't exist. In those cases where we know that this might happen, we will ignore SQL
                 // exceptions and continue loading connectors from configuration
