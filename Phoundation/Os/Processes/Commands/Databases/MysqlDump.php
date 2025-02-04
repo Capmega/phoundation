@@ -21,6 +21,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Date\PhoDateTime;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoPath;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
@@ -424,22 +425,32 @@ class MysqlDump extends Command implements MysqlDumpInterface
                  '-h', $this->o_connector->getHostname(),
                  '-u', $this->o_connector->getUsername(),
                  '-p' . $this->o_connector->getPassword()])
-             ->addArgument($this->disable_keys ? '--disable-keys' : null)
-             ->addArgument($this->events ? '--events' : null)
-             ->addArgument($this->routines ? '--routines' : null)
-             ->addArgument(!$this->create_databases ? '--no-create-db' : null)
-             ->addArgument(!$this->create_tables ? '--no-create-info' : null)
-             ->addArgument($this->extended_insert ? '--extended-insert' : null)
-             ->addArgument($this->comments ? '--comments' : '--skip-comments')
-             ->addArgument(($this->comments and $this->dump_date) ? '--dump-date' : null);
+             ->addArgument($this->disable_keys                    ? '--disable-keys'    : null)
+             ->addArgument($this->events                          ? '--events'          : null)
+             ->addArgument($this->routines                        ? '--routines'        : null)
+             ->addArgument(!$this->create_databases               ? '--no-create-db'    : null)
+             ->addArgument(!$this->create_tables                  ? '--no-create-info'  : null)
+             ->addArgument($this->extended_insert                 ? '--extended-insert' : null)
+             ->addArgument($this->comments                        ? '--comments'        : '--skip-comments')
+             ->addArgument(($this->comments and $this->dump_date) ? '--dump-date'       : null);
 
         if ($this->o_connector->getPort()) {
             $this->addArguments(['-p', $this->o_connector->getPort()]);
         }
 
         // Add databases
-        $this->addArgument('--databases')
-             ->addArguments($this->databases);
+        switch (count($this->databases)) {
+            case 0:
+                throw new OutOfBoundsException(tr('Cannot generate MySQL dump file, no database specified'));
+
+            case 1:
+                $this->addArguments($this->databases);
+                break;
+
+            default:
+                $this->addArgument('--databases')
+                     ->addArguments($this->databases);
+        }
 
         // Optionally add gzip
         if ($this->gzip) {
