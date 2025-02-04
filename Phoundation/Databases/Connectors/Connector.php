@@ -868,7 +868,7 @@ class Connector extends DataEntry implements ConnectorInterface
                     ->add(Definition::new('character_set')
                                     ->setInputType(EnumInputType::text)
                                     ->setLabel(tr('Character set'))
-                                    ->setOptional(true, config()->getString('languages.encoding.character_set', 'utf8mb4'))
+                                    ->setOptional(true, config()->getString('databases.mysql.character-set', 'utf8mb4'))
                                     ->setSize(3)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
 // TODO Improve validation of this column
@@ -879,7 +879,7 @@ class Connector extends DataEntry implements ConnectorInterface
                                     ->setInputType(EnumInputType::text)
                                     ->setLabel(tr('Collate'))
                                     ->setSize(3)
-                                    ->setOptional(true, config()->getString('languages.encoding.collate', 'utf8mb4_general_ci'))
+                                    ->setOptional(true, config()->getString('databases.mysql.collate', 'utf8mb4_general_ci'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
 // TODO Improve validation of this column
                                         $validator->hasMaxCharacters(64);
