@@ -114,8 +114,7 @@ class Phones extends DataIterator implements PhonesInterface
      * Returns a Phones Iterator object with phones for the specified user.
      *
      * @param array|string|int|null $identifiers
-     * @param bool                  $clear
-     * @param bool                  $only_if_empty
+     * @param bool $only_if_empty
      *
      * @return static
      */

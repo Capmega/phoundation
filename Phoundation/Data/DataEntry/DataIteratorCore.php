@@ -53,7 +53,7 @@ use ReturnTypeWillChange;
 use Stringable;
 
 
-class DataIteratorCore extends IteratorCore implements DataIteratorInterface
+class DataIteratorCore extends IteratorCore implements DataIteratorInterface, IdentifierInterface
 {
     use TraitDataStatusFilter;
     use TraitDataConnector;

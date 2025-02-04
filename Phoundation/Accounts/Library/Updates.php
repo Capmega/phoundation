@@ -47,10 +47,6 @@ class Updates extends \Phoundation\Core\Libraries\Updates
         $this->addUpdate('post_once', function () {
             // Ensure Guest user is available
             GuestUser::new()->save();
-            showdie('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-
-            show(Right::new()->setDebug(true)->loadOrThisInitialize(['name' => 'God'])->getSource());
-            showdie('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
 
             // Create default rights and roles
             $god = Right::new()

@@ -98,7 +98,7 @@ use Stringable;
 use Throwable;
 
 
-class DataEntryCore extends EntryCore implements DataEntryInterface
+class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierInterface
 {
     use TraitDataConnector;
     use TraitDataDebug;

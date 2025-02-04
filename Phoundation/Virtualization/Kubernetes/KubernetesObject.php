@@ -74,8 +74,7 @@ class KubernetesObject
      * Load the deployment description
      *
      * @param array|string|int|null $identifiers
-     * @param bool                  $clear
-     * @param bool                  $only_if_empty
+     * @param bool $only_if_empty
      *
      * @return static
      */

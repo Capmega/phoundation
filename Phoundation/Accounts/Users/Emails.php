@@ -113,8 +113,7 @@ class Emails extends DataIterator implements EmailsInterface
      * Returns an Emails Iterator object with emails for the specified user.
      *
      * @param array|string|int|null $identifiers
-     * @param bool                  $clear
-     * @param bool                  $only_if_empty
+     * @param bool $only_if_empty
      *
      * @return static
      */

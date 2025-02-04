@@ -55,6 +55,7 @@ use Phoundation\Data\DataEntry\Definitions\Definition;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntry\Exception\DataEntryNotSavedException;
 use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
@@ -257,7 +258,7 @@ class User extends DataEntry implements UserInterface
      */
     public function isSystemUser(): bool
     {
-        return (array_get_safe($this->source, 'status') === 'system');
+        return $this->isGuest() or $this->isSystem();
     }
 
 
@@ -390,6 +391,25 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     public static function getTable(): ?string
     {
         return 'accounts_users';
+    }
+
+
+    /**
+     * Returns id for this database entry
+     *
+     * @param bool $exception
+     *
+     * @return int|null
+     * @throws DataEntryNotSavedException
+     */
+    public function getId(bool $exception = true): int|null
+    {
+        if ($this->isSystem()) {
+            // System user always returns NULL
+            return null;
+        }
+
+        return parent::getId($exception);
     }
 
 
@@ -769,7 +789,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     protected function applyDefaultRoles(): static
     {
         if ($this->isCreated()) {
-            if ($this->isGuest() or $this->isSystemUser()) {
+            if ($this->isSystemUser()) {
                 // Don't add roles to these users
                 return $this;
             }
@@ -854,6 +874,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     protected function notifyUserAboutWrite(): static
     {
+        if ($this->isSystemUser()) {
+            // Yeah, we don't notify the system users
+            return $this;
+        }
+
         if ($this->isCreated()) {
             // Notify the user that their account was created, accompanied by a login link
             $key = $this->getSigninKey()->generate(Url::new('/force-password-update.html')->makeWww());
@@ -872,7 +897,6 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
             return $this;
         }
-
 
         // Notify user that their account was modified
         if (Session::getUserObject()->getId() === $this->getId()) {
@@ -2471,8 +2495,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         $new = $this->getId(false) === null;
 
         if ($new) {
-            // System and Guest users are never new!
-            if ($this->isSystemUser()) {
+            // System user is never new!
+            if ($this->isSystem()) {
                 return false;
             }
         }

@@ -26,8 +26,7 @@ interface LanguagesInterface
      * Load the id list from the database
      *
      * @param array|string|int|null $identifiers
-     * @param bool                  $clear
-     * @param bool                  $only_if_empty
+     * @param bool $only_if_empty
      *
      * @return static
      */

@@ -379,8 +379,7 @@ class Roles extends DataIterator implements RolesInterface
      * Load the data for this "roles" list into the object
      *
      * @param array|string|int|null $identifiers
-     * @param bool                  $clear
-     * @param bool                  $only_if_empty
+     * @param bool $only_if_empty
      *
      * @return static
      */
