@@ -26,12 +26,19 @@ class TableAlter extends SchemaAbstract
     /**
      * Sets the table name
      *
-     * @param string $name
+     * @param string|null $name
      *
      * @return static
      */
-    public function setName(string $name): static
+    public function setName(?string $name): static
     {
+        if (empty($name)) {
+            throw new OutOfBoundsException(tr('Cannot set name of table ":table" to ":name", no name specified', [
+                ':table' => $this->name,
+                ':name'  => $name
+            ]));
+        }
+
         $this->sql->query('RENAME TABLE :from TO :to', [
             ':from' => $this->name,
             ':tp'   => $name,

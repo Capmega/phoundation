@@ -817,6 +817,7 @@ FILES variables:
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $definitions
+     * @return Notification
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
@@ -968,6 +969,8 @@ FILES variables:
                                     }))
 
                     ->get('status')->setDefault('UNREAD');
+
+        return $this;
     }
 
 

@@ -31,7 +31,9 @@ class SystemUser extends User implements SystemUserInterface
      */
     public function __construct(IdentifierInterface|array|string|int|false|null $identifier = null)
     {
-        parent::__construct('system');
+        parent::__construct();
+
+        $this->setEmail('system');
 
         $this->roles  = Roles::new()->load(['name' => 'god']);
         $this->rights = Rights::new()->load(['name' => 'god']);

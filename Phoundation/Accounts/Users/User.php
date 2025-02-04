@@ -318,6 +318,15 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             $user = parent::load($identifier);
 
         } catch (DataEntryNotExistsException $e) {
+            if ($this->identifier === ['email' => 'guest']) {
+                // This is the guest user, it should always exist UNLESS we're in the init phase
+                if (Core::inInitState()) {
+                    return $this;
+                }
+
+                throw new AccountsException(tr('The "guest" user does not exist in the database'));
+            }
+
             $user = $this->loadFromAlternativeEmail();
 
             if (!$user) {
@@ -760,6 +769,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     protected function applyDefaultRoles(): static
     {
         if ($this->isCreated()) {
+            if ($this->isGuest() or $this->isSystemUser()) {
+                // Don't add roles to these users
+                return $this;
+            }
+
             // Get user default roles and the user roles object
             $roles   = config()->get('security.accounts.roles.default', '');
             $o_roles = $this->getRolesObject();
@@ -3086,15 +3100,18 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setOptional(true)
                                            ->setRender(false)
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               if ($validator->getSelectedValue() and $this->isNew()) {
-                                                   // Cannot save a profile image with a user that does not yet exist in the database
-                                                   $validator->addFailure(tr('requires that the user is saved first'));
-                                               }
+                                               if ($validator->getSelectedValue()) {
+                                                   if ($this->isNew()) {
+                                                       // Cannot save a profile image with a user that does not yet exist in the database
+                                                       $validator->addFailure(tr('requires that the user is saved first'));
 
-                                               $validator->isFile(
-                                                   PhoDirectory::newCdnObject(true, '/img/files/profile/' . $this->getId() . '/'),
-                                                   prefix: PhoDirectory::newCdnObject()
-                                               );
+                                                   } else {
+                                                       $validator->isFile(
+                                                           PhoDirectory::newCdnObject(true, '/img/files/profile/' . $this->getId() . '/'),
+                                                           prefix: PhoDirectory::newCdnObject()
+                                                       );
+                                                   }
+                                               }
                                            }))
 
                     ->add(DefinitionFactory::newData('data'));

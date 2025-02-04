@@ -31,7 +31,7 @@ class Updates extends Libraries\Updates
      */
     public function version(): string
     {
-        return '0.5.0';
+        return '0.6.0';
     }
 
 
@@ -43,10 +43,8 @@ class Updates extends Libraries\Updates
     public function updates(): void
     {
         $this->addUpdate('0.0.1', function () {
-            sql()->getSchemaObject()->getTableObject('versions')->drop();
-
             // Add table for version control itself
-            sql()->getSchemaObject()->getTableObject('core_versions')->define()
+            sql()->getSchemaObject()->getTableObject('core_versions')->drop()->define()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -312,6 +310,7 @@ class Updates extends Libraries\Updates
                         REFERENCES `meta` (`id`) 
                         ON DELETE CASCADE,
                 ')->create();
+
         })->addUpdate('0.0.11', function () {
             sql()->getSchemaObject()->getTableObject('core_templates')->alter()
                  ->changeColumn('file', '`directory` varchar(128) NOT NULL');
@@ -321,9 +320,9 @@ class Updates extends Libraries\Updates
             Log::action(tr('Fixing meta_id column on all tables'), echo_newline: false);
 
             $tables = sql()->query('SELECT `TABLE_NAME`, `IS_NULLABLE`
-                                          FROM   `information_schema`.`COLUMNS`
-                                          WHERE  `TABLE_SCHEMA` = :table_schema
-                                            AND  `COLUMN_NAME`  = "meta_id"', [
+                                    FROM   `information_schema`.`COLUMNS`
+                                    WHERE  `TABLE_SCHEMA` = :table_schema
+                                      AND  `COLUMN_NAME`  = "meta_id"', [
                 ':table_schema' => sql()->getDatabase(),
             ]);
 
@@ -334,7 +333,7 @@ class Updates extends Libraries\Updates
 
                 // This table has a NOT NULL meta_id, fix it
                 sql()->query('ALTER TABLE   `' . $table['table_name'] . '` 
-                                    MODIFY COLUMN `meta_id` BIGINT NULL DEFAULT NULL');
+                              MODIFY COLUMN `meta_id` BIGINT NULL DEFAULT NULL');
                 Log::dot(5);
             }
 
@@ -430,12 +429,22 @@ class Updates extends Libraries\Updates
             $table = sql()->getSchemaObject()->getTableObject('core_plugins');
 
             if (!$table->columnExists('can_startup')) {
-                $table->alter()
-                      ->addColumn('`can_startup` tinyint NOT NULL', 'AFTER `status`');
+                $table->alter()->addColumn('`can_startup` tinyint NOT NULL', 'AFTER `status`');
 
                 if (!$table->indexExists('can_startup')) {
-                    $table->alter()
-                          ->addIndex('KEY `can_startup` (`can_startup`)');
+                    $table->alter()->addIndex('KEY `can_startup` (`can_startup`)');
+                }
+            }
+
+        })->addUpdate('0.6.0', function () {
+            // Add indexed "can_startup" column to core_plugins table
+            $table = sql()->getSchemaObject()->getTableObject('core_versions');
+
+            if (!$table->columnExists('vendor')) {
+                $table->alter()->addColumn('`vendor` varchar(64) NOT NULL', 'AFTER `status`');
+
+                if (!$table->indexExists('vendor')) {
+                    $table->alter()->addIndex('KEY `vendor` (`vendor`)');
                 }
             }
         });

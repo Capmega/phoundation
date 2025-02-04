@@ -406,6 +406,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
                 'identifier' => $this->identifier,
             ]);
         }
+
+        return $this;
     }
 
 
@@ -700,7 +702,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface
 
         if (empty($id)) {
             if ($exception) {
-                throw new DataEntryNotSavedException(tr('Cannot return ID for ":class" class object, it has not been saved yet', [
+                throw new DataEntryNotSavedException(tr('Cannot return ID for ":class" class object, it has no database id so has not been saved in the database', [
                     ':class' => static::getClassName(),
                 ]));
             }
