@@ -266,12 +266,7 @@ class Config implements ConfigInterface
      */
     protected function setSection(string $section): static
     {
-        $this->section = get_null(strtolower(trim($section)));
-
-        if (empty($this->section)) {
-            $this->section = 'default';
-        }
-
+        $this->section = (get_null(strtolower(trim($section))) ?? 'default');
         return $this;
     }
 
