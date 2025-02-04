@@ -1767,6 +1767,6 @@ class Session implements SessionInterface
      */
     public static function iSpecificUser(UserInterface $user): bool
     {
-        return static::getUserObject()->getId() === $user->getId();
+        return static::getUserObject()->getId(false) === $user->getId(false);
     }
 }
