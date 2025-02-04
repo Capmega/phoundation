@@ -1118,8 +1118,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 // This already is a DataEntry object, no need to create one. Validate that this is the same class
                 if (($identifier instanceof static) or is_subclass_of(static::class, get_class($identifier))) {
                     // The identifier is the same as static, or extended static. Ccopy its source inside this object
-                    return  $this->setIdentifier($identifier->getIdentifier())
-                                 ->setSource($identifier->getSource());
+                    return $this->setIdentifier($identifier->getIdentifier())
+                                ->setSource($identifier->getSource());
                 }
 
                 throw new OutOfBoundsException(tr('Specified DataEntry identifier ":has" is incompatible with this object\'s class ":should"', [
@@ -1603,17 +1603,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         try {
             // Get the data using the query builder
-            $data = $this->getQueryBuilderObject()->setDebug($this->debug)
-                                                  ->setMetaEnabled($this->meta_enabled)
-                                                  ->setConnectorObject($this->getConnectorObject())
-                                                  ->addSelect('`' . static::getTable() . '`.*')
-                                                  ->addWhere($where, $execute)
-                                                  ->get();
+            $source = $this->getQueryBuilderObject()->setDebug($this->debug)
+                                                    ->setMetaEnabled($this->meta_enabled)
+                                                    ->setConnectorObject($this->getConnectorObject())
+                                                    ->addSelect('`' . static::getTable() . '`.*')
+                                                    ->addWhere($where, $execute)
+                                                    ->get();
 
-            if ($data) {
+            if ($source) {
                 // If data was found, store all data in the object
-                $this->setMetaData($data)
-                     ->copyValuesToSource($data, false);
+                $this->setMetaData($source)
+                     ->copyValuesToSource($source, false);
             }
 
         } catch (SqlTableDoesNotExistException $e) {
