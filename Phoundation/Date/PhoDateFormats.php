@@ -18,12 +18,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Date;
 
-use MongoDB\Exception\UnsupportedException;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\SessionConfig;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Date\Exception\UnsupportedDateFormatException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnsupportedException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Exception\ConfigurationInvalidException;
 use Phoundation\Utils\Strings;
@@ -99,7 +98,7 @@ class PhoDateFormats
      */
     public static function getSupportedPhp(): IteratorInterface
     {
-        return Sessionconfig()->getIteratorObject('locale.formats.date', static::$defaults);
+        return sessionconfig()->getIteratorObject('locale.formats.date', static::$defaults);
     }
 
 
@@ -484,7 +483,7 @@ class PhoDateFormats
      */
     public static function getUser1224(): int
     {
-        $format = Sessionconfig()->getInteger('formats.date.force1224', 24);
+        $format = sessionconfig()->getInteger('formats.date.force1224', 24);
 
         switch ($format) {
             case '12':

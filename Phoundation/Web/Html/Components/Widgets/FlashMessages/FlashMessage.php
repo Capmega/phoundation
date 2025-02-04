@@ -19,7 +19,6 @@ namespace Phoundation\Web\Html\Components\Widgets\FlashMessages;
 use PDOStatement;
 use Phoundation\Content\Images\ImageFile;
 use Phoundation\Content\Images\Interfaces\ImageFileInterface;
-use Phoundation\Core\Sessions\SessionConfig;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataTitle;
 use Phoundation\Exception\OutOfBoundsException;
@@ -104,7 +103,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
         parent::__construct($source);
 
         // Set default auto close for flash messages
-        $this->setAutoClose(get_null(Sessionconfig()->getInteger('web.feedback.messages.auto-close', 15000)));
+        $this->setAutoClose(get_null(sessionconfig()->getInteger('web.feedback.messages.auto-close', 15000)));
     }
 
 

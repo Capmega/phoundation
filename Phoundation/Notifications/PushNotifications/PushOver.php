@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Notifications\PushNotifications;
 
-use Phoundation\Core\Sessions\SessionConfig;
 use Phoundation\Notifications\Exception\NotificationsException;
 use Phoundation\Notifications\PushNotifications\Interfaces\PushNotificationInterface;
 use Serhiy\Pushover\Application;
@@ -30,7 +29,7 @@ class PushOver extends Application implements PushNotificationInterface
      * @param string|null $token
      */
     public function __construct(?string $token = null) {
-        $token = $token ?? Sessionconfig()->getString('notifications.push.keys.application', '');
+        $token = $token ?? sessionconfig()->getString('notifications.push.keys.application', '');
 
         if (empty($token)) {
             throw new NotificationsException(tr('Cannot instantiate PushOver object, no aplication key specified or configured in "notifications.push.keys.application"'));

@@ -285,9 +285,9 @@ class Config implements ConfigInterface
      * @param string      $section
      * @param string|null $environment
      *
-     * @return static
+     * @return ConfigInterface
      */
-    public static function fromSection(string $section = 'default', ?string $environment = null): static
+    public static function fromSection(string $section = 'default', ?string $environment = null): ConfigInterface
     {
         if ($environment === null) {
             $environment = static::$default_environment;

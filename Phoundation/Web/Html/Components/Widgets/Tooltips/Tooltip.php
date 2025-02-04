@@ -19,7 +19,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Tooltips;
 
-use Phoundation\Core\Sessions\SessionConfig;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
@@ -92,11 +91,11 @@ class Tooltip extends Element implements TooltipInterface
         $this->data    = new Iterator();
         $this->element = 'tooltip';
         // Set default values
-        $this->setRenderBefore(Sessionconfig()->getBoolean('web.html.tooltips.icon.before', false))
+        $this->setRenderBefore(sessionconfig()->getBoolean('web.html.tooltips.icon.before', false))
              ->setPlacement(EnumTooltipPlacement::right)
-             ->setTriggers(EnumTooltipTrigger::from(Sessionconfig()->getString('web.html.tooltips.trigger', 'click')))
-             ->setUseIcon(Sessionconfig()->getBoolean('web.html.tooltips.icon.use', false))
-             ->setHtml(Sessionconfig()->getBoolean('web.html.tooltips.html', false));
+             ->setTriggers(EnumTooltipTrigger::from(sessionconfig()->getString('web.html.tooltips.trigger', 'click')))
+             ->setUseIcon(sessionconfig()->getBoolean('web.html.tooltips.icon.use', false))
+             ->setHtml(sessionconfig()->getBoolean('web.html.tooltips.html', false));
     }
 
 

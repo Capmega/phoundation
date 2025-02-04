@@ -970,10 +970,10 @@ showdie($value->getSource());
      */
     protected function newObject(IdentifierInterface|array|string|int|null $identifier = null): DataEntryInterface
     {
-        return $this->getAcceptedDataType()::new($identifier, init: false)
+        return $this->getAcceptedDataType()::new()
                                            ->setDebug($this->debug)
                                            ->setConnectorObject($this->getConnectorObject())
-                                           ->init()
+                                           ->load($identifier)
                                            ->setRestrictions($this->restrictions);
     }
 

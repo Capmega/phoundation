@@ -1243,7 +1243,7 @@ class Session implements SessionInterface
     public static function getConfig(): SessionConfigInterface
     {
         if (empty(static::$config)) {
-            static::$config = new SessionConfig();
+            static::$config = new sessionconfig();
         }
 
         return static::$config;

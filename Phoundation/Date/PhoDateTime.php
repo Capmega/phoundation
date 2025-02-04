@@ -17,11 +17,9 @@ declare(strict_types=1);
 namespace Phoundation\Date;
 
 use DateInterval;
-use DateMalformedStringException;
 use DateTime;
 use DateTimeInterface;
 use DateTimeZone;
-use Phoundation\Core\Sessions\SessionConfig;
 use Phoundation\Date\Enums\DateTimeSegment;
 use Phoundation\Date\Exception\DateIntervalException;
 use Phoundation\Date\Exception\DateTimeException;
@@ -250,7 +248,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public static function newFirstDayOfWeek(DateTimeZone|string|null $timezone = null): static
     {
-        return new static(Sessionconfig()->getString('datetime.week.start', 'monday') . ' this week', PhoDateTimeZone::new($timezone));
+        return new static(sessionconfig()->getString('datetime.week.start', 'monday') . ' this week', PhoDateTimeZone::new($timezone));
     }
 
 
@@ -263,7 +261,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public static function newLastDayOfWeek(DateTimeZone|string|null $timezone = null): static
     {
-        return new static(Sessionconfig()->getString('datetime.week.stop', 'sunday') . ' this week', PhoDateTimeZone::new($timezone));
+        return new static(sessionconfig()->getString('datetime.week.stop', 'sunday') . ' this week', PhoDateTimeZone::new($timezone));
     }
 
 
@@ -354,16 +352,16 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
     {
         switch (strtolower($format)) {
             case 'human_time':
-                return Sessionconfig()->getString('locale.dates.formats.human.time', 'H:i:s');
+                return sessionconfig()->getString('locale.dates.formats.human.time', 'H:i:s');
 
             case 'human_date':
-                return Sessionconfig()->getString('locale.dates.formats.human.date', PhoDateFormats::getDefaultPhp());
+                return sessionconfig()->getString('locale.dates.formats.human.date', PhoDateFormats::getDefaultPhp());
 
             case 'human_datetime':
                 // no break
 
             case 'human_date_time':
-                return Sessionconfig()->getString('locale.dates.formats.human.datetime', PhoDateTimeFormats::getDefaultPhp());
+                return sessionconfig()->getString('locale.dates.formats.human.datetime', PhoDateTimeFormats::getDefaultPhp());
 
             case 'iso_date':
                 return 'd-m-Y';
