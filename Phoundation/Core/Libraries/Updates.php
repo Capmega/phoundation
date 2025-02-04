@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Libraries;
 
+use Phoundation\Core\Libraries\Exception\LibraryInvalidVendorException;
 use Phoundation\Core\Libraries\Interfaces\UpdatesInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug;
@@ -91,7 +92,16 @@ abstract class Updates implements UpdatesInterface
         } while ($test === 'library');
 
         if (!$plugin) {
+            // If the library is not a plugin, the vendor is ALWAYS "system"
             $vendor = 'system';
+
+        } else {
+            // If the library is a plugin, the vendor may NEVER be "system"
+            if ($vendor === 'system') {
+                throw new LibraryInvalidVendorException(tr('The plugin library ":library" has the vendor "system" which is not allowed. The "system" vendor is reserved for Phoundation system libraries', [
+                    ':library' => $library
+                ]));
+            }
         }
 
         // Load the updates and the code version

@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Phoundation\Core\Plugins;
 
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Libraries\Exception\LibraryInvalidVendorException;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Plugins\Exception\PluginsException;
@@ -377,6 +378,12 @@ class Plugin extends DataEntry implements PluginInterface
             }
 
             return null;
+        }
+
+        if ($vendor === 'system') {
+            throw new LibraryInvalidVendorException(tr('The plugin library ":library" has the vendor "system" which is not allowed. The "system" vendor is reserved for Phoundation system libraries', [
+                ':library' => $this->getName()
+            ]));
         }
 
         return $vendor;
