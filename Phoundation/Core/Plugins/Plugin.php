@@ -507,9 +507,9 @@ class Plugin extends DataEntry implements PluginInterface
      *
      * @return bool
      */
-    public function getCanStart(): bool
+    public function getCanStartup(): bool
     {
-        return $this->getTypesafe('bool', 'can_start', false);
+        return $this->getTypesafe('bool', 'can_startup', false);
     }
 
 
@@ -520,9 +520,9 @@ class Plugin extends DataEntry implements PluginInterface
      *
      * @return static
      */
-    public function setCanStart(int|bool|null $can_start): static
+    public function setCanStartup(int|bool|null $can_start): static
     {
-        return $this->set((bool) $can_start, 'can_start');
+        return $this->set((bool) $can_start, 'can_startup');
     }
 
 
@@ -610,11 +610,11 @@ class Plugin extends DataEntry implements PluginInterface
                                                   ->matchesRegex('/Plugins\\\[\\\A-Za-z0-9]+\\\Plugin/');
                                     }))
 
-                    ->add(DefinitionFactory::newBoolean('can_start')
-                                    ->setLabel(tr('Can start'))
+                    ->add(DefinitionFactory::newBoolean('can_startup')
+                                    ->setLabel(tr('Can startup'))
                                     ->setSize(2)
                                     ->setReadonly(true)
-                                    ->setHelpText(tr('Indicates if this plugin can start automatically when the page loads, or is just a collection of components')))
+                                    ->setHelpText(tr('Indicates if this plugin can startup automatically when the page loads, or is just a collection of components')))
 
                     ->add(DefinitionFactory::newDescription()
                                            ->setReadonly(true))
