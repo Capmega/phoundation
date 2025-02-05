@@ -706,7 +706,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
             $return = '<div>' . $this->rows->render() . '</div>';
 
         } else {
-            $return = '<div id="' . $this->data_entry->getObjectName() . ($this->data_entry->getId() ? '_' . $this->data_entry->getId() : null) . '" class="' . $this->data_entry->getObjectName() . '">' .
+            $return = '<div id="' . $this->data_entry->getObjectName() . ($this->data_entry->getId(false) ? '_' . $this->data_entry->getId(false) : null) . '" class="' . $this->data_entry->getObjectName() . '">' .
                           $this->rows->render() .
                       '</div>';
         }

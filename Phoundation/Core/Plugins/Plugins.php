@@ -19,12 +19,14 @@ namespace Phoundation\Core\Plugins;
 use Phoundation\Core\Core;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Plugins\Exception\PluginNotExistsException;
 use Phoundation\Core\Plugins\Interfaces\PluginsInterface;
 use Phoundation\Core\Timers;
 use Phoundation\Data\DataEntry\DataIterator;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Developer\Debug;
+use Phoundation\Exception\PhoException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Utils\Json;
@@ -268,6 +270,7 @@ class Plugins extends DataIterator implements PluginsInterface
                         ]), 4);
 
                         include_once(DIRECTORY_ROOT . $plugin['directory'] . 'Library/Plugin.php');
+
                         $timer = Timers::new('plugins_start', $plugin['vendor'] . '/' . $plugin['name']);
                         $plugin['class']::start();
                         $timer->stop();
@@ -275,14 +278,35 @@ class Plugins extends DataIterator implements PluginsInterface
                 }
 
             } catch (Throwable $e) {
-                // Plugin failed to load, we MIGHT disable it automatically to avoid loads of errors in the log files
-                // Do a LOT of logging here to ensure its clear what is happening and why
-                Log::error(tr('Failed to start plugin ":vendor/:plugin" because of next exception', [
-                    ':vendor' => $plugin['vendor'],
-                    ':plugin' => $plugin['name'],
-                ]));
+                try {
+                    if ($e instanceof PhoException) {
+                        if ($e->messageContains('No such file or directory')) {
+                            if (!file_exists(DIRECTORY_ROOT . $plugin['directory'])) {
+                                throw new PluginNotExistsException(tr('Failed to start plugin ":vendor/:plugin", ', [
+                                    ':vendor' => $plugin['vendor'],
+                                    ':plugin' => $plugin['name'],
+                                ]), $e);
+                            }
+                        }
+                    }
 
-                Log::error($e);
+                    // Plugin failed to load, we MIGHT disable it automatically to avoid loads of errors in the log files
+                    // Do a LOT of logging here to ensure its clear what is happening and why
+                    Log::error(tr('Failed to start plugin ":vendor/:plugin" because of next exception', [
+                        ':vendor' => $plugin['vendor'],
+                        ':plugin' => $plugin['name'],
+                    ]));
+
+                    Log::error($e);
+
+                } catch (PluginNotExistsException $e) {
+                    // The plugin does not exist!
+                    Log::error(tr('Failed to start plugin ":vendor/:plugin" because it does not exist', [
+                        ':vendor' => $plugin['vendor'],
+                        ':plugin' => $plugin['name'],
+                    ]));
+                }
+
 
                 if (config()->getBoolean('plugins.error.startup.disable', true)) {
                     if (!Debug::isEnabled()) {
@@ -291,19 +315,20 @@ class Plugins extends DataIterator implements PluginsInterface
                             ':plugin' => $plugin['name'],
                         ]));
 
-                        Plugin::new()->load($id)
-                                     ->disable()
-                                     ->save();
+                        Plugin::new()
+                              ->load($id)
+                              ->disable()
+                              ->save();
 
                     } else {
-                        Log::warning(tr('NOT automatically disabling failed plugin ":vendor/:plugin" because the system is running in debug mode', [
+                        Log::warning(tr('Not automatically disabling failed plugin ":vendor/:plugin" because the system is running in debug mode', [
                             ':vendor' => $plugin['vendor'],
                             ':plugin' => $plugin['name'],
                         ]));
                     }
 
                 } else {
-                    Log::warning(tr('NOT automatically disabling failed plugin ":vendor/:plugin" because the option to do so has been disabled with configuration path "plugins.error.startup.disable"', [
+                    Log::warning(tr('Not automatically disabling failed plugin ":vendor/:plugin" because the option to do so has been disabled with configuration path "plugins.error.startup.disable"', [
                         ':vendor' => $plugin['vendor'],
                         ':plugin' => $plugin['name'],
                     ]));

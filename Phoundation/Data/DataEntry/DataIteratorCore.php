@@ -968,7 +968,7 @@ showdie($value->getSource());
      *
      * @return DataEntryInterface
      */
-    protected function newObject(IdentifierInterface|array|string|int|null $identifier = null): DataEntryInterface
+    protected function loadObject(IdentifierInterface|array|string|int|null $identifier = null): DataEntryInterface
     {
         return $this->getAcceptedDataType()::new()
                                            ->setDebug($this->debug)
@@ -995,7 +995,7 @@ showdie($value->getSource());
             // on the data available in the datalist, we'll have to load the DataEntry manually
             if (isset($this->query_builder)) {
                 // Load the DataEntry separately from the database (will require an extra query)
-                $entry = $this->newObject($key);
+                $entry = $this->loadObject($key);
 
             } else {
                 if (is_array($this->source[$key])) {
@@ -1022,11 +1022,11 @@ showdie($value->getSource());
                     }
 
                     // Copy the source into the entry
-                    $entry = $this->newObject()->setSource($this->source[$key]);
+                    $entry = $this->loadObject()->setSource($this->source[$key]);
 
                 } else {
                     // Load the entry manually from DB. REQUIRES the DataEntry object to have a unique column specified!
-                    $entry = $this->newObject($this->source[$key]);
+                    $entry = $this->loadObject($this->source[$key]);
                 }
             }
 

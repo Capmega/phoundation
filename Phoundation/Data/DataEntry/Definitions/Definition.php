@@ -51,7 +51,9 @@ class Definition implements DefinitionInterface
 {
     use TraitBeforeAfterButtons;
     use TraitDataRestrictions;
-    use TraitDataDataEntry;
+    use TraitDataDataEntry {
+        setDataEntry as protected __setDataEntry;
+    }
 
 
 //    /**
@@ -86,6 +88,13 @@ class Definition implements DefinitionInterface
 //        'auto-suggest',
 //        'array_json',
 //    ];
+
+    /**
+     * Tracks requested modifications to the query builder for the linked data_entry
+     *
+     * @var array $query_builder_modifications
+     */
+    protected array $query_builder_modifications;
 
     /**
      * Validations to execute to ensure
@@ -250,9 +259,55 @@ class Definition implements DefinitionInterface
      */
     public function modifyQueryBuilder(callable $callback): static
     {
-        $callback($this->data_entry->getQueryBuilderObject());
+        if (empty($this->query_builder_modifications)) {
+            $this->query_builder_modifications = [];
+        }
+
+        $this->query_builder_modifications[] = $callback;
+
+        if ($this->data_entry) {
+            return $this->applyQueryBuilderModifications();
+        }
 
         return $this;
+    }
+
+
+    /**
+     * Applies the requested modifications to the internal QueryBuilder of the linked DataEntry
+     *
+     * If no DataEntry object has been linked yet to this Definition, the modification(s) will be stored in an internal
+     * array and be applied as soon as the DataEntry is set
+     *
+     * @return static
+     */
+    protected function applyQueryBuilderModifications(): static
+    {
+        if (isset($this->query_builder_modifications)) {
+            foreach ($this->query_builder_modifications as $callback) {
+                $callback($this->data_entry->getQueryBuilderObject());
+            }
+
+            unset($this->query_builder_modifications);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Sets the data entry
+     *
+     * @note Will immediately apply QueryBuilder modifications on the DataEntry
+     *
+     * @param DataEntryInterface|null $data_entry
+     *
+     * @return static
+     */
+    public function setDataEntry(?DataEntryInterface $data_entry): static
+    {
+        $this->__setDataEntry($data_entry);
+        return $this->applyQueryBuilderModifications();
     }
 
 

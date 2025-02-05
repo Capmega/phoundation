@@ -1117,7 +1117,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             if (is_object($identifier)) {
                 // This already is a DataEntry object, no need to create one. Validate that this is the same class
                 if (($identifier instanceof static) or is_subclass_of(static::class, get_class($identifier))) {
-                    // The identifier is the same as static, or extended static. Ccopy its source inside this object
+                    // The identifier is the same as this, or extended this. Copy its source inside this object
                     return $this->setIdentifier($identifier->getIdentifier())
                                 ->setSource($identifier->getSource());
                 }
