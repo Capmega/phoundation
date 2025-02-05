@@ -1174,7 +1174,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         }
 
         throw new SessionException(tr('Cannot access session data for user ":user", that user is not the current session user ":session"', [
-            ':user'    => $this->getId(),
+            ':user'    => $this->getLogId(),
             ':session' => Session::getUserObject()->getLogId(),
         ]));
     }

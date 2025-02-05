@@ -40,7 +40,7 @@ $get = GetValidator::new()
 
 
 // Build the page content
-$role = Role::new($get['id']);
+$role = Role::new()->loadOrThis($get['id']);
 
 
 // Validate POST and submit

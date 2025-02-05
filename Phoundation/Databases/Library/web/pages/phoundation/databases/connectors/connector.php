@@ -27,7 +27,6 @@ use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
-use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
@@ -38,7 +37,7 @@ $get = GetValidator::new()
                    ->select('id')->isOptional()->isDbId(false, true)
                    ->validate();
 
-$connector = Connector::new($get['id']);
+$connector = Connector::new()->loadOrThis($get['id']);
 
 
 // Validate POST and submit

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Trait TraitDataDatabaseConnector
+ * Trait TraitDataConnector
  *
  *
  *
@@ -19,7 +19,7 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Connectors\SystemConnector;
-
+use Phoundation\Exception\OutOfBoundsException;
 
 trait TraitDataConnector
 {
@@ -53,24 +53,21 @@ trait TraitDataConnector
     /**
      * Sets the database connector by name
      *
-     * @param string      $connector
+     * @param string|null $connector
      * @param string|null $database
      *
      * @return static
      */
-    public function setConnector(string $connector, ?string $database = null): static
+    public function setConnector(?string $connector, ?string $database = null): static
     {
         $this->connector = $connector;
+        $connector       = $this->getConnector();
 
-        if (empty($this->o_connector)) {
-            $connector = $this->getConnector();
+        if ($connector === 'system') {
+            $this->setConnectorObject(new SystemConnector(), $database);
 
-            if (!$connector or ($connector === 'system')) {
-                $this->setConnectorObject(new SystemConnector(), $database);
-
-            } else {
-                $this->setConnectorObject(new Connector($connector), $database);
-            }
+        } else {
+            $this->setConnectorObject(new Connector($connector), $database);
         }
 
         return $this;
@@ -108,14 +105,7 @@ trait TraitDataConnector
     public function getConnectorObject(): ConnectorInterface
     {
         if (empty($this->o_connector)) {
-            $connector = $this->getConnector();
-
-            if ($connector === 'system') {
-                $this->setConnectorObject(new SystemConnector());
-
-            } else {
-                $this->setConnectorObject(new Connector($connector));
-            }
+            $this->setConnector($this->connector);
         }
 
         return $this->o_connector;
@@ -139,6 +129,14 @@ trait TraitDataConnector
 
             if ($database) {
                 $this->o_connector->setDatabase($database);
+            }
+
+        } else {
+            $this->connector   = null;
+            $this->o_connector = null;
+
+            if ($database) {
+                throw new OutOfBoundsException(tr('Cannot specify a database name without a connector'));
             }
         }
 

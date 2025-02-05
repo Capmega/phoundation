@@ -2422,6 +2422,88 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database
+     *
+     * This method also accepts DataEntry objects of the same class, in which case it will simply return the specified
+     * object, as long as it exists in the database.
+     *
+     * If the DataEntry does not exist in the database, then this method will check if perhaps it exists as a
+     * configuration entry. This requires DataEntry::$config_path to be set. DataEntries from configuration will be in
+     * readonly mode automatically as they cannot be stored in the database.
+     *
+     * DataEntries from the database will also have their status checked. If the status is "deleted", then a
+     * DataEntryDeletedException will be thrown
+     *
+     * @note The test to see if a DataEntry object exists in the database can be either DataEntry::isNew() or
+     *       DataEntry::getId(), which should return a valid database id
+     *
+     * @param array  $identifiers
+     * @param bool   $meta_enabled
+     * @param bool   $ignore_deleted
+     * @param bool   $exception
+     * @param string $filter
+     *
+     * @return static|null
+     */
+    public function find(array $identifiers, bool $meta_enabled = false, bool $ignore_deleted = false, bool $exception = true, string $filter = 'AND'): ?static
+    {
+        if (!$identifiers) {
+            // No identifiers specified, identifiers are required!
+            throw OutOfBoundsException::new(tr('Cannot find ":class" objects, no identifiers specified', [
+                ':class' => static::getClassName(),
+            ]));
+        }
+
+        // Build the find query, and execute it
+        // TODO Do this with the query builder, add functions for this in the query builder
+        $where   = [];
+        $execute = [];
+
+        foreach ($identifiers as $column => $identifier) {
+            $where[]                = '`' . $column . '` = :' . $column;
+            $execute[':' . $column] = $identifier;
+        }
+
+        $builder = QueryBuilder::new()
+                               ->setMetaEnabled($meta_enabled)
+                               ->setConnectorObject($this->o_connector)
+                               ->addFrom(static::getTable())
+                               ->addSelect('`' . static::getTable() . '`.*')
+                               ->addWhere(implode(' ' . $filter . ' ', $where), $execute);
+
+        $entry = $builder->get();
+
+        if (!$entry) {
+            // This entry does not exist. Exception or return NULL?
+            if ($exception) {
+                throw DataEntryNotExistsException::new(tr('The ":class" with identifiers ":identifiers" does not exist', [
+                    ':class'       => static::getClassName(),
+                    ':identifiers' => $identifiers,
+                ]));
+            }
+
+            return null;
+        }
+
+        // The requested entry DOES exist! Create a new DataEntry object!
+        $entry = static::newFromSource($entry);
+
+        // Is it deleted tho?
+        if ($entry->isDeleted() and !$ignore_deleted) {
+            // This entry has been deleted and can only be viewed by user with the "deleted" right
+            if (!Session::getUserObject()->hasAllRights('deleted')) {
+                throw DataEntryDeletedException::new(tr('The ":class" with identifiers ":identifiers" is deleted', [
+                    ':class'       => static::getClassName(),
+                    ':identifiers' => $identifiers,
+                ]));
+            }
+        }
+
+        return $entry;
+    }
+
+
+    /**
      * Attempts to find the entry with specified identifier in the database
      *
      * @param array|Stringable|string|int $identifier
@@ -3124,7 +3206,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         $this->checkReadonly('erase')->getMetaObject()->erase();
 
-        sql($this->o_connector)->erase(static::getTable(), ['id' => $this->getId()]);
+        if ($this->getId(false)) {
+            sql($this->o_connector)->erase(static::getTable(), ['id' => $this->getId()]);
+        }
 
         return $this;
     }

@@ -22,13 +22,13 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 CliDocumentation::setAutoComplete(User::getAutoComplete([
-                                                            'positions' => [
-                                                                0 => [
-                                                                    'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL',
-                                                                    'noword' => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE `status` IS NULL',
-                                                                ],
-                                                            ],
-                                                        ]));
+    'positions' => [
+        0 => [
+            'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL',
+            'noword' => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE `status` IS NULL',
+        ],
+    ],
+]));
 
 CliDocumentation::setUsage('./pho accounts users modify USER [OPTIONS]
 ./pho system users modify USER -l -i --to ENVIRONMENT');
@@ -75,7 +75,7 @@ if ($argv['roles']) {
 
 
 // Get the user and modify, then update roles
-$user = User::find([
+$user = User::new()->find([
     'username' => $argv['user'],
     'email'    => $argv['user'],
     'code'     => $argv['user'],
