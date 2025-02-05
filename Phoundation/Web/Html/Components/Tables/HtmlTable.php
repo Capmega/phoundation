@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Tables;
 
-use PDO;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -25,7 +24,7 @@ use Phoundation\Data\Traits\TraitDataCellCallbacks;
 use Phoundation\Data\Traits\TraitDataColumns;
 use Phoundation\Data\Traits\TraitDataRowCallbacks;
 use Phoundation\Data\Traits\TraitDataTitle;
-use Phoundation\Developer\Debug;
+use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -40,7 +39,6 @@ use Phoundation\Web\Html\Enums\EnumTableRowType;
 use Phoundation\Web\Html\Traits\TraitButtons;
 use Phoundation\Web\Http\Url;
 use Stringable;
-
 
 class HtmlTable extends ResourceElementCore implements HtmlTableInterface
 {

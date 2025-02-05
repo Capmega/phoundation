@@ -19,10 +19,9 @@ namespace Phoundation\Core;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Log\Log;
 use Phoundation\Date\PhoTime;
-use Phoundation\Developer\Debug;
+use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Numbers;
-
 
 class ProcessControlSignals
 {

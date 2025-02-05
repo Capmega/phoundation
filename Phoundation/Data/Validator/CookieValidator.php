@@ -16,14 +16,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
 
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataStaticArrayBackup;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Developer\Debug;
 use Phoundation\Utils\Strings;
 use Stringable;
-
 
 class CookieValidator extends Validator
 {

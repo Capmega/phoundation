@@ -113,7 +113,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
         // Set basic definitions
         $this->definitions = Definitions::new()
-                                        ->add(Definition::new(null, 'date_range')
+                                        ->add(Definition::new('date_range')
                                                         ->setLabel(tr('Date range'))
                                                         ->setSize(4)
                                                         ->setOptional(true)
@@ -137,13 +137,13 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                             $validator->isOptional()->isDateRange()->copyToKey('date_range_split');
                                                         }))
 
-                                        ->add(Definition::new(null, 'date_range_split')
+                                        ->add(Definition::new('date_range_split')
                                                         ->setRender(false)
                                                         ->addValidationFunction(function (ValidatorInterface $validator) {
                                                             $validator->isOptional($this->getDateRangeDefault())->sanitizeForceArray(' - ')->eachField()->isDate();
                                                         }))
 
-                                        ->add(Definition::new(null, 'users_id')
+                                        ->add(Definition::new('users_id')
                                                         ->setLabel(tr('User'))
                                                         ->setSize(4)
                                                         ->setOptional(true)
@@ -163,7 +163,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                                                ->setSelected(isset_get($this->source[$key]));
                                                         }))
 
-                                        ->add(Definition::new(null, 'status')
+                                        ->add(Definition::new('status')
                                                         ->setLabel(tr('Status'))
                                                         ->setSize(4)
                                                         ->setOptional(true)

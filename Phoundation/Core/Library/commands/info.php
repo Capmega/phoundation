@@ -22,10 +22,9 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
 use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
-use Phoundation\Developer\Debug;
+use Phoundation\Developer\Debug\Debug;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
-
 
 CliDocumentation::setUsage('./pho info');
 

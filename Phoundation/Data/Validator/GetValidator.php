@@ -18,18 +18,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
 
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataStaticArrayBackup;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Data\Validator\Exception\GetValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
-use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Developer\Debug;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Http\Url;
 use Stringable;
-
 
 class GetValidator extends Validator
 {

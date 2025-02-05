@@ -47,7 +47,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                           ->setRender('users_id'  , false)
                           ->setRender('status'    , false);
 
-        $this->definitions->add(Definition::new(null, 'query')
+        $this->definitions->add(Definition::new('query')
                                           ->setLabel(tr('Query'))
                                           ->setSize(12)
                                           ->setOptional(true)

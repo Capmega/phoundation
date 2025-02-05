@@ -18,7 +18,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Developer;
+namespace Phoundation\Developer\Debug;
 
 use JetBrains\PhpStorm\NoReturn;
 use PDOStatement;
@@ -33,9 +33,11 @@ use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Developer\DebugCounter;
 use Phoundation\Developer\Interfaces\FunctionCallInterface;
-use Phoundation\Exception\PhoException;
+use Phoundation\Developer\Statistic;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\PhoException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -46,7 +48,6 @@ use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Throwable;
-
 
 class Debug
 {

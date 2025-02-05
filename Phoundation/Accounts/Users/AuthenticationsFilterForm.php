@@ -36,7 +36,7 @@ class AuthenticationsFilterForm extends \Phoundation\Web\Html\Components\Forms\F
         $this->definitions->get('users_id')->setSize(3);
         $this->definitions->get('status')->setSize(3);
 
-        $this->definitions->add(Definition::new(null, 'action')
+        $this->definitions->add(Definition::new('action')
                                           ->setLabel(tr('Action'))
                                           ->setSize(3)
                                           ->setOptional(true)
