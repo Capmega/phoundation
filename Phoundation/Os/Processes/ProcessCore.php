@@ -39,7 +39,7 @@ use Phoundation\Utils\Strings;
 use Throwable;
 
 
-abstract class ProcessCore implements ProcessVariablesInterface, ProcessInterface
+abstract class ProcessCore implements ProcessInterface
 {
     use TraitProcessVariables;
 
@@ -287,7 +287,7 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessInterfac
 
         // Add timeout
         if ($this->timeout) {
-            $this->cached_command_line = 'timeout --signal ' . $this->signal . ' --foreground ' . escapeshellarg((string) $this->timeout) . ' ' . $this->cached_command_line;
+            $this->cached_command_line = 'timeout --signal ' . escapeshellarg((string) $this->signal) . ' --foreground ' . escapeshellarg((string) $this->timeout) . ' ' . $this->cached_command_line;
         }
 
         // Add wait
@@ -379,6 +379,9 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessInterfac
             $nohup = '';
         }
 
+        // Escape command line string if needed
+        $this->cached_command_line = $this->escapeString($this->cached_command_line);
+
         // Background commands get some extra options around
         if ($this->use_run_file) {
             // Create command line with run-file
@@ -454,20 +457,12 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessInterfac
             $escape_argument = $argument['escape_argument'];
             $argument        = $argument['argument'];
 
-            // Apply variables
+            // Apply argument variables
             foreach ($this->variables as $key => $variable) {
                 $argument = str_replace((string) $key, (string) $variable, $argument);
             }
 
-            $escape_quotes = $this->escape_quotes - ($escape_quotes ? 0 : 1);
-
-            // Escape quotes if required so for shell
-            for ($i = 0; $i < $escape_quotes; $i++) {
-                $argument = str_replace('\\', '\\\\', $argument);
-                $argument = str_replace('\'', '\\\'', $argument);
-                $argument = str_replace('"', '\\"', $argument);
-            }
-
+            // Quote this argument?
             if ($escape_argument) {
                 $argument = escapeshellarg($argument);
             }
@@ -477,6 +472,23 @@ abstract class ProcessCore implements ProcessVariablesInterface, ProcessInterfac
 
         // Add arguments to the command and return
         return $this->real_command . ' ' . implode(' ', $arguments);
+    }
+
+
+    /**
+     * Correctly escapes the specified string the required amount of times
+     *
+     * @param string $source
+     *
+     * @return string
+     */
+    protected function escapeString(string $source): string
+    {
+        if ($this->escape) {
+            $source = addslashes($source);
+        }
+
+        return $source;
     }
 
 

@@ -294,9 +294,9 @@ trait TraitProcessVariables
     /**
      * Tracks how many times quotes should be escaped
      *
-     * @var int $escape_quotes
+     * @var bool $escape
      */
-    protected int $escape_quotes = 1;
+    protected bool $escape = false;
 
     /**
      * The time the process started execution
@@ -1708,10 +1708,10 @@ trait TraitProcessVariables
         }
 
         if (is_string($this->pipe)) {
-            return str_replace('"', '\\"', $this->pipe);
+            return $this->pipe;
         }
 
-        return str_replace('"', '\\"', $this->pipe->getFullCommandLine());
+        return $this->pipe->getFullCommandLine();
     }
 
 
@@ -1758,13 +1758,13 @@ trait TraitProcessVariables
      */
     public function setPipe(ProcessInterface|PhoFileInterface|string|null $pipe): static
     {
+        if ($pipe instanceof ProcessInterface) {
+            $pipe->setEscape(true);
+            $pipe->setTerm();
+        }
+
         $this->cached_command_line = null;
         $this->pipe                = $pipe;
-
-        if (is_object($pipe)) {
-            $this->pipe->increaseQuoteEscapes();
-            $this->pipe->setTerm();
-        }
 
         return $this;
     }
@@ -1790,27 +1790,39 @@ trait TraitProcessVariables
      */
     public function setPipeFrom(ProcessInterface|PhoFileInterface|string|null $pipe): static
     {
-        $this->cached_command_line = null;
-        $this->pipe_from           = $pipe;
-
-        if (is_object($pipe)) {
+        if ($pipe instanceof ProcessInterface) {
             $pipe->setPipe($this);
         }
+
+        $this->cached_command_line = null;
+        $this->pipe_from           = $pipe;
 
         return $this;
     }
 
 
     /**
-     * Increases the number of times quotes should be escaped
+     * Sets if this command line is escaped on render or not
      *
-     * @return TraitProcessVariables
+     * @param bool $escape
+     *
+     * @return static
      */
-    public function increaseQuoteEscapes(): static
+    public function setEscape(bool $escape): static
     {
-        $this->escape_quotes++;
-
+        $this->escape = $escape;
         return $this;
+    }
+
+
+    /**
+     * Returns if this command line is escaped on render or not
+     *
+     * @return bool
+     */
+    public function getEscape(): bool
+    {
+        return $this->escape;
     }
 
 
@@ -1850,7 +1862,8 @@ trait TraitProcessVariables
             } else {
                 // Redirect output to a file
                 PhoDirectory::new(dirname($redirect), $this->restrictions->getParent())
-                         ->ensure('output redirect file');
+                            ->ensure('output redirect file');
+
                 $this->output_redirect[$channel] = ($append ? '>>' : '> ') . $redirect;
             }
 

@@ -11,7 +11,7 @@ use Phoundation\Utils\Arrays;
 use Stringable;
 
 
-interface ProcessInterface extends Stringable
+interface ProcessInterface extends ProcessVariablesInterface
 {
     /**
      * Sets the server on which this command should be executed

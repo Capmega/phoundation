@@ -168,14 +168,14 @@ class Import
                 Log::information(tr('Importing ":size" MySQL dump file ":file" to database ":database", this may take a while...', [
                     ':size'     => Numbers::getHumanReadableAndPreciseBytes($this->file->getSize()),
                     ':file'     => $this->file->getRootname(),
-                    ':database' => $this->database,
+                    ':database' => $this->getConnectorObject()->getDatabase(),
                 ]));
 
                 MySql::new()
                      ->setTimeout($this->timeout)
                      ->setConnectorObject($this->getConnectorObject())
                      ->drop($this->drop ? ($this->database ?? ($this->getConnectorObject()->getDatabase())) : null)
-                     ->create($this->database ?? ($this->getConnectorObject()->getDatabase()))
+                     ->create($this->database ?? $this->getConnectorObject()->getDatabase())
                      ->import($this->file);
 
                 Log::success(tr('Finished importing MySQL dump file ":file" to database ":database"', [

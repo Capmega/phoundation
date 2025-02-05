@@ -11,7 +11,7 @@ use Phoundation\Os\Packages\Interfaces\PackagesInterface;
 use Phoundation\Os\Processes\Exception\ProcessException;
 use Stringable;
 
-interface ProcessVariablesInterface
+interface ProcessVariablesInterface extends Stringable
 {
     /**
      * Returns the exact time that execution started
@@ -76,11 +76,21 @@ interface ProcessVariablesInterface
 
 
     /**
-     * Increases the number of times quotes should be escaped
+     * Sets if this command line is escaped on render or not
+     *
+     * @return bool
+     */
+    public function getEscape(): bool;
+
+
+    /**
+     * Sets if this command line is escaped on render or not
+     *
+     * @param bool $escape
      *
      * @return static
      */
-    public function increaseQuoteEscapes(): static;
+    public function setEscape(bool $escape): static;
 
 
     /**
