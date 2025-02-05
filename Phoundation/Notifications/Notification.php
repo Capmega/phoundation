@@ -159,7 +159,8 @@ class Notification extends DataEntry implements NotificationInterface
         if ($this->isNew()) {
             if (Session::isInitialized()) {
                 // By default, the object is created by the current user
-                $this->setCreatedBy(Session::getUserObject()->getId());
+                $this->setCreatedBy(Session::getUserObject()->getId())
+                     ->ready();
             }
         }
     }

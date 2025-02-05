@@ -287,11 +287,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         } elseif ($identifier !== false) {
             // Ensure to always pre-initialize the DataEntry object unless the specified identifier is boolean FALSE
             $this->copyValuesToSource([], false);
-
-            $this->is_initializing = false;
-            $this->is_modified     = false;
-            $this->is_loading      = false;
-            $this->is_saved        = false;
+            $this->ready();
         }
     }
 
@@ -1150,8 +1146,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 $this->processDeleted();
             }
 
-            $this->is_initializing = false;
-            return $this;
+            return $this->ready();
         }
 
         throw DataEntryException::new(tr('Cannot load identifier ":identifier" for ":class" class, the source data is already initialized', [
@@ -1439,12 +1434,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         // Done!
-        $this->is_initializing = false;
-        $this->is_modified     = false;
-        $this->is_loading      = false;
-        $this->is_saved        = false;
-
-        return $this;
+        return $this->ready();
     }
 
 
@@ -3680,5 +3670,21 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function isLoadedFromConfiguration(): bool
     {
         return $this->hasStatus('configuration');
+    }
+
+
+    /**
+     * Called when the DataEntry object is ready with initializing or loading and sets all flags correctly
+     *
+     * @return $this
+     */
+    protected function ready(): static
+    {
+        $this->is_initializing = false;
+        $this->is_modified     = false;
+        $this->is_loading      = false;
+        $this->is_saved        = false;
+
+        return $this;
     }
 }
