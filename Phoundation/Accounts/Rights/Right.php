@@ -134,9 +134,11 @@ class Right extends DataEntry implements RightInterface
     public function delete(?string $comments = null): static
     {
         // Update all accounts_users_rights too
-        sql()->query('UPDATE `accounts_users_rights` SET status = "deleted" WHERE `rights_id` = :rights_id', [
-            ':rights_id' => $this->getId(),
-        ]);
+        if ($this->getId(false)) {
+            sql()->query('UPDATE `accounts_users_rights` SET status = "deleted" WHERE `rights_id` = :rights_id', [
+                ':rights_id' => $this->getId(),
+            ]);
+        }
 
         return parent::delete($comments);
     }

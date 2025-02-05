@@ -100,9 +100,9 @@ class Country extends DataEntry implements CountryInterface
         return InputSelect::new()
                           ->setConnectorObject($this->getConnectorObject())
                           ->setSourceQuery('SELECT `id`, `name` 
-                                          FROM  `geo_states` 
-                                          WHERE `countries_id` = :countries_id AND `status` IS NULL ORDER BY `name`', [
-                              ':countries_id' => $this->getId(),
+                                            FROM   `geo_states` 
+                                            WHERE  `countries_id` = :countries_id AND `status` IS NULL ORDER BY `name`', [
+                                                ':countries_id' => $this->getId(false),
                           ])
                           ->setName($name)
                           ->setNotSelectedLabel(tr('Select a state'))
