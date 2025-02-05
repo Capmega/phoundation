@@ -898,7 +898,9 @@ class Session implements SessionInterface
         // Create a new user object and ensure it's still good to go
         try {
             // This user is loaded by the session object and should NOT use meta-tracking!
-            return User::new()->load($users_id);
+            return User::new()
+                       ->setMetaEnabled(false)
+                       ->load($users_id);
 
         } catch (DataEntryNotExistsException) {
             Log::warning(tr('The session user ":id" does not exist, removing session entry and dropping to guest user', [
