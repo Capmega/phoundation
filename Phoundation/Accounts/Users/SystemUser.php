@@ -42,7 +42,7 @@ class SystemUser extends User implements SystemUserInterface
         $this->setEmail('system')
              ->source['status'] = 'system';
 
-        $this->roles        = Roles::new()->load(['name' => 'god']);
-        $this->rights       = Rights::new()->load(['name' => 'god']);
+        $this->roles  = Roles::new()->load(['name' => 'god']);
+        $this->rights = Rights::new()->load(['name' => 'god']);
     }
 }

@@ -34,8 +34,8 @@ class GuestUser extends User implements GuestUserInterface
     public function __construct(IdentifierInterface|array|string|int|false|null $identifier = null)
     {
         // Guest user is readonly and also does not register meta requests
-        $this->readonly         = true;
-        $this->meta_enabled     = false;
+        $this->readonly     = true;
+        $this->meta_enabled = false;
 
         parent::__construct('guest');
 
