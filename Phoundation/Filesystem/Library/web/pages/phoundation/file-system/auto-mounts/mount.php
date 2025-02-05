@@ -38,7 +38,7 @@ $get = GetValidator::new()
     ->select('id')->isOptional()->isDbId()
     ->validate();
 
-$mount = PhoMount::new($get['id']);
+$mount = PhoMount::new()->loadOrThis($get['id']);
 
 
 // Validate POST and submit
