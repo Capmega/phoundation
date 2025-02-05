@@ -950,8 +950,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             return substr($user, 0, 1) . substr($domain, 0, 1);
         }
 
-        if (!($name = $this->getId())) {
-            if ($this->getId() === -1) {
+        if (!($name = $this->getId(false))) {
+            if ($this->getId(false) === -1) {
                 // This is the guest user
                 $name = tr('G');
 
@@ -991,8 +991,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             if (!($name = trim($this->getFirstNames() . ' ' . $this->getLastNames()))) {
                 if (!($name = $this->getUsername())) {
                     if (!($name = $this->getEmail())) {
-                        if (!($name = $this->getId())) {
-                            if ($this->getId() === -1) {
+                        if (!($name = $this->getId(false))) {
+                            if ($this->getId(false) === -1) {
                                 // This is the guest user
                                 $name = tr('Guest');
 
@@ -1169,7 +1169,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function getSessionObject(): SessionInterface
     {
-        if ($this->getId() === Session::getUserObject()->getId()) {
+        if ($this->getId(false) === Session::getUserObject()->getId()) {
             return Session::getInstance();
         }
 
@@ -1212,7 +1212,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         }
 
         if (!isset($this->roles)) {
-            if ($this->getId()) {
+            if ($this->getId(false)) {
                 $this->roles = RolesBySeoName::new()
                                              ->setParentObject($this)
                                              ->load();
@@ -1550,7 +1550,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function setNotificationsHash(?string $notifications_hash): static
     {
-        sql()->update('accounts_users', ['notifications_hash' => $notifications_hash], ['id' => $this->getId()]);
+        sql()->update('accounts_users', ['notifications_hash' => $notifications_hash], ['id' => $this->getId(false)]);
 
         return $this->set($notifications_hash, 'notifications_hash');
     }
@@ -2121,7 +2121,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function getPassword(): PasswordInterface
     {
-        return new Password($this->getId());
+        return new Password($this->getId(false));
     }
 
 
@@ -2144,13 +2144,13 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     public function getEmailsObject(): EmailsInterface
     {
         if (!isset($this->emails)) {
-            if ($this->getId()) {
+            if ($this->isNew()) {
+                $this->emails = Emails::new()->setParentObject($this);
+
+            } else {
                 $this->emails = Emails::new()
                                       ->setParentObject($this)
                                       ->load();
-
-            } else {
-                $this->emails = Emails::new()->setParentObject($this);
             }
 
         }
@@ -2166,8 +2166,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function getSigninKey(): SignInKeyInterface
     {
-        return SignInKey::new()
-                        ->setUsersId($this->getId());
+        $this->checkNew('getSigninKey');
+        return SignInKey::new()->setUsersId($this->getId());
     }
 
 
@@ -2179,13 +2179,13 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     public function getPhonesObject(): PhonesInterface
     {
         if (!isset($this->phones)) {
-            if ($this->getId()) {
+            if ($this->isNew()) {
+                $this->phones = Phones::new()->setParentObject($this);
+
+            } else {
                 $this->phones = Phones::new()
                                       ->setParentObject($this)
                                       ->load();
-
-            } else {
-                $this->phones = Phones::new()->setParentObject($this);
             }
         }
 
@@ -2242,6 +2242,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function erase(bool $secure = false): static
     {
+        $this->checkNew('erase');
+
         // Delete the users data directory, then erase the user from the database
         PhoDirectory::new(DIRECTORY_DATA . 'home/' . $this->getId(), PhoRestrictions::new(DIRECTORY_DATA . 'home/', true))
                     ->delete(DIRECTORY_DATA . 'home/');
@@ -2274,7 +2276,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function canBeImpersonated(): bool
     {
-        if (!$this->isNew()) {
+        if ($this->isNotNew()) {
             // Cannot impersonate while we are already impersonating
             if (!Session::isImpersonated()) {
                 // We can only impersonate if we have the right to do so
@@ -2317,13 +2319,12 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function canBeStatusChanged(): bool
     {
-        // We cannot status change ourselves, we cannot status change god users nor system users, we cannot change
-        // readonly users
-        if ($this->getId() !== Session::getUserObject()->getId()) {
-            // Cannot change status for god right users
-            if (!$this->hasAllRights('god')) {
-                // Cannot change status for new users
-                if ($this->getId()) {
+        // Cannot change status for new users
+        if ($this->isNotNew()) {
+            // We cannot status change ourselves
+            if ($this->getId(false) !== Session::getUserObject()->getId()) {
+                // Cannot change status for god right users
+                if (!$this->hasAllRights('god')) {
                     // Cannot change status for readonly users (typically guest and system)
                     if (!$this->readonly) {
                         return true;

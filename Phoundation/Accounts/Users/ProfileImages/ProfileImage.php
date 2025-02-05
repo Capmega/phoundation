@@ -225,7 +225,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
             // This profile image is readonly and cannot be saved anyway, so likely is a default image for a new user
         }
 
-        return $this->__setUsersId($o_user->getId(), $o_user);
+        return $this->__setUsersId($o_user->getId(false), $o_user);
     }
 
 

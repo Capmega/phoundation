@@ -685,6 +685,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
+     * Returns true if this is an entry that exists in the database
+     *
+     * @return bool
+     */
+    public function isNotNew(): bool
+    {
+        return $this->getId(false) !== null;
+    }
+
+
+    /**
      * Returns id for this database entry
      *
      * @param bool $exception
@@ -789,7 +800,27 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Returns if the specified DataValue key can be visible outside this object or not
+     * Checks if the DataEntry object is new and throws Data
+     *
+     * @param string $action
+     *
+     * @return $this
+     */
+    protected function checkNew(string $action): static
+    {
+        if ($this->isNew()) {
+            throw new DataEntryNotSavedException(tr('Cannot perform ":action" on ":class" DataEntry, it has not yet been saved to the database', [
+                ':action' => $action,
+                ':class'  => static::class,
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Checks if the specified DataValue key can be visible outside this object or not
      *
      * @param string $column
      *

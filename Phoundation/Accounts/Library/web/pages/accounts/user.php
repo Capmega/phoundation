@@ -54,15 +54,17 @@ $user->getDefinitionsObject()->setRender('latitude'        , false)
                              ->setRender('data'            , false);
 
 
-// Define the drag/drop upload selector
-Request::getFileUploadHandlersObject()
-       ->add(UploadHandler::new('image')
-           ->getDropZoneObject()
-           ->setUrl(Url::new('accounts/user/image/upload+' . $user->getId())->makeAjax())
-           ->setSelector('#profile-picture-card')
-           ->setMaxFiles(0)
-           ->getHandler()
-       )->process();
+if ($user->isNotNew()) {
+    // Define the drag/drop upload selector
+    Request::getFileUploadHandlersObject()
+           ->add(UploadHandler::new('image')
+                              ->getDropZoneObject()
+                              ->setUrl(Url::new('accounts/user/image/upload+' . $user->getId())->makeAjax())
+                              ->setSelector('#profile-picture-card')
+                              ->setMaxFiles(0)
+                              ->getHandler()
+           )->process();
+}
 
 
 // Validate POST and submit
