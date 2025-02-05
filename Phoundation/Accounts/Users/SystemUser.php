@@ -27,15 +27,22 @@ class SystemUser extends User implements SystemUserInterface
     /**
      * SystemUser class constructor
      *
+     * @note $identifier is ignored for this class
+     *
      * @param IdentifierInterface|array|string|int|false|null $identifier
      */
     public function __construct(IdentifierInterface|array|string|int|false|null $identifier = null)
     {
+        // System user is readonly and also does not register meta requests
+        $this->readonly     = true;
+        $this->meta_enabled = false;
+
         parent::__construct();
 
-        $this->setEmail('system');
+        $this->setEmail('system')
+             ->source['status'] = 'system';
 
-        $this->roles  = Roles::new()->load(['name' => 'god']);
-        $this->rights = Rights::new()->load(['name' => 'god']);
+        $this->roles        = Roles::new()->load(['name' => 'god']);
+        $this->rights       = Rights::new()->load(['name' => 'god']);
     }
 }

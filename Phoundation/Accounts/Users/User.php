@@ -209,14 +209,11 @@ class User extends DataEntry implements UserInterface
         // Process system users. Possible identifiers for system users are "system" or "guest"
         switch ($identifier) {
             case 'guest':
-                parent::__construct('guest', false, true);
-                $this->initGuestUser();
+                // no break
 
-                return;
             case 'system':
-                parent::__construct('system', false, false);
+                parent::__construct($identifier);
                 $this->initSystemUser();
-
                 return;
         }
 
