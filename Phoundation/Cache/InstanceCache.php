@@ -21,9 +21,8 @@ namespace Phoundation\Cache;
 use Phoundation\Cache\Exception\CacheNotFoundException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Timers;
-use Phoundation\Developer\Debug;
+use Phoundation\Developer\Debug\Debug;
 use Stringable;
-
 
 class InstanceCache
 {

@@ -17,9 +17,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Exception;
 
-use Phoundation\Developer\FunctionCall;
+use Phoundation\Developer\Debug\FunctionCall;
 use Throwable;
-
 
 class ObsoleteException extends PhoException
 {

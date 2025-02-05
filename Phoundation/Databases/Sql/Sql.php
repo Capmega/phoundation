@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql;
 
-use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use PDO;
 use PDOStatement;
@@ -51,7 +50,7 @@ use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
 use Phoundation\Databases\Sql\Schema\Interfaces\SchemaInterface;
 use Phoundation\Databases\Sql\Schema\Schema;
-use Phoundation\Developer\Debug;
+use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
@@ -60,7 +59,6 @@ use Phoundation\Servers\Servers;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Throwable;
-
 
 class Sql implements SqlInterface
 {

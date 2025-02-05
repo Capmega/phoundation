@@ -52,7 +52,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
 
         parent::__construct();
 
-        $this->definitions->add(Definition::new(null, 'roles_id')
+        $this->definitions->add(Definition::new('roles_id')
                                           ->setLabel(tr('Role'))
                                           ->setSize(4)
                                           ->setOptional(true)
@@ -67,7 +67,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                                                           ->setSelected(isset_get($this->source[$key]));
                                           }))
 
-                          ->add(Definition::new(null, 'rights_id')
+                          ->add(Definition::new('rights_id')
                                           ->setLabel(tr('Right'))
                                           ->setSize(4)
                                           ->setOptional(true)

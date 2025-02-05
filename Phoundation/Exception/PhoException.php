@@ -48,7 +48,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Exception\LogException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
-use Phoundation\Developer\Debug;
+use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\Interfaces\PhoExceptionInterface;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Notifications\Notification;
@@ -58,10 +58,8 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
-use Phoundation\Web\Html\Components\P;
 use RuntimeException;
 use Throwable;
-
 
 class PhoException extends RuntimeException implements Interfaces\PhoExceptionInterface
 {

@@ -19,7 +19,7 @@ namespace Phoundation\Web\Html;
 use PDOStatement;
 use Phoundation\Content\Images\ImageFile;
 use Phoundation\Core\Core;
-use Phoundation\Developer\Debug;
+use Phoundation\Developer\Debug\Debug;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -27,7 +27,6 @@ use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Exception\HtmlException;
 use Stringable;
 use Throwable;
-
 
 class Html
 {

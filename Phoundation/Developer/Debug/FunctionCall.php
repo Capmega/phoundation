@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Developer;
+namespace Phoundation\Developer\Debug;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;

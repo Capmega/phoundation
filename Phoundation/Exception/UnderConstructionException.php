@@ -16,9 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Exception;
 
-use Phoundation\Developer\Debug;
+use Phoundation\Developer\Debug\Debug;
 use Throwable;
-
 
 class UnderConstructionException extends PhoException
 {

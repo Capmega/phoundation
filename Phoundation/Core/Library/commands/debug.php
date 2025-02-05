@@ -15,8 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Developer\Debug;
-
+use Phoundation\Developer\Debug\Debug;
 
 if (Debug::isEnabled()) {
     Log::cli('1');
