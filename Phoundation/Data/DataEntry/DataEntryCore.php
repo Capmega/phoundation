@@ -3124,7 +3124,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         $this->checkReadonly('erase')->getMetaObject()->erase();
 
-        sql($this->o_connector)->erase(static::getTable(), ['id' => $this->getId()]);
+        if ($this->getId(false)) {
+            sql($this->o_connector)->erase(static::getTable(), ['id' => $this->getId()]);
+        }
 
         return $this;
     }

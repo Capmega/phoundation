@@ -819,8 +819,10 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
                             ]))
                                                       ->addData($this->source);
                         }
+
                         try {
                             $value = $value[$this->value_column];
+
                         } catch (Throwable $e) {
                             throw OutOfBoundsException::new(tr('Failed to build select body because the data row does not contain the specified value column ":column"', [
                                 ':column' => $this->value_column,

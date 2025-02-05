@@ -459,22 +459,25 @@ class Task extends DataEntry implements TaskInterface
             if ($this->getStop()) {
                 // This task has already stopped
                 throw new TaskAlreadyExecutedException(tr('Cannot execute task ":id", it has already finished execution at ":datetime"', [
-                    ':id'       => $this->getId(),
+                    ':id'       => $this->getLogId(),
                     ':datetime' => $this->getStop(),
                 ]));
             }
+
             throw new TaskAlreadyExecutedException(tr('Cannot execute task ":id", it is currently being executed since ":datetime"', [
-                ':id'       => $this->getId(),
+                ':id'       => $this->getLogId(),
                 ':datetime' => $this->getStart(),
             ]));
         }
+
         // The Task should not yet have started
         if ($this->getStatus()) {
             throw new TaskAlreadyExecutedException(tr('Cannot execute task ":id", it must have status NULL to execute but has status ":status" instead', [
-                ':id'     => $this->getId(),
+                ':id'     => $this->getLogId(),
                 ':status' => $this->getStatus(),
             ]));
         }
+
         // Task should be executed immediately (execute_after will be NULL) or after now()
         if ($this->getExecuteAfter() and ($this->getExecuteAfter() > now())) {
             Log::warning(tr('Not yet executing task ":task" as it should not be executed until after ":date"', [
@@ -484,12 +487,10 @@ class Task extends DataEntry implements TaskInterface
 
             return $this;
         }
+
         // Task should have its parent task finished
         if ($this->getParentsId()) {
-            if (
-                !$this->getParent()
-                      ->isFinished()
-            ) {
+            if (!$this->getParent()->isFinished()) {
                 Log::warning(tr('Not yet executing task ":task" as its parent ":parent" has not finished yet', [
                     ':task'   => $this->getLogId(),
                     ':parent' => $this->getParent()
@@ -603,18 +604,23 @@ class Task extends DataEntry implements TaskInterface
                                ->setOutputRedirect($this->getOutputRedirect())
                                ->setMinimumWorkers($this->getMinimumWorkers())
                                ->setMaximumWorkers($this->getMaximumWorkers());
+
         // Update task in database
         $this->setStart(now())
              ->setStatus('executing')
              ->setExecutedCommand($worker->getFullCommandLine())
              ->save();
+
         // Execute the task
         try {
+
             $results = $worker->executeReturnString();
+
             Log::success(tr('Task ":task" finished execution in ":time"', [
                 ':task' => $this->getCode(),
                 ':time' => $worker->getExecutionTimeHumanReadable(),
             ]));
+
             // Update task in database
             $this->setStop(now())
                  ->setSpent($worker->getExecutionTime())
@@ -624,6 +630,7 @@ class Task extends DataEntry implements TaskInterface
                  ->setExitCode($worker->getExitCode())
                  ->setResults($results)
                  ->save();
+
             // Notify the specified role?
             if ($this->getRolesId()) {
                 // Notify the specified role!
@@ -640,8 +647,8 @@ class Task extends DataEntry implements TaskInterface
                                 'arguments' => $this->getArguments(),
                             ])
                             ->send();
-
             }
+
             // Execute hook
             Hook::new('tasks')
                 ->execute('post-execute', [

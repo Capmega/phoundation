@@ -246,14 +246,16 @@ class Role extends DataEntry implements RoleInterface
      */
     public function delete(?string $comments = null): static
     {
-        // Update all accounts_users_roles and accounts_roles_rights too
-        sql()->query('UPDATE `accounts_users_roles` SET status = "deleted" WHERE `roles_id` = :roles_id', [
-            ':roles_id' => $this->getId(),
-        ]);
+        if ($this->getId(false)) {
+            // Update all accounts_users_roles and accounts_roles_rights too
+            sql()->query('UPDATE `accounts_users_roles` SET status = "deleted" WHERE `roles_id` = :roles_id', [
+                ':roles_id' => $this->getId(),
+            ]);
 
-        sql()->query('UPDATE `accounts_roles_rights` SET status = "deleted" WHERE `roles_id` = :roles_id', [
-            ':roles_id' => $this->getId(),
-        ]);
+            sql()->query('UPDATE `accounts_roles_rights` SET status = "deleted" WHERE `roles_id` = :roles_id', [
+                ':roles_id' => $this->getId(),
+            ]);
+        }
 
 
         return parent::delete($comments);
@@ -269,15 +271,16 @@ class Role extends DataEntry implements RoleInterface
      */
     public function undelete(?string $comments = null): static
     {
-        // Update all accounts_users_roles and accounts_roles_rights too
-        sql()->query('UPDATE `accounts_users_roles` SET status = NULL WHERE `roles_id` = :roles_id', [
-            ':roles_id' => $this->getId(),
-        ]);
+        if ($this->getId(false)) {
+            // Update all accounts_users_roles and accounts_roles_rights too
+            sql()->query('UPDATE `accounts_users_roles` SET status = NULL WHERE `roles_id` = :roles_id', [
+                ':roles_id' => $this->getId(),
+            ]);
 
-        sql()->query('UPDATE `accounts_roles_rights` SET status = NULL WHERE `roles_id` = :roles_id', [
-            ':roles_id' => $this->getId(),
-        ]);
-
+            sql()->query('UPDATE `accounts_roles_rights` SET status = NULL WHERE `roles_id` = :roles_id', [
+                ':roles_id' => $this->getId(),
+            ]);
+        }
 
         return parent::undelete($comments);
     }
