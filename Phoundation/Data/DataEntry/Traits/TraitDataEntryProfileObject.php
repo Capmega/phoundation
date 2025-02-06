@@ -50,6 +50,10 @@ trait TraitDataEntryProfileObject
      */
     public function setProfilesId(?int $id): static
     {
+        if ($this->o_profile?->getId() === $id) {
+            return $this;
+        }
+
         return $this->setProfileData(Profile::new()->loadOrNull($id));
     }
 
@@ -74,6 +78,10 @@ trait TraitDataEntryProfileObject
      */
     public function setProfilesName(?string $name): static
     {
+        if ($this->o_profile?->getName() === $name) {
+            return $this;
+        }
+
         return $this->setProfileData(Profile::new()->loadOrNull([
             'name' => $name
         ]));

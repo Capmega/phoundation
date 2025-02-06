@@ -25,7 +25,7 @@ trait TraitDataEntryTask
     /**
      * @var TaskInterface|null $o_task
      */
-    protected ?TaskInterface $o_task;
+    protected ?TaskInterface $o_task = null;
 
 
     /**
@@ -49,6 +49,10 @@ trait TraitDataEntryTask
      */
     public function setTasksId(?int $id): static
     {
+        if ($this->o_task?->getId() === $id) {
+            return $this;
+        }
+
         return $this->setTaskData(Task::new()->loadOrNull($id));
     }
 
@@ -73,6 +77,10 @@ trait TraitDataEntryTask
      */
     public function setTasksCode(?string $code): static
     {
+        if ($this->o_task?->getCode() === $code) {
+            return $this;
+        }
+
         return $this->setTaskData(Task::new()->loadOrNull(['code' => $code]));
     }
 

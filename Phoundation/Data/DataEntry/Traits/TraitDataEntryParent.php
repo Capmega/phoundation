@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Exception\UnderConstructionException;
 
 
 trait TraitDataEntryParent
@@ -43,13 +44,17 @@ trait TraitDataEntryParent
     /**
      * Sets the parents_id for this object
      *
-     * @param int|null $parents_id
+     * @param int|null $id
      *
      * @return static
      */
-    public function setParentsId(?int $parents_id): static
+    public function setParentsId(?int $id): static
     {
-        return $this->set($parents_id, 'parents_id');
+        if ($this->o_parent?->getId() === $id) {
+            return $this;
+        }
+
+        return $this->set($id, 'parents_id');
     }
 
 
@@ -67,13 +72,17 @@ trait TraitDataEntryParent
     /**
      * Sets the parents_name for this object
      *
-     * @param string|null $parents_name
+     * @param string|null $name
      *
      * @return static
      */
-    public function setParentsName(?string $parents_name): static
+    public function setParentsName(?string $name): static
     {
-        return $this->set($parents_name, 'parents_name');
+        if ($this->o_parent?->getName() === $name) {
+            return $this;
+        }
+throw new UnderConstructionException('Add support for expected parents type and then implement setParentsData method here');
+        return $this->set($name, 'parents_name');
     }
 
 
