@@ -3008,11 +3008,10 @@ class Definition implements DefinitionInterface
         if ($this->getReadonly() or $this->getDisabled()) {
             // This column CAN be submitted, but will not be modified, so validation is not required
             // This behavior changes if a static value was specified, though, check that here.
-            if (!$this->validateProcessStaticValue($validator, $column)) {
-                // Yeah, this is your standard "readonly / disabled" column. Do not validate it.
-                $this->setNoValidation(true);
-                return true;
-            }
+            // Yeah, this is your standard "readonly / disabled" column. Do not validate it.
+            $this->validateProcessStaticValue($validator, $column);
+            $validator->doNotValidate();
+            return true;
         }
 
         return false;
@@ -3057,12 +3056,9 @@ class Definition implements DefinitionInterface
             }
         }
 
-        // Do not validate this column
-        $this->setNoValidation(true);
-
-        // Does this column require a static value?
+        // Do not validate this column and try to apply static value
         $this->validateProcessStaticValue($validator, $column);
-
+        $validator->doNotValidate();
         return true;
     }
 
@@ -3138,9 +3134,7 @@ class Definition implements DefinitionInterface
                 $value = $value($validator->getSource(), $prefix);
             }
 
-            $validator->set($value, $prefix . $column)
-                      ->doNotValidate();
-
+            $validator->set($value, $prefix . $column)->doNotValidate();
             return true;
         }
 

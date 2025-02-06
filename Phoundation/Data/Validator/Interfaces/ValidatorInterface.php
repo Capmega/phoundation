@@ -38,7 +38,7 @@ interface ValidatorInterface extends IteratorBaseInterface
      *
      * @return int
      */
-    public function getTestCount(): int;
+    public function getTestCountForSelectedColumn(): int;
 
     /**
      * Increases the test counter by the specified amount
