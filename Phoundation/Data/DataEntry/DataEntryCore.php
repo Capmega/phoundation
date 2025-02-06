@@ -83,6 +83,7 @@ use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhoException;
+use Phoundation\Filesystem\Exception\ReadOnlyModeException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
@@ -113,7 +114,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         setMetaColumns as protected __setMetaColumns;
     }
     use TraitDataRandomId;
-    use TraitDataReadonly;
+    use TraitDataReadonly {
+        setReadonly as protected __setReadonly;
+    }
     use TraitDataRestrictions;
     use TraitMethodBuildManualQuery;
 
@@ -1330,6 +1333,25 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function getStatus(): ?string
     {
         return $this->getTypesafe('string', 'status');
+    }
+
+
+    /**
+     * Sets if this object is readonly or not
+     *
+     * @param bool $readonly
+     *
+     * @return static
+     */
+    public function setReadonly(bool $readonly): static
+    {
+        if (!$readonly and $this->isLoadedFromConfiguration()) {
+            throw new ReadOnlyModeException(tr('Cannot disable readonly mode for the DataEntry ":class" class, it is loaded from configuration and cannot be saved', [
+                ':class' => static::class,
+            ]));
+        }
+
+        return $this->__setReadonly($readonly);
     }
 
 
