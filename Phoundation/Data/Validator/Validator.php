@@ -325,7 +325,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      */
     public function doNotValidate(): static
     {
-        if ($this->test_count) {
+        if ($this->test_count > 0) {
             // Cannot NOT validate, validation Tests have already been executed on it.
             throw new OutOfBoundsException(tr('Cannot skip validation Tests on key ":key", there have already been ":count" validation Tests been executed on it', [
                 ':key'   => $this->selected_field,
@@ -333,7 +333,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             ]));
         }
 
-        $this->test_count++;
+        $this->test_count = PHP_INT_MIN;
         return $this;
     }
 
@@ -770,12 +770,12 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      *
      * This method ensures that the specified array key is a valid database id (integer, 1 and above)
      *
-     * @param string|null $table
      * @param string|null $failure_message
+     * @param string|null $table
      *
      * @return static
      */
-    public function dbIdExists(?string $table = null, ?string $failure_message = null): static
+    public function dbIdExists(?string $failure_message = null, ?string $table = null): static
     {
         $this->test_count++;
 
@@ -4490,7 +4490,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      *
      * @return int
      */
-    public function getTestCount(): int
+    public function getTestCountForSelectedColumn(): int
     {
         return $this->test_count;
     }
