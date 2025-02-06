@@ -209,20 +209,49 @@ class User extends DataEntry implements UserInterface
         // Process system users. Possible identifiers for system users are "system" or "guest"
         switch ($identifier) {
             case 'guest':
-                // no break
+                $this->initGuestUser();
+                break;
 
             case 'system':
-                parent::__construct($identifier);
                 $this->initSystemUser();
-                return;
-        }
+                break;
 
-        parent::__construct($identifier);
-
-        if ($this->hasStatus('system')) {
-            // This is the guest user loaded manually
-            $this->initGuestUser();
+            default:
+                parent::__construct($identifier);
         }
+    }
+
+
+    /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryName(): string
+    {
+        return tr('User');
+    }
+
+
+    /**
+     * Returns a new "guest" static object
+     *
+     * @return static
+     */
+    public static function newGuest(): static
+    {
+        return new static('guest');
+    }
+
+
+    /**
+     * Returns a new "system" static object
+     *
+     * @return static
+     */
+    public static function newSystem(): static
+    {
+        return new static('system');
     }
 
 
@@ -256,17 +285,6 @@ class User extends DataEntry implements UserInterface
     public function isSystemUser(): bool
     {
         return $this->isGuest() or $this->isSystem();
-    }
-
-
-    /**
-     * Returns the name of this DataEntry class
-     *
-     * @return string
-     */
-    public static function getEntryName(): string
-    {
-        return tr('User');
     }
 
 
@@ -2510,7 +2528,10 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     protected function initGuestUser(): void
     {
+        parent::__construct(['email' => 'guest']);
+
         $this->source['redirect'] = null;
+        $this->source['email']    = 'guest';
         $this->source['status']   = 'system';
         $this->source['nickname'] = tr('Guest');
 
@@ -2519,7 +2540,9 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             $this->save();
         }
 
-        $this->setReadonly(true);
+        // Guest user is readonly and also does not register meta requests
+        $this->readonly     = true;
+        $this->meta_enabled = false;
     }
 
 
@@ -2530,12 +2553,21 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     protected function initSystemUser(): void
     {
+        parent::__construct();
+
         $this->source['id']       = null;
         $this->source['redirect'] = null;
         $this->source['status']   = 'system';
+        $this->source['email']    = 'system';
         $this->source['nickname'] = tr('System');
 
-        $this->setReadonly(true);
+        // System user is readonly and also does not register meta requests
+        $this->readonly     = true;
+        $this->meta_enabled = false;
+
+        $this->roles  = Roles::new()->load(['name' => 'god']);
+        $this->rights = Rights::new()->load(['name' => 'god']);
+
     }
 
 

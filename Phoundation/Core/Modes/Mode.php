@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace Phoundation\Core\Modes;
 
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
-use Phoundation\Accounts\Users\SystemUser;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Modes\Interfaces\ModeInterface;
 use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
@@ -25,7 +24,6 @@ use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
-use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Security\Incidents\Incident;
 
@@ -65,7 +63,7 @@ class Mode implements ModeInterface
         $this->datetime = $mode_file?->getMtime() ?? new PhoDateTime();
 
         try {
-            $this->user = $mode_file ? User::new()->loadOrThis(['email' => $mode_file->getBasename()]) : new SystemUser();
+            $this->user = $mode_file ? User::new()->loadOrThis(['email' => $mode_file->getBasename()]) : User::newSystem();
 
         } catch (DataEntryNotExistsException | SqlUnknownDatabaseException | SqlTableDoesNotExistException $e) {
             Incident::new()
@@ -76,7 +74,7 @@ class Mode implements ModeInterface
                     ]))
                     ->save();
 
-            $this->user = new SystemUser();
+            $this->user = User::newSystem();
         }
     }
 

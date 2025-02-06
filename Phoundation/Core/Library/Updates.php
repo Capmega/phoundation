@@ -471,7 +471,11 @@ class Updates extends Libraries\Updates
                         ':library' => $entry['library']
                     ]));
                 }
+
+                Log::dot(5);
             }
+
+            Log::success('Finished', echo_prefix: false);
 
             // Notify the Libraries class that as of now, vendors are supported in core_versions!
             Libraries\Libraries::supportsVendors(true);

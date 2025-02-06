@@ -19,7 +19,6 @@ namespace Phoundation\Accounts\Library;
 
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Role;
-use Phoundation\Accounts\Users\GuestUser;
 use Phoundation\Core\Log\Log;
 use Phoundation\Seo\Seo;
 

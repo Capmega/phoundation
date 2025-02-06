@@ -21,11 +21,9 @@ use Exception;
 use Phoundation\Accounts\Enums\EnumAuthenticationAction;
 use Phoundation\Accounts\Users\Authentication;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
-use Phoundation\Accounts\Users\GuestUser;
 use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\SignInKey;
-use Phoundation\Accounts\Users\SystemUser;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\SessionException;
@@ -777,7 +775,7 @@ class Session implements SessionInterface
                 // API's don't do cookies at all
                 // For now, hard code that all API calls will be system user
                 // TODO Improve upon this, API's should allow manual login, shared keys for authentication, etc...
-                static::$user = new SystemUser();
+                static::$user = User::newSystem();
                 break;
 
             case EnumRequestTypes::ajax:
@@ -850,7 +848,7 @@ class Session implements SessionInterface
                 throw new SessionException(tr('Cannot access session data yet, session has not yet been initialized'));
             }
 
-            return new SystemUser();
+            return User::newSystem();
         }
 
         // We can return impersonated user IF exists
@@ -919,7 +917,7 @@ class Session implements SessionInterface
         // Remove user information for this session and return to guest user
         unset($_SESSION['user']['id']);
 
-        return new GuestUser();
+        return User::newGuest();
     }
 
 
@@ -1140,14 +1138,13 @@ class Session implements SessionInterface
                 static::$user = static::loadUser($_SESSION['user']['id']);
 
             } else {
-                // TODO What if we run setup from HTTP? Change this to some sort of system flag
                 if (PLATFORM_WEB) {
                     // There is no user, this is a guest session
-                    static::$user = new GuestUser();
+                    static::$user = User::newGuest();
 
                 } else {
                     // There is no user, this is a system session
-                    static::$user = new SystemUser();
+                    static::$user = User::newSystem();
                 }
             }
         }

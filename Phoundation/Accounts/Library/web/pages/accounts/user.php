@@ -305,8 +305,8 @@ $relevant_card = Card::new()
                                                           <a href="' . Url::new('/security/authentications.html')->makeWww()->addQueries('users_id=' . $user->getId()) . '">' . tr('Authentications for this user') . '</a><br>
                                                           <a href="' . Url::new('/security/incidents.html')->makeWww()->addQueries('users_id=' . $user->getId()) . '">' . tr('Security incidents for this user') . '</a>
                                                           <hr>') . '
-                                   <a href="' . Url::new('/accounts/roles.html')->makeWww() . '">' . tr('Roles management') . '</a><br>
-                                   <a href="' . Url::new('/accounts/rights.html')->makeWww() . '">' . tr('Rights management') . '</a>' );
+                                                          <a href="' . Url::new('/accounts/roles.html')->makeWww() . '">' . tr('Roles management') . '</a><br>
+                                                          <a href="' . Url::new('/accounts/rights.html')->makeWww() . '">' . tr('Rights management') . '</a>' );
 
 
 // Build documentation
