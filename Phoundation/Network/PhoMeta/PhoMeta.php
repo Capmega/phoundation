@@ -39,8 +39,6 @@ use Phoundation\Utils\Json;
 use Throwable;
 
 
-throw new UnderConstructionException(tr('Fix all TODOS in PhoMeta!!'));
-
 class PhoMeta extends DataEntry implements PhoMetaInterface
 {
     use TraitDataEntryData {
@@ -141,8 +139,7 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
             $message = $this->parsePhoMessage($message);
 
         } else {
-            // TODO This library can NOT depend on HL7 messages!
-            // Set hash based on HL7 message
+            // Set hash based message
             $this->setHash(hash('sha256', $message));
         }
 
@@ -404,21 +401,19 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
      */
     public function processTest(string $component): bool
     {
-        $test_data = isset_get($this->getSource(true)['data']['test']);
+        $pho_meta_test = isset_get($this->getSource(true)['data']['test']);
 
-        if ($test_data === null) {
-            return false;
-        }
+        if ($pho_meta_test) {
+            try {
+                if ($pho_meta_test['component'] === $component) {
+                    PhoMetaTest::newFromSource($pho_meta_test)->finish();
 
-        try {
-            if ($test_data['component'] === $component) {
-// TODO Fix this new() call to use some load() method. What is $test_data? How should this be loaded?
-                PhoMetaTest::new($test_data)->finish();
-                return true;
+                    return true;
+                }
+
+            } catch (PhoMetaTestException $e) {
+                throw PhoMetaException::new(tr('Failed to save PhoMetaTest Data'), $e);
             }
-
-        } catch (PhoMetaTestException $e) {
-            throw PhoMetaException::new(tr('Failed to save PhoMetaTest Data'), $e);
         }
 
         return false;

@@ -334,19 +334,15 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      */
     protected function checkDataTypeAndContent(mixed $value, Stringable|string|int|null $key): void
     {
-        $fail = false;
-
         if ($this->accepted_data_types) {
-            $fail = !is_datatype_or_class($this->accepted_data_types, $value);
-        }
-
-        if ($fail) {
-            // Failed data Tests
-            throw new OutOfBoundsException(tr('Iterator value argument is restricted to type(s) ":allowed", value ":value" has datatype ":type"', [
-                ':value'   => $value,
-                ':type'    => (is_object($value) ? get_class($value) : gettype($value)),
-                ':allowed' => Strings::force($this->accepted_data_types, ', '),
-            ]));
+            if (!is_datatype_or_class($this->accepted_data_types, $value)) {
+                // Failed data Tests
+                throw new OutOfBoundsException(tr('Iterator value argument is restricted to type(s) ":allowed", value ":value" has datatype ":type"', [
+                    ':value'   => $value,
+                    ':type'    => (is_object($value) ? get_class($value) : gettype($value)),
+                    ':allowed' => Strings::force($this->accepted_data_types, ', '),
+                ]));
+            }
         }
 
         // Apply validators as well? Only if datatype test hasn't failed yet
@@ -967,7 +963,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      * Returns value for the specified key, defaults that key to the specified value if it does not yet exist
      *
      * @param Stringable|string|int $key
-     * @param mixed                       $value
+     * @param mixed                 $value
      *
      * @return mixed
      */

@@ -195,6 +195,27 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
 
 
     /**
+     * Sets the datatype restrictions for all elements in this iterator, NULL if none
+     *
+     * @param array|string|null $data_types
+     * @return static
+     */
+    public function setAcceptedDataTypes(array|string|null $data_types): static
+    {
+        $data_types = Arrays::force($data_types, '|');
+
+        if (count($data_types) != 1) {
+            throw new OutOfBoundsException(tr('Cannot specify ":count" data types for class ":class", DataIterator classes require exactly one datatype', [
+                ':count' => count($data_types),
+                ':class' => static::class
+            ]));
+        }
+
+        return parent::setAcceptedDataTypes($data_types);
+    }
+
+
+    /**
      * Access the direct list operations for this class
      *
      * @todo Remove this. "Direct operations" was a bad idea and should be removed when we have some time
@@ -819,8 +840,6 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
         // If the value is a DataEntry object, make sure its saved
         if ($value instanceof DataEntryInterface) {
             if ($value->isModified()) {
-showbacktrace();
-showdie($value->getSource());
                 $value->save();
             }
 
@@ -972,9 +991,9 @@ showdie($value->getSource());
     {
         return $this->getAcceptedDataType()::new()
                                            ->setDebug($this->debug)
+                                           ->setRestrictions($this->restrictions)
                                            ->setConnectorObject($this->getConnectorObject())
-                                           ->loadOrThis($identifier)
-                                           ->setRestrictions($this->restrictions);
+                                           ->loadOrThis($identifier);
     }
 
 
@@ -983,9 +1002,9 @@ showdie($value->getSource());
      *
      * @param string|float|int $key
      *
-     * @return DataEntryInterface
+     * @return DataEntryInterface|null
      */
-    #[ReturnTypeWillChange] protected function ensureObject(string|float|int $key): DataEntryInterface
+    #[ReturnTypeWillChange] protected function ensureObject(string|float|int $key): ?DataEntryInterface
     {
         // Ensure the source key is of DataEntryInterface
         if (!$this->source[$key] instanceof DataEntryInterface) {
@@ -1022,7 +1041,10 @@ showdie($value->getSource());
                     }
 
                     // Copy the source into the entry
-                    $entry = $this->loadObject()->setSource($this->source[$key]);
+                    $entry = $this->getAcceptedDataType()::newFromSource($this->source[$key]);
+
+                } elseif ($this->source[$key] === null) {
+                    return null;
 
                 } else {
                     // Load the entry manually from DB. REQUIRES the DataEntry object to have a unique column specified!
@@ -1179,6 +1201,27 @@ showdie($value->getSource());
 
         unset($value);
         return $source;
+    }
+
+
+    /**
+     * Saves each DataEntry object stored in this DataIterator
+     *
+     * @param bool        $force
+     * @param bool        $skip_validation
+     * @param string|null $comments
+     *
+     * @return static
+     */
+    public function saveDataEntryObjects(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
+    {
+        foreach ($this as $entry) {
+            if ($entry) {
+                $entry->save($force, $skip_validation, $comments);
+            }
+        }
+
+        return $this;
     }
 
 

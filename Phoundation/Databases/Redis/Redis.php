@@ -746,4 +746,11 @@ class Redis implements DatabaseInterface, RedisInterface
         // TODO: Implement export() method.
         throw new UnderConstructionException();
     }
+
+
+    public function isConnected(): bool
+    {
+        // TODO: Implement isConnected() method.
+        throw new UnderConstructionException();
+    }
 }
