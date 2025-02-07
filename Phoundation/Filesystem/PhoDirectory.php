@@ -228,7 +228,7 @@ class PhoDirectory extends PhoDirectoryCore
     public static function newDataSourcesProjectObject(bool $writable = false, ?string $sub_directory = null): static
     {
         return static::new(
-            DIRECTORY_DATA . 'sources/' . PROJECT . '/' . $sub_directory,
+            DIRECTORY_DATA . 'sources/' . strtolower(str_replace('_', '-', PROJECT)) . '/' . $sub_directory,
             PhoRestrictions::newDataSourcesProjectObject($writable)
         )->ensure();
     }

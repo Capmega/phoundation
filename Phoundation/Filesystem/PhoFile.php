@@ -89,10 +89,9 @@ class PhoFile extends PhoFileCore
      */
     public static function newDataProjectObject(string $file, ?PhoRestrictionsInterface $restrictions = null): PhoFileInterface
     {
-        return static::new(
-            DIRECTORY_DATA . PROJECT . '/' . $file,
-                $restrictions ?? PhoRestrictions::newDataProjectObject()
-        );
+        $path = DIRECTORY_DATA . 'projects/' . PROJECT . '/' . $file;
+
+        return static::new($path, $restrictions ?? PhoRestrictions::newDataProjectObject());
     }
 
 
