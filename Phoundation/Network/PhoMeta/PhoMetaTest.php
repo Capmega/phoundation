@@ -20,6 +20,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryData;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Redis\Redis;
@@ -31,6 +32,18 @@ use Phoundation\Network\PhoMeta\Interfaces\PhoMetaTestInterface;
 class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
 {
     use TraitDataEntryData;
+
+
+    /**
+     * PhoMetaTest class constructor
+     *
+     * @param IdentifierInterface|false|int|array|string|null $identifier
+     */
+    public function __construct(IdentifierInterface|false|int|array|string|null $identifier = null)
+    {
+        parent::__construct($identifier);
+        $this->meta_enabled = false;
+    }
 
 
     /**
