@@ -119,6 +119,20 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
+     * Setup for virtual columns
+     *
+     * @var array $virtual_configuration
+     */
+    protected array $virtual_configuration = [];
+
+    /**
+     * Cache for the payee data
+     *
+     * @var array $virtual_objects
+     */
+    protected array $virtual_objects = [];
+
+    /**
      * Columns that will NOT be inserted
      *
      * @var array $columns_filter_on_insert
@@ -1414,7 +1428,27 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             return Arrays::removeKeys(Arrays::removeKeys($this->source, $this->meta_columns), $this->protected_columns);
         }
 
-        return Arrays::removeKeys($this->source, $this->protected_columns);
+        $source = $this->getSourceWithResolvedVirtualColumns();
+        $source = Arrays::removeKeys($source, $this->protected_columns);
+
+        return $source;
+    }
+
+
+    /**
+     * Returns a source array with all source virtual columns resolved
+     *
+     * @return array
+     */
+    protected function getSourceWithResolvedVirtualColumns(): array
+    {
+        $source = [];
+
+        foreach ($this->source as $key => $value) {
+            $source[$key] = $this->get($key);
+        }
+
+        return $source;
     }
 
 
@@ -3237,8 +3271,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         $this->checkReadonly('erase')->getMetaObject()->erase();
 
-        if ($this->getId(false)) {
-            sql($this->o_connector)->erase(static::getTable(), ['id' => $this->getId()]);
+        if ($this->meta_enabled) {
+            if ($this->getId(false)) {
+                sql($this->o_connector)->erase(static::getTable(), ['id' => $this->getId()]);
+            }
         }
 
         return $this;
@@ -3591,6 +3627,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function getSqlColumns(bool $insert): array
     {
         $return = [];
+        $source = $this->getSource();
 
         // Run over all definitions and generate a data column
         foreach ($this->definitions as $column => $definition) {
@@ -3611,7 +3648,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
             // Apply definition default
-            $return[$column] = isset_get($this->source[$column]) ?? $definition->getDefault();
+            $return[$column] = isset_get($source[$column]) ?? $definition->getDefault();
 
             // Ensure value is string, float, int, or NULL
             if (($return[$column] !== null) and !is_scalar($return[$column])) {
@@ -3801,5 +3838,194 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $this->is_saved        = false;
 
         return $this;
+    }
+
+
+    /**
+     * Returns the value for the requested table_key
+     *
+     * If the current value is null or not set, this method will automatically try to load the data
+     *
+     * @param string $table
+     * @param string $type
+     * @param string $key
+     *
+     * @return mixed
+     */
+    protected function getVirtualData(string $table, string $type, string $key): mixed
+    {
+        $key = $table . '_' . $key;
+
+        if (empty($this->source[$key])) {
+            $this->setVirtualObject($table);
+        }
+
+        return $this->getTypesafe($type, $key);
+    }
+
+
+    /**
+     * This will reset all virtual data for the specified table
+     *
+     * @param string $table
+     * @param mixed  $value
+     * @param string $column
+     *
+     * @return $this
+     */
+    protected function setVirtualData(string $table, mixed $value, string $column): static
+    {
+        if ($this->get($column) === $value) {
+            // The column has not changed, don't change anything
+            return $this;
+        }
+
+        // Reset all columns for the table except the specified one, that one will have the specified value
+        foreach ($this->getVirtualColumns($table) as $virtual_column => $virtual_table_column) {
+            if ($virtual_column === $column) {
+                $this->set($value, $virtual_table_column);
+
+            } else {
+                $this->set(null, $virtual_table_column);
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the virtual object for the requested table
+     *
+     * @param string $table
+     *
+     * @return DataEntryInterface|null
+     */
+    public function getVirtualObject(string $table): ?DataEntryInterface
+    {
+        return isset_get($this->virtual_objects[$table]);
+    }
+
+
+    /**
+     * Loads data to all virtual columns
+     *
+     * @param string                  $table
+     * @param DataEntryInterface|null $o_object
+     *
+     * @return static
+     */
+    protected function setVirtualObject(string $table, ?DataEntryInterface $o_object = null): static
+    {
+        $configuration = $this->getVirtualConfiguration($table);
+
+        if (empty($o_object)) {
+            $identifier = $this->getVirtualLoadIdentifier($configuration['columns']);
+            $o_object   = $configuration['class']::new()->loadOrNull($identifier);
+        }
+
+        // Cache the loaded object
+        $this->virtual_objects[$table] = $o_object;
+
+        // Set all configured columns
+        foreach ($configuration['columns'] as $column => $table_column) {
+            $this->set($o_object?->get($column), $table_column);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns a DataEntry identifier array with virtual column values from this DataEntry to load the virtual object
+     *
+     * @param array $columns
+     *
+     * @return array
+     */
+    protected function getVirtualLoadIdentifier(array $columns): array
+    {
+        $return = [];
+
+        foreach ($columns as $column => $table_column) {
+            $value = $this?->get($table_column);
+
+            if ($value === null) {
+                continue;
+            }
+
+            $return[$column] = $value;
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Adds the virtual column configuration for the specified table
+     *
+     * @param string $table
+     * @param string $class
+     * @param array  $columns
+     *
+     * @return $this
+     */
+    protected function addVirtualConfiguration(string $table, string $class, array $columns): static
+    {
+        $data = [
+            'columns' => [],
+        ];
+
+        foreach ($columns as $column) {
+            $data['columns'][$column] = $table . '_' . $column;
+        }
+
+        $data['class']                       = $class;
+        $this->virtual_configuration[$table] = $data;
+        return $this;
+    }
+
+
+    /**
+     * Returns the virtual data configuration for the specified table
+     *
+     * @param string $table
+     *
+     * @return array
+     */
+    protected function getVirtualConfiguration(string $table): array
+    {
+        if (!array_key_exists($table, $this->virtual_configuration)) {
+            // Configuration does not exist. Can we autoload it?
+            $method = 'addVirtualConfiguration' . Strings::capitalize($table);
+
+            if (method_exists($this, $method)) {
+                // Yep! Autoload it now.
+                $this->$method();
+            }
+
+            // Try again if it exists now
+            if (!array_key_exists($table, $this->virtual_configuration)) {
+                throw new OutOfBoundsException(tr('Cannot return virtual configuration for table ":table", the virtual table columns have not been defined', [
+                    ':table' => $table
+                ]));
+            }
+        }
+
+        return $this->virtual_configuration[$table];
+    }
+
+
+    /**
+     * Returns the virtual data configuration for the specified table
+     *
+     * @param string $table
+     *
+     * @return array
+     */
+    protected function getVirtualColumns(string $table): array
+    {
+        $configuration = $this->getVirtualConfiguration($table);
+        return $configuration['columns'];
     }
 }
