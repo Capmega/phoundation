@@ -784,7 +784,8 @@ class Debug
         }
 
         if ($e->getPrevious()) {
-            $return .= tr('Previous exception: ') . '<br>';
+            $return .= str_repeat('=', 100) . '<br>';
+            $return .= str_repeat(' ', $indent + 4) . tr('Previous exception: ') . '<br>';
             $return .= static::displayException($e->getPrevious(), $full_backtrace, $indent + 4);
         }
 
