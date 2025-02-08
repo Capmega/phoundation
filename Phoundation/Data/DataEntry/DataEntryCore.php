@@ -4018,8 +4018,21 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     protected function getVirtualConfiguration(string $table): array
     {
         if (!array_key_exists($table, $this->virtual_configuration)) {
+
             // Configuration does not exist. Can we autoload it?
-            $method = 'addVirtualConfiguration' . Strings::capitalize($table);
+            $table_name = Strings::capitalize($table);
+
+            if (str_contains($table_name, '_')) {
+                // Replace underscores with camelCase
+                $table_name = '';
+
+                foreach (explode('_', $table) as $part) {
+                    $part = Strings::capitalize($part);
+                    $table_name .= $part;
+                }
+            }
+
+            $method = 'addVirtualConfiguration' . $table_name;
 
             if (method_exists($this, $method)) {
                 // Yep! Autoload it now.
@@ -4028,8 +4041,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
             // Try again if it exists now
             if (!array_key_exists($table, $this->virtual_configuration)) {
-                throw new OutOfBoundsException(tr('Cannot return virtual configuration for table ":table", the virtual table columns have not been defined', [
-                    ':table' => $table
+                throw new OutOfBoundsException(tr('Cannot return virtual configuration for table ":table", the virtual table columns have not been defined or the method ":method" does not exist', [
+                    ':table'  => $table,
+                    ':method' => $method,
                 ]));
             }
         }
