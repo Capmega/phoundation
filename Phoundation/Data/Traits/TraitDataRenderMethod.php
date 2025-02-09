@@ -32,9 +32,9 @@ trait TraitDataRenderMethod
     /**
      * Returns the render_method data
      *
-     * @return EnumWebRenderMethods
+     * @return EnumWebRenderMethods|null
      */
-    public function getRenderMethod(): EnumWebRenderMethods
+    public function getRenderMethod(): ?EnumWebRenderMethods
     {
         return $this->render_method;
     }
@@ -43,14 +43,13 @@ trait TraitDataRenderMethod
     /**
      * Sets the render_method data
      *
-     * @param EnumWebRenderMethods $render_method
+     * @param EnumWebRenderMethods|null $render_method
      *
      * @return static
      */
-    public function setRenderMethod(EnumWebRenderMethods $render_method): static
+    public function setRenderMethod(?EnumWebRenderMethods $render_method): static
     {
         $this->render_method = $render_method;
-
         return $this;
     }
 }

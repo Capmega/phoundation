@@ -46,7 +46,6 @@ trait TraitDataBatch
     public function setBatch(bool $batch): static
     {
         $this->batch = $batch;
-
         return $this;
     }
 }

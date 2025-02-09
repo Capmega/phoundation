@@ -48,7 +48,6 @@ trait TraitDataStringData
     public function setData(?string $data): static
     {
         $this->data = get_null($data);
-
         return $this;
     }
 }

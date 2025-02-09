@@ -48,7 +48,6 @@ trait TraitDataSourceObject
     public function setSourceObject(?object $source_object): static
     {
         $this->source_object = $source_object;
-
         return $this;
     }
 }

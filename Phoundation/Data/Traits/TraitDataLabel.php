@@ -47,8 +47,7 @@ trait TraitDataLabel
      */
     public function setLabel(?string $label): static
     {
-        $this->label = $label;
-
+        $this->label = get_null($label);
         return $this;
     }
 }

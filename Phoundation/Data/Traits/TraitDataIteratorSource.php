@@ -48,6 +48,7 @@ trait TraitDataIteratorSource
      * @param bool                                             $filter_meta
      *
      * @return static
+     * @todo Fix support for execute and filter_meta
      */
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, bool $filter_meta = false): static
     {

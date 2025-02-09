@@ -50,7 +50,6 @@ trait TraitDataInputFile
     public function setInputFile(?PhoFileInterface $input_file): static
     {
         $this->input_file = $input_file;
-
         return $this;
     }
 }

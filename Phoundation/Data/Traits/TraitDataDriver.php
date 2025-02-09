@@ -48,7 +48,6 @@ trait TraitDataDriver
     public function setDriver(?string $driver): static
     {
         $this->driver = get_null($driver);
-
         return $this;
     }
 }

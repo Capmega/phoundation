@@ -50,7 +50,6 @@ trait TraitDataDefinition
     public function setDefinition(DefinitionInterface|null $definition): static
     {
         $this->definition = $definition;
-
         return $this;
     }
 }

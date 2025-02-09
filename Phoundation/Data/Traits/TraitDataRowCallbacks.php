@@ -102,8 +102,11 @@ trait TraitDataRowCallbacks
     {
         $params = [
             'htmlentities'     => $this->process_entities,
-            'skiphtmlentities' => ['id' => true],
+            'skiphtmlentities' => [
+                'id' => true
+            ],
         ];
+
         foreach ($this->row_callbacks as $callback) {
             $callback($row, $type, $params);
         }

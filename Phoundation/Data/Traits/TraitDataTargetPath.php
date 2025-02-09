@@ -32,9 +32,9 @@ trait TraitDataTargetPath
     /**
      * Returns the target object
      *
-     * @return PhoPathInterface
+     * @return PhoPathInterface|null
      */
-    public function getTargetPath(): PhoPathInterface
+    public function getTargetPath(): ?PhoPathInterface
     {
         return $this->target_path;
     }
@@ -50,7 +50,6 @@ trait TraitDataTargetPath
     public function setTargetPath(?PhoPathInterface $target_path): static
     {
         $this->target_path = $target_path;
-
         return $this;
     }
 }

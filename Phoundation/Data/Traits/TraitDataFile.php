@@ -50,7 +50,6 @@ trait TraitDataFile
     public function setFileObject(?PhoFileInterface $file): static
     {
         $this->file = $file;
-
         return $this;
     }
 }

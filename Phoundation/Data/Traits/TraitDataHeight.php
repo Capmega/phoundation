@@ -44,20 +44,23 @@ trait TraitDataHeight
      * Sets the height
      *
      * @param int|null $height
-     *
+     * @param int $min_height
+     * @param int $max_height
      * @return static
      */
-    public function setHeight(?int $height): static
+    public function setHeight(?int $height, int $min_height = 0,int $max_height = 65536): static
     {
         if ($height) {
-            if (($height < 0) or ($height > 65535)) {
-                throw new OutOfBoundsException(tr('Invalid height ":height" specified', [
+            if (($height < $min_height) or ($height > $max_height)) {
+                throw new OutOfBoundsException(tr('Invalid height ":height" specified, must be between ":min" and ":max"', [
                     ':height' => $height,
+                    ':min'    => $min_height,
+                    ':max'    => $max_height
                 ]));
             }
         }
-        $this->height = $height;
 
+        $this->height = get_null($height);
         return $this;
     }
 }

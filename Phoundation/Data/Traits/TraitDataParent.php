@@ -49,7 +49,6 @@ trait TraitDataParent
     public function setParentObject(DataEntryInterface $parent): static
     {
         $this->parent = $parent;
-
         return $this;
     }
 }

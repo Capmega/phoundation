@@ -51,7 +51,6 @@ trait TraitDataSqlQuery
     public function setQuery(SqlQueryInterface|string|null $query): static
     {
         $this->query = $query ? new SqlQuery($query) : null;
-
         return $this;
     }
 }

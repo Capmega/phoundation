@@ -5,6 +5,7 @@
  *
  *
  *
+ * @todo Implement CSS color ENUM and swap the string for that ENUM
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://openforeground_color.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -16,8 +17,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 use Phoundation\Exception\OutOfBoundsException;
+
 
 trait TraitDataForegroundColor
 {

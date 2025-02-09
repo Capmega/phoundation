@@ -19,19 +19,8 @@ namespace Phoundation\Data\Traits;
 
 trait TraitDataNetworkConnection
 {
-    /**
-     * The host for this connection
-     *
-     * @var string $host
-     */
-    protected string $host = 'localhost';
+    use TraitDataHostnamePort;
 
-    /**
-     * The port for this connection
-     *
-     * @var int|null $port
-     */
-    protected ?int $port = null;
 
     /**
      * The user for this connection
@@ -49,61 +38,6 @@ trait TraitDataNetworkConnection
 
 
     /**
-     * Returns the host for this connection
-     *
-     * @return string
-     */
-    public function getHost(): string
-    {
-        return $this->host;
-    }
-
-
-    /**
-     * Sets the host for this connection
-     *
-     * @param string|null $host
-     *
-     * @return static
-     */
-    public function setHost(?string $host): static
-    {
-        if (!$host) {
-            $host = 'localhost';
-        }
-        $this->host = $host;
-
-        return $this;
-    }
-
-
-    /**
-     * Returns the port for this connection
-     *
-     * @return int|null
-     */
-    public function getPort(): ?int
-    {
-        return $this->port;
-    }
-
-
-    /**
-     * Sets the port for this connection
-     *
-     * @param int $port
-     *
-     * @return static
-     */
-    public function setPort(int $port): static
-    {
-        $this->port = $port;
-
-        return $this;
-    }
-
-
-    /**
      * Returns the user for this connection
      *
      * @return string|null
@@ -117,14 +51,13 @@ trait TraitDataNetworkConnection
     /**
      * Sets the user for this connection
      *
-     * @param string $user
+     * @param string|null $user
      *
      * @return static
      */
-    public function setUser(string $user): static
+    public function setUser(?string $user): static
     {
-        $this->user = $user;
-
+        $this->user = get_null($user);
         return $this;
     }
 
@@ -143,14 +76,13 @@ trait TraitDataNetworkConnection
     /**
      * Sets the password for this connection
      *
-     * @param string $password
+     * @param string|null $password
      *
      * @return static
      */
-    public function setPassword(string $password): static
+    public function setPassword(?string $password): static
     {
-        $this->password = $password;
-
+        $this->password = get_null($password);
         return $this;
     }
 }

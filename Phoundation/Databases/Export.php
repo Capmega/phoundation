@@ -24,7 +24,7 @@ use Phoundation\Data\Traits\TraitDataGzip;
 use Phoundation\Data\Traits\TraitDataHost;
 use Phoundation\Data\Traits\TraitDataPort;
 use Phoundation\Data\Traits\TraitDataTimeout;
-use Phoundation\Data\Traits\TraitDataUserPass;
+use Phoundation\Data\Traits\TraitDataUserPassword;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
@@ -45,7 +45,7 @@ class Export
     use TraitDataDriver;
     use TraitDataPort;
     use TraitDataHost;
-    use TraitDataUserPass;
+    use TraitDataUserPassword;
     use TraitDataDebug;
     use TraitDataConnector {
         setConnectorObject as __setConnector;

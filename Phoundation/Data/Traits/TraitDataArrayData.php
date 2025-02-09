@@ -22,17 +22,17 @@ trait TraitDataArrayData
     /**
      * The data for this object
      *
-     * @var array|null $data
+     * @var array $data
      */
-    protected ?array $data = null;
+    protected array $data = [];
 
 
     /**
      * Returns the data
      *
-     * @return array|null
+     * @return array
      */
-    public function getData(): ?array
+    public function getData(): array
     {
         return $this->data;
     }
@@ -47,9 +47,8 @@ trait TraitDataArrayData
      */
     public function setData(?array $data): static
     {
-        $this->data = [];
-
-        return $this->addData($data);
+        return $this->clearData()
+                    ->addData(get_null($data));
     }
 
 
@@ -63,8 +62,13 @@ trait TraitDataArrayData
      */
     public function addData(array|string|null $key, string|int|null $value = null): static
     {
+        if (($key === null) and ($value === null)) {
+            return $this;
+        }
+
         if (is_array($key)) {
             $data = $key;
+
             foreach ($data as $key => $value) {
                 if (is_numeric($key)) {
                     $value = explode('=', $value);
@@ -91,7 +95,6 @@ trait TraitDataArrayData
     public function clearData(): static
     {
         $this->data = [];
-
         return $this;
     }
 }

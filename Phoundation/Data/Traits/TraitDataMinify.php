@@ -46,7 +46,6 @@ trait TraitDataMinify
     public function setMinify(bool $minify): static
     {
         $this->minify = $minify;
-
         return $this;
     }
 }

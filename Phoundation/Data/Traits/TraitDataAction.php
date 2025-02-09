@@ -20,17 +20,17 @@ namespace Phoundation\Data\Traits;
 trait TraitDataAction
 {
     /**
-     * @var string $action
+     * @var string|null $action
      */
-    protected string $action;
+    protected ?string $action;
 
 
     /**
      * Returns the source
      *
-     * @return string
+     * @return string|null
      */
-    public function getAction(): string
+    public function getAction(): ?string
     {
         return $this->action;
     }
@@ -39,13 +39,13 @@ trait TraitDataAction
     /**
      * Sets the source
      *
-     * @param string $action
+     * @param string|null $action
      *
      * @return static
      */
-    public function setAction(string $action): static
+    public function setAction(?string $action): static
     {
-        $this->action = $action;
+        $this->action = get_null($action);
 
         return $this;
     }

@@ -15,7 +15,7 @@ interface VendorInterface
      *
      * @return PhoDirectoryInterface|null
      */
-    public function getDirectory(): ?PhoDirectoryInterface;
+    public function getDirectoryObject(): ?PhoDirectoryInterface;
 
     /**
      * Returns the vendor identifier

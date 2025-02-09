@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 use Phoundation\Accounts\Users\Interfaces\AuthenticationInterface;
 
 
@@ -49,7 +48,6 @@ trait TraitDataStaticAuthentication
     public function setAuthentication(?AuthenticationInterface $authentication): static
     {
         static::$authentication = $authentication;
-
         return $this;
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Trait TraitDataDriver
+ * Trait TraitDataDatabase
  *
  *
  *
@@ -20,35 +20,34 @@ namespace Phoundation\Data\Traits;
 trait TraitDataDatabase
 {
     /**
-     * The driver for this object
+     * The database for this object
      *
-     * @var string|null $driver
+     * @var string|null $database
      */
-    protected ?string $driver = null;
+    protected ?string $database = null;
 
 
     /**
-     * Returns the driver
+     * Returns the database
      *
      * @return string|null
      */
-    public function getDriver(): ?string
+    public function getDatabase(): ?string
     {
-        return $this->driver;
+        return $this->database;
     }
 
 
     /**
-     * Sets the driver
+     * Sets the database
      *
-     * @param string|null $driver
+     * @param string|null $database
      *
      * @return static
      */
-    public function setDriver(?string $driver): static
+    public function setDatabase(?string $database): static
     {
-        $this->driver = get_null($driver);
-
+        $this->database = get_null($database);
         return $this;
     }
 }

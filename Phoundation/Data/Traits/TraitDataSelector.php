@@ -30,9 +30,9 @@ trait TraitDataSelector
     /**
      * Returns the source
      *
-     * @return string
+     * @return string|null
      */
-    public function getSelector(): string
+    public function getSelector(): ?string
     {
         return $this->selector;
     }
@@ -41,14 +41,13 @@ trait TraitDataSelector
     /**
      * Sets the source
      *
-     * @param string $selector
+     * @param string|null $selector
      *
      * @return static
      */
-    public function setSelector(string $selector): static
+    public function setSelector(?string $selector): static
     {
-        $this->selector = $selector;
-
+        $this->selector = get_null($selector);
         return $this;
     }
 }

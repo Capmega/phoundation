@@ -47,8 +47,7 @@ trait TraitDataObjectClass
      */
     public function setObjectClass(?string $object_class): static
     {
-        $this->object_class = $object_class;
-
+        $this->object_class = get_null($object_class);
         return $this;
     }
 }

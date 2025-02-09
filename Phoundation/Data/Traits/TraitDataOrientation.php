@@ -48,7 +48,6 @@ trait TraitDataOrientation
     public function setOrientation(?EnumOrientation $orientation): static
     {
         $this->orientation = $orientation;
-
         return $this;
     }
 }

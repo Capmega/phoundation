@@ -53,17 +53,21 @@ trait TraitDataTree
     public function setTree(TreeInterface|array|string|null $tree): static
     {
         $tree = get_null($tree);
+
         if (is_string($tree)) {
             $tree = Json::decode($tree);
+
             if (!is_array($tree)) {
                 if (!($tree instanceof TreeInterface)) {
                     throw OutOfBoundsException::new(tr('Cannot use specified data as source for tree, it is not tree data'))
-                                              ->setData(['tree' => $tree]);
+                                              ->setData([
+                                                  'tree' => $tree
+                                              ]);
                 }
             }
         }
-        $this->tree = new Tree($tree);
 
+        $this->tree = new Tree($tree);
         return $this;
     }
 }

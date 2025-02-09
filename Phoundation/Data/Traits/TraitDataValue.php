@@ -51,12 +51,10 @@ trait TraitDataValue
     public function setValue(?string $value, bool $make_safe = true): static
     {
         if ($make_safe) {
-            $this->value = Html::safe($value);
-
-        } else {
-            $this->value = $value;
+            $value = Html::safe($value);
         }
 
+        $this->value = get_null($value);
         return $this;
     }
 }

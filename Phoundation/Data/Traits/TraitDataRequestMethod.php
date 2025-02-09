@@ -44,14 +44,13 @@ trait TraitDataRequestMethod
     /**
      * Sets the form request method
      *
-     * @param EnumHttpRequestMethod $request_method
+     * @param EnumHttpRequestMethod|null $request_method
      *
      * @return static
      */
-    public function setRequestMethod(EnumHttpRequestMethod $request_method): static
+    public function setRequestMethod(?EnumHttpRequestMethod $request_method): static
     {
         $this->request_method = $request_method;
-
         return $this;
     }
 }

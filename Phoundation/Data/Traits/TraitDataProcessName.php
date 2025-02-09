@@ -51,12 +51,10 @@ trait TraitDataProcessName
     public function setProcessName(?string $process_name, bool $make_safe = true): static
     {
         if ($make_safe) {
-            $this->process_name = Html::safe($process_name);
-
-        } else {
-            $this->process_name = $process_name;
+            $process_name = Html::safe($process_name);
         }
 
+        $this->process_name = get_null($process_name);
         return $this;
     }
 }

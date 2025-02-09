@@ -49,13 +49,15 @@ trait TraitDataTimeout
      */
     public function setTimeout(?int $timeout): static
     {
-        if (($timeout < 1)) {
-            throw new OutOfBoundsException(tr('Invalid timeout ":timeout" specified, it must be a positive integer', [
-                ':timeout' => $timeout,
-            ]));
+        if ($timeout) {
+            if (($timeout < 1)) {
+                throw new OutOfBoundsException(tr('Invalid timeout ":timeout" specified, it must be zero or NULL or a positive integer', [
+                    ':timeout' => $timeout,
+                ]));
+            }
         }
-        $this->timeout = get_null($timeout);
 
+        $this->timeout = get_null($timeout);
         return $this;
     }
 }

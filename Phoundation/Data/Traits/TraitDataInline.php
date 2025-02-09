@@ -47,7 +47,6 @@ trait TraitDataInline
     public function setInline(bool $inline): static
     {
         $this->inline = $inline;
-
         return $this;
     }
 }

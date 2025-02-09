@@ -52,14 +52,15 @@ trait TraitDataStopDate
      */
     public function setStopDate(\DateTime|DateTimeInterface|string|null $stop_date, DateTimeZone|string|null $timezone = null): static
     {
-        if ($stop_date === null) {
+        if (empty($stop_date)) {
             $this->stop_date = null;
 
         } else {
             // Make sure that the stop_date has no time component
-            if (!$stop_date or is_string($stop_date)) {
+            if (is_string($stop_date)) {
                 $stop_date = PhoDateTime::new($stop_date, $timezone);
             }
+
             $this->stop_date = PhoDateTime::new($stop_date->format('Y-m-d'), $stop_date->getTimezone());
         }
 

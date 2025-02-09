@@ -17,6 +17,8 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 
+use Phoundation\Exception\OutOfBoundsException;
+
 trait TraitDataLogLevel
 {
     /**
@@ -45,6 +47,12 @@ trait TraitDataLogLevel
      */
     public function setLogLevel(int $log_level): static
     {
+        if (($log_level < 0) or ($log_level > 9)) {
+            throw new OutOfBoundsException(tr('Invalid log level ":value" specified, the value must be between 0 and 9', [
+                ':value' => $log_level
+            ]));
+        }
+
         $this->log_level = $log_level;
         return $this;
     }

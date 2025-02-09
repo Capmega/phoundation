@@ -54,7 +54,7 @@ trait TraitDataTitle
             $title = Html::safe($title);
         }
 
-        $this->title = $title;
+        $this->title = get_null($title);
         return $this;
     }
 }

@@ -44,20 +44,23 @@ trait TraitDataWidth
      * Sets the width
      *
      * @param int|null $width
-     *
+     * @param int $min_width
+     * @param int $max_width
      * @return static
      */
-    public function setWidth(?int $width): static
+    public function setWidth(?int $width, int $min_width = 0,int $max_width = 65536): static
     {
         if ($width) {
-            if (($width < 0) or ($width > 65535)) {
-                throw new OutOfBoundsException(tr('Invalid width ":width" specified', [
+            if (($width < $min_width) or ($width > $max_width)) {
+                throw new OutOfBoundsException(tr('Invalid width ":width" specified, must be between ":min" and ":max"', [
                     ':width' => $width,
+                    ':min'    => $min_width,
+                    ':max'    => $max_width
                 ]));
             }
         }
-        $this->width = $width;
 
+        $this->width = get_null($width);
         return $this;
     }
 }

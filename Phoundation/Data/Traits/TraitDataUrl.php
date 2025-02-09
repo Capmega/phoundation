@@ -50,8 +50,7 @@ trait TraitDataUrl
      */
     public function setUrl(UrlInterface|string|null $url): static
     {
-        $this->url = get_null((string) $url);
-
+        $this->url = get_null($url);
         return $this;
     }
 }

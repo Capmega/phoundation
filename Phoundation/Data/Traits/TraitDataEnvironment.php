@@ -47,8 +47,7 @@ trait TraitDataEnvironment
      */
     public function setEnvironment(?string $environment): static
     {
-        $this->environment = $environment;
-
+        $this->environment = get_null($environment);
         return $this;
     }
 }

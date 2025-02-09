@@ -48,7 +48,6 @@ trait TraitDataInsertUpdate
     public function setInsertUpdate(bool $insert_update): static
     {
         $this->insert_update = $insert_update;
-
         return $this;
     }
 }

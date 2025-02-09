@@ -22,7 +22,7 @@ trait TraitDataCompressionLevel
     /**
      * @var int $CompressionLevel
      */
-    protected int $compression_level;
+    protected int $compression_level = 0;
 
 
     /**
@@ -46,7 +46,6 @@ trait TraitDataCompressionLevel
     public function setCompressionLevel(int $CompressionLevel): static
     {
         $this->compression_level = $CompressionLevel;
-
         return $this;
     }
 }

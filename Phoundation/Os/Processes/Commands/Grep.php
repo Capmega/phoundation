@@ -38,7 +38,7 @@ class Grep extends Command
      */
     public function grep(EnumExecuteMethod $method): array
     {
-        if (!$this->directory and !$this->file) {
+        if (!$this->o_directory and !$this->file) {
             throw new CommandsException(tr('Cannot execute grep, no file or path specified'));
         }
         if (!$this->value) {
@@ -50,8 +50,8 @@ class Grep extends Command
                     ->setCommand('grep')
                     ->setAcceptedExitCodes([0, 1])
                     ->addArgument($this->value)
-                    ->addArgument($this->directory ?? $this->file)
-                    ->addArgument($this->directory ? '-R' : null)
+                    ->addArgument($this->o_directory ?? $this->file)
+                    ->addArgument($this->o_directory ? '-R' : null)
                     ->execute($method);
     }
 }

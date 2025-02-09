@@ -47,8 +47,7 @@ trait TraitDataColumn
      */
     public function setColumn(?string $column): static
     {
-        $this->column = $column;
-
+        $this->column = get_null($column);
         return $this;
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Trait TraitDataUserPass
+ * Trait TraitDataPassword
  *
  *
  *
@@ -17,15 +17,8 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 
-trait TraitDataUserPass
+trait TraitDataPassword
 {
-    /**
-     * The user for this object
-     *
-     * @var string|null $user
-     */
-    protected ?string $user = null;
-
     /**
      * The password for this object
      *
@@ -35,39 +28,13 @@ trait TraitDataUserPass
 
 
     /**
-     * Returns the user for this object
-     *
-     * @return string|null
-     */
-    public function getUser(): ?string
-    {
-        return $this->user;
-    }
-
-
-    /**
-     * Sets the user for this object
-     *
-     * @param string|null $user
-     *
-     * @return static
-     */
-    public function setUser(?string $user): static
-    {
-        $this->user = $user;
-
-        return $this;
-    }
-
-
-    /**
      * Returns the pass for this object
      *
      * @return string|null
      */
-    public function getPass(): ?string
+    public function getPassword(): ?string
     {
-        return $this->pass;
+        return $this->password;
     }
 
 
@@ -78,10 +45,9 @@ trait TraitDataUserPass
      *
      * @return static
      */
-    public function setPass(?string $pass): static
+    public function setPassword(?string $pass): static
     {
-        $this->pass = $pass;
-
+        $this->password = get_null($pass);
         return $this;
     }
 }

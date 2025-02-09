@@ -48,7 +48,6 @@ trait TraitDataForce
     public function setForce(bool $force): static
     {
         $this->force = $force;
-
         return $this;
     }
 }

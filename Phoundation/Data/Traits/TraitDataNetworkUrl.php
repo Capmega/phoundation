@@ -30,9 +30,9 @@ trait TraitDataNetworkUrl
     /**
      * Returns the path for this object
      *
-     * @return string
+     * @return string|null
      */
-    public function getUrl(): string
+    public function getUrl(): ?string
     {
         return $this->url;
     }
@@ -41,14 +41,13 @@ trait TraitDataNetworkUrl
     /**
      * Set the path for this object
      *
-     * @param UrlInterface|string $url
+     * @param UrlInterface|string|null $url
      *
      * @return static
      */
-    public function setUrl(UrlInterface|string $url): static
+    public function setUrl(UrlInterface|string|null $url): static
     {
         $this->url = get_null((string) $url);
-
         return $this;
     }
 }

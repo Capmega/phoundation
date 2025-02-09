@@ -47,8 +47,7 @@ trait TraitDataTable
      */
     public function setTable(?string $table): static
     {
-        $this->table = $table;
-
+        $this->table = get_null($table);
         return $this;
     }
 }

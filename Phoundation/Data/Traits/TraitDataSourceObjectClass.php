@@ -47,8 +47,7 @@ trait TraitDataSourceObjectClass
      */
     public function setSourceObjectClass(?string $source_object_class): static
     {
-        $this->source_object_class = $source_object_class;
-
+        $this->source_object_class = get_null($source_object_class);
         return $this;
     }
 }

@@ -21,7 +21,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataHostnamePort;
 use Phoundation\Data\Traits\TraitDataSourceString;
-use Phoundation\Data\Traits\TraitDataUserPass;
+use Phoundation\Data\Traits\TraitDataUserPassword;
 use Phoundation\Databases\Exception\MysqlException;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
@@ -43,7 +43,7 @@ use Throwable;
 class MySql extends Command
 {
     use TraitDataHostnamePort;
-    use TraitDataUserPass;
+    use TraitDataUserPassword;
     use TraitDataSourceString;
     use TraitDataConnector;
 

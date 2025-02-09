@@ -36,4 +36,17 @@ trait TraitDataStringOutput
     {
         return $this->output;
     }
+
+
+    /**
+     * Returns the output
+     *
+     * @param string|null $output
+     * @return TraitDataStringOutput
+     */
+    protected function setOutput(?string $output): static
+    {
+        $this->output = get_null($output);
+        return $this;
+    }
 }

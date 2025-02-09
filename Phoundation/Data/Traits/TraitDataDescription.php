@@ -51,10 +51,10 @@ trait TraitDataDescription
     public function setDescription(?string $description, bool $make_safe = true): static
     {
         if ($make_safe) {
-            $description = Html::safe($description);
+            $description = Html::safe((string) $description);
         }
-        $this->description = $description;
 
+        $this->description = get_null($description);
         return $this;
     }
 }

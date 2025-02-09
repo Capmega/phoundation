@@ -48,7 +48,6 @@ trait TraitDataGzip
     public function setGzip(bool $gzip): static
     {
         $this->gzip = $gzip;
-
         return $this;
     }
 }

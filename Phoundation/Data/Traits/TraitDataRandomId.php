@@ -48,7 +48,6 @@ trait TraitDataRandomId
     public function setRandomId(bool $random_id): static
     {
         $this->random_id = $random_id;
-
         return $this;
     }
 }

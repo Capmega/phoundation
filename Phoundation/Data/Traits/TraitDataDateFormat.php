@@ -33,9 +33,7 @@ trait TraitDataDateFormat
      */
     public function setFormat(string|null $format): static
     {
-        $this->format = $format;
-        $this->format = str_replace('-', '/', $this->format);
-
+        $this->format = get_null(str_replace('-', '/', $this->format));
         return $this;
     }
 }

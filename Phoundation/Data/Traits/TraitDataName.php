@@ -47,7 +47,7 @@ trait TraitDataName
      */
     public function setName(?string $name): static
     {
-        $this->name = $name;
+        $this->name = get_null($name);
         return $this;
     }
 }

@@ -48,10 +48,12 @@ trait TraitDataStatusFilter
     public function setStatusFilter(string|false|null $status_filter): static
     {
         if ($status_filter === 'all') {
-            $status_filter = false;
+            $this->status_filter = false;
+
+        } else {
+            $this->status_filter = get_null($status_filter);
         }
 
-        $this->status_filter = $status_filter;
         return $this;
     }
 }

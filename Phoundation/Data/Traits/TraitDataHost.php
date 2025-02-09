@@ -48,7 +48,6 @@ trait TraitDataHost
     public function setHost(?string $host): static
     {
         $this->host = get_null($host);
-
         return $this;
     }
 }

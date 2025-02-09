@@ -41,14 +41,12 @@ trait TraitDataStaticContentType
     /**
      * Sets the mimetype / content type
      *
-     * @param string $content_type
+     * @param string|null $content_type
      *
      * @return void
      */
-    public static function setContentType(string $content_type): void
+    public static function setContentType(?string $content_type): void
     {
-        // Validate status code
-        // TODO implement
-        static::$content_type = $content_type;
+        static::$content_type = get_null($content_type);
     }
 }

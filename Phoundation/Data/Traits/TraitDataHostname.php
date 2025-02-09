@@ -47,8 +47,7 @@ trait TraitDataHostname
      */
     public function setHostname(?string $hostname): static
     {
-        $this->hostname = $hostname;
-
+        $this->hostname = get_null($hostname);
         return $this;
     }
 }

@@ -21,6 +21,7 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 
+
 trait TraitDataSkipIterator
 {
     /**
