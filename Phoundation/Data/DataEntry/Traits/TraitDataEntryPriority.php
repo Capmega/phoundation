@@ -89,6 +89,20 @@ trait TraitDataEntryPriority
 
 
     /**
+     * Sets the minimum priority for this object
+     *
+     * @param int $priority
+     *
+     * @return TraitDataEntryPriority
+     */
+    public function setMinPriority(int $priority): static
+    {
+        $this->min_priority = $priority;
+        return $this;
+    }
+
+
+    /**
      * Returns the maximum priority for this object
      *
      * @return int
@@ -96,6 +110,20 @@ trait TraitDataEntryPriority
     public function getMaxPriority(): int
     {
         return $this->max_priority;
+    }
+
+
+    /**
+     * Sets the maximum priority for this object
+     *
+     * @param int $priority
+     *
+     * @return TraitDataEntryPriority
+     */
+    public function setMaxPriority(int $priority): static
+    {
+        $this->max_priority = $priority;
+        return $this;
     }
 
 

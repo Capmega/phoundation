@@ -23,32 +23,32 @@ use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Utils\Strings;
 
 
-trait TraitDataEntryPicture
+trait TraitDataEntryProfilePicture
 {
     /**
-     * Returns the picture for this entry
+     * Returns the profile picture for this entry
      *
      * @return ImageInterface
      */
-    public function getPicture(): ImageInterface
+    public function getProfilePicture(): ImageInterface
     {
         return get_null($this->getTypesafe('string', 'picture')) ?? new Image('img/profiles/default.png', PhoRestrictions::newReadonlyObject('img/profiles'));
     }
 
 
     /**
-     * Sets the picture for this entry
+     * Sets the profile picture for this entry
      *
      * @param ImageInterface|string|null $picture
      *
      * @return static
      */
-    public function setPicture(ImageInterface|string|null $picture): static
+    public function setProfilePicture(ImageInterface|string|null $picture): static
     {
         // Make sure we have an Image object or NULL
         $picture = get_null($picture) ?? Image::new($picture, PhoRestrictions::newReadonlyObject('img/profiles'));
-        $picture->setDescription(tr('Profile picture for :customer', [
-            ':customer' => $this->getName()
+        $picture->setDescription(tr('Profile picture for :name', [
+            ':name' => $this->getName()
         ]));
 
         return $this->set($picture, 'picture');

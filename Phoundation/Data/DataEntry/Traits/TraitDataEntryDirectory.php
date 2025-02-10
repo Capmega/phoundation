@@ -16,34 +16,73 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
+use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoDirectory;
-use Phoundation\Filesystem\PhoPath;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 
 
 trait TraitDataEntryDirectory
 {
+    use TraitDataRestrictions;
+
+
     /**
-     * Returns the path for this object
+     * Returns the directory for this object
      *
      * @return PhoDirectoryInterface|null
      */
-    public function getDirectory(): ?PhoDirectoryInterface
+    public function getDirectory(): ?string
     {
-        return $this->getTypesafe(PhoDirectoryInterface::class, 'directory');
+        return $this->getTypesafe('string', 'directory');
     }
 
 
     /**
-     * Sets the path for this object
+     * Sets the directory for this object
      *
-     * @param PhoDirectoryInterface|string|null $directory
-     * @param PhoRestrictionsInterface|null $restrictions
+     * @param string|null $directory
+     *
      * @return static
      */
-    public function setDirectory(PhoDirectoryInterface|string|null $directory, ?PhoRestrictionsInterface $restrictions = null): static
+    public function setDirectory(string|null $directory): static
     {
-        return $this->set(is_string($directory) ? new PhoDirectory($directory, $restrictions) : $directory, 'directory');
+        if ($directory and (strlen($directory) > 2048)) {
+            throw new OutOfBoundsException(tr('Specified directory ":directory" is invalid, the string should be no longer than 2048 characters', [
+                ':directory' => $directory,
+            ]));
+        }
+
+        return $this->set(get_null($directory), 'directory');
+    }
+
+
+    /**
+     * Returns the directory for this object
+     *
+     * @return PhoDirectoryInterface|null
+     */
+    public function getDirectoryObject(): ?PhoDirectoryInterface
+    {
+        $directory = $this->getDirectory();
+
+        if ($directory) {
+            $directory = new PhoDirectory($directory, $this->restrictions);
+        }
+
+        return $directory;
+    }
+
+
+    /**
+     * Sets the directory for this object
+     *
+     * @param PhoDirectoryInterface|null $directory
+     *
+     * @return static
+     */
+    public function setDirectoryObject(PhoDirectoryInterface|null $directory): static
+    {
+        return $this->setDirectory($directory?->getSource());
     }
 }

@@ -23,88 +23,109 @@ use Phoundation\Business\Providers\Provider;
 trait TraitDataEntryProvider
 {
     /**
-     * Provider object cache
+     * Setup virtual configuration for Providers
      *
-     * @var ProviderInterface|null $o_provider
+     * @return static
      */
-    protected ?ProviderInterface $o_provider;
+    protected function addVirtualConfigurationProviders(): static
+    {
+        return $this->addVirtualConfiguration('providers', Provider::class, [
+            'id',
+            'code',
+            'name'
+        ]);
+    }
 
 
     /**
-     * Returns the providers_id for this object
+     * Returns the providers_id column
      *
      * @return int|null
      */
     public function getProvidersId(): ?int
     {
-        return $this->getTypesafe('int', 'providers_id');
+        return $this->getVirtualData('providers', 'int', 'id');
     }
 
 
     /**
-     * Sets the providers_id for this object
+     * Sets the providers_id column
      *
-     * @param int|null $providers_id
-     *
+     * @param int|null $id
      * @return static
      */
-    public function setProvidersId(?int $providers_id): static
+    public function setProvidersId(?int $id): static
     {
-        $this->o_provider = null;
-        return $this->set($providers_id, 'providers_id');
+        return $this->setVirtualData('providers', $id, 'id');
     }
 
 
     /**
-     * Returns the provider for this object
+     * Returns the providers_code column
      *
-     * @return ProviderInterface|null
+     * @return string|null
      */
-    public function getProviderObject(): ?ProviderInterface
+    public function getProvidersCode(): ?string
     {
-        if (empty($this->o_provider)) {
-            $this->o_provider = Provider::new($this->getTypesafe('int', 'providers_id'))->loadOrNull();
-        }
-
-        return $this->o_provider;
+        return $this->getVirtualData('providers', 'string', 'code');
     }
 
 
     /**
-     * Sets the provider for this object
+     * Sets the providers_code column
      *
-     * @param ProviderInterface|null $o_provider
-     * @return TraitDataEntryProvider
+     * @param string|null $code
+     * @return static
      */
-    public function setProviderObject(?ProviderInterface $o_provider): static
+    public function setProvidersCode(?string $code): static
     {
-        $this->setProvidersId($o_provider?->getId());
-
-        $this->o_provider = $o_provider;
-        return $this;
+        return $this->setVirtualData('providers', $code, 'code');
     }
 
 
     /**
-     * Returns the providers_name for this object
+     * Returns the providers_name column
      *
      * @return string|null
      */
     public function getProvidersName(): ?string
     {
-        return $this->getProviderObject()->getName();
+        return $this->getVirtualData('providers', 'string', 'name');
     }
 
 
     /**
-     * Returns the providers_name for this object
+     * Sets the providers_name column
      *
-     * @param string|null $providers_name
+     * @param string|null $name
+     * @return static
+     */
+    public function setProvidersName(?string $name): static
+    {
+        return $this->setVirtualData('providers', $name, 'name');
+    }
+
+
+    /**
+     * Returns the Provider Object
+     *
+     * @return ProviderInterface|null
+     */
+    public function getProviderObject(): ?ProviderInterface
+    {
+        return $this->getVirtualObject('providers');
+    }
+
+
+    /**
+     * Returns the providers_id for this user
+     *
+     * @param ProviderInterface|null $o_object
      *
      * @return static
      */
-    public function setProvidersName(?string $providers_name): static
+    public function setProviderObject(?ProviderInterface $o_object): static
     {
-        return $this->setProviderObject(Provider::new()->loadOrNull(['name' => $providers_name]));
+        return $this->setVirtualObject('providers', $o_object);
     }
 }

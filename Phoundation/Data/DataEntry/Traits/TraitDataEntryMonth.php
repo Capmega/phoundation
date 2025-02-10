@@ -61,9 +61,6 @@ trait TraitDataEntryMonth
                     ])),
                 };
             }
-
-        } else {
-            $month = null;
         }
 
         return $this->set(get_null($month), 'month');

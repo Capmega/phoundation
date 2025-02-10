@@ -3,7 +3,7 @@
 /**
  * Trait TraitDataEntryRole
  *
- * This trait contains methods for DataEntry objects that require a role
+ * This trait contains methods for DataEntry objects that require an role
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -23,93 +23,85 @@ use Phoundation\Accounts\Roles\Role;
 trait TraitDataEntryRole
 {
     /**
-     * @var RoleInterface|null $role
-     */
-    protected ?RoleInterface $role;
-
-
-    /**
-     * Sets the roles_id for this object
-     *
-     * @param int|null $roles_id
+     * Setup virtual configuration for Roles
      *
      * @return static
      */
-    public function setRolesId(?int $roles_id): static
+    protected function addVirtualConfigurationRoles(): static
     {
-        unset($this->role);
-
-        return $this->set($roles_id, 'roles_id');
+        return $this->addVirtualConfiguration('roles', Role::class, [
+            'id',
+            'name'
+        ]);
     }
 
 
     /**
-     * Returns the role name for this object
-     *
-     * @return string|null
-     */
-    public function getRolesName(): ?string
-    {
-        return $this->getRole()
-                    ?->getname();
-    }
-
-
-    /**
-     * Returns the RoleInterface object for this object
-     *
-     * @return RoleInterface|null
-     */
-    public function getRole(): ?RoleInterface
-    {
-        if (!isset($this->role)) {
-            $this->role = Role::new($this->getRolesId())->loadOrNull();
-        }
-
-        return $this->role;
-    }
-
-
-    /**
-     * Sets the RoleInterface object for this object
-     *
-     * @param RoleInterface|null $role
-     *
-     * @return static
-     */
-    public function setRole(?RoleInterface $role): static
-    {
-        if ($role) {
-            $this->role = $role;
-
-            return $this->set($role->getId(), 'roles_id');
-        }
-
-        return $this->setRolesId(null);
-    }
-
-
-    /**
-     * Returns the roles_id for this object
+     * Returns the roles_id column
      *
      * @return int|null
      */
     public function getRolesId(): ?int
     {
-        return $this->getTypesafe('int', 'roles_id');
-
+        return $this->getVirtualData('roles', 'int', 'id');
     }
 
 
     /**
-     * Sets the role name for this object
+     * Sets the roles_id column
+     *
+     * @param int|null $id
+     * @return static
+     */
+    public function setRolesId(?int $id): static
+    {
+        return $this->setVirtualData('roles', $id, 'id');
+    }
+
+
+    /**
+     * Returns the roles_name column
+     *
+     * @return string|null
+     */
+    public function getRolesName(): ?string
+    {
+        return $this->getVirtualData('roles', 'string', 'name');
+    }
+
+
+    /**
+     * Sets the roles_name column
      *
      * @param string|null $name
-     *
      * @return static
      */
     public function setRolesName(?string $name): static
     {
-        return $this->setRole(Role::new()->load(['name' => $name]));
+        return $this->setVirtualData('roles', $name, 'name');
+    }
+
+
+    /**
+     * Returns the Role Object
+     *
+     * @return RoleInterface|null
+     */
+    public function getRoleObject(): ?RoleInterface
+    {
+        return $this->getVirtualObject('roles');
+    }
+
+
+    /**
+     * Returns the roles_id for this user
+     *
+     * @param RoleInterface|null $o_object
+     *
+     * @return static
+     */
+    public function setRoleObject(?RoleInterface $o_object): static
+    {
+        return $this->setVirtualObject('roles', $o_object);
     }
 }

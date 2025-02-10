@@ -86,7 +86,7 @@ interface PluginInterface
      *
      * @return PhoDirectoryInterface
      */
-    public function getDirectory(): PhoDirectoryInterface;
+    public function getDirectoryObject(): PhoDirectoryInterface;
 
 
     /**

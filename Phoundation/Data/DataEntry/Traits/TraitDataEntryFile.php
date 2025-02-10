@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoFile;
@@ -35,7 +34,7 @@ trait TraitDataEntryFile
      */
     public function getFile(): ?string
     {
-        return $this->getTypesafe(PhoFileInterface::class . '|string', 'file');
+        return $this->getTypesafe('string', 'file');
     }
 
 
@@ -67,7 +66,7 @@ trait TraitDataEntryFile
     {
         $file = $this->getFile();
 
-        if ($file and is_string($file)) {
+        if ($file) {
             $file = new PhoFile($file, $this->restrictions);
         }
 

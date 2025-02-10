@@ -65,12 +65,9 @@ trait TraitDataEntryDetails
             }
 
             $details = Json::encode($details);
-
-        } else {
-            $details = null;
         }
 
-        return $this->set($details, 'details');
+        return $this->set(get_null($details), 'details');
     }
 
 

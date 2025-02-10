@@ -1,14 +1,14 @@
 <?php
 
 /**
- * Trait TraitDataEntryProfileObject
+ * Trait TraitDataEntryProfile
  *
- *
+ * This trait contains methods for DataEntry objects that require an profile
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Plugins\Hardware
+ * @package   Phoundation\Data
  */
 
 
@@ -20,110 +20,112 @@ use Plugins\Phoundation\Hardware\Devices\Interfaces\ProfileInterface;
 use Plugins\Phoundation\Hardware\Devices\Profile;
 
 
-trait TraitDataEntryProfileObject
+trait TraitDataEntryProfile
 {
     /**
-     * Cache for the profile data
+     * Setup virtual configuration for Profiles
      *
-     * @var ProfileInterface|null $o_profile
+     * @return static
      */
-    protected ?ProfileInterface $o_profile = null;
+    protected function addVirtualConfigurationProfiles(): static
+    {
+        return $this->addVirtualConfiguration('profiles', Profile::class, [
+            'id',
+            'code',
+            'name'
+        ]);
+    }
 
 
     /**
-     * Returns the profiles_id for this object
+     * Returns the profiles_id column
      *
      * @return int|null
      */
     public function getProfilesId(): ?int
     {
-        return $this->getTypesafe('int', 'profiles_id');
+        return $this->getVirtualData('profiles', 'int', 'id');
     }
 
 
     /**
-     * Sets the profiles_id for this object
+     * Sets the profiles_id column
      *
      * @param int|null $id
-     *
      * @return static
      */
     public function setProfilesId(?int $id): static
     {
-        if ($this->o_profile?->getId() === $id) {
-            return $this;
-        }
-
-        return $this->setProfileData(Profile::new()->loadOrNull($id));
+        return $this->setVirtualData('profiles', $id, 'id');
     }
 
 
     /**
-     * Returns the profiles_name for this profile
+     * Returns the profiles_code column
+     *
+     * @return string|null
+     */
+    public function getProfilesCode(): ?string
+    {
+        return $this->getVirtualData('profiles', 'string', 'code');
+    }
+
+
+    /**
+     * Sets the profiles_code column
+     *
+     * @param string|null $code
+     * @return static
+     */
+    public function setProfilesCode(?string $code): static
+    {
+        return $this->setVirtualData('profiles', $code, 'code');
+    }
+
+
+    /**
+     * Returns the profiles_name column
      *
      * @return string|null
      */
     public function getProfilesName(): ?string
     {
-        return $this->getTypesafe('string', 'profiles_name');
+        return $this->getVirtualData('profiles', 'string', 'name');
     }
 
 
     /**
-     * Sets the profiles_name for this profile
+     * Sets the profiles_name column
      *
      * @param string|null $name
-     *
      * @return static
      */
     public function setProfilesName(?string $name): static
     {
-        if ($this->o_profile?->getName() === $name) {
-            return $this;
-        }
-
-        return $this->setProfileData(Profile::new()->loadOrNull([
-            'name' => $name
-        ]));
+        return $this->setVirtualData('profiles', $name, 'name');
     }
 
 
     /**
-     * Returns the ProfileInterface for this object
+     * Returns the Profile Object
      *
      * @return ProfileInterface|null
      */
-    public function getProfile(): ?ProfileInterface
+    public function getProfileObject(): ?ProfileInterface
     {
-        return $this->o_profile;
+        return $this->getVirtualObject('profiles');
     }
 
 
     /**
-     * Sets the ProfileInterface for this object
+     * Returns the profiles_id for this user
      *
-     * @param ProfileInterface|null $profile
-     *
-     * @return static
-     */
-    public function setProfile(?ProfileInterface $profile): static
-    {
-        return $this->setProfileData($profile);
-    }
-
-
-    /**
-     * Sets the profile data
-     *
-     * @param ProfileInterface|null $o_profile
+     * @param ProfileInterface|null $o_object
      *
      * @return static
      */
-    protected function setProfileData(?ProfileInterface $o_profile): static
+    public function setProfileObject(?ProfileInterface $o_object): static
     {
-        $this->o_profile = $o_profile;
-
-        return $this->set($o_profile?->getId(false), 'profiles_id')
-                    ->set($o_profile?->getName()   , 'profiles_name');
+        return $this->setVirtualObject('profiles', $o_object);
     }
 }
