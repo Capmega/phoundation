@@ -83,6 +83,6 @@ trait TraitDataEntryVersion
      */
     protected function setSeoVersion(?string $seo_version): static
     {
-        return $this->set($seo_version, 'seo_version');
+        return $this->set(get_null($seo_version), 'seo_version');
     }
 }

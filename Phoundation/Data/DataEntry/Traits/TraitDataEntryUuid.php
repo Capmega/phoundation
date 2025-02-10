@@ -23,6 +23,17 @@ use Stringable;
 trait TraitDataEntryUuid
 {
     /**
+     * Returns the uuid for this object
+     *
+     * @return string|null
+     */
+    public function getUuid(): ?string
+    {
+        return $this->getTypesafe('string', 'uuid');
+    }
+
+
+    /**
      * Sets the uuid for this object
      *
      * @param Stringable|string|null $uuid
@@ -31,7 +42,7 @@ trait TraitDataEntryUuid
      */
     public function setUuid(Stringable|string|null $uuid): static
     {
-        return $this->set((string) $uuid, 'uuid');
+        return $this->set(get_null((string) $uuid), 'uuid');
     }
 
 
@@ -45,16 +56,5 @@ trait TraitDataEntryUuid
     public function generateUuid(Stringable|string|null $data = null): static
     {
         return $this->set(Strings::getUuid($data), 'uuid');
-    }
-
-
-    /**
-     * Returns the uuid for this object
-     *
-     * @return string|null
-     */
-    public function getUuid(): ?string
-    {
-        return $this->getTypesafe('string', 'uuid');
     }
 }

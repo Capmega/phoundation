@@ -47,6 +47,6 @@ trait TraitDataEntryMessage
             ]));
         }
 
-        return $this->set($message, 'message');
+        return $this->set(get_null($message), 'message');
     }
 }

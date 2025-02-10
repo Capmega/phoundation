@@ -39,6 +39,6 @@ trait TraitDataEntryCharacterSet
      */
     public function setCharacterSet(?string $character_set): static
     {
-        return $this->set($character_set, 'character_set');
+        return $this->set(get_null($character_set), 'character_set');
     }
 }

@@ -3897,7 +3897,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function setVirtualData(string $table, mixed $value, string $column): static
     {
-        if ($this->get($column) === $value) {
+        if ($this->get($table . '_' . $column) === $value) {
             // The column has not changed, don't change anything
             return $this;
         }
