@@ -50,7 +50,6 @@ trait TraitDataSql
     public function setQuery(SqlInterface|null $sql): static
     {
         $this->sql = $sql;
-
         return $this;
     }
 }

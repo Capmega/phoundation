@@ -22,7 +22,7 @@ use Phoundation\Web\Html\Enums\EnumBrowserEvent;
 trait TraitDataBrowserEvent
 {
     /**
-     *
+     * Tracks the browser event
      *
      * @var EnumBrowserEvent $browser_event
      */
@@ -30,26 +30,26 @@ trait TraitDataBrowserEvent
 
 
     /**
-     * Returns the source
+     * Returns the browser event
      *
-     * @return EnumBrowserEvent
+     * @return EnumBrowserEvent|null
      */
-    public function getBrowserEvent(): EnumBrowserEvent
+    public function getBrowserEvent(): ?EnumBrowserEvent
     {
         return $this->browser_event;
     }
 
 
     /**
-     * Sets the source
+     * Sets the browser event
      *
-     * @param EnumBrowserEvent $browser_event
+     * @param EnumBrowserEvent|null $browser_event
      *
      * @return static
      */
-    public function setBrowserEvent(EnumBrowserEvent $browser_event): static
+    public function setBrowserEvent(?EnumBrowserEvent $browser_event): static
     {
-        $this->browser_event = $browser_event;
+        $this->browser_event = get_null($browser_event);
 
         return $this;
     }

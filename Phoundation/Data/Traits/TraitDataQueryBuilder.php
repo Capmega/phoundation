@@ -50,7 +50,6 @@ trait TraitDataQueryBuilder
     public function setQueryBuilder(QueryBuilderInterface $query_builder): static
     {
         $this->query_builder = $query_builder;
-
         return $this;
     }
 }

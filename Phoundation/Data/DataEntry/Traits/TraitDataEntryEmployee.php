@@ -17,70 +17,115 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Business\Companies\Employees\Employee;
+use Phoundation\Business\Companies\Employees\Interfaces\EmployeeInterface;
 
 
 trait TraitDataEntryEmployee
 {
     /**
-     * Returns the employees_id for this object
+     * Setup virtual configuration for Employees
+     *
+     * @return static
+     */
+    protected function addVirtualConfigurationEmployees(): static
+    {
+        return $this->addVirtualConfiguration('employees', Employee::class, [
+            'id',
+            'code',
+            'name'
+        ]);
+    }
+
+
+    /**
+     * Returns the employees_id column
      *
      * @return int|null
      */
     public function getEmployeesId(): ?int
     {
-        return $this->get('int', 'employees_id');
+        return $this->getVirtualData('employees', 'int', 'id');
     }
 
 
     /**
-     * Sets the employees_id for this object
+     * Sets the employees_id column
      *
-     * @param int|null $employees_id
-     *
+     * @param int|null $id
      * @return static
      */
-    public function setEmployeesId(?int $employees_id): static
+    public function setEmployeesId(?int $id): static
     {
-        return $this->set($employees_id, 'employees_id');
+        return $this->setVirtualData('employees', $id, 'id');
     }
 
 
     /**
-     * Returns the employee for this object
+     * Returns the employees_code column
      *
-     * @return Employee|null
+     * @return string|null
      */
-    public function getEmployee(): ?Employee
+    public function getEmployeesCode(): ?string
     {
-        $employees_id = $this->get('int', 'employees_id');
-        if ($employees_id) {
-            return new Employee($employees_id);
-        }
-
-        return null;
+        return $this->getVirtualData('employees', 'string', 'code');
     }
 
 
     /**
-     * Returns the employees_name for this object
+     * Sets the employees_code column
+     *
+     * @param string|null $code
+     * @return static
+     */
+    public function setEmployeesCode(?string $code): static
+    {
+        return $this->setVirtualData('employees', $code, 'code');
+    }
+
+
+    /**
+     * Returns the employees_name column
      *
      * @return string|null
      */
     public function getEmployeesName(): ?string
     {
-        return $this->get('string', 'employees_name');
+        return $this->getVirtualData('employees', 'string', 'name');
     }
 
 
     /**
-     * Sets the employees_name for this object
+     * Sets the employees_name column
      *
-     * @param string|null $employees_name
+     * @param string|null $name
+     * @return static
+     */
+    public function setEmployeesName(?string $name): static
+    {
+        return $this->setVirtualData('employees', $name, 'name');
+    }
+
+
+    /**
+     * Returns the Employee Object
+     *
+     * @return EmployeeInterface|null
+     */
+    public function getEmployeeObject(): ?EmployeeInterface
+    {
+        return $this->getVirtualObject('employees');
+    }
+
+
+    /**
+     * Returns the employees_id for this user
+     *
+     * @param EmployeeInterface|null $o_object
      *
      * @return static
      */
-    public function setEmployeesName(?string $employees_name): static
+    public function setEmployeeObject(?EmployeeInterface $o_object): static
     {
-        return $this->set($employees_name, 'employees_name');
+        return $this->setVirtualObject('employees', $o_object);
     }
 }

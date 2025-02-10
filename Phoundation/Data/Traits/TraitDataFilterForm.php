@@ -31,9 +31,9 @@ trait TraitDataFilterForm
     /**
      * Returns the filter_form
      *
-     * @return FilterFormInterface
+     * @return FilterFormInterface|null
      */
-    #[ReturnTypeWillChange] public function getFilterFormObject(): FilterFormInterface
+    #[ReturnTypeWillChange] public function getFilterFormObject(): ?FilterFormInterface
     {
         return $this->filter_form;
     }
@@ -42,14 +42,13 @@ trait TraitDataFilterForm
     /**
      * Sets the filter_form
      *
-     * @param FilterFormInterface $filter_form
+     * @param FilterFormInterface|null $filter_form
      *
      * @return static
      */
-    public function setFilterFormObject(FilterFormInterface $filter_form): static
+    public function setFilterFormObject(?FilterFormInterface $filter_form): static
     {
-        $this->filter_form = $filter_form;
-
+        $this->filter_form = get_null($filter_form);
         return $this;
     }
 }

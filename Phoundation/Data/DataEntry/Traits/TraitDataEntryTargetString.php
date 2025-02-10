@@ -39,6 +39,6 @@ trait TraitDataEntryTargetString
      */
     public function setTargetString(?string $target): static
     {
-        return $this->set($target, 'target');
+        return $this->set(get_null($target), 'target');
     }
 }

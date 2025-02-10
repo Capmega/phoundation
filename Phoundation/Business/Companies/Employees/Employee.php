@@ -17,12 +17,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Business\Companies\Employees;
 
+use Phoundation\Business\Companies\Employees\Interfaces\EmployeeInterface;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 
 
-class Employee extends DataEntry
+class Employee extends DataEntry implements EmployeeInterface
 {
     use TraitDataEntryNameDescription;
 

@@ -52,10 +52,12 @@ trait TraitDataEntryData
      */
     public function setData(array|string|null $data): static
     {
-        if (is_array($data)) {
-            $data = Json::encode($data);
+        if ($data) {
+            if (is_array($data)) {
+                $data = Json::encode($data);
+            }
         }
 
-        return $this->set($data, 'data');
+        return $this->set(get_null($data), 'data');
     }
 }

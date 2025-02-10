@@ -21,7 +21,12 @@ use Phoundation\Exception\OutOfBoundsException;
 
 trait TraitDataEntryGender
 {
-    protected array $translate = [
+    /**
+     * Allowed genders
+     * 
+     * @var array $allowed_genders
+     */
+    protected array $allowed_genders = [
         ''       => '',
         'male'   => 'male',
         'female' => 'female',
@@ -59,7 +64,7 @@ trait TraitDataEntryGender
      */
     public function setGender(?string $gender): static
     {
-        if (!array_key_exists($gender, $this->translate)) {
+        if (!array_key_exists($gender, $this->allowed_genders)) {
             throw new OutOfBoundsException(tr('Unknown gender ":gender" specified', [
                 ':gender' => $gender,
             ]));

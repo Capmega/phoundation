@@ -39,7 +39,7 @@ trait TraitDataEntryIpAddress
      */
     public function setIpAddressBinary(?string $ip_address): static
     {
-        return $this->set($ip_address, 'ip_address_binary');
+        return $this->set(get_null($ip_address), 'ip_address_binary');
     }
 
 
@@ -63,10 +63,8 @@ trait TraitDataEntryIpAddress
      */
     public function setIpAddress(?string $ip_address): static
     {
-        $this->set(strlen((string) $ip_address), 'net_len');
-        $this->set(null                        , 'ip_address');
-
-        return $this->set($ip_address, 'ip_address');
+        return $this->set(strlen((string) $ip_address), 'net_len')
+                    ->set(get_null($ip_address), 'ip_address');
     }
 
 
@@ -90,6 +88,6 @@ trait TraitDataEntryIpAddress
      */
     public function setNetLen(?int $net_len): static
     {
-        return $this->set($net_len, 'net_len');
+        return $this->set(get_null($net_len), 'net_len');
     }
 }

@@ -32,9 +32,9 @@ trait TraitDataTargetFile
     /**
      * Returns the source object
      *
-     * @return PhoFileInterface
+     * @return PhoFileInterface|null
      */
-    public function getTargetFile(): PhoFileInterface
+    public function getTargetFile(): ?PhoFileInterface
     {
         return $this->target_file;
     }
@@ -50,7 +50,6 @@ trait TraitDataTargetFile
     public function setTargetFile(?PhoFileInterface $target_file): static
     {
         $this->target_file = $target_file;
-
         return $this;
     }
 }

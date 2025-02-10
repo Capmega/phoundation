@@ -47,8 +47,7 @@ trait TraitDataUniqueColumn
      */
     public function setUniqueColumn(?string $unique_column): static
     {
-        $this->unique_column = $unique_column;
-
+        $this->unique_column = get_null($unique_column);
         return $this;
     }
 }

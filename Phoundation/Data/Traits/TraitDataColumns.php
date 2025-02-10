@@ -37,11 +37,7 @@ trait TraitDataColumns
      */
     public function getColumns(): ?array
     {
-        if (isset($this->columns)) {
-            return $this->columns;
-        }
-
-        return null;
+        return $this->columns;
     }
 
 

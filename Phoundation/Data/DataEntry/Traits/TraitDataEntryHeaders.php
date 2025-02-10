@@ -39,6 +39,6 @@ trait TraitDataEntryHeaders
      */
     public function setHeaders(?array $headers): static
     {
-        return $this->set($headers, 'headers');
+        return $this->set(get_null($headers), 'headers');
     }
 }

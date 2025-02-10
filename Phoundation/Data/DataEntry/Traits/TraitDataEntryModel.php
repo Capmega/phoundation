@@ -41,6 +41,6 @@ trait TraitDataEntryModel
      */
     public function setModel(Stringable|string|null $model): static
     {
-        return $this->set((string) $model, 'model');
+        return $this->set(get_null((string) $model), 'model');
     }
 }

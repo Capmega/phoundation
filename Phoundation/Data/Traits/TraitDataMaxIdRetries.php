@@ -50,12 +50,12 @@ trait TraitDataMaxIdRetries
     public function setMaxIdRetries(int $max_id_retries): static
     {
         if ($max_id_retries < 0) {
-            throw new OutOfBoundsException(tr('Specified value ":value" for max id retries is invalid, it must be a positive integer number', [
+            throw new OutOfBoundsException(tr('Specified value ":value" for max id retries is invalid, it must be zero or a positive integer number', [
                 ':value' => $max_id_retries,
             ]));
         }
-        $this->max_id_retries = $max_id_retries;
 
+        $this->max_id_retries = $max_id_retries;
         return $this;
     }
 }

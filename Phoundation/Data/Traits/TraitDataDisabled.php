@@ -72,7 +72,6 @@ trait TraitDataDisabled
     public function setDisabled(bool $disabled): static
     {
         $this->disabled = $disabled;
-
         return $this;
     }
 }

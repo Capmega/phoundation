@@ -58,7 +58,6 @@ trait TraitDataPort
         }
 
         $this->port = get_null($port);
-
         return $this;
     }
 }

@@ -52,7 +52,7 @@ trait TraitDataStopDateTime
      */
     public function setStopDateTime(\DateTime|DateTimeInterface|string|null $stop_datetime, DateTimeZone|string|null $timezone = null): static
     {
-        if ($stop_datetime === null) {
+        if (empty($stop_datetime)) {
             $this->stop_datetime = null;
 
         } else {

@@ -48,7 +48,6 @@ trait TraitDataDomain
     public function setDomain(?string $domain): static
     {
         $this->domain = get_null($domain);
-
         return $this;
     }
 }

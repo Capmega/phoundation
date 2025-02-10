@@ -238,7 +238,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      */
     public static function newDataProjectObject(bool $writable = false, ?string $sub_directory = null): static
     {
-        return new static(DIRECTORY_DATA . PROJECT . '/' . $sub_directory, $writable);
+        return new static(DIRECTORY_DATA . 'projects/' . PROJECT . '/' . $sub_directory, $writable);
     }
 
 
@@ -252,7 +252,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      */
     public static function newDataSourcesProjectObject(bool $writable = false, ?string $sub_directory = null): static
     {
-        return new static(DIRECTORY_DATA . 'sources/' . PROJECT . '/' . $sub_directory, $writable);
+        return new static(DIRECTORY_DATA . 'sources/' . strtolower(str_replace('_', '-', PROJECT)) . '/' . $sub_directory, $writable);
     }
 
 

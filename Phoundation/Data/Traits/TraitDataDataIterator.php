@@ -50,7 +50,6 @@ trait TraitDataDataIterator
     public function setDataIterator(DataIteratorInterface $data_iterator): static
     {
         $this->data_iterator = $data_iterator;
-
         return $this;
     }
 }

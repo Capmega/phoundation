@@ -50,7 +50,6 @@ trait TraitDataSourceFile
     public function setSourceFile(?PhoFileInterface $source_file): static
     {
         $this->source_file = $source_file;
-
         return $this;
     }
 }

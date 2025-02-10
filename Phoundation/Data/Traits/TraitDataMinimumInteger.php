@@ -16,12 +16,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Html\Components\P;
+
 
 trait TraitDataMinimumInteger
 {
+    use TraitDataMaximumInteger;
+
+
     /**
      * The minimum value for this object
      *
@@ -35,7 +37,7 @@ trait TraitDataMinimumInteger
      *
      * @return int|null
      */
-    public function getMinimum(): ?int
+    public function getMinimum(): int|null
     {
         return $this->minimum;
     }
@@ -48,7 +50,7 @@ trait TraitDataMinimumInteger
      *
      * @return static
      */
-    public function setMinimum(?int $minimum): static
+    public function setMinimum(int|null $minimum): static
     {
         if ($minimum > $this->maximum) {
             throw new OutOfBoundsException(tr('Specified minimum value ":minimum" is above the current maximum value ":maximum"', [
@@ -57,8 +59,7 @@ trait TraitDataMinimumInteger
             ]));
         }
 
-        $this->minimum = $minimum;
-
+        $this->minimum = get_null($minimum);
         return $this;
     }
 }

@@ -39,6 +39,6 @@ trait TraitDataEntryBody
      */
     public function setBody(?string $body): static
     {
-        return $this->set($body, 'body');
+        return $this->set(get_null($body), 'body');
     }
 }

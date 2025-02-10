@@ -39,7 +39,7 @@ trait TraitDataEntryDirectory
      * Sets the path for this object
      *
      * @param PhoDirectoryInterface|string|null $directory
-     *
+     * @param PhoRestrictionsInterface|null $restrictions
      * @return static
      */
     public function setDirectory(PhoDirectoryInterface|string|null $directory, ?PhoRestrictionsInterface $restrictions = null): static

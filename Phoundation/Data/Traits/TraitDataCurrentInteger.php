@@ -21,6 +21,10 @@ use Phoundation\Exception\OutOfBoundsException;
 
 trait TraitDataCurrentInteger
 {
+    use TraitDataMinimumInteger;
+    use TraitDataMaximumInteger;
+
+
     /**
      * The current value for this object
      *
@@ -65,8 +69,7 @@ trait TraitDataCurrentInteger
             ]));
         }
 
-        $this->current = $current;
-
+        $this->current = get_null($current);
         return $this;
     }
 }

@@ -47,8 +47,7 @@ trait TraitDataFormat
      */
     public function setFormat(string|null $format): static
     {
-        $this->format = $format;
-
+        $this->format = get_null($format);
         return $this;
     }
 }

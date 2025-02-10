@@ -47,8 +47,7 @@ trait TraitDataSleep
      */
     public function setSleep(?int $sleep): static
     {
-        $this->sleep = $sleep;
-
+        $this->sleep = get_null($sleep);
         return $this;
     }
 }

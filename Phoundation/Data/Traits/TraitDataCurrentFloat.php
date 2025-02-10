@@ -16,11 +16,15 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 use Phoundation\Exception\OutOfBoundsException;
+
 
 trait TraitDataCurrentFloat
 {
+    use TraitDataMinimumInteger;
+    use TraitDataMaximumInteger;
+
+
     /**
      * The current value for this object
      *
@@ -32,9 +36,9 @@ trait TraitDataCurrentFloat
     /**
      * Returns the current value
      *
-     * @return float|null
+     * @return float|int|null
      */
-    public function getCurrent(): ?float
+    public function getCurrent(): float|int|null
     {
         return $this->current;
     }
@@ -43,11 +47,11 @@ trait TraitDataCurrentFloat
     /**
      * Sets the current value
      *
-     * @param float|null $current
+     * @param float|int|null $current
      *
      * @return static
      */
-    public function setCurrent(?float $current): static
+    public function setCurrent(float|int|null $current): static
     {
         if ($current < $this->minimum) {
             throw new OutOfBoundsException(tr('Specified current value ":current" is below the current minimum value ":minimum"', [
@@ -65,8 +69,7 @@ trait TraitDataCurrentFloat
             ]));
         }
 
-        $this->current = $current;
-
+        $this->current = get_null($current);
         return $this;
     }
 }

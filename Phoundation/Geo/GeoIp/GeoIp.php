@@ -22,11 +22,12 @@ use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Geo\GeoIp\Exception\GeoIpException;
+use Phoundation\Geo\GeoIp\Interfaces\GeoIpInterface;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Throwable;
 
 
-class GeoIp
+class GeoIp implements GeoIpInterface
 {
     use TraitStaticMethodNew;
 

@@ -36,4 +36,17 @@ trait TraitDataArrayOutput
     {
         return $this->output;
     }
+
+
+    /**
+     * Sets the output
+     *
+     * @param array|null $output
+     * @return $this
+     */
+    protected function setOutput(?array $output): static
+    {
+        $this->output = get_null($output);
+        return $this;
+    }
 }

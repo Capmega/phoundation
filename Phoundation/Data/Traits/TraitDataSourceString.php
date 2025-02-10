@@ -22,17 +22,17 @@ trait TraitDataSourceString
     /**
      * Contains the source string for this object
      *
-     * @var string $source
+     * @var string|null $source
      */
-    protected string $source;
+    protected ?string $source;
 
 
     /**
      * Returns the source string
      *
-     * @return string
+     * @return string|null
      */
-    public function getSource(): string
+    public function getSource(): ?string
     {
         return $this->source;
     }
@@ -41,14 +41,13 @@ trait TraitDataSourceString
     /**
      * Sets the source string
      *
-     * @param string $source
+     * @param string|null $source
      *
      * @return static
      */
-    public function setSource(string $source): static
+    public function setSource(?string $source): static
     {
-        $this->source = $source;
-
+        $this->source = get_null($source);
         return $this;
     }
 }

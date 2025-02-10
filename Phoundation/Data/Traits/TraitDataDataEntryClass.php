@@ -47,8 +47,7 @@ trait TraitDataDataEntryClass
      */
     public function setDataEntryClass(?string $data_entry_class): static
     {
-        $this->data_entry_class = $data_entry_class;
-
+        $this->data_entry_class = get_null($data_entry_class);
         return $this;
     }
 }

@@ -48,7 +48,6 @@ trait TraitDataUser
     public function setUser(?string $user): static
     {
         $this->user = get_null($user);
-
         return $this;
     }
 }

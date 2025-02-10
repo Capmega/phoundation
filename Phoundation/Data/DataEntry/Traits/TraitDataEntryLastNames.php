@@ -39,6 +39,6 @@ trait TraitDataEntryLastNames
      */
     public function setLastNames(?string $last_names): static
     {
-        return $this->set($last_names, 'last_names');
+        return $this->set(get_null($last_names), 'last_names');
     }
 }

@@ -36,4 +36,17 @@ trait TraitDataStringId
     {
         return $this->id;
     }
+
+
+    /**
+     * Sets the string id for this object or null
+     *
+     * @param string|null $id
+     * @return TraitDataStringId
+     */
+    protected function setId(?string $id = null): static
+    {
+        $this->id = get_null($id);
+        return $this;
+    }
 }

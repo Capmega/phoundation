@@ -52,7 +52,7 @@ trait TraitDataEntryNameLowercase
      */
     public function setName(?string $name): static
     {
-        if ($name === null) {
+        if (empty($name)) {
             $this->set(null, 'seo_name', true);
 
         } else {
@@ -69,7 +69,7 @@ trait TraitDataEntryNameLowercase
             $this->set($seo_name, 'seo_name', true);
         }
 
-        return $this->set($name, 'name');
+        return $this->set(get_null($name), 'name');
     }
 
 
@@ -84,6 +84,6 @@ trait TraitDataEntryNameLowercase
      */
     protected function setSeoName(?string $seo_name): static
     {
-        return $this->set($seo_name, 'seo_name');
+        return $this->set(get_null($seo_name), 'seo_name');
     }
 }

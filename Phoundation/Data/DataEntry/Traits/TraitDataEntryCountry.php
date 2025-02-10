@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Trait DataEntryCountry
+ * Trait TraitDataEntryCountry
  *
- * This trait contains methods for DataEntry objects that require GEO country data
+ * This trait contains methods for DataEntry objects that require a country
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -23,88 +23,109 @@ use Phoundation\Geo\Countries\Interfaces\CountryInterface;
 trait TraitDataEntryCountry
 {
     /**
-     * Country object cache
+     * Setup virtual configuration for Countries
      *
-     * @var CountryInterface|null $o_country
+     * @return static
      */
-    protected ?CountryInterface $o_country;
+    protected function addVirtualConfigurationCountries(): static
+    {
+        return $this->addVirtualConfiguration('countries', Country::class, [
+            'id',
+            'code',
+            'name'
+        ]);
+    }
 
 
     /**
-     * Returns the countries_id for this object
+     * Returns the countries_id column
      *
      * @return int|null
      */
     public function getCountriesId(): ?int
     {
-        return $this->getTypesafe('int', 'countries_id');
+        return $this->getVirtualData('countries', 'int', 'id');
     }
 
 
     /**
-     * Sets the countries_id for this object
+     * Sets the countries_id column
      *
-     * @param int|null $countries_id
-     *
+     * @param int|null $id
      * @return static
      */
-    public function setCountriesId(?int $countries_id): static
+    public function setCountriesId(?int $id): static
     {
-        $this->o_country = null;
-        return $this->set($countries_id, 'countries_id');
+        return $this->setVirtualData('countries', $id, 'id');
     }
 
 
     /**
-     * Returns the country for this object
+     * Returns the countries_code column
      *
-     * @return CountryInterface|null
+     * @return string|null
      */
-    public function getCountryObject(): ?CountryInterface
+    public function getCountriesCode(): ?string
     {
-        if (empty($this->o_country)) {
-            $this->o_country = Country::new($this->getTypesafe('int', 'countries_id'))->loadOrNull();
-        }
-
-        return $this->o_country;
+        return $this->getVirtualData('countries', 'string', 'code');
     }
 
 
     /**
-     * Sets the country for this object
+     * Sets the countries_code column
      *
-     * @param CountryInterface|null $o_country
-     * @return TraitDataEntryCountry
+     * @param string|null $code
+     * @return static
      */
-    public function setCountryObject(?CountryInterface $o_country): static
+    public function setCountriesCode(?string $code): static
     {
-        $this->setCountriesId($o_country?->getId());
-
-        $this->o_country = $o_country;
-        return $this;
+        return $this->setVirtualData('countries', $code, 'code');
     }
 
 
     /**
-     * Returns the countries_name for this object
+     * Returns the countries_name column
      *
      * @return string|null
      */
     public function getCountriesName(): ?string
     {
-        return $this->getCountryObject()->getName();
+        return $this->getVirtualData('countries', 'string', 'name');
     }
 
 
     /**
-     * Returns the countries_name for this object
+     * Sets the countries_name column
      *
-     * @param string|null $countries_name
+     * @param string|null $name
+     * @return static
+     */
+    public function setCountriesName(?string $name): static
+    {
+        return $this->setVirtualData('countries', $name, 'name');
+    }
+
+
+    /**
+     * Returns the Country Object
+     *
+     * @return CountryInterface|null
+     */
+    public function getCountryObject(): ?CountryInterface
+    {
+        return $this->getVirtualObject('countries');
+    }
+
+
+    /**
+     * Returns the countries_id for this user
+     *
+     * @param CountryInterface|null $o_object
      *
      * @return static
      */
-    public function setCountriesName(?string $countries_name): static
+    public function setCountryObject(?CountryInterface $o_object): static
     {
-        return $this->setCountryObject(Country::new()->loadOrNull(['name' => $countries_name]));
+        return $this->setVirtualObject('countries', $o_object);
     }
 }

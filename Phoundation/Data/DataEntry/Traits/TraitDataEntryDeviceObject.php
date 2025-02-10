@@ -42,7 +42,7 @@ trait TraitDataEntryDeviceObject
      */
     public function setDevicesId(?int $devices_id): static
     {
-        return $this->set($devices_id, 'devices_id');
+        return $this->set(get_null($devices_id), 'devices_id');
     }
 
 
@@ -54,6 +54,7 @@ trait TraitDataEntryDeviceObject
     public function getDevice(): ?DeviceInterface
     {
         $devices_id = $this->getTypesafe('int', 'devices_id');
+
         if ($devices_id) {
             return Device::get($devices_id, 'id');
         }

@@ -19,6 +19,7 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryGeo;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryLongLat;
 use Phoundation\Geo\GeoIp\GeoIp;
+use Phoundation\Geo\GeoIp\Interfaces\GeoIpInterface;
 
 
 trait TraitDataGeoIp
@@ -26,28 +27,38 @@ trait TraitDataGeoIp
     use TraitDataEntryGeo;
     use TraitDataEntryLongLat;
 
+
     /**
      * A GeoIP object
      *
-     * @var GeoIp|null
+     * @var GeoIpInterface|null
      */
-    protected ?GeoIp $geo_ip = null;
+    protected ?GeoIpInterface $geo_ip = null;
+
+
+    /**
+     * Returns the GeoIP object
+     *
+     * @return GeoIpInterface|null
+     */
+    public function getGeoIpObject(): ?GeoIpInterface
+    {
+        return $this->geo_ip;
+    }
 
 
     /**
      * Set GeoIP data
      *
-     * @param GeoIp|null $geo_ip
+     * @param GeoIpInterface|null $geo_ip
      *
      * @return static
      */
-    public function setGeoIp(?GeoIp $geo_ip): static
+    public function setGeoIpObject(?GeoIpInterface $geo_ip): static
     {
-        $this->geo_ip = $geo_ip;
-        if ($geo_ip) {
-            $this->setLatitude($geo_ip->getCity()?->location->latitude);
-            $this->setLongitude($geo_ip->getCity()?->location->longitude);
-        }
+        $this->setLatitude($geo_ip?->getCity()?->location->latitude)
+            ->setLongitude($geo_ip?->getCity()?->location->longitude)
+            ->geo_ip = $geo_ip;
 
         return $this;
     }

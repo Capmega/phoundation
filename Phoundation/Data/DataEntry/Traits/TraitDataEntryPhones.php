@@ -41,6 +41,6 @@ trait TraitDataEntryPhones
      */
     public function setPhones(array|string|null $phones): static
     {
-        return $this->set(Strings::force($phones), 'phones');
+        return $this->set(get_null(Strings::force($phones)), 'phones');
     }
 }

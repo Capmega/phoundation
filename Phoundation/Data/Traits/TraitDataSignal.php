@@ -50,9 +50,7 @@ trait TraitDataSignal
      */
     public function setSignal(?EnumSignal $signal): static
     {
-        Signals::check($signal);
-
-        $this->signal = $signal;
+        $this->signal = Signals::check($signal);
         return $this;
     }
 }

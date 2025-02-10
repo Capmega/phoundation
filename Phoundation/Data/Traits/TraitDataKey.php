@@ -47,8 +47,7 @@ trait TraitDataKey
      */
     public function setKey(?string $key): static
     {
-        $this->key = $key;
-
+        $this->key = get_null($key);
         return $this;
     }
 }

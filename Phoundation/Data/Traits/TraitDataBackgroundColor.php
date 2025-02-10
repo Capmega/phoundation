@@ -5,6 +5,7 @@
  *
  *
  *
+ * @todo Implement CSS color ENUM and swap the string for that ENUM
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://openbackground_color.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>

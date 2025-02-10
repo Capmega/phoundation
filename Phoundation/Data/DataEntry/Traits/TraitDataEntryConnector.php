@@ -44,10 +44,10 @@ trait TraitDataEntryConnector
     public function setConnector(?string $connector, ?string $database = null): static
     {
         if ($database) {
-            return $this->set($connector, 'connector')
-                        ->set($database , 'database');
+            return $this->set(get_null($connector), 'connector')
+                        ->set(get_null($database) , 'database');
         }
 
-        return $this->set($connector, 'connector');
+        return $this->set(get_null($connector), 'connector');
     }
 }

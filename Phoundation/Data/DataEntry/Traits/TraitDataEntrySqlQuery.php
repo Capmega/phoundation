@@ -48,6 +48,6 @@ trait TraitDataEntrySqlQuery
      */
     public function setSqlQuery(SqlQueryInterface|string|null $sql_query): static
     {
-        return $this->set('sql_query', SqlQuery::new($sql_query)->getQuery());
+        return $this->set('sql_query', get_null(SqlQuery::new($sql_query)->getQuery()));
     }
 }

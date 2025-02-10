@@ -41,6 +41,6 @@ trait TraitDataEntryUnits
      */
     public function setUnits(Stringable|string|null $units): static
     {
-        return $this->set((string) $units, 'units');
+        return $this->set(get_null((string) $units), 'units');
     }
 }

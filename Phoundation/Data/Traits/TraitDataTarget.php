@@ -47,8 +47,7 @@ trait TraitDataTarget
      */
     public function setTarget(?string $target): static
     {
-        $this->target = $target;
-
+        $this->target = get_null($target);
         return $this;
     }
 }

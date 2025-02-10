@@ -24,7 +24,7 @@ use Phoundation\Data\Traits\TraitDataFile;
 use Phoundation\Data\Traits\TraitDataHost;
 use Phoundation\Data\Traits\TraitDataPort;
 use Phoundation\Data\Traits\TraitDataTimeout;
-use Phoundation\Data\Traits\TraitDataUserPass;
+use Phoundation\Data\Traits\TraitDataUserPassword;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -41,7 +41,7 @@ class Import
     use TraitDataDriver;
     use TraitDataPort;
     use TraitDataHost;
-    use TraitDataUserPass;
+    use TraitDataUserPassword;
     use TraitDataDebug;
     use TraitDataFile;
     use TraitDataConnector {

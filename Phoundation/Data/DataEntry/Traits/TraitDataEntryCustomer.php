@@ -23,88 +23,109 @@ use Phoundation\Business\Customers\Interfaces\CustomerInterface;
 trait TraitDataEntryCustomer
 {
     /**
-     * Customer object cache
+     * Setup virtual configuration for Customers
      *
-     * @var CustomerInterface|null $o_customer
+     * @return static
      */
-    protected ?CustomerInterface $o_customer;
+    protected function addVirtualConfigurationCustomers(): static
+    {
+        return $this->addVirtualConfiguration('customers', Customer::class, [
+            'id',
+            'code',
+            'name'
+        ]);
+    }
 
 
     /**
-     * Returns the customers_id for this object
+     * Returns the customers_id column
      *
      * @return int|null
      */
     public function getCustomersId(): ?int
     {
-        return $this->getTypesafe('int', 'customers_id');
+        return $this->getVirtualData('customers', 'int', 'id');
     }
 
 
     /**
-     * Sets the customers_id for this object
+     * Sets the customers_id column
      *
-     * @param int|null $customers_id
-     *
+     * @param int|null $id
      * @return static
      */
-    public function setCustomersId(?int $customers_id): static
+    public function setCustomersId(?int $id): static
     {
-        $this->o_customer = null;
-        return $this->set($customers_id, 'customers_id');
+        return $this->setVirtualData('customers', $id, 'id');
     }
 
 
     /**
-     * Returns the customer for this object
+     * Returns the customers_code column
      *
-     * @return CustomerInterface|null
+     * @return string|null
      */
-    public function getCustomerObject(): ?CustomerInterface
+    public function getCustomersCode(): ?string
     {
-        if (empty($this->o_customer)) {
-            $this->o_customer = Customer::new($this->getTypesafe('int', 'customers_id'))->loadOrNull();
-        }
-
-        return $this->o_customer;
+        return $this->getVirtualData('customers', 'string', 'code');
     }
 
 
     /**
-     * Sets the customer for this object
+     * Sets the customers_code column
      *
-     * @param CustomerInterface|null $o_customer
+     * @param string|null $code
      * @return static
      */
-    public function setCustomerObject(?CustomerInterface $o_customer): static
+    public function setCustomersCode(?string $code): static
     {
-        $this->setCustomersId($o_customer?->getId());
-
-        $this->o_customer = $o_customer;
-        return $this;
+        return $this->setVirtualData('customers', $code, 'code');
     }
 
 
     /**
-     * Returns the customers_name for this object
+     * Returns the customers_name column
      *
      * @return string|null
      */
     public function getCustomersName(): ?string
     {
-        return $this->getCustomerObject()->getName();
+        return $this->getVirtualData('customers', 'string', 'name');
     }
 
 
     /**
-     * Returns the customers_name for this object
+     * Sets the customers_name column
      *
-     * @param string|null $customers_name
+     * @param string|null $name
+     * @return static
+     */
+    public function setCustomersName(?string $name): static
+    {
+        return $this->setVirtualData('customers', $name, 'name');
+    }
+
+
+    /**
+     * Returns the Customer Object
+     *
+     * @return CustomerInterface|null
+     */
+    public function getCustomerObject(): ?CustomerInterface
+    {
+        return $this->getVirtualObject('customers');
+    }
+
+
+    /**
+     * Returns the customers_id for this user
+     *
+     * @param CustomerInterface|null $o_object
      *
      * @return static
      */
-    public function setCustomersName(?string $customers_name): static
+    public function setCustomerObject(?CustomerInterface $o_object): static
     {
-        return $this->setCustomerObject(Customer::new()->loadOrNull(['name' => $customers_name]));
+        return $this->setVirtualObject('customers', $o_object);
     }
 }

@@ -16,11 +16,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 use Phoundation\Exception\OutOfBoundsException;
 
 trait TraitDataMaximumInteger
 {
+    use TraitDataMinimumInteger;
+
+
     /**
      * The maximum value for this object
      *
@@ -32,9 +34,9 @@ trait TraitDataMaximumInteger
     /**
      * Returns the maximum value
      *
-     * @return int|null
+     * @return float|int|null
      */
-    public function getMaximum(): ?int
+    public function getMaximum(): float|int|null
     {
         return $this->maximum;
     }
@@ -43,11 +45,11 @@ trait TraitDataMaximumInteger
     /**
      * Sets the maximum value
      *
-     * @param int|null $maximum
+     * @param float|int|null $maximum
      *
      * @return static
      */
-    public function setMaximum(?int $maximum): static
+    public function setMaximum(float|int|null $maximum): static
     {
         if ($maximum < $this->minimum) {
             throw new OutOfBoundsException(tr('Specified maximum value ":maximum" is above the current maximum value ":minimum"', [
@@ -57,8 +59,7 @@ trait TraitDataMaximumInteger
             ]));
         }
 
-        $this->maximum = $maximum;
-
+        $this->maximum = get_null($maximum);
         return $this;
     }
 }

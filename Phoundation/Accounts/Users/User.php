@@ -2565,9 +2565,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         $this->readonly     = true;
         $this->meta_enabled = false;
 
-        $this->roles  = Roles::new()->load(['name' => 'god']);
-        $this->rights = Rights::new()->load(['name' => 'god']);
-
+        $this->roles  = RolesBySeoName::new()->load(['name' => 'god']);
+        $this->rights = RightsBySeoName::new()->load(['name' => 'god']);
     }
 
 

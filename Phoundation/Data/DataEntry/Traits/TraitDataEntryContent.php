@@ -42,6 +42,6 @@ trait TraitDataEntryContent
      */
     public function setContent(Stringable|string|float|int|null $content): static
     {
-        return $this->set((string) $content, 'content');
+        return $this->set(get_null((string) $content), 'content');
     }
 }

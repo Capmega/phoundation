@@ -47,8 +47,7 @@ trait TraitDataMimetype
      */
     public function setMimetype(string|null $mimetype): static
     {
-        $this->mimetype = get_null((string) $mimetype);
-
+        $this->mimetype = get_null($mimetype);
         return $this;
     }
 }

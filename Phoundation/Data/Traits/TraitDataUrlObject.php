@@ -55,7 +55,6 @@ trait TraitDataUrlObject
         }
 
         $this->o_url = get_null($o_url);
-
         return $this;
     }
 }

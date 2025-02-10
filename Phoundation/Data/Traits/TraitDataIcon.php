@@ -49,8 +49,7 @@ trait TraitDataIcon
      */
     public function setIcon(?IconInterface $icon): static
     {
-        $this->icon = $icon;
-
+        $this->icon = get_null($icon);
         return $this;
     }
 }

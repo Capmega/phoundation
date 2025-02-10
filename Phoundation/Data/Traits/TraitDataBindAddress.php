@@ -47,8 +47,7 @@ trait TraitDataBindAddress
      */
     public function setBindAddress(?string $bind_address): static
     {
-        $this->bind_address = $bind_address;
-
+        $this->bind_address = get_null($bind_address);
         return $this;
     }
 }

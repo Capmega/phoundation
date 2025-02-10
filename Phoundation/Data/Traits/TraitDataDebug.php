@@ -48,7 +48,6 @@ trait TraitDataDebug
     public function setDebug(bool $debug): static
     {
         $this->debug = $debug;
-
         return $this;
     }
 }

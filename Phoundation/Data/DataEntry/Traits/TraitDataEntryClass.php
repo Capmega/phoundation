@@ -39,6 +39,6 @@ trait TraitDataEntryClass
      */
     public function setClass(?string $class): static
     {
-        return $this->set($class, 'class');
+        return $this->set(get_null($class), 'class');
     }
 }

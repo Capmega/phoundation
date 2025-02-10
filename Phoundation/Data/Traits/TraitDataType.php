@@ -48,7 +48,6 @@ trait TraitDataType
     public function setType(?string $type): static
     {
         $this->type = get_null($type);
-
         return $this;
     }
 }

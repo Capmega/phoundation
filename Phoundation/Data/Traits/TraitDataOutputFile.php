@@ -50,7 +50,6 @@ trait TraitDataOutputFile
     public function setOutputFile(?PhoFileInterface $output_file): static
     {
         $this->output_file = $output_file;
-
         return $this;
     }
 }

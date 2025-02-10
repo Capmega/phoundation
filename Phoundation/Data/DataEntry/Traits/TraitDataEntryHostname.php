@@ -72,9 +72,9 @@ trait TraitDataEntryHostname
      * @param string|null $seo_hostname
      * @return static
      */
-    public function setSeoHostname(?string $seo_hostname): static
+    protected function setSeoHostname(?string $seo_hostname): static
     {
-        return $this->set($seo_hostname, 'seo_hostname');
+        return $this->set(get_null($seo_hostname), 'seo_hostname');
     }
 
 
@@ -84,7 +84,7 @@ trait TraitDataEntryHostname
      * @param string|null $hostname
      * @return static
      */
-    public function setSeoHostnameFromHostname(?string $hostname): static
+    protected function setSeoHostnameFromHostname(?string $hostname): static
     {
         // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
         // the entry if it does!
@@ -141,6 +141,6 @@ trait TraitDataEntryHostname
             $this->setSeoHostnameFromHostname($hostname);
         }
 
-        return $this->set($hostname, 'hostname');
+        return $this->set(get_null($hostname), 'hostname');
     }
 }

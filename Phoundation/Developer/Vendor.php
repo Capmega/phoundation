@@ -46,8 +46,8 @@ class Vendor implements VendorInterface
     public function __construct(PhoDirectoryInterface $directory, EnumRepositoryType $type)
     {
         $this->type      = $type;
-        $this->directory = $directory;
-        $this->name      = $this->directory->getBasename();
+        $this->o_directory = $directory;
+        $this->name      = $this->o_directory->getBasename();
     }
 
 
@@ -69,7 +69,7 @@ class Vendor implements VendorInterface
      */
     public function getFiles(): PhoFilesInterface
     {
-        return $this->directory->find()
+        return $this->o_directory->find()
                                ->setType('f')
                                ->getFiles();
     }
@@ -82,6 +82,6 @@ class Vendor implements VendorInterface
      */
     public function getChangedFiles(): StatusFilesInterface
     {
-        return Git::new($this->directory)->getStatusFilesObject();
+        return Git::new($this->o_directory)->getStatusFilesObject();
     }
 }

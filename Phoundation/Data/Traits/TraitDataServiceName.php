@@ -51,12 +51,10 @@ trait TraitDataServiceName
     public function setServiceName(?string $service_name, bool $make_safe = true): static
     {
         if ($make_safe) {
-            $this->service_name = Html::safe($service_name);
-
-        } else {
-            $this->service_name = $service_name;
+            $service_name = Html::safe((string) $service_name);
         }
 
+        $this->service_name = get_null($service_name);
         return $this;
     }
 }

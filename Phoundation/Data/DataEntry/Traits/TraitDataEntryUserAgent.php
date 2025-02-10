@@ -39,6 +39,6 @@ trait TraitDataEntryUserAgent
      */
     public function setUserAgent(?string $user_agent): static
     {
-        return $this->set($user_agent, 'user_agent');
+        return $this->set(get_null($user_agent), 'user_agent');
     }
 }

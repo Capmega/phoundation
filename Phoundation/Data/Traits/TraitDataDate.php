@@ -54,8 +54,9 @@ trait TraitDataDate
     {
         if ($date instanceof PhoDateTime) {
             $this->date = new PhoDateTime($date->format('Y-m-d'), $timezone ?? $date->getTimezone());
+
         } else {
-            if ($date === null) {
+            if (empty($date)) {
                 $this->date = null;
 
             } else {

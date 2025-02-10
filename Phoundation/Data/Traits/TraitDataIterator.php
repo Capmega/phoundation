@@ -49,13 +49,7 @@ trait TraitDataIterator
      */
     public function setIterator(IteratorInterface|null $iterator = null): static
     {
-        if ($iterator) {
-            $this->iterator = $iterator;
-
-        } else {
-            $this->iterator = null;
-        }
-
+        $this->iterator = $iterator;
         return $this;
     }
 }

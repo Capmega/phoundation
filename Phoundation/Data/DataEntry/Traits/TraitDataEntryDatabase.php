@@ -39,6 +39,6 @@ trait TraitDataEntryDatabase
      */
     public function setDatabase(string|int|null $database): static
     {
-        return $this->set($database, 'database');
+        return $this->set(get_null($database), 'database');
     }
 }

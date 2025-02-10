@@ -53,7 +53,7 @@ trait TraitDataStartDateTime
      */
     public function setStartDateTime(\DateTime|DateTimeInterface|string|null $start_datetime, DateTimeZone|string|null $timezone = null): static
     {
-        if ($start_datetime === null) {
+        if (empty($start_datetime)) {
             $this->start_datetime = null;
 
         } else {

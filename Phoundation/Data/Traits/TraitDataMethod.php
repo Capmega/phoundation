@@ -47,8 +47,7 @@ trait TraitDataMethod
      */
     public function setMethod(string $method): static
     {
-        $this->method = $method;
-
+        $this->method = get_null($method);
         return $this;
     }
 }

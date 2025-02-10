@@ -50,7 +50,6 @@ trait TraitDataPath
     public function setPath(PhoPathInterface|null $path): static
     {
         $this->path = $path;
-
         return $this;
     }
 }

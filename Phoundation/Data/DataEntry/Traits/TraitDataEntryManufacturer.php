@@ -41,6 +41,6 @@ trait TraitDataEntryManufacturer
      */
     public function setManufacturer(Stringable|string|null $manufacturer): static
     {
-        return $this->set((string) $manufacturer, 'manufacturer');
+        return $this->set(get_null((string) $manufacturer), 'manufacturer');
     }
 }

@@ -47,8 +47,7 @@ trait TraitDataMetaColumns
      */
     public function setMetaColumns(?array $columns): static
     {
-        $this->meta_columns = $columns;
-
+        $this->meta_columns = get_null($columns);
         return $this;
     }
 }

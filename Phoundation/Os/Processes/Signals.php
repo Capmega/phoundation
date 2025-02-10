@@ -27,12 +27,12 @@ class Signals
      *
      * @param EnumSignal|int|null $signal
      *
-     * @return int|null
+     * @return EnumSignal|null
      */
-    public static function check(EnumSignal|int|null $signal): ?int
+    public static function check(EnumSignal|int|null $signal): ?EnumSignal
     {
         if ($signal instanceof EnumSignal) {
-            $signal = $signal->value;
+            return $signal;
         }
 
         if (!static::exists($signal)) {
@@ -41,7 +41,7 @@ class Signals
             ]));
         }
 
-        return $signal;
+        return EnumSignal::tryFrom($signal);
     }
 
 

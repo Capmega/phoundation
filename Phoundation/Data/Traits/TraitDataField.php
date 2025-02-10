@@ -47,8 +47,7 @@ trait TraitDataField
      */
     public function setColumn(?string $field): static
     {
-        $this->field = $field;
-
+        $this->field = get_null($field);
         return $this;
     }
 }

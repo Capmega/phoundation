@@ -39,6 +39,6 @@ trait TraitDataEntryColor
      */
     public function setColor(?string $color): static
     {
-        return $this->set($color, 'color');
+        return $this->set(get_null($color), 'color');
     }
 }

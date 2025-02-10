@@ -36,4 +36,17 @@ trait TraitDataIntId
     {
         return $this->id;
     }
+
+
+    /**
+     * Sets the integer ID for this object
+     *
+     * @param int|null $id
+     * @return $this
+     */
+    protected function setId(?int $id): static
+    {
+        $this->id = get_null($id);
+        return $this;
+    }
 }

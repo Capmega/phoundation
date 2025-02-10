@@ -46,7 +46,6 @@ trait TraitDataOverrideNonProductionLockout
     public function setOverrideNonProductionLockout(bool $override): static
     {
         $this->override_non_production_lockout = $override;
-
         return $this;
     }
 }
