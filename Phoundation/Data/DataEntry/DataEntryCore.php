@@ -1017,12 +1017,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         if (is_numeric($identifier)) {
             // NEVER initialize the ID column
-            return $this;
+            return $this->ready();
         }
 
         if (is_string($identifier)) {
             // Initialize only the unique column
-            return $this->set($identifier, static::getUniqueColumn());
+            return $this->set($identifier, static::getUniqueColumn())
+                        ->ready();
         }
 
         if (is_array($identifier)) {
@@ -1038,7 +1039,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             return $this->initialize($identifier->getSource());
         }
 
-        return $this;
+        return $this->ready();
     }
 
 
@@ -1183,7 +1184,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
             if ($this->loadFromCache()) {
                 // We found this DataEntry in cache, we're done!
-                return $this;
+                return $this->ready();
             }
 
             // Load data from database
@@ -3558,18 +3559,18 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function saveBecauseModified(bool $force): bool
     {
-        $this->checkReadonly('save');
-
-        if (!$this->is_modified and !$force) {
-            // Nothing changed, no reason to save
-            if ($this->debug) {
-                Log::debug('NOT SAVING IN DB, NOTHING CHANGED FOR "' . get_class($this) . '" ID "' . $this->getLogId() . '"', 10, echo_header: false);
-            }
-
-            return false;
+        if ($this->isNew() or $this->is_modified or $force) {
+            // We're going to save, but check if system is not in readonly mode
+            $this->checkReadonly('save');
+            return true;
         }
 
-        return true;
+        // Not new, nothing changed, no forcing, so there is no reason to save
+        if ($this->debug) {
+            Log::debug('NOT SAVING IN DB, NOTHING CHANGED FOR "' . get_class($this) . '" ID "' . $this->getLogId() . '"', 10, echo_header: false);
+        }
+
+        return false;
     }
 
 

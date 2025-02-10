@@ -793,7 +793,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
             }
         }
 
-        $key = $this->prepareValue($value, $key, $skip_null_values);
+        $key = $this->prepareKey($value, $key);
 
         return parent::append($value, $key, $skip_null_values, $exception);
     }
@@ -820,7 +820,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
             }
         }
 
-        $key = $this->prepareValue($value, $key, $skip_null_values);
+        $key = $this->prepareKey($value, $key);
 
         return parent::prepend($value, $key, $skip_null_values, $exception);
     }
@@ -831,40 +831,40 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      *
      * @param mixed                            $value
      * @param Stringable|string|float|int|null $key
-     * @param bool                             $skip_null_values
      *
      * @return string|int
      */
-    protected function prepareValue(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true): string|int
+    protected function prepareKey(mixed $value, Stringable|string|float|int|null $key = null): string|int
     {
         // If the value is a DataEntry object, make sure its saved
         if ($value instanceof DataEntryInterface) {
-            if ($value->isModified()) {
-                $value->save();
-            }
+            // If this DataEntry object is NOT modified, DataEntry::save() will automatically not save, this is ok
+            $value->save();
 
         } else {
             // Value might be NULL if we skip NULLs?
-            if (($value !== null) or !$skip_null_values) {
-                if (is_data_scalar($value)) {
-                    // Try to load the specified value from the database, assuming $value is the unique identifier
-                    try {
-                        $value = static::getDefaultContentDataType()::new()->load($value);
+            if (is_data_scalar($value)) {
+                // Try to load the specified value from the database, assuming $value is the unique identifier
+                try {
+                    $value = static::getDefaultContentDataType()::new()->load($value);
 
-                    } catch (DataEntryNotExistsException) {
-                        throw new OutOfBoundsException(tr('Cannot add specified value ":value" it must be an instance of DataEntryInterface or a unique identifier value for the class ":class"', [
-                            ':value' => $value,
-                            ':class' => static::getDefaultContentDataType()
-                        ]));
-                    }
-
-                    // Now we have a DataEntryInterface type value, we can continue, yay!
-
-                } else {
-                    throw new OutOfBoundsException(tr('Cannot add specified value ":value" it must be an instance of DataEntryInterface', [
+                } catch (DataEntryNotExistsException $e) {
+                    throw new DataEntryNotExistsException(tr('Cannot add specified value ":value" it must be an instance of DataEntryInterface or a unique identifier value for the class ":class"', [
                         ':value' => $value,
-                    ]));
+                        ':class' => static::getDefaultContentDataType()
+                    ]), $e);
                 }
+
+                // Now we have a DataEntryInterface type value, we can continue, yay!
+
+            } else {
+                if ($value === null) {
+                    return $key;
+                }
+
+                throw new OutOfBoundsException(tr('Cannot add specified value ":value" it must be an instance of DataEntryInterface', [
+                    ':value' => $value,
+                ]));
             }
         }
 
@@ -898,7 +898,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
 
         } else {
             if ($key) {
-                if (!$value->isNew() and ($key != $value->getId())) {
+                if ($key != $value->getId()) {
                     // Key must either not be specified or match the id of the DataEntry
                     throw new OutOfBoundsException(tr('Cannot add ":class" class DataEntry with id ":id", the specified key ":key" must either match the id or be null', [
                         ':class' => $value::class,
@@ -908,8 +908,8 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
                 }
 
                 // Either the specified DataEntry object is new or the id matches the specified key, we're good to go
-
             } else {
+                // Key was not specified, use the ID from the DataEntry object as key
                 $key = $value->getId();
             }
         }
