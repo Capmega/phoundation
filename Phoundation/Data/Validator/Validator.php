@@ -4588,4 +4588,41 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         $this->reflection_selected_optional = new ReflectionProperty($this, 'selected_optional');
         $this->reflection_process_value     = new ReflectionProperty($this, 'process_value');
     }
+
+
+    /**
+     * Forces all empty strings ('') to be converted to null.
+     * If the recursive parameter is true, sub-arrays will have their empty string values set to null as well.
+     *
+     * @param bool $recursive
+     *
+     * @return $this
+     */
+    public function forceEmptyStringsToNull(bool $recursive = true): static
+    {
+        return $this->replaceEmptyStringsToNull($this->source, $recursive);
+    }
+
+
+    /**
+     * Replaces all instances of empty strings ('') with null
+     *
+     * @param array $source
+     * @param bool  $recursive
+     *
+     * @return $this
+     */
+    protected function replaceEmptyStringsToNull(array &$source, bool $recursive): static
+    {
+        foreach ($source as &$value) {
+            if (is_array($value) and $recursive) {
+                $this->replaceEmptyStringsToNull($value, true);
+
+            } elseif ($value === '') {
+                $value = null;
+            }
+        }
+
+        return $this;
+    }
 }
