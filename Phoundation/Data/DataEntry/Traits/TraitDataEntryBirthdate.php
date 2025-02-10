@@ -46,6 +46,6 @@ trait TraitDataEntryBirthdate
             $birthdate->format('Y-m-d');
         }
 
-        return $this->set($birthdate, 'birthdate');
+        return $this->set(get_null($birthdate), 'birthdate');
     }
 }

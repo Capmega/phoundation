@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Trait DataEntryCounty
+ * Trait TraitDataEntryCounty
  *
- * This trait contains methods for DataEntry objects that require GEO county data
+ * This trait contains methods for DataEntry objects that require a county
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -23,88 +23,109 @@ use Phoundation\Geo\Counties\Interfaces\CountyInterface;
 trait TraitDataEntryCounty
 {
     /**
-     * County object cache
+     * Setup virtual configuration for Counties
      *
-     * @var CountyInterface|null $o_county
+     * @return static
      */
-    protected ?CountyInterface $o_county;
+    protected function addVirtualConfigurationCounties(): static
+    {
+        return $this->addVirtualConfiguration('counties', County::class, [
+            'id',
+            'code',
+            'name'
+        ]);
+    }
 
 
     /**
-     * Returns the counties_id for this object
+     * Returns the counties_id column
      *
      * @return int|null
      */
     public function getCountiesId(): ?int
     {
-        return $this->getTypesafe('int', 'counties_id');
+        return $this->getVirtualData('counties', 'int', 'id');
     }
 
 
     /**
-     * Sets the counties_id for this object
+     * Sets the counties_id column
      *
-     * @param int|null $counties_id
-     *
+     * @param int|null $id
      * @return static
      */
-    public function setCountiesId(?int $counties_id): static
+    public function setCountiesId(?int $id): static
     {
-        $this->o_county = null;
-        return $this->set($counties_id, 'counties_id');
+        return $this->setVirtualData('counties', $id, 'id');
     }
 
 
     /**
-     * Returns the county for this object
+     * Returns the counties_code column
      *
-     * @return CountyInterface|null
+     * @return string|null
      */
-    public function getCountyObject(): ?CountyInterface
+    public function getCountiesCode(): ?string
     {
-        if (empty($this->o_county)) {
-            $this->o_county = County::new($this->getTypesafe('int', 'counties_id'))->loadOrNull();
-        }
-
-        return $this->o_county;
+        return $this->getVirtualData('counties', 'string', 'code');
     }
 
 
     /**
-     * Sets the county for this object
+     * Sets the counties_code column
      *
-     * @param CountyInterface|null $o_county
-     * @return TraitDataEntryCounty
+     * @param string|null $code
+     * @return static
      */
-    public function setCountyObject(?CountyInterface $o_county): static
+    public function setCountiesCode(?string $code): static
     {
-        $this->setCountiesId($o_county?->getId());
-
-        $this->o_county = $o_county;
-        return $this;
+        return $this->setVirtualData('counties', $code, 'code');
     }
 
 
     /**
-     * Returns the counties_name for this object
+     * Returns the counties_name column
      *
      * @return string|null
      */
     public function getCountiesName(): ?string
     {
-        return $this->getCountyObject()->getName();
+        return $this->getVirtualData('counties', 'string', 'name');
     }
 
 
     /**
-     * Returns the counties_name for this object
+     * Sets the counties_name column
      *
-     * @param string|null $counties_name
+     * @param string|null $name
+     * @return static
+     */
+    public function setCountiesName(?string $name): static
+    {
+        return $this->setVirtualData('counties', $name, 'name');
+    }
+
+
+    /**
+     * Returns the County Object
+     *
+     * @return CountyInterface|null
+     */
+    public function getCountyObject(): ?CountyInterface
+    {
+        return $this->getVirtualObject('counties');
+    }
+
+
+    /**
+     * Returns the counties_id for this user
+     *
+     * @param CountyInterface|null $o_object
      *
      * @return static
      */
-    public function setCountiesName(?string $counties_name): static
+    public function setCountyObject(?CountyInterface $o_object): static
     {
-        return $this->setCountyObject(County::new()->loadOrNull(['name' => $counties_name]));
+        return $this->setVirtualObject('counties', $o_object);
     }
 }

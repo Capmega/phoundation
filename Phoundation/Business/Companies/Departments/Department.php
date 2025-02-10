@@ -17,12 +17,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Business\Companies\Departments;
 
+use Phoundation\Business\Companies\Departments\Interfaces\DepartmentInterface;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 
 
-class Department extends DataEntry
+class Department extends DataEntry implements DepartmentInterface
 {
     use TraitDataEntryNameDescription;
 

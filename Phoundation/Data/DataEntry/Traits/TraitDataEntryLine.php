@@ -42,7 +42,7 @@ trait TraitDataEntryLine
     public function setLine(?int $line): static
     {
         if ($line < 0) {
-            throw new OutOfBoundsException(tr('Specified line ":line" is invalid, it should be 1 or more', [
+            throw new OutOfBoundsException(tr('Specified line ":line" is invalid, it should be NULL, 0 or more', [
                 ':line' => $line,
             ]));
         }

@@ -16,95 +16,116 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
+use Phoundation\Core\Locale\Language\Interfaces\LanguageInterface;
 use Phoundation\Core\Locale\Language\Language;
 
 
 trait TraitDataEntryLanguage
 {
     /**
-     * Returns the languages_id for this object
+     * Setup virtual configuration for Languages
+     *
+     * @return static
+     */
+    protected function addVirtualConfigurationLanguages(): static
+    {
+        return $this->addVirtualConfiguration('languages', Language::class, [
+            'id',
+            'code',
+            'name'
+        ]);
+    }
+
+
+    /**
+     * Returns the languages_id column
      *
      * @return int|null
      */
     public function getLanguagesId(): ?int
     {
-        return $this->getTypesafe('int', 'languages_id');
+        return $this->getVirtualData('languages', 'int', 'id');
     }
 
 
     /**
-     * Sets the languages_id for this object
+     * Sets the languages_id column
      *
-     * @param int|null $languages_id
-     *
+     * @param int|null $id
      * @return static
      */
-    public function setLanguagesId(?int $languages_id): static
+    public function setLanguagesId(?int $id): static
     {
-        return $this->set($languages_id, 'languages_id');
+        return $this->setVirtualData('languages', $id, 'id');
+    }
+
+
+    /**
+     * Returns the languages_code column
+     *
+     * @return string|null
+     */
+    public function getLanguagesCode(): ?string
+    {
+        return $this->getVirtualData('languages', 'string', 'code');
+    }
+
+
+    /**
+     * Sets the languages_code column
+     *
+     * @param string|null $code
+     * @return static
+     */
+    public function setLanguagesCode(?string $code): static
+    {
+        return $this->setVirtualData('languages', $code, 'code');
+    }
+
+
+    /**
+     * Returns the languages_name column
+     *
+     * @return string|null
+     */
+    public function getLanguagesName(): ?string
+    {
+        return $this->getVirtualData('languages', 'string', 'name');
+    }
+
+
+    /**
+     * Sets the languages_name column
+     *
+     * @param string|null $name
+     * @return static
+     */
+    public function setLanguagesName(?string $name): static
+    {
+        return $this->setVirtualData('languages', $name, 'name');
+    }
+
+
+    /**
+     * Returns the Language Object
+     *
+     * @return LanguageInterface|null
+     */
+    public function getLanguageObject(): ?LanguageInterface
+    {
+        return $this->getVirtualObject('languages');
     }
 
 
     /**
      * Returns the languages_id for this user
      *
-     * @return Language|null
-     */
-    public function getLanguage(): ?Language
-    {
-        $languages_id = $this->getTypesafe('int', 'languages_id');
-        if ($languages_id) {
-            return new Language($languages_id);
-        }
-
-        return null;
-    }
-
-
-    /**
-     * Returns the languages_name for this user
-     *
-     * @return string|null
-     */
-    public function getLanguagesName(): ?string
-    {
-        return $this->getTypesafe('string', 'languages_name');
-    }
-
-
-    /**
-     * Sets the languages_name for this user
-     *
-     * @param string|null $languages_name
+     * @param LanguageInterface|null $o_object
      *
      * @return static
      */
-    public function setLanguagesName(?string $languages_name): static
+    public function setLanguageObject(?LanguageInterface $o_object): static
     {
-        return $this->set($languages_name, 'languages_name');
-    }
-
-
-    /**
-     * Returns the languages_code for this user
-     *
-     * @return string|null
-     */
-    public function getLanguagesCode(): ?string
-    {
-        return $this->getTypesafe('string', 'languages_code');
-    }
-
-
-    /**
-     * Sets the languages_code for this user
-     *
-     * @param string|null $languages_code
-     *
-     * @return static
-     */
-    public function setLanguagesCode(?string $languages_code): static
-    {
-        return $this->set($languages_code, 'languages_code');
+        return $this->setVirtualObject('languages', $o_object);
     }
 }

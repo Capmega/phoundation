@@ -88,7 +88,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                         <ul class="list-inline">
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -97,7 +97,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -106,7 +106,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -115,7 +115,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -172,7 +172,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                         <ul class="list-inline">
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -181,7 +181,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -238,7 +238,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                         <ul class="list-inline">
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -247,7 +247,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -256,7 +256,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -313,7 +313,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                         <ul class="list-inline">
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -322,7 +322,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -331,7 +331,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -340,7 +340,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -397,7 +397,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                         <ul class="list-inline">
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -406,7 +406,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -415,7 +415,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -472,7 +472,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                         <ul class="list-inline">
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -481,7 +481,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -490,7 +490,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -499,7 +499,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -556,7 +556,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                         <ul class="list-inline">
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -565,7 +565,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -622,7 +622,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                         <ul class="list-inline">
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -631,7 +631,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -640,7 +640,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -697,7 +697,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                         <ul class="list-inline">
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -706,7 +706,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -715,7 +715,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
@@ -724,7 +724,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                             </li>
                             <li class="list-inline-item">
                                 <?= Session::getUserObject()
-                                           ->getImageFileObject()
+                                           ->getProfilePictureFileFileObject()
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')

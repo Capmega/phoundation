@@ -39,6 +39,6 @@ trait TraitDataEntryPlatform
      */
     public function setPlatform(?string $platform): static
     {
-        return $this->set($platform, 'platform');
+        return $this->set(get_null($platform), 'platform');
     }
 }

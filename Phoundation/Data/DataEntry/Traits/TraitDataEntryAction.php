@@ -39,6 +39,6 @@ trait TraitDataEntryAction
      */
     public function setAction(?string $action): static
     {
-        return $this->set($action, 'action');
+        return $this->set(get_null($action), 'action');
     }
 }

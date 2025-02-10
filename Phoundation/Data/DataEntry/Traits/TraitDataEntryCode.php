@@ -54,6 +54,6 @@ trait TraitDataEntryCode
      */
     public function setCode(string|int|null $code): static
     {
-        return $this->set($code, 'code');
+        return $this->set(get_null($code), 'code');
     }
 }

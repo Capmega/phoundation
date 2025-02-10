@@ -16,95 +16,117 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntry\Traits;
 
+
+
 use Phoundation\Data\Categories\Category;
 use Phoundation\Data\Categories\Interfaces\CategoryInterface;
-
 
 trait TraitDataEntryCategory
 {
     /**
-     * Category object cache
+     * Setup virtual configuration for Categories
      *
-     * @var CategoryInterface|null $o_category
+     * @return static
      */
-    protected ?CategoryInterface $o_category;
+    protected function addVirtualConfigurationCategories(): static
+    {
+        return $this->addVirtualConfiguration('categories', Category::class, [
+            'id',
+            'code',
+            'name'
+        ]);
+    }
 
 
     /**
-     * Returns the categories_id for this object
+     * Returns the categories_id column
      *
      * @return int|null
      */
     public function getCategoriesId(): ?int
     {
-        return $this->getTypesafe('int', 'categories_id');
+        return $this->getVirtualData('categories', 'int', 'id');
     }
 
 
     /**
-     * Sets the categories_id for this object
+     * Sets the categories_id column
      *
-     * @param int|null $categories_id
-     *
+     * @param int|null $id
      * @return static
      */
-    public function setCategoriesId(?int $categories_id): static
+    public function setCategoriesId(?int $id): static
     {
-        $this->o_category = null;
-        return $this->set($categories_id, 'categories_id');
+        return $this->setVirtualData('categories', $id, 'id');
     }
 
 
     /**
-     * Returns the category for this object
+     * Returns the categories_code column
      *
-     * @return CategoryInterface|null
+     * @return string|null
      */
-    public function getCategoryObject(): ?CategoryInterface
+    public function getCategoriesCode(): ?string
     {
-        if (empty($this->o_category)) {
-            $this->o_category = Category::new($this->getTypesafe('int', 'categories_id'))->loadOrNull();
-        }
-
-        return $this->o_category;
+        return $this->getVirtualData('categories', 'string', 'code');
     }
 
 
     /**
-     * Sets the category for this object
+     * Sets the categories_code column
      *
-     * @param CategoryInterface|null $o_category
-     * @return TraitDataEntryCategory
+     * @param string|null $code
+     * @return static
      */
-    public function setCategoryObject(?CategoryInterface $o_category): static
+    public function setCategoriesCode(?string $code): static
     {
-        $this->setCategoriesId($o_category?->getId());
-
-        $this->o_category = $o_category;
-        return $this;
+        return $this->setVirtualData('categories', $code, 'code');
     }
 
 
     /**
-     * Returns the categories_name for this object
+     * Returns the categories_name column
      *
      * @return string|null
      */
     public function getCategoriesName(): ?string
     {
-        return $this->getCategoryObject()->getName();
+        return $this->getVirtualData('categories', 'string', 'name');
     }
 
 
     /**
-     * Returns the categories_name for this object
+     * Sets the categories_name column
      *
-     * @param string|null $categories_name
+     * @param string|null $name
+     * @return static
+     */
+    public function setCategoriesName(?string $name): static
+    {
+        return $this->setVirtualData('categories', $name, 'name');
+    }
+
+
+    /**
+     * Returns the Category Object
+     *
+     * @return CategoryInterface|null
+     */
+    public function getCategoryObject(): ?CategoryInterface
+    {
+        return $this->getVirtualObject('categories');
+    }
+
+
+    /**
+     * Returns the categories_id for this user
+     *
+     * @param CategoryInterface|null $o_object
      *
      * @return static
      */
-    public function setCategoriesName(?string $categories_name): static
+    public function setCategoryObject(?CategoryInterface $o_object): static
     {
-        return $this->setCategoryObject(Category::new()->loadOrNull(['name' => $categories_name]));
+        return $this->setVirtualObject('categories', $o_object);
     }
 }

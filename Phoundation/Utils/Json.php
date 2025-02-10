@@ -131,7 +131,7 @@ class Json
      */
     public static function decode(?string $source, int $options = 0, int $depth = 512, bool $as_array = true): mixed
     {
-        if ($source === null) {
+        if (empty($source)) {
             return null;
         }
 

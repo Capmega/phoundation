@@ -89,13 +89,13 @@ trait TraitDataEntryDetails
         if (is_array($details) and $key === null) {
             foreach ($details as &$value) {
                 // Don't store ArrayableInterface or Stringable objects, get their sources instead
-                $value = $this->getSourceData($value);
+                $value = $this->getDetailsSource($value);
             }
 
             $current = array_replace($details, $current);
 
         } else {
-            $current[$key] = $this->getSourceData($details);
+            $current[$key] = $this->getDetailsSource($details);
         }
 
         return $this->setDetails($current);
@@ -109,7 +109,7 @@ trait TraitDataEntryDetails
      *
      * @return array|string|null
      */
-    protected function getSourceData(Stringable|ArrayableInterface|array|string|null $value): array|string|null
+    protected function getDetailsSource(Stringable|ArrayableInterface|array|string|null $value): array|string|null
     {
         if ($value instanceof ArrayableInterface) {
             return $value->__toArray();

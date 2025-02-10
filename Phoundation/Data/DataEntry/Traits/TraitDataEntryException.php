@@ -51,6 +51,6 @@ trait TraitDataEntryException
             $e = $e->exportToString();
         }
 
-        return $this->set($e, 'exception');
+        return $this->set(get_null($e), 'exception');
     }
 }

@@ -39,6 +39,6 @@ trait TraitDataEntrySourceString
      */
     public function setSourceString(?string $source): static
     {
-        return $this->set($source, 'source');
+        return $this->set(get_null($source), 'source');
     }
 }

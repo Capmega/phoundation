@@ -43,7 +43,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                     <div class="card-body box-profile">
                         <div class="text-center">
                             <?= Session::getUserObject()
-                                       ->getImageFileObject()
+                                       ->getProfilePictureFileFileObject()
                                            ->getImgObject()
                                                ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                ->setClass('profile-user-img img-fluid img-circle')
@@ -134,7 +134,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <div class="post">
                                     <div class="user-block">
                                         <?= Session::getUserObject()
-                                                   ->getImageFileObject()
+                                                   ->getProfilePictureFileFileObject()
                                                        ->getImgObject()
                                                            ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                            ->setClass('img-circle img-bordered-sm')
@@ -175,7 +175,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <div class="post clearfix">
                                     <div class="user-block">
                                         <?= Session::getUserObject()
-                                                   ->getImageFileObject()
+                                                   ->getProfilePictureFileFileObject()
                                                        ->getImgObject()
                                                            ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                            ->setClass('img-circle img-bordered-sm')
@@ -211,7 +211,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                 <div class="post">
                                     <div class="user-block">
                                         <?= Session::getUserObject()
-                                                   ->getImageFileObject()
+                                                   ->getProfilePictureFileFileObject()
                                                        ->getImgObject()
                                                            ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                            ->setClass('img-circle img-bordered-sm')

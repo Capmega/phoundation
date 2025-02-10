@@ -3,7 +3,7 @@
 /**
  * Trait TraitDataEntryName
  *
- * This trait contains methods for DataEntry objects that require a name and description
+ * This trait contains methods for DataEntry objects that require a name
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -76,7 +76,7 @@ trait TraitDataEntryName
      */
     protected function setSeoName(?string $seo_name): static
     {
-        return $this->set($seo_name, 'seo_name', true);
+        return $this->set(get_null($seo_name), 'seo_name', true);
     }
 
 
@@ -145,6 +145,6 @@ trait TraitDataEntryName
             $this->setSeoNameFromName($name);
         }
 
-        return $this->set($name, 'name');
+        return $this->set(get_null($name), 'name');
     }
 }

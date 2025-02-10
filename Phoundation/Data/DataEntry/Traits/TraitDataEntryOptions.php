@@ -41,10 +41,12 @@ trait TraitDataEntryOptions
      */
     public function setOptions(array|string|null $options): static
     {
-        if (is_array($options)) {
-            $options = Json::encode($options);
+        if ($options) {
+            if (is_array($options)) {
+                $options = Json::encode($options);
+            }
         }
 
-        return $this->set($options, 'options');
+        return $this->set(get_null($options), 'options');
     }
 }

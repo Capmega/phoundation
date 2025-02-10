@@ -39,6 +39,6 @@ trait TraitDataEntryDomain
      */
     public function setDomain(?string $domain): static
     {
-        return $this->set($domain, 'domain');
+        return $this->set(get_null($domain), 'domain');
     }
 }

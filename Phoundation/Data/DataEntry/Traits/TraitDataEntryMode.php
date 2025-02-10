@@ -41,11 +41,12 @@ trait TraitDataEntryMode
      */
     public function setMode(EnumDisplayMode|string|null $mode): static
     {
-        if (is_string($mode)) {
-            $mode = EnumDisplayMode::from($mode);
-        }
+        if ($mode) {
+            if (is_string($mode)) {
+                $mode = EnumDisplayMode::from($mode);
+            }
 
-        if (!$mode) {
+        } else {
             $mode = EnumDisplayMode::unknown;
         }
 

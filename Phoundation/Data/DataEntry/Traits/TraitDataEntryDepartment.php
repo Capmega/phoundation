@@ -17,70 +17,115 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntry\Traits;
 
 use Phoundation\Business\Companies\Departments\Department;
+use Phoundation\Business\Companies\Departments\Interfaces\DepartmentInterface;
 
 
 trait TraitDataEntryDepartment
 {
     /**
-     * Returns the departments_id for this object
+     * Setup virtual configuration for Departments
+     *
+     * @return static
+     */
+    protected function addVirtualConfigurationDepartments(): static
+    {
+        return $this->addVirtualConfiguration('departments', Department::class, [
+            'id',
+            'code',
+            'name'
+        ]);
+    }
+
+
+    /**
+     * Returns the departments_id column
      *
      * @return int|null
      */
     public function getDepartmentsId(): ?int
     {
-        return $this->get('int', 'departments_id');
+        return $this->getVirtualData('departments', 'int', 'id');
     }
 
 
     /**
-     * Sets the departments_id for this object
+     * Sets the departments_id column
      *
-     * @param int|null $departments_id
-     *
+     * @param int|null $id
      * @return static
      */
-    public function setDepartmentsId(?int $departments_id): static
+    public function setDepartmentsId(?int $id): static
     {
-        return $this->set($departments_id, 'departments_id');
+        return $this->setVirtualData('departments', $id, 'id');
     }
 
 
     /**
-     * Returns the departments_id for this object
+     * Returns the departments_code column
      *
-     * @return Department|null
+     * @return string|null
      */
-    public function getDepartment(): ?Department
+    public function getDepartmentsCode(): ?string
     {
-        $departments_id = $this->get('departments_id');
-        if ($departments_id) {
-            return new Department($departments_id);
-        }
-
-        return null;
+        return $this->getVirtualData('departments', 'string', 'code');
     }
 
 
     /**
-     * Returns the departments_id for this object
+     * Sets the departments_code column
+     *
+     * @param string|null $code
+     * @return static
+     */
+    public function setDepartmentsCode(?string $code): static
+    {
+        return $this->setVirtualData('departments', $code, 'code');
+    }
+
+
+    /**
+     * Returns the departments_name column
      *
      * @return string|null
      */
     public function getDepartmentsName(): ?string
     {
-        return $this->get('string', 'departments_name');
+        return $this->getVirtualData('departments', 'string', 'name');
     }
 
 
     /**
-     * Sets the departments_id for this object
+     * Sets the departments_name column
      *
-     * @param string|null $departments_name
+     * @param string|null $name
+     * @return static
+     */
+    public function setDepartmentsName(?string $name): static
+    {
+        return $this->setVirtualData('departments', $name, 'name');
+    }
+
+
+    /**
+     * Returns the Department Object
+     *
+     * @return DepartmentInterface|null
+     */
+    public function getDepartmentObject(): ?DepartmentInterface
+    {
+        return $this->getVirtualObject('departments');
+    }
+
+
+    /**
+     * Returns the departments_id for this user
+     *
+     * @param DepartmentInterface|null $o_object
      *
      * @return static
      */
-    public function setDepartmentsName(?string $departments_name): static
+    public function setDepartmentObject(?DepartmentInterface $o_object): static
     {
-        return $this->set($departments_name, 'departments_name');
+        return $this->setVirtualObject('departments', $o_object);
     }
 }

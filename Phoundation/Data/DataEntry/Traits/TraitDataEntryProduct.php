@@ -41,6 +41,6 @@ trait TraitDataEntryProduct
      */
     public function setProduct(Stringable|string|null $product): static
     {
-        return $this->set((string) $product, 'product');
+        return $this->set(get_null((string) $product), 'product');
     }
 }

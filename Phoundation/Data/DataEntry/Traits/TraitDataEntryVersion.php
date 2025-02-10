@@ -52,7 +52,7 @@ trait TraitDataEntryVersion
      */
     public function setVersion(?string $version): static
     {
-        if ($version === null) {
+        if (empty($version)) {
             $this->set(null, 'seo_version', true);
 
         } else {
@@ -68,7 +68,7 @@ trait TraitDataEntryVersion
             $this->set($seo_version, 'seo_version', true);
         }
 
-        return $this->set($version, 'version');
+        return $this->set(get_null($version), 'version');
     }
 
 
@@ -83,6 +83,6 @@ trait TraitDataEntryVersion
      */
     protected function setSeoVersion(?string $seo_version): static
     {
-        return $this->set($seo_version, 'seo_version');
+        return $this->set(get_null($seo_version), 'seo_version');
     }
 }

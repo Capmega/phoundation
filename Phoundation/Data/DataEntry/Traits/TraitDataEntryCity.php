@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Trait DataEntryCity
+ * Trait TraitDataEntryCity
  *
- * This trait contains methods for DataEntry objects that require GEO city data
+ * This trait contains methods for DataEntry objects that require a city
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -20,91 +20,113 @@ use Phoundation\Geo\Cities\City;
 use Phoundation\Geo\Cities\Interfaces\CityInterface;
 
 
+
 trait TraitDataEntryCity
 {
     /**
-     * City object cache
+     * Setup virtual configuration for Cities
      *
-     * @var CityInterface|null $o_city
+     * @return static
      */
-    protected ?CityInterface $o_city;
+    protected function addVirtualConfigurationCities(): static
+    {
+        return $this->addVirtualConfiguration('cities', City::class, [
+            'id',
+            'code',
+            'name'
+        ]);
+    }
 
 
     /**
-     * Returns the cities_id for this object
+     * Returns the cities_id column
      *
      * @return int|null
      */
     public function getCitiesId(): ?int
     {
-        return $this->getTypesafe('int', 'cities_id');
+        return $this->getVirtualData('cities', 'int', 'id');
     }
 
 
     /**
-     * Sets the cities_id for this object
+     * Sets the cities_id column
      *
-     * @param int|null $cities_id
-     *
+     * @param int|null $id
      * @return static
      */
-    public function setCitiesId(?int $cities_id): static
+    public function setCitiesId(?int $id): static
     {
-        $this->o_city = null;
-        return $this->set($cities_id, 'cities_id');
+        return $this->setVirtualData('cities', $id, 'id');
     }
 
 
     /**
-     * Returns the city for this object
+     * Returns the cities_code column
      *
-     * @return CityInterface|null
+     * @return string|null
      */
-    public function getCityObject(): ?CityInterface
+    public function getCitiesCode(): ?string
     {
-        if (empty($this->o_city)) {
-            $this->o_city = City::new($this->getTypesafe('int', 'cities_id'))->loadOrNull();
-        }
-
-        return $this->o_city;
+        return $this->getVirtualData('cities', 'string', 'code');
     }
 
 
     /**
-     * Sets the city for this object
+     * Sets the cities_code column
      *
-     * @param CityInterface|null $o_city
-     * @return TraitDataEntryCity
+     * @param string|null $code
+     * @return static
      */
-    public function setCityObject(?CityInterface $o_city): static
+    public function setCitiesCode(?string $code): static
     {
-        $this->setCitiesId($o_city?->getId());
-
-        $this->o_city = $o_city;
-        return $this;
+        return $this->setVirtualData('cities', $code, 'code');
     }
 
 
     /**
-     * Returns the cities_name for this object
+     * Returns the cities_name column
      *
      * @return string|null
      */
     public function getCitiesName(): ?string
     {
-        return $this->getCityObject()->getName();
+        return $this->getVirtualData('cities', 'string', 'name');
     }
 
 
     /**
-     * Returns the cities_name for this object
+     * Sets the cities_name column
      *
-     * @param string|null $cities_name
+     * @param string|null $name
+     * @return static
+     */
+    public function setCitiesName(?string $name): static
+    {
+        return $this->setVirtualData('cities', $name, 'name');
+    }
+
+
+    /**
+     * Returns the City Object
+     *
+     * @return CityInterface|null
+     */
+    public function getCityObject(): ?CityInterface
+    {
+        return $this->getVirtualObject('cities');
+    }
+
+
+    /**
+     * Returns the cities_id for this user
+     *
+     * @param CityInterface|null $o_object
      *
      * @return static
      */
-    public function setCitiesName(?string $cities_name): static
+    public function setCityObject(?CityInterface $o_object): static
     {
-        return $this->setCityObject(City::new()->loadOrNull(['name' => $cities_name]));
+        return $this->setVirtualObject('cities', $o_object);
     }
 }

@@ -44,7 +44,7 @@ Response::setRenderMainWrapper(false);
         <div class="lockscreen-name">
             <div class="fingerprint-image">
                 <?= Session::getUserObject()
-                           ->getImageFileObject()
+                           ->getProfilePictureFileFileObject()
                                ->getImgObject()
                                    ->addClasses('rounded-circle')
                                    ->setSrc(Url::new('img/fingerprint-256x192.png')->makeImg())

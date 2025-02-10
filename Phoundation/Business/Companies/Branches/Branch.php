@@ -17,12 +17,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Business\Companies\Branches;
 
+use Phoundation\Business\Companies\Branches\Interfaces\BranchInterface;
 use Phoundation\Data\DataEntry\DataEntry;
 use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
 
 
-class Branch extends DataEntry
+class Branch extends DataEntry implements BranchInterface
 {
     use TraitDataEntryNameDescription;
 

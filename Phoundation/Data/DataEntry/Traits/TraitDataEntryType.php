@@ -39,6 +39,6 @@ trait TraitDataEntryType
      */
     public function setType(?string $type): static
     {
-        return $this->set($type, 'type');
+        return $this->set(get_null($type), 'type');
     }
 }

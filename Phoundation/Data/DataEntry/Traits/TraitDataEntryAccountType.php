@@ -41,11 +41,14 @@ trait TraitDataEntryAccountType
      */
     public function setAccountType(EnumAccountType|string|null $account_type): static
     {
-        if ($account_type instanceof EnumAccountType) {
-            $account_type = $account_type->value;
+        $account_type = get_null($account_type);
 
-        } elseif ($account_type) {
-            $account_type = EnumAccountType::from($account_type)->value;
+        if ($account_type) {
+            if (is_string($account_type)) {
+                $account_type = EnumAccountType::from($account_type)->value;
+            }
+
+            $account_type = $account_type->value;
         }
 
         return $this->set(get_null($account_type), 'account_type');

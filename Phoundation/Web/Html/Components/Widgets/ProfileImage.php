@@ -35,7 +35,7 @@ class ProfileImage extends ImageMenu
         // Set up the default image URL
 //        $this->setUrl('sign-in');
         $this->setImage(Session::getUserObject()
-                               ->getImageFileObject());
+                               ->getProfilePictureFileFileObject());
         if (
             Session::getUserObject()
                    ->isGuest()

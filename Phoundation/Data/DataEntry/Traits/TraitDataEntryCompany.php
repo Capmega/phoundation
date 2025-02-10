@@ -23,88 +23,109 @@ use Phoundation\Business\Companies\Interfaces\CompanyInterface;
 trait TraitDataEntryCompany
 {
     /**
-     * Company object cache
+     * Setup virtual configuration for Companies
      *
-     * @var CompanyInterface|null $o_company
+     * @return static
      */
-    protected ?CompanyInterface $o_company;
+    protected function addVirtualConfigurationCompanies(): static
+    {
+        return $this->addVirtualConfiguration('companies', Company::class, [
+            'id',
+            'code',
+            'name'
+        ]);
+    }
 
 
     /**
-     * Returns the companies_id for this object
+     * Returns the companies_id column
      *
      * @return int|null
      */
     public function getCompaniesId(): ?int
     {
-        return $this->getTypesafe('int', 'companies_id');
+        return $this->getVirtualData('companies', 'int', 'id');
     }
 
 
     /**
-     * Sets the companies_id for this object
+     * Sets the companies_id column
      *
-     * @param int|null $companies_id
-     *
+     * @param int|null $id
      * @return static
      */
-    public function setCompaniesId(?int $companies_id): static
+    public function setCompaniesId(?int $id): static
     {
-        $this->o_company = null;
-        return $this->set($companies_id, 'companies_id');
+        return $this->setVirtualData('companies', $id, 'id');
     }
 
 
     /**
-     * Returns the company for this object
+     * Returns the companies_code column
      *
-     * @return CompanyInterface|null
+     * @return string|null
      */
-    public function getCompanyObject(): ?CompanyInterface
+    public function getCompaniesCode(): ?string
     {
-        if (empty($this->o_company)) {
-            $this->o_company = Company::new($this->getTypesafe('int', 'companies_id'))->loadOrNull();
-        }
-
-        return $this->o_company;
+        return $this->getVirtualData('companies', 'string', 'code');
     }
 
 
     /**
-     * Sets the company for this object
+     * Sets the companies_code column
      *
-     * @param CompanyInterface|null $o_company
-     * @return TraitDataEntryCompany
+     * @param string|null $code
+     * @return static
      */
-    public function setCompanyObject(?CompanyInterface $o_company): static
+    public function setCompaniesCode(?string $code): static
     {
-        $this->setCompaniesId($o_company?->getId());
-
-        $this->o_company = $o_company;
-        return $this;
+        return $this->setVirtualData('companies', $code, 'code');
     }
 
 
     /**
-     * Returns the companies_name for this object
+     * Returns the companies_name column
      *
      * @return string|null
      */
     public function getCompaniesName(): ?string
     {
-        return $this->getCompanyObject()->getName();
+        return $this->getVirtualData('companies', 'string', 'name');
     }
 
 
     /**
-     * Returns the companies_name for this object
+     * Sets the companies_name column
      *
-     * @param string|null $companies_name
+     * @param string|null $name
+     * @return static
+     */
+    public function setCompaniesName(?string $name): static
+    {
+        return $this->setVirtualData('companies', $name, 'name');
+    }
+
+
+    /**
+     * Returns the Company Object
+     *
+     * @return CompanyInterface|null
+     */
+    public function getCompanyObject(): ?CompanyInterface
+    {
+        return $this->getVirtualObject('companies');
+    }
+
+
+    /**
+     * Returns the companies_id for this user
+     *
+     * @param CompanyInterface|null $o_object
      *
      * @return static
      */
-    public function setCompaniesName(?string $companies_name): static
+    public function setCompanyObject(?CompanyInterface $o_object): static
     {
-        return $this->setCompanyObject(Company::new()->loadOrNull(['name' => $companies_name]));
+        return $this->setVirtualObject('companies', $o_object);
     }
 }

@@ -39,6 +39,6 @@ trait TraitDataEntryMiddleNames
      */
     public function setMiddleNames(?string $middle_names): static
     {
-        return $this->set($middle_names, 'middle_names');
+        return $this->set(get_null($middle_names), 'middle_names');
     }
 }

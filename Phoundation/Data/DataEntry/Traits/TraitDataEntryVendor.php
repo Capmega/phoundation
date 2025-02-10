@@ -41,6 +41,6 @@ trait TraitDataEntryVendor
      */
     public function setVendor(Stringable|string|null $vendor): static
     {
-        return $this->set((string) $vendor, 'vendor');
+        return $this->set(get_null((string) $vendor), 'vendor');
     }
 }

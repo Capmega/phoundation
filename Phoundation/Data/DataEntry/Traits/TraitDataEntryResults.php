@@ -39,6 +39,6 @@ trait TraitDataEntryResults
      */
     public function setResults(?string $results): static
     {
-        return $this->set($results, 'results');
+        return $this->set(get_null($results), 'results');
     }
 }

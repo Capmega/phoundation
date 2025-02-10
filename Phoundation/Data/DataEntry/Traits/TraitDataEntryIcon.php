@@ -58,12 +58,13 @@ trait TraitDataEntryIcon
         if ($icon instanceof IconInterface) {
             $icon = $icon->getContent();
         }
+
         if (strlen((string) $icon) > 32) {
             throw new OutOfBoundsException(tr('Specified icon name ":icon" is invalid, the string should be no longer than 32 characters', [
                 ':icon' => $icon,
             ]));
         }
 
-        return $this->set($icon, 'icon');
+        return $this->set(get_null($icon), 'icon');
     }
 }

@@ -39,6 +39,6 @@ trait TraitDataEntryTitle
      */
     public function setTitle(?string $title): static
     {
-        return $this->set($title, 'title');
+        return $this->set(get_null($title), 'title');
     }
 }
