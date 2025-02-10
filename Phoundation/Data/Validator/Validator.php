@@ -793,7 +793,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                 throw new ValidatorException(tr('Cannot validate if database id exists, no table configured for this validator, and no table specified'));
             }
 
-            $exists = sql()->getColumn('SELECT `id` FROM `' . $table . '` WHERE `id` = :id', [
+            $exists = sql()->getColumn(' SELECT `id` FROM `' . $table . '` WHERE `id` = :id', [
                 ':id' => $value,
             ]);
 

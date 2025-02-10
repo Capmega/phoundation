@@ -60,16 +60,16 @@ interface ProgressBarInterface extends WidgetInterface
     /**
      * Returns the current value
      *
-     * @return float|null
+     * @return float|int|null
      */
-    public function getCurrent(): ?float;
+    public function getCurrent(): float|int|null;
 
     /**
      * Sets the current value
      *
-     * @param floatnull $current
+     * @param float|int|null $current
      *
      * @return static
      */
-    public function setCurrent(?float $current): static;
+    public function setCurrent(float|int|null $current): static;
 }

@@ -356,14 +356,14 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function newLanguage(?string $column = 'languages_name'): DefinitionInterface
+    public static function newLanguagesName(?string $column = 'languages_name'): DefinitionInterface
     {
         return Definition::new($column)
                          ->setOptional(true)
                          ->setRender(false)
                          ->setVirtual(true)
                          ->setMaxlength(32)
-                         ->setCliColumn('-l,--language LANGUAGE-CODE')
+                         ->setCliColumn('--language-name LANGUAGE-NAME')
                          ->setLabel(tr('Language'))
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
@@ -376,12 +376,52 @@ class DefinitionFactory
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              // Ensure language exists and that it's or language
                              $validator->orColumn('languages_id')
+                                       ->orColumn('languages_code')
+                                       ->isName()
+                                       ->setColumnFromQuery('languages_id', 'SELECT `id` 
+                                                                             FROM   `core_languages` 
+                                                                             WHERE  `name` = :name 
+                                                                               AND  `status` IS NULL', [
+                                           ':name' => '$languages_name'
+                                       ]);
+                         });
+    }
+
+
+    /**
+     * Returns a Definition object for column language
+     *
+     * @param string|null $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newLanguagesCode(?string $column = 'languages_code'): DefinitionInterface
+    {
+        return Definition::new($column)
+                         ->setOptional(true)
+                         ->setRender(false)
+                         ->setVirtual(true)
+                         ->setMaxlength(32)
+                         ->setCliColumn('-l,--language-code LANGUAGE-CODE')
+                         ->setLabel(tr('Language'))
+                         ->setCliAutoComplete([
+                             'word'   => function ($word) {
+                                 return Languages::new()->keepMatchingKeys($word);
+                             },
+                             'noword' => function ($word) {
+                                 return Languages::new()->getSource();
+                             },
+                         ])
+                         ->addValidationFunction(function (ValidatorInterface $validator) {
+                             // Ensure language exists and that it's or language
+                             $validator->orColumn('languages_id')
+                                       ->orColumn('languages_name')
                                        ->isName()
                                        ->setColumnFromQuery('languages_id', 'SELECT `id` 
                                                                              FROM   `core_languages` 
                                                                              WHERE  `code_639_1` = :code 
                                                                                AND  `status` IS NULL', [
-                                                                                   ':code' => '$language'
+                                           ':code' => '$languages_code'
                                        ]);
                          });
     }
@@ -1776,7 +1816,7 @@ class DefinitionFactory
                          ->setTooltip(tr('This column contains the user who created this object. Other users may have made further edits to this object, that information may be found in the object\'s meta data'))
                          ->setInputType(EnumInputType::dbid)
                          ->addValidationFunction(function (ValidatorInterface $validator) {
-                             $validator->dbIdExists(tr('must be an existing user'));
+                             $validator->dbIdExists(tr('must be an existing user'), 'accounts_users');
                          })
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) {
                              if ($definition->getDataEntry()->isNew()) {

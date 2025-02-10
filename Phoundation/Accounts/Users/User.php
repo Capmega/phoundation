@@ -2528,6 +2528,10 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     protected function initGuestUser(): void
     {
+        // Guest user is readonly and also does not register meta requests
+        $this->readonly     = true;
+        $this->meta_enabled = false;
+
         parent::__construct(['email' => 'guest']);
 
         $this->source['redirect'] = null;
@@ -2539,10 +2543,6 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             // Guest user does not yet exist, save it now
             $this->save();
         }
-
-        // Guest user is readonly and also does not register meta requests
-        $this->readonly     = true;
-        $this->meta_enabled = false;
     }
 
 
@@ -2553,6 +2553,10 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     protected function initSystemUser(): void
     {
+        // System user is readonly and also does not register meta requests
+        $this->readonly     = true;
+        $this->meta_enabled = false;
+
         parent::__construct();
 
         $this->source['id']       = null;
@@ -2560,10 +2564,6 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         $this->source['status']   = 'system';
         $this->source['email']    = 'system';
         $this->source['nickname'] = tr('System');
-
-        // System user is readonly and also does not register meta requests
-        $this->readonly     = true;
-        $this->meta_enabled = false;
 
         $this->roles  = RolesBySeoName::new()->load(['name' => 'god']);
         $this->rights = RightsBySeoName::new()->load(['name' => 'god']);
@@ -2906,11 +2906,15 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                                $validator->isUnique(tr('already exists as a primary phone number'));
                                            }))
 
-                    ->add(DefinitionFactory::newLanguage()
+                    ->add(DefinitionFactory::newLanguagesName()
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The display language for this user')))
 
-                    ->add(DefinitionFactory::newLanguagesId())
+                    ->add(DefinitionFactory::newLanguagesCode()
+                                           ->setHelpGroup(tr('Location information')))
+
+                    ->add(DefinitionFactory::newLanguagesId()
+                                           ->setHelpGroup(tr('Location information')))
 
                     ->add(Definition::new('address')
                                     ->setOptional(true)

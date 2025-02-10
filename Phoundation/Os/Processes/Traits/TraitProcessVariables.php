@@ -2026,7 +2026,7 @@ trait TraitProcessVariables
         }
 
         $this->cached_command_line = null;
-        $this->signal              = Signals::check($signal);
+        $this->signal              = Signals::check($signal)->value;
 
         return $this;
     }
