@@ -21,9 +21,6 @@ use Phoundation\Exception\OutOfBoundsException;
 
 trait TraitDataMinimumInteger
 {
-    use TraitDataMaximumInteger;
-
-
     /**
      * The minimum value for this object
      *

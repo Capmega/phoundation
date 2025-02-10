@@ -1,0 +1,44 @@
+<?php
+
+/**
+ * Trait TraitDataEntryComments
+ *
+ * This trait contains methods for DataEntry objects that require a name and comments
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Data
+ */
+
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntries\Traits;
+
+
+trait TraitDataEntryComments
+{
+    /**
+     * Returns the comments for this object
+     *
+     * @return string|null
+     */
+    public function getComments(): ?string
+    {
+        return $this->getTypesafe('string', 'comments');
+    }
+
+
+    /**
+     * Sets the comments for this object
+     *
+     * @param string|null $comments
+     *
+     * @return static
+     */
+    public function setComments(?string $comments): static
+    {
+        return $this->set(get_null($comments), 'comments');
+    }
+}

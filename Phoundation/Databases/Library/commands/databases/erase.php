@@ -19,7 +19,7 @@ declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Connectors\Connectors;
 

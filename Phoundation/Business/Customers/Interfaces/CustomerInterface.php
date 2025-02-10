@@ -2,7 +2,7 @@
 
 namespace Phoundation\Business\Customers\Interfaces;
 
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 
 interface CustomerInterface extends DataEntryInterface
 {

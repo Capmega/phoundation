@@ -16,8 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryGeo;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryLongLat;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryGeo;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryLongLat;
 use Phoundation\Geo\GeoIp\GeoIp;
 use Phoundation\Geo\GeoIp\Interfaces\GeoIpInterface;
 

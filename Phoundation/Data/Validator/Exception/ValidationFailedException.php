@@ -18,7 +18,7 @@ namespace Phoundation\Data\Validator\Exception;
 
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\Traits\TraitDataDataEntry;
 use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
 use Throwable;

@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Sql\QueryBuilder;
 
 use PDOStatement;
-use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataFilterForm;
 use Phoundation\Data\Traits\TraitDataMetaEnabled;

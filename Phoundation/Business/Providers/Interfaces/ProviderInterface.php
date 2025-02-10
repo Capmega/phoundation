@@ -2,7 +2,7 @@
 
 namespace Phoundation\Business\Providers\Interfaces;
 
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 
 interface ProviderInterface extends DataEntryInterface
 {

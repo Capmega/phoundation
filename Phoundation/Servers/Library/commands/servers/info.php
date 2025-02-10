@@ -17,7 +17,7 @@ declare(strict_types=1);
 use Phoundation\Accounts\Servers\Server;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 
 

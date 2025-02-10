@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 
 
 trait TraitDataDataIterator

@@ -24,7 +24,7 @@ use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Exception\LogException;
 use Phoundation\Core\Log\Interfaces\LogInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Developer\Debug\Debug;

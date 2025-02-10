@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Mounts;
 
-use Phoundation\Data\DataEntry\DataIterator;
+use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\Exception\DirectoryNotMountedException;

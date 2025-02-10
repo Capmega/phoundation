@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Uploads;
 
-use Phoundation\Data\DataEntry\DataIterator;
+use Phoundation\Data\DataEntries\DataIterator;
 
 
 class Uploads extends DataIterator

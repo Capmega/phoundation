@@ -5,7 +5,7 @@
  *
  *
  *
- * @see       \Phoundation\Data\DataEntry\DataEntry
+ * @see       \Phoundation\Data\DataEntries\DataEntry
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -18,21 +18,21 @@ declare(strict_types=1);
 namespace Phoundation\Business\Providers;
 
 use Phoundation\Business\Providers\Interfaces\ProviderInterface;
-use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
-use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryAddress;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryCategory;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryCode;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryCompany;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryEmail;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryGeo;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryImageFileObject;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryLanguage;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryPhones;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryUrl;
+use Phoundation\Data\DataEntries\DataEntry;
+use Phoundation\Data\DataEntries\Definitions\Definition;
+use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryAddress;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryCategory;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryCode;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryCompany;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryEmail;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryGeo;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryImageFileObject;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryLanguage;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryNameDescription;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryPhones;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryUrl;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 
 

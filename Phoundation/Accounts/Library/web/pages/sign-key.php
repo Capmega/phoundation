@@ -19,7 +19,7 @@ use Phoundation\Accounts\Users\Exception\SignInKeyExpiredException;
 use Phoundation\Accounts\Users\Exception\SignInKeyStatusException;
 use Phoundation\Accounts\Users\Exception\SignInKeyUsedException;
 use Phoundation\Accounts\Users\SignInKey;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Requests\Request;
 

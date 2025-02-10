@@ -6,7 +6,7 @@ namespace Phoundation\Databases\Sql\Interfaces;
 
 use PDO;
 use PDOStatement;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Schema\Interfaces\SchemaInterface;

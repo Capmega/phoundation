@@ -19,7 +19,7 @@ namespace Phoundation\Notifications;
 
 use Phoundation\Audio\Audio;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Data\DataEntry\DataIterator;
+use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Notifications\Interfaces\NotificationsInterface;
 use Phoundation\Web\Html\Components\Input\InputSelect;

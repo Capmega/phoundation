@@ -23,21 +23,19 @@ use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Plugins\Exception\PluginsException;
 use Phoundation\Core\Plugins\Interfaces\PluginInterface;
-use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
-use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryDirectory;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryPriority;
+use Phoundation\Data\DataEntries\DataEntry;
+use Phoundation\Data\DataEntries\Definitions\Definition;
+use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryDirectory;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryNameDescription;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryPriority;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
@@ -46,11 +44,20 @@ class Plugin extends DataEntry implements PluginInterface
 {
     use TraitDataEntryNameDescription;
     use TraitDataEntryDirectory {
-        setDirectory as protected __setDirectory;
+        setDirectoryObject as protected __setDirectoryObject;
     }
     use TraitDataEntryPriority {
         setPriority as protected __setPriority;
     }
+
+
+    public function __construct(IdentifierInterface|false|array|int|string|null $identifier = null)
+    {
+        $this->setRestrictions(PhoRestrictions::newReadonlyObject(DIRECTORY_ROOT . 'Plugins'));
+
+        parent::__construct($identifier);
+    }
+
 
     /**
      * Returns the table name used by this object
@@ -122,7 +129,7 @@ class Plugin extends DataEntry implements PluginInterface
     public function load(IdentifierInterface|array|string|int|null $identifier = null): static
     {
         $plugin = parent::load($identifier);
-        $file   = DIRECTORY_ROOT . $plugin->getDirectory() . 'Library/Plugin.php';
+        $file   = DIRECTORY_ROOT . $plugin->getDirectoryObject() . 'Library/Plugin.php';
         $class  = Library::getClassPath($file);
         $class  = Library::includeClassFile($class);
 
@@ -135,7 +142,7 @@ class Plugin extends DataEntry implements PluginInterface
      *
      * @return PhoDirectoryInterface
      */
-    public function getDirectory(): PhoDirectoryInterface
+    public function getDirectoryObject(): PhoDirectoryInterface
     {
         $directory = $this->getTypesafe(PhoDirectoryInterface::class, 'directory');
 
@@ -351,7 +358,7 @@ class Plugin extends DataEntry implements PluginInterface
         ]));
 
         // Register the plugin
-        $this->setDirectory($this->getDirectory())
+        $this->setDirectoryObject($this->getDirectoryObject())
              ->setVendor($this->getVendor())
              ->setClass($this->getClass())
              ->setEnabled($enabled)
@@ -371,7 +378,7 @@ class Plugin extends DataEntry implements PluginInterface
         $vendor = $this->getTypesafe('string', 'vendor');
 
         if ($vendor === null) {
-            $directory = $this->getDirectory();
+            $directory = $this->getDirectoryObject();
 
             if ($directory) {
                 return Strings::cut($directory, 'Plugins/', '/');
@@ -451,7 +458,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function getClass(): ?string
     {
-        $directory = $this->getDirectory();
+        $directory = $this->getDirectoryObject();
 
         if ($directory) {
             return Library::getClassPath(DIRECTORY_ROOT . $directory . 'Library/Plugin.php');
@@ -544,22 +551,6 @@ class Plugin extends DataEntry implements PluginInterface
     {
         static::unlinkScripts();
         sql()->delete('core_plugins', [':seo_name' => $this->getName()], $comments);
-    }
-
-
-    /**
-     * Sets the path for this object
-     *
-     * @param PhoDirectoryInterface|string|null $directory
-     * @param PhoRestrictionsInterface|null     $restrictions
-     *
-     * @return static
-     */
-    public function setDirectory(PhoDirectoryInterface|string|null $directory, ?PhoRestrictionsInterface $restrictions = null): static
-    {
-        $restrictions = $restrictions ?? PhoRestrictions::newReadonlyObject(DIRECTORY_ROOT . 'Plugins');
-
-        return $this->set(is_string($directory) ? new PhoDirectory($directory, $restrictions) : $directory, 'directory');
     }
 
 

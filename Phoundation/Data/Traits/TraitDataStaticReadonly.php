@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
+use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
 
 
 trait TraitDataStaticReadonly

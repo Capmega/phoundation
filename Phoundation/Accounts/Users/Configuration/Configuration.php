@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users\Configuration;
 
-use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntries\DataEntry;
 
 class Configuration extends DataEntry
 {

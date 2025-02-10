@@ -18,7 +18,7 @@ namespace Phoundation\Databases\Sql;
 
 use Phoundation\Core\Core;
 use Phoundation\Core\Meta\Meta;
-use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Traits\TraitDataDataIterator;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Data\Traits\TraitDataIdColumn;

@@ -2,7 +2,7 @@
 
 namespace Phoundation\Accounts\Users\Interfaces;
 
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 
 
 interface AuthenticationInterface extends DataEntryInterface

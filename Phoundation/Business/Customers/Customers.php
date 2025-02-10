@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace Phoundation\Business\Customers;
 
 use Phoundation\Business\Customers\Interfaces\CustomersInterface;
-use Phoundation\Data\DataEntry\DataIterator;
+use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;

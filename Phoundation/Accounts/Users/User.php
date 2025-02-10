@@ -50,35 +50,35 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Interfaces\SessionInterface;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Sessions\Sessions;
-use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
-use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotSavedException;
-use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryAddress;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryCode;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryComments;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryData;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryDefaultPage;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryDescription;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryDomain;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryEmail;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryFirstNames;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryGeo;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryLanguage;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryLastNames;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryPhone;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryImageFileObject;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryTimezone;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryTitle;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryType;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryUrl;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryVerificationCode;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryVerifiedOn;
+use Phoundation\Data\DataEntries\DataEntry;
+use Phoundation\Data\DataEntries\Definitions\Definition;
+use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntries\Exception\DataEntryNotSavedException;
+use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryAddress;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryCode;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryComments;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryData;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryDefaultPage;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryDescription;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryDomain;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryEmail;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryFirstNames;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryGeo;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryLanguage;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryLastNames;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryPhone;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryImageFileObject;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryTimezone;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryTitle;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryType;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryUrl;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryVerificationCode;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryVerifiedOn;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
@@ -2528,6 +2528,10 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     protected function initGuestUser(): void
     {
+        // Guest user is readonly and also does not register meta requests
+        $this->readonly     = true;
+        $this->meta_enabled = false;
+
         parent::__construct(['email' => 'guest']);
 
         $this->source['redirect'] = null;
@@ -2539,10 +2543,6 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             // Guest user does not yet exist, save it now
             $this->save();
         }
-
-        // Guest user is readonly and also does not register meta requests
-        $this->readonly     = true;
-        $this->meta_enabled = false;
     }
 
 
@@ -2553,6 +2553,10 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     protected function initSystemUser(): void
     {
+        // System user is readonly and also does not register meta requests
+        $this->readonly     = true;
+        $this->meta_enabled = false;
+
         parent::__construct();
 
         $this->source['id']       = null;
@@ -2560,10 +2564,6 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         $this->source['status']   = 'system';
         $this->source['email']    = 'system';
         $this->source['nickname'] = tr('System');
-
-        // System user is readonly and also does not register meta requests
-        $this->readonly     = true;
-        $this->meta_enabled = false;
 
         $this->roles  = RolesBySeoName::new()->load(['name' => 'god']);
         $this->rights = RightsBySeoName::new()->load(['name' => 'god']);
@@ -2906,11 +2906,15 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                                $validator->isUnique(tr('already exists as a primary phone number'));
                                            }))
 
-                    ->add(DefinitionFactory::newLanguage()
+                    ->add(DefinitionFactory::newLanguagesName()
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The display language for this user')))
 
-                    ->add(DefinitionFactory::newLanguagesId())
+                    ->add(DefinitionFactory::newLanguagesCode()
+                                           ->setHelpGroup(tr('Location information')))
+
+                    ->add(DefinitionFactory::newLanguagesId()
+                                           ->setHelpGroup(tr('Location information')))
 
                     ->add(Definition::new('address')
                                     ->setOptional(true)

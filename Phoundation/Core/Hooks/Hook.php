@@ -9,7 +9,7 @@
  * DIRECTORY_DATA/system/hooks/HOOK and DIRECTORY_DATA/hooks/CLASS/HOOK. CLASS is an identifier for multiple hook
  * scripts that all have to do with the same system, to group them together. HOOK is the script to be executed
  *
- * @see       \Phoundation\Data\DataEntry\DataEntry
+ * @see       \Phoundation\Data\DataEntries\DataEntry
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>

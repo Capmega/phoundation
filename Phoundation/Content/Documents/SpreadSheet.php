@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Content\Documents;
 
 use Phoundation\Content\Documents\Interfaces\SpreadSheetInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataSourceArray;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;

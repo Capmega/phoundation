@@ -2,7 +2,7 @@
 
 namespace Phoundation\Geo\Cities\Interfaces;
 
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Geo\Continents\Interfaces\ContinentInterface;
 use Phoundation\Geo\Counties\Interfaces\CountyInterface;
 use Phoundation\Geo\Countries\Interfaces\CountryInterface;

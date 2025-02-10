@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Requirements;
 
-use Phoundation\Data\DataEntry\DataIterator;
+use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Filesystem\Requirements\Interfaces\RequirementsInterface;
 use Stringable;
 

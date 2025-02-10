@@ -2,7 +2,7 @@
 
 namespace Phoundation\Geo\Features\Interfaces;
 
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 
 interface FeatureInterface extends DataEntryInterface
 {

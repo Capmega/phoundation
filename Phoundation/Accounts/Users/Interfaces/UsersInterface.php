@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Users\Interfaces;
 
 use Phoundation\Accounts\Users\User;
-use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Stringable;
 
 interface UsersInterface extends DataIteratorInterface

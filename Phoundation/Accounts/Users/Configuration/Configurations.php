@@ -19,7 +19,7 @@ namespace Phoundation\Accounts\Users\Configuration;
 
 use Phoundation\Accounts\Users\Configuration\Interfaces\ConfigurationsInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
-use Phoundation\Data\DataEntry\DataIteratorCore;
+use Phoundation\Data\DataEntries\DataIteratorCore;
 
 class Configurations extends DataIteratorCore implements ConfigurationsInterface
 {

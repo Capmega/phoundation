@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Data\DataEntry\Exception\DataEntryDisabledException;
+use Phoundation\Data\DataEntries\Exception\DataEntryDisabledException;
 use Phoundation\Utils\Strings;
 
 

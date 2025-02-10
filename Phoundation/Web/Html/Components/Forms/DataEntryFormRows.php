@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Forms;
 
-use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionInterface;
+use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormColumnInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;

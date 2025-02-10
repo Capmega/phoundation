@@ -17,11 +17,11 @@ declare(strict_types=1);
 namespace Phoundation\Network\PhoMeta;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
-use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryData;
+use Phoundation\Data\DataEntries\DataEntry;
+use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryData;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Redis\Redis;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaTestNoDatabaseException;

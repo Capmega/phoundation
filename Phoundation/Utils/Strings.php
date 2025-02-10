@@ -20,7 +20,7 @@ namespace Phoundation\Utils;
 use Phoundation\Cli\CliColor;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Interfaces\ArrayableInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Interfaces\ArraySourceInterface;
 use Phoundation\Data\IteratorBase;
 use Phoundation\Exception\OutOfBoundsException;

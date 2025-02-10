@@ -19,7 +19,7 @@ use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliColor;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Paging;
 use Phoundation\Utils\Arrays;

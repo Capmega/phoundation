@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Servers;
 
-use Phoundation\Data\DataEntry\DataIterator;
+use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;

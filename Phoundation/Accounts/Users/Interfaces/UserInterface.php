@@ -11,7 +11,7 @@ use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImageInterface;
 use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImagesInterface;
 use Phoundation\Accounts\Users\ProfileImages\ProfileImage;
 use Phoundation\Core\Sessions\Interfaces\SessionInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;

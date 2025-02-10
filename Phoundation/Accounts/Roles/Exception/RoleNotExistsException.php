@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Roles\Exception;
 
 use Phoundation\Accounts\Roles\Exception\Interfaces\RoleNotExistsExceptionInterface;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 
 
 class RoleNotExistsException extends DataEntryNotExistsException implements RoleNotExistsExceptionInterface
