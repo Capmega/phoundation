@@ -2,7 +2,7 @@
 
 namespace Phoundation\Filesystem\Interfaces;
 
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 
 
 interface PhoMimetypeInterface extends DataEntryInterface

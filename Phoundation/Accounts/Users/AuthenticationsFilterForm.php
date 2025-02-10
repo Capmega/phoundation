@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
 
-use Phoundation\Data\DataEntry\Definitions\Definition;
+use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Web\Html\Enums\EnumElement;

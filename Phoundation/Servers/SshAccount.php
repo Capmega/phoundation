@@ -22,14 +22,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Servers;
 
-use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
-use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryFile;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryNameDescription;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryUsername;
+use Phoundation\Data\DataEntries\DataEntry;
+use Phoundation\Data\DataEntries\Definitions\Definition;
+use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryFile;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryNameDescription;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryUsername;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Filesystem\PhoDirectory;

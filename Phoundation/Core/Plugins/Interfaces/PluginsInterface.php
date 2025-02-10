@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Plugins\Interfaces;
 
-use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
 interface PluginsInterface extends DataIteratorInterface

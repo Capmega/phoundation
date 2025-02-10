@@ -2,7 +2,7 @@
 
 namespace Phoundation\Databases\Connectors\Interfaces;
 
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Geo\Timezones\Interfaces\TimezoneInterface;
 
 interface ConnectorInterface extends DataEntryInterface

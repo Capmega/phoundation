@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace Phoundation\Core\Hooks;
 
 use Phoundation\Core\Libraries\Libraries;
-use Phoundation\Data\DataEntry\DataIterator;
+use Phoundation\Data\DataEntries\DataIterator;
 
 
 class Hooks extends DataIterator

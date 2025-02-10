@@ -16,12 +16,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Emails;
 
-use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\Definitions\Definition;
-use Phoundation\Data\DataEntry\Definitions\DefinitionFactory;
-use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryEmail;
-use Phoundation\Data\DataEntry\Traits\TraitDataEntryName;
+use Phoundation\Data\DataEntries\DataEntry;
+use Phoundation\Data\DataEntries\Definitions\Definition;
+use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryEmail;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryName;
 use Phoundation\Emails\Enums\EnumEmailAddressType;
 
 

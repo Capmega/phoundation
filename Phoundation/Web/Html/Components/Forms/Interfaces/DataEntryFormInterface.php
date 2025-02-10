@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Forms\Interfaces;
 
-use Phoundation\Data\DataEntry\Definitions\Definitions;
-use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntries\Definitions\Definitions;
+use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 
 interface DataEntryFormInterface extends ElementsBlockInterface

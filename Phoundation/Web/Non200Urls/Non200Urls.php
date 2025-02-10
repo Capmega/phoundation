@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Non200Urls;
 
-use Phoundation\Data\DataEntry\DataIterator;
+use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Exception\OutOfBoundsException;
 
 

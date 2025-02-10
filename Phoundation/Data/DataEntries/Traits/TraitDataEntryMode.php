@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * Trait TraitDataEntryMode
+ *
+ * This trait contains methods for DataEntry objects that require a mode
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Data
+ */
+
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntries\Traits;
+
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
+
+
+trait TraitDataEntryMode
+{
+    /**
+     * Returns the type of mode for the element or element block
+     *
+     * @return EnumDisplayMode
+     */
+    public function getMode(): EnumDisplayMode
+    {
+        return EnumDisplayMode::from((string) $this->getTypesafe('string', 'mode', 'unknown'));
+    }
+
+
+    /**
+     * Sets the type of mode for the element or element block
+     *
+     * @param EnumDisplayMode|string|null $mode
+     *
+     * @return static
+     */
+    public function setMode(EnumDisplayMode|string|null $mode): static
+    {
+        if ($mode) {
+            if (is_string($mode)) {
+                $mode = EnumDisplayMode::from($mode);
+            }
+
+        } else {
+            $mode = EnumDisplayMode::unknown;
+        }
+
+        // Ensure we have primary display mode
+        return $this->set($mode->getPrimary($mode)->value, 'mode');
+    }
+}

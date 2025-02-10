@@ -2,7 +2,7 @@
 
 namespace Phoundation\Network\PhoMeta\Interfaces;
 
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 
 interface PhoMetaInterface extends DataEntryInterface
 {
@@ -22,7 +22,7 @@ interface PhoMetaInterface extends DataEntryInterface
      * @return static
      */
     public function extractPhoMetaData(string $message): string;
-    
+
 
     /**
      * Returns the hash for this object

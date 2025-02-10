@@ -18,7 +18,7 @@ namespace Phoundation\Cli;
 
 use Phoundation\Cli\Exception\CliNoTtyException;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;

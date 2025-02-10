@@ -17,7 +17,7 @@ declare(strict_types=1);
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Cli\Cli;
 use Phoundation\Cli\CliDocumentation;
-use Phoundation\Data\DataEntry\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Paging;
 

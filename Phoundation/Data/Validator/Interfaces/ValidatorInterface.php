@@ -18,7 +18,7 @@ namespace Phoundation\Data\Validator\Interfaces;
 
 use PDOStatement;
 use Phoundation\Core\Interfaces\ArrayableInterface;
-use Phoundation\Data\DataEntry\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Interfaces\IteratorBaseInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;

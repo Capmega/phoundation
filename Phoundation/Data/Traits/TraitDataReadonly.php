@@ -16,8 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Utils\Strings;
 
 

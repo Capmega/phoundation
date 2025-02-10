@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Notifications\Interfaces;
 
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Throwable;
 

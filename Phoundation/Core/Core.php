@@ -38,7 +38,7 @@ use Phoundation\Core\Modes\Interfaces\ModeInterface;
 use Phoundation\Core\Modes\Mode;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Sessions\SessionConfig;
-use Phoundation\Data\DataEntry\Exception\DataEntryReadonlyException;
+use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
 use Phoundation\Data\Traits\TraitDataStaticIsExecutedPath;
 use Phoundation\Data\Traits\TraitDataStaticReadonly;
 use Phoundation\Data\Traits\TraitGetInstance;

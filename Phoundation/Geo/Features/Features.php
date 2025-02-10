@@ -17,7 +17,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Geo\Features;
 
-use Phoundation\Data\DataEntry\DataIterator;
+use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Geo\Countries\Country;
 use Phoundation\Geo\Features\Interfaces\FeaturesInterface;
 use Phoundation\Web\Html\Components\Input\InputSelect;

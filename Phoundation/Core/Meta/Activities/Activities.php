@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Core\Meta\Activities;
 
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\IteratorCore;
 use Phoundation\Data\Traits\TraitMethodHasRendered;

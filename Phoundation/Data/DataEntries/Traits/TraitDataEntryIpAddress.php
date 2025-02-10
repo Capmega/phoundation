@@ -1,0 +1,93 @@
+<?php
+
+/**
+ * Trait TraitDataEntryIpAddress
+ *
+ * This trait contains methods for DataEntry objects that require ip_address
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Data
+ */
+
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntries\Traits;
+
+
+trait TraitDataEntryIpAddress
+{
+    /**
+     * Returns the ip address for this user
+     *
+     * @return string|null
+     */
+    public function getIpAddressBinary(): ?string
+    {
+        return $this->getTypesafe('string', 'ip_address_binary');
+    }
+
+
+    /**
+     * Sets the ip address for this user
+     *
+     * @param string|null $ip_address
+     *
+     * @return static
+     */
+    public function setIpAddressBinary(?string $ip_address): static
+    {
+        return $this->set(get_null($ip_address), 'ip_address_binary');
+    }
+
+
+    /**
+     * Returns the ip address for this user
+     *
+     * @return string|null
+     */
+    public function getIpAddress(): ?string
+    {
+        return $this->getTypesafe('string', 'ip_address');
+    }
+
+
+    /**
+     * Sets the ip address for this user
+     *
+     * @param string|null $ip_address
+     *
+     * @return static
+     */
+    public function setIpAddress(?string $ip_address): static
+    {
+        return $this->set(strlen((string) $ip_address), 'net_len')
+                    ->set(get_null($ip_address), 'ip_address');
+    }
+
+
+    /**
+     * Returns the ip address net_len for this user
+     *
+     * @return int|null
+     */
+    public function getNetLen(): ?int
+    {
+        return $this->getTypesafe('string', 'net_len');
+    }
+
+
+    /**
+     * Sets the ip address net_len
+     *
+     * @param int|null $net_len
+     *
+     * @return static
+     */
+    public function setNetLen(?int $net_len): static
+    {
+        return $this->set(get_null($net_len), 'net_len');
+    }
+}

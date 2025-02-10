@@ -77,7 +77,7 @@ use Phoundation\Cli\Exception\CliAutoCompleteException;
 use Phoundation\Core\Core;
 use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;

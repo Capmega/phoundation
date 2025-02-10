@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\Interfaces;
 
-use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 
 interface SqlDataIteratorInterface
 {

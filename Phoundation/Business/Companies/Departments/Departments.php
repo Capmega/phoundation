@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace Phoundation\Business\Companies\Departments;
 
 use Phoundation\Business\Companies\Departments\Interfaces\DepartmentsInterface;
-use Phoundation\Data\DataEntry\DataIterator;
+use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
 

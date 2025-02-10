@@ -16,8 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\QueryBuilder;
 
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryObjectInterface;

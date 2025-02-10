@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Interfaces;
 
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Filesystem\PhoRestrictions;

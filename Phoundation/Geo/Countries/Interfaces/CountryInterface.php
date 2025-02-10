@@ -2,7 +2,7 @@
 
 namespace Phoundation\Geo\Countries\Interfaces;
 
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Geo\Continents\Interfaces\ContinentInterface;
 use Phoundation\Geo\Timezones\Interfaces\TimezoneInterface;
 use Phoundation\Web\Html\Components\Input\InputSelect;

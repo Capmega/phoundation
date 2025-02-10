@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Geo\Timezones\Interfaces;
 
-use Phoundation\Data\DataEntry\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntry\Interfaces\IdentifierInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 
 
 interface TimezoneInterface extends DataEntryInterface

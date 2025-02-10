@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Storage;
 
-use Phoundation\Data\DataEntry\DataIterator;
+use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Storage\Interfaces\PagesInterface;
 use Phoundation\Web\Requests\Request;
 

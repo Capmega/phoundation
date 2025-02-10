@@ -18,9 +18,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Library\Tests\Phoundation\Data\DataEntry;
 
-use Phoundation\Data\DataEntry\DataEntry;
-use Phoundation\Data\DataEntry\Exception\DataEntryException;
-use Phoundation\Data\DataEntry\Tests\TestDataEntry;
+use Phoundation\Data\DataEntries\DataEntry;
+use Phoundation\Data\DataEntries\Exception\DataEntryException;
+use Phoundation\Data\DataEntries\Tests\TestDataEntry;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Numbers;
 use PHPUnit\Framework\TestCase;

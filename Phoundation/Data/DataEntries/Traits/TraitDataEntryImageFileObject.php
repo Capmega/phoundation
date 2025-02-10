@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * Trait TraitDataEntryPicture
+ *
+ * This trait contains methods for DataEntry objects that require a picture
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Data
+ */
+
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntries\Traits;
+
+use Phoundation\Content\Images\ImageFile;
+use Phoundation\Content\Images\Interfaces\ImageFileInterface;
+use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
+use Phoundation\Utils\Strings;
+
+
+trait TraitDataEntryImageFileObject
+{
+    /**
+     * Returns the picture for this entry
+     *
+     * @return ImageFileInterface
+     */
+    public function getProfilePictureFileFileObject(): ImageFileInterface
+    {
+        return get_null($this->getTypesafe('string', 'picture')) ?? new ImageFile('img/profiles/default.png', PhoRestrictions::newReadonlyObject('img/profiles'));
+    }
+
+
+    /**
+     * Sets the picture for this entry
+     *
+     * @param ImageFileInterface|string|null $picture
+     *
+     * @return static
+     */
+    public function setProfilePictureFileFileObject(ImageFileInterface|string|null $picture): static
+    {
+        // Make sure we have an Image object or NULL
+        $picture = get_null($picture) ?? ImageFile::new($picture, PhoRestrictions::newReadonlyObject('img/profiles'));
+        $picture->setDescription(tr('Profile picture for :customer', [
+            ':customer' => $this->getName()
+        ]));
+
+        return $this->set($picture, 'picture');
+    }
+}

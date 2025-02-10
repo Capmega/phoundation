@@ -47,7 +47,7 @@ use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\LogException;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntry\Interfaces\DataIteratorInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\Interfaces\PhoExceptionInterface;
 use Phoundation\Notifications\Interfaces\NotificationInterface;

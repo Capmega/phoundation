@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Storage;
 
-use Phoundation\Data\DataEntry\DataEntry;
+use Phoundation\Data\DataEntries\DataEntry;
 
 class Book extends DataEntry
 {
