@@ -813,9 +813,9 @@ interface IteratorInterface extends IteratorBaseInterface
     /**
      * Returns the filter_form
      *
-     * @return FilterFormInterface
+     * @return FilterFormInterface|null
      */
-    public function getFilterFormObject(): FilterFormInterface;
+    public function getFilterFormObject(): ?FilterFormInterface;
 
     /**
      * Sets the filter_form
