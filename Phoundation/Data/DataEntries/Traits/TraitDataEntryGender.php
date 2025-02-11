@@ -30,6 +30,8 @@ trait TraitDataEntryGender
         ''       => '',
         'male'   => 'male',
         'female' => 'female',
+        'Male'   => 'male',
+        'Female' => 'female',
         'other'  => 'other',
         'm'      => 'male',
         'f'      => 'female',

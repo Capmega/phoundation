@@ -896,16 +896,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             return $this;
         }
 
-        if ($value === null) {
-            if ($skip_null_values) {
-                if ($this->debug) {
-                    Log::debug('SKIPPING SETTING NULL VALUE "' . get_class($this) . '>' . $key . '"', 10, echo_header: false);
-                }
-
-                return $this;
-            }
-        }
-
         // If the key is defined as readonly or disabled, it cannot be updated unless it's a new object or a
         // static value.
         $definition = $this->definitions->get($key);
@@ -920,17 +910,27 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             return $this;
         }
 
-        // Apply default values
-        if (empty($value)) {
-            if ($this->debug) {
-                Log::debug('TRYING TO APPLY DEFAULT VALUES TO FIELD "' . get_class($this) . '>' . $key . '"', 10, echo_header: false);
-            }
-
+        if ($value === null) {
+            // Apply default values
             if ($this->isNew()) {
                 $value = $definition->getInitialDefault() ?? $definition->getDefault();
 
             } else  {
                 $value = $definition->getDefault();
+            }
+
+            if ($value === null) {
+                if ($skip_null_values) {
+                    if ($this->debug) {
+                        Log::debug('SKIPPING SETTING NULL VALUE "' . get_class($this) . '>' . $key . '"', 10, echo_header: false);
+                    }
+
+                    return $this;
+                }
+            }
+
+            if ($this->debug) {
+                Log::debug('SET DEFAULT VALUE "' . Strings::log($value) . '" TO FIELD "' . get_class($this) . '>' . $key . '"', 10, echo_header: false);
             }
         }
 
