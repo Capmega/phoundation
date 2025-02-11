@@ -85,7 +85,7 @@ if (Request::isPostRequestMethod()) {
 
 
 // Audit button.
-if (!$role->isNew()) {
+if ($role->isNotNew()) {
     $audit = Button::new()
                    ->setFloatRight(true)
                    ->setMode(EnumDisplayMode::information)
@@ -110,6 +110,39 @@ if (!$role->isNew()) {
                         ->setValue(tr('Delete'))
                         ->setContent(tr('Delete'));
     }
+
+    $users = $role->getUsersObject();
+// :TODO: Fix Users class first, make sure that Users::load() uses query builder instead of direct queries!
+//    $users->getQueryBuilder()->addSelect('        `accounts_users`.`id`,
+//                                                  TRIM(CONCAT(`first_names`, " ", `last_names`)) AS `name`,
+//                                                  `accounts_users`.`email`,
+//                                                  `accounts_users`.`status`,
+//                                                  GROUP_CONCAT(CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) SEPARATOR ", ") AS `roles`,
+//                                                  `accounts_users`.`sign_in_count`,
+//                                                  `accounts_users`.`created_on`,
+//                                                  `accounts_users`.`profile_image`')
+//                             ->addJoin('LEFT JOIN `accounts_users_roles`
+//                                               ON `accounts_users_roles`.`users_id` = `accounts_users`.`id`')
+//                             ->addJoin('LEFT JOIN `accounts_roles`
+//                                               ON `accounts_roles`.`id` = `accounts_users_roles`.`roles_id`')
+//                             ->addWhere('         `accounts_users`.`email` != "guest"')
+//                             ->addGroupBy('       `accounts_users`.`id`');
+
+    // Build the "users" list section
+    $users_card = Card::new()
+                      ->setTitle(tr('Users that have this role'))
+                      ->setCollapseSwitch(true)
+                      ->setMaximizeSwitch(true)
+                      ->setContent($users->load()->getHtmlDataTableObject([
+                                                      'id'            => tr('Id'),
+                                                      'profile_image' => tr('Profile image'),
+                                                      'email'         => tr('Email'),
+                                                      'name'          => tr('Name'),
+                                                      'roles'         => tr('Roles'),
+                                                      'status'        => tr('Status'),
+                                                      'sign_in_count' => tr('Signins'),
+                                                      'created_on'    => tr('Created on'),
+                                               ])->setRowUrl('/accounts/user+:ROW.html'));
 }
 
 
@@ -117,6 +150,8 @@ if (!$role->isNew()) {
 $form      = $role->getHtmlDataEntryFormObject();
 $role_card = Card::new()
                  ->setTitle(tr('Edit data for role :name', [':name' => $role->getName()]))
+                 ->setCollapseSwitch(true)
+                 ->setMaximizeSwitch(true)
                  ->setContent($form)
                  ->setButtons(Buttons::new()
                                      ->addButton(tr('Save'))
@@ -143,6 +178,8 @@ $documentation_card = Card::new()
 // Build the "rights" list management section
 $rights_card = Card::new()
                    ->setTitle(tr('Rights for this role'))
+                   ->setCollapseSwitch(true)
+                   ->setMaximizeSwitch(true)
                    ->setContent($role->getRightsHtmlDataEntryForm())
                    ->setForm(Form::new()
                                  ->setAction('#')
@@ -162,5 +199,5 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($role_card     . $rights_card       , EnumDisplaySize::nine, true)
-           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($role_card     . $rights_card        . isset_get($users_card), EnumDisplaySize::nine, true)
+           ->addGridColumn($relevant_card . $documentation_card                         , EnumDisplaySize::three);

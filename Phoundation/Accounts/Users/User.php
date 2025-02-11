@@ -855,7 +855,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                             ->setSeverity(EnumSeverity::low)
                             ->setType('security')
                             ->setTitle(tr('User modified'))
-                            ->setBody(tr('The user ":user" modified their account, see audit ":meta_id" for more information', [
+                            ->setBody(tr('The user ":user" modified their own account, see audit ":meta_id" for more information', [
                                 ':user'    => $this->getLogId(),
                                 ':meta_id' => $this->getMetaId(),
                             ]))

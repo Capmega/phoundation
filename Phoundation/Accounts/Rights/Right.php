@@ -22,6 +22,8 @@ use Phoundation\Accounts\Rights\Interfaces\RightInterface;
 use Phoundation\Accounts\Roles\Exception\RightNotExistsException;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
 use Phoundation\Accounts\Roles\Roles;
+use Phoundation\Accounts\Users\Interfaces\UsersInterface;
+use Phoundation\Accounts\Users\Users;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
@@ -121,6 +123,24 @@ class Right extends DataEntry implements RightInterface
         return Roles::new()
                     ->setParentObject($this)
                     ->load();
+    }
+
+
+    /**
+     * Returns the users that are linked to this right
+     *
+     * @return UsersInterface
+     */
+    public function getUsersObject(): UsersInterface
+    {
+        if ($this->isNew()) {
+            throw new AccountsException(tr('Cannot access users for right ":right", the right has not yet been saved', [
+                ':right' => $this->getLogId(),
+            ]));
+        }
+
+        return Users::new()
+                    ->setParentObject($this);
     }
 
 
