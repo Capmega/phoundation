@@ -1098,6 +1098,26 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return static|null
      */
+    public function loadOrInitialize(IdentifierInterface|array|string|int|null $identifier = null): ?static
+    {
+        try {
+            return $this->load($identifier);
+
+        } catch (DataEntryNotExistsException) {
+            // This entry does not yet exist! Ignore, and just presume we want to make THIS particular entry.
+            return $this->initializeSource($identifier);
+        }
+    }
+
+
+    /**
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or NULL if NULL
+     * identifier was specified
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier
+     *
+     * @return static|null
+     */
     public function loadOrNull(IdentifierInterface|array|string|int|null $identifier = null): ?static
     {
         if ($this->identifiersAreNull($identifier)) {
