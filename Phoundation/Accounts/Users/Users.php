@@ -45,31 +45,6 @@ use Stringable;
 class Users extends DataIterator implements UsersInterface
 {
     /**
-     * Users class constructor
-     */
-    public function __construct()
-    {
-//        $this->setQuery('SELECT    `accounts_users`.`id`,
-//                                         TRIM(CONCAT(`first_names`, " ", `last_names`)) AS `name`,
-//                                         GROUP_CONCAT(CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) SEPARATOR ", ") AS `roles`,
-//                                         `accounts_users`.`email`,
-//                                         `accounts_users`.`status`,
-//                                         `accounts_users`.`sign_in_count`,
-//                                         `accounts_users`.`created_on`
-//                               FROM      `accounts_users`
-//                               LEFT JOIN `accounts_users_roles`
-//                               ON        `accounts_users_roles`.`users_id` = `accounts_users`.`id`
-//                               LEFT JOIN `accounts_roles`
-//                               ON        `accounts_roles`.`id` = `accounts_users_roles`.`roles_id`
-//                               WHERE     `accounts_users`.`status` IS NULL AND `email` != "guest"
-//                               GROUP BY  `accounts_users`.`id`
-//                               ORDER BY  `name`');
-
-        parent::__construct();
-    }
-
-
-    /**
      * Returns the table name used by this object
      *
      * @return string|null

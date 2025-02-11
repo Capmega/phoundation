@@ -232,8 +232,7 @@ class Role extends DataEntry implements RoleInterface
         }
 
         return Users::new()
-                    ->setParentObject($this)
-                    ->load();
+                    ->setParentObject($this);
     }
 
 

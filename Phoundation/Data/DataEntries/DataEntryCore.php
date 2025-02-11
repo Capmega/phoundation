@@ -1120,6 +1120,28 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
+     * Reloads the data for this DataEntry
+     *
+     * @return static
+     */
+    public function reload(): static
+    {
+        // Start loading the object
+        $this->is_initializing = true;
+
+        // Load data from identifier
+        $this->loadIdentifier();
+
+        // This entry exists in the database, yay! Is it not deleted, though?
+        if ($this->isDeleted()) {
+            $this->processDeleted();
+        }
+
+        return $this->ready();
+    }
+
+
+    /**
      * Returns a DataEntry object matching the specified identifier that MUST exist in the database
      *
      * This method also accepts DataEntry objects of the same class, in which case it will simply return the specified
@@ -1187,7 +1209,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 return $this->ready();
             }
 
-            // Load data from database
+            // Load data from identifier
             $this->loadIdentifier();
 
             // This entry exists in the database, yay! Is it not deleted, though?
