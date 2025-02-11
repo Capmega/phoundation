@@ -20,11 +20,11 @@ namespace Phoundation\Data\Traits;
 trait TraitDataIgnoreDeleted
 {
     /**
-     * Tracks if the meta-system is enabled or disabled for this (type of) DataEntry
+     * Tracks if the DataEntry object should ignore the "deleted" status
      *
      * @var bool $ignore_deleted
      */
-    protected bool $ignore_deleted = true;
+    protected bool $ignore_deleted = false;
 
 
     /**
