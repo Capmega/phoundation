@@ -55,7 +55,7 @@ interface RightsInterface extends DataIteratorInterface
      *
      * @return static
      */
-    public function save(): static;
+    public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static;
 
     /**
      * Returns a select with the available rights

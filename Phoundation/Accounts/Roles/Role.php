@@ -239,11 +239,13 @@ class Role extends DataEntry implements RoleInterface
     /**
      * Delete this role
      *
-     * @param string|null $comments
      *
-     * @return static
+     * @param string|null $comments
+     * @param bool        $auto_save *
+     *
+* @return static
      */
-    public function delete(?string $comments = null): static
+    public function delete(?string $comments = null, bool $auto_save = true): static
     {
         if ($this->getId(false)) {
             // Update all accounts_users_roles and accounts_roles_rights too
@@ -257,7 +259,7 @@ class Role extends DataEntry implements RoleInterface
         }
 
 
-        return parent::delete($comments);
+        return parent::delete($comments, $auto_save);
     }
 
 
@@ -265,10 +267,11 @@ class Role extends DataEntry implements RoleInterface
      * Undelete this role
      *
      * @param string|null $comments
+     * @param bool        $auto_save
      *
      * @return static
      */
-    public function undelete(?string $comments = null): static
+    public function undelete(?string $comments = null, bool $auto_save = true): static
     {
         if ($this->getId(false)) {
             // Update all accounts_users_roles and accounts_roles_rights too
@@ -281,7 +284,7 @@ class Role extends DataEntry implements RoleInterface
             ]);
         }
 
-        return parent::undelete($comments);
+        return parent::undelete($comments, $auto_save);
     }
 
 

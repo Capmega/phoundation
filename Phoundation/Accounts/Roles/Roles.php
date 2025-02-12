@@ -525,10 +525,14 @@ class Roles extends DataIterator implements RolesInterface
     /**
      * Save the data for this roles list in the database
      *
-     * @return static
+     * @param bool        $force
+     * @param bool        $skip_validation
+     * @param string|null $comments *
+     *
+* @return static
      * @todo Implement this. ->add(), ->removeKeys(), ->clear() should NOT immediately save to database!
      */
-    public function save(): static
+    public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
 //        $this->ensureParent(tr('save parent entries'));
 //

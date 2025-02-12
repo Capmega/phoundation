@@ -147,11 +147,13 @@ class Right extends DataEntry implements RightInterface
     /**
      * Delete this right
      *
-     * @param string|null $comments
      *
-     * @return static
+     * @param string|null $comments
+     * @param bool        $auto_save *
+     *
+* @return static
      */
-    public function delete(?string $comments = null): static
+    public function delete(?string $comments = null, bool $auto_save = true): static
     {
         // Update all accounts_users_rights too
         if ($this->getId(false)) {
@@ -160,7 +162,7 @@ class Right extends DataEntry implements RightInterface
             ]);
         }
 
-        return parent::delete($comments);
+        return parent::delete($comments, $auto_save);
     }
 
 
@@ -168,10 +170,11 @@ class Right extends DataEntry implements RightInterface
      * Undelete this right
      *
      * @param string|null $comments
+     * @param bool        $auto_save
      *
      * @return static
      */
-    public function undelete(?string $comments = null): static
+    public function undelete(?string $comments = null, bool $auto_save = true): static
     {
         // Update all accounts_users_rights too
         if ($this->getId(false)) {
@@ -184,7 +187,7 @@ class Right extends DataEntry implements RightInterface
             ]);
         }
 
-        return parent::undelete($comments);
+        return parent::undelete($comments, $auto_save);
     }
 
 

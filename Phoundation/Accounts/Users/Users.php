@@ -331,7 +331,7 @@ class Users extends DataIterator implements UsersInterface
      * @return static
      * @todo Implement this. ->add(), ->removeKeys(), ->clear() should NOT immediately save to database!
      */
-    public function save(): static
+    public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
 //        $this->ensureParent(tr('save parent entries'));
 //

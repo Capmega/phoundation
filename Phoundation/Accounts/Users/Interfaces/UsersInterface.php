@@ -54,5 +54,5 @@ interface UsersInterface extends DataIteratorInterface
      *
      * @return static
      */
-    public function save(): static;
+    public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static;
 }
