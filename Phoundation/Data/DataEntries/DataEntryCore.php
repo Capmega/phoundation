@@ -4043,6 +4043,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function getVirtualObject(string $table): ?DataEntryInterface
     {
+        if (empty($this->virtual_objects[$table])) {
+            $this->setVirtualObject($table);
+        }
+
         return isset_get($this->virtual_objects[$table]);
     }
 
