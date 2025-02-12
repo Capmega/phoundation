@@ -46,40 +46,43 @@ trait TraitDataIdentifier
     /**
      * Sets if the meta-system is enabled or disabled for this (type of) DataEntry
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      *
      * @return static
      */
-    public function setIdentifier(IdentifierInterface|array|string|int|null $identifier): static
+    public function setIdentifier(IdentifierInterface|array|string|int|false|null $identifier): static
     {
-        if ($this->isNew()) {
-            // Ensure $identifier is either NULL or a key => value array
-            if ($identifier instanceof DataEntryInterface) {
-                $identifier = $identifier->getIdentifier();
-
-            } elseif ($identifier instanceof IteratorInterface) {
-                $identifier =  $identifier->getSource();
-
-            } elseif (is_numeric($identifier)) {
-                $identifier = [static::getIdColumn() => $identifier];
-
-            } elseif (is_string($identifier)) {
-                $identifier = [static::getUniqueColumn() => $identifier];
-            }
-
-            // Set the identifier
-            $this->identifier = $identifier;
-            return $this;
+        if ($this->isNotNew()) {
+            // This DataEntry object already contains data from a source, we cannot set the identifier anymore
+            throw DataEntryException::new(tr('Cannot set identifier ":identifier" for DataEntry class ":class", the object already contains source data', [
+                ':class'      => $this::class,
+                ':identifier' => $identifier,
+            ]))->setData([
+                'class'      => $this::class,
+                'identifier' => $identifier,
+                'source'     => $this->source
+            ]);
         }
 
-        // This DataEntry object already contains data from a source, we cannot set the identifier anymore
-        throw DataEntryException::new(tr('Cannot set identifier ":identifier" for DataEntry class ":class", the object already contains source data', [
-            ':class'      => $this::class,
-            ':identifier' => $identifier,
-        ]))->setData([
-            'class'      => $this::class,
-            'identifier' => $identifier,
-            'source'     => $this->source
-        ]);
+        // Ensure $identifier is either NULL or a key => value array
+        if ($identifier instanceof DataEntryInterface) {
+            $identifier = $identifier->getIdentifier();
+
+        } elseif ($identifier instanceof IteratorInterface) {
+            $identifier =  $identifier->getSource();
+
+        } elseif (is_numeric($identifier)) {
+            $identifier = [static::getIdColumn() => $identifier];
+
+        } elseif (is_string($identifier)) {
+            $identifier = [static::getUniqueColumn() => $identifier];
+
+        } else {
+            $identifier = get_null($identifier);
+        }
+
+        // Set the identifier
+        $this->identifier = $identifier;
+        return $this;
     }
 }
