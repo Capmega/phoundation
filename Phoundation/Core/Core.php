@@ -3104,9 +3104,11 @@ class Core implements CoreInterface
                 if ($e->getWarning()) {
                     if ($e instanceof ValidationFailedException) {
                         $message = Strings::force($e->getFailures(), ', ');
+
                     } else {
                         $message = $e->getMessage();
                     }
+
                 } else {
                     $message = tr('Something went wrong on the server, please notify your IT department and try again later');
                 }
@@ -3115,7 +3117,7 @@ class Core implements CoreInterface
                         ->addFlashMessageSections(FlashMessage::new()
                             ->setMode($e->getWarning() ? EnumDisplayMode::warning : EnumDisplayMode::error)
                             ->setTitle(tr('Error!'))
-                            ->setMessage($message))
+                            ->setMessage(get_null(trim($message)) ?? tr('Something went wrong on the server, please notify your IT department and try again later')))
                         ->reply();
         }
 
