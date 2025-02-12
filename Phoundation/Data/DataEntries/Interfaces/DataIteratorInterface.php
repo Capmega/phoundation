@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries\Interfaces;
 
-use Phoundation\Data\DataEntries\DataEntry;
+
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
@@ -143,24 +143,26 @@ interface DataIteratorInterface extends IteratorInterface
      *
      * @param string|null $status
      * @param string|null $comments
+     * @param bool        $auto_save
      *
-     * @return int
+     * @return static
      */
-    public function setStatus(?string $status, ?string $comments = null): int;
+    public function setStatus(?string $status, ?string $comments = null, bool $auto_save = true): static;
 
 
     /**
      * Delete all the entries in this list
      *
      * @param string|null $comments
+     * @param bool        $auto_save
      *
-     * @return int
+     * @return DataIteratorInterface
      */
-    public function delete(?string $comments = null): int;
+    public function delete(?string $comments = null, bool $auto_save = true): static;
 
 
     /**
-     * Erase (as in SQL DELETE) the specified entries from the database, also erasing their meta data
+     * Erase (as in SQL DELETE) the specified entries from the database, also erasing their metadata
      *
      * @return static
      */
@@ -173,10 +175,11 @@ interface DataIteratorInterface extends IteratorInterface
      * @note This will set the status "NULL" to the entries in this datalist, NOT the original value of their status!
      *
      * @param string|null $comments
+     * @param bool        $auto_save
      *
-     * @return int
+     * @return DataIteratorInterface
      */
-    public function undelete(?string $comments = null): int;
+    public function undelete(?string $comments = null, bool $auto_save = true): static;
 
 
     /**

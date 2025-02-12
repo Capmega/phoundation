@@ -3321,10 +3321,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * Delete this entry
      *
      * @param string|null $comments
+     * @param bool        $auto_save
      *
      * @return static
      */
-    public function delete(?string $comments = null): static
+    public function delete(?string $comments = null, bool $auto_save = true): static
     {
         if ($this->isModified()) {
             throw new OutOfBoundsException(tr('Cannot delete DataEntry ":class" with identifier ":identifier" because it has modifications that have not yet been saved', [
@@ -3339,7 +3340,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             $this->save(true, true);
         }
 
-        return $this->setStatus('deleted', $comments);
+        return $this->setStatus('deleted', $comments, $auto_save);
     }
 
 
@@ -3348,10 +3349,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @param string|null $status
      * @param string|null $comments
+     * @param bool        $auto_save
      *
      * @return static
      */
-    public function setStatus(?string $status, ?string $comments = null): static
+    public function setStatus(?string $status, ?string $comments = null, bool $auto_save = true): static
     {
         if ($status and (strlen($status) > 32)) {
             throw new OutOfBoundsException(tr('Cannot set DataEntry ":class" status to ":status", status length cannot be more than 32 characters', [
@@ -3370,6 +3372,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         $this->source['status'] = $status;
 
+        if ($auto_save) {
+            $this->save();
+        }
+
         return $this;
     }
 
@@ -3378,12 +3384,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * Undelete the specified entries
      *
      * @param string|null $comments
+     * @param bool        $auto_save
      *
      * @return static
      */
-    public function undelete(?string $comments = null): static
+    public function undelete(?string $comments = null, bool $auto_save = true): static
     {
-        return $this->setStatus(null, $comments);
+        return $this->setStatus(null, $comments, $auto_save);
     }
 
 

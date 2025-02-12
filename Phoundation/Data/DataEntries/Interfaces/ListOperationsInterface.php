@@ -21,9 +21,9 @@ interface ListOperationsInterface
      * @param string|null  $status
      * @param string|null  $comments
      *
-     * @return int
+     * @return static
      */
-    public function setStatusKeys(array|string $ids, ?string $status, ?string $comments = null): int;
+    public function setStatusKeys(array|string $ids, ?string $status, ?string $comments = null): static;
 
 
     /**
@@ -32,19 +32,19 @@ interface ListOperationsInterface
      * @param array|string $ids
      * @param string|null  $comments
      *
-     * @return int
+     * @return static
      */
-    public function deleteKeys(array|string $ids, ?string $comments = null): int;
+    public function deleteKeys(array|string $ids, ?string $comments = null): static;
 
 
     /**
-     * Erase (as in SQL DELETE) the specified entries from the database, also erasing their meta data
+     * Erase (as in SQL DELETE) the specified entries from the database, also erasing their metadata
      *
      * @param array|string $ids
      *
      * @return int
      */
-    public function eraseKeys(array|string $ids): int;
+    public function eraseKeys(array|string $ids): static;
 
 
     /**
@@ -57,5 +57,5 @@ interface ListOperationsInterface
      *
      * @return int
      */
-    public function undeleteKeys(array|string $ids, ?string $comments = null): int;
+    public function undeleteKeys(array|string $ids, ?string $comments = null): static;
 }

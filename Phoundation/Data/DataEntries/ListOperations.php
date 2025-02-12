@@ -45,9 +45,9 @@ class ListOperations implements ListOperationsInterface
      * @param array|string $ids
      * @param string|null  $comments
      *
-     * @return int
+     * @return static
      */
-    public function deleteKeys(array|string $ids, ?string $comments = null): int
+    public function deleteKeys(array|string $ids, ?string $comments = null): static
     {
         return $this->setStatusKeys($ids, 'deleted', $comments);
     }
@@ -60,19 +60,16 @@ class ListOperations implements ListOperationsInterface
      * @param string|null  $status
      * @param string|null  $comments
      *
-     * @return int
-     * @todo Optimize this function
+     * @return static
      */
-    public function setStatusKeys(array|string $ids, ?string $status, ?string $comments = null): int
+    public function setStatusKeys(array|string $ids, ?string $status, ?string $comments = null): static
     {
-        $count = 0;
         foreach (Arrays::force($ids) as $id) {
-            $count++;
             $entry = $this->parent::getEntryClass()::new($id);
             $entry->setStatus($status);
         }
 
-        return $count;
+        return $this;
     }
 
 
@@ -94,19 +91,18 @@ class ListOperations implements ListOperationsInterface
      *
      * @param array|string $ids
      *
-     * @return int
+     * @return static
      */
-    public function eraseKeys(array|string $ids): int
+    public function eraseKeys(array|string $ids): static
     {
         $meta = [];
         // Delete the meta data entries
         foreach (Arrays::force($ids) as $id) {
-            $count++;
             $entry = $this->parent::getEntryClass()::new($id);
             $entry->erase();
         }
 
-        return $count;
+        return $this;
     }
 
 
@@ -115,11 +111,12 @@ class ListOperations implements ListOperationsInterface
      *
      * @note This will set the status "NULL" to the entries in this datalist, NOT the original value of their status!
      *
-     * @param string|null $comments
+     * @param array|string $ids
+     * @param string|null  $comments
      *
-     * @return int
+     * @return ListOperations
      */
-    public function undeleteKeys(array|string $ids, ?string $comments = null): int
+    public function undeleteKeys(array|string $ids, ?string $comments = null): static
     {
         return $this->setStatusKeys($ids, null, $comments);
     }

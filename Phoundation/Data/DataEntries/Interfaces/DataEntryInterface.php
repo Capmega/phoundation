@@ -203,15 +203,17 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      */
     public function getStatus(): ?string;
 
+
     /**
      * Set the status for this database entry
      *
      * @param string|null $status
      * @param string|null $comments
+     * @param bool        $auto_save
      *
      * @return static
      */
-    public function setStatus(?string $status, ?string $comments = null): static;
+    public function setStatus(?string $status, ?string $comments = null, bool $auto_save = true): static;
 
     /**
      * Returns the meta-state for this database entry
@@ -227,23 +229,27 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      */
     public function getMetaColumns(): ?array;
 
+
     /**
      * Delete the specified entries
      *
      * @param string|null $comments
+     * @param bool        $auto_save
      *
      * @return static
      */
-    public function delete(?string $comments = null): static;
+    public function delete(?string $comments = null, bool $auto_save = true): static;
+
 
     /**
      * Undelete the specified entries
      *
      * @param string|null $comments
+     * @param bool        $auto_save
      *
      * @return static
      */
-    public function undelete(?string $comments = null): static;
+    public function undelete(?string $comments = null, bool $auto_save = true): static;
 
     /**
      * Erase this DataEntry from the database

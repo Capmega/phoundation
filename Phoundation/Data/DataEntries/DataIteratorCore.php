@@ -135,6 +135,13 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      */
     protected bool $require_parent = false;
 
+    /**
+     * Tracks the entries in this iterator that were modified
+     *
+     * @var int|null $modified_entries
+     */
+    protected ?int $modified_entries = null;
+
 
     /**
      * Return the object source contents in JSON string format
@@ -673,12 +680,29 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      * Delete all the entries in this list
      *
      * @param string|null $comments
+     * @param bool        $auto_save
      *
-     * @return int
+     * @return static
      */
-    public function delete(?string $comments = null): int
+    public function delete(?string $comments = null, bool $auto_save = true): static
     {
-        return $this->setStatus('deleted', $comments);
+        return $this->setStatus('deleted', $comments, $auto_save);
+    }
+
+
+    /**
+     * Undelete the specified entries
+     *
+     * @note This will set the status "NULL" to the entries in this datalist, NOT the original value of their status!
+     *
+     * @param string|null $comments
+     * @param bool        $auto_save
+     *
+     * @return static
+     */
+    public function undelete(?string $comments = null, bool $auto_save = true): static
+    {
+        return $this->setStatus(null, $comments, $auto_save);
     }
 
 
@@ -687,16 +711,17 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      *
      * @param string|null $status
      * @param string|null $comments
+     * @param bool        $auto_save
      *
-     * @return int
+     * @return static
      */
-    public function setStatus(?string $status, ?string $comments = null): int
+    public function setStatus(?string $status, ?string $comments = null, bool $auto_save = true): static
     {
         foreach ($this->source as $entry) {
-            $entry->setStatus($status, $comments);
+            $entry->setStatus($status, $comments, $auto_save);
         }
 
-        return count($this->source);
+        return $this->setModifiedEntries(count($this->source));
     }
 
 
@@ -732,21 +757,6 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
         }
 
         return $this;
-    }
-
-
-    /**
-     * Undelete the specified entries
-     *
-     * @note This will set the status "NULL" to the entries in this datalist, NOT the original value of their status!
-     *
-     * @param string|null $comments
-     *
-     * @return int
-     */
-    public function undelete(?string $comments = null): int
-    {
-        return $this->setStatus(null, $comments);
     }
 
 
@@ -1213,7 +1223,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      *
      * @return static
      */
-    public function saveDataEntryObjects(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
+    public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
         foreach ($this as $entry) {
             if ($entry) {
@@ -1326,5 +1336,30 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     public function isLoaded(): bool
     {
         return $this->is_loaded;
+    }
+
+
+    /**
+     * Returns the amount of entries that have been modified
+     *
+     * @return int|null
+     */
+    protected function getModifiedEntries(): ?int
+    {
+        return $this->modified_entries;
+    }
+
+
+    /**
+     * Sets the amount of entries that have been modified
+     *
+     * @param int $count
+     *
+     * @return static
+     */
+    protected function setModifiedEntries(int $count): static
+    {
+        $this->modified_entries = $count;
+        return $this;
     }
 }
