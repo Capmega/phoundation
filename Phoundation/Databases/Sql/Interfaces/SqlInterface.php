@@ -133,7 +133,7 @@ interface SqlInterface extends DatabaseInterface
 
 
     /**
-     * Insert the specified data row in the specified table, with "on dulplicate update" option
+     * Insert the specified data row in the specified table, with "on duplicate update" option
      *
      * This is a simplified insert method to speed up writing basic insert queries
      *
@@ -145,9 +145,9 @@ interface SqlInterface extends DatabaseInterface
      * @param array             $data
      * @param array|string|null $update
      *
-     * @return int
+     * @return SqlInterface
      */
-    public function insert(string $table, array $data, array|string|null $update = null): int;
+    public function insert(string $table, array $data, array|string|null $update = null): static;
 
 
     /**
@@ -162,9 +162,9 @@ interface SqlInterface extends DatabaseInterface
      * @param array      $set
      * @param array|null $where
      *
-     * @return int The number of rows that were updated
+     * @return SqlInterface The number of rows that were updated
      */
-    public function update(string $table, array $set, array|null $where = null): int;
+    public function update(string $table, array $set, array|null $where = null): static;
 
 
     /**
@@ -175,9 +175,9 @@ interface SqlInterface extends DatabaseInterface
      * @param string $table
      * @param array  $execute
      *
-     * @return int
+     * @return SqlInterface
      */
-    public function delete(string $table, array $execute): int;
+    public function delete(string $table, array $execute): static;
 
 
     /**
@@ -202,9 +202,9 @@ interface SqlInterface extends DatabaseInterface
      * @param array  $where
      * @param string $separator
      *
-     * @return int
+     * @return SqlInterface
      */
-    public function erase(string $table, array $where, string $separator = 'AND'): int;
+    public function erase(string $table, array $where, string $separator = 'AND'): static;
 
 
     /**

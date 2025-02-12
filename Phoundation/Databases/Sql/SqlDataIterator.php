@@ -142,9 +142,9 @@ class SqlDataIterator implements SqlDataIteratorInterface
      * @param array       $row
      * @param string|null $comments
      *
-     * @return int
+     * @return static
      */
-    public function delete(array $row, ?string $comments = null): int
+    public function delete(array $row, ?string $comments = null): static
     {
         Core::checkReadonly('sql data-list-delete');
 
@@ -166,9 +166,9 @@ class SqlDataIterator implements SqlDataIteratorInterface
      * @param DataIteratorInterface|array $list
      * @param string|null                 $comments
      *
-     * @return int
+     * @return static
      */
-    public function setStatus(?string $status, DataIteratorInterface|array $list, ?string $comments = null): int
+    public function setStatus(?string $status, DataIteratorInterface|array $list, ?string $comments = null): static
     {
         Core::checkReadonly('sql set-status');
 
@@ -192,13 +192,15 @@ class SqlDataIterator implements SqlDataIteratorInterface
         }
 
         // Update the row status
-        return $this->sql->setDebug($this->debug)
-                         ->query('UPDATE `' . $this->table . '`
-                                  SET    `status`                   = :status
-                                  WHERE  `' . $this->id_column . '` = :' . $this->id_column, [
-                                      ':status'              => $status,
-                                      ':' . $this->id_column => $list[$this->id_column],
-                         ])->rowCount();
+        $this->sql->setDebug($this->debug)
+                  ->query('UPDATE `' . $this->table . '`
+                           SET    `status`                   = :status
+                           WHERE  `' . $this->id_column . '` = :' . $this->id_column, [
+                                ':status'              => $status,
+                                ':' . $this->id_column => $list[$this->id_column],
+                         ]);
+
+        return $this;
     }
 
 

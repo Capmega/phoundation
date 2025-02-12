@@ -216,9 +216,24 @@ interface SqlDataEntryInterface
      *
      * @param string|null $comments
      *
-     * @return int
+     * @return SqlDataEntryInterface
      */
-    public function delete(?string $comments = null): int;
+    public function delete(?string $comments = null): static;
+
+
+    /**
+     * Update the status for the data row in the specified table to "null"
+     *
+     * This is a simplified insert method to speed up writing basic insert queries
+     *
+     * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
+     *       to this table are in the $row value, the query will automatically fail with an exception!
+     *
+     * @param string|null $comments
+     *
+     * @return SqlDataEntryInterface
+     */
+    public function undelete(?string $comments = null): static;
 
 
     /**
@@ -227,9 +242,9 @@ interface SqlDataEntryInterface
      * @param string|null $status
      * @param string|null $comments
      *
-     * @return int
+     * @return SqlDataEntryInterface
      */
-    public function setStatus(?string $status, ?string $comments = null): int;
+    public function setStatus(?string $status, ?string $comments = null): static;
 
 
     /**

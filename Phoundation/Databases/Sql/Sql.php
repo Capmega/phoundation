@@ -1247,9 +1247,9 @@ class Sql implements SqlInterface
      * @param array             $data
      * @param array|string|null $update
      *
-     * @return int
+     * @return Sql
      */
-    public function insert(string $table, array $data, array|string|null $update = null): int
+    public function insert(string $table, array $data, array|string|null $update = null): static
     {
         Core::checkReadonly('sql insert');
 
@@ -1275,7 +1275,7 @@ class Sql implements SqlInterface
             $this->query('INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . $keys . ')', $values);
         }
 
-        return (int) $this->pdo->lastInsertId();
+        return $this;
     }
 
 
@@ -1289,9 +1289,9 @@ class Sql implements SqlInterface
      * @param string|null $status
      * @param array|null  $where
      *
-     * @return int The number of rows that were updated
+     * @return Sql The number of rows that were updated
      */
-    public function setStatus(string $table, ?string $status, array|null $where = null): int
+    public function setStatus(string $table, ?string $status, array|null $where = null): static
     {
         return $this->update($table, ['status' => $status], $where);
     }
@@ -1309,9 +1309,9 @@ class Sql implements SqlInterface
      * @param array      $set
      * @param array|null $where
      *
-     * @return int The number of rows that were updated
+     * @return Sql The number of rows that were updated
      */
-    public function update(string $table, array $set, array|null $where = null): int
+    public function update(string $table, array $set, array|null $where = null): static
     {
         Core::checkReadonly('sql update');
 
@@ -1322,7 +1322,7 @@ class Sql implements SqlInterface
         $statement = $this->query('UPDATE `' . $table . '`
                                          SET     ' . $update . $where, $values);
 
-        return $statement->rowCount();
+        return $this;
     }
 
 
@@ -1359,9 +1359,9 @@ class Sql implements SqlInterface
      * @param string $table
      * @param array  $execute
      *
-     * @return int
+     * @return static
      */
-    public function delete(string $table, array $execute): int
+    public function delete(string $table, array $execute): static
     {
         // This table is not a DataEntry table, delete the entry
         return $this->erase($table, $execute);
@@ -1380,9 +1380,9 @@ class Sql implements SqlInterface
      * @param array  $where
      * @param string $separator
      *
-     * @return int
+     * @return static
      */
-    public function erase(string $table, array $where, string $separator = 'AND'): int
+    public function erase(string $table, array $where, string $separator = 'AND'): static
     {
         Core::checkReadonly('sql erase');
 
@@ -1390,9 +1390,10 @@ class Sql implements SqlInterface
         $variables = SqlQueries::getBoundValues($where);
         $update    = SqlQueries::filterColumns($where, ' ' . $separator . ' ');
 
-        return $this->query('DELETE FROM `' . $table . '`
-                                    WHERE        ' . $update, $variables)
-                    ->rowCount();
+        $this->query('DELETE FROM `' . $table . '`
+                      WHERE        ' . $update, $variables);
+
+        return $this;
     }
 
 

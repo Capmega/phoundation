@@ -473,9 +473,9 @@ class SqlDataEntry implements SqlDataEntryInterface
      *
      * @param string|null $comments
      *
-     * @return int
+     * @return static
      */
-    public function delete(?string $comments = null): int
+    public function delete(?string $comments = null): static
     {
         Core::checkReadonly('sql data-entry-delete');
         return $this->setStatus('deleted', $comments);
@@ -489,9 +489,9 @@ class SqlDataEntry implements SqlDataEntryInterface
      *
      * @param string|null $comments
      *
-     * @return int
+     * @return SqlDataEntry
      */
-    public function undelete(?string $comments = null): int
+    public function undelete(?string $comments = null): static
     {
         Core::checkReadonly('sql data-entry-undelete');
         return $this->setStatus(null, $comments);
@@ -503,9 +503,9 @@ class SqlDataEntry implements SqlDataEntryInterface
      *
      * This method will erase both the data entry record and its meta data history
      *
-     * @return int
+     * @return static
      */
-    public function erase(): int
+    public function erase(): static
     {
         Core::checkReadonly('sql data-entry-erase');
 
@@ -513,10 +513,12 @@ class SqlDataEntry implements SqlDataEntryInterface
         Meta::get($this->data_entry->getMetaId())->erase();
 
         // Erase the record
-        return sql()->setDebug($this->debug)
+        sql()->setDebug($this->debug)
                     ->query('DELETE FROM `' . $this->table . '` WHERE `' . $this->getIdColumn() . '` = :id', [
                         ':id' => $this->data_entry->get($this->getIdColumn()),
-                    ])->rowCount();
+                    ]);
+
+        return $this;
     }
 
 
@@ -526,9 +528,9 @@ class SqlDataEntry implements SqlDataEntryInterface
      * @param string|null $status
      * @param string|null $comments
      *
-     * @return int
+     * @return SqlDataEntry
      */
-    public function setStatus(?string $status, ?string $comments = null): int
+    public function setStatus(?string $status, ?string $comments = null): static
     {
         Core::checkReadonly('sql set-status');
 
@@ -547,13 +549,15 @@ class SqlDataEntry implements SqlDataEntryInterface
         }
 
         // Update the row status
-        return $this->sql->setDebug($this->debug)
+        $this->sql->setDebug($this->debug)
                          ->query('UPDATE `' . $this->table . '`
                                   SET     `status`                   = :status
                                   WHERE   `' . $this->id_column . '` = :' . $this->id_column, [
                                       ':status'              => $status,
                                       ':' . $this->id_column => $entry->getId(),
-                         ])->rowCount();
+                         ]);
+
+        return $this;
     }
 
 
