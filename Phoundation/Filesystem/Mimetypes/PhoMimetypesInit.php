@@ -25,7 +25,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 
 
-class FsMimetypesInit
+class PhoMimetypesInit
 {
     /**
      * Clears the filesystem_mimetypes table

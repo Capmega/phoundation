@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\Mimetypes\FsMimetypesInit;
+use Phoundation\Filesystem\Mimetypes\PhoMimetypesInit;
 
 
 CliDocumentation::setAutoComplete([
@@ -46,9 +46,9 @@ $argv = ArgvValidator::new()
 
 // Clear the table?
 if ($argv['clear']) {
-    FsMimetypesInit::clear();
+    PhoMimetypesInit::clear();
 }
 
 
 // Initialize the mime types
-FsMimetypesInit::init();
+PhoMimetypesInit::init();

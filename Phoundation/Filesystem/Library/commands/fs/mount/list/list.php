@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\Mounts\FsMounts;
+use Phoundation\Filesystem\Mounts\PhoMounts;
 
 
 
@@ -31,4 +31,4 @@ $argv = ArgvValidator::new()
 
 
 // Display the available mounts
-FsMounts::new()->load()->displayCliTable('name,source_path,target_path,filesystem');
+PhoMounts::new()->load()->displayCliTable('name,source_path,target_path,filesystem');

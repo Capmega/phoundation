@@ -159,14 +159,14 @@ class PhoMount extends DataEntry implements PhoMountInterface
 
                 case 'source_path':
                     // This is a mount that SHOULD already exist on the system
-                    $mount = FsMounts::getMountSources(new PhoDirectory($this->identifier['source_path']));
+                    $mount = PhoMounts::getMountSources(new PhoDirectory($this->identifier['source_path']));
 
                     return static::new($mount)->setMetaEnabled($this>$this->meta_enabled)
                                               ->setIgnoreDeleted($this>$this->ignore_deleted);
 
                 case 'target_path':
                     // This is a mount that SHOULD already exist on the system
-                    $mount = FsMounts::getMountTargets(new PhoDirectory($this->identifier['target_path']));
+                    $mount = PhoMounts::getMountTargets(new PhoDirectory($this->identifier['target_path']));
 
                     return static::new($mount)->setMetaEnabled($this>$this->meta_enabled)
                                               ->setIgnoreDeleted($this>$this->ignore_deleted);
@@ -344,8 +344,8 @@ class PhoMount extends DataEntry implements PhoMountInterface
     public function isMounted(): bool
     {
         try {
-            foreach (FsMounts::getMountSources($this->getAbsoluteTargetPath(), $this->restrictions)
-                             ->getAllRowsSingleColumn('source_path') as $source_path) {
+            foreach (PhoMounts::getMountSources($this->getAbsoluteTargetPath(), $this->restrictions)
+                              ->getAllRowsSingleColumn('source_path') as $source_path) {
                 if ($this->getSourcePath() !== $source_path) {
                     throw new MountsException(tr('The target path ":target" should be mounted from ":source" but is mounted from ":current"', [
                         ':source'  => $this->getTargetPath(),
@@ -395,8 +395,8 @@ class PhoMount extends DataEntry implements PhoMountInterface
     public function getCurrentSource(): string|null
     {
         try {
-            $mounts = FsMounts::getMountSources($this->getAbsoluteTargetPath(), $this->restrictions)
-                              ->getAllRowsSingleColumn('source_path');
+            $mounts = PhoMounts::getMountSources($this->getAbsoluteTargetPath(), $this->restrictions)
+                               ->getAllRowsSingleColumn('source_path');
 
             return end($mounts);
 

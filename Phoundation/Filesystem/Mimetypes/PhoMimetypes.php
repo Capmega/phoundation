@@ -21,7 +21,7 @@ use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Filesystem\Mimetypes\Exception\FilesystemMimetypeNotSupported;
 
 
-class FsMimetypes extends DataIterator
+class PhoMimetypes extends DataIterator
 {
     /**
      * Returns the table name used by this object

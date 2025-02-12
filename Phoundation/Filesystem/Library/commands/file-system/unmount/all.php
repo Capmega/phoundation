@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\Mounts\FsMounts;
+use Phoundation\Filesystem\Mounts\PhoMounts;
 
 
 CliDocumentation::setUsage('./pho filesystem mount all');
@@ -29,6 +29,6 @@ $argv = ArgvValidator::new()->validate();
 
 
 // FsMount all filesystems
-foreach (FsMounts::new()->load() as $mount) {
+foreach (PhoMounts::new()->load() as $mount) {
     $mount->mount();
 }

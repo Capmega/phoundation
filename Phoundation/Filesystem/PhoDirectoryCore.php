@@ -41,7 +41,7 @@ use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
-use Phoundation\Filesystem\Mounts\FsMounts;
+use Phoundation\Filesystem\Mounts\PhoMounts;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Phoundation\Os\Processes\Commands\Tar;
@@ -1338,7 +1338,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
             // This directory is mounted, yay!
             if ($sources) {
                 // But is it mounted at the right place?
-                $mount = FsMounts::getDirectoryMountInformation($this);
+                $mount = PhoMounts::getDirectoryMountInformation($this);
 
                 foreach ($sources as $source) {
                     if ($mount['source'] == PhoDirectory::new($source)->getSource()) {
@@ -1412,7 +1412,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
      */
     public function mount(Stringable|string|null $source, ?string $filesystem = null, ?array $options = null): static
     {
-        FsMounts::mount(PhoFile::new($source, PhoRestrictions::newReadonlyObject($source)), $this,
+        PhoMounts::mount(PhoFile::new($source, PhoRestrictions::newReadonlyObject($source)), $this,
                         $filesystem, $options);
 
         return $this;
@@ -1455,7 +1455,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
      */
     public function unmount(): static
     {
-        FsMounts::unmount($this);
+        PhoMounts::unmount($this);
 
         return $this;
     }

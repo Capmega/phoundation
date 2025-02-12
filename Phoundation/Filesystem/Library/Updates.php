@@ -19,7 +19,7 @@ namespace Phoundation\Filesystem\Library;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Filesystem\Mimetypes\PhoMimetype;
-use Phoundation\Filesystem\Mimetypes\FsMimetypesInit;
+use Phoundation\Filesystem\Mimetypes\PhoMimetypesInit;
 use Phoundation\Utils\Arrays;
 
 
@@ -144,7 +144,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_filesystem_mimetypes_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                 ')->create();
 
-            FsMimetypesInit::init();
+            PhoMimetypesInit::init();
 
         })->addUpdate('0.4.0', function () {
             // Create the filesystem_user_files table.

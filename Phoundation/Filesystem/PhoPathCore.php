@@ -68,10 +68,10 @@ use Phoundation\Filesystem\Interfaces\PhoMimetypeInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\Mimetypes\Exception\FilesystemMimetypeNotSupported;
-use Phoundation\Filesystem\Mimetypes\FsMimetypes;
+use Phoundation\Filesystem\Mimetypes\PhoMimetypes;
 use Phoundation\Filesystem\Mimetypes\PhoMimetype;
 use Phoundation\Filesystem\Mounts\PhoMount;
-use Phoundation\Filesystem\Mounts\FsMounts;
+use Phoundation\Filesystem\Mounts\PhoMounts;
 use Phoundation\Filesystem\Requirements\Interfaces\RequirementsInterface;
 use Phoundation\Filesystem\Requirements\Requirements;
 use Phoundation\Filesystem\Traits\TraitDataBufferSize;
@@ -786,7 +786,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function getCorrectExtension(): string
     {
-        return FsMimetypes::getBestExtensionForMimetype($this->getMimetype());
+        return PhoMimetypes::getBestExtensionForMimetype($this->getMimetype());
     }
 
 
@@ -811,7 +811,7 @@ class PhoPathCore implements PhoPathInterface
     public function extensionMatchesMimetype(): bool
     {
         try {
-            return FsMimetypes::new()->extensionMatchesMimetype($this->getExtension(), $this->getMimetype());
+            return PhoMimetypes::new()->extensionMatchesMimetype($this->getExtension(), $this->getMimetype());
 
         } catch (FilesystemMimetypeNotSupported) {
             Incident::new()
@@ -894,7 +894,7 @@ class PhoPathCore implements PhoPathInterface
         }
 
         // Get the best extension for this file
-        $extension = FsMimetypes::getBestExtensionForMimetype($this->getMimetype());
+        $extension = PhoMimetypes::getBestExtensionForMimetype($this->getMimetype());
 
         // Register a security incident
         Incident::new()
@@ -3562,7 +3562,7 @@ class PhoPathCore implements PhoPathInterface
     public function getMountDevice(): string
     {
         $this->checkExists();
-        $mounts = FsMounts::listMountTargets();
+        $mounts = PhoMounts::listMountTargets();
 
         foreach ($mounts as $path => $mount) {
             if (str_starts_with($this->source, $path)) {

@@ -30,7 +30,7 @@ use Phoundation\Os\Processes\Commands\UnMount;
 use Stringable;
 
 
-class FsMounts extends DataIterator implements MountsInterface
+class PhoMounts extends DataIterator implements MountsInterface
 {
     /**
      * @inheritDoc

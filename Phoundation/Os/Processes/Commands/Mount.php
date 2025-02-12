@@ -24,7 +24,7 @@ use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\Mounts\Exception\NotMountedException;
-use Phoundation\Filesystem\Mounts\FsMounts;
+use Phoundation\Filesystem\Mounts\PhoMounts;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Process;
@@ -77,8 +77,8 @@ class Mount extends Command
     public static function isSource(Stringable|string $path, bool $exception = true): ?bool
     {
         $path      = PhoDirectory::new($path, PhoRestrictions::new('/'))->getSource(remove_terminating_slash: true);
-        $sources   = FsMounts::listMountSources();
-        $targets   = FsMounts::listMountTargets();
+        $sources   = PhoMounts::listMountSources();
+        $targets   = PhoMounts::listMountTargets();
         $is_source = $sources->keyExists($path);
         $is_target = $targets->keyExists($path);
 
@@ -120,8 +120,8 @@ class Mount extends Command
         $path = PhoDirectory::new($path, PhoRestrictions::new('/'))
                             ->getSource(true);
 
-        return FsMounts::listMountTargets()
-                     ->keyExists($path);
+        return PhoMounts::listMountTargets()
+                        ->keyExists($path);
     }
 
 
