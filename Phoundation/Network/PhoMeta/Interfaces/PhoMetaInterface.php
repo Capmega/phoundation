@@ -92,5 +92,5 @@ interface PhoMetaInterface extends DataEntryInterface
      *
      * @return bool
      */
-    public function processTest(string $component): bool;
+    public function processTestComponent(string $component): bool;
 }

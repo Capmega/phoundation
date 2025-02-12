@@ -284,6 +284,37 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
 
 
     /**
+     * Adds a test value to this PhoMeta object's source
+     *
+     * @return PhoMetaTestInterface
+     */
+    public function getTest(): PhoMetaTestInterface
+    {
+        $data = $this->getData();
+        $test = isset_get($data['test']);
+
+        if (is_string($test)) {
+            $test = Json::decode($test);
+        }
+
+        return PhoMetaTest::newFromSource($test);
+    }
+
+
+
+    /**
+     * Adds a test value to this PhoMeta object's source
+     *
+     * @return string|null
+     */
+    public function getTestComponent(): ?string
+    {
+        return $this->getTest()->getComponent();
+    }
+
+
+
+    /**
      * Adds an array of data to this PhoMeta object's source
      *
      * @param string       $key
@@ -399,7 +430,7 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
      *
      * @return bool
      */
-    public function processTest(string $component): bool
+    public function processTestComponent(string $component): bool
     {
         $pho_meta_test = isset_get($this->getSource(true)['data']['test']);
 
@@ -407,7 +438,6 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
             try {
                 if ($pho_meta_test['component'] === $component) {
                     PhoMetaTest::newFromSource($pho_meta_test)->finish();
-
                     return true;
                 }
 

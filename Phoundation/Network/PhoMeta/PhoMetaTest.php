@@ -33,15 +33,13 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
 {
     use TraitDataEntryData;
 
-
     /**
      * PhoMetaTest class constructor
      *
-     * @param IdentifierInterface|false|int|array|string|null $identifier
      */
-    public function __construct(IdentifierInterface|false|int|array|string|null $identifier = null)
+    public function __construct()
     {
-        parent::__construct($identifier);
+        parent::__construct();
         $this->meta_enabled = false;
     }
 
