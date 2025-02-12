@@ -372,14 +372,15 @@ FILES variables:
      *
      * @param string|null $status
      * @param string|null $comments
+     * @param bool        $auto_save
      *
      * @return static
      */
-    public function setStatus(?string $status, ?string $comments = null): static
+    public function setStatus(?string $status, ?string $comments = null, bool $auto_save = true): static
     {
         // Setting Notification status is only allowed when not impersonating
         if (!Session::isImpersonated()) {
-            return parent::setStatus($status, $comments);
+            return parent::setStatus($status, $comments, $auto_save);
         }
 
         return $this;
