@@ -63,22 +63,20 @@ try {
 
                 JsonPage::new()
                     ->addFlashMessageSections(FlashMessage::new()
-                        ->setMode(EnumDisplayMode::success)
-                        ->setTitle(tr('Success!'))
-                        ->setMessage(tr('The profile picture of ":user" has been updated', [
-                            ':user' => $user->getDisplayName()
-                        ])))
+                                                          ->setMode(EnumDisplayMode::success)
+                                                          ->setTitle(tr('Success!'))
+                                                          ->setMessage(tr('The profile picture of ":user" has been updated', [
+                                                              ':user' => $user->getDisplayName()
+                                                          ])))
 
                     ->addHtmlSections(JsonHtml::new()->add(
                         JsonHtmlSection::new('#profile-picture')
                             ->setMethod(EnumJsonHtmlMethods::replace)
-                            ->setHtml($user->getProfileImageObject()
-                                ->getHtmlImgObject()
-                                    ->setId('profile-picture')
-                                    ->addClasses('w100')
-                                    ->setAlt(tr('Profile picture for :name', [
-                                        ':name' => $user->getDisplayName()
-                                    ])))))
+                            ->setHtml($user->getProfileImageObject()->getHtmlImgObject()->setId('profile-picture')
+                                                                                        ->addClasses('w100')
+                                                                                        ->setAlt(tr('Profile picture for :name', [
+                                                                                            ':name' => $user->getDisplayName()
+                                                                                        ])))))
                     ->reply();
             })
         )->process();
@@ -87,9 +85,9 @@ try {
     if (str_starts_with($e->getMessage(), 'No handler found for mimetype')) {
         JsonPage::new()
             ->addFlashMessageSections(FlashMessage::new()
-                ->setMode(EnumDisplayMode::warning)
-                ->setTitle(tr('Warning!'))
-                ->setMessage(tr('Failed to update your profile image with the uploaded file, it is not an image')))
+                                                  ->setMode(EnumDisplayMode::warning)
+                                                  ->setTitle(tr('Warning!'))
+                                                  ->setMessage(tr('Failed to update your profile image with the uploaded file, it is not an image')))
             ->reply();
     }
 

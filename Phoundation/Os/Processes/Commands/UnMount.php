@@ -22,7 +22,7 @@ use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\Mounts\Exception\NotMountedException;
 use Phoundation\Filesystem\Mounts\Exception\UnmountBusyException;
-use Phoundation\Filesystem\Mounts\FsMounts;
+use Phoundation\Filesystem\Mounts\PhoMounts;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Stringable;
 
@@ -91,7 +91,7 @@ class UnMount extends Command
     {
         if (Mount::isSource($target, false)) {
             // This is a mount source. Unmount all its targets
-            $targets = FsMounts::listMountTargets($target);
+            $targets = PhoMounts::listMountTargets($target);
             foreach ($targets as $target) {
                 static::unmount($target);
             }

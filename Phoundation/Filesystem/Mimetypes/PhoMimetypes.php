@@ -21,7 +21,7 @@ use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Filesystem\Mimetypes\Exception\FilesystemMimetypeNotSupported;
 
 
-class FsMimetypes extends DataIterator
+class PhoMimetypes extends DataIterator
 {
     /**
      * Returns the table name used by this object
@@ -151,7 +151,7 @@ class FsMimetypes extends DataIterator
      */
     public static function getBestExtensionForMimetype(string $mimetype): string
     {
-        return PhoMimetype::load([
+        return PhoMimetype::new()->load([
             'mimetype' => $mimetype,
             'priority' => static::getHighestMimetypePriority($mimetype)
         ])->getExtension();
@@ -167,7 +167,7 @@ class FsMimetypes extends DataIterator
      */
     public static function getBestMimetypeForExtension(string $extension): string
     {
-        return PhoMimetype::load([
+        return PhoMimetype::new()->load([
             'mimetype' => $extension,
             'priority' => static::getHighestExtensionPriority($extension)
         ])->getMimetype();

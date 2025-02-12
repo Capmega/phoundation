@@ -15,7 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
-use Phoundation\Filesystem\Mounts\FsMounts;
+use Phoundation\Filesystem\Mounts\PhoMounts;
 
 
 
@@ -25,4 +25,4 @@ CliDocumentation::setHelp('This command will list all configured mount points th
 
 
 // Display the current mounts
-FsMounts::listMountTargets()->displayCliTable('source,target,filesystem');
+PhoMounts::listMountTargets()->displayCliTable('source,target,filesystem');

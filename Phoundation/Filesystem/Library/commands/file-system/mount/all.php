@@ -15,7 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
-use Phoundation\Filesystem\Mounts\FsMounts;
+use Phoundation\Filesystem\Mounts\PhoMounts;
 
 
 CliDocumentation::setUsage('./pho filesystem mount all');
@@ -24,6 +24,6 @@ CliDocumentation::setHelp('This command will attempt to mount all configured mou
 
 
 // FsMount all configured mount points
-foreach (FsMounts::new()->load() as $mount) {
+foreach (PhoMounts::new()->load() as $mount) {
     $mount->mount();
 }

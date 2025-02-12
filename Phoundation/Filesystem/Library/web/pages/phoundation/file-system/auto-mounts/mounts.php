@@ -17,7 +17,7 @@ declare(strict_types=1);
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Filesystem\Mounts\FilterForm;
-use Phoundation\Filesystem\Mounts\FsMounts;
+use Phoundation\Filesystem\Mounts\PhoMounts;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -53,14 +53,14 @@ if (Request::isPostRequestMethod()) {
         switch ($post['submit']) {
             case tr('Delete'):
                 // Delete selected mounts
-                $count = FsMounts::directOperations()->deleteKeys($post['id']);
+                $count = PhoMounts::directOperations()->deleteKeys($post['id']);
 
                 Response::getFlashMessagesObject()->addSuccess(tr('Deleted ":count" mounts', [':count' => $count]));
                 Response::redirect('this');
 
             case tr('Undelete'):
                 // Undelete selected mounts
-                $count = FsMounts::directOperations()->undeleteKeys($post['id']);
+                $count = PhoMounts::directOperations()->undeleteKeys($post['id']);
 
                 Response::getFlashMessagesObject()->addSuccess(tr('Undeleted ":count" mounts', [':count' => $count]));
                 Response::redirect('this');
@@ -74,7 +74,7 @@ if (Request::isPostRequestMethod()) {
 
 
 // Get the mounts list and apply filters
-$mounts   = FsMounts::new();
+$mounts   = PhoMounts::new();
 $builder = $mounts->getQueryBuilder()
     ->addSelect('`filesystem_mounts`.`id`, 
                  `filesystem_mounts`.`name`, 

@@ -85,11 +85,12 @@ class Role extends DataEntry implements RoleInterface
     /**
      * Sets if the meta-system is enabled or disabled for this (type of) DataEntry
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      *
      * @return static
      */
-    public function setIdentifier(IdentifierInterface|array|int|string|null $identifier): static {
+    public function setIdentifier(IdentifierInterface|array|string|int|false|null $identifier): static
+    {
         return parent::setIdentifier(static::convertNameIdentifierToLowerCaseDash($identifier));
     }
 

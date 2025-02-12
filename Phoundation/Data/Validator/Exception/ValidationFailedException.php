@@ -21,6 +21,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\Traits\TraitDataDataEntry;
 use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
+use Phoundation\Web\Html\Components\P;
 use Throwable;
 
 
@@ -125,6 +126,12 @@ class ValidationFailedException extends ValidatorException implements Validation
      */
     public function getFailures(): array
     {
-        return isset_get($this->data['failures'], []);
+        $failures = isset_get($this->data['failures'], []);
+
+        if (empty($failures)) {
+            $failures = [$this->getMessage()];
+        }
+
+        return $failures;
     }
 }

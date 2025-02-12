@@ -20,14 +20,14 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\Mounts\Exception\NotMountedException;
 use Phoundation\Filesystem\Mounts\Exception\UnmountBusyException;
 use Phoundation\Filesystem\Mounts\PhoMount;
-use Phoundation\Filesystem\Mounts\FsMounts;
+use Phoundation\Filesystem\Mounts\PhoMounts;
 
 
 CliDocumentation::setAutoComplete([
     'positions' => [
         0 => [
-            'word'   => function ($word) { return FsMounts::new()->load()->keepMatchingValuesStartingWith($word)->limitAutoComplete(); },
-            'noword' => function ($word) { return FsMounts::new()->load()->limitAutoComplete(); }
+            'word'   => function ($word) { return PhoMounts::new()->load()->keepMatchingValuesStartingWith($word)->limitAutoComplete(); },
+            'noword' => function ($word) { return PhoMounts::new()->load()->limitAutoComplete(); }
         ]
     ]
 ]);
