@@ -51,39 +51,33 @@ try {
 
                 JsonPage::new()
                     ->addFlashMessageSections(FlashMessage::new()
-                        ->setMode(EnumDisplayMode::success)
-                        ->setTitle(tr('Success!'))
-                        ->setMessage(tr('Your profile picture has been updated')))
+                                                          ->setMode(EnumDisplayMode::success)
+                                                          ->setTitle(tr('Success!'))
+                                                          ->setMessage(tr('Your profile picture has been updated')))
 
                     ->addHtmlSections(JsonHtml::new()->add(
                         JsonHtmlSection::new('#profile-picture')
                             ->setMethod(EnumJsonHtmlMethods::replace)
-                            ->setHtml(Session::getUserObject()
-                                             ->getProfileImageObject()
-                                                 ->getHtmlImgObject()
-                                                     ->setId('profile-picture')
-                                                     ->addClasses('w100')
-                                                     ->setAlt(tr('Profile picture for :name', [
-                                                         ':name' => Session::getUserObject()->getDisplayName()
-                                                     ]))))
+                            ->setHtml(Session::getUserObject()->getProfileImageObject()->getHtmlImgObject()->setId('profile-picture')
+                                                                                                           ->addClasses('w100')
+                                                                                                           ->setAlt(tr('Profile picture for :name', [
+                                                                                                               ':name' => Session::getUserObject()->getDisplayName()
+                                                                                                           ]))))
 
                         ->add(
                             JsonHtmlSection::new('#menu-profile-image')
                                 ->setMethod(EnumJsonHtmlMethods::replace)
-                                ->setHtml(Session::getUserObject()
-                                                 ->getProfileImageObject()
-                                                     ->getHtmlImgObject()
-                                                         ->setId('menu-profile-image')
-                                                         ->addClasses('img-circle elevation-2')
-                                                         ->setAlt(tr('Profile picture for :name', [
-                                                             ':name' => Session::getUserObject()->getDisplayName()
-                                                         ])))))
+                                ->setHtml(Session::getUserObject()->getProfileImageObject()->getHtmlImgObject()->setId('menu-profile-image')
+                                                                                                               ->addClasses('img-circle elevation-2')
+                                                                                                               ->setAlt(tr('Profile picture for :name', [
+                                                                                                                   ':name' => Session::getUserObject()->getDisplayName()
+                                                                                                               ])))))
                     ->reply();
             })
         )->process();
 
 } catch (ValidationFailedException $e) {
-    if (str_starts_with($e->getMessage(), 'No handler found for mimetype')) {
+    if (str_starts_with($e->getMessage(), 'No handler found for files')) {
         JsonPage::new()
             ->addFlashMessageSections(FlashMessage::new()
                                                   ->setMode(EnumDisplayMode::warning)
