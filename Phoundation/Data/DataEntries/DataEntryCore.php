@@ -94,6 +94,7 @@ use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
+use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Stringable;
 use Throwable;
@@ -1552,13 +1553,35 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         $source = [];
 
-        foreach ($this->source as $key => $value) {
+        foreach ($this->definitions as $column => $definition) {
+            if (!$definition->getContainsData()) {
+                // Don't process data-less columns
+                continue;
+            }
+
+            // Get the value from the source, ensure to apply default or initial default values
+            $value = isset_get($this->source[$column], $this->isNew() ? ($definition->getInitialDefault() ?? $definition->getDefault()) : $definition->getDefault());
+
+            // If the value is null, apply the get method for the column IF IT EXISTS. If the get method doesn't exist,
+            // just copy the NULL value as-is
             if ($value === null) {
-                $method       = $this->convertColumnToMethod($key, 'get');
-                $source[$key] = $this->$method();
+                // Meta columns are never virtual, ignore them as accessing them might cause issues
+                if ($this->isMetaColumn($column)) {
+                    $source[$column] = $value;
+                    continue;
+                }
+
+                $method = $this->convertColumnToMethod($column, 'get');
+
+                if (method_exists(static::class, $method)) {
+                    $source[$column] = $this->$method();
+
+                } else {
+                    $source[$column] = $value;
+                }
 
             } else {
-                $source[$key] = $value;
+                $source[$column] = $value;
             }
         }
 
