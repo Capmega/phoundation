@@ -280,7 +280,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
      * @return UserInterface|null
      */
-    public function getCreatedByUserObject(): ?UserInterface;
+    public function getCreatedByObject(): ?UserInterface;
 
     /**
      * Returns the object that created this data entry
@@ -288,7 +288,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
      * @return PhoDateTimeInterface|null
      */
-    public function getCreatedOnDateTimeObject(): ?PhoDateTimeInterface;
+    public function getCreatedOnObject(): ?PhoDateTimeInterface;
 
     /**
      * Returns the meta-information for this entry
