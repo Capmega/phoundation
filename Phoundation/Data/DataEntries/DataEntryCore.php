@@ -3372,7 +3372,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         $this->source['status'] = $status;
 
-        if ($auto_save) {
+        if ($auto_save and $this->isNotNew()) {
             $this->save();
         }
 
