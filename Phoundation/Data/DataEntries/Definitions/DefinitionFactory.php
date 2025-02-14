@@ -784,6 +784,7 @@ class DefinitionFactory
                          ->setLabel(tr('State'))
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              $validator->orColumn('states_name')
+                                       ->orColumn('states_code')
                                        ->isDbId()
                                        ->isQueryResult('SELECT `id` 
                                                         FROM   `geo_states` 
@@ -798,19 +799,19 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column timezone
+     * Returns a Definition object for column states_name
      *
      * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newState(?string $column = 'states_name'): DefinitionInterface
+    public static function newStatesName(?string $column = 'states_name'): DefinitionInterface
     {
         return Definition::new($column)
                          ->setOptional(true)
                          ->setRender(false)
                          ->setVirtual(true)
-                         ->setCliColumn('--state STATE-NAME')
+                         ->setCliColumn('--states-name STATE-NAME')
                          ->setLabel(tr('State'))
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
@@ -823,14 +824,55 @@ class DefinitionFactory
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              // Ensure state exists and that it's or states_id
                              $validator->orColumn('states_id')
+                                       ->orColumn('states_code')
                                        ->isName()
                                        ->setColumnFromQuery('states_id', 'SELECT `name` 
                                                                           FROM   `geo_states` 
                                                                           WHERE  `name` = :name 
                                                                             AND  `countries_id` = :countries_id 
                                                                             AND  `status` IS NULL', [
-                                                                                ':name'         => '$state',
-                                                                                ':countries_id' => '$countries_id',
+                                           ':name'         => '$states_name',
+                                           ':countries_id' => '$countries_id',
+                                       ]);
+                         });
+    }
+
+
+    /**
+     * Returns a Definition object for column states_code
+     *
+     * @param string|null $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newStatesCode(?string $column = 'states_code'): DefinitionInterface
+    {
+        return Definition::new($column)
+                         ->setOptional(true)
+                         ->setRender(false)
+                         ->setVirtual(true)
+                         ->setCliColumn('--states-coode STATE-CODE')
+                         ->setLabel(tr('State'))
+                         ->setCliAutoComplete([
+                             'word'   => function ($word) {
+                                 return States::new()->keepMatchingKeys($word);
+                             },
+                             'noword' => function ($word) {
+                                 return States::new()->getSource();
+                             },
+                         ])
+                         ->addValidationFunction(function (ValidatorInterface $validator) {
+                             // Ensure state exists and that it's or states_id
+                             $validator->orColumn('states_id')
+                                       ->orColumn('states_name')
+                                       ->isCode()
+                                       ->setColumnFromQuery('states_id', 'SELECT `code` 
+                                                                          FROM   `geo_states` 
+                                                                          WHERE  `code` = :code 
+                                                                            AND  `countries_id` = :countries_id 
+                                                                            AND  `status` IS NULL', [
+                                           ':code'         => '$states_code',
+                                           ':countries_id' => '$countries_id',
                                        ]);
                          });
     }
