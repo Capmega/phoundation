@@ -4228,16 +4228,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function addVirtualConfiguration(string $table, string $class, array $columns): static
     {
-        $data = [
-            'columns' => [],
-        ];
+        $table_columns = [];
 
         foreach ($columns as $column) {
-            $data['columns'][$column] = $table . '_' . $column;
+            $table_columns[$column] = $table . '_' . $column;
         }
 
-        $data['class']                       = $class;
-        $this->virtual_configuration[$table] = $data;
+        if (!array_key_exists($table, $this->virtual_configuration)) {
+            $this->virtual_configuration[$table] = ['columns' => $table_columns];
+        }
+
+        $this->virtual_configuration[$table]['class'] = $class;
         return $this;
     }
 
@@ -4251,35 +4252,40 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function getVirtualConfiguration(string $table): array
     {
+        if (array_key_exists($table, $this->virtual_configuration)) {
+            // Configuration exists, but it may be a partial configuration setup in the DataEntry class itself
+            if (array_key_exists('class', $this->virtual_configuration[$table])) {
+                // "class" configuration exists too, this is a complete configuration, we're done
+                return $this->virtual_configuration[$table];
+            }
+        }
+
+        // Configuration does not exist. Can we autoload it?
+        $table_name = Strings::capitalize($table);
+
+        if (str_contains($table_name, '_')) {
+            // Replace underscores with camelCase
+            $table_name = '';
+
+            foreach (explode('_', $table) as $part) {
+                $part = Strings::capitalize($part);
+                $table_name .= $part;
+            }
+        }
+
+        // Determine the method to auto add the configuration
+        $method = 'addVirtualConfiguration' . $table_name;
+
+        if (method_exists($this, $method)) {
+            $this->$method();
+        }
+
+        // Try again if the configuration exists now
         if (!array_key_exists($table, $this->virtual_configuration)) {
-
-            // Configuration does not exist. Can we autoload it?
-            $table_name = Strings::capitalize($table);
-
-            if (str_contains($table_name, '_')) {
-                // Replace underscores with camelCase
-                $table_name = '';
-
-                foreach (explode('_', $table) as $part) {
-                    $part = Strings::capitalize($part);
-                    $table_name .= $part;
-                }
-            }
-
-            $method = 'addVirtualConfiguration' . $table_name;
-
-            if (method_exists($this, $method)) {
-                // Yep! Autoload it now.
-                $this->$method();
-            }
-
-            // Try again if it exists now
-            if (!array_key_exists($table, $this->virtual_configuration)) {
-                throw new OutOfBoundsException(tr('Cannot return virtual configuration for table ":table", the virtual table columns have not been defined or the method ":method" does not exist', [
-                    ':table'  => $table,
-                    ':method' => $method,
-                ]));
-            }
+            throw new OutOfBoundsException(tr('Cannot return virtual configuration for table ":table", the virtual table columns have not been defined or the method ":method" does not exist', [
+                ':table'  => $table,
+                ':method' => $method,
+            ]));
         }
 
         return $this->virtual_configuration[$table];
