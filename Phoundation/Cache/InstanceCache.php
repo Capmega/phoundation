@@ -239,13 +239,30 @@ class InstanceCache
 
 
     /**
-     * Returns the number of objects in cache
+     * Returns the number of all object sections in cache
+     *
+     * @return int
+     */
+    public static function getCacheSectionCount(): int
+    {
+        return count(self::$cache);
+    }
+
+
+    /**
+     * Returns the number of all objects in cache
      *
      * @return int
      */
     public static function getCacheCount(): int
     {
-        return count(self::$cache);
+        $count = 0;
+
+        foreach (self::$cache as $value) {
+            $count += count($value);
+        }
+
+        return $count;
     }
 
 
@@ -286,7 +303,7 @@ class InstanceCache
     {
         if (Debug::isEnabled() and !QUIET) {
             Log::write(tr('STATISTIC InstanceCache object has ":count" cached object(s) with ":checks" checks, ":hits" hits, and ":percent" effectiveness', [
-                ':count'   => InstanceCache::getCacheCount(),
+                ':count'   => InstanceCache::getCacheSectionCount(),
                 ':checks'  => InstanceCache::getCacheChecks(),
                 ':hits'    => InstanceCache::getCacheHits(),
                 ':percent' => number_format(InstanceCache::getCacheEfficiency(), 2) . '%',
