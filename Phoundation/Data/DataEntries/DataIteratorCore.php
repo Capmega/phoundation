@@ -1236,21 +1236,6 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
 
 
     /**
-     * Adds the specified source to the internal source
-     *
-     * @param IteratorInterface|array|string|null $source
-     * @param bool                                $clear_keys
-     * @param bool                                $exception
-     *
-     * @return static
-     */
-    public function addSource(IteratorInterface|array|string|null $source, bool $clear_keys = false, bool $exception = true): static
-    {
-        return parent::addSource($source, $clear_keys, $exception);
-    }
-
-
-    /**
      * Returns an array of
      *
      * @param string|null $word

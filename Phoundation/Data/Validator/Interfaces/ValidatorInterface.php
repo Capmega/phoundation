@@ -1352,4 +1352,12 @@ interface ValidatorInterface extends IteratorBaseInterface
      * @return static
      */
     public function setIgnoreObject(?IteratorInterface $ignore): static;
+
+
+    /**
+     * Requires the selected value to be a valid PHN
+     *
+     * @return mixed
+     */
+    public function isPhn();
 }

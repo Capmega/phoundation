@@ -46,6 +46,9 @@ use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Url;
+use Plugins\Medinet\Utils\Exception\InvalidPhnException;
+use Plugins\Medinet\Utils\Exception\PhnRequiredException;
+use Plugins\Medinet\Utils\Phn;
 use ReflectionProperty;
 use Stringable;
 use Throwable;
@@ -1639,25 +1642,18 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             }
 
             if ($array instanceof IteratorInterface) {
-                $this->sanitizeTrim()->hasMaxCharacters($array->getLongestValueLength());
-
-                if ($this->process_value_failed or $this->selected_is_default) {
-                    // Validation already failed or defaulted, don't test anything more
-                    return;
-                }
-
-                $failed = !$array->keyExists($value);
-
-            } else {
-                $this->sanitizeTrim()->hasMaxCharacters(Arrays::getLongestValueLength($array));
-
-                if ($this->process_value_failed or $this->selected_is_default) {
-                    // Validation already failed or defaulted, don't test anything more
-                    return;
-                }
-
-                $failed = !in_array($value, $array);
+                $array = $array->getSource();
             }
+
+            $this->sanitizeTrim()->hasMaxCharacters(Arrays::getLongestValueLength($array));
+
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                $this->addFailure(tr('must be one of ":list"', [':list' => $array]));
+                return;
+            }
+
+            $failed = !in_array($value, $array);
 
             if ($failed) {
                 $this->addFailure(tr('must be one of ":list"', [':list' => $array]));
@@ -4624,5 +4620,27 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         }
 
         return $this;
+    }
+
+
+    /**
+     * Requires this value to be a valid PHN
+     *
+     * @returns static
+     */
+    public function isPhn(): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) {
+            if (!$this->checkIsOptional($value)) {
+                try {
+                    $value = Phn::checkSanitizeAndValidate($value);
+
+                } catch (InvalidPhnException | PhnRequiredException) {
+                    $this->addFailure(tr('must be a valid PHN'));
+                }
+            }
+        });
     }
 }

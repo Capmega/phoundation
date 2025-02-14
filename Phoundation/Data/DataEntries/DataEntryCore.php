@@ -450,21 +450,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         if ($this->isNew()) {
             // So this entry does not exist in the database (or, SQL table doesn't exist either).
-            // Does it perhaps have configuration load support and exist in configuration?
-            if ($this->tryLoadFromConfiguration($this->identifier)) {
-                // Yay, found it in configuration!
-                return $this;
-            }
-
-            throw DataEntryNotExistsException::new(tr('Cannot load ":class" class object, specified column ":column" with identifier ":identifier" does not exist', [
-                ':class'      => static::getClassName(),
-                ':column'     => static::determineColumn($this->identifier),
-                ':identifier' => $this->identifier,
-            ]))->addData([
-                'class'      => static::getClassName(),
-                'column'     => static::determineColumn($this->identifier),
-                'identifier' => $this->identifier,
-            ]);
+            // Try to load it from configuration if this DataEntry supports that
+            $this->tryLoadFromConfiguration($this->identifier);
         }
 
         return $this;
@@ -1614,14 +1601,15 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @param array|string|int $identifier
      *
-     * @return bool
+     * @return static
      */
-    protected function tryLoadFromConfiguration(array|string|int $identifier): bool
+    protected function tryLoadFromConfiguration(array|string|int $identifier): static
     {
         $path = $this->getConfigurationPath();
 
         // Can only load from configuration if the configuration path is available
         if ($path) {
+            // This DataEntry supports loading from configuration. Identifier arrays may ONLY contain one column!
             $column = static::determineColumn($identifier);
 
             if (is_array($identifier)) {
@@ -1642,15 +1630,19 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
                 if ($source) {
                     // Load the source in this object and make this object readonly
-                    $this->setSource($source)
-                         ->setReadonly(true);
-
-                    return true;
+                    return $this->setSource($source)
+                                ->setReadonly(true);
                 }
             }
         }
 
-        return false;
+        throw DataEntryNotExistsException::new(tr('Cannot load ":class" class object, specified identifier ":identifier" does not exist', [
+            ':class'      => static::getClassName(),
+            ':identifier' => Json::encode($this->identifier),
+        ]))->addData([
+            'class'      => static::getClassName(),
+            ':identifier' => Json::encode($this->identifier),
+        ]);
     }
 
 
