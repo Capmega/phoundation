@@ -889,7 +889,7 @@ class Connector extends DataEntry implements ConnectorInterface
                                                          ]);
                                            }))
 
-                    ->add(DefinitionFactory::newTimezone('timezones_name')
+                    ->add(DefinitionFactory::newTimezonesName('timezones_name')
                                            ->setInputType(EnumInputType::variable)
                                            ->setLabel(tr('Timezone'))
                                            ->setOptional(true, 'UTC')
