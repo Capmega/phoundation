@@ -2959,7 +2959,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                     ->add(DefinitionFactory::newStatesId()
                                            ->setSize(2))
 
-                    ->add(DefinitionFactory::newCity()
+                    ->add(DefinitionFactory::newCitiesName()
                                            ->setSize(2)
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The city where this user resides')))
