@@ -33,6 +33,7 @@ use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Cp;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Throwable;
@@ -152,6 +153,11 @@ class Library implements LibraryInterface
 
     /**
      * Loads the specified library file
+     *
+     * @param string   $file
+     * @param callable $callback
+     *
+     * @return void
      */
     protected function loadLibraryFile(string $file, callable $callback): void
     {
@@ -178,13 +184,11 @@ class Library implements LibraryInterface
                 ':library' => $this->getName(),
             ]));
 
-            PhoException::new($e)
-                        ->log()
-                        ->registerIncident()
-                        ->getNotificationObject()
-                        ->send();
-
-            $this->updates = null;
+            Incident::new()->setException(PhoException::new($e))
+                           ->setLog(9)
+                           ->setNotifyRoles('developer')
+                           ->save()
+                           ->throw();
         }
     }
 

@@ -2137,7 +2137,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      *
      * @return PasswordInterface
      */
-    public function getPassword(): PasswordInterface
+    public function getPasswordObject(): PasswordInterface
     {
         return new Password($this->getId(false));
     }
@@ -2148,7 +2148,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      *
      * @return string|null
      */
-    public function getPasswordString(): ?string
+    public function getPassword(): ?string
     {
         return isset_get_typed('string', $this->source['password'], null, false);
     }
@@ -2948,6 +2948,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The country where this user resides')))
 
+                    ->add(DefinitionFactory::newCountriesCode()
+                                           ->setSize(2)
+                                           ->setHelpGroup(tr('Location information'))
+                                           ->setHelpText(tr('The country code where this user resides')))
+
                     ->add(DefinitionFactory::newCountriesId()
                                            ->setSize(2))
 
@@ -2955,6 +2960,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setSize(2)
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The state where this user resides')))
+
+                    ->add(DefinitionFactory::newStatesCode()
+                                           ->setSize(2)
+                                           ->setHelpGroup(tr('Location information'))
+                                           ->setHelpText(tr('The state code where this user resides')))
 
                     ->add(DefinitionFactory::newStatesId()
                                            ->setSize(2))
@@ -2964,6 +2974,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The city where this user resides')))
 
+                    ->add(DefinitionFactory::newCitiesCode()
+                                           ->setSize(2)
+                                           ->setHelpGroup(tr('Location information'))
+                                           ->setHelpText(tr('The city code where this user resides')))
+
                     ->add(DefinitionFactory::newCitiesId()
                                            ->setSize(2))
 
@@ -2971,6 +2986,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setSize(2)
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The timezone where this user resides')))
+
+                    ->add(DefinitionFactory::newTimezonesCode()
+                                           ->setSize(2)
+                                           ->setHelpGroup(tr('Location information'))
+                                           ->setHelpText(tr('The timezone code where this user resides')))
 
                     ->add(DefinitionFactory::newTimezonesId()
                                            ->setSize(2))

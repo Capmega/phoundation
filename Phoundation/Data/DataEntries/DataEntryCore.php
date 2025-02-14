@@ -26,6 +26,7 @@ use Exception;
 use PDOStatement;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
+use Phoundation\Cache\InstanceCache;
 use Phoundation\Cli\CliColor;
 use Phoundation\Content\Documents\Interfaces\SpreadSheetInterface;
 use Phoundation\Content\Documents\SpreadSheet;
@@ -294,11 +295,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     protected bool $caching = false;
 
     /**
-     * Contains a cache of DataEntry objects
+     * Tracks if this object was loaded from cache
      *
-     * @var array $cache
+     * @var bool $is_loaded_from_cache
      */
-    protected static array $cache = [];
+    protected bool $is_loaded_from_cache = false;
+
 
 
     /**
@@ -488,7 +490,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 ':class'      => static::class,
                 ':identifier' => $this->identifier,
                 ':log_id'     => $this->getLogId()
-            ]));
+            ]), 3);
             return;
         }
 
@@ -1292,7 +1294,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             $this->processDeleted();
         }
 
-        return $this->ready(true);
+        return $this->saveToCache()->ready(true);
     }
 
 
@@ -1303,7 +1305,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function getCacheKey(): string
     {
-        return $this::class . Json::encode($this->identifier);
+        return $this::class . '-' . Json::encode($this->identifier, JSON_BIGINT_AS_STRING);
     }
 
 
@@ -1314,17 +1316,26 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function loadFromCache(): bool
     {
-        $key = $this->getCacheKey();
-
-        if (array_key_exists($key, static::$cache)) {
-            // Cached entry found, it may NOT be modified
-            if (!static::$cache[$key]->isModified()) {
-                $this->source = static::$cache[$key]->getSource();
-                return true;
-            }
+        if (!$this->caching) {
+            // Caching has been disabled for this DataEntry object
+            return false;
         }
 
-        return false;
+        if (!InstanceCache::exists('data-entries', $this->getCacheKey())) {
+            return false;
+        }
+
+        // Cached entry exists, gettit!
+        $dataentry = InstanceCache::getLastChecked();
+
+        // Only use cached entries that are NOT modified!
+        if ($dataentry->isModified()) {
+            return false;
+        }
+
+        $this->is_loaded_from_cache = true;
+        $this->source = $dataentry->getSource();
+        return true;
     }
 
 
@@ -1335,17 +1346,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function saveToCache(): static
     {
-        static::$cache[$this->getCacheKey()] = $this;
+        InstanceCache::set($this, 'data-entries', $this->getCacheKey());
         return $this;
     }
 
 
     /**
-     * Returns a random DataEntry object
+     * Loads a random DataEntry object
      *
      * @return static|null
      */
-    public static function loadRandom(): ?static
+    public function loadRandom(): ?static
     {
         $identifier = sql(static::getDefaultConnector())->getInteger('SELECT   `id` 
                                                                       FROM     `' . static::getTable() . '` 
@@ -1353,7 +1364,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                                                                       LIMIT    1;');
 
         if ($identifier) {
-            return static::new()->load($identifier);
+            return $this->load($identifier);
         }
 
         throw new OutOfBoundsException(tr('Cannot select random record for table ":table", no records found', [
@@ -3844,6 +3855,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             'is_modified'            => $this->is_modified,
             'is_validated'           => $this->is_validated,
             'is_loading'             => $this->is_loading,
+            'is_loaded_from_cache'   => $this->is_loaded_from_cache,
             'is_initializing_source' => $this->is_initializing_source,
             'is_initialized'         => $this->is_initialized,
             'previous_id'            => $this->previous_id,
@@ -4289,17 +4301,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Returns the amount of DataEntry objects in cache
-     *
-     * @return int
-     */
-    public static function getCacheCount(): int
-    {
-        return count(static::$cache);
-    }
-
-
-    /**
      * Returns true if caching is enabled for this object
      *
      * @return bool
@@ -4320,5 +4321,16 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         $this->caching = $enabled;
         return $this;
+    }
+
+
+    /**
+     * Returns true if this DataEntry object was loaded from cache
+     *
+     * @return bool
+     */
+    public function isLoadedFromCache(): bool
+    {
+        return $this->is_loaded_from_cache;
     }
 }

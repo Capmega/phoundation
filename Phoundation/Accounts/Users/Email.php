@@ -25,16 +25,13 @@ use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntries\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
-use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryAccountType;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDescription;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryEmail;
-use Phoundation\Data\DataEntries\Traits\TraitDataEntryUsersEmail;
-use Phoundation\Data\DataEntries\Traits\TraitDataEntryUsersId;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryUser;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryVerificationCode;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryVerifiedOn;
-use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Utils\Arrays;
@@ -44,8 +41,7 @@ use Phoundation\Web\Html\Enums\EnumInputType;
 
 class Email extends DataEntry implements EmailInterface
 {
-    use TraitDataEntryUsersEmail;
-    use TraitDataEntryUsersId;
+    use TraitDataEntryUser;
     use TraitDataEntryEmail;
     use TraitDataEntryVerifiedOn;
     use TraitDataEntryAccountType;

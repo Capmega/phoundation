@@ -25,18 +25,14 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDescription;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryFile;
-use Phoundation\Data\DataEntries\Traits\TraitDataEntryUsersId;
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Validator\Exception\ValidatorException;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryUser;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
-use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Img;
 use Phoundation\Web\Html\Components\Interfaces\ImgInterface;
@@ -48,7 +44,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
     use TraitDataEntryFile {
         setFile as protected __setFile;
     }
-    use TraitDataEntryUsersId {
+    use TraitDataEntryUser {
         setUsersId as protected __setUsersId;
     }
 
@@ -206,65 +202,28 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
 
 
     /**
-     * Will assign this profile image to the specified user
-     *
-     * @param UserInterface $o_user
-     *
-     * @return static
-     */
-    public function setUserObject(UserInterface $o_user): static
-    {
-        if ($o_user->isNew()) {
-            if (!$this->isReadonly()) {
-                throw new OutOfBoundsException(tr('Cannot assign profile image ":image" to user ":user", the user is new and does not yet have a database id', [
-                    ':image' => $this->getSource(),
-                    ':user'  => $o_user->getLogId()
-                ]));
-            }
-
-            // This profile image is readonly and cannot be saved anyway, so likely is a default image for a new user
-        }
-
-        return $this->__setUsersId($o_user->getId(false), $o_user);
-    }
-
-
-    /**
-     * Sets the users_id for this object
-     *
-     * @param int|null $users_id
-     *
-     * @return static
-     */
-    protected function setUsersId(int|null $users_id): static
-    {
-        return $this->__setUsersId($users_id);
-    }
-
-
-    /**
      * Sets the users_id for this object and will assign the profile image to the user
      *
-     * @param int|null           $users_id
+     * @param int|null           $id
      * @param UserInterface|null $o_user
      *
      * @return static
      */
-    protected function __setUsersId(?int $users_id, ?UserInterface $o_user = null): static
+    public function setUsersId(?int $id, ?UserInterface $o_user = null): static
     {
         $o_file = $this->getFileObject();
 
         if ($o_file) {
             // This profile image object has a file set, process it
 
-            if ($users_id) {
+            if ($id) {
                 // Assign the profile image to the specified user
                 if (empty($o_user)) {
                     // We need a user object
-                    $o_user = User::new()->load($users_id);
+                    $o_user = User::new()->load($id);
                 }
 
-                $cdn_directory = PhoDirectory::newCdnObject(true, '/img/files/profile/' . $users_id)
+                $cdn_directory = PhoDirectory::newCdnObject(true, '/img/files/profile/' . $id)
                                              ->ensure();
 
                 Log::action(tr('Adding image ":file" to profile images for user ":user"', [
@@ -313,11 +272,11 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                     $this->setFileObject($o_file->move($cdn_directory));
                 }
 
-                $users_id = null;
+                $id = null;
             }
         }
 
-        return $this->set($users_id, 'users_id');
+        return $this->__setUsersId($id);
     }
 
 

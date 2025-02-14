@@ -19,6 +19,7 @@ namespace Phoundation\Data\Validator;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\Exception\CliArgumentsException;
 use Phoundation\Cli\Exception\CliInvalidArgumentsException;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataStaticArrayBackup;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
@@ -934,22 +935,56 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      *
      * This method will check the failures array and if any failures were registered, it will throw an exception
      *
-     * @note For command line arguments, this will check if any unvalidated arguments were left and throw a validation
-     *       exception if there are
-     *
      * @param bool $require_clean_source
      *
      * @return array
      */
     public function validate(bool $require_clean_source = true): array
     {
-        // Extract the selected and validated fields
-        $return = parent::validate($require_clean_source);
+        // Check if there is still a field selected that has no test applied.
+        // If so, fail, because all fields must be tested
+        if ($this->selected_field and !$this->test_count) {
+            if (!config()->getBoolean('security.validation.disabled', false)) {
+                throw new ValidatorException(tr('Cannot validate because the last selected field ":field" has no validations performed yet', [
+                    ':field' => $this->selected_field,
+                ]));
+            }
 
-        // Renumber the source from 0 to remove any key gaps, sync up the static $argv
-        $this->source = array_values($this->source);
+            Log::error('WARNING: SKIPPED VALIDATION DUE TO security.validation.disabled = false CONFIGURATION! SYSTEM MAY BE IN UNKNOWN STATE!');
+        }
 
-        return $return;
+        if (static::$argv) {
+            // Unprocessed fields
+            if ($require_clean_source) {
+                if (config()->getBoolean('security.validation.enabled', true)) {
+                    throw ValidationFailedException::new(tr('Data validation failed because of the following unknown fields'))
+                                                   ->addData([
+                                                       'failures' => static::$argv,
+                                                   ])
+                                                   ->makeWarning();
+                }
+
+                Log::error('WARNING: SKIPPED DATA CLEAN VALIDATION DUE TO security.validation.disabled = false CONFIGURATION! SYSTEM DATA MAY BE IN UNKNOWN STATE!');
+            }
+        }
+
+        if ($this->failures) {
+            $values = Arrays::keepKeys($this->source, array_keys($this->failures));
+
+            if (Core::inBootState() or config()->getBoolean('security.validation.enabled', true)) {
+                throw ValidationFailedException::new(tr('Data validation failed with the following issues:'))
+                                               ->addData([
+                                                   'failures' => $this->failures,
+                                                   'values'   => $values
+                                               ])
+                                               ->setDataEntry($this->definitions?->getDataEntry())
+                                               ->makeWarning();
+            }
+
+            Log::error('WARNING: SKIPPED FIELDS VALIDATION DUE TO "security.validation.disabled" = false CONFIGURATION! SYSTEM DATA MAY BE IN UNKNOWN STATE!');
+        }
+
+        return Arrays::extract($this->source, $this->selected_fields);
     }
 
 

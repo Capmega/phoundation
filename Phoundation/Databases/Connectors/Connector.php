@@ -872,7 +872,7 @@ class Connector extends DataEntry implements ConnectorInterface
 // TODO Improve validation of this column
                                         $validator->hasMaxCharacters(64);
                                     }))
-
+            
                     ->add(DefinitionFactory::newTimezonesId()
                                            ->setInputType(EnumInputType::dbid)
                                            ->setLabel(tr('Timezone'))
