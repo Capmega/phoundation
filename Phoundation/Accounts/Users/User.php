@@ -2967,7 +2967,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                     ->add(DefinitionFactory::newCitiesId()
                                            ->setSize(2))
 
-                    ->add(DefinitionFactory::newTimezone()
+                    ->add(DefinitionFactory::newTimezonesName()
                                            ->setSize(2)
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The timezone where this user resides')))
