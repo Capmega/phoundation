@@ -640,7 +640,7 @@ class DefinitionFactory
                                                                              FROM   `geo_timezones` 
                                                                              WHERE  `name` = :name 
                                                                                AND  `status` IS NULL', [
-                                                                                   ':name' => '$timezone'
+                                                                                   ':name' => '$timezones_name'
                                        ]);
                          });
     }
@@ -678,7 +678,7 @@ class DefinitionFactory
                                                                              FROM   `geo_timezones` 
                                                                              WHERE  `code` = :code 
                                                                                AND  `status` IS NULL', [
-                                           ':code' => '$timezone'
+                                           ':code' => '$timezones_name'
                                        ]);
                          });
     }
@@ -754,7 +754,7 @@ class DefinitionFactory
                                                                              FROM   `geo_countries` 
                                                                              WHERE  `name` = :name 
                                                                                AND  `status` IS NULL', [
-                                           ':name' => '$countries_name'
+                                                                                ':name' => '$countries_name'
                                        ]);
                          });
     }
@@ -791,7 +791,7 @@ class DefinitionFactory
                                                                              FROM   `geo_countries` 
                                                                              WHERE  `code` = :code 
                                                                                AND  `status` IS NULL', [
-                                           ':code' => '$countries_code'
+                                                                                ':code' => '$countries_code'
                                        ]);
                          });
     }
@@ -828,7 +828,7 @@ class DefinitionFactory
                                        ->isDbId()
                                        ->isQueryResult('SELECT `id` 
                                                         FROM   `geo_states` 
-                                                        WHERE  `id` = :id 
+                                                        WHERE  `id`           = :id 
                                                           AND  `countries_id` = :countries_id 
                                                           AND  `status` IS NULL', [
                                                               ':id'           => '$states_id',
@@ -868,11 +868,11 @@ class DefinitionFactory
                                        ->isName()
                                        ->setColumnFromQuery('states_id', 'SELECT `name` 
                                                                           FROM   `geo_states` 
-                                                                          WHERE  `name` = :name 
+                                                                          WHERE  `name`         = :name 
                                                                             AND  `countries_id` = :countries_id 
                                                                             AND  `status` IS NULL', [
-                                           ':name'         => '$states_name',
-                                           ':countries_id' => '$countries_id',
+                                                                           ':name'         => '$states_name',
+                                                                           ':countries_id' => '$countries_id',
                                        ]);
                          });
     }
@@ -908,11 +908,11 @@ class DefinitionFactory
                                        ->isCode()
                                        ->setColumnFromQuery('states_id', 'SELECT `code` 
                                                                           FROM   `geo_states` 
-                                                                          WHERE  `code` = :code 
+                                                                          WHERE  `code`         = :code 
                                                                             AND  `countries_id` = :countries_id 
                                                                             AND  `status` IS NULL', [
-                                           ':code'         => '$states_code',
-                                           ':countries_id' => '$countries_id',
+                                                                               ':code'         => '$states_code',
+                                                                               ':countries_id' => '$countries_id',
                                        ]);
                          });
     }
@@ -950,7 +950,7 @@ class DefinitionFactory
                                        ->isQueryResult('SELECT `id` 
                                                         FROM   `geo_cities` 
                                                         WHERE  `id` = :id 
-                                                          AND  `states_name`  = :states_id    
+                                                          AND  `states_id`  = :states_id    
                                                           AND  `status` IS NULL', [
                                                               ':id'        => '$cities_id',
                                                               ':states_id' => '$states_id',
@@ -988,10 +988,10 @@ class DefinitionFactory
                                        ->isName()
                                        ->setColumnFromQuery('cities_id', 'SELECT `name` 
                                                                           FROM   `geo_cities` 
-                                                                          WHERE  `name` = :name 
-                                                                            AND  `states_name`  = :states_id    
+                                                                          WHERE  `name`      = :name 
+                                                                            AND  `states_id` = :states_id    
                                                                             AND  `status` IS NULL', [
-                                                                                ':name'      => '$city',
+                                                                                ':name'      => '$cities_name',
                                                                                 ':states_id' => '$states_id',
                                        ]);
                          });
@@ -1027,11 +1027,11 @@ class DefinitionFactory
                                        ->isCode()
                                        ->setColumnFromQuery('cities_id', 'SELECT `code` 
                                                                           FROM   `geo_cities` 
-                                                                          WHERE  `code` = :code 
-                                                                            AND  `states_code`  = :states_id    
+                                                                          WHERE  `code`      = :code 
+                                                                            AND  `states_id` = :states_id    
                                                                             AND  `status` IS NULL', [
-                                           ':code'      => '$city',
-                                           ':states_id' => '$states_id',
+                                                                           ':code'      => '$cities_code',
+                                                                           ':states_id' => '$states_id',
                                        ]);
                          });
     }
