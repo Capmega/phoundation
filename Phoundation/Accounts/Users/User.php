@@ -197,10 +197,10 @@ class User extends DataEntry implements UserInterface
      * @var array
      */
     protected array $virtual_configuration = [
-        'timezones' => ['columns' => ['id', 'code']],
         'countries' => ['columns' => ['id', 'code', 'name']],
         'states'    => ['columns' => ['id', 'code', 'name']],
         'cities'    => ['columns' => ['id', 'name']],
+        'timezones' => ['columns' => ['id', 'name']],
     ];
 
 
@@ -2989,10 +2989,10 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                     ->add(DefinitionFactory::newCitiesId()
                                            ->setSize(2))
 
-                    ->add(DefinitionFactory::newTimezonesCode()
+                    ->add(DefinitionFactory::newTimezonesName()
                                            ->setSize(2)
                                            ->setHelpGroup(tr('Location information'))
-                                           ->setHelpText(tr('The timezone code where this user resides')))
+                                           ->setHelpText(tr('The timezone name where this user resides')))
 
                     ->add(DefinitionFactory::newTimezonesId()
                                            ->setSize(2))
