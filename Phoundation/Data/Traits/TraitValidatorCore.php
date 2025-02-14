@@ -931,6 +931,7 @@ trait TraitValidatorCore
 
                     default:
                         if (!in_array($field, $this->selected_fields)) {
+                            // TODO Does this still hold true? meta columns should NEVER be submitted!!!
                             // These fields were never selected, so we don't know them. Are they meta-columns? If so, ignore
                             // them because they will have been set manually (DataEntry::apply() will ignore meta columns)
                             if (empty($this->meta_columns) or !in_array($field, $this->meta_columns)) {
