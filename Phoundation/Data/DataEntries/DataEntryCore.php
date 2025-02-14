@@ -286,6 +286,20 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected ?bool $allow_modified_destruct = null;
 
+    /**
+     * Tracks if caching should be used or not
+     *
+     * @var bool $caching
+     */
+    protected bool $caching = false;
+
+    /**
+     * Contains a cache of DataEntry objects
+     *
+     * @var array $cache
+     */
+    protected static array $cache = [];
+
 
     /**
      * DataEntry class constructor
@@ -302,6 +316,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function __construct(IdentifierInterface|array|string|int|false|null $identifier = null)
     {
+        $this->caching = config()->getBoolean('storage.data-entries.cache.enabled', true);
+
         if ($identifier === false) {
             // If the identifier is false, do NOT automatically initialize the DataEntry object
             return;
@@ -1281,16 +1297,46 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
+     * Generates and returns a unique cache key for this DataEntry object
+     *
+     * @return string
+     */
+    protected function getCacheKey(): string
+    {
+        return $this::class . Json::encode($this->identifier);
+    }
+
+
+    /**
      * Tries to load this DataEntry object data from the cache layer instead of the database
      *
      * @return bool
      */
     protected function loadFromCache(): bool
     {
-// TODO Implement this
-//        $key = $this::class . $this->identifier . $this->o_connector->getLogId();
+        $key = $this->getCacheKey();
+
+        if (array_key_exists($key, static::$cache)) {
+            // Cached entry found, it may NOT be modified
+            if (!static::$cache[$key]->isModified()) {
+                $this->source = static::$cache[$key]->getSource();
+                return true;
+            }
+        }
 
         return false;
+    }
+
+
+    /**
+     * Saves this DataEntry object to cache
+     *
+     * @return static
+     */
+    protected function saveToCache(): static
+    {
+        static::$cache[$this->getCacheKey()] = $this;
+        return $this;
     }
 
 
@@ -4234,5 +4280,41 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         $configuration = $this->getVirtualConfiguration($table);
         return $configuration['columns'];
+    }
+
+
+    /**
+     * Returns the amount of DataEntry objects in cache
+     *
+     * @return int
+     */
+    public static function getCacheCount(): int
+    {
+        return count(static::$cache);
+    }
+
+
+    /**
+     * Returns true if caching is enabled for this object
+     *
+     * @return bool
+     */
+    public function getCacheEnabled(): bool
+    {
+        return $this->caching;
+    }
+
+
+    /**
+     * Sets if caching is enabled for this object
+     *
+     * @param bool $enabled
+     * @return DataEntryCore
+     */
+USE INSTANCE CACHE INSTEAD
+    public function setCacheEnabled(bool $enabled): static
+    {
+        $this->caching = $enabled;
+        return $this;
     }
 }
