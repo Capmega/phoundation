@@ -598,6 +598,7 @@ class DefinitionFactory
                          ->setLabel(tr('Timezone'))
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              $validator->orColumn('timezones_name')
+                                       ->orColumn('timezones_code')
                                        ->isDbId()
                                        ->isTrue(function ($value) {
                                            // This timezone must exist.
@@ -608,13 +609,13 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column timezone
+     * Returns a Definition object for column timezones_name
      *
      * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newTimezone(?string $column = 'timezones_name'): DefinitionInterface
+    public static function newTimezonesName(?string $column = 'timezones_name'): DefinitionInterface
     {
         return Definition::new($column)
                          ->setOptional(true)
@@ -633,12 +634,51 @@ class DefinitionFactory
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              // Ensure timezone exists and that it's or timezone
                              $validator->orColumn('timezones_id')
+                                       ->orColumn('timezones_code')
                                        ->isName()
                                        ->setColumnFromQuery('timezones_id', 'SELECT `id` 
                                                                              FROM   `geo_timezones` 
                                                                              WHERE  `name` = :name 
                                                                                AND  `status` IS NULL', [
                                                                                    ':name' => '$timezone'
+                                       ]);
+                         });
+    }
+
+    
+    /**
+     * Returns a Definition object for column timezones_code
+     *
+     * @param string|null $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newTimezonesCode(?string $column = 'timezones_code'): DefinitionInterface
+    {
+        return Definition::new($column)
+                         ->setOptional(true)
+                         ->setRender(false)
+                         ->setVirtual(true)
+                         ->setCliColumn('-t,--timezone TIMEZONE-CODE')
+                         ->setLabel(tr('Timezone'))
+                         ->setCliAutoComplete([
+                             'word'   => function ($word) {
+                                 return Timezones::new()->keepMatchingKeys($word);
+                             },
+                             'noword' => function ($word) {
+                                 return Timezones::new()->getSource();
+                             },
+                         ])
+                         ->addValidationFunction(function (ValidatorInterface $validator) {
+                             // Ensure timezone exists and that it's or timezone
+                             $validator->orColumn('timezones_id')
+                                       ->orColumn('timezones_name')
+                                       ->isCode()
+                                       ->setColumnFromQuery('timezones_id', 'SELECT `id` 
+                                                                             FROM   `geo_timezones` 
+                                                                             WHERE  `code` = :code 
+                                                                               AND  `status` IS NULL', [
+                                           ':code' => '$timezone'
                                        ]);
                          });
     }
@@ -905,6 +945,7 @@ class DefinitionFactory
                          ->setLabel(tr('City'))
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              $validator->orColumn('cities_name')
+                                       ->orColumn('cities_code')
                                        ->isDbId()
                                        ->isQueryResult('SELECT `id` 
                                                         FROM   `geo_cities` 
@@ -943,6 +984,7 @@ class DefinitionFactory
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              // Ensure city exists and that it's or cities_id
                              $validator->orColumn('cities_id')
+                                       ->orColumn('cities_code')
                                        ->isName()
                                        ->setColumnFromQuery('cities_id', 'SELECT `name` 
                                                                           FROM   `geo_cities` 
@@ -981,6 +1023,7 @@ class DefinitionFactory
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              // Ensure city exists and that it's or cities_id
                              $validator->orColumn('cities_id')
+                                       ->orColumn('cities_name')
                                        ->isCode()
                                        ->setColumnFromQuery('cities_id', 'SELECT `code` 
                                                                           FROM   `geo_cities` 
