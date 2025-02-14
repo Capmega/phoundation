@@ -191,6 +191,18 @@ class User extends DataEntry implements UserInterface
      */
     protected bool $notifications_enabled = true;
 
+    /**
+     * Configures the TraitDataEntry trait columns
+     *
+     * @var array
+     */
+    protected array $virtual_configuration = [
+        'timezones' => ['columns' => ['id', 'code']],
+        'countries' => ['columns' => ['id', 'code', 'name']],
+        'states'    => ['columns' => ['id', 'code', 'name']],
+        'cities'    => ['columns' => ['id', 'name']],
+    ];
+
 
     /**
      * DataEntry class constructor
@@ -2974,18 +2986,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The city where this user resides')))
 
-                    ->add(DefinitionFactory::newCitiesCode()
-                                           ->setSize(2)
-                                           ->setHelpGroup(tr('Location information'))
-                                           ->setHelpText(tr('The city code where this user resides')))
-
                     ->add(DefinitionFactory::newCitiesId()
                                            ->setSize(2))
-
-                    ->add(DefinitionFactory::newTimezonesName()
-                                           ->setSize(2)
-                                           ->setHelpGroup(tr('Location information'))
-                                           ->setHelpText(tr('The timezone where this user resides')))
 
                     ->add(DefinitionFactory::newTimezonesCode()
                                            ->setSize(2)
