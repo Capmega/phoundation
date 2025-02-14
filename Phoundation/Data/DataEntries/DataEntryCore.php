@@ -94,6 +94,7 @@ use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
+use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Stringable;
 use Throwable;
@@ -1531,7 +1532,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Returns a source array with all source virtual columns resolved
+     * Returns a source array with all source virtual columns resolved (not NULL)
      *
      * @return array
      */
@@ -1539,8 +1540,36 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         $source = [];
 
-        foreach ($this->source as $key => $value) {
-            $source[$key] = $this->get($key);
+        foreach ($this->definitions as $column => $definition) {
+            if (!$definition->getContainsData()) {
+                // Don't process data-less columns
+                continue;
+            }
+
+            // Get the value from the source, ensure to apply default or initial default values
+            $value = isset_get($this->source[$column], $this->isNew() ? ($definition->getInitialDefault() ?? $definition->getDefault()) : $definition->getDefault());
+
+            // If the value is null, apply the get method for the column IF IT EXISTS. If the get method doesn't exist,
+            // just copy the NULL value as-is
+            if ($value === null) {
+                // Meta columns are never virtual, ignore them as accessing them might cause issues
+                if ($this->isMetaColumn($column)) {
+                    $source[$column] = $value;
+                    continue;
+                }
+
+                $method = $this->convertColumnToMethod($column, 'get');
+
+                if (method_exists(static::class, $method)) {
+                    $source[$column] = $this->$method();
+
+                } else {
+                    $source[$column] = $value;
+                }
+
+            } else {
+                $source[$column] = $value;
+            }
         }
 
         return $source;
@@ -1934,7 +1963,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         } else {
             // Store this data through the set method to ensure datatype and filtering is done correctly
-            $method = $this->convertColumnToSetMethod($column);
+            $method = $this->convertColumnToMethod($column, 'set');
 
             if (!$definition->inputTypeIsScalar()) {
                 // This input type is not scalar and as such has been stored as a JSON array
@@ -2007,13 +2036,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Rewrite the specified variable into the set method for that variable
+     * Converts and returns the specified column name into a get or set method
      *
      * @param string $column
+     * @param string $type
      *
      * @return string
      */
-    protected function convertColumnToSetMethod(string $column): string
+    protected function convertColumnToMethod(string $column, string $type): string
     {
         // Convert underscore to camelcase
         // Remove the prefix from the column
@@ -2025,7 +2055,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $return = array_map('ucfirst', $return);
         $return = implode('', $return);
 
-        return 'set' . ucfirst($return);
+        return $type . ucfirst($return);
     }
 
 
@@ -3364,7 +3394,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         $this->source['status'] = $status;
 
-        if ($auto_save) {
+        if ($auto_save and $this->isNotNew()) {
             $this->save();
         }
 
@@ -3467,25 +3497,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Returns the user object that created this data entry
-     *
-     * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
-     *
-     * @return UserInterface|null
-     */
-    public function getCreatedByUserObject(): ?UserInterface
-    {
-        $created_by = $this->getTypesafe('int', 'created_by');
-
-        if ($created_by === null) {
-            return null;
-        }
-
-        return new User($created_by);
-    }
-
-
-    /**
      * Returns the users_id that created this data entry
      *
      * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
@@ -3499,12 +3510,44 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
+     * Returns the user object that created this data entry
+     *
+     * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
+     *
+     * @return UserInterface|null
+     */
+    public function getCreatedByObject(): ?UserInterface
+    {
+        $created_by = $this->getTypesafe('int', 'created_by');
+
+        if ($created_by === null) {
+            return null;
+        }
+
+        return new User($created_by);
+    }
+
+
+    /**
+     * Returns the created on value in integer format
+     *
+     * @note Returns NULL if this class has no support for created_on information or has not been written to disk yet
+     *
+     * @return int|null
+     */
+    public function getCreatedOn(): ?int
+    {
+        return $this->getTypesafe('int', 'created_on');
+    }
+
+
+    /**
      * Returns the object that created this data entry
      *
      * @note Returns NULL if this class has no support for created_by information or has not been written to disk yet
      * @return PhoDateTimeInterface|null
      */
-    public function getCreatedOnDateTimeObject(): ?PhoDateTimeInterface
+    public function getCreatedOnObject(): ?PhoDateTimeInterface
     {
         $created_on = $this->getTypesafe('string', 'created_on');
 
@@ -3696,6 +3739,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             sql($this->o_connector)->setDebug($this->debug);
         }
 
+        // Ensure all linked NULL columns are resolved. This means that -for example- object_code and object_id, which
+        // both are different pieces of data pointing to the same object, both have values. If one is NULL due to
+        // $this->setVirtualData() resetting it, it will be resolved here. DataEntry->getSource() will resolve these
+        // links automatically so just copy getSource() over the internal source.
+        $this->source = $this->getSource();
+
         // Write the data and store the returned ID column
         $this->source = array_replace($this->source, SqlDataEntry::new(sql($this->o_connector), $this)
                                                                  ->setDebug($this->debug)
@@ -3763,7 +3812,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function getSqlColumns(bool $insert): array
     {
         $return = [];
-        $source = $this->getSource();
 
         // Run over all definitions and generate a data column
         foreach ($this->definitions as $column => $definition) {
@@ -3784,7 +3832,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
             // Apply definition default
-            $return[$column] = isset_get($source[$column]) ?? $definition->getDefault();
+            $return[$column] = isset_get($this->source[$column]) ?? $definition->getDefault();
 
             // Ensure value is string, float, int, or NULL
             if (($return[$column] !== null) and !is_scalar($return[$column])) {
@@ -4025,7 +4073,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 $this->set($value, $virtual_table_column);
 
             } else {
-                $this->set(null, $virtual_table_column);
+                if (!$this->is_initializing_source) {
+                    $this->set(null, $virtual_table_column);
+                }
             }
         }
 

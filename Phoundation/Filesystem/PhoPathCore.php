@@ -993,7 +993,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function getRootname(): string
     {
-        return Strings::from($this->source, DIRECTORY_ROOT);
+        return Strings::from(Strings::from($this->source, DIRECTORY_ROOT), DIRECTORY_DATA);
     }
 
 
