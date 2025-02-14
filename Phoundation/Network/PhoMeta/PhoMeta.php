@@ -303,7 +303,7 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
 
 
     /**
-     * Adds a test value to this PhoMeta object's source
+     * Returns the value of this PhoMeta's PhoMetaTest's component
      *
      * @return string|null
      */
