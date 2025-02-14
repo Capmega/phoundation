@@ -124,6 +124,13 @@ class Notification extends DataEntry implements NotificationInterface
      */
     protected bool $is_sent = false;
 
+    /**
+     * Signals the TraitDataEntryUser that this DataEntry class only uses the id column
+     *
+     * @var array
+     */
+    protected array $virtual_configuration = ['users' => ['columns' => ['id']]];
+
 
     /**
      * Notification class constructor
