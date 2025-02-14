@@ -708,7 +708,7 @@ interface UserInterface extends DataEntryInterface
      *
      * @return string|null
      */
-    public function getPasswordString(): ?string;
+    public function getPassword(): ?string;
 
 
     /**

@@ -39,7 +39,7 @@ $get = GetValidator::new()
                    ->validate();
 
 $user     = User::new()->load($get['id']);
-$password = $user->getPassword();
+$password = $user->getPasswordObject();
 
 
 // Hide the "current" field as its not required for password updates by admin
