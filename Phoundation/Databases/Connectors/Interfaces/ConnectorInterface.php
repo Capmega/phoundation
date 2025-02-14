@@ -139,7 +139,7 @@ interface ConnectorInterface extends DataEntryInterface
      *
      * @return TimezoneInterface|null
      */
-    public function getTimezone(): ?TimezoneInterface;
+    public function getTimezoneObject(): ?TimezoneInterface;
 
     /**
      * Returns the timezones_name for this user
