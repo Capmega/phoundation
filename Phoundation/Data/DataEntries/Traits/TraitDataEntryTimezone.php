@@ -20,7 +20,6 @@ use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Geo\Timezones\Interfaces\TimezoneInterface;
 
 
-
 trait TraitDataEntryTimezone
 {
     /**
