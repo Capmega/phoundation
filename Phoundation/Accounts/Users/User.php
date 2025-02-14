@@ -2951,7 +2951,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                     ->add(DefinitionFactory::newCountriesId()
                                            ->setSize(2))
 
-                    ->add(DefinitionFactory::newState()
+                    ->add(DefinitionFactory::newStatesName()
                                            ->setSize(2)
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The state where this user resides')))
