@@ -223,20 +223,7 @@ class Connector extends DataEntry implements ConnectorInterface
         }
 
         // We don't have a database connection, so don't even try to use the normal database load!
-        if ($this->tryLoadFromConfiguration($this->identifier)) {
-            // Yay, found it in configuration!
-            return $this;
-        }
-
-        throw DataEntryNotExistsException::new(tr('Cannot load ":class" class object, specified column ":column" with identifier ":identifier" does not exist', [
-            ':class'      => static::getClassName(),
-            ':column'     => static::determineColumn($this->identifier),
-            ':identifier' => $this->identifier,
-        ]))->addData([
-            'class'      => static::getClassName(),
-            'column'     => static::determineColumn($this->identifier),
-            'identifier' => $this->identifier,
-        ]);
+        return $this->tryLoadFromConfiguration($this->identifier);
     }
 
 
