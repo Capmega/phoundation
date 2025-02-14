@@ -18,14 +18,18 @@ declare(strict_types=1);
 namespace Phoundation\Geo\Timezones;
 
 use Phoundation\Data\DataEntries\DataEntry;
+use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryCode;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryNameDescription;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Geo\Timezones\Interfaces\TimezoneInterface;
 
 
 class Timezone extends DataEntry implements TimezoneInterface
 {
     use TraitDataEntryNameDescription;
+    use TraitDataEntryCode;
 
     /**
      * Returns the table name used by this object
@@ -69,9 +73,24 @@ class Timezone extends DataEntry implements TimezoneInterface
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {
-        $definitions;
+        $definitions->add(DefinitionFactory::newName()
+                                           ->setOptional(false)
+                                           ->setSize(4)
+                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+                                               $validator->isUnique();
+                                           }))
+
+                    ->add(DefinitionFactory::newSeoName());
+
+        $definitions->add(DefinitionFactory::newCode()
+                                           ->setOptional(false)
+                                           ->setSize(4)
+                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+                                               $validator->isUnique();
+                                           }));
 
         return $this;
+
 //        throw new UnderConstructionException();
 //
 //        $data = $validator
