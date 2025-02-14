@@ -4311,7 +4311,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * @param bool $enabled
      * @return DataEntryCore
      */
-USE INSTANCE CACHE INSTEAD
     public function setCacheEnabled(bool $enabled): static
     {
         $this->caching = $enabled;
