@@ -1030,7 +1030,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             );
         }
 
-        $entry = new static();
+        $entry = new static(null);
         return $entry->setSource($source);
     }
 
@@ -1852,7 +1852,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function copyValuesToSource(array $source, bool $modify, bool $directly = false, bool $force = false): static
     {
-        if ($this->definitions->isEmpty()) {
+        if (empty($this->definitions) or $this->definitions->isEmpty()) {
             throw new OutOfBoundsException(tr('Data keys were not defined for this ":class" class', [
                 ':class' => get_class($this),
             ]));

@@ -196,6 +196,7 @@ class Connector extends DataEntry implements ConnectorInterface
         try {
             // Load connector data and automatically cache it in the Datastores object
             parent::load($identifier);
+
             // TODO $this->identifier['name'] should always exist for a connector, but what if someone specified $identifier['id'] ???
             Datastores::getConnectorsObject()->add($this, $this->identifier['name'], exception: false);
             return $this;

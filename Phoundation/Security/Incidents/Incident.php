@@ -35,7 +35,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryBody;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryData;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDetails;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryException;
-use Phoundation\Data\DataEntries\Traits\TraitDataEntrySetCreatedBy;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryCreatedBy;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryTitle;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryType;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUrl;
@@ -66,7 +66,7 @@ class Incident extends DataEntry implements IncidentInterface
     use TraitDataEntryException {
         setException as protected __setException;
     }
-    use TraitDataEntrySetCreatedBy;
+    use TraitDataEntryCreatedBy;
     use TraitDataEntryTitle;
     use TraitDataEntryType;
     use TraitDataEntryUrl;

@@ -671,6 +671,7 @@ class DefinitionFactory
                          ->setLabel(tr('Country'))
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              $validator->orColumn('countries_name')
+                                       ->orColumn('countries_code')
                                        ->isDbId()
                                        ->isQueryResult('SELECT `id` 
                                                         FROM   `geo_countries` 
@@ -683,19 +684,19 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column timezone
+     * Returns a Definition object for column countries_name
      *
      * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newCountry(?string $column = 'countries_name'): DefinitionInterface
+    public static function newCountriesName(?string $column = 'countries_name'): DefinitionInterface
     {
         return Definition::new($column)
                          ->setOptional(true)
                          ->setRender(false)
                          ->setVirtual(true)
-                         ->setCliColumn('--country COUNTRY-NAME')
+                         ->setCliColumn('--country-name COUNTRY-NAME')
                          ->setLabel(tr('Country'))
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
@@ -708,12 +709,49 @@ class DefinitionFactory
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              // Ensure country exists and that it's or countries_id
                              $validator->orColumn('countries_id')
-                                       ->isName(200)
+                                       ->orColumn('countries_code')
                                        ->setColumnFromQuery('countries_id', 'SELECT `id` 
                                                                              FROM   `geo_countries` 
                                                                              WHERE  `name` = :name 
                                                                                AND  `status` IS NULL', [
-                                                                                   ':name' => '$country'
+                                           ':name' => '$countries_name'
+                                       ]);
+                         });
+    }
+
+
+    /**
+     * Returns a Definition object for column countries_code
+     *
+     * @param string|null $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newCountriesCode(?string $column = 'countries_code'): DefinitionInterface
+    {
+        return Definition::new($column)
+                         ->setOptional(true)
+                         ->setRender(false)
+                         ->setVirtual(true)
+                         ->setCliColumn('--country-code COUNTRY-CODE')
+                         ->setLabel(tr('Country'))
+                         ->setCliAutoComplete([
+                             'word'   => function ($word) {
+                                 return Countries::new()->keepMatchingKeys($word);
+                             },
+                             'noword' => function ($word) {
+                                 return Countries::new()->getSource();
+                             },
+                         ])
+                         ->addValidationFunction(function (ValidatorInterface $validator) {
+                             // Ensure country exists and that it's or countries_id
+                             $validator->orColumn('countries_id')
+                                       ->orColumn('countries_name')
+                                       ->setColumnFromQuery('countries_id', 'SELECT `id` 
+                                                                             FROM   `geo_countries` 
+                                                                             WHERE  `code` = :code 
+                                                                               AND  `status` IS NULL', [
+                                           ':code' => '$countries_code'
                                        ]);
                          });
     }

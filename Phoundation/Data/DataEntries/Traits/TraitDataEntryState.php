@@ -3,7 +3,7 @@
 /**
  * Trait TraitDataEntryState
  *
- * This trait contains methods for DataEntry objects that require GEO state data
+ * This trait contains methods for DataEntry objects that require a state
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -16,96 +16,117 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries\Traits;
 
-
-
-use Phoundation\Geo\States\Interfaces\StateInterface;
 use Phoundation\Geo\States\State;
+use Phoundation\Geo\States\Interfaces\StateInterface;
+
+
 
 trait TraitDataEntryState
 {
     /**
-     * State object cache
+     * Setup virtual configuration for States
      *
-     * @var StateInterface|null $o_state
+     * @return static
      */
-    protected ?StateInterface $o_state;
+    protected function addVirtualConfigurationStates(): static
+    {
+        return $this->addVirtualConfiguration('states', State::class, [
+            'id',
+            'code',
+            'name'
+        ]);
+    }
 
 
     /**
-     * Returns the states_id for this object
+     * Returns the states_id column
      *
      * @return int|null
      */
     public function getStatesId(): ?int
     {
-        return $this->getTypesafe('int', 'states_id');
+        return $this->getVirtualData('states', 'int', 'id');
     }
 
 
     /**
-     * Sets the states_id for this object
+     * Sets the states_id column
      *
-     * @param int|null $states_id
-     *
+     * @param int|null $id
      * @return static
      */
-    public function setStatesId(?int $states_id): static
+    public function setStatesId(?int $id): static
     {
-        $this->o_state = null;
-        return $this->set($states_id, 'states_id');
+        return $this->setVirtualData('states', $id, 'id');
     }
 
 
     /**
-     * Returns the state for this object
+     * Returns the states_code column
      *
-     * @return StateInterface|null
+     * @return string|null
      */
-    public function getStateObject(): ?StateInterface
+    public function getStatesCode(): ?string
     {
-        if (empty($this->o_state)) {
-            $this->o_state = State::new($this->getTypesafe('int', 'states_id'))->loadOrNull();
-        }
-
-        return $this->o_state;
+        return $this->getVirtualData('states', 'string', 'code');
     }
 
 
     /**
-     * Sets the state for this object
+     * Sets the states_code column
      *
-     * @param StateInterface|null $o_state
-     * @return TraitDataEntryState
+     * @param string|null $code
+     * @return static
      */
-    public function setStateObject(?StateInterface $o_state): static
+    public function setStatesCode(?string $code): static
     {
-        $this->setStatesId($o_state?->getId());
-
-        $this->o_state = $o_state;
-        return $this;
+        return $this->setVirtualData('states', $code, 'code');
     }
 
 
     /**
-     * Returns the states_name for this object
+     * Returns the states_name column
      *
      * @return string|null
      */
     public function getStatesName(): ?string
     {
-        return $this->getStateObject()->getName();
+        return $this->getVirtualData('states', 'string', 'name');
     }
 
 
     /**
-     * Returns the states_name for this object
+     * Sets the states_name column
      *
-     * @param string|null $states_name
+     * @param string|null $name
+     * @return static
+     */
+    public function setStatesName(?string $name): static
+    {
+        return $this->setVirtualData('states', $name, 'name');
+    }
+
+
+    /**
+     * Returns the State Object
+     *
+     * @return StateInterface|null
+     */
+    public function getStateObject(): ?StateInterface
+    {
+        return $this->getVirtualObject('states');
+    }
+
+
+    /**
+     * Returns the states_id for this user
+     *
+     * @param StateInterface|null $o_object
      *
      * @return static
      */
-    public function setStatesName(?string $states_name): static
+    public function setStateObject(?StateInterface $o_object): static
     {
-        return $this->setStateObject(State::new()->loadOrNull(['name' => $states_name]));
+        return $this->setVirtualObject('states', $o_object);
     }
 }

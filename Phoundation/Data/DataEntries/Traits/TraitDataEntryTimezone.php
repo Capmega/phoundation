@@ -3,7 +3,7 @@
 /**
  * Trait TraitDataEntryTimezone
  *
- *
+ * This trait contains methods for DataEntry objects that require a timezone
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -16,72 +16,117 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries\Traits;
 
-use Phoundation\Geo\Timezones\Interfaces\TimezoneInterface;
 use Phoundation\Geo\Timezones\Timezone;
+use Phoundation\Geo\Timezones\Interfaces\TimezoneInterface;
+
 
 
 trait TraitDataEntryTimezone
 {
     /**
-     * Returns the timezones_id for this user
+     * Setup virtual configuration for Timezones
+     *
+     * @return static
+     */
+    protected function addVirtualConfigurationTimezones(): static
+    {
+        return $this->addVirtualConfiguration('timezones', Timezone::class, [
+            'id',
+            'code',
+            'name'
+        ]);
+    }
+
+
+    /**
+     * Returns the timezones_id column
      *
      * @return int|null
      */
     public function getTimezonesId(): ?int
     {
-        return $this->getTypesafe('int', 'timezones_id');
+        return $this->getVirtualData('timezones', 'int', 'id');
     }
 
 
     /**
-     * Sets the timezones_id for this user
+     * Sets the timezones_id column
      *
-     * @param int|null $timezones_id
-     *
+     * @param int|null $id
      * @return static
      */
-    public function setTimezonesId(?int $timezones_id): static
+    public function setTimezonesId(?int $id): static
     {
-        return $this->set($timezones_id, 'timezones_id');
+        return $this->setVirtualData('timezones', $id, 'id');
     }
 
 
     /**
-     * Returns the timezone for this user
+     * Returns the timezones_code column
      *
-     * @return TimezoneInterface|null
+     * @return string|null
      */
-    public function getTimezone(): ?TimezoneInterface
+    public function getTimezonesCode(): ?string
     {
-        $timezones_id = $this->getTypesafe('int', 'timezones_id');
-        if ($timezones_id) {
-            return new Timezone($timezones_id);
-        }
-
-        return null;
+        return $this->getVirtualData('timezones', 'string', 'code');
     }
 
 
     /**
-     * Returns the timezones_name for this user
+     * Sets the timezones_code column
+     *
+     * @param string|null $code
+     * @return static
+     */
+    public function setTimezonesCode(?string $code): static
+    {
+        return $this->setVirtualData('timezones', $code, 'code');
+    }
+
+
+    /**
+     * Returns the timezones_name column
      *
      * @return string|null
      */
     public function getTimezonesName(): ?string
     {
-        return $this->getTypesafe('string', 'timezones_name');
+        return $this->getVirtualData('timezones', 'string', 'name');
     }
 
 
     /**
-     * Sets the timezones_name for this user
+     * Sets the timezones_name column
      *
-     * @param string|null $timezones_name
+     * @param string|null $name
+     * @return static
+     */
+    public function setTimezonesName(?string $name): static
+    {
+        return $this->setVirtualData('timezones', $name, 'name');
+    }
+
+
+    /**
+     * Returns the Timezone Object
+     *
+     * @return TimezoneInterface|null
+     */
+    public function getTimezoneObject(): ?TimezoneInterface
+    {
+        return $this->getVirtualObject('timezones');
+    }
+
+
+    /**
+     * Returns the timezones_id for this user
+     *
+     * @param TimezoneInterface|null $o_object
      *
      * @return static
      */
-    public function setTimezonesName(?string $timezones_name): static
+    public function setTimezoneObject(?TimezoneInterface $o_object): static
     {
-        return $this->set($timezones_name, 'timezones_name');
+        return $this->setVirtualObject('timezones', $o_object);
     }
 }

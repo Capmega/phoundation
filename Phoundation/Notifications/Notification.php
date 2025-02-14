@@ -37,7 +37,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryLine;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryMessage;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryMode;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryPriority;
-use Phoundation\Data\DataEntries\Traits\TraitDataEntrySetCreatedBy;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryCreatedBy;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryTitle;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryTrace;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUrl;
@@ -77,7 +77,7 @@ class Notification extends DataEntry implements NotificationInterface
     use TraitDataEntryTitle;
     use TraitDataEntryMessage;
     use TraitDataEntryDetails;
-    use TraitDataEntrySetCreatedBy;
+    use TraitDataEntryCreatedBy;
     use TraitDataEntryTrace;
     use TraitDataOverrideNonProductionLockout;
 

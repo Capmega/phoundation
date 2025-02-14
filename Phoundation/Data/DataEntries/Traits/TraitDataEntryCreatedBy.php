@@ -20,7 +20,7 @@ use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
 
 
-trait TraitDataEntrySetCreatedBy
+trait TraitDataEntryCreatedBy
 {
     /**
      * Returns the users_id that created this data entry

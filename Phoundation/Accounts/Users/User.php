@@ -2943,7 +2943,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                         $validator->isPrintable();
                                     }))
 
-                    ->add(DefinitionFactory::newCountry()
+                    ->add(DefinitionFactory::newCountriesName()
                                            ->setSize(2)
                                            ->setHelpGroup(tr('Location information'))
                                            ->setHelpText(tr('The country where this user resides')))

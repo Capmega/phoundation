@@ -111,7 +111,7 @@ class Connectors extends DataIterator implements ConnectorsInterface
             $connector['id']       = --$count;
             $connector['name']     = $name;
             $connector['seo_name'] = Seo::string($name);
-            $this->source[$name]   = Connector::newFromSource($connector, true);
+            $this->source[$name]   = Connector::newFromSource($connector);
         }
 
         return $this;

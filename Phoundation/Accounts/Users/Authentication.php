@@ -35,7 +35,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryIpAddress;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryLongLat;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryMethod;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryPlatform;
-use Phoundation\Data\DataEntries\Traits\TraitDataEntrySetCreatedBy;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryCreatedBy;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryState;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryTimezone;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUserAgent;
@@ -56,7 +56,7 @@ class Authentication extends DataEntry implements AuthenticationInterface
     use TraitDataEntryState;
     use TraitDataEntryTimezone;
     use TraitDataEntryUserAgent;
-    use TraitDataEntrySetCreatedBy;
+    use TraitDataEntryCreatedBy;
 
     /**
      * Authentication class constructor
