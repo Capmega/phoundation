@@ -919,19 +919,18 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column timezone
-     *
+     * Returns a Definition object for a city name
      * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newCity(?string $column = 'cities_name'): DefinitionInterface
+    public static function newCitiesName(?string $column = 'cities_name'): DefinitionInterface
     {
         return Definition::new($column)
                          ->setOptional(true)
                          ->setRender(false)
                          ->setVirtual(true)
-                         ->setCliColumn('--city CITY-NAME')
+                         ->setCliColumn('--cities-name CITY-NAME')
                          ->setLabel(tr('City'))
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
@@ -952,6 +951,44 @@ class DefinitionFactory
                                                                             AND  `status` IS NULL', [
                                                                                 ':name'      => '$city',
                                                                                 ':states_id' => '$states_id',
+                                       ]);
+                         });
+    }
+
+
+    /**
+     * Returns a Definition object for a city code
+     * @param string|null $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newCitiesCode(?string $column = 'cities_code'): DefinitionInterface
+    {
+        return Definition::new($column)
+                         ->setOptional(true)
+                         ->setRender(false)
+                         ->setVirtual(true)
+                         ->setCliColumn('--cities-code CITY-CODE')
+                         ->setLabel(tr('City'))
+                         ->setCliAutoComplete([
+                             'word'   => function ($word) {
+                                 return Cities::new()->keepMatchingKeys($word);
+                             },
+                             'noword' => function ($word) {
+                                 return Cities::new()->getSource();
+                             },
+                         ])
+                         ->addValidationFunction(function (ValidatorInterface $validator) {
+                             // Ensure city exists and that it's or cities_id
+                             $validator->orColumn('cities_id')
+                                       ->isCode()
+                                       ->setColumnFromQuery('cities_id', 'SELECT `code` 
+                                                                          FROM   `geo_cities` 
+                                                                          WHERE  `code` = :code 
+                                                                            AND  `states_code`  = :states_id    
+                                                                            AND  `status` IS NULL', [
+                                           ':code'      => '$city',
+                                           ':states_id' => '$states_id',
                                        ]);
                          });
     }
