@@ -26,6 +26,7 @@ use Phoundation\Date\Exception\DateTimeException;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeZoneInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Stringable;
 use Throwable;
@@ -114,6 +115,31 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
     public function __toString(): string
     {
         return $this->getSource();
+    }
+
+
+    /**
+     * Returns a random PhoDateTime between $after and $before
+     *
+     * @param PhoDateTimeInterface|string|null $after
+     * @param PhoDateTimeInterface|string|null $before
+     * @param DateTimeZone|string|null         $timezone
+     *
+     * @return $this
+     */
+    public static function newRandom(PhoDateTimeInterface|string|null $after = '-1 day', PhoDateTimeInterface|string|null $before = 'now', DateTimeZone|string|null $timezone = null): static
+    {
+        $after  = PhoDateTime::new($after);
+        $before = PhoDateTime::new($before);
+
+        if ($before < $after) {
+            throw new OutOfBoundsException(tr('The "before" date ":before" must be AFTER the date ":after"', [
+                ':before' => $before,
+                ':after'  => $after,
+            ]));
+        }
+
+        return PhoDateTime::new(Numbers::getRandomInt($after->getTimestamp(), $before->getTimestamp()), $timezone);
     }
 
 
