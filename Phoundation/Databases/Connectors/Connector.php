@@ -873,11 +873,10 @@ class Connector extends DataEntry implements ConnectorInterface
                                         $validator->hasMaxCharacters(64);
                                     }))
 
-                    ->add(DefinitionFactory::newTimezonesId('timezones_id')
+                    ->add(DefinitionFactory::newTimezonesId()
                                            ->setInputType(EnumInputType::dbid)
                                            ->setLabel(tr('Timezone'))
                                            ->setOptional(true)
-                                           ->setSize(2)
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->orColumn('timezones_name')
                                                          ->isDbId()
@@ -889,13 +888,10 @@ class Connector extends DataEntry implements ConnectorInterface
                                                          ]);
                                            }))
 
-                    ->add(DefinitionFactory::newTimezonesName('timezones_name')
+                    ->add(DefinitionFactory::newTimezonesName()
                                            ->setInputType(EnumInputType::variable)
                                            ->setLabel(tr('Timezone'))
                                            ->setOptional(true, 'UTC')
-                                           ->setVirtual(false)
-                                           ->setRender(false)
-                                           ->setSize(2)
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->orColumn('timezones_id')
                                                          ->isName()
@@ -904,6 +900,20 @@ class Connector extends DataEntry implements ConnectorInterface
                                                              return Timezone::exists(['name' => $value]);
                                                          }, tr('The specified timezone does not exist'));
                                            }))
+
+                    ->add(DefinitionFactory::newTimezonesCode()
+                                           ->setInputType(EnumInputType::variable)
+                                           ->setLabel(tr('Timezone Code'))
+                                           ->setOptional(true, 'UTC')
+                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+                                               $validator->orColumn('timezones_id')
+                                                         ->isCode()
+                                                         ->isTrue(function ($value) {
+                                                             // This timezone must exist.
+                                                             return Timezone::exists(['code' => $value]);
+                                                         }, tr('The specified timezone does not exist'));
+                                           }))
+
 
                     ->add(Definition::new('ssh_tunnels_id')
                                     ->setInputType(EnumInputType::dbid)
