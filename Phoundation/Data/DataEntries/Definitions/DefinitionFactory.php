@@ -623,6 +623,7 @@ class DefinitionFactory
                          ->setVirtual(true)
                          ->setCliColumn('-t,--timezone TIMEZONE-NAME')
                          ->setLabel(tr('Timezone'))
+                         ->setMaxlength(64)
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
                                  return Timezones::new()->keepMatchingKeys($word);
