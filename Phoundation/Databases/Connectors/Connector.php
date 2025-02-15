@@ -31,7 +31,6 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryHostnamePort;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryPassword;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntrySync;
-use Phoundation\Data\DataEntries\Traits\TraitDataEntryTimezone;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUsername;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Exception\ConnectorNotExistsException;
@@ -39,9 +38,7 @@ use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Datastores;
 use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Exception\PhpModuleNotAvailableException;
-use Phoundation\Geo\Timezones\Timezone;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Config;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
@@ -54,7 +51,6 @@ class Connector extends DataEntry implements ConnectorInterface
     use TraitDataEntryUsername;
     use TraitDataEntryPassword;
     use TraitDataEntryDatabase;
-    use TraitDataEntryTimezone;
     use TraitDataEntryCharacterSet;
     use TraitDataEntryCollate;
     use TraitDataEntrySync;
@@ -535,6 +531,29 @@ class Connector extends DataEntry implements ConnectorInterface
 
 
     /**
+     * Returns the timezones_name column
+     *
+     * @return string|null
+     */
+    public function getTimezonesName(): ?string
+    {
+        return $this->getTypesafe('string', 'timezones_name');
+    }
+
+
+    /**
+     * Sets the timezones_name column
+     *
+     * @param string|null $timezones_name
+     * @return static
+     */
+    public function setTimezonesName(?string $timezones_name): static
+    {
+        return $this->set($timezones_name, 'timezones_name');
+    }
+
+
+    /**
      * Returns the init flag for this connector
      *
      * @return bool|null
@@ -883,7 +902,8 @@ class Connector extends DataEntry implements ConnectorInterface
                                         $validator->hasMaxCharacters(64);
                                     }))
 
-                    ->add(DefinitionFactory::newTimezonesName())
+                    ->add(DefinitionFactory::newTimezonesName()
+                                           ->setVirtual(false))
 
                     ->add(Definition::new('ssh_tunnels_id')
                                     ->setInputType(EnumInputType::dbid)

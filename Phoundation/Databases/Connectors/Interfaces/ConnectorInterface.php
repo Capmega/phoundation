@@ -119,29 +119,6 @@ interface ConnectorInterface extends DataEntryInterface
     public function setName(?string $name, bool $set_seo_name = true): static;
 
     /**
-     * Returns the timezones_id for this user
-     *
-     * @return int|null
-     */
-    public function getTimezonesId(): ?int;
-
-    /**
-     * Sets the timezones_id for this user
-     *
-     * @param int|null $timezones_id
-     *
-     * @return static
-     */
-    public function setTimezonesId(?int $timezones_id): static;
-
-    /**
-     * Returns the timezone for this user
-     *
-     * @return TimezoneInterface|null
-     */
-    public function getTimezoneObject(): ?TimezoneInterface;
-
-    /**
      * Returns the timezones_name for this user
      *
      * @return string|null
