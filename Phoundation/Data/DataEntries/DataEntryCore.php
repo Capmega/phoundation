@@ -43,9 +43,11 @@ use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Enums\EnumStateMismatchHandling;
 use Phoundation\Data\DataEntries\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryBadException;
+use Phoundation\Data\DataEntries\Exception\DataEntryColumnNotDefinedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryException;
 use Phoundation\Data\DataEntries\Exception\DataEntryInvalidIdentifierException;
+use Phoundation\Data\DataEntries\Exception\DataEntryInvalidVirtualConfigurationException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNoIdentifierSpecifiedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotSavedException;
@@ -933,10 +935,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 ]));
             }
 
-            throw new DataEntryException(tr('Not setting column ":column", it is not defined for the ":class" class', [
+            throw DataEntryColumnNotDefinedException::new(tr('Not setting column ":column", it is not defined for the ":class" class', [
                 ':column' => $key,
                 ':class'  => get_class($this),
-            ]));
+            ]))->setData([
+                'column' => $key
+            ]);
         }
 
         // Skip all meta-columns like id, created_on, meta_id, etc., etc., etc...
@@ -4132,13 +4136,27 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         // Reset all columns for the table except the specified one, that one will have the specified value
         foreach ($this->getVirtualColumns($table) as $virtual_column => $virtual_table_column) {
-            if ($virtual_column === $column) {
-                $this->set($value, $virtual_table_column);
+            try {
+                if ($virtual_column === $column) {
+                    $this->set($value, $virtual_table_column);
 
-            } else {
-                if (!$this->is_initializing_source) {
-                    $this->set(null, $virtual_table_column);
+                } else {
+                    if (!$this->is_initializing_source) {
+                        $this->set(null, $virtual_table_column);
+                    }
                 }
+
+            } catch (DataEntryColumnNotDefinedException $e) {
+                // We're trying to set a column that doesn't exist in the Definitions object
+                throw DataEntryInvalidVirtualConfigurationException::new(tr('Virtual columns configuration for table ":table" in class ":class" contains column ":column" but that column does not exist in the definitions for this class', [
+                    ':table'  => $table,
+                    ':class'  => $this::class,
+                    ':column' => $virtual_table_column,
+                ]), $e)->setData([
+                    'table'   => $table,
+                    'class'   => $this::class,
+                    'column'  => $virtual_table_column,
+                ]);
             }
         }
 
@@ -4176,8 +4194,21 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $configuration = $this->getVirtualConfiguration($table);
 
         if (empty($o_object)) {
-            $identifier = $this->getVirtualLoadIdentifier($configuration['columns']);
-            $o_object   = $configuration['class']::new()->loadOrNull($identifier);
+            try {
+                $identifier = $this->getVirtualLoadIdentifier($configuration['columns']);
+                $o_object   = $configuration['class']::new()->loadOrNull($identifier);
+
+            } catch (DataEntryInvalidVirtualConfigurationException $e) {
+                // This means that a column was specified to be checked that does not exist in the Definitions object
+                throw DataEntryInvalidVirtualConfigurationException::new(tr('Cannot find value for defined virtual column ":column" in class ":class", this column does not exist in the definitions object', [
+                    ':class'  => $this::class,
+                    ':column' => $e->getDataKey('column'),
+                ]), $e)->setData([
+                    'column'        => $e->getDataKey('column'),
+                    'table'         => $table,
+                    'configuration' => $configuration,
+                ]);
+            }
         }
 
         // Cache the loaded object
@@ -4204,7 +4235,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $return = [];
 
         foreach ($columns as $column => $table_column) {
-            $value = $this?->get($table_column);
+            try {
+                $value = $this?->get($table_column);
+
+            } catch (OutOfBoundsException $e) {
+                // This means that a column was specified to be checked that does not exist in the Definitions object
+                throw DataEntryInvalidVirtualConfigurationException::new(tr('Cannot find value for defined virtual column ":column", this column does not exist in the definitions object', [
+                    ':column' => $table_column,
+                ]), $e)->setData([
+                    'column'  => $table_column,
+                ]);
+            }
 
             if ($value === null) {
                 continue;
@@ -4218,15 +4259,32 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Adds the virtual column configuration for the specified table
+     * Initializes the configuration for multiple virtual columns
      *
-     * @param string $table
-     * @param string $class
-     * @param array  $columns
+     * @param array $configuration
      *
      * @return $this
      */
-    protected function addVirtualConfiguration(string $table, string $class, array $columns): static
+    protected function initializeVirtualConfiguration(array $configuration): static
+    {
+        foreach ($configuration as $table => $columns) {
+            $this->addVirtualConfiguration($table, null, $columns);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Adds the virtual column configuration for the specified table
+     *
+     * @param string      $table
+     * @param string|null $class
+     * @param array       $columns
+     *
+     * @return $this
+     */
+    protected function addVirtualConfiguration(string $table, ?string $class, array $columns): static
     {
         $table_columns = [];
 
@@ -4238,7 +4296,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             $this->virtual_configuration[$table] = ['columns' => $table_columns];
         }
 
-        $this->virtual_configuration[$table]['class'] = $class;
+        if ($class) {
+            $this->virtual_configuration[$table]['class'] = $class;
+        }
+
         return $this;
     }
 
