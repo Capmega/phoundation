@@ -22,6 +22,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Html;
 
+
 class Toast implements RenderInterface
 {
     use TraitMethodHasRendered;
