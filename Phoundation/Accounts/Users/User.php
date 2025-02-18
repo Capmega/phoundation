@@ -132,6 +132,7 @@ class User extends DataEntry implements UserInterface
     use TraitDataEntryVerificationCode;
     use TraitDataEntryVerifiedOn;
 
+
     /**
      * The extra email addresses for this user
      *
@@ -191,18 +192,6 @@ class User extends DataEntry implements UserInterface
      */
     protected bool $notifications_enabled = true;
 
-    /**
-     * Configures the TraitDataEntry trait columns
-     *
-     * @var array
-     */
-    protected array $virtual_configuration = [
-        'countries' => ['columns' => ['id', 'code', 'name']],
-        'states'    => ['columns' => ['id', 'code', 'name']],
-        'cities'    => ['columns' => ['id', 'name']],
-        'timezones' => ['columns' => ['id', 'name']],
-    ];
-
 
     /**
      * DataEntry class constructor
@@ -211,6 +200,13 @@ class User extends DataEntry implements UserInterface
      */
     public function __construct(IdentifierInterface|array|string|int|false|null $identifier = null)
     {
+        $this->initializeVirtualConfiguration([
+            'countries' => ['id', 'code', 'name'],
+            'states'    => ['id', 'code', 'name'],
+            'cities'    => ['id', 'name'],
+            'timezones' => ['id', 'name'],
+        ]);
+
         if (empty($this->protected_columns)) {
             $this->protected_columns = [
                 'password',
