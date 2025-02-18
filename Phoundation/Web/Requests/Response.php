@@ -241,7 +241,7 @@ class Response implements ResponseInterface
      */
     protected function __construct()
     {
-        // Take restrictions from Request object
+        // Take file access restrictions from the Request object
         static::$restrictions = Request::getRestrictions();
         static::$http_headers = [];
         static::$page_headers = [
@@ -853,7 +853,7 @@ class Response implements ResponseInterface
         static::$html_headers_sent = true;
 
         $return = '<!DOCTYPE ' . static::$doctype . '>
-        <html lang="' . Session::getLanguage() . '">' . PHP_EOL;
+        <html lang="' . Session::getLanguage() . '">' . PHP_EOL . '<head>';
 
         if (static::getPageTitle()) {
             $return .= '<title>' . (Core::isProductionEnvironment() ? null : '(' . ENVIRONMENT . ') ') . static::$page_title . '</title>' . PHP_EOL;
