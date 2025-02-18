@@ -77,19 +77,38 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      * Ensures that the value is a DefinitionInterface object and that the prefix is automatically added to the column
      * name
      *
-     * @param mixed $value
+     * @param mixed                            $value
+     * @param Stringable|string|float|int|null $key
      *
-     * @return static
+     * @return string|null
      */
-    protected function ensureValueAndPrefix(mixed $value): static
+    protected function ensureValueAndPrefix(mixed $value, Stringable|string|float|int|null $key): ?string
     {
+        if (!$value instanceof DefinitionInterface) {
+            throw new OutOfBoundsException(tr('Cannot add the specified value ":value" to the Definitions list for DataEntry class ":class", it must be a DefinitionInterface object but is a ":type" instead', [
+                ':class' => get_datatype_or_class($this->data_entry),
+                ':value' => $value,
+                ':type'  => get_datatype_or_class($value)
+            ]));
+        }
+
+        $key = $key ?? $value->getColumn();
+
+        if (in_array($key, ['connector'], true)) {
+            throw new OutOfBoundsException(tr('The DataEntry ":class" class column / definition name ":column" is reserved and cannot be used for DataEntry columns', [
+                ':class'  => ($this->data_entry ? $this->data_entry::class : '-'),
+                ':column' => $key
+            ]));
+        }
+
+        // Ensure the added Definition has DataEntry set
         $value->setDataEntry($this->data_entry);
 
         if ($this->prefix) {
             $value->setColumn($this->prefix . $value->getColumn());
         }
 
-        return $this;
+        return $key;
     }
 
 
@@ -107,18 +126,9 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
-        $key = $key ?? $value->getColumn();
-
-        if (in_array($key, ['connector'], true)) {
-            throw new OutOfBoundsException(tr('The DataEntry ":class" class column / definition name ":column" is reserved and cannot be used for DataEntry columns', [
-                ':class'  => ($this->data_entry ? $this->data_entry::class : '-'),
-                ':column' => $key
-            ]));
-        }
-
         try {
-            parent::append($value, $key, $skip_null_values, $exception);
-            return $this->ensureValueAndPrefix($value);
+            $key = $this->ensureValueAndPrefix($value, $key);
+            return parent::append($value, $key, $skip_null_values, $exception);
 
         } catch (IteratorKeyExistsException $e) {
             throw $e->addData(['keys' => $this->getSourceKeys()]);
@@ -140,8 +150,13 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function prepend(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
-        parent::prepend($value, $key ?? $value->getColumn(), $skip_null_values, $exception);
-        return $this->ensureValueAndPrefix($value);
+        try {
+            $key = $this->ensureValueAndPrefix($value, $key);
+            return parent::prepend($value, $key, $skip_null_values, $exception);
+
+        } catch (IteratorKeyExistsException $e) {
+            throw $e->addData(['keys' => $this->getSourceKeys()]);
+        }
     }
 
 
@@ -160,8 +175,13 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function prependBeforeKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $before = null, bool $skip_null_values = true, bool $exception = true): static
     {
-        parent::prependBeforeKey($value, $key ?? $value->getColumn(), $before, $skip_null_values, $exception);
-        return $this->ensureValueAndPrefix($value);
+        try {
+            $key = $this->ensureValueAndPrefix($value, $key);
+            return parent::prependBeforeKey($value, $key, $before, $skip_null_values, $exception);
+
+        } catch (IteratorKeyExistsException $e) {
+            throw $e->addData(['keys' => $this->getSourceKeys()]);
+        }
     }
 
 
@@ -181,8 +201,13 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function prependBeforeValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $before = null, bool $strict = false, bool $skip_null_values = true, bool $exception = true): static
     {
-        parent::prependBeforeValue($value, $key ?? $value->getColumn(), $before, $strict, $skip_null_values, $exception);
-        return $this->ensureValueAndPrefix($value);
+        try {
+            $key = $this->ensureValueAndPrefix($value, $key);
+            return parent::prependBeforeValue($value, $key, $before, $strict, $skip_null_values, $exception);
+
+        } catch (IteratorKeyExistsException $e) {
+            throw $e->addData(['keys' => $this->getSourceKeys()]);
+        }
     }
 
 
@@ -201,8 +226,13 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function appendAfterKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|float|int|null $after = null, bool $skip_null_values = true, bool $exception = true): static
     {
-        parent::appendAfterKey($value, $key ?? $value->getColumn(), $after, $skip_null_values, $exception);
-        return $this->ensureValueAndPrefix($value);
+        try {
+            $key = $this->ensureValueAndPrefix($value, $key);
+            return parent::appendAfterKey($value, $key, $after, $skip_null_values, $exception);
+
+        } catch (IteratorKeyExistsException $e) {
+            throw $e->addData(['keys' => $this->getSourceKeys()]);
+        }
     }
 
 
@@ -222,8 +252,13 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function appendAfterValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $after = null, bool $strict = false, bool $skip_null_values = true, bool $exception = true): static
     {
-        parent::appendAfterValue($value, $key ?? $value->getColumn(), $after, $strict, $skip_null_values, $exception);
-        return $this->ensureValueAndPrefix($value);
+        try {
+            $key = $this->ensureValueAndPrefix($value, $key);
+            return parent::appendAfterValue($value, $key, $after, $strict, $skip_null_values, $exception);
+
+        } catch (IteratorKeyExistsException $e) {
+            throw $e->addData(['keys' => $this->getSourceKeys()]);
+        }
     }
 
 
