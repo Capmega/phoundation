@@ -700,8 +700,36 @@ class CliAutoComplete
                        ->makeAbsolute(must_exist: false);
 
         if ($file->exists()) {
-            if (!$file->uidMatchesPuid()) {
-                Log::warning(tr('Not initializing bash completion file ":file" as its owner UID ":fuid (:fname)" does not match this process UID ":puid (:pname)"', [
+            if ($file->isReadable()) {
+                // Check if it contains the setup for Phoundation
+                // TODO Check if this is an issue with huge bash_completion files, are there huge files out there?
+                $results = Grep::new($file->getParentDirectory())
+                               ->setValue('_phoundation pho')
+                               ->setFileObject($file)
+                               ->grep(EnumExecuteMethod::returnArray);
+
+                if ($results) {
+                    // bash_completion contains rule for Phoundation
+                    return;
+                }
+
+            } else {
+                // File is not readable
+                if (!$file->uidMatchesPuid()) {
+                    // Owner mismatch of file itself
+                    Log::warning(tr('Not initializing existing bash completion file ":file" as its owner UID ":fuid (:fname)" does not match this process UID ":puid (:pname)"', [
+                        ':file'  => $file->getAbsolutePath(must_exist: false),
+                        ':fuid'  => $file->getOwnerUid(),
+                        ':fname' => $file->getOwnerName(),
+                        ':puid'  => Core::getProcessUid(),
+                        ':pname' => Core::getProcessUsername()
+                    ]));
+
+                    return;
+                }
+
+                // Different reason
+                Log::warning(tr('Cannot access bash completion file ":file", not performing auto-complete initialization check', [
                     ':file'  => $file->getAbsolutePath(must_exist: false),
                     ':fuid'  => $file->getOwnerUid(),
                     ':fname' => $file->getOwnerName(),
@@ -712,22 +740,23 @@ class CliAutoComplete
                 return;
             }
 
-            // Check if it contains the setup for Phoundation
-            // TODO Check if this is an issue with huge bash_completion files, are there huge files out there?
-            $results = Grep::new($file->getParentDirectory())
-                           ->setValue('_phoundation pho')
-                           ->setFileObject($file)
-                           ->grep(EnumExecuteMethod::returnArray);
+        } else {
+            // File does not exist. Does the parent directory match?
+            if (!$file->getParentDirectory()->uidMatchesPuid()) {
+                Log::warning(tr('Not trying to initialize bash completion file ":file" as the owner UID ":fuid (:fname)" of the parent directory ":directory" does not match this process UID ":puid (:pname)"', [
+                    ':directory' => $file->getParentDirectory()->getAbsolutePath(must_exist: false),
+                    ':file'      => $file->getAbsolutePath(must_exist: false),
+                    ':fuid'      => $file->getParentDirectory()->getOwnerUid(),
+                    ':fname'     => $file->getParentDirectory()->getOwnerName(),
+                    ':puid'      => Core::getProcessUid(),
+                    ':pname'     => Core::getProcessUsername()
+                ]));
 
-            if ($results) {
-                // bash_completion contains rule for Phoundation
                 return;
             }
 
-        } else {
             // Initialize the bash_completion file
             $file->appendData('#/usr/bin/env bash' . PHP_EOL);
-
         }
 
         // Phoundation command line auto complete has not yet been set up, do so now.
