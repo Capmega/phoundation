@@ -69,7 +69,7 @@ interface AuthenticationInterface extends DataEntryInterface
      *
      * @return static
      */
-    public function setCreatedByUserObject(?UserInterface $user): static;
+    public function setCreatedByObject(?UserInterface $user): static;
 
     /**
      * Sets the users_id that created this data entry

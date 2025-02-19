@@ -48,6 +48,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
     use TraitDataEntryUuid;
     use TraitDataEntryRedirect;
 
+
     /**
      * SignInKey class constructor
      *
@@ -55,6 +56,10 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     public function __construct(IdentifierInterface|array|string|int|false|null $identifier = null)
     {
+        $this->initializeVirtualConfiguration([
+            'users' => ['id'],
+        ]);
+
         parent::__construct($identifier);
         $this->setAllowNavigation(false);
     }

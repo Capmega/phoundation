@@ -58,6 +58,7 @@ class Authentication extends DataEntry implements AuthenticationInterface
     use TraitDataEntryUserAgent;
     use TraitDataEntryCreatedBy;
 
+
     /**
      * Authentication class constructor
      *

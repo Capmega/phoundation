@@ -48,6 +48,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
         setUsersId as protected __setUsersId;
     }
 
+
     /**
      * ProfileImage class constructor
      *
@@ -55,6 +56,10 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
      */
     public function __construct(IdentifierInterface|array|string|int|false|null $identifier = null)
     {
+        $this->initializeVirtualConfiguration([
+            'users' => ['id'],
+        ]);
+
         parent::__construct($identifier);
 
         $this->restrictions = PhoRestrictions::newWritableObject([DIRECTORY_TMP, DIRECTORY_CDN]);

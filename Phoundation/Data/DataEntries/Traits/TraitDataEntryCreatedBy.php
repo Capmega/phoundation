@@ -65,7 +65,7 @@ trait TraitDataEntryCreatedBy
      *
      * @return static
      */
-    public function setCreatedByUserObject(?UserInterface $user): static
+    public function setCreatedByObject(?UserInterface $user): static
     {
         return $this->set($user->getId(), 'created_by');
     }
