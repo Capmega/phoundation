@@ -2194,7 +2194,8 @@ return 'under construction';
 [-G, --no-prefix]                       Will suppress the DATETIME - LOGLEVEL - PROCESS ID - GLOBAL PROCESS ID prefix
                                         that normally begins each log line output
 
-[-S, --status STATUS]                   If specified, will only display DataEntry entries with the specified status
+[-S, --systemd COMMAND]                 If specified, will convert the specified command into a SystemD service and 
+                                        execute the specified systemctl command
 
 [-T, --test]                            Will run the system in test mode. Different commands may change their behaviour
                                         depending on this flag, see their --help output for more information.
