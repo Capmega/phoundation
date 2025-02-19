@@ -1911,19 +1911,6 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns a data source for the HTML client element contents of this column
-     *
-     * The data source may be specified as a query string or a key => value array
-     *
-     * @return array|PDOStatement|Stringable|string|null
-     */
-    public function getDataSource(): array|PDOStatement|Stringable|string|null
-    {
-        return isset_get_typed('array|PDOStatement|Stringable|string|null', $this->source['source']);
-    }
-
-
-    /**
      * If true, the value cannot be modified and this element will be shown as disabled on HTML clients
      *
      * @note Defaults to false
@@ -2129,32 +2116,93 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns a data source for the HTML client element contents of this column
+     *
+     * The data source may be specified as a query string or a key => value array
+     *
+     * @return array|PDOStatement|Stringable|string|null
+     */
+    public function getDataSource(): array|PDOStatement|Stringable|string|null
+    {
+        return isset_get_typed('array|PDOStatement|Stringable|string|null', $this->source['source']);
+    }
+
+
+    /**
      * Sets a data source for the HTML client element contents of this column
      *
      * The data source may be specified as a query string or a key => value array
      *
-     * @param array|PDOStatement|Stringable|string|null $value
+     * @param array|PDOStatement|Stringable|string|null $source
      *
      * @return static
      */
-    public function setDataSource(array|PDOStatement|Stringable|string|null $value): static
+    public function setDataSource(array|PDOStatement|Stringable|string|null $source): static
     {
-        $this->setKey($value, 'source');
+        $this->setKey($source, 'source');
 
-        if ($value) {
-            if ($value instanceof SqlQueryInterface) {
-                $value = sql()->query($value);
+        if ($source) {
+            if ($source instanceof SqlQueryInterface) {
+                $source = sql()->query($source);
 
             }
 
-            if ($value instanceof PDOStatement) {
-                $value = $value->fetchAll();
+            if ($source instanceof PDOStatement) {
+                $source = $source->fetchAll();
             }
 
-            if (is_array($value)) {
+            if (is_array($source)) {
                 // The submitted user data value must be in the definition source
-                $this->addValidationFunction(function (ValidatorInterface $validator) use ($value) {
-                    $validator->isInArray(array_keys($value));
+                $this->addValidationFunction(function (ValidatorInterface $validator) use ($source) {
+                    $validator->isInArray(array_keys($source));
+                });
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns a transform source for the HTML client element contents of this column
+     *
+     * The transform source may be specified as a query string or a key => value array
+     *
+     * @return array|PDOStatement|Stringable|string|null
+     */
+    public function getTransform(): array|PDOStatement|Stringable|string|null
+    {
+        return isset_get_typed('array|PDOStatement|Stringable|string|null', $this->source['transform']);
+    }
+
+
+    /**
+     * Sets a transform source for the HTML client element contents of this column
+     *
+     * The transform source may be specified as a query string or a key => value array
+     *
+     * @param array|PDOStatement|Stringable|string|null $source
+     *
+     * @return static
+     */
+    public function setTransform(array|PDOStatement|Stringable|string|null $source): static
+    {
+        $this->setKey($source, 'transform');
+
+        if ($source) {
+            if ($source instanceof SqlQueryInterface) {
+                $source = sql()->query($source);
+
+            }
+
+            if ($source instanceof PDOStatement) {
+                $source = $source->fetchAll();
+            }
+
+            if (is_array($source)) {
+                // The submitted user transform value must be in the definition source
+                $this->addValidationFunction(function (ValidatorInterface $validator) use ($source) {
+                    $validator->isInArray(array_keys($source))->sanitizeSearchReplace($source);
                 });
             }
         }

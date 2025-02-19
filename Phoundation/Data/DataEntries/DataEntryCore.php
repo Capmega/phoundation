@@ -1944,16 +1944,24 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 }
             }
 
+            // Get the value for the current key
             if (array_key_exists($key, $source)) {
                 $value = $source[$key];
 
-            } else {
-                // This key doesn't exist at all in the data entry, default it
-                $value = $definition->getDefault();
+            } elseif (empty($this->source[$key])) {
+                // This is empty in the specified source and empty in the internal source,default it
+                if ($this->isNew()) {
+                    // This is a new (unsaved) object, apply initial default
+                    $value = $definition->getInitialDefault() ?? $definition->getDefault();
 
-                if (($value === null) and $this->isNew()) {
-                    $value = $definition->getInitialDefault();
+                } else {
+                    // This is an existing object, apply normal default
+                    $value = $definition->getDefault();
                 }
+
+            } else {
+                // The current key is empty in the specified source and exists in the internal source, do not update
+                continue;
             }
 
             if ($definition->getVirtual()) {

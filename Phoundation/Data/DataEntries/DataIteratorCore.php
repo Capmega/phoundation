@@ -25,6 +25,7 @@ use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Interfaces\ListOperationsInterface;
+use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\IteratorCore;
 use Phoundation\Data\Traits\TraitDataConnector;
@@ -421,6 +422,41 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     public function getSqlColumns(): string
     {
         return $this->sql_columns ?? ' ' . static::getTableIdColumn() . ' AS `unique_identifier`, `' . static::getTable() . '`.* ';
+    }
+
+
+    /**
+     * Returns all data for this data entry at once with values being the specified column
+     *
+     * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
+     *       will not become available outside this object
+     *
+     * @see EntryCore::getSource()
+     * @param string $column
+     *
+     * @return array
+     */
+    public function getSourceColumn(string $column): array
+    {
+        $source = $this->getSource();
+
+        foreach ($source as &$value) {
+            if (is_array($value)) {
+                $value = $value[$column];
+
+            } elseif ($value instanceof EntryInterface) {
+                $value = $value->get($column);
+
+            } else {
+                throw new OutOfBoundsException(tr('Cannot return specified column ":column", the Iterator source contains invalid value ":value"', [
+                    ':column' => $column,
+                    ':value'  => $value
+                ]));
+            }
+        }
+
+        unset($value);
+        return $source;
     }
 
 
