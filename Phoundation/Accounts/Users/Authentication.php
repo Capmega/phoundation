@@ -66,6 +66,13 @@ class Authentication extends DataEntry implements AuthenticationInterface
      */
     public function __construct(array|int|string|DataEntryInterface|null $identifier = null)
     {
+        $this->initializeVirtualConfiguration([
+            'timezones' => ['id'],
+            'countries' => ['id'],
+            'states'    => ['id'],
+            'cities'    => ['id'],
+        ]);
+
         if (!isset($this->meta_columns)) {
             // By default, the Authentication object has created_by NOT meta so that it can set it manually
             $this->meta_columns = [
