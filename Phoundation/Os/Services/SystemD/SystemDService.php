@@ -222,8 +222,13 @@ class SystemDService extends Service
      */
     public function install(): static
     {
+        // Delete the target symlink in /etc/systemd/system in case it exists but was broken. Ensure nothing is there.
+        $this->target_script->delete();
+
+        // Generate a new symlink in /etc/systemd/system that points to our unit script
         $this->generate()->symlinkTargetFromThis($this->target_script);
 
+        // Reload the systemctl daemon to ensure systemd knows our new unit script is available
         SystemCtl::new()->daemonReload();
 
         return $this;
