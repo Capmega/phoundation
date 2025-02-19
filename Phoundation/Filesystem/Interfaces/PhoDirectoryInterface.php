@@ -39,7 +39,7 @@ interface PhoDirectoryInterface extends PhoPathInterface
     /**
      * @inheritDoc
      */
-    public function getRealPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): string;
+    public function getRealPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false, bool $resolve_basename = false): string;
 
     /**
      * @inheritDoc

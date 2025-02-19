@@ -517,13 +517,13 @@ class PhoPathCore implements PhoPathInterface
      *
      * @param Stringable|string|bool|null $absolute_prefix
      * @param bool                        $must_exist
+     * @param bool                        $resolve_basename
      *
      * @return static
      */
-    public function makeReal(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): static
+    public function makeReal(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false, bool $resolve_basename = false): static
     {
-        $this->source = static::realpath($this->source, $absolute_prefix, $must_exist);
-
+        $this->source = static::realpath($this->source, $absolute_prefix, $must_exist, $resolve_basename);
         return $this;
     }
 
@@ -2132,13 +2132,15 @@ class PhoPathCore implements PhoPathInterface
      * While PHP realpath() call may return false if the specified path does not exist, this method will both ensure the
      * parent directory of the specified path exists and a valid absolute and real path is always returned
      *
-     * @todo add InstanceCache support
      * @param string                      $path
      * @param Stringable|string|bool|null $absolute_prefix
      * @param bool                        $must_exist
+     * @param bool                        $resolve_basename
+     *
      * @return string
+     * @todo add InstanceCache support
      */
-    public static function realPath(string $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): string
+    public static function realPath(string $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false, bool $resolve_basename = false): string
     {
         $real = PhoPath::absolutePath($path, $absolute_prefix, $must_exist);
 
@@ -2160,8 +2162,12 @@ class PhoPathCore implements PhoPathInterface
             ]));
         }
 
-        // Now try to make the last part real too
-        $real = realpath(Strings::slash($parent) . $base);
+        $real = Strings::slash($parent) . $base;
+
+        if ($resolve_basename) {
+            // Now try to make the last part real too
+            $real = realpath($real);
+        }
 
         if ($real) {
             return static::ensureDirectorySlash($real);
@@ -2174,12 +2180,16 @@ class PhoPathCore implements PhoPathInterface
     /**
      * Wrapper for realpath() that won't crash with an exception if the specified string is not a real directory
      *
+     * @param Stringable|string|bool|null $absolute_prefix
+     * @param bool                        $must_exist
+     * @param bool                        $resolve_basename
+     *
      * @return string The real directory extrapolated from the specified $directory, if exists. False if whatever was
      *                specified does not exist.
      */
-    public function getRealPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): string
+    public function getRealPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false, bool $resolve_basename = false): string
     {
-        return static::realPath($this->source, $absolute_prefix, $must_exist);
+        return static::realPath($this->source, $absolute_prefix, $must_exist, $resolve_basename);
     }
 
 
@@ -4240,13 +4250,14 @@ class PhoPathCore implements PhoPathInterface
      * @param string                      $path
      * @param Stringable|string|bool|null $absolute_prefix
      * @param bool                        $must_exist
+     * @param bool                        $resolve_basename
      *
      * @return string
      */
-    public static function resolve(string $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): string
+    public static function resolve(string $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false, bool $resolve_basename = false): string
     {
         $path = static::normalizePath($path, $absolute_prefix, $must_exist);
-        $path = static::realPath($path);
+        $path = static::realPath($path, resolve_basename: $resolve_basename);
 
         return $path;
     }

@@ -447,13 +447,18 @@ interface PhoPathInterface extends Stringable
      */
     public function ensureFileReadable(?int $mode = null): bool;
 
+
     /**
      * Wrapper for realpath() that won't crash with an exception if the specified string is not a real directory
+     *
+     * @param Stringable|string|bool|null $absolute_prefix
+     * @param bool                        $must_exist
+     * @param bool                        $resolve_basename
      *
      * @return PhoPathInterface string The real path extrapolated from the specified $directory, if exists. False if
      *                         whatever was specified does not exist.
      */
-    public function getRealPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): string;
+    public function getRealPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false, bool $resolve_basename = false): string;
 
     /**
      * Wrapper for realpath() that won't crash with an exception if the specified string is not a real directory
