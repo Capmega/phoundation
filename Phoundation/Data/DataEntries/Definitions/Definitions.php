@@ -410,6 +410,24 @@ class Definitions extends IteratorCore implements DefinitionsInterface
 
 
     /**
+     * Direct method to set label for entries
+     *
+     * @param Stringable|string|float|int $key
+     * @param string|null                 $value
+     * @param bool                        $exception
+     *
+     * @return static
+     */
+    public function setLabel(Stringable|string|float|int $key, ?string $value, bool $exception = true): static
+    {
+        $this->get($key, $exception)
+             ->setLabel($value);
+
+        return $this;
+    }
+
+
+    /**
      * Direct method to make entries readonly
      *
      * @param Stringable|string|float|int $key
