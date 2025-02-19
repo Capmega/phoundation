@@ -18,6 +18,7 @@ namespace Phoundation\Data\Validator;
 
 use PDOStatement;
 use Phoundation\Accounts\Users\Password;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\IteratorBase;
 use Phoundation\Data\Traits\TraitDataRestrictions;
@@ -3940,6 +3941,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         $this->test_count++;
 
         return $this->validateValues(function (&$value) use ($replace, $regex) {
+
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
 
             if ($this->process_value_failed or $this->selected_is_default) {

@@ -27,18 +27,19 @@ trait TraitDataEntryGender
      * @var array $allowed_genders
      */
     protected array $allowed_genders = [
-        ''       => '',
-        'male'   => 'male',
-        'female' => 'female',
-        'Male'   => 'male',
-        'Female' => 'female',
-        'other'  => 'other',
-        'm'      => 'male',
-        'f'      => 'female',
-        'M'      => 'male',
-        'F'      => 'female',
-        'o'      => 'other',
-        'x'      => 'other',
+        ''        => 'unknown',
+        'male'    => 'male',
+        'female'  => 'female',
+        'Male'    => 'male',
+        'Female'  => 'female',
+        'other'   => 'other',
+        'm'       => 'male',
+        'f'       => 'female',
+        'M'       => 'male',
+        'F'       => 'female',
+        'o'       => 'other',
+        'x'       => 'other',
+        'unknown' => 'unknown',
     ];
 
 
@@ -66,12 +67,17 @@ trait TraitDataEntryGender
      */
     public function setGender(?string $gender): static
     {
-        if (!array_key_exists($gender, $this->allowed_genders)) {
-            throw new OutOfBoundsException(tr('Unknown gender ":gender" specified', [
-                ':gender' => $gender,
-            ]));
+        $gender = trim((string) $gender);
+        $gender = strtolower($gender);
+
+        if ($gender) {
+            if (!array_key_exists($gender, $this->allowed_genders)) {
+                throw new OutOfBoundsException(tr('Unknown gender ":gender" specified', [
+                    ':gender' => $gender,
+                ]));
+            }
         }
 
-        return $this->set(get_null($gender), 'gender');
+        return $this->set($this->allowed_genders[$gender], 'gender');
     }
 }

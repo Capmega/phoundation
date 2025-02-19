@@ -19,6 +19,7 @@ namespace Phoundation\Data;
 use Phoundation\Cli\Cli;
 use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\Traits\TraitDataSourceArray;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Stringable;
