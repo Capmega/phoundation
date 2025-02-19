@@ -340,10 +340,12 @@ Environment="PHOUNDATION_' . PROJECT . '_ENVIRONMENT=' . ENVIRONMENT . '"
 Type=simple
 TimeoutSec=0
 PIDFile=/var/run/' . $this->getOsProcessName() . '.pid
-ExecStart=' . CliCommand::getCommandline() . ' > /dev/null 2>/dev/null
+ExecStart=' . CliCommand::getCommandline() . '
 ExecStop=/bin/kill -TERM $MAINPID #It is the default you can change whats happens on stop command
 ExecReload=/bin/kill -HUP $MAINPID
 KillMode=process
+StandardOutput=null
+StandardError=null
 
 Restart=on-failure
 RestartSec=5s

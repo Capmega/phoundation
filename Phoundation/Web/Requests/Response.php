@@ -830,15 +830,18 @@ class Response implements ResponseInterface
     /**
      * Add the specified HTML to the footer
      *
-     * @param array|string|null $entry
-     * @param string            $key
+     * @param \Stringable|array|string|null $entry
+     * @param string                        $key
      *
      * @return void
      * @todo This should -in the near future- be updated to sending Javascript, Css, etc objects instead of "some array"
-     *
      */
-    public static function addToFooter(array|string|null $entry, string $key = 'html'): void
+    public static function addToFooter(Stringable|array|string|null $entry, string $key = 'html'): void
     {
+        if (is_object($entry)) {
+            $entry = (string) $entry;
+        }
+
         static::$page_footers[$key][] = $entry;
     }
 
