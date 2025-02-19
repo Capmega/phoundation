@@ -2388,9 +2388,9 @@ class PhoPathCore implements PhoPathInterface
             }
 
             throw new FileExistsException(tr('Cannot create symlink ":target" with link ":link", the file already exists and points to ":current" instead', [
-                ':target'  => $target->getAbsolutePath(),
+                ':target'  => $target->getAbsolutePath(must_exist: false),
                 ':link'    => Strings::ensureEndsNotWith($calculated_target->getSource(), '/'),
-                ':current' => $target->readLink(true)->getAbsolutePath(),
+                ':current' => $target->readLink(true)->getAbsolutePath(must_exist: false),
             ]));
         }
 
@@ -3879,9 +3879,9 @@ class PhoPathCore implements PhoPathInterface
             }
 
             throw new FileExistsException(tr('Cannot create symlink ":target" with link ":link", the file already exists and points to ":current" instead', [
-                ':target'  => $this->getAbsolutePath(),
+                ':target'  => $this->getAbsolutePath(must_exist: false),
                 ':link'    => $calculated_target->getSource(),
-                ':current' => $this->readLink(true)->getAbsolutePath(),
+                ':current' => $this->readLink(true)->getAbsolutePath(must_exist: false),
             ]));
         }
 
@@ -3889,7 +3889,7 @@ class PhoPathCore implements PhoPathInterface
         if ($this->exists()) {
             throw new FileExistsException(tr('Cannot create symlink ":source" that points to ":target", the file already exists as a ":type"', [
                 ':target' => $calculated_target->getSource(),
-                ':source' => $this->getAbsolutePath(),
+                ':source' => $this->getAbsolutePath(must_exist: false),
                 ':type'   => $this->getTypeName(),
             ]));
         }
