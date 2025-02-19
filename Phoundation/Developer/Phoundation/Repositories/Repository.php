@@ -184,7 +184,7 @@ class Repository extends PhoDirectory implements RepositoryInterface
         }
 
         // All these files and directories must be available.
-        $path = $this->getAbsolutePath();
+        $path  = $this->getAbsolutePath();
         $files = [
             'config',
             'data',
