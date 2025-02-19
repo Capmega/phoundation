@@ -702,7 +702,7 @@ class CliAutoComplete
         if ($file->exists()) {
             if (!$file->uidMatchesPuid()) {
                 Log::warning(tr('Not initializing bash completion file ":file" as its owner UID ":fuid (:fname)" does not match this process UID ":puid (:pname)"', [
-                    ':file'  => $file->getAbsolutePath(),
+                    ':file'  => $file->getAbsolutePath(must_exist: false),
                     ':fuid'  => $file->getOwnerUid(),
                     ':fname' => $file->getOwnerName(),
                     ':puid'  => Core::getProcessUid(),
