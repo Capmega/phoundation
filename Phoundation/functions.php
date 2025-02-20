@@ -339,9 +339,10 @@ function in_enum(mixed $needle, string $haystack): bool
 
 
 /**
- * Return the value if it actually exists, or NULL instead.
+ * Return the value if it actually exists, or default instead.
  *
- * If (for example) a non-existing key from an array was specified, NULL will be returned instead of causing a variable
+ * If (for example) a non-existing key from an array was specified, default will be returned instead of causing a
+ * "variable not defined exception"
  *
  * @note IMPORTANT! After calling this function, $var will exist in the scope of the calling function!
  *
@@ -359,6 +360,29 @@ function isset_get(mixed &$variable, mixed $default = null): mixed
 
     // The previous isset would have actually set the variable with null, unset it to ensure it won't exist
     unset($variable);
+
+    return $default;
+}
+
+
+/**
+ * Return the value if it actually exists, or default instead.
+ *
+ * If (for example) a non-existing key from an array was specified, NULL will be returned instead of causing a variable
+ *
+ * @note IMPORTANT! After calling this function, $var will exist in the scope of the calling function!
+ *
+ * @param array            $source
+ * @param string|float|int $key
+ * @param mixed            $default (optional) The value to return in case the specified $variable did not exist or was NULL.*
+ *
+ * @return mixed
+ */
+function get_safe(array $source, string|float|int $key, mixed $default = null): mixed
+{
+    if (array_key_exists($key, $source)) {
+        return $source[$key];
+    }
 
     return $default;
 }
