@@ -76,7 +76,7 @@ class City extends DataEntry implements CityInterface
      *
      * @return TimezoneInterface
      */
-    public function getTimezone(): TimezoneInterface
+    public function getTimezoneObject(): TimezoneInterface
     {
         return new Timezone($this->getTypesafe('int', 'timezones_id'));
     }
@@ -87,7 +87,7 @@ class City extends DataEntry implements CityInterface
      *
      * @return ContinentInterface
      */
-    public function getContinent(): ContinentInterface
+    public function getContinentObject(): ContinentInterface
     {
         return new Continent($this->getTypesafe('int', 'continents_id'));
     }
@@ -98,7 +98,7 @@ class City extends DataEntry implements CityInterface
      *
      * @return CountryInterface
      */
-    public function getCountry(): CountryInterface
+    public function getCountryObject(): CountryInterface
     {
         return new Country($this->getTypesafe('int', 'countries_id'));
     }
@@ -109,7 +109,7 @@ class City extends DataEntry implements CityInterface
      *
      * @return StateInterface
      */
-    public function getState(): StateInterface
+    public function getStateObject(): StateInterface
     {
         return new State($this->getTypesafe('int', 'states_id'));
     }
@@ -120,7 +120,7 @@ class City extends DataEntry implements CityInterface
      *
      * @return CountyInterface
      */
-    public function getCounty(): CountyInterface
+    public function getCountyObject(): CountyInterface
     {
         return new County($this->getTypesafe('int', 'counties_id'));
     }

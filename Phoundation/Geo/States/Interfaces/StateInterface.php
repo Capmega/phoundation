@@ -17,21 +17,21 @@ interface StateInterface
      *
      * @return TimezoneInterface
      */
-    public function getTimezone(): TimezoneInterface;
+    public function getTimezoneObject(): TimezoneInterface;
 
     /**
      * Returns the continent for this state
      *
      * @return ContinentInterface
      */
-    public function getContinent(): ContinentInterface;
+    public function getContinentObject(): ContinentInterface;
 
     /**
      * Returns the country for this state
      *
      * @return CountryInterface
      */
-    public function getCountry(): CountryInterface;
+    public function getCountryObject(): CountryInterface;
 
     /**
      * Returns an HTML <select> object with all cities available in this state

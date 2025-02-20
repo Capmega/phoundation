@@ -16,33 +16,33 @@ interface CityInterface extends DataEntryInterface
      *
      * @return TimezoneInterface
      */
-    public function getTimezone(): TimezoneInterface;
+    public function getTimezoneObject(): TimezoneInterface;
 
     /**
      * Returns the continent for this city
      *
      * @return ContinentInterface
      */
-    public function getContinent(): ContinentInterface;
+    public function getContinentObject(): ContinentInterface;
 
     /**
      * Returns the country for this city
      *
      * @return CountryInterface
      */
-    public function getCountry(): CountryInterface;
+    public function getCountryObject(): CountryInterface;
 
     /**
      * Returns the state for this city
      *
      * @return StateInterface
      */
-    public function getState(): StateInterface;
+    public function getStateObject(): StateInterface;
 
     /**
      * Returns the county for this city
      *
      * @return CountyInterface
      */
-    public function getCounty(): CountyInterface;
+    public function getCountyObject(): CountyInterface;
 }

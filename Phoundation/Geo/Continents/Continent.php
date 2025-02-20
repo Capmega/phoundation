@@ -68,7 +68,7 @@ class Continent extends DataEntry implements ContinentInterface
      *
      * @return TimezoneInterface
      */
-    public function getTimezone(): TimezoneInterface
+    public function getTimezoneObject(): TimezoneInterface
     {
         return new Timezone($this->getTypesafe('int', 'timezones_id'));
     }
