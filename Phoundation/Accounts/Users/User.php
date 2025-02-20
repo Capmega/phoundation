@@ -814,13 +814,28 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             }
 
             // Get user default roles and the user roles object
-            $roles   = config()->get('security.accounts.roles.default', '');
+            $roles   = config()->getArray('security.accounts.roles.default', []);
             $o_roles = $this->getRolesObject();
 
             if ($roles) {
                 // Add all default roles one by one
                 foreach (Arrays::force($roles) as $role) {
-                    $o_roles->add(Role::new()->load($role));
+                    try {
+                        $o_roles->add(Role::new()->load($role));
+
+                    } catch (DataEntryNotExistsException $e) {
+                        // Oh noes! This default role does not exist!
+                        Incident::new()
+                                ->setException($e)
+                                ->setType('security')
+                                ->setTitle(tr('Invalid default role'))
+                                ->setBody(tr('The configured default role ":role" could not be added to user ":user" because it does not exist', [
+                                    ':role' => $role,
+                                    ':user' => $this->getLogId(),
+                                ]))
+                                ->setNotifyRoles('developer,operations')
+                                ->save();
+                    }
                 }
 
                 // Write the default roles to the database
@@ -2428,7 +2443,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     public function notify(): ?NotificationInterface
     {
         if ($this->notifications_enabled) {
-            return Notification::new()->setUser($this);
+            return Notification::new()->setUserObject($this);
         }
 
         return null;
