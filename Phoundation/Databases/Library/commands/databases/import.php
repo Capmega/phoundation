@@ -119,7 +119,7 @@ if ($argv['no_init']) {
     Pho::new()
        ->setTimeout(0)
        ->setPhoCommands('project init')
-       ->setArguments(['-m', tr('Init after database import')])
+       ->setArguments(['--comments', tr('Init after database import')])
        ->executePassthru();
 }
 
