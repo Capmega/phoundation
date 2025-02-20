@@ -353,15 +353,15 @@ class Config implements ConfigInterface
         $data = &$this->data;
 
         // Go over each key and if the value for the key is an array, request a subsection
-        foreach (Arrays::force($path, '.') as $section) {
-            $section = str_replace(':', '.', $section);
+        foreach (Arrays::force($path, '.') as $part) {
+            $part = str_replace(':', '.', $part);
 
             if (!is_array($data)) {
 //                echo "<pre>";var_dump($path);var_dump($section);var_dump($data);echo PHP_EOL;
                 if ($data !== null) {
                     Log::warning(tr('Encountered invalid configuration structure whilst looking for ":path". Section ":section" should contain sub values but does not. Please check your configuration files that this structure exists correctly', [
                         ':path'    => $path,
-                        ':section' => $section,
+                        ':section' => $part,
                     ]));
                 }
 
@@ -369,20 +369,22 @@ class Config implements ConfigInterface
                 $data = [];
             }
 
-            if (!array_key_exists($section, $data)) {
+            if (!array_key_exists($part, $data)) {
                 // The requested key does not exist
                 if ($default === null) {
                     // We have no default configuration either
                     if (ENVIRONMENT === 'production') {
-                        throw ConfigPathDoesNotExistsException::new(tr('The configuration section ":section" from configuration path ":path" does not exist. Please check "ROOT/config/environment/production/:section.yaml"', [
-                            ':section'     => $section,
-                            ':path'        => Strings::force($path, '.'),
+                        throw ConfigPathDoesNotExistsException::new(tr('The configuration part ":part" from configuration path ":path" does not exist. Please check "ROOT/config/environments/production/:section.yaml"', [
+                            ':section' => $this->getSection(),
+                            ':part'    => $part,
+                            ':path'    => Strings::force($path, '.'),
                         ]));
                     }
 
-                    throw ConfigPathDoesNotExistsException::new(tr('The configuration section ":section" from configuration path ":path" does not exist. Please check "ROOT/config/environment/production/:section.yaml" AND ":environment.yaml"', [
-                        ':environment' => ENVIRONMENT,
-                        ':section'     => $section,
+                    throw ConfigPathDoesNotExistsException::new(tr('The configuration part ":part" from configuration path ":path" does not exist. Please check "ROOT/config/environments/production/:section.yaml" AND "ROOT/config/environments/:environment/:section.yaml"', [
+                        ':environment' => $this->getEnvironment(),
+                        ':section'     => $this->getSection(),
+                        ':part'        => $part,
                         ':path'        => Strings::force($path, '.'),
                     ]));
                 }
@@ -392,7 +394,7 @@ class Config implements ConfigInterface
             }
 
             // Get the requested subsection. This subsection must be an array!
-            $data = &$data[$section];
+            $data = &$data[$part];
         }
 
         return $this->cache[$path] = $data;
@@ -830,7 +832,7 @@ class Config implements ConfigInterface
 
             if (!is_array($data)) {
                 // Oops, this data section should be an array
-                throw ConfigException::new(tr('The configuration section ":section" from requested path ":path" does not exist', [
+                throw ConfigException::new(tr('Cannot set configuration path ":path", the configuration section ":section" does not exist', [
                     ':section' => $section,
                     ':path'    => $path,
                 ]))->makeWarning();
