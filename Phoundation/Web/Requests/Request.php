@@ -21,6 +21,7 @@ use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInterface;
 use Phoundation\Cache\Cache;
+use Phoundation\Core\Core;
 use Phoundation\Core\Exception\Interfaces\CoreReadonlyExceptionInterface;
 use Phoundation\Core\Exception\InvalidRequestTypeException;
 use Phoundation\Core\Log\Log;
