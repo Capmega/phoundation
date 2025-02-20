@@ -55,18 +55,18 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
     protected int $maximum = 10;
 
     /**
-     * Amount of time in milliseconds that the process cycle should sleep before retrying to start workers
+     * Amount of time in microseconds that the process cycle should sleep before retrying to start workers
      *
      * @var int $cycle_sleep
      */
-    protected int $cycle_sleep = 200;
+    protected int $cycle_sleep = 200_000;
 
     /**
-     * Amount of time in milliseconds that the process cycle should sleep each cycle while checking alive workers
+     * Amount of time in microseconds for each process wait cycle that it waits for workers to finish
      *
      * @var int $wait_sleep
      */
-    protected int $wait_sleep = 1000;
+    protected int $wait_sleep = 1_000_000;
 
     /**
      * The variable key that will be processed
@@ -376,15 +376,22 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
             if ($current < $this->maximum) {
                 $this->startWorker();
 
+                usleep($this->cycle_sleep);
+                $current = $this->getCurrent();
+
+                Log::notice(tr('Processing list with ":count" workers', [
+                    ':count' => $current
+                ]), 6);
+
             } else {
                 Log::warning(tr('Current number of workers ":current" is higher than the maximum of ":max", not starting new workers', [
                     ':current' => $current,
                     ':max'     => $this->maximum,
-                ]), 4);
-            }
+                ]), 3);
 
-            usleep($this->cycle_sleep * 1000);
-            $current = $this->getCurrent();
+                usleep($this->cycle_sleep);
+                $current = $this->getCurrent();
+            }
         }
 
         if ($this->wait_worker_finish) {
@@ -397,7 +404,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
                     break;
                 }
 
-                usleep($this->wait_sleep * 1000);
+                msleep($this->wait_sleep);
             }
         }
     }
@@ -426,7 +433,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
             ':pid'   => $worker->getPid(),
             ':label' => not_empty($this->label, tr('value')),
             ':value' => $value,
-        ]));
+        ]), 4);
     }
 
 

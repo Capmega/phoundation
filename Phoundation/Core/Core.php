@@ -668,6 +668,11 @@ class Core implements CoreInterface
      */
     #[NoReturn] public static function exit(Throwable|int $exit_code = 0, ?string $exit_message = null, bool $sig_kill = false, bool $direct_exit = false): never
     {
+        if (!Core::isReady()) {
+            // Exit was initiated before Core was ready! Do NOT use tr(), the functions file likely has not been loaded
+            throw new CoreException('Exit with code "' . $exit_code . '" and message "' . $exit_message . '" was called before system was ready');
+        }
+
         if (!Core::$shutdown) {
             Core::$shutdown = true;
 
@@ -1041,9 +1046,6 @@ class Core implements CoreInterface
             exit(1);
         }
 
-        // Register exception incident in the database
-        Core::registerUncaughtExceptionIncident($e);
-
         // Start processing the uncaught exception
         try {
             try {
@@ -1059,6 +1061,9 @@ class Core implements CoreInterface
 
                     exit('exception before platform detection');
                 }
+
+                // Register exception incident in the database
+                Core::registerUncaughtExceptionIncident($e);
 
                 switch (PLATFORM) {
                     case 'cli':
@@ -2797,21 +2802,21 @@ class Core implements CoreInterface
         // Don't register warning exceptions
         if (!$e->isWarning()) {
             if (Core::getReadonly()) {
-                Log::error('Not attempting to register the following uncaught exception incident, system is in readonly mode');
+                Log::error('Not attempting to register the following uncaught exception incident in the database, system is in readonly mode');
 
             } else {
                 if (defined('ENVIRONMENT')) {
                     if ($e instanceof EnvironmentNotExistsException) {
                         // Don't register the uncaught exception incident, the exception is the environment does not exist
-                        Log::error(tr('Not attempting to register the following uncaught exception incident, environment ":environment" does not exist', [
+                        Log::error(tr('Not attempting to register the following uncaught exception incident in the database, environment ":environment" does not exist', [
                             ':environment' => ENVIRONMENT
                         ]));
 
                     } else {
                         // Only notify and register developer incident if we're on production
                         if (Core::isProductionEnvironment()) {
-                            // We CAN only notify after startup!
-                            if (!Core::inStartupState()) {
+                            // We CAN only notify if Core is ready
+                            if (Core::isReady()) {
                                 try {
                                     $e->registerIncident(EnumSeverity::severe);
 
