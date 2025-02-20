@@ -2468,7 +2468,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         // Go over each column and let the column definition do the validation since it knows the specs
         foreach ($this->definitions as $column => $definition) {
             if ($definition->isMeta()) {
-                // This column is metadata and should not be modified or validated, plain ignore it.
+                // This column is metadata and should not be validated. Only apply static values
+                if ($definition->getValue()) {
+                    $this->source[$column] = $definition->getValue();
+                }
+
                 continue;
             }
 
@@ -3968,8 +3972,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 $source = $this->getDataForValidation();
 
                 // Merge the validated data over the current data
-                // TODO Shouldn't the source data just be the validated value? What if validation removes a colum, it would AGAIN exist after this!!! INVESTIGATE!
-                $this->source = array_merge($this->source, $this->validateSourceData(ArrayValidator::new($source), true));
+                // WARNING! DO NOT EXECUTE validateSourceData DIRECTLY IN THE ARRAY_MERGE! $this->validateSourceData()
+                // updates $this->source and the array_merge() call will use the initial version (so without the
+                // modifications from $this->validateSourceData())
+                $source       = $this->validateSourceData(ArrayValidator::new($source), true);
+                $this->source = array_merge($this->source, $source);
             }
         }
 
