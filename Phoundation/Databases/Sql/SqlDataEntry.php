@@ -285,7 +285,7 @@ class SqlDataEntry implements SqlDataEntryInterface
 
         // Filter row and set meta fields for insert
         $update_row = static::initializeUpdateRow($update_row, $comments, $diff, $meta_action);
-        $insert_row = static::initializeInsertRow($insert_row, $comments, $diff, $update_row['meta_state']);
+        $insert_row = static::initializeInsertRow($insert_row, $comments, $diff, get_safe($update_row, 'meta_state'));
 
         // Build variables for the insert part of the query
         $insert_columns = SqlQueries::getPrefixedColumns($insert_row, $this->data_entry->getColumnPrefix());

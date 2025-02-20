@@ -231,6 +231,7 @@ class Route
             throw new RouteException('Failed to start Core library', $e);
         }
 
+        Core::setScriptState();
 
         // Cleanup the request URI by removing all GET requests and the leading slash, URIs cannot be longer than 255
         // characters
@@ -1737,6 +1738,7 @@ class Route
     {
         // Validate the HTTP code to use, then redirect to the specified route
         $http_code = substr($flag, 1);
+
         switch ($http_code) {
             case '':
                 $http_code = 301;
@@ -1756,6 +1758,7 @@ class Route
         }
 
         Core::removeShutdownCallback(404);
+        Core::setScriptState();
 
         Request::setRoutingParameters(static::getParametersObject()->select(static::$url));
         Response::redirect(Url::new(static::$route)->makeWww()->addQueries($_GET), (int) $http_code);
