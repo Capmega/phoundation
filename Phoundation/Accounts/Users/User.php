@@ -343,12 +343,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
         } catch (DataEntryNotExistsException $e) {
             if ($this->identifier === ['email' => 'guest']) {
-                // This is the guest user, it should always exist UNLESS we're in the init phase
-                if (Core::inInitState()) {
-                    return $this;
-                }
-
-                throw new AccountsException(tr('The "guest" user does not exist in the database'));
+                // Keep throwing the exception, the "guest" user will automatically initialize
+                throw $e;
             }
 
             $user = $this->loadFromAlternativeEmail();
@@ -782,7 +778,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             }
         }
 
-        parent::save();
+        parent::save($force, $skip_validation, $comments);
 
         if ($this->isSaved()) {
             // Do we need to apply default rights?
@@ -2537,10 +2533,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     protected function initGuestUser(): void
     {
         // Guest user is readonly and also does not register meta requests
-        $this->readonly     = true;
         $this->meta_enabled = false;
 
-        parent::__construct(['email' => 'guest']);
+        parent::__construct(false);
+
+        $this->loadOrInitialize(['email' => 'guest']);
 
         $this->source['redirect'] = null;
         $this->source['email']    = 'guest';
@@ -2548,9 +2545,18 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         $this->source['nickname'] = tr('Guest');
 
         if ($this->isNew()) {
-            // Guest user does not yet exist, save it now
-            $this->save();
+            // Guest user does not yet exist, save it now. Since guest user MAY be created automatically by guest itself
+            // we will NOT save the created_by column (making created_by the system user)
+            $this->setMetaColumns([
+                'id',
+                'created_on',
+                'meta_id',
+                'status',
+                'meta_state',
+            ])->save(skip_validation: true);
         }
+
+        $this->readonly = true;
     }
 
 
@@ -2721,10 +2727,9 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setLabel(tr('Sign in count')))
 
                     ->add(DefinitionFactory::newNumber('authentication_failures')
-                                    ->setOptional(true)
+                                    ->setOptional(true, 0)
                                     ->setDisabled(true)
                                     ->setMin(0)
-                                    ->setNullDefault(0)
                                     ->addClasses('text-center')
                                     ->setSize(3)
                                     ->setLabel(tr('Authentication failures')))
