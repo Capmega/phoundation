@@ -1010,6 +1010,8 @@ class CliCommand
      */
     #[NoReturn] protected static function autoComplete(): ?string
     {
+        Core::setScriptState();
+
         Log::action(tr('Executing auto complete with command: :command', [
             ':command' => CliCommand::getCommandline()
         ]), 7, echo_screen: false);
@@ -2025,9 +2027,6 @@ return 'under construction';
                 throw new CoreException(tr('Both -A or --all and -S or --status have been specified, these options are mutually exclusive'));
             }
         }
-
-        // Switch core to script mode from here so that all functions are available
-        Core::setScriptState();
 
         if ($argv['rebuild_commands']) {
             // Rebuild only the "commands" cache
