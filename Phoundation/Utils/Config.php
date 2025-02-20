@@ -1191,6 +1191,7 @@ class Config implements ConfigInterface
                         PhoRestrictions::new(DIRECTORY_ROOT . 'config/')
                                        ->check($file, false);
                     }
+
                     // Production configuration files are the only ones that MUST exist, the rest is optional
                     if (!file_exists($file)) {
                         if ($environment === 'production') {
@@ -1198,22 +1199,30 @@ class Config implements ConfigInterface
                             throw ConfigFileDoesNotExistsException::new('Production Configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" does not exist')
                                                                   ->makeWarning();
                         }
+
+                        continue;
                     }
+
                     // Read the configuration data and merge it in the internal configuration data array
                     try {
+                        // TODO Add test on what happens when yaml_parse_file() parses an empty file. It SHOULD pass, empty files are allowed
                         $data = yaml_parse_file($file);
+
                         if ($data === false) {
                             throw new ConfigParseFailedException($this->generateExceptionMessage($file));
                         }
+
                         if (!is_array($data)) {
                             if ($data) {
                                 throw new ConfigParseFailedException(tr('Configuration data in file ":file" has an invalid format', [
                                     ':file' => $file,
                                 ]));
                             }
+
                             // It looks like the configuration file was empty
                             $data = [];
                         }
+
                     } catch (Throwable $e) {
                         throw new ConfigParseFailedException($this->generateExceptionMessage($file), $e);
                     }
