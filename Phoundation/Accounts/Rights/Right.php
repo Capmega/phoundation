@@ -149,9 +149,9 @@ class Right extends DataEntry implements RightInterface
      *
      *
      * @param string|null $comments
-     * @param bool        $auto_save *
+     * @param bool        $auto_save
      *
-* @return static
+     * @return static
      */
     public function delete(?string $comments = null, bool $auto_save = true): static
     {

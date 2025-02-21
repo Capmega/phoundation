@@ -147,12 +147,12 @@ if ($role->isNotNew()) {
 
 
 // Build the role card
-$form      = $role->getHtmlDataEntryFormObject();
 $role_card = Card::new()
                  ->setTitle(tr('Edit data for role :name', [':name' => $role->getName()]))
                  ->setCollapseSwitch(true)
                  ->setMaximizeSwitch(true)
-                 ->setContent($form)
+                 ->setContent($role->getHtmlDataEntryFormObject())
+                 ->useForm(true)
                  ->setButtons(Buttons::new()
                                      ->addButton(tr('Save'))
                                      ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/roles.html'), true)
@@ -199,5 +199,5 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($role_card     . $rights_card        . isset_get($users_card), EnumDisplaySize::nine, true)
+           ->addGridColumn($role_card     . $rights_card        . isset_get($users_card), EnumDisplaySize::nine)
            ->addGridColumn($relevant_card . $documentation_card                         , EnumDisplaySize::three);
