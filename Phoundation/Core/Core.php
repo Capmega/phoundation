@@ -1023,6 +1023,10 @@ class Core implements CoreInterface
         //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); exit();
 
         // Make sure that the uncaught exception handler doesn't end in a loop if it crashes by itself
+        if (!Core::isReady()) {
+            Core::setScriptState();
+        }
+
         Core::uncaughtExceptionHandlerAvoidEndlessLoop($e);
 
         // Track state
