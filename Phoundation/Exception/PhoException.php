@@ -241,12 +241,21 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
      * Returns true if the exception message matches the specified needle(s)
      *
      * @param array|string $needle
+     * @param bool         $case_insensitive
      *
      * @return bool
      */
-    public function messageContains(array|string $needle): bool
+    public function messageContains(array|string $needle, bool $case_insensitive = true): bool
     {
-        return str_contains($this->getMessage(), $needle);
+        if ($case_insensitive) {
+            $needle  = strtolower($needle);
+            $message = strtolower($this->getMessage());
+
+        } else {
+            $message = $this->getMessage();
+        }
+
+        return str_contains($message, $needle);
     }
 
 
