@@ -365,16 +365,16 @@ class Deploy implements DeployInterface
             $key = str_replace('-', '_', $key);
             switch ($key) {
                 case 'server':
-                    Arrays::default($return, $key, isset_get_typed('array', $config[$key], $default));
+                    Arrays::default($return, $key, get_safe_typed('array', $config, $key, $default));
                     Arrays::ensure($return[$key], 'host,path,port,user,sudo');
                     break;
 
                 case 'hooks':
-                    Arrays::default($return, $key, isset_get_typed('array', $config[$key], $default));
+                    Arrays::default($return, $key, get_safe_typed('array', $config, $key, $default));
                     break;
 
                 default:
-                    Arrays::default($return, $key, isset_get_typed('bool', $config[$key], $default));
+                    Arrays::default($return, $key, get_safe_typed('bool', $config, $key, $default));
             }
 
             if (array_key_exists($key, $this->modifiers)) {
