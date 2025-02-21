@@ -72,7 +72,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryGeo;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryLanguage;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryLastNames;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryPhone;
-use Phoundation\Data\DataEntries\Traits\TraitDataEntryImageFileObject;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryProfilePictureFile;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryTimezone;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryTitle;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryType;
@@ -122,7 +122,7 @@ class User extends DataEntry implements UserInterface
     use TraitDataEntryFirstNames;
     use TraitDataEntryGeo;
     use TraitDataEntryPhone;
-    use TraitDataEntryImageFileObject;
+    use TraitDataEntryProfilePictureFile;
     use TraitDataEntryLanguage;
     use TraitDataEntryLastNames;
     use TraitDataEntryTimezone;
@@ -649,7 +649,9 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                 'password' => $password
         ]);
 
-        $authentication->setCreatedBy($user->getId())
+        // NOTE: Non User::class objects likely authenticate against different databases and as such, those users will
+        // have non-existing user ids which cannot be used for "created_by" column
+        $authentication->setCreatedBy(($user::class === User::class) ? $user->getId() : null)
                        ->setStatus('password-incorrect')
                        ->save();
 
