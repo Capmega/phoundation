@@ -331,7 +331,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         // Initialize the DataEntry object
-        $this->initialize($identifier);
+        $this->initialize($identifier === null ? false : $identifier);
     }
 
 

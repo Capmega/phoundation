@@ -78,14 +78,14 @@ trait TraitDataEntryNameLowercaseDash
     /**
      * Converts the given string to lowercase, dash separated string by replacing spaces and underscores to dashes
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      *
-     * @return IdentifierInterface|array|string|int|null
+     * @return IdentifierInterface|array|string|int|false|null
      */
-    protected static function convertNameIdentifierToLowerCaseDash(IdentifierInterface|array|string|int|null $identifier): IdentifierInterface|array|string|int|null
+    protected static function convertNameIdentifierToLowerCaseDash(IdentifierInterface|array|string|int|false|null $identifier): IdentifierInterface|array|string|int|false|null
     {
         if (!$identifier) {
-            // NULL or "", return it
+            // NULL or "", or false, return it
             return $identifier;
         }
 

@@ -669,8 +669,10 @@ class Core implements CoreInterface
     #[NoReturn] public static function exit(Throwable|int $exit_code = 0, ?string $exit_message = null, bool $sig_kill = false, bool $direct_exit = false): never
     {
         if (!Core::isReady()) {
-            // Exit was initiated before Core was ready! Do NOT use tr(), the functions file likely has not been loaded
-            throw new CoreException('Exit with code "' . $exit_code . '" and message "' . $exit_message . '" was called before system was ready');
+            if (!Core::$error_state) {
+                // Exit was initiated before Core was ready! Do NOT use tr(), the functions file likely has not been loaded
+                throw new CoreException('Exit with code "' . $exit_code . '" and message "' . $exit_message . '" was called before system was ready');
+            }
         }
 
         if (!Core::$shutdown) {
@@ -1020,6 +1022,7 @@ class Core implements CoreInterface
      */
     #[NoReturn] public static function uncaughtExceptionHandler(Throwable $e): never
     {
+        // Uncomment the following line in case the exception handler is not working correctly and does not display exceptions
         //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); exit();
 
         // Make sure that the uncaught exception handler doesn't end in a loop if it crashes by itself
