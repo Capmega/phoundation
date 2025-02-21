@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Trait TraitDataEntryPicture
+ * Trait TraitDataEntryProfilePictureFile
  *
  * This trait contains methods for DataEntry objects that require a picture
  *
@@ -19,18 +19,16 @@ namespace Phoundation\Data\DataEntries\Traits;
 use Phoundation\Content\Images\ImageFile;
 use Phoundation\Content\Images\Interfaces\ImageFileInterface;
 use Phoundation\Filesystem\PhoRestrictions;
-use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
-use Phoundation\Utils\Strings;
 
 
-trait TraitDataEntryImageFileObject
+trait TraitDataEntryProfilePictureFile
 {
     /**
      * Returns the picture for this entry
      *
      * @return ImageFileInterface
      */
-    public function getProfilePictureFileFileObject(): ImageFileInterface
+    public function getProfilePictureFileObject(): ImageFileInterface
     {
         return get_null($this->getTypesafe('string', 'picture')) ?? new ImageFile('img/profiles/default.png', PhoRestrictions::newReadonlyObject('img/profiles'));
     }
@@ -43,7 +41,7 @@ trait TraitDataEntryImageFileObject
      *
      * @return static
      */
-    public function setProfilePictureFileFileObject(ImageFileInterface|string|null $picture): static
+    public function setProfilePictureFileObject(ImageFileInterface|string|null $picture): static
     {
         // Make sure we have an Image object or NULL
         $picture = get_null($picture) ?? ImageFile::new($picture, PhoRestrictions::newReadonlyObject('img/profiles'));
