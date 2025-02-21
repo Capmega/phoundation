@@ -318,7 +318,7 @@ class Definition implements DefinitionInterface
      */
     public function getPrefix(): ?string
     {
-        return isset_get_typed('string', $this->source['prefix']);
+        return get_safe_typed('string', $this->source, 'prefix');
     }
 
 
@@ -342,7 +342,7 @@ class Definition implements DefinitionInterface
      */
     public function getUnique(): bool
     {
-        return isset_get_typed('bool', $this->source['unique'], false);
+        return get_safe_typed('bool', $this->source, 'unique', false);
     }
 
 
@@ -366,7 +366,7 @@ class Definition implements DefinitionInterface
      */
     public function getNoValidation(): bool
     {
-        return isset_get_typed('bool', $this->source['no_validation'], false);
+        return get_safe_typed('bool', $this->source, 'no_validation', false);
     }
 
 
@@ -390,7 +390,7 @@ class Definition implements DefinitionInterface
      */
     public function getAdditionalContent(): RenderInterface|callable|string|null
     {
-        return isset_get_typed(RenderInterface::class . '|callable|string|null', $this->source['additional_content']);
+        return get_safe_typed(RenderInterface::class . '|callable|string|null', $this->source, 'additional_content');
     }
 
 
@@ -414,7 +414,7 @@ class Definition implements DefinitionInterface
      */
     public function getPostfix(): ?string
     {
-        return isset_get_typed('string', $this->source['postfix']);
+        return get_safe_typed('string', $this->source, 'postfix');
     }
 
 
@@ -443,7 +443,7 @@ class Definition implements DefinitionInterface
      */
     public function getRender(): callable|bool|null
     {
-        return isset_get_typed('bool|closure', $this->source['render'], true);
+        return get_safe_typed('bool|closure', $this->source, 'render', true);
     }
 
 
@@ -482,7 +482,7 @@ class Definition implements DefinitionInterface
      */
     public function getForcedProcessing(): ?bool
     {
-        return isset_get_typed('bool', $this->source['forced_processing'], false);
+        return get_safe_typed('bool', $this->source, 'forced_processing', false);
     }
 
 
@@ -516,7 +516,7 @@ class Definition implements DefinitionInterface
      */
     public function getContainsData(): ?bool
     {
-        return isset_get_typed('bool', $this->source['contains_data'], true);
+        return get_safe_typed('bool', $this->source, 'contains_data', true);
     }
 
 
@@ -547,7 +547,7 @@ class Definition implements DefinitionInterface
      */
     public function getVisible(): ?bool
     {
-        return isset_get_typed('bool', $this->source['visible'], true);
+        return get_safe_typed('bool', $this->source, 'visible', true);
     }
 
 
@@ -585,7 +585,7 @@ class Definition implements DefinitionInterface
      */
     public function getDisplay(): ?bool
     {
-        return isset_get_typed('bool', $this->source['display'], true);
+        return get_safe_typed('bool', $this->source, 'display', true);
     }
 
 
@@ -658,7 +658,7 @@ class Definition implements DefinitionInterface
      */
     public function getClasses(): array
     {
-        return isset_get_typed('array', $this->source['classes'], []);
+        return get_safe_typed('array', $this->source, 'classes', []);
     }
 
 
@@ -682,7 +682,7 @@ class Definition implements DefinitionInterface
      */
     public function getColumn(): ?string
     {
-        return isset_get_typed('string', $this->source['column']);
+        return get_safe_typed('string', $this->source, 'column');
     }
 
 
@@ -781,7 +781,7 @@ class Definition implements DefinitionInterface
      */
     public function getData(): array
     {
-        return isset_get_typed('array', $this->source['data'], []);
+        return get_safe_typed('array', $this->source, 'data', []);
     }
 
 
@@ -829,7 +829,7 @@ class Definition implements DefinitionInterface
      */
     public function getScripts(): array
     {
-        return isset_get_typed('array', $this->source['scripts'], []);
+        return get_safe_typed('array', $this->source, 'scripts', []);
     }
 
 
@@ -856,7 +856,7 @@ class Definition implements DefinitionInterface
      */
     public function getAria(): array
     {
-        return isset_get_typed('array', $this->source['aria'], []);
+        return get_safe_typed('array', $this->source, 'aria', []);
     }
 
 
@@ -904,7 +904,7 @@ class Definition implements DefinitionInterface
      */
     public function getIgnoreModify(): ?bool
     {
-        return isset_get_typed('bool', $this->source['ignore_modify'], false);
+        return get_safe_typed('bool', $this->source, 'ignore_modify', false);
     }
 
 
@@ -936,7 +936,7 @@ class Definition implements DefinitionInterface
      */
     public function getVirtual(): ?bool
     {
-        return isset_get_typed('bool', $this->source['virtual'], false);
+        return get_safe_typed('bool', $this->source, 'virtual', false);
     }
 
 
@@ -976,7 +976,7 @@ class Definition implements DefinitionInterface
      */
     public function getLinkedTo(): ?string
     {
-        return isset_get_typed('bool', $this->source['linked_to']);
+        return get_safe_typed('bool', $this->source, 'linked_to');
     }
 
 
@@ -1010,7 +1010,7 @@ class Definition implements DefinitionInterface
      */
     public function getIgnored(): ?bool
     {
-        return isset_get_typed('bool', $this->source['ignored'], false);
+        return get_safe_typed('bool', $this->source, 'ignored', false);
     }
 
 
@@ -1043,7 +1043,7 @@ class Definition implements DefinitionInterface
      */
     public function getDirectUpdate(): ?bool
     {
-        return isset_get_typed('bool', $this->source['direct_update'], false);
+        return get_safe_typed('bool', $this->source, 'direct_update', false);
     }
 
 
@@ -1093,7 +1093,7 @@ class Definition implements DefinitionInterface
      */
     public function getAutoFocus(): bool
     {
-        return isset_get_typed('bool', $this->source['auto_focus'], false);
+        return get_safe_typed('bool', $this->source, 'auto_focus', false);
     }
 
 
@@ -1117,7 +1117,7 @@ class Definition implements DefinitionInterface
      */
     public function getElement(): EnumElement|null
     {
-        return isset_get_typed('enum', $this->source['element']);
+        return get_safe_typed('enum', $this->source, 'element');
     }
 
 
@@ -1157,7 +1157,7 @@ class Definition implements DefinitionInterface
      */
     public function getContent(): RenderInterface|callable|string|null
     {
-        return isset_get_typed(RenderInterface::class . '|callable|string', $this->source['content']);
+        return get_safe_typed(RenderInterface::class . '|callable|string', $this->source, 'content');
     }
 
 
@@ -1186,7 +1186,7 @@ class Definition implements DefinitionInterface
      */
     public function getPreRenderFunctions(): ?array
     {
-        return isset_get_typed('array', $this->source['pre_render_functions']);
+        return get_safe_typed('array', $this->source, 'pre_render_functions');
     }
 
 
@@ -1802,7 +1802,7 @@ class Definition implements DefinitionInterface
      */
     public function getMin(): float|int|null
     {
-        return isset_get_typed('float|int', $this->source['min']);
+        return get_safe_typed('float|int', $this->source, 'min');
     }
 
 
@@ -1814,7 +1814,7 @@ class Definition implements DefinitionInterface
     public function getMax(): float|int|null
     {
         $this->ensureInputType(EnumInputType::number);
-        return isset_get_typed('float|int', $this->source['max']);
+        return get_safe_typed('float|int', $this->source, 'max');
     }
 
 
@@ -1895,7 +1895,7 @@ class Definition implements DefinitionInterface
      */
     public function getMinlength(): ?int
     {
-        return isset_get_typed('int', $this->source['minlength']);
+        return get_safe_typed('int', $this->source, 'minlength');
     }
 
 
@@ -1906,7 +1906,7 @@ class Definition implements DefinitionInterface
      */
     public function getMaxlength(): ?int
     {
-        return isset_get_typed('int', $this->source['maxlength']);
+        return get_safe_typed('int', $this->source, 'maxlength');
     }
 
 
@@ -1933,7 +1933,7 @@ class Definition implements DefinitionInterface
      */
     public function getHidden(): ?bool
     {
-        return isset_get_typed('bool', $this->source['hidden'], false);
+        return get_safe_typed('bool', $this->source, 'hidden', false);
     }
 
 
@@ -1964,7 +1964,7 @@ class Definition implements DefinitionInterface
      */
     public function getAutoComplete(): bool
     {
-        return isset_get_typed('bool', $this->source['autocomplete'], false);
+        return get_safe_typed('bool', $this->source, 'autocomplete', false);
     }
 
 
@@ -1988,7 +1988,7 @@ class Definition implements DefinitionInterface
      */
     public function getCliAutoComplete(): array|bool|null
     {
-        return isset_get_typed('array|bool', $this->source['cli_auto_complete']);
+        return get_safe_typed('array|bool', $this->source, 'cli_auto_complete');
     }
 
 
@@ -2000,7 +2000,7 @@ class Definition implements DefinitionInterface
      */
     public function getAutoSuggest(): bool
     {
-        return isset_get_typed('bool', $this->source['autosuggest'], true);
+        return get_safe_typed('bool', $this->source, 'autosuggest', true);
     }
 
 
@@ -2041,7 +2041,7 @@ class Definition implements DefinitionInterface
      */
     public function getLabel(): ?string
     {
-        return isset_get_typed('string', $this->source['label']);
+        return get_safe_typed('string', $this->source, 'label');
     }
 
 
@@ -2065,7 +2065,7 @@ class Definition implements DefinitionInterface
      */
     public function getSize(): ?int
     {
-        return isset_get_typed('int', $this->source['size'], 12);
+        return get_safe_typed('int', $this->source, 'size', 12);
     }
 
 
@@ -2098,7 +2098,7 @@ class Definition implements DefinitionInterface
      */
     public function getAutoSubmit(): bool
     {
-        return (bool) isset_get_typed('bool', $this->source['auto_submit'], false);
+        return (bool) get_safe_typed('bool', $this->source, 'auto_submit', false);
     }
 
 
@@ -2124,7 +2124,7 @@ class Definition implements DefinitionInterface
      */
     public function getDataSource(): array|PDOStatement|Stringable|string|null
     {
-        return isset_get_typed('array|PDOStatement|Stringable|string|null', $this->source['source']);
+        return get_safe_typed('array|PDOStatement|Stringable|string|null', $this->source, 'source');
     }
 
 
@@ -2172,7 +2172,7 @@ class Definition implements DefinitionInterface
      */
     public function getTransform(): array|PDOStatement|Stringable|string|null
     {
-        return isset_get_typed('array|PDOStatement|Stringable|string|null', $this->source['transform']);
+        return get_safe_typed('array|PDOStatement|Stringable|string|null', $this->source, 'transform');
     }
 
 
@@ -2225,7 +2225,7 @@ class Definition implements DefinitionInterface
      */
     public function getVariables(): array|null
     {
-        return isset_get_typed('array', $this->source['variables']);
+        return get_safe_typed('array', $this->source, 'variables');
     }
 
 
@@ -2257,7 +2257,7 @@ class Definition implements DefinitionInterface
      */
     public function getExecute(): ?array
     {
-        return isset_get_typed('array', $this->source['execute']);
+        return get_safe_typed('array', $this->source, 'execute');
     }
 
 
@@ -2359,7 +2359,7 @@ class Definition implements DefinitionInterface
      */
     public function getOptional(): bool
     {
-        return isset_get_typed('bool', $this->source['optional'], false);
+        return get_safe_typed('bool', $this->source, 'optional', false);
     }
 
 
@@ -2395,7 +2395,7 @@ class Definition implements DefinitionInterface
      */
     public function getPlaceholder(): ?string
     {
-        return isset_get_typed('string', $this->source['placeholder']);
+        return get_safe_typed('string', $this->source, 'placeholder');
     }
 
 
@@ -2478,7 +2478,7 @@ class Definition implements DefinitionInterface
      */
     public function getDisplayCallback(): ?callable
     {
-        return isset_get_typed('object|callable', $this->source['display_callback']);
+        return get_safe_typed('object|callable', $this->source, 'display_callback');
     }
 
 
@@ -2518,7 +2518,7 @@ class Definition implements DefinitionInterface
      */
     public function getPattern(): ?string
     {
-        return isset_get_typed('string', $this->source['pattern']);
+        return get_safe_typed('string', $this->source, 'pattern');
     }
 
 
@@ -2544,7 +2544,7 @@ class Definition implements DefinitionInterface
      */
     public function getTooltip(): ?string
     {
-        return isset_get_typed('string', $this->source['tooltip']);
+        return get_safe_typed('string', $this->source, 'tooltip');
     }
 
 
@@ -2571,7 +2571,7 @@ class Definition implements DefinitionInterface
      */
     public function getStep(): string|float|int|null
     {
-        return isset_get_typed('string|float|int', $this->source['step']);
+        return get_safe_typed('string|float|int', $this->source, 'step');
     }
 
 
@@ -2598,7 +2598,7 @@ class Definition implements DefinitionInterface
      */
     public function getRows(): int|null
     {
-        return isset_get_typed('int', $this->source['rows']);
+        return get_safe_typed('int', $this->source, 'rows');
     }
 
 
@@ -2668,7 +2668,7 @@ class Definition implements DefinitionInterface
      */
     public function getNullDefault(): string|float|int|bool|null
     {
-        return isset_get_typed('string|float|int|bool|null', $this->source['null_default']);
+        return get_safe_typed('string|float|int|bool|null', $this->source, 'null_default');
     }
 
 
@@ -2694,7 +2694,7 @@ class Definition implements DefinitionInterface
      */
     public function getNullDisplay(): string|float|int|bool|null
     {
-        return isset_get_typed('string|float|int|bool|null', $this->source['null_display']);
+        return get_safe_typed('string|float|int|bool|null', $this->source, 'null_display');
     }
 
 
@@ -2720,7 +2720,7 @@ class Definition implements DefinitionInterface
      */
     public function getForceNull(): bool
     {
-        return (bool) isset_get_typed('bool', $this->source['force_null'], false);
+        return (bool) get_safe_typed('bool', $this->source, 'force_null', false);
     }
 
 
@@ -2746,7 +2746,7 @@ class Definition implements DefinitionInterface
      */
     public function getNullElement(): EnumElement|null
     {
-        return isset_get_typed(EnumElement::class, $this->source['null_element']);
+        return get_safe_typed(EnumElement::class, $this->source, 'null_element');
     }
 
 
@@ -2771,7 +2771,7 @@ class Definition implements DefinitionInterface
      */
     public function getNullDisabled(): bool
     {
-        return isset_get_typed('bool', $this->source['null_disabled'], false);
+        return get_safe_typed('bool', $this->source, 'null_disabled', false);
     }
 
 
@@ -2798,7 +2798,7 @@ class Definition implements DefinitionInterface
      */
     public function getNullReadonly(): bool
     {
-        return isset_get_typed('bool', $this->source['null_readonly'], false);
+        return get_safe_typed('bool', $this->source, 'null_readonly', false);
     }
 
 
@@ -2824,7 +2824,7 @@ class Definition implements DefinitionInterface
      */
     public function getNullInputType(): ?string
     {
-        return isset_get_typed('string', $this->source['null_type']);
+        return get_safe_typed('string', $this->source, 'null_type');
     }
 
 
@@ -2849,7 +2849,7 @@ class Definition implements DefinitionInterface
      */
     public function getValidationFunctions(): ?array
     {
-        return isset_get_typed('array', $this->source['validation_functions']);
+        return get_safe_typed('array', $this->source, 'validation_functions');
     }
 
 
@@ -2860,7 +2860,7 @@ class Definition implements DefinitionInterface
      */
     public function getHelpText(): ?string
     {
-        return isset_get_typed('string', $this->source['help_text']);
+        return get_safe_typed('string', $this->source, 'help_text');
     }
 
 
@@ -2903,7 +2903,7 @@ class Definition implements DefinitionInterface
      */
     public function getHelpGroup(): ?string
     {
-        return isset_get_typed('string', $this->source['help_group']);
+        return get_safe_typed('string', $this->source, 'help_group');
     }
 
 
@@ -3233,7 +3233,7 @@ class Definition implements DefinitionInterface
      */
     public function getReadonly(): ?bool
     {
-        return in_array($this->getColumn(), static::getMetaColumns()) or isset_get_typed('bool', $this->source['readonly'], false);
+        return in_array($this->getColumn(), static::getMetaColumns()) or get_safe_typed('bool', $this->source, 'readonly', false);
     }
 
 
@@ -3245,7 +3245,7 @@ class Definition implements DefinitionInterface
      */
     public function getDisabled(): ?bool
     {
-        return in_array($this->getColumn(), static::getMetaColumns()) or isset_get_typed('bool', $this->source['disabled'], false);
+        return in_array($this->getColumn(), static::getMetaColumns()) or get_safe_typed('bool', $this->source, 'disabled', false);
     }
 
 
@@ -3278,7 +3278,7 @@ class Definition implements DefinitionInterface
             return null;
         }
 
-        $return = isset_get_typed('string', $this->source['cli_column']);
+        $return = get_safe_typed('string', $this->source, 'cli_column');
 
         if (str_starts_with($return, '[') and str_ends_with($return, ']')) {
             // Strip the []

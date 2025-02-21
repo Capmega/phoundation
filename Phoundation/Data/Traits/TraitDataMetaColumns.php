@@ -50,4 +50,17 @@ trait TraitDataMetaColumns
         $this->meta_columns = get_null($columns);
         return $this;
     }
+
+
+    /**
+     * Returns true if this DataEntry class has the specified meta column
+     *
+     * @param string $column
+     *
+     * @return bool
+     */
+    public function hasMetaColumn(string $column): bool
+    {
+        return array_key_exists($column, $this->meta_columns);
+    }
 }

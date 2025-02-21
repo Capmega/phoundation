@@ -45,9 +45,12 @@ use Phoundation\Data\DataEntries\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryBadException;
 use Phoundation\Data\DataEntries\Exception\DataEntryColumnNotDefinedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryDeletedException;
+use Phoundation\Data\DataEntries\Exception\DataEntryDisabledException;
 use Phoundation\Data\DataEntries\Exception\DataEntryException;
 use Phoundation\Data\DataEntries\Exception\DataEntryInvalidIdentifierException;
 use Phoundation\Data\DataEntries\Exception\DataEntryInvalidVirtualConfigurationException;
+use Phoundation\Data\DataEntries\Exception\DataEntryIsNewException;
+use Phoundation\Data\DataEntries\Exception\DataEntryMetaException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNoIdentifierSpecifiedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotSavedException;
@@ -867,7 +870,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         $this->checkProtected($column);
 
-        return isset_get_typed($type, $this->source[$column], $default, false);
+        return get_safe_typed($type, $this->source, $column, $default, false);
     }
 
 
@@ -992,13 +995,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         if (!$this->is_modified and !$definition->getIgnoreModify()) {
-            if (isset_get($this->source[$key]) !== $value) {
+            if (get_safe($this->source, $key) !== $value) {
                 $this->is_modified = true;
                 $this->is_saved    = false;
             }
 
             if ($this->debug) {
-                Log::debug('MODIFIED FIELD "' . get_class($this) . '>' . $key . '" FROM "' . $this->source[$key] . '" [' . gettype(isset_get($this->source[$key])) . '] TO "' . $value . '" [' . gettype($value) . '], MARKED MODIFIED: ' . Strings::fromBoolean($this->is_modified), 10, echo_header: false);
+                Log::debug('MODIFIED FIELD "' . get_class($this) . '>' . $key . '" FROM "' . $this->source[$key] . '" [' . gettype(get_safe($this->source, $key)) . '] TO "' . $value . '" [' . gettype($value) . '], MARKED MODIFIED: ' . Strings::fromBoolean($this->is_modified), 10, echo_header: false);
             }
         }
 
@@ -1613,7 +1616,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
             // Get the value from the source, ensure to apply default or initial default values
-            $value = isset_get($this->source[$column], $this->isNew() ? ($definition->getInitialDefault() ?? $definition->getDefault()) : $definition->getDefault());
+            $value = get_safe($this->source, $column, $this->isNew() ? ($definition->getInitialDefault() ?? $definition->getDefault()) : $definition->getDefault());
 
             // If the value is null, apply the get method for the column IF IT EXISTS. If the get method doesn't exist,
             // just copy the NULL value as-is
@@ -2167,7 +2170,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         } else {
             // Reset meta columns
             foreach ($this->meta_columns as $column) {
-                $this->source[$column] = isset_get($data[$column]);
+                $this->source[$column] = get_safe($data, $column);
             }
         }
 
@@ -2275,7 +2278,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
             if ($group) {
                 if ($body) {
-                    // There is body text, add the header and body to the return text
+                    // We found body text. Add the header and body to the return text
                     $return .= $header . $body;
                 }
 
@@ -2543,7 +2546,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function get(Stringable|string|float|int $key, bool $exception = true): mixed
     {
         if ($this->definitions->keyExists($key)) {
-            return isset_get($this->source[$key]);
+            return get_safe($this->source, $key);
         }
 
         if ($exception) {
@@ -2585,7 +2588,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                         continue;
                     }
 
-                    if (isset_get($this->source[$key]) != isset_get($data[$key])) {
+                    if (get_safe($this->source, $key) != get_safe($data, $key)) {
                         // If both records were empty (from NULL to 0 for example) then don't register
                         if ($this->source[$key] or $data[$key]) {
                             $diff['from'][$key] = (string) $this->source[$key];
@@ -2640,7 +2643,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         // Check entry meta-state. If this entry was modified in the meantime, can we update?
         if ($this->getMetaState()) {
-            if (isset_get($data['meta_state']) !== $this->getMetaState()) {
+            if (get_safe($data, 'meta_state') !== $this->getMetaState()) {
                 // State mismatch! This means that somebody else updated this record while we were modifying it.
                 switch ($this->state_mismatch_handling) {
                     case EnumStateMismatchHandling::ignore:
@@ -3397,7 +3400,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function getAutoCompleteValue(): string
     {
         if (static::getUniqueColumn()) {
-            return isset_get($this->source[static::getUniqueColumn()]);
+            return get_safe($this->source, static::getUniqueColumn());
         }
 
         return (string) $this->getId(false);
@@ -3427,20 +3430,25 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function delete(?string $comments = null, bool $auto_save = true): static
     {
-        if ($this->isModified()) {
-            throw new OutOfBoundsException(tr('Cannot delete DataEntry ":class" with identifier ":identifier" because it has modifications that have not yet been saved', [
-                ':class'      => static::class,
-                ':identifier' => $this->getUniqueColumnValue(),
-            ]));
+        if ($this->hasMetaColumn('status')) {
+            if ($this->isModified()) {
+                throw new OutOfBoundsException(tr('Cannot delete DataEntry ":class" with identifier ":identifier" because it has modifications that have not yet been saved', [
+                    ':class'      => static::class,
+                    ':identifier' => $this->getUniqueColumnValue(),
+                ]));
+            }
+
+            if (static::getUniqueColumn()) {
+                // When deleting an entry, the unique column goes to NULL
+                $this->source[static::getUniqueColumn()] = null;
+                $this->save(true, true);
+            }
+
+            return $this->setStatus('deleted', $comments, $auto_save);
         }
 
-        if (static::getUniqueColumn()) {
-            // When deleting an entry, the unique column goes to NULL
-            $this->source[static::getUniqueColumn()] = null;
-            $this->save(true, true);
-        }
-
-        return $this->setStatus('deleted', $comments, $auto_save);
+        // This DataEntry class does NOT support status entries, erase instead
+        return $this->erase();
     }
 
 
@@ -3455,25 +3463,27 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function setStatus(?string $status, ?string $comments = null, bool $auto_save = true): static
     {
-        if ($status and (strlen($status) > 32)) {
-            throw new OutOfBoundsException(tr('Cannot set DataEntry ":class" status to ":status", status length cannot be more than 32 characters', [
-                ':status' => $status,
-                ':class'  => static::class,
-            ]));
-        }
+        if ($this->hasMetaColumn('status')) {
+            if ($status and (strlen($status) > 32)) {
+                throw new OutOfBoundsException(tr('Cannot set DataEntry ":class" status to ":status", status length cannot be more than 32 characters', [
+                    ':status' => $status,
+                    ':class'  => static::class,
+                ]));
+            }
 
-        $this->checkReadonly('set-status "' . $status . '"');
+            $this->checkReadonly('set-status "' . $status . '"');
 
-        if ($this->getId(false)) {
-            SqlDataEntry::new(sql($this->o_connector), $this)
-                        ->setDebug($this->debug)
-                        ->setStatus($status, $comments);
-        }
+            if ($this->getId(false)) {
+                SqlDataEntry::new(sql($this->o_connector), $this)
+                            ->setDebug($this->debug)
+                            ->setStatus($status, $comments);
+            }
 
-        $this->source['status'] = $status;
+            $this->source['status'] = $status;
 
-        if ($auto_save and $this->isNotNew()) {
-            $this->save();
+            if ($auto_save and $this->isNotNew()) {
+                $this->save();
+            }
         }
 
         return $this;
@@ -3501,14 +3511,24 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function erase(): static
     {
-        $this->checkReadonly('erase')->getMetaObject()->erase();
-
-        if ($this->meta_enabled) {
-            if ($this->getId(false)) {
-                sql($this->o_connector)->erase(static::getTable(), ['id' => $this->getId()]);
-            }
+        if ($this->isNew()) {
+            throw new DataEntryIsNewException(tr('Cannot erase ":class" DataEntry object, it is new and not stored in the database yet', [
+                ':class' => static::class,
+            ]));
         }
 
+        if ($this->meta_enabled) {
+            if (!$this->hasMetaColumn('meta_id')) {
+                throw new DataEntryMetaException(tr('Cannot erase ":class" DataEntry object, it has meta enabled, but no meta_id column', [
+                    ':class' => static::class,
+                ]));
+            }
+
+            $this->checkReadonly('erase')->getMetaObject()
+                                         ->erase();
+        }
+
+        sql($this->o_connector)->erase(static::getTable(), ['id' => $this->getId()]);
         return $this;
     }
 
@@ -3911,7 +3931,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
             // Apply definition default
-            $return[$column] = isset_get($this->source[$column]) ?? $definition->getDefault();
+            $return[$column] = get_safe($this->source, $column) ?? $definition->getDefault();
 
             // Ensure value is string, float, int, or NULL
             if (($return[$column] !== null) and !is_scalar($return[$column])) {
@@ -4192,7 +4212,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             $this->setVirtualObject($table);
         }
 
-        return isset_get($this->virtual_objects[$table]);
+        return get_safe($this->virtual_objects, $table);
     }
 
 
