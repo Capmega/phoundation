@@ -28,7 +28,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryCode;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryCompany;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryEmail;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryGeo;
-use Phoundation\Data\DataEntries\Traits\TraitDataEntryImageFileObject;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryProfilePictureFile;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryLanguage;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryPhones;
@@ -45,7 +45,7 @@ class Provider extends DataEntry implements ProviderInterface
     use TraitDataEntryPhones;
     use TraitDataEntryAddress;
     use TraitDataEntryCompany;
-    use TraitDataEntryImageFileObject;
+    use TraitDataEntryProfilePictureFile;
     use TraitDataEntryCategory;
     use TraitDataEntryLanguage;
     use TraitDataEntryNameDescription;

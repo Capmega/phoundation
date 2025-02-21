@@ -83,7 +83,7 @@ $column = GridColumn::new()
 $picture = Card::new()
                ->setTitle(tr('Provider profile picture'))
                ->setContent(Img::new()
-                               ->setSrc($provider->getProfilePictureFileFileObject())
+                               ->setSrc($provider->getProfilePictureFileObject())
                                ->setAlt(tr('Profile picture for :provider', [':provider' => $provider->getName()])));
 
 
