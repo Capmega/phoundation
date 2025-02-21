@@ -2154,7 +2154,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function getPassword(): ?string
     {
-        return isset_get_typed('string', $this->source['password'], null, false);
+        return get_safe_typed('string', $this->source, 'password', null, false);
     }
 
 
