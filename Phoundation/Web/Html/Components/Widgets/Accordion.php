@@ -139,9 +139,6 @@ class Accordion extends Widget implements AccordionInterface
                                         </div>
                                     </div>
                                 </div>';
-
-Log::debug(Numbers::getHumanReadableBytes(strlen($return)));
-Log::debug(Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()));
         }
 
         if ($this->selectors) {
