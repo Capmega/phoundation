@@ -471,6 +471,7 @@ class CliCommand
             ]);
         }
 
+        Core::setScriptState();
         return $return;
     }
 
