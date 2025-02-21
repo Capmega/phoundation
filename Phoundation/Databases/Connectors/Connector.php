@@ -70,16 +70,6 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     protected ?DatabaseInterface $o_database = null;
 
-    /**
-     * Configures the TraitDataEntry trait columns
-     *
-     * @var array
-     */
-    protected array $virtual_configuration = [
-        'timezones' => ['columns' => ['name']],
-    ];
-
-
 
     /**
      * Connector class constructor
@@ -88,6 +78,10 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false)
     {
+        $this->initializeVirtualConfiguration([
+            'timezones' => ['name'],
+        ]);
+
         $this->supports_seo_name     = false;
         $this->supports_seo_hostname = false;
         $this->connector             = 'system';

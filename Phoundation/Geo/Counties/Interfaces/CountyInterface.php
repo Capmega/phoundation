@@ -14,26 +14,26 @@ interface CountyInterface
      *
      * @return TimezoneInterface
      */
-    public function getTimezone(): TimezoneInterface;
+    public function getTimezoneObject(): TimezoneInterface;
 
     /**
      * Returns the continent for this county
      *
      * @return ContinentInterface
      */
-    public function getContinent(): ContinentInterface;
+    public function getContinentObject(): ContinentInterface;
 
     /**
      * Returns the country for this county
      *
      * @return CountryInterface
      */
-    public function getCountry(): CountryInterface;
+    public function getCountryObject(): CountryInterface;
 
     /**
      * Returns the state for this county
      *
      * @return StateInterface
      */
-    public function getState(): StateInterface;
+    public function getStateObject(): StateInterface;
 }

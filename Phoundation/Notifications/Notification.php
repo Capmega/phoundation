@@ -124,13 +124,6 @@ class Notification extends DataEntry implements NotificationInterface
      */
     protected bool $is_sent = false;
 
-    /**
-     * Signals the TraitDataEntryUser that this DataEntry class only uses the id column
-     *
-     * @var array
-     */
-    protected array $virtual_configuration = ['users' => ['columns' => ['id']]];
-
 
     /**
      * Notification class constructor
@@ -139,6 +132,10 @@ class Notification extends DataEntry implements NotificationInterface
      */
     public function __construct(IdentifierInterface|array|string|int|false|null $identifier = null)
     {
+        $this->initializeVirtualConfiguration([
+            'users' => ['id'],
+        ]);
+
         static::$auto_log = config()->getBoolean('notifications.auto-log', false);
 
         $this->source['mode']     = 'notice';

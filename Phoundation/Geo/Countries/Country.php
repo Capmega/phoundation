@@ -71,7 +71,7 @@ class Country extends DataEntry implements CountryInterface
      *
      * @return TimezoneInterface
      */
-    public function getTimezone(): TimezoneInterface
+    public function getTimezoneObject(): TimezoneInterface
     {
         return new Timezone($this->getTypesafe('int', 'timezones_id'));
     }
@@ -82,7 +82,7 @@ class Country extends DataEntry implements CountryInterface
      *
      * @return ContinentInterface
      */
-    public function getContinent(): ContinentInterface
+    public function getContinentObject(): ContinentInterface
     {
         return new Continent($this->getTypesafe('int', 'continents_id'));
     }

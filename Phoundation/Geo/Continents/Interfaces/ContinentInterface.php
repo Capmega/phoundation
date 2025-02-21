@@ -12,5 +12,5 @@ interface ContinentInterface
      *
      * @return TimezoneInterface
      */
-    public function getTimezone(): TimezoneInterface;
+    public function getTimezoneObject(): TimezoneInterface;
 }

@@ -14,14 +14,14 @@ interface CountryInterface extends DataEntryInterface
      *
      * @return TimezoneInterface
      */
-    public function getTimezone(): TimezoneInterface;
+    public function getTimezoneObject(): TimezoneInterface;
 
     /**
      * Returns the continent for this country
      *
      * @return ContinentInterface
      */
-    public function getContinent(): ContinentInterface;
+    public function getContinentObject(): ContinentInterface;
 
     /**
      * Returns an HTML <select> object with all states available in this country

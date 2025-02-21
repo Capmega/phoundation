@@ -16,23 +16,22 @@ declare(strict_types=1);
 
 namespace Phoundation\Date;
 
-use Phoundation\Core\Log\Log;
+use DateTimeZone;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Date\Exception\DateTimeException;
 use Phoundation\Date\Exception\DateTimeZoneException;
 use Phoundation\Date\Interfaces\PhoDateTimeZoneInterface;
-use Phoundation\Utils\Json;
 use Throwable;
 
 
-class PhoDateTimeZone extends \DateTimeZone implements PhoDateTimeZoneInterface
+class PhoDateTimeZone extends DateTimeZone implements PhoDateTimeZoneInterface
 {
     /**
      * Ensures we have a valid DateTimeZone object, even when "system" or "user" or a timezone name string was specified
      *
-     * @param \DateTimeZone|PhoDateTimeZone|string|null $timezone
+     * @param DateTimeZone|PhoDateTimeZone|string|null $timezone
      */
-    public function __construct(\DateTimeZone|PhoDateTimeZone|string|null $timezone)
+    public function __construct(DateTimeZone|PhoDateTimeZone|string|null $timezone)
     {
         if (!is_object($timezone)) {
             switch ($timezone) {
@@ -53,7 +52,7 @@ class PhoDateTimeZone extends \DateTimeZone implements PhoDateTimeZoneInterface
 
                 case 'display':
                     // The timezone requested by the user
-                    $detected = Session::getUserObject()->getTimezone();
+                    $detected = Session::getUserObject()->getTimezonesName();
                     $detected = 'PST';
                     break;
 
@@ -113,11 +112,11 @@ class PhoDateTimeZone extends \DateTimeZone implements PhoDateTimeZoneInterface
     /**
      * Returns a new DateTimeZone object
      *
-     * @param \DateTimeZone|PhoDateTimeZone|string|null $timezone
+     * @param DateTimeZone|PhoDateTimeZone|string|null $timezone
      *
      * @return static
      */
-    public static function new(\DateTimeZone|PhoDateTimeZone|string|null $timezone): static
+    public static function new(DateTimeZone|PhoDateTimeZone|string|null $timezone): static
     {
         return new PhoDateTimeZone($timezone);
     }
@@ -126,10 +125,10 @@ class PhoDateTimeZone extends \DateTimeZone implements PhoDateTimeZoneInterface
     /**
      * Returns a PHP DateTimeZone object from this Phoundation DateTimeZone object
      *
-     * @return \DateTimeZone
+     * @return DateTimeZone
      */
-    public function getPhpDateTimeZone(): \DateTimeZone
+    public function getPhpDateTimeZone(): DateTimeZone
     {
-        return new \DateTimeZone($this->getName());
+        return new DateTimeZone($this->getName());
     }
 }

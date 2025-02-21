@@ -72,7 +72,7 @@ class State extends DataEntry implements StateInterface
      *
      * @return TimezoneInterface
      */
-    public function getTimezone(): TimezoneInterface
+    public function getTimezoneObject(): TimezoneInterface
     {
         return new Timezone($this->getTypesafe('int', 'timezones_id'));
     }
@@ -83,7 +83,7 @@ class State extends DataEntry implements StateInterface
      *
      * @return ContinentInterface
      */
-    public function getContinent(): ContinentInterface
+    public function getContinentObject(): ContinentInterface
     {
         return new Continent($this->getTypesafe('int', 'continents_id'));
     }
@@ -94,7 +94,7 @@ class State extends DataEntry implements StateInterface
      *
      * @return CountryInterface
      */
-    public function getCountry(): CountryInterface
+    public function getCountryObject(): CountryInterface
     {
         return new Country($this->getTypesafe('int', 'countries_id'));
     }
