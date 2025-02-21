@@ -50,7 +50,7 @@ Response::setRenderMainWrapper(false);
             <!-- lockscreen image -->
             <div class="lockscreen-image">
                 <?= Session::getUserObject()
-                           ->getProfilePictureFileFileObject()
+                           ->getProfilePictureFileObject()
                                ->getImgObject()
                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                    ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))

@@ -29,7 +29,7 @@ $user  = Session::signIn($post['email'], $post['password']);
 $menu  = Menu::getPrimaryMenu();
 $image = ProfileImage::new()
                      ->setImage(Session::getUserObject()
-                                       ->getProfilePictureFileFileObject())
+                                       ->getProfilePictureFileObject())
                      ->setMenu(null)
                      ->setUrl(null);
 
