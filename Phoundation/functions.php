@@ -589,18 +589,22 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
 
         if ($exception) {
             if (is_object($variable)) {
-                throw OutOfBoundsException::new(tr('isset_get_typed(): Specified variable ":variable" is an object of the class ":class" but it should be one of ":types"', [
+                throw OutOfBoundsException::new(tr('Specified variable ":variable" is an object of the class ":class" but it should be one of ":types"', [
                     ':variable' => $variable,
                     ':class'    => get_class($variable),
                     ':types'    => $types,
-                ]))->addData(['variable' => $variable]);
+                ]))->addData([
+                    'variable' => $variable
+                ]);
             }
 
-            throw OutOfBoundsException::new(tr('isset_get_typed(): Specified variable ":variable" has datatype ":has" but it should be one of ":types"', [
+            throw OutOfBoundsException::new(tr('Specified variable ":variable" has datatype ":has" but it should be one of ":types"', [
                 ':variable' => $variable,
                 ':has'      => gettype($variable),
                 ':types'    => $types,
-            ]))->addData(['variable' => $variable]);
+            ]))->addData([
+                'variable' => $variable
+            ]);
         }
 
         // Don't throw an exception, return null instead.
@@ -609,6 +613,216 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
 
     // The previous isset would have actually set the variable with null, unset it to ensure it won't exist
     unset($variable);
+
+    if ($default === null) {
+        return null;
+    }
+
+    // Return the default variable after validating datatype. This WILL throw an exception, no matter what, if the data
+    // type does not match
+    return isset_get_typed($types, $default);
+}
+
+
+/**
+ * Return the value (with corrected datatype) if it actually exists with the correct datatype, or $default instead.
+ *
+ * If the variable partially matches a datatype, like the string "15" for datatype integer, the variable will be
+ * accepted and corrected
+ *
+ * @note The variable is specified by reference, allowing non set variables to be used when calling this function, but
+ *       this causes it to disallow static values or function outputs to be passed
+ *
+ * @note IMPORTANT! After calling this function, $variable will exist in the scope of the calling function!
+ *
+ * @param array|string $types         If the data exists, it must have one of these data types. Can be specified as
+ *                                    array or | separated string
+ * @param array            $source    The source array from which we want to get the value
+ * @param string|float|int $key       The key indicating what value we want to have returned
+ * @param mixed            $default   (optional) The value to return in case the specified $variable did not exist or
+ *                                    was NULL.
+ * @param bool             $exception If true, will throw an exception instead of returning $default if the specified
+ *                                    value does not match the specified types
+ *
+ * @return mixed
+ */
+function get_safe_typed(array|string $types, array $source, string|float|int $key, mixed $default = null, bool $exception = true): mixed
+{
+    // The variable exists
+    if (array_key_exists($key, $source) and ($source[$key] !== null)) {
+        $variable = &$source[$key];
+
+        // Ensure datatype
+        foreach (Arrays::force($types, '|') as $type) {
+            switch ($type) {
+                case 'scalar':
+                    if (is_scalar($variable)) {
+                        return $variable;
+                    }
+
+                    break;
+
+                case 'string':
+                    if (is_string($variable)) {
+                        return $variable;
+                    }
+
+                    if (is_object($variable) and ($variable instanceof Stringable)) {
+                        // This is fine, this object has __toString() implemented
+                        return (string) $variable;
+                    }
+
+                    break;
+
+                case 'int':
+                    // no break
+                case 'integer':
+                    if (is_integer($variable)) {
+                        return $variable;
+                    }
+
+                    if (is_numeric($variable)) {
+                        // This is a number stored as a string, if it's an integer, then type cast it
+                        if ((int) $variable == $variable) {
+                            return (int) $variable;
+                        }
+                    }
+
+                    break;
+
+                case 'double':
+                    // no break
+                case 'float':
+                    if (is_float($variable)) {
+                        return $variable;
+                    }
+
+                    if (is_numeric($variable)) {
+                        if (!is_integer($variable)) {
+                            // This is a float number stored as a string, convert it to integer
+                            return (float) $variable;
+                        }
+                    }
+
+                    break;
+
+                case 'bool':
+                    // no break
+                case 'boolean':
+                    if (is_bool($variable)) {
+                        return $variable;
+                    }
+
+                    if (is_integer($variable)) {
+                        if ($variable === 1) {
+                            return true;
+                        }
+
+                        if ($variable === 0) {
+                            return false;
+                        }
+                    }
+
+                    if (is_string($variable)) {
+                        $variable = strtolower(trim($variable));
+
+                        if (($variable === 'true') or ($variable === '1')) {
+                            return true;
+                        }
+
+                        if (($variable === 'false') or ($variable === '0')) {
+                            return false;
+                        }
+                    }
+
+                    break;
+
+                case 'array':
+                    if (is_array($variable)) {
+                        return $variable;
+                    }
+
+                    break;
+
+                case 'resource':
+                    if (is_resource($variable)) {
+                        return $variable;
+                    }
+
+                    break;
+
+                case 'function':
+                    // no break
+                case 'callable':
+                    // no break
+                case 'closure':
+                    if (is_callable($variable)) {
+                        return $variable;
+                    }
+
+                    break;
+
+                case 'null':
+                    if (is_null($variable)) {
+                        return $variable;
+                    }
+
+                    break;
+
+                case 'datetime':
+                    if ($variable instanceof DateTimeInterface) {
+                        return $variable;
+                    }
+
+                    break;
+
+                case 'object':
+                    if (is_object($variable)) {
+                        return $variable;
+                    }
+
+                    break;
+
+                case 'enum':
+                    if (is_enum($variable)) {
+                        return $variable;
+                    }
+
+                    break;
+
+                default:
+                    // This should be an object
+                    if ($variable instanceof $type) {
+                        return $variable;
+                    }
+
+                    break;
+            }
+        }
+
+        if ($exception) {
+            if (is_object($variable)) {
+                throw OutOfBoundsException::new(tr('Specified variable ":variable" is an object of the class ":class" but it should be one of ":types"', [
+                    ':variable' => $variable,
+                    ':class'    => get_class($variable),
+                    ':types'    => $types,
+                ]))->addData([
+                    'variable' => $variable
+                ]);
+            }
+
+            throw OutOfBoundsException::new(tr('Specified variable ":variable" has datatype ":has" but it should be one of ":types"', [
+                ':variable' => $variable,
+                ':has'      => gettype($variable),
+                ':types'    => $types,
+            ]))->addData([
+                'variable' => $variable
+            ]);
+        }
+
+        // Don't throw an exception, return null instead.
+        return null;
+    }
 
     if ($default === null) {
         return null;
