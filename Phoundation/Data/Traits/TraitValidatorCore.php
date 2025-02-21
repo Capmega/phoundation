@@ -523,7 +523,7 @@ trait TraitValidatorCore
                 ]), 'debug', 6);
 
             } else {
-                Log::write(tr('Validation failed for field ":field" with value ":value" because :failure', [
+                Log::write(tr('Validation failed for non DataEntry field ":field" with value ":value" because :failure', [
                     ':field'   => ($this->parent_field ?? '-') . ' / ' . $selected_field . ' / ' . ($this->process_key ?? '-'),
                     ':failure' => $failure,
                     ':value'   => $this->source[$selected_field],
