@@ -26,6 +26,7 @@ use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Template\TemplateRenderer;
 use Phoundation\Web\Requests\Request;
+use Stringable;
 
 
 abstract class ElementsBlock extends Iterator implements ElementsBlockInterface
@@ -167,6 +168,20 @@ abstract class ElementsBlock extends Iterator implements ElementsBlockInterface
             $this->form = null;
         }
 
+        return $this;
+    }
+
+
+    /**
+     * Shortcut to set the form action directly
+     *
+     * @param Stringable|string|null $action
+     *
+     * @return static
+     */
+    public function setFormAction(Stringable|string|null $action): static
+    {
+        $this->getForm()->setAction($action);
         return $this;
     }
 

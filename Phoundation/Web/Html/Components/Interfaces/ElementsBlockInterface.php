@@ -9,6 +9,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\FormInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Span;
+use Stringable;
 
 interface ElementsBlockInterface extends RenderInterface, IteratorInterface
 {
@@ -127,4 +128,13 @@ interface ElementsBlockInterface extends RenderInterface, IteratorInterface
      * @return string|null
      */
     public function getName(): ?string;
+
+    /**
+     * Shortcut to set the form action directly
+     *
+     * @param Stringable|string|null $action
+     *
+     * @return static
+     */
+    public function setFormAction(Stringable|string|null $action): static;
 }
