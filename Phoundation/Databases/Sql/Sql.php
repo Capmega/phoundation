@@ -50,6 +50,7 @@ use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
 use Phoundation\Databases\Sql\Schema\Interfaces\SchemaInterface;
 use Phoundation\Databases\Sql\Schema\Schema;
+use Phoundation\Date\PhoTime;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
@@ -727,6 +728,7 @@ class Sql implements SqlInterface
 
             // Connect!
             $retries = 7;
+            $start   = microtime(true);
 
             while (--$retries >= 0) {
                 try {
@@ -836,6 +838,11 @@ class Sql implements SqlInterface
                     usleep(100000);
                 }
             }
+
+            Log::success(tr('Connected to ":connect" in ":time"', [
+                ':connect' => $connect_string,
+                ':time'    => PhoTime::difference($start, microtime(true), 'auto', 5),
+            ]), 4);
 
             // Yay, we're using the database!
             $this->database = $this->configuration['database'];
