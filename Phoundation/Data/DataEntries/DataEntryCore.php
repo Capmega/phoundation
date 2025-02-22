@@ -927,7 +927,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = false): static
     {
         if ($this->debug) {
-            Log::debug('TRY SET SOURCE VALUE FIELD "' . get_class($this) . '>' . $key . '" TO "' . Strings::force($value) . ' [' . gettype($value) . ']"', 10, echo_header: false);
+            Log::debug('TRY SET "' . Strings::fromReverse(static::class, '\\') . '::$' . $key . ' TO "' . Strings::log($value) . ' [' . gettype($value) . ']"', 10, echo_header: false);
         }
 
         // Only save values that are defined for this object
@@ -949,7 +949,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         // Skip all meta-columns like id, created_on, meta_id, etc., etc., etc...
         if (in_array($key, $this->meta_columns)) {
             if ($this->debug) {
-                Log::debug('NOT SETTING SOURCE VALUE FIELD "' . get_class($this) . '>' . $key . '", IT IS META FIELD. USE FORCE TO MODIFY ANYWAY', 10, echo_header: false);
+                Log::debug('NOT SETTING "' . Strings::fromReverse(static::class, '\\') . '::$' . $key . ', IT IS META', 10, echo_header: false);
                 Log::printr($this->definitions->getSourceKeys());
             }
 
@@ -982,7 +982,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             if ($value === null) {
                 if ($skip_null_values) {
                     if ($this->debug) {
-                        Log::debug('SKIPPING SETTING NULL VALUE "' . get_class($this) . '>' . $key . '"', 10, echo_header: false);
+                        Log::debug('NOT SETTING "' . Strings::fromReverse(static::class, '\\') . '::$' . $key . ', SKIPPING NULL VALUE', 10, echo_header: false);
                     }
 
                     return $this;
@@ -990,18 +990,23 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
             if ($this->debug) {
-                Log::debug('SET DEFAULT VALUE "' . Strings::log($value) . '" TO FIELD "' . get_class($this) . '>' . $key . '"', 10, echo_header: false);
+                Log::debug('USE DEFAULT VALUE "' . Strings::log($value) . '" FOR FIELD "' . Strings::fromReverse(static::class, '\\') . '::$' . $key, 10, echo_header: false);
             }
         }
 
-        if (!$this->is_modified and !$definition->getIgnoreModify()) {
-            if (get_safe($this->source, $key) !== $value) {
+        if (get_safe($this->source, $key) !== $value) {
+            if (!$this->is_modified and !$definition->getIgnoreModify()) {
                 $this->is_modified = true;
                 $this->is_saved    = false;
             }
 
             if ($this->debug) {
-                Log::debug('MODIFIED FIELD "' . get_class($this) . '>' . $key . '" FROM "' . $this->source[$key] . '" [' . gettype(get_safe($this->source, $key)) . '] TO "' . $value . '" [' . gettype($value) . '], MARKED MODIFIED: ' . Strings::fromBoolean($this->is_modified), 10, echo_header: false);
+                Log::debug('FIELD "' . Strings::fromReverse(static::class, '\\') . '::' . $key . '" WAS MODIFIED FROM "' . get_safe($this->source, $key) . '" [' . gettype(get_safe($this->source, $key)) . '] TO "' . $value . '" [' . gettype($value) . '], MARKED MODIFIED: ' . Strings::fromBoolean($this->is_modified), 10, echo_header: false);
+            }
+
+        } else {
+            if ($this->debug) {
+                Log::debug('FIELD "' . Strings::fromReverse(static::class, '\\') . '::' . $key . '" WAS NOT MODIFIED', 10, echo_header: false);
             }
         }
 
@@ -1793,7 +1798,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         try {
-            $this->loadData($where, $execute);
+            $this->executeQueryAndLoadData($where, $execute);
 
         } catch (SqlUnknownDatabaseException $e) {
             // During project init we can ignore "database not found" exceptions so that config load may still happen
@@ -1850,7 +1855,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return void
      */
-    protected function loadData(string $where, array $execute): void
+    protected function executeQueryAndLoadData(string $where, array $execute): void
     {
         try {
             // Get the data using the query builder
@@ -2050,7 +2055,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             try {
                 if ($this->definitions->get($column)->getContainsData()) {
                     if ($this->debug) {
-                        Log::debug('ABOUT TO SET SOURCE KEY "' . $column . '" WITH METHOD: ' . $method . ' (' . (method_exists($this, $method) ? 'exists' : 'NOT exists') . ') TO VALUE "' . Strings::log($value) . ' [' . gettype($value) . ']"', 10, echo_header: false);
+                        Log::debug('SET "' . Strings::fromReverse(static::class, '\\') . '::$' . $column . '" using ' . Strings::fromReverse(static::class, '\\') . '::' . $method . '() ' . (method_exists($this, $method) ? '(exists)' : '(NOT exists)') . ' TO "' . Strings::log($value) . ' [' . gettype($value) . ']"', 10, echo_header: false);
                     }
 
                     $this->$method($value);
