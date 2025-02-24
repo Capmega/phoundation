@@ -17,6 +17,8 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 
+use Phoundation\Core\Log\Log;
+
 trait TraitDataMetaColumns
 {
     /**
@@ -61,6 +63,6 @@ trait TraitDataMetaColumns
      */
     public function hasMetaColumn(string $column): bool
     {
-        return array_key_exists($column, $this->meta_columns);
+        return in_array($column, $this->meta_columns);
     }
 }
