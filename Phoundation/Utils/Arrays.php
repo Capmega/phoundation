@@ -3530,4 +3530,27 @@ class Arrays extends Utils
 
         return $return;
     }
+
+
+    /**
+     * Separates an array of keys that contain a prefix into sub-arrays where the prefix is the key
+     *
+     * @param array  $source
+     * @param string $separator
+     *
+     * @return array
+     */
+    public static function groupByPrefix(array $source, string $separator = '_'): array
+    {
+        $return = [];
+
+        foreach ($source as $key => $value) {
+            if (str_contains($key, $separator)) {
+                $sub_array = Strings::explode($separator, $key);
+                $return[$sub_array[0]][$sub_array[1]] = $value;
+            }
+        }
+
+        return $return;
+    }
 }
