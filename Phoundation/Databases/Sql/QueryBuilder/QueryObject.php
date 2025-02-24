@@ -529,7 +529,7 @@ class QueryObject implements QueryObjectInterface
 
 
     /**
-     * Add a ORDER BY part of the query
+     * Add a LIMIT part of the query
      *
      * @param int $count
      * @param int $offset
