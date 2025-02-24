@@ -30,60 +30,60 @@ class Utils
     /**
      * Match options
      */
-    const MATCH_NOT              = 1;
+    const int MATCH_NOT              = 1;
 
-    const MATCH_ANY              = 2;
+    const int MATCH_ANY              = 2;
 
-    const MATCH_ALL              = 4;
-    const MATCH_REQUIRE          = 8;
-    const MATCH_STRICT           = 16;
-    const MATCH_STARTS_WITH      = 32;
+    const int MATCH_ALL              = 4;
+    const int MATCH_REQUIRE          = 8;
+    const int MATCH_STRICT           = 16;
+    const int MATCH_STARTS_WITH      = 32;
 
-    const MATCH_ENDS_WITH        = 64;
-    const MATCH_CONTAINS         = 128;
-    const MATCH_FULL             = 256;
-    const MATCH_REGEX            = 512;
+    const int MATCH_ENDS_WITH        = 64;
+    const int MATCH_CONTAINS         = 128;
+    const int MATCH_FULL             = 256;
+    const int MATCH_REGEX            = 512;
 
-    const MATCH_CASE_INSENSITIVE = 1024;
+    const int MATCH_CASE_INSENSITIVE = 1024;
 
-    const MATCH_RECURSE          = 2048;
-    const MATCH_NULL             = 4096;
-    const MATCH_EMPTY            = 8192;
-    const MATCH_SINGLE           = 16384;
-    const MATCH_TRIM             = 32768;
+    const int MATCH_RECURSE          = 2048;
+    const int MATCH_NULL             = 4096;
+    const int MATCH_EMPTY            = 8192;
+    const int MATCH_SINGLE           = 16384;
+    const int MATCH_TRIM             = 32768;
 
 
     /**
      * Match actions
      */
-    protected const MATCH_ACTION_RETURN_VALUES      = 1;
-    protected const MATCH_ACTION_RETURN_KEYS        = 2;
-    protected const MATCH_ACTION_RETURN_NEEDLES     = 3;
-    protected const MATCH_ACTION_RETURN_NOT_VALUES  = 4;
-    protected const MATCH_ACTION_RETURN_NOT_KEYS    = 5;
-    protected const MATCH_ACTION_RETURN_NOT_NEEDLES = 6;
-    protected const MATCH_ACTION_DELETE             = 7;
+    protected const int MATCH_ACTION_RETURN_VALUES      = 1;
+    protected const int MATCH_ACTION_RETURN_KEYS        = 2;
+    protected const int MATCH_ACTION_RETURN_NEEDLES     = 3;
+    protected const int MATCH_ACTION_RETURN_NOT_VALUES  = 4;
+    protected const int MATCH_ACTION_RETURN_NOT_KEYS    = 5;
+    protected const int MATCH_ACTION_RETURN_NOT_NEEDLES = 6;
+    protected const int MATCH_ACTION_DELETE             = 7;
 
 
     /**
      * If set, will filter NULL values
      */
-    const FILTER_NULL = 1;
+    const int FILTER_NULL = 1;
 
     /**
      * If set, will filter all empty values
      */
-    const FILTER_EMPTY = 2;
+    const int FILTER_EMPTY = 2;
 
     /**
      * If set, will quote all values
      */
-    const QUOTE_ALWAYS = 4;
+    const int QUOTE_ALWAYS = 4;
 
     /**
      * If set, will only display key, not value
      */
-    const HIDE_EMPTY_VALUES = 8;
+    const int HIDE_EMPTY_VALUES = 8;
 
 
     /**
