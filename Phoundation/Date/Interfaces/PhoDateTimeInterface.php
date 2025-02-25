@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Date\Interfaces;
 
 use DateMalformedStringException;
+use DateTimeZone;
 use Phoundation\Date\PhoDateInterval;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\PhoDateTimeZone;
@@ -91,4 +92,22 @@ interface PhoDateTimeInterface extends \DateTimeInterface
      * @return static
      */
     public function decreaseDays(int $days): static;
+
+    /**
+     * Returns a new DateTime object for the end of the day for the specified date
+     *
+     * @param DateTimeZone|string|null $timezone
+     *
+     * @return static
+     */
+    public function getNextDay(DateTimeZone|string|null $timezone = null): static;
+
+    /**
+     * Returns a new DateTime object for the end of the day for the specified date
+     *
+     * @param DateTimeZone|string|null $timezone
+     *
+     * @return static
+     */
+    public function getPreviousDay(DateTimeZone|string|null $timezone = null): static;
 }
