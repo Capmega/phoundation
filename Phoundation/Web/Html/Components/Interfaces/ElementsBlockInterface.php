@@ -17,10 +17,11 @@ interface ElementsBlockInterface extends RenderInterface, IteratorInterface
      * Sets the content of the element to display
      *
      * @param bool $use_form
+     * @param bool $post
      *
      * @return static
      */
-    public function useForm(bool $use_form): static;
+    public function useForm(bool $use_form, bool $post = true): static;
 
 
     /**
