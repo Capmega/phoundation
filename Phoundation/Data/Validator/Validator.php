@@ -29,6 +29,7 @@ use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
+use Phoundation\Date\PhoDate;
 use Phoundation\Date\PhoDateFormats;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\PhoDateTimeFormats;
@@ -3699,6 +3700,60 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         return $this->validateValues(function (&$value) {
             if (!$this->checkIsOptional($value)) {
                 $value = (bool) $value;
+            }
+        });
+    }
+
+
+    /**
+     * Makes the current field a boolean value
+     *
+     * This method ensures that the specified array key is a boolean
+     *
+     * @return static
+     */
+    public function sanitizeToDateTime(): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) {
+            if (!$this->checkIsOptional($value)) {
+                $this->isDate();
+// TODO Change this to isDateTime() when the PhoDate class is ready
+//                $this->isDateTime();
+
+                if ($this->process_value_failed or $this->selected_is_default) {
+                    // Validation already failed or defaulted, don't test anything more
+                    return;
+                }
+
+                $value = PhoDateTime::new($value);
+            }
+        });
+    }
+
+
+    /**
+     * Makes the current field a boolean value
+     *
+     * This method ensures that the specified array key is a boolean
+     *
+     * @return static
+     */
+    public function sanitizeToDate(): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) {
+            if (!$this->checkIsOptional($value)) {
+                $this->isDate();
+
+                if ($this->process_value_failed or $this->selected_is_default) {
+                    // Validation already failed or defaulted, don't test anything more
+                    return;
+                }
+
+                $value = PhoDate::new($value);
             }
         });
     }
