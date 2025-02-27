@@ -28,6 +28,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\SessionConfig;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Datastores;
+use Phoundation\Databases\Interfaces\McInterface;
 use Phoundation\Databases\Mc;
 use Phoundation\Databases\Mongo;
 use Phoundation\Databases\NullDb;
@@ -372,44 +373,24 @@ function isset_get(mixed &$variable, mixed $default = null): mixed
  *
  * @note IMPORTANT! After calling this function, $var will exist in the scope of the calling function!
  *
- * @param array            $source
- * @param string|float|int $key
- * @param mixed            $default (optional) The value to return in case the specified $variable did not exist or was NULL.*
+ * @param array|null            $source
+ * @param string|float|int|null $key
+ * @param mixed                 $default (optional) The value to return in case the specified $variable did not exist or was NULL.*
  *
  * @return mixed
  */
-function get_safe(array $source, string|float|int $key, mixed $default = null): mixed
+function array_get_safe(?array $source, string|float|int|null $key, mixed $default = null): mixed
 {
-    if (array_key_exists($key, $source)) {
-        return $source[$key];
+    if ($source) {
+        if (array_key_exists($key, $source)) {
+            if ($source[$key] === null) {
+                return $default;
+            }
+
+            return $source[$key];
+        }
     }
 
-    return $default;
-}
-
-
-/**
- * Return the array key value if it exists, or the default
- *
- * If (for example) a non-existing key from an array was specified, NULL will be returned instead of causing a variable
- *
- * @note IMPORTANT! After calling this function, $var will exist in the scope of the calling function!
- *
- * @param array                 $source  The source array to test
- * @param string|float|int|null $key     The key to return
- * @param string|float|int      $default (optional) The value to return in case the specified $variable did not exist
- *                                       or was NULL.*
- *
- * @return mixed
- */
-function array_get_safe(array $source, string|float|int|null $key, mixed $default = null): mixed
-{
-    // Return the key if it exists
-    if (array_key_exists($key, $source)) {
-        return $source[$key];
-    }
-
-    // Return the default value
     return $default;
 }
 
@@ -1642,21 +1623,20 @@ function variable_zts_safe(mixed $variable, int $level = 0): mixed
  */
 function sql(ConnectorInterface|string|null $connector = 'system', bool $use_database = true, bool $connect = true): SqlInterface
 {
-    return Datastores::sql($connector, $use_database, $connect);
+    return Datastores::getSql($connector, $use_database, $connect);
 }
-
 
 
 /**
  * Returns the system SQL database object
  *
- * @param string|null $instance_name
+ * @param ConnectorInterface|string|null $connector
  *
- * @return Mc
+ * @return McInterface
  */
-function mc(?string $instance_name = null): Mc
+function mc(ConnectorInterface|string|null $connector): McInterface
 {
-    return Datastores::mc($instance_name);
+    return Datastores::getMc($connector);
 }
 
 
@@ -1669,7 +1649,7 @@ function mc(?string $instance_name = null): Mc
  */
 function mongo(?string $instance_name = null): Mongo
 {
-    return Datastores::mongo($instance_name);
+    return Datastores::getMongo($instance_name);
 }
 
 
@@ -1683,7 +1663,7 @@ function mongo(?string $instance_name = null): Mongo
  */
 function redis(ConnectorInterface|string|null $connector = 'system-redis', bool $connect = true): Redis
 {
-    return Datastores::redis($connector, $connect);
+    return Datastores::getRedis($connector, $connect);
 }
 
 
