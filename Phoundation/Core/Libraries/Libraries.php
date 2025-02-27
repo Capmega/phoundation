@@ -28,9 +28,7 @@ use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;
-use Phoundation\Filesystem\PhoPath;
 use Phoundation\Filesystem\PhoRestrictions;
-use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Notifications\Notification;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Utils\Arrays;
@@ -48,17 +46,17 @@ class Libraries
     /**
      * The constant indicating the path for Phoundation libraries
      */
-    public const CLASS_DIRECTORY_SYSTEM = DIRECTORY_ROOT . 'Phoundation/';
+    public const string CLASS_DIRECTORY_SYSTEM = DIRECTORY_ROOT . 'Phoundation/';
 
     /**
      * The constant indicating the path for Plugin libraries
      */
-    public const CLASS_DIRECTORY_PLUGINS = DIRECTORY_ROOT . 'Plugins/';
+    public const string CLASS_DIRECTORY_PLUGINS = DIRECTORY_ROOT . 'Plugins/';
 
     /**
      * The constant indicating the path for Template libraries
      */
-    public const CLASS_DIRECTORY_TEMPLATES = DIRECTORY_ROOT . 'Templates/';
+    public const string CLASS_DIRECTORY_TEMPLATES = DIRECTORY_ROOT . 'Templates/';
 
 
     /**

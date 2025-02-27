@@ -458,6 +458,34 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      *
      * @return static
      */
+    public function getNextDay(DateTimeZone|string|null $timezone = null): static
+    {
+        return PhoDateTime::new($this, static::selectTimezone($this, $timezone))
+                          ->increaseDay();
+    }
+
+
+    /**
+     * Returns a new DateTime object for the end of the day for the specified date
+     *
+     * @param DateTimeZone|string|null $timezone
+     *
+     * @return static
+     */
+    public function getPreviousDay(DateTimeZone|string|null $timezone = null): static
+    {
+        return PhoDateTime::new($this, static::selectTimezone($this, $timezone))
+                          ->decreaseDay();
+    }
+
+
+    /**
+     * Returns a new DateTime object for the end of the day for the specified date
+     *
+     * @param DateTimeZone|string|null $timezone
+     *
+     * @return static
+     */
     public function getBeginningOfDay(DateTimeZone|string|null $timezone = null): static
     {
         return new static(

@@ -29,7 +29,7 @@ trait TraitDataEntryBirthdate
      */
     public function getBirthdate(): PhoDateTime|string|null
     {
-        return $this->getTypesafe('string', 'birthdate');
+        return PhoDateTime::new($this->getTypesafe('string', 'birthdate'));
     }
 
 

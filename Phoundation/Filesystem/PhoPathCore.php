@@ -102,7 +102,7 @@ class PhoPathCore implements PhoPathInterface
     use TraitDataServer;
 
 
-    public const DIRECTORY_SEPARATOR = '/';
+    public const string DIRECTORY_SEPARATOR = '/';
 
 
     /**

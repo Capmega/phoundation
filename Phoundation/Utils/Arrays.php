@@ -16,13 +16,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils;
 
+use JetBrains\PhpStorm\ExpectedValues;
 use PDOStatement;
 use Phoundation\Core\Interfaces\ArrayableInterface;
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Utils\Exception\ArraysKeyException;
 use Stringable;
 use Throwable;
 use UnitEnum;
@@ -30,7 +31,17 @@ use UnitEnum;
 
 class Arrays extends Utils
 {
-        /**
+    /**
+     * Group by options
+     */
+    const int GROUP_BY_DROP      = 1;
+
+    const int GROUP_BY_NULL      = 2;
+
+    const int GROUP_BY_EXCEPTION = 3;
+
+
+    /**
      * Returns true if the given array is multidimensional
      *
      * @param array $array
@@ -3599,6 +3610,49 @@ class Arrays extends Utils
         foreach ($source as $key => $value) {
             if ($value) {
                 $return[$key] = $value;
+            }
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Separates an array of keys that contain a prefix into sub-arrays where the prefix is the key
+     *
+     * @param array  $source
+     * @param string $separator
+     * @param int $non_prefix_action        How to handle keys that do not contain the specified separator and whose
+     *                                      prefix cannot be determined. Must be one of:
+     *                                          self:GROUP_BY_DROP: Drop keys without prefix
+     *                                          self:GROUP_BY_NULL: Add keys without prefix to subarray under key "NULL"
+     *                                          self:GROUP_BY_EXCEPTION: Throw exception if a key without prefix found
+     *
+     *
+     * @return array
+     */
+    public static function groupByPrefix(array $source, string $separator = '_', #[ExpectedValues(values: [self::GROUP_BY_NULL, self::GROUP_BY_DROP, self::GROUP_BY_EXCEPTION])] int $non_prefix_action = self::GROUP_BY_DROP): array
+    {
+        $return = [];
+
+        foreach ($source as $key => $value) {
+            if (str_contains((string) $key, $separator)) {
+                $prefix = Strings::until($key, $separator);
+                $key    = Strings::from($key, $separator);
+                $return[$prefix][$key] = $value;
+
+            } else {
+                switch ($non_prefix_action):
+                    case self::GROUP_BY_DROP:
+                        break;
+                    case self::GROUP_BY_NULL: $return[null][$key] = $value;
+                        break;
+                    case self::GROUP_BY_EXCEPTION: throw ArraysKeyException::new(tr('Key ":key" did not contain separator ":separator", unable to assign it to one of the following groups: ":groups"', [
+                        ':key'       => $key,
+                        ':separator' => $separator,
+                        ':groups'    => json::encode(array_keys($return)),
+                    ]));
+                endswitch;
             }
         }
 
