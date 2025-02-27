@@ -646,7 +646,7 @@ class DefinitionFactory
                          });
     }
 
-    
+
     /**
      * Returns a Definition object for column timezones_code
      *
@@ -1689,6 +1689,26 @@ class DefinitionFactory
                          ->setSize(2)
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              $validator->isBoolean();
+                         });
+    }
+
+
+    /**
+     * Returns a Definition object for an array column (select list, for example)
+     *
+     * @param string|null $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newArray(?string $column): DefinitionInterface
+    {
+        return Definition::new($column)
+                         ->setOptional(true)
+                         ->setDefault([])
+                         ->setInputType(EnumInputType::select)
+                         ->setSize(2)
+                         ->addValidationFunction(function (ValidatorInterface $validator) {
+                             $validator->isArray();
                          });
     }
 

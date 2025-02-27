@@ -70,6 +70,17 @@ trait TraitDataSourceArray
 
 
     /**
+     * Returns the source
+     *
+     * @return array
+     */
+    public function getSourceReindexed(): array
+    {
+        return Arrays::reindex($this->source);
+    }
+
+
+    /**
      * Returns a list of all internal definition keys
      *
      * @return mixed

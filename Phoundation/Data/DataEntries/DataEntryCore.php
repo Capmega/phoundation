@@ -994,14 +994,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
         }
 
-        if (get_safe($this->source, $key) !== $value) {
+        if (array_get_safe($this->source, $key) !== $value) {
             if (!$this->is_modified and !$definition->getIgnoreModify()) {
                 $this->is_modified = true;
                 $this->is_saved    = false;
             }
 
             if ($this->debug) {
-                Log::debug('FIELD "' . Strings::fromReverse(static::class, '\\') . '::' . $key . '" WAS MODIFIED FROM "' . get_safe($this->source, $key) . '" [' . gettype(get_safe($this->source, $key)) . '] TO "' . $value . '" [' . gettype($value) . '], MARKED MODIFIED: ' . Strings::fromBoolean($this->is_modified), 10, echo_header: false);
+                Log::debug('FIELD "' . Strings::fromReverse(static::class, '\\') . '::' . $key . '" WAS MODIFIED FROM "' . array_get_safe($this->source, $key) . '" [' . gettype(array_get_safe($this->source, $key)) . '] TO "' . $value . '" [' . gettype($value) . '], MARKED MODIFIED: ' . Strings::fromBoolean($this->is_modified), 10, echo_header: false);
             }
 
         } else {
@@ -1621,7 +1621,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
             // Get the value from the source, ensure to apply default or initial default values
-            $value = get_safe($this->source, $column, $this->isNew() ? ($definition->getInitialDefault() ?? $definition->getDefault()) : $definition->getDefault());
+            $value = array_get_safe($this->source, $column, $this->isNew() ? ($definition->getInitialDefault() ?? $definition->getDefault()) : $definition->getDefault());
 
             // If the value is null, apply the get method for the column IF IT EXISTS. If the get method doesn't exist,
             // just copy the NULL value as-is
@@ -2175,7 +2175,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         } else {
             // Reset meta columns
             foreach ($this->meta_columns as $column) {
-                $this->source[$column] = get_safe($data, $column);
+                $this->source[$column] = array_get_safe($data, $column);
             }
         }
 
@@ -2551,7 +2551,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function get(Stringable|string|float|int $key, bool $exception = true): mixed
     {
         if ($this->definitions->keyExists($key)) {
-            return get_safe($this->source, $key);
+            return array_get_safe($this->source, $key);
         }
 
         if ($exception) {
@@ -2593,7 +2593,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                         continue;
                     }
 
-                    if (get_safe($this->source, $key) != get_safe($data, $key)) {
+                    if (array_get_safe($this->source, $key) != array_get_safe($data, $key)) {
                         // If both records were empty (from NULL to 0 for example) then don't register
                         if ($this->source[$key] or $data[$key]) {
                             $diff['from'][$key] = (string) $this->source[$key];
@@ -2648,7 +2648,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         // Check entry meta-state. If this entry was modified in the meantime, can we update?
         if ($this->getMetaState()) {
-            if (get_safe($data, 'meta_state') !== $this->getMetaState()) {
+            if (array_get_safe($data, 'meta_state') !== $this->getMetaState()) {
                 // State mismatch! This means that somebody else updated this record while we were modifying it.
                 switch ($this->state_mismatch_handling) {
                     case EnumStateMismatchHandling::ignore:
@@ -3405,7 +3405,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function getAutoCompleteValue(): string
     {
         if (static::getUniqueColumn()) {
-            return get_safe($this->source, static::getUniqueColumn());
+            return array_get_safe($this->source, static::getUniqueColumn());
         }
 
         return (string) $this->getId(false);
@@ -3936,7 +3936,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
             // Apply definition default
-            $return[$column] = get_safe($this->source, $column) ?? $definition->getDefault();
+            $return[$column] = array_get_safe($this->source, $column) ?? $definition->getDefault();
 
             // Ensure value is string, float, int, or NULL
             if (($return[$column] !== null) and !is_scalar($return[$column])) {
@@ -4217,7 +4217,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             $this->setVirtualObject($table);
         }
 
-        return get_safe($this->virtual_objects, $table);
+        return array_get_safe($this->virtual_objects, $table);
     }
 
 

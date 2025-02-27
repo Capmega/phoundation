@@ -117,11 +117,11 @@ trait TraitDataConnector
      *
      * @note  If the specified $o_connector is NULL, it will be ignored
      * @param ConnectorInterface|null $o_connector
-     * @param string|null             $database
+     * @param string|int|null         $database
      *
      * @return static
      */
-    public function setConnectorObject(?ConnectorInterface $o_connector = null, ?string $database = null): static
+    public function setConnectorObject(?ConnectorInterface $o_connector = null, string|int|null $database = null): static
     {
         if ($o_connector) {
             $this->o_connector = $o_connector;
