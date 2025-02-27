@@ -49,8 +49,9 @@ class AutoSuggestRequest
      * AutoSuggestRequest class constructor
      *
      * @param bool $term_optional
+     * @param bool $requre_clean_source
      */
-    protected static function ensureGet(bool $term_optional = false): void
+    protected static function ensureGet(bool $term_optional = false, bool $requre_clean_source = false): void
     {
         if (isset(static::$get)) {
             return;
@@ -64,7 +65,7 @@ class AutoSuggestRequest
             $validator = GetValidator::new()->select('term')->sanitizeTrim()->hasMaxCharacters(255)->isPrintable();
         }
 
-        static::$get = $validator->validate(false);
+        static::$get = $validator->validate($requre_clean_source);
     }
 
 

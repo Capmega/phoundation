@@ -18,6 +18,7 @@ namespace Phoundation\Web\Requests;
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Core\Core;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\OutOfBoundsException;
@@ -469,6 +470,8 @@ class JsonPage implements JsonPageInterface
     /**
      * Execute the specified JSON page
      *
+     * @todo What the heck is this supposed to do??? What specified page? Nothing is specified!
+     *
      * @return string|null
      */
     public function execute(): ?string
@@ -516,7 +519,7 @@ class JsonPage implements JsonPageInterface
 
 
     /**
-     * Fixes all data numbers, making them strings, as Javascript borks BADLY on large numbers, WTF JS?!
+     * Fixes all data numbers, making them strings, as JavaScript borks BADLY on large numbers... Seriously, WTF JS?!
      *
      * @param array $data
      *

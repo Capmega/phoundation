@@ -660,9 +660,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                                  ->setValue(Strings::force($source[$column], ' - ')));
                     } else {
                         $component = $definition->getContent()($definition, $column, $field_name, $source);
-                        //show($definition->getColumn() . ' AAAAAAAAAAAAAAAAAAAa');
-                        //show($definition);
-                        //show($component);
+
                         if ($component) {
                             if (!$component instanceof RenderInterface) {
                                 // The content function did NOT return a render object

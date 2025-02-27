@@ -401,9 +401,7 @@ class Domains
      */
     public static function getConfigurationKey(string $domain, string $key, mixed $default = null): mixed
     {
-        $domain_config = static::getConfiguration($domain, $default === null);
-
-        return isset_get($domain_config[$key], $default);
+        return array_get_safe(static::getConfiguration($domain, $default === null), $key, $default);
     }
 
 

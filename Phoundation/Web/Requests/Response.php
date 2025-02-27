@@ -1826,6 +1826,11 @@ class Response implements ResponseInterface
         // Remove subprocess run directory
         Process::deleteRunDirectory();
 
+        if (Log::syslogIsOpen()) {
+            // Close the syslog
+            closelog();
+        }
+
         // Normal kill request
         Log::action(tr('Killing web page process'), 2);
         exit();

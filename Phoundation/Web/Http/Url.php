@@ -831,9 +831,7 @@ class Url implements UrlInterface
         $url = str_replace(':PROTOCOL', Request::getProtocol(), $url);
         $url = str_replace(':DOMAIN'  , Domains::getCurrent(), $url);
         $url = str_replace(':PORT'    , (string) Request::getPort(), $url);
-        $url = str_replace(':LANGUAGE', Session::getLanguage(), $url);
-
-        return $url;
+        return str_replace(':LANGUAGE', Session::getLanguage(), $url);
     }
 
 
