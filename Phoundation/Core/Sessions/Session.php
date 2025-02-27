@@ -240,7 +240,7 @@ class Session implements SessionInterface
      *
      * @return void
      */
-    public static function startup(): void
+    public static function start(): void
     {
         if (static::$has_started_up) {
             Log::warning(tr('Session has already started, not starting again'));
@@ -510,46 +510,7 @@ class Session implements SessionInterface
         // Set session and cookie parameters
         try {
             if (config()->getBoolean('web.sessions.enabled', true)) {
-                $handler = config()->getString('web.sessions.handler', 'files');
-
-                // Force session cookie configuration
-                ini_set('session.gc_maxlifetime' , config()->getInteger('web.sessions.timeout', 86400));
-                ini_set('session.cookie_lifetime', config()->getInteger('web.sessions.cookies.lifetime', 0));
-                ini_set('session.use_strict_mode', config()->getBoolean('web.sessions.cookies.strict_mode', true));
-                ini_set('session.name'           , config()->getString('web.sessions.cookies.name', 'phoundation'));
-                ini_set('session.cookie_httponly', config()->getBoolean('web.sessions.cookies.http-only', true));
-                ini_set('session.cookie_secure'  , config()->getBoolean('web.sessions.cookies.secure', true));
-                ini_set('session.cookie_samesite', config()->getBoolean('web.sessions.cookies.same-site', true));
-                ini_set('session.save_handler'   , $handler);
-                ini_set('session.save_path'      , Strings::force(config()->getArrayString('web.sessions.save-path', DIRECTORY_SYSTEM . 'sessions/'), ';'));
-
-                // Are we using memcached?
-                if ($handler === 'memcached') {
-                    // Do we have the memcached driver loaded?
-                    Mc::checkDriver();
-
-                    // Remove the memcached session prefix, we don't want or need people to know we use memcached
-                    ini_set('memcached.sess_prefix', '');
-
-                    // Is memcached enabled?
-                    if (!config()->getBoolean('databases.memcached.enabled', true)) {
-                        throw new SessionException(tr('Cannot use memcached session handler (Configured in web.sessions.handler) because memcached is not enabled'));
-                    }
-                }
-
-                if (config()->getBoolean('web.sessions.check-referrer', true)) {
-                    ini_set('session.referer_check', static::$domain);
-                }
-
-                if (Debug::isEnabled() or !config()->getBoolean('cache.http.enabled', true)) {
-                    ini_set('session.cache_limiter', 'nocache');
-
-                } else {
-                    if (config()->get('cache.http.enabled', true) === 'auto') {
-                        ini_set('session.cache_limiter', config()->getBoolean('cache.http.php-cache-limiter', true));
-                        ini_set('session.cache_expire', config()->getBoolean('cache.http.php-cache-php-cache-expire', true));
-                    }
-                }
+                Session::setIni();
             }
 
         } catch (Exception $e) {
@@ -565,6 +526,57 @@ class Session implements SessionInterface
                     ]), $e);
                 }
                 throw new SessionException(tr('Session startup failed'), $e);
+            }
+        }
+    }
+
+
+    /**
+     * Make all necessary INI settings
+     *
+     * @return void
+     */
+    public static function setIni(): void
+    {
+        $handler = config()->getString('web.sessions.handler', 'files');
+
+        // Force session cookie configuration
+        ini_set('session.serialize_handler', 'php_serialize');
+        ini_set('session.gc_maxlifetime'   , config()->getInteger('web.sessions.timeout', 86400));
+        ini_set('session.cookie_lifetime'  , config()->getInteger('web.sessions.cookies.lifetime', 0));
+        ini_set('session.use_strict_mode'  , config()->getBoolean('web.sessions.cookies.strict_mode', true));
+        ini_set('session.name'             , config()->getString('web.sessions.cookies.name', 'phoundation'));
+        ini_set('session.cookie_httponly'  , config()->getBoolean('web.sessions.cookies.http-only', true));
+        ini_set('session.cookie_secure'    , config()->getBoolean('web.sessions.cookies.secure', true));
+        ini_set('session.cookie_samesite'  , config()->getBoolean('web.sessions.cookies.same-site', true));
+        ini_set('session.save_handler'     , $handler);
+        ini_set('session.save_path'        , Strings::force(config()->getArrayString('web.sessions.save-path', DIRECTORY_SYSTEM . 'sessions/'), ';'));
+
+        // Are we using memcached?
+        if ($handler === 'memcached') {
+            // Do we have the memcached driver loaded?
+            Mc::checkDriver();
+
+            // Remove the memcached session prefix, we don't want or need people to know we use memcached
+            ini_set('memcached.sess_prefix', '');
+
+            // Is memcached enabled?
+            if (!config()->getBoolean('databases.memcached.enabled', true)) {
+                throw new SessionException(tr('Cannot use memcached session handler (Configured in web.sessions.handler) because memcached is not enabled'));
+            }
+        }
+
+        if (config()->getBoolean('web.sessions.check-referrer', true)) {
+            ini_set('session.referer_check', static::$domain);
+        }
+
+        if (Debug::isEnabled() or !config()->getBoolean('cache.http.enabled', true)) {
+            ini_set('session.cache_limiter', 'nocache');
+
+        } else {
+            if (config()->get('cache.http.enabled', true) === 'auto') {
+                ini_set('session.cache_limiter', config()->getBoolean('cache.http.php-cache-limiter', true));
+                ini_set('session.cache_expire', config()->getBoolean('cache.http.php-cache-php-cache-expire', true));
             }
         }
     }
@@ -818,6 +830,10 @@ class Session implements SessionInterface
      */
     protected static function create(): bool
     {
+        // Register the session
+        \Phoundation\Accounts\Users\Sessions\Sessions::start(static::getUserObject()->getId(), static::$domain, Session::getIpAddress(), session_id());
+
+        // Initialize the session for the user
         Session::initializeUser();
 
         Log::success(tr('Created new session ":session" for user ":user"', [
