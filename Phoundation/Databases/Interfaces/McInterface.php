@@ -51,12 +51,12 @@ interface McInterface extends DatastoreInterface
      *
      * @param string|float|int|null $key
      * @param callable|null         $cache_callback An optional callback function for read-through caching
-     * @param int|null              $flags          Currently supports Memcached::GET_EXTENDED
+     * @param int                   $flags          Currently supports Memcached::GET_EXTENDED
      *
      * @return mixed
      * @see https://www.php.net/manual/en/memcached.get.php
      */
-    public function get(string|float|int|null $key, ?callable $cache_callback = null, int $flags = null): mixed;
+    public function get(string|float|int|null $key, ?callable $cache_callback = null, int $flags = 0): mixed;
 
 
     /**
@@ -65,11 +65,12 @@ interface McInterface extends DatastoreInterface
      * @param mixed                 $value
      * @param string|float|int|null $key
      * @param int|null              $expires
+     * @param int                   $udf_flags
      *
      * @return mixed
      * @see https://www.php.net/manual/en/memcached.set.php
      */
-    public function set(mixed $value, string|float|int|null $key, ?int $expires = null): static;
+    public function set(mixed $value, string|float|int|null $key, ?int $expires = null, int $udf_flags = 0): static;
 
 
     /**
@@ -80,10 +81,11 @@ interface McInterface extends DatastoreInterface
      * @param mixed                 $value
      * @param string|float|int|null $key
      * @param int|null              $expires
+     * @param int                   $udf_flags
      *
      * @return Mc
      */
-    public function add(mixed $value, string|float|int|null $key, ?int $expires = null): static;
+    public function add(mixed $value, string|float|int|null $key, ?int $expires = null, int $udf_flags = 0): static;
 
 
     /**
@@ -94,10 +96,11 @@ interface McInterface extends DatastoreInterface
      * @param mixed                 $value
      * @param string|float|int|null $key
      * @param int|null              $expires
+     * @param int                   $udf_flags
      *
      * @return Mc
      */
-    public function replace(mixed $value, string|float|int|null $key, ?int $expires = null): static;
+    public function replace(mixed $value, string|float|int|null $key, ?int $expires = null, int $udf_flags = 0): static;
 
 
     /**

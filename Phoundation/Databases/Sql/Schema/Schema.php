@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\Schema;
 
+use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Schema\Interfaces\DatabaseInterface;
 use Phoundation\Databases\Sql\Schema\Interfaces\SchemaInterface;
@@ -26,12 +27,15 @@ use Phoundation\Exception\OutOfBoundsException;
 
 class Schema implements SchemaInterface
 {
+    use TraitDataConnector;
+
+
     /**
      * The instance configuration for this schema
      *
      * @var string|null $instance
      */
-    protected ?string $instance_name = null;
+    protected ?string $connector = null;
 
     /**
      * The databases for this schema
@@ -58,15 +62,15 @@ class Schema implements SchemaInterface
     /**
      * Schema constructor
      */
-    public function __construct(?string $instance_name = null, bool $use_database = false)
+    public function __construct(?string $connector = null, bool $use_database = false)
     {
         // Check if the specified database exists
-        if (!$instance_name) {
-            throw new OutOfBoundsException(tr('No instance name specified'));
+        if (!$connector) {
+            throw new OutOfBoundsException(tr('No connector specified'));
         }
 
-        $this->instance_name = $instance_name;
-        $this->sql           = new Sql($instance_name, $use_database);
+        $this->setConnector($connector);
+        $this->sql = new Sql($this->o_connector, $use_database);
     }
 
 

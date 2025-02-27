@@ -190,28 +190,21 @@ class Mc implements McInterface
      *
      * @param string|float|int|null $key
      * @param callable|null         $cache_callback An optional callback function for read-through caching
-     * @param int|null              $flags          Currently supports Memcached::GET_EXTENDED
+     * @param int                   $flags          Currently supports Memcached::GET_EXTENDED
      *
      * @return mixed
      * @see https://www.php.net/manual/en/memcached.get.php
      */
-    public function get(string|float|int|null $key, ?callable $cache_callback = null, int $flags = null): mixed
+    public function get(string|float|int|null $key, ?callable $cache_callback = null, int $flags = 0): mixed
     {
         $value = $this->memcached->get($key, $cache_callback, $flags);
-
-        if ($value === false) {
-            throw new MemcachedException($this->log(tr('Getting value for key ":key" failed with code ":code" and message ":message"', [
-                ':code'    => $this->memcached->getResultCode(),
-                ':message' => $this->memcached->getResultMessage()
-            ])));
-        }
 
         Log::success($this->log(tr('Read ":bytes" bytes to memcached for key ":key"', [
             ':key'   => $key,
             ':bytes' => (is_scalar($value) ? strlen((string) $value) : count($value)),
         ])), 3);
 
-        return $value;
+        return get_null($value);
     }
 
 
@@ -221,11 +214,12 @@ class Mc implements McInterface
      * @param mixed                 $value
      * @param string|float|int|null $key
      * @param int|null              $expires
+     * @param int                   $udf_flags
      *
      * @return mixed
      * @see https://www.php.net/manual/en/memcached.set.php
      */
-    public function set(mixed $value, string|float|int|null $key, ?int $expires = null): static
+    public function set(mixed $value, string|float|int|null $key, ?int $expires = null, int $udf_flags = 0): static
     {
         if (is_bool($value)) {
             throw new MemcachedException($this->log(tr('Cannot set boolean values in memcached for key ":key"', [
@@ -233,7 +227,7 @@ class Mc implements McInterface
             ])));
         }
 
-        $result = $this->memcached->set($key, $value, $expires ?? $this->configuration['expires']);
+        $result = $this->memcached->set($key, $value, $expires ?? $this->configuration['expires'], $udf_flags);
 
         if ($result) {
             Log::success($this->log(tr('Wrote ":bytes" bytes to memcached for key ":key"', [
@@ -259,10 +253,11 @@ class Mc implements McInterface
      * @param mixed                 $value
      * @param string|float|int|null $key
      * @param int|null              $expires
+     * @param int                   $udf_flags
      *
      * @return Mc
      */
-    public function add(mixed $value, string|float|int|null $key, ?int $expires = null): static
+    public function add(mixed $value, string|float|int|null $key, ?int $expires = null, int $udf_flags = 0): static
     {
         if (is_bool($value)) {
             throw new MemcachedException($this->log(tr('Cannot add boolean values in memcached for key ":key"', [
@@ -270,7 +265,7 @@ class Mc implements McInterface
             ])));
         }
 
-        $result = $this->memcached->add($key, $value, $expires ?? $this->configuration['expires']);
+        $result = $this->memcached->add($key, $value, $expires ?? $this->configuration['expires'], $udf_flags);
 
         if ($result) {
             Log::success($this->log(tr('Wrote ":bytes" bytes to memcached for key ":key"', [
@@ -296,10 +291,11 @@ class Mc implements McInterface
      * @param mixed                 $value
      * @param string|float|int|null $key
      * @param int|null              $expires
+     * @param int                   $udf_flags
      *
      * @return Mc
      */
-    public function replace(mixed $value, string|float|int|null $key, ?int $expires = null): static
+    public function replace(mixed $value, string|float|int|null $key, ?int $expires = null, int $udf_flags = 0): static
     {
         if (is_bool($value)) {
             throw new MemcachedException($this->log(tr('Cannot replace keys with boolean values in memcached for key ":key"', [
@@ -307,7 +303,7 @@ class Mc implements McInterface
             ])));
         }
 
-        $result = $this->memcached->add($key, $value, $expires ?? $this->configuration['expires']);
+        $result = $this->memcached->replace($key, $value, $expires ?? $this->configuration['expires'], $udf_flags);
 
         if ($result) {
             Log::success($this->log(tr('Wrote ":bytes" bytes to memcached for key ":key"', [

@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Command databases memcached debug keys dump
+ * Command databases memcached dump values
  *
- * This command will dump all available keys to STDOUT
+ * This command will dump all values available in the memcached server for the specified connector to STDOUT
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -19,9 +19,9 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Connectors\Connectors;
 
-CliDocumentation::setUsage('./pho databases export -d mysql -b system -f system.sql');
+CliDocumentation::setUsage('./pho databases memcached dump values -c sessions');
 
-CliDocumentation::setHelp('This command will dump all currently availabe keys on the specified memcached instance to 
+CliDocumentation::setHelp('This command will dump all currently available keys on the specified memcached instance to 
 STDOUT.
 
 
@@ -53,4 +53,5 @@ $argv = ArgvValidator::new()
 // Dump all values
 foreach (mc($argv['connector'])->getAllKeys() as $key) {
     Log::printr(mc($argv['connector'])->get($key), echo_header: false);
+    Log::cli();
 }
