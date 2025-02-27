@@ -272,17 +272,30 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      */
     public function getQueryBuilder(): QueryBuilderInterface
     {
+        $this->useQueryBuilder();
+        return $this->query_builder;
+    }
+
+
+    /**
+     * Initializes the QueryBuilder object for this DataIterator
+     *
+     * @return static
+     */
+    public function useQueryBuilder(): static
+    {
         if (!isset($this->query_builder)) {
             $this->query_builder = QueryBuilder::new($this)
                                                ->setDebug($this->debug)
-                                               ->setConnectorObject($this->getConnectorObject());
+                                               ->setConnectorObject($this->getConnectorObject())
+                                               ->addSelect('`' . static::getTable() . '`.*');
 
             if ($this->status_filter !== false) {
                 $this->query_builder->addWhere(SqlQueries::is('`' . static::getTable() . '`.`status`', $this->status_filter, ':status'));
             }
         }
 
-        return $this->query_builder;
+        return $this;
     }
 
 
