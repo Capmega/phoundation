@@ -303,7 +303,8 @@ $relevant_card = Card::new()
                      ->setContent(($user->isNew() ? '' : '<a href="' . Url::new('/profiles/profile+' . $user->getId() . '.html')->makeWww() . '">' . tr('Profile page for this user') . '</a><br>
                                                           <a href="' . Url::new('/accounts/password+' . $user->getId() . '.html')->makeWww() . '">' . tr('Change password for this user') . '</a><br>
                                                           <a href="' . Url::new('/security/authentications.html')->makeWww()->addQueries('users_id=' . $user->getId()) . '">' . tr('Authentications for this user') . '</a><br>
-                                                          <a href="' . Url::new('/security/incidents.html')->makeWww()->addQueries('users_id=' . $user->getId()) . '">' . tr('Security incidents for this user') . '</a>
+                                                          <a href="' . Url::new('/security/incidents.html')->makeWww()->addQueries('users_id=' . $user->getId()) . '">' . tr('Security incidents for this user') . '</a><br>
+                                                          <a href="' . Url::new('/accounts/sessions.html')->makeWww()->addQueries('users_id=' . $user->getId()) . '">' . tr('Sessions for this user') . '</a>
                                                           <hr>') . '
                                                           <a href="' . Url::new('/accounts/roles.html')->makeWww() . '">' . tr('Roles management') . '</a><br>
                                                           <a href="' . Url::new('/accounts/rights.html')->makeWww() . '">' . tr('Rights management') . '</a>' );

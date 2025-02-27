@@ -79,6 +79,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryType;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUrl;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryVerificationCode;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryVerifiedOn;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
@@ -1230,6 +1231,17 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             ':user'    => $this->getLogId(),
             ':session' => Session::getUserObject()->getLogId(),
         ]));
+    }
+
+
+    /**
+     * Returns an Iterator containing all the sessions for this user
+     *
+     * @return IteratorInterface
+     */
+    public function getActiveSessions(): IteratorInterface
+    {
+        return \Phoundation\Accounts\Users\Sessions\Sessions::getActiveForUsersId($this->getId());
     }
 
 

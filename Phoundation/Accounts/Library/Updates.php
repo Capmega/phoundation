@@ -32,7 +32,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.6.2';
+        return '0.7.0';
     }
 
 
@@ -1216,6 +1216,31 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             foreach ($tables as $table) {
                 sql()->getSchemaObject()->getTableObject($table)->alter()->addColumn('`status` varchar(16) NULL DEFAULT NULL,', 'AFTER `created_by`');
             }
+
+        })->addUpdate('0.7.0', function () {
+            // Create the users_roles table.
+            sql()->getSchemaObject()->getTableObject('accounts_sessions')
+                 ->drop()
+                 ->define()
+                 ->setColumns('  
+                    `id` bigint NOT NULL AUTO_INCREMENT,
+                    `domain` varchar(128) CHARACTER SET latin1 DEFAULT NULL,
+                    `session` varchar(64) CHARACTER SET latin1 DEFAULT NULL,
+                    `users_id` bigint NOT NULL,
+                    `ip` varchar(46) NOT NULL,
+                    `start` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `stop` datetime  NULL DEFAULT NULL,')
+                ->setIndices('                
+                    PRIMARY KEY (`id`),
+                    UNIQUE KEY `session` (`session`),
+                    KEY `domain` (`domain`),
+                    KEY `users_id` (`users_id`),
+                    KEY `ip` (`ip`),
+                    KEY `start` (`start`),
+                    KEY `stop` (`stop`),')
+                ->setForeignKeys('
+                    CONSTRAINT `fk_accounts_sessions_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE CASCADE')
+                ->create();
         });
     }
 }
