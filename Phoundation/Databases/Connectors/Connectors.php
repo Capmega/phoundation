@@ -21,6 +21,7 @@ use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
 use Phoundation\Databases\Sql\Exception\DatabasesConnectorException;
 use Phoundation\Databases\Sql\Exception\SqlException;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Seo\Seo;
 use Stringable;
 
@@ -158,10 +159,14 @@ class Connectors extends DataIterator implements ConnectorsInterface
      */
     public function get(float|Stringable|int|string $key, bool $exception = false): mixed
     {
+        if (empty($key)) {
+            throw new OutOfBoundsException(tr('Cannot get connector object, no connector name specified'));
+        }
+
         $o_connector = parent::get($key, $exception);
 
         if (empty($o_connector)) {
-            $o_connector = Connector::new()->load($key ?: 'system');
+            $o_connector = Connector::new()->load($key);
         }
 
         return $o_connector;

@@ -24,6 +24,7 @@ use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryArrayServers;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryCharacterSet;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryCollate;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDatabase;
@@ -34,6 +35,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntrySync;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUsername;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Exception\ConnectorNotExistsException;
+use Phoundation\Databases\Connectors\Exception\InvalidConnectorTypeException;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Datastores;
 use Phoundation\Databases\Interfaces\DatabaseInterface;
@@ -54,6 +56,7 @@ class Connector extends DataEntry implements ConnectorInterface
     use TraitDataEntryCharacterSet;
     use TraitDataEntryCollate;
     use TraitDataEntrySync;
+    use TraitDataEntryArrayServers;
 
 
     /**
@@ -324,6 +327,39 @@ class Connector extends DataEntry implements ConnectorInterface
 
 
     /**
+     * Returns true if the specified type is equal to the type of this connector
+     *
+     * @param string $driver
+     *
+     * @return bool
+     */
+    public function isDriver(string $driver): bool
+    {
+        return $this->getDriver() === $driver;
+    }
+
+
+    /**
+     * Returns true if the specified type is equal to the type of this connector
+     *
+     * @param string $driver
+     *
+     * @return Connector
+     */
+    public function checkDriver(string $driver): static
+    {
+        if ($this->isDriver($driver)) {
+            return $this;
+        }
+
+        throw new InvalidConnectorTypeException(tr('The ":type" drive of this connector does not match the required connector driver ":required"', [
+            ':type'     => $this->getType(),
+            ':required' => $driver,
+        ]));
+    }
+
+
+    /**
      * Returns the pdo_attributes for this connector
      *
      * @return array|null
@@ -505,9 +541,9 @@ class Connector extends DataEntry implements ConnectorInterface
      *
      * @return bool|null
      */
-    public function getPersist(): ?bool
+    public function getPersistent(): ?bool
     {
-        return $this->getTypesafe('bool', 'persist');
+        return $this->getTypesafe('bool', 'persistent');
     }
 
 
@@ -518,9 +554,9 @@ class Connector extends DataEntry implements ConnectorInterface
      *
      * @return static
      */
-    public function setPersist(int|bool|null $persist): static
+    public function setPersistent(int|bool|null $persist): static
     {
-        return $this->set((bool) $persist, 'persist');
+        return $this->set((bool) $persist, 'persistent');
     }
 
 
@@ -677,7 +713,7 @@ class Connector extends DataEntry implements ConnectorInterface
             'port'        => $this->getPort() ?? 11211,
             'options'     => null,
             'database'    => $this->getDatabase(),
-            'connections' => []
+            'servers'     => $this->getServers()
         ];
     }
 
@@ -688,6 +724,8 @@ class Connector extends DataEntry implements ConnectorInterface
      * @param array $configuration
      *
      * @return array
+     *
+     * @see https://www.php.net/manual/en/pdo.constants.php#pdo.constants.attr-persistent
      */
     protected function applyConfigurationTemplate(array $configuration): array
     {
@@ -710,10 +748,18 @@ class Connector extends DataEntry implements ConnectorInterface
                     $command .= 'SET NAMES ' . strtoupper($configuration['character_set'] . '; ');
                 }
 
+                // Ensure that all configured attributes are uppercase
+                $configuration['pdo_attributes'] = Arrays::convertKeysToUppercase(array_get_safe($configuration, 'pdo_attributes', []));
+
                 // Apply MySQL specific requirements that always apply
-                $configuration['pdo_attributes'][PDO::ATTR_ERRMODE]                  = PDO::ERRMODE_EXCEPTION;
-                $configuration['pdo_attributes'][PDO::MYSQL_ATTR_USE_BUFFERED_QUERY] = !$configuration['buffered'];
-                $configuration['pdo_attributes'][PDO::MYSQL_ATTR_INIT_COMMAND]       = $command;
+                $configuration['pdo_attributes']['PDO::MYSQL_ATTR_USE_BUFFERED_QUERY'] = !$configuration['buffered'];
+                $configuration['pdo_attributes']['PDO::ATTR_PERSISTENT']               = (array_get_safe($configuration['pdo_attributes'], 'PDO::ATTR_PERSISTENT', false) or $configuration['persistent']);
+                $configuration['pdo_attributes']['PDO::MYSQL_ATTR_INIT_COMMAND']       = $command;
+                $configuration['pdo_attributes']['PDO::ATTR_ERRMODE']                  = PDO::ERRMODE_EXCEPTION;
+                $configuration['pdo_attributes']['PDO::ATTR_CASE']                     = PDO::CASE_LOWER;
+
+                // Translate PDO attributes to their constants
+                $configuration['pdo_attributes_translated'] = Arrays::convertKeysToConstants($configuration['pdo_attributes']);
                 break;
 
             default:
@@ -745,6 +791,7 @@ class Connector extends DataEntry implements ConnectorInterface
             'auto_increment' => 1,
             'init'           => false,
             'buffered'       => false,
+            'persistent'     => false,
             'character_set'  => 'utf8mb4',
             'collate'        => 'utf8mb4_general_ci',
             'limit_max'      => 10000,
@@ -899,6 +946,10 @@ class Connector extends DataEntry implements ConnectorInterface
                     ->add(DefinitionFactory::newTimezonesName()
                                            ->setVirtual(false))
 
+                    ->add(DefinitionFactory::newArray('servers')
+                                           ->setLabel(tr('Servers'))
+                                           ->setSize(12))
+
                     ->add(Definition::new('ssh_tunnels_id')
                                     ->setInputType(EnumInputType::dbid)
                                     ->setLabel(tr('SSL Tunnel'))
@@ -923,8 +974,8 @@ class Connector extends DataEntry implements ConnectorInterface
                                            ->setOptional(true, 1)
                                            ->setSize(1))
 
-                    ->add(DefinitionFactory::newBoolean('persist')
-                                           ->setLabel(tr('Persist'))
+                    ->add(DefinitionFactory::newBoolean('persistent')
+                                           ->setLabel(tr('Persistent'))
                                            ->setHelpText(tr('If enabled, Phoundation will use persistent connections. This may speed up database connections but may potentially cause your database to be overloaded with open connections'))
                                            ->setOptional(true, false)
                                            ->setSize(1))

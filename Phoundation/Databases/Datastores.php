@@ -17,14 +17,20 @@ declare(strict_types=1);
 namespace Phoundation\Databases;
 
 use Exception;
+use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Connectors;
+use Phoundation\Databases\Connectors\Exception\ConnectorNotExistsException;
+use Phoundation\Databases\Connectors\Exception\NoConnectorSpecifiedException;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
 use Phoundation\Databases\Interfaces\DatabaseInterface;
+use Phoundation\Databases\Interfaces\McInterface;
+use Phoundation\Databases\Redis\Interfaces\RedisInterface;
 use Phoundation\Databases\Redis\Redis;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Sql;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 
 
@@ -97,18 +103,22 @@ class Datastores
      *
      * If the object already exists in the connectors list, it will return the cached connector instead.
      *
-     * @param ConnectorInterface|string|null $connector
+     * @param ConnectorInterface|string $connector
      *
      * @return ConnectorInterface
      */
-    public static function getConnectorObject(ConnectorInterface|string|null $connector): ConnectorInterface
+    public static function getConnectorObject(ConnectorInterface|string $connector): ConnectorInterface
     {
         if ($connector instanceof ConnectorInterface) {
             $connector = $connector->getName();
         }
 
+        if (!$connector) {
+            throw new OutOfBoundsException(tr('Cannot get connector object, no connector name specified'));
+        }
+
         // Connectors::get() will automatically load the required connector object if it isn't loaded yet
-        return static::getConnectorsObject()->get($connector ?? 'system', false);
+        return static::getConnectorsObject()->get($connector, false);
     }
 
 
@@ -139,7 +149,7 @@ class Datastores
     public static function fromConnector(ConnectorInterface $connector, bool $use_database = true): DatabaseInterface
     {
         return match ($connector->getType()) {
-            'sql'   => Datastores::sql($connector, $use_database),
+            'sql'   => Datastores::getSql($connector, $use_database),
             default => throw new UnderConstructionException(),
         };
     }
@@ -154,20 +164,15 @@ class Datastores
      *
      * @return SqlInterface
      */
-    public static function sql(ConnectorInterface|string|null $connector = 'system', bool $use_database = true, bool $connect = true): SqlInterface
+    public static function getSql(ConnectorInterface|string|null $connector = 'system', bool $use_database = true, bool $connect = true): SqlInterface
     {
         if (!$connector) {
             // Default to system connector
             $connector = 'system';
         }
 
-        if ($connector instanceof ConnectorInterface) {
-            $connector_name = $connector->getDisplayName();
-
-        } else {
-            // The connector specified was a connector name
-            $connector_name = $connector;
-        }
+        $connector      = Datastores::getConnectorObject($connector);
+        $connector_name = $connector->getDisplayName();
 
         if (!array_key_exists($connector_name, static::$sql)) {
             // This connector isn't registered yet, so connect and add it to the "connectors" list
@@ -181,33 +186,33 @@ class Datastores
     /**
      * Access Memcached database connectors
      *
-     * @param string|null $connector
+     * @param ConnectorInterface|string|null $connector
      *
-     * @return Mc
+     * @return McInterface
      * @throws Exception
      */
-    public static function mc(?string $connector): Mc
+    public static function getMc(ConnectorInterface|string|null $connector): McInterface
     {
         if (!$connector) {
-            // Default to system connector
-            $connector = 'system-mc';
+            throw new NoConnectorSpecifiedException(tr('Cannot return memcached object, no connector specified.'));
         }
 
-        if ($connector instanceof ConnectorInterface) {
-            $connector_name = $connector->getDisplayName();
+        if ($connector) {
+            // The connector specified was a connector name, get a connector object
+            $connector_name = $connector;
+            $connector      = new Connector($connector);
 
         } else {
-            // The connector specified was a connector name
-            $connector_name = $connector;
+            $connector_name = $connector->getDisplayName();
         }
 
         if (!array_key_exists($connector_name, static::$mc)) {
             // No panic now! This connector isn't registered yet, so it might very well be the first time we're using it.
             // Connect and add it
-            static::$mc[$connector] = new Mc($connector);
+            static::$mc[$connector_name] = new Mc($connector);
         }
 
-        return static::$mc[$connector];
+        return static::$mc[$connector_name];
     }
 
 
@@ -217,9 +222,9 @@ class Datastores
      * @param ConnectorInterface|string|null $connector
      * @param bool                           $connect
      *
-     * @return Redis
+     * @return RedisInterface
      */
-    public static function redis(ConnectorInterface|string|null $connector = 'system-redis', bool $connect = true): Redis
+    public static function getRedis(ConnectorInterface|string|null $connector = 'system-redis', bool $connect = true): RedisInterface
     {
         if ($connector instanceof ConnectorInterface) {
             $connector_name = $connector->getDisplayName();
@@ -250,7 +255,7 @@ class Datastores
      * @return Mongo
      * @throws Exception
      */
-    public static function mongo(?string $connector): Mongo
+    public static function getMongo(?string $connector): Mongo
     {
         if (!$connector) {
             // Default to system connector

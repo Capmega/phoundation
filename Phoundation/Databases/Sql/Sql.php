@@ -142,16 +142,18 @@ class Sql implements SqlInterface
     /**
      * Sql constructor
      *
-     * @param ConnectorInterface|string|null $o_connector
-     * @param bool                           $use_database
-     * @param bool                           $connect
+     * @param ConnectorInterface $o_connector
+     * @param bool               $use_database
+     * @param bool               $connect
+     *
+     * @throws Throwable
      */
-    public function __construct(ConnectorInterface|string|null $o_connector = null, bool $use_database = true, bool $connect = true)
+    public function __construct(ConnectorInterface $o_connector, bool $use_database = true, bool $connect = true)
     {
         $this->uniqueid = Strings::getRandom();
 
         // Connector specified directly. Take configuration from connector and connect
-        $this->setConnectorObject(Datastores::getConnectorObject($o_connector));
+        $this->setConnectorObject($o_connector);
 
         // Some options can be configured separately as well
         $this->configuration['log']        = $this->configuration['log']        ?? config()->getBoolean('databases.sql.log'       , false);
@@ -733,8 +735,7 @@ class Sql implements SqlInterface
             while (--$retries >= 0) {
                 try {
                     $connect_string  = $this->configuration['driver'] . ':host=' . $this->configuration['hostname'] . (empty($this->configuration['port']) ? '' : ';port=' . $this->configuration['port']) . (($use_database and $this->configuration['database']) ? ';dbname=' . $this->configuration['database'] : '');
-                    $this->pdo       = new PDO($connect_string, $this->configuration['username'], $this->configuration['password'], Arrays::force($this->configuration['pdo_attributes']));
-                    $this->pdo->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
+                    $this->pdo       = new PDO($connect_string, $this->configuration['username'], $this->configuration['password'], Arrays::force($this->configuration['pdo_attributes_translated']));
 
                     Log::success(static::getConnectorLogPrefix() . tr('Connected to instance ":connector" with PDO connect string ":string"', [
                         ':connector' => $this->connector,
@@ -843,6 +844,8 @@ class Sql implements SqlInterface
                 ':connect' => $connect_string,
                 ':time'    => PhoTime::difference($start, microtime(true), 'auto', 5),
             ]), 4);
+
+            Log::printr($this->configuration['pdo_attributes'], 2, echo_header: false);
 
             // Yay, we're using the database!
             $this->database = $this->configuration['database'];

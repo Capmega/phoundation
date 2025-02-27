@@ -33,7 +33,7 @@ use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Throwable;
 
-class Redis implements DatabaseInterface, RedisInterface
+class Redis implements RedisInterface
 {
     use TraitDataConnector;
 

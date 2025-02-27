@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Library;
 
 
-
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
     /**
@@ -28,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.25';
+        return '0.1.0';
     }
 
 
@@ -101,6 +100,13 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->getSchemaObject()->getTableObject('databases_connectors')->alter()
                  ->addColumn('`environment` varchar(32) NULL DEFAULT NULL', 'AFTER `seo_name`')
                  ->addIndex('KEY `environment` (`environment`)');
+
+        })->addUpdate('0.1.0', function () {
+            $table = sql()->getSchemaObject()->getTableObject('databases_connectors');
+
+            if (!$table->columnExists('servers')) {
+                $table->alter()->addColumn('`servers` varchar(1020) NULL DEFAULT NULL', 'AFTER `hostname`');
+            }
         });
     }
 }

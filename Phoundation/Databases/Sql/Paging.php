@@ -18,6 +18,8 @@ namespace Phoundation\Databases\Sql;
 
 
 
+use Phoundation\Web\Requests\Request;
+
 class Paging
 {
     /**
@@ -33,7 +35,13 @@ class Paging
             return $limit;
         }
 
-        return config()->getInteger('data.paging.limit', 50);
+        if (PLATFORM_CLI) {
+            // Return CLI limits
+            return config()->getInteger('data.paging.limit.cli', 50);
+        }
+
+        // Return limits for the web request type
+        return config()->getInteger('data.paging.limit.web.' . Request::getRequestType()->value, 50);
     }
 
 

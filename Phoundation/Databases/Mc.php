@@ -5,6 +5,7 @@
  *
  * This is the default memcached driver object
  *
+ * @see       https://www.php.net/manual/en/class.memcached.php
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -20,19 +21,21 @@ use Memcached;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
-use Phoundation\Databases\Interfaces\DatastoreInterface;
-use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Databases\Exception\MemcachedException;
+use Phoundation\Databases\Interfaces\McInterface;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Notifications\Notification;
-use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
-use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Security\Incidents\Incident;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Http\Url;
 use Throwable;
 
-class Mc implements DatastoreInterface
+
+class Mc implements McInterface
 {
-    use TraitDataConnector;
+    use TraitDataConnector {
+        setConnectorObject as protected __setConnectorObject;
+    }
 
 
     /**
@@ -43,13 +46,6 @@ class Mc implements DatastoreInterface
     protected ?Memcached $memcached = null;
 
     /**
-     * Memcached instance name
-     *
-     * @var string|null $instance_name
-     */
-    protected ?string $instance_name = null;
-
-    /**
      * Memcached configuration
      *
      * @var array|null $configuration
@@ -57,17 +53,11 @@ class Mc implements DatastoreInterface
     protected ?array $configuration = null;
 
     /**
-     * Actove memcached connections for this instance
+     * Active memcached connections for this instance
      *
-     * @var array $connections
+     * @var array $servers
      */
-    protected array $connections = [];
-
-    /**
-     *
-     * @var MemcachedNamespace|null $namespace
-     */
-    protected ?MemcachedNamespace $namespace = null;
+    protected array $servers = [];
 
 
     /**
@@ -77,82 +67,34 @@ class Mc implements DatastoreInterface
      *
      * @note Instance always defaults to "system" if not specified
      *
-     * @param ConnectorInterface|string|null $connector
+     * @param ConnectorInterface $o_connector
      */
-    public function __construct(ConnectorInterface|string|null $connector = null)
+    public function __construct(ConnectorInterface $o_connector)
     {
-        if (!class_exists('Memcached')) {
-            throw new PhpModuleNotAvailableException(tr('The PHP module "memcached" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo sudo apt-get -y install php-memcached; sudo phpenmod memcached" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-memcached" to install the module. After this, a restart of your webserver or php-fpm server might be needed'));
-        }
-
-        // Get the configuration for the specified instance. Always default to "system"
-        if (!$connector) {
-            $connector = 'system-mc';
-        }
+        // Ensure PHP has memcached support and that the specified connector is a memcached connector
+        static::checkDriver();
+        $o_connector->checkDriver('memcached');
 
         // Get instance information and connect to memcached servers
-        $this->setConnector($connector);
-        $this->configuration = $this->getConnectorObject()->getMemcachedConfiguration();
-        $this->memcached     = new Memcached();
-
-        try {
-            $this->setConnections($this->configuration['connections']);
-            $this->connect();
-
-        } catch (ConfigPathDoesNotExistsException) {
-            Log::warning(tr('Disabling memcached connector ":connector", no configuration found', [
-                ':connector' => $connector,
-            ]), 3);
-        }
+        $this->setConnectorObject($o_connector)
+             ->connect();
     }
 
 
-//    /**
-//     * Read the configuration for this instance
-//     *
-//     * @return void
-//     */
-//    protected function readConfiguration(): void
-//    {
-//        // Read the configuration
-//        $this->configuration = config()->getArray('databases.connectors.' . $this->instance_name);
-//
-//        // Ensure that all required keys are available
-//        Arrays::ensure($this->configuration, 'connections');
-//        Arrays::default($this->configuration, 'expires', 86400);
-//        Arrays::default($this->configuration, 'prefix', gethostname());
-//
-//        // Default connections to localhost if nothing was defined
-//        if (empty($this->configuration['connections'])) {
-//            throw ConfigPathDoesNotExistsException::new(tr('No memcached connections configured for instance ":instance"', [
-//                ':instance' => $this->instance_name,
-//            ]))->makeWarning();
-//        }
-//
-//        if (!is_array($this->configuration['connections'])) {
-//            throw new OutOfBoundsException(tr('Invalid memcached connections configured for instance ":instance", it should be an array but is an ":type"', [
-//                ':instance' => $this->instance_name,
-//                ':type'     => gettype($this->configuration['connections']),
-//            ]));
-//        }
-//
-//        // Ensure all connections are valid
-//        foreach ($this->configuration['connections'] as $weight => &$connection) {
-//            if (!is_array($connection)) {
-//                if ($connection) {
-//                    throw new ConfigurationInvalidException(tr('Configuration path ":path" contains invalid information', [
-//                        ':path' => 'databases.connectors.' . $this->instance_name . '.connections.' . $weight,
-//                    ]));
-//                }
-//
-//                // Empty connector information, default to empty array and fill up below
-//                $connection = [];
-//            }
-//
-//            Arrays::default($connection, 'host', '127.0.0.1');
-//            Arrays::default($connection, 'port', 11211);
-//        }
-//    }
+    /**
+     *
+     *
+     * @param ConnectorInterface|null $o_connector
+     * @param string|null             $database
+     *
+     * @return $this
+     */
+    public function setConnectorObject(?ConnectorInterface $o_connector = null, ?string $database = null): static {
+        $this->__setConnectorObject($o_connector, $database)
+             ->configuration = $this->getConnectorObject()->getMemcachedConfiguration();
+
+        return $this;
+    }
 
 
     /**
@@ -162,77 +104,43 @@ class Mc implements DatastoreInterface
      */
     protected function connect(): void
     {
-        if (empty($this->memcached)) {
-            // This is wonky, how did we get here without memcached being loaded?
-            throw new OutOfBoundsException(tr('Cannot connect to memcached servers, memcached driver has not been loaded'));
-        }
+        $this->memcached = new Memcached();
+        $failed = 0;
 
-        // Memcached disabled?
-        if (!config()->get('databases.memcached.enabled', true)) {
-            Log::warning('Not using memcached, its disabled by configuration "memcached.enabled"', 4);
+        // Connect to all memcached servers, but only if no servers were added yet (this should normally be the case)
+        foreach ($this->configuration['servers'] as $weight => $server) {
+            try {
+                $host = trim(Strings::until($server, ':'));
+                $port = (int) trim(Strings::from($server, ':')) ?: 11211;
 
-        } else {
-            $failed = 0;
+                $this->memcached->addServer($host, $port, $weight);
+                $this->servers[] = $server;
 
-            // Connect to all memcached servers, but only if no servers were added yet (this should normally be the case)
-            foreach ($this->configuration['connections'] as $weight => $connection) {
-                try {
-                    $this->memcached->addServer($connection['host'], $connection['port'], $weight);
-                    $this->connections[] = $connection;
+            } catch (Throwable $e) {
+                Log::warning($this->log(tr('Failed to connect to memcached server ":server" configured in path ":directory"', [
+                    ':server'    => $server,
+                    ':directory' => 'databases.connectors.' . $this->connector . '.servers.' . $weight,
+                ])));
 
-                } catch (Throwable $e) {
-                    Log::warning(tr('Failed to connect to memcached server ":host::port" in configuration directory ":directory"', [
-                        ':host'      => $connection['host'],
-                        ':port'      => $connection['port'],
-                        ':directory' => 'databases.connectors.' . $this->instance_name . '.connections.' . $weight,
-                    ]));
-                    Log::error($e);
-                    $failed++;
-                }
-            }
-
-            if ($failed) {
-                if (!$this->memcached->getServerList()) {
-                    // We haven't been able to connect to any memcached server at all!
-                    Log::warning(tr('Failed to connect to any memcached server'), 10);
-                    Notification::new()
-                                ->setUrl(Url::new('security/incidents.html')->makeWww())
-                                ->setMode(EnumDisplayMode::warning)
-                                ->setCode('not-available')
-                                ->addRole('developer')
-                                ->setTitle(tr('Memcached server not available'))
-                                ->setMessage(tr('Failed to connect to all ":count" memcached servers', [':server' => count($this->configuration['connections'])]))
-                                ->send();
-                }
+                Log::error($e);
+                $failed++;
             }
         }
-    }
 
+        if (isset($e) or $failed) {
+            // We haven't been able to connect to any memcached server at all!
+            Log::warning($this->log(tr('Failed to connect to any memcached server')), 10);
 
-    /**
-     * Return the data for the specified key (and optionally namespace)
-     *
-     * @param string      $key
-     * @param string|null $namespace
-     *
-     * @return mixed|void
-     */
-    public function get(string $key, ?string $namespace = null)
-    {
-        if (!$this->connections) {
-            return;
+            Incident::new()
+                    ->setException(isset_get($e))
+                    ->setUrl(Url::new('security/incidents.html')->makeWww())
+                    ->setNotifyRoles('developer')
+                    ->setTitle(tr('Memcached server not available'))
+                    ->setBody(tr('Failed to connect to all ":count" memcached servers', [
+                        ':server' => count($this->configuration['servers']
+                    )]))
+                    ->save();
         }
-
-        $data = $this->memcached->get($this->namespace->getKey($key, $namespace));
-
-        if ($data) {
-            Log::success(tr('Returned data for key ":key"', [':key' => $this->namespace->getKey($key, $namespace)]), 3);
-
-        } else {
-            Log::success(tr('Found no data for key ":key"', [':key' => $this->namespace->getKey($key, $namespace)]), 3);
-        }
-
-        return $data;
     }
 
 
@@ -243,7 +151,7 @@ class Mc implements DatastoreInterface
      */
     public function getActiveConnections(): array
     {
-        return $this->connections;
+        return $this->servers;
     }
 
 
@@ -252,72 +160,9 @@ class Mc implements DatastoreInterface
      *
      * @return array
      */
-    public function getConnections(): array
+    public function getConfiguredConnections(): array
     {
-        return $this->configuration['connections'];
-    }
-
-
-    /**
-     * Set the configured Mc connections
-     *
-     * @note This method will reset the currently existing connections
-     *
-     * @param array $connections
-     *
-     * @return static
-     */
-    public function setConnections(array $connections): static
-    {
-        $this->configuration['connections'] = [];
-
-        return $this->addConnections($connections);
-    }
-
-
-    /**
-     * Clear the configured Mc connections
-     *
-     * @return static
-     */
-    public function clearConnections(): static
-    {
-        $this->configuration['connections'] = [];
-
-        return $this;
-    }
-
-
-    /**
-     * Add the multiple specified connections
-     *
-     * @param array $connections
-     *
-     * @return static
-     */
-    public function addConnections(array $connections): static
-    {
-        foreach ($connections as $connection => $configuration) {
-            $this->addConnection($connection, $configuration);
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Add the specified connection
-     *
-     * @param string|int $connection_name
-     * @param array      $configuration
-     *
-     * @return static
-     */
-    public function addConnection(string|int $connection_name, array $configuration): static
-    {
-        $this->configuration['connections'][$connection_name] = $configuration;
-
-        return $this;
+        return $this->configuration['servers'];
     }
 
 
@@ -326,11 +171,11 @@ class Mc implements DatastoreInterface
      *
      * If the $key is specified, only the configuration data for that specified key will be returned
      *
-     * @param string|null $key
+     * @param string|int|null $key
      *
-     * @return string|array
+     * @return array|string|null
      */
-    public function getConfiguration(?string $key = null): string|array
+    public function getConfiguration(string|int|null $key = null): array|string|null
     {
         if ($key) {
             return isset_get($this->configuration[$key]);
@@ -341,143 +186,167 @@ class Mc implements DatastoreInterface
 
 
     /**
-     * Set the specified data to the specified key (and optionally the specified namespace)
+     * Returns the specified data to the specified key (and optionally the specified namespace)
      *
-     * @param mixed       $value
-     * @param string      $key
-     * @param string|null $namespace
-     * @param int|null    $expires
+     * @param string|float|int|null $key
+     * @param callable|null         $cache_callback An optional callback function for read-through caching
+     * @param int|null              $flags          Currently supports Memcached::GET_EXTENDED
      *
      * @return mixed
+     * @see https://www.php.net/manual/en/memcached.get.php
      */
-    public function set(mixed $value, string $key, ?string $namespace = null, ?int $expires = null)
+    public function get(string|float|int|null $key, ?callable $cache_callback = null, int $flags = null): mixed
     {
-        $key     = $this->namespace->getKey($key);
-        $expires = $expires ?? $this->configuration['expires'];
+        $value = $this->memcached->get($key, $cache_callback, $flags);
 
-        $this->memcached->set($key, $value, $expires);
+        if ($value === false) {
+            throw new MemcachedException($this->log(tr('Getting value for key ":key" failed with code ":code" and message ":message"', [
+                ':code'    => $this->memcached->getResultCode(),
+                ':message' => $this->memcached->getResultMessage()
+            ])));
+        }
 
-        Log::success(tr('Wrote ":bytes" bytes for key ":key"', [
+        Log::success($this->log(tr('Read ":bytes" bytes to memcached for key ":key"', [
             ':key'   => $key,
             ':bytes' => (is_scalar($value) ? strlen((string) $value) : count($value)),
-        ]), 3);
+        ])), 3);
 
         return $value;
     }
 
 
     /**
-     *
+     * Sets the specified key to the specified value on the memcached server(s)
      *
      * @param mixed                 $value
      * @param string|float|int|null $key
-     * @param string|null           $namespace
      * @param int|null              $expires
      *
-     * @return false|mixed
+     * @return mixed
+     * @see https://www.php.net/manual/en/memcached.set.php
      */
-    public function add(mixed $value, string|float|int|null $key, ?string $namespace = null, ?int $expires = null): mixed
+    public function set(mixed $value, string|float|int|null $key, ?int $expires = null): static
     {
-        if (!$this->connections) {
+        if (is_bool($value)) {
+            throw new MemcachedException($this->log(tr('Cannot set boolean values in memcached for key ":key"', [
+                ':key' => $key,
+            ])));
+        }
+
+        $result = $this->memcached->set($key, $value, $expires ?? $this->configuration['expires']);
+
+        if ($result) {
+            Log::success($this->log(tr('Wrote ":bytes" bytes to memcached for key ":key"', [
+                ':key'   => $key,
+                ':bytes' => (is_scalar($value) ? strlen((string) $value) : count($value)),
+            ])), 3);
+
             return $value;
         }
 
-        $key     = $this->namespace()->getKey($key, $namespace);
-        $expires = $expires ?? $this->configuration['expires'];
+        throw new MemcachedException($this->log(tr('Setting value for key ":key" failed with code ":code" and message ":message"', [
+            ':code'    => $this->memcached->getResultCode(),
+            ':message' => $this->memcached->getResultMessage()
+        ])));
+    }
 
-        if (!$this->memcached->add($value, $key, $expires)) {
-            Log::warning(tr('Failed to add ":bytes" bytes value to key ":key"', [
-                ':key'   => $key,
-                ':bytes' => strlen($value),
-            ]));
+
+    /**
+     * Adds the specified key to the memcached server(s)
+     *
+     * Requires the specified key to NOT exist, and will cause an exception if it does
+     *
+     * @param mixed                 $value
+     * @param string|float|int|null $key
+     * @param int|null              $expires
+     *
+     * @return Mc
+     */
+    public function add(mixed $value, string|float|int|null $key, ?int $expires = null): static
+    {
+        if (is_bool($value)) {
+            throw new MemcachedException($this->log(tr('Cannot add boolean values in memcached for key ":key"', [
+                ':key' => $key,
+            ])));
         }
 
-        return $value;
-    }
+        $result = $this->memcached->add($key, $value, $expires ?? $this->configuration['expires']);
 
+        if ($result) {
+            Log::success($this->log(tr('Wrote ":bytes" bytes to memcached for key ":key"', [
+                ':key'   => $key,
+                ':bytes' => (is_scalar($value) ? strlen((string) $value) : count($value)),
+            ])), 3);
 
-    /**
-     * Return the memcached namespace object
-     *
-     * @return MemcachedNamespace
-     */
-    public function namespace(): MemcachedNamespace
-    {
-        return $this->namespace;
-    }
-
-
-    /**
-     *
-     *
-     * @param mixed       $value
-     * @param string      $key
-     * @param string|null $namespace
-     * @param int|null    $expires
-     *
-     * @return false|mixed
-     */
-    public function replace(mixed $value, string $key, ?string $namespace = null, ?int $expires = null): mixed
-    {
-        if (!$this->connections) {
             return $value;
         }
 
-        $key     = $this->namespace()->getKey($key, $namespace);
-        $expires = $expires ?? $this->configuration['expires'];
-
-        if (!$this->memcached->replace($key, $value, $expires)) {
-            Log::warning(tr('Failed to replace key ":key" with ":bytes" bytes value', [
-                ':key'   => $key,
-                ':bytes' => strlen($value),
-            ]));
-        }
-
-        return $value;
+        throw new MemcachedException($this->log(tr('Adding value for key ":key" failed with code ":code" and message ":message"', [
+            ':code'    => $this->memcached->getResultCode(),
+            ':message' => $this->memcached->getResultMessage()
+        ])));
     }
 
 
     /**
-     * Delete the specified key or namespace
+     * Replaces the specified key on hte memcached server(s)
      *
-     * @param string      $key
-     * @param string|null $namespace
+     * Requires the specified key to exist, and will cause an exception if it does not
+     *
+     * @param mixed                 $value
+     * @param string|float|int|null $key
+     * @param int|null              $expires
+     *
+     * @return Mc
+     */
+    public function replace(mixed $value, string|float|int|null $key, ?int $expires = null): static
+    {
+        if (is_bool($value)) {
+            throw new MemcachedException($this->log(tr('Cannot replace keys with boolean values in memcached for key ":key"', [
+                ':key' => $key,
+            ])));
+        }
+
+        $result = $this->memcached->add($key, $value, $expires ?? $this->configuration['expires']);
+
+        if ($result) {
+            Log::success($this->log(tr('Wrote ":bytes" bytes to memcached for key ":key"', [
+                ':key'   => $key,
+                ':bytes' => (is_scalar($value) ? strlen((string) $value) : count($value)),
+            ])), 3);
+
+            return $value;
+        }
+
+        throw new MemcachedException($this->log(tr('Replacing value for key ":key" failed with code ":code" and message ":message"', [
+            ':code'    => $this->memcached->getResultCode(),
+            ':message' => $this->memcached->getResultMessage()
+        ])));
+    }
+
+
+    /**
+     * Deletes the specified key from the memcached server(s)
+     *
+     * @param string|float|int|null $key
+     * @param int|null              $time
      *
      * @return void
      */
-    public function delete(string $key, ?string $namespace = null): void
+    public function delete(string|float|int|null $key, ?int $time = null): void
     {
-        if (!$this->connections) {
-            return;
+        $result = $this->memcached->delete($key, $time);
+
+        if ($result) {
+            Log::success($this->log(tr('Deleted key ":key"', [
+                ':key' => $key,
+            ])), 3);
         }
 
-        if (!$key) {
-            if (!$namespace) {
-                // Delete what, exactly?
-                throw new OutOfBoundsException('Cannot delete memcached entry, no key specified');
-            }
-
-            // Delete the entire namespace
-            $this->namespace()->delete($namespace);
-
-        } else {
-            // Delete the key only
-            $this->memcached->delete($this->namespace->getKey($key));
-        }
-    }
-
-
-    /**
-     * Clear the entire memcache
-     *
-     * @param int $delay
-     */
-    public function clear(int $delay = 0): void
-    {
-        if (!$this->connections) {
-            return;
-        }
-        $this->memcached->flush($delay);
+        throw new MemcachedException($this->log(tr('Deleting key ":key" failed with code ":code" and message ":message"', [
+            ':code'    => $this->memcached->getResultCode(),
+            ':message' => $this->memcached->getResultMessage()
+        ])));
     }
 
 
@@ -490,27 +359,50 @@ class Mc implements DatastoreInterface
      */
     public function flush(int $delay = 0): static
     {
-        $this->memcached->flush($delay);
+        $result = $this->memcached->flush($delay);
 
-        return $this;
+        if ($result) {
+            Log::success($this->log(tr('Flushed all data with delay ":delay"', [
+                ':delay' => $delay,
+            ])), 3);
+
+            return $this;
+        }
+
+        throw new MemcachedException($this->log(tr('Flushing all data failed with code ":code" and message ":message"', [
+            ':code'    => $this->memcached->getResultCode(),
+            ':message' => $this->memcached->getResultMessage()
+        ])));
     }
 
 
     /**
      * Increment the value of the specified key
      *
-     * @param string      $key
-     * @param string|null $namespace
+     * @param string|float|int|null $key
+     * @param int                   $offset
+     * @param int                   $initial_value
+     * @param int                   $expiry
      *
-     * @return void
+     * @return static
      */
-    public function increment(string $key, ?string $namespace = null): void
+    public function increment(string|float|int|null $key, int $offset = 1, int $initial_value = 0, int $expiry = 0): static
     {
-        if (!$this->connections) {
-            return;
+        $result = $this->memcached->increment($key, $offset, $initial_value, $expiry);
+
+        if ($result) {
+            Log::success($this->log(tr('Incremented key ":key" by ":offset"', [
+                ':key'    => $key,
+                ':offset' => $offset,
+            ])), 3);
+
+            return $this;
         }
 
-        $this->memcached->increment($this->namespace->getKey($key, $namespace));
+        throw new MemcachedException($this->log(tr('Incrementing value for key ":key" failed with code ":code" and message ":message"', [
+            ':code'    => $this->memcached->getResultCode(),
+            ':message' => $this->memcached->getResultMessage()
+        ])));
     }
 
 
@@ -519,16 +411,38 @@ class Mc implements DatastoreInterface
      *
      * @return array
      */
-    public function stats(): array
+    public function getStatistics(): array
     {
         $stats = $this->memcached->getStats();
 
-        if (!$stats) {
-            // No stats data available, but this might be FALSE, return [] to ensure proper datatype for return
-            return [];
+        if ($stats === false) {
+            throw new MemcachedException($this->log(tr('Failed to return statistics with code ":code" and message ":message"', [
+                ':code'    => $this->memcached->getResultCode(),
+                ':message' => $this->memcached->getResultMessage()
+            ])));
         }
 
         return $stats;
+    }
+
+
+    /**
+     * Return statistics for this memcached instance
+     *
+     * @return array
+     */
+    public function getAllKeys(): array
+    {
+        $return = $this->memcached->getAllKeys();
+
+        if ($return === false) {
+            throw new MemcachedException($this->log(tr('Failed to return all keys with code ":code" and message ":message"', [
+                ':code'    => $this->memcached->getResultCode(),
+                ':message' => $this->memcached->getResultMessage()
+            ])));
+        }
+
+        return $return;
     }
 
 
@@ -542,5 +456,31 @@ class Mc implements DatastoreInterface
         throw new UnderConstructionException();
 
         return $this;
+    }
+
+
+    /**
+     * Ensures that the PHP memcached driver is loaded and available
+     *
+     * @return void
+     */
+    public static function checkDriver(): void
+    {
+        if (!class_exists('Memcached')) {
+            throw new PhpModuleNotAvailableException(tr('The PHP module "memcached" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo sudo apt-get -y install php-memcached; sudo phpenmod memcached" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-memcached" to install the module. After this, a restart of your webserver or php-fpm server might be needed'));
+        }
+    }
+
+
+    /**
+     * Prepares and returns the specified log message
+     *
+     * @param string $message
+     *
+     * @return string
+     */
+    protected function log(string $message): string
+    {
+        return '[MC ' . $this->connector . ']' . $message;
     }
 }

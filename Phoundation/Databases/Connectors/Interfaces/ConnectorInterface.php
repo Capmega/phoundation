@@ -363,7 +363,7 @@ interface ConnectorInterface extends DataEntryInterface
      *
      * @return bool|null
      */
-    public function getPersist(): ?bool;
+    public function getPersistent(): ?bool;
 
     /**
      * Sets the persist flag for this connector
@@ -372,7 +372,7 @@ interface ConnectorInterface extends DataEntryInterface
      *
      * @return static
      */
-    public function setPersist(int|bool|null $persist): static;
+    public function setPersistent(int|bool|null $persist): static;
 
     /**
      * Returns the init flag for this connector
