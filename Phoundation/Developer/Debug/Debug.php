@@ -146,7 +146,7 @@ class Debug
      *
      * @return array
      */
-    public static function getBacktrace(string|int|null $start = null, string|int|null $stop = null, array|string $remove_keys = ['args', 'object']): array
+    public static function getBacktrace(string|int|null $start = null, string|int|null $stop = null, array|string $remove_keys = ['args', 'object'], bool $short_files = true): array
     {
         $trace       = [];
         $remove_keys = Arrays::force($remove_keys);
@@ -186,6 +186,10 @@ class Debug
                     // Start building backtrace at specified entry
                     continue;
                 }
+            }
+
+            if ($short_files) {
+                $value['file'] = Strings::from(Strings::from(isset_get($value['file']), DIRECTORY_ROOT), DIRECTORY_PHOUNDATION);
             }
 
             foreach ($remove_keys as $section) {
@@ -461,7 +465,8 @@ class Debug
     {
         $backtrace = debug_backtrace();
 
-        return isset_get($backtrace[$trace + 1]['file'], $default);
+        // TODO Improve upon this. File could start with DIRECTORY_ROOT, DIRECTORY_PHOUNDATION, DIRECTORY_PLUGINS, DIRECTORY_TEMPLATES, and each could be completely different but the resulting file should also contain the basename of DIRECTORY_PHOUNDATION, DIRECTORY_PLUGINS, DIRECTORY_TEMPLATES
+        return Strings::from(Strings::from((string) isset_get($backtrace[$trace + 1]['file'], $default), DIRECTORY_ROOT), DIRECTORY_PHOUNDATION);
     }
 
 
@@ -1077,6 +1082,7 @@ class Debug
             //
             // Would cause the query to look like `category` = "test", `category_id` = "test"_id
             krsort($execute);
+
             if (is_object($query)) {
                 // Query to be debugged is a PDO statement, extract the query
                 if (!($query instanceof PDOStatement)) {
