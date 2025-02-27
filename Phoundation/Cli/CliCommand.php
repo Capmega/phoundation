@@ -785,6 +785,11 @@ class CliCommand
         // Remove subprocess run directory
         Process::deleteRunDirectory();
 
+        if (Log::syslogIsOpen()) {
+            // Close the syslog
+            closelog();
+        }
+
         exit($exit_code);
     }
 
