@@ -444,10 +444,14 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             return Strings::log(($this->getId(false)) ?? tr('N/A')) . ' / ' . $this->getNickname();
         }
 
-        $id    = $this->getTypesafe('int', $this->getIdColumn());
+        $id    = $this->getTypesafe('int'       , $this->getIdColumn());
         $label = $this->getTypesafe('string|int', static::getUniqueColumn() ?? 'id');
 
-        return Strings::log($id) . ' / ' . $label;
+        if ($label == $id) {
+            return Strings::log($id);
+        }
+
+        return Strings::log($id . ' / ' . $label);
     }
 
 
@@ -852,54 +856,64 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     /**
      * Notifies the "accounts" role about a change in this user
      *
-     * @return void
+     * @return static
      */
-    protected function notifyRoleAccountsAboutWrite(): void
+    protected function notifyRoleAccountsAboutWrite(): static
     {
-        if (!Core::inInitState()) {
-            if ($this->isCreated()) {
-                Incident::new()
-                        ->setSeverity(EnumSeverity::low)
-                        ->setType('security')
-                        ->setTitle(tr('User created'))
-                        ->setBody(tr('The administrator ":admin" created the user ":user"', [
-                            ':admin' => Session::getUserObject()->getLogId(),
-                            ':user'  => $this->getLogId(),
-                        ]))
-                        ->setDetails(['user' => $this->getLogId()])
-                        ->setNotifyRoles('accounts')
-                        ->save();
-
-            } else {
-                if (Session::getUserObject()->getId() === $this->getId()) {
-                    Incident::new()
-                            ->setSeverity(EnumSeverity::low)
-                            ->setType('security')
-                            ->setTitle(tr('User modified'))
-                            ->setBody(tr('The user ":user" modified their own account, see audit ":meta_id" for more information', [
-                                ':user'    => $this->getLogId(),
-                                ':meta_id' => $this->getMetaId(),
-                            ]))
-                            ->setDetails(['user' => $this->getLogId()])
-                            ->setNotifyRoles('accounts')
-                            ->save();
-
-                } else {
-                    Incident::new()
-                            ->setSeverity(EnumSeverity::low)
-                            ->setType('security')
-                            ->setTitle(tr('User modified'))
-                            ->setBody(tr('The administrator ":admin" modified the user ":user", see audit ":meta_id" for more information', [
-                                ':admin'   => Session::getUserObject()->getLogId(),
-                                ':user'    => $this->getLogId(),
-                                ':meta_id' => $this->getMetaId(),
-                            ]))
-                            ->setDetails(['user' => $this->getLogId()])
-                            ->setNotifyRoles('accounts')
-                            ->save();
-                }
-            }
+        if (Core::inInitState()) {
+            // Don't notify for actions executed during INIT state
+            return $this;
         }
+
+        if ($this->isCreated()) {
+            // An administrator created a new user
+            Incident::new()
+                    ->setSeverity(EnumSeverity::low)
+                    ->setType('security')
+                    ->setTitle(tr('User created'))
+                    ->setBody(tr('The administrator ":admin" created the user ":user"', [
+                        ':admin' => Session::getUserObject()->getLogId(),
+                        ':user'  => $this->getLogId(),
+                    ]))
+                    ->setDetails(['user' => $this->getLogId()])
+                    ->setNotifyRoles('accounts')
+                    ->save();
+
+            return $this;
+        }
+
+        if (Session::getUserObject()->getId() === $this->getId()) {
+            // A user updated its own account
+            Incident::new()
+                    ->setSeverity(EnumSeverity::low)
+                    ->setType('security')
+                    ->setTitle(tr('User modified'))
+                    ->setBody(tr('The user ":user" modified their own account, see audit ":meta_id" for more information', [
+                        ':user'    => $this->getLogId(),
+                        ':meta_id' => $this->getMetaId(),
+                    ]))
+                    ->setDetails(['user' => $this->getLogId()])
+                    ->setNotifyRoles('accounts')
+                    ->save();
+
+            return $this;
+        }
+
+        // An administrator updated a user
+        Incident::new()
+                ->setSeverity(EnumSeverity::low)
+                ->setType('security')
+                ->setTitle(tr('User modified'))
+                ->setBody(tr('The administrator ":admin" modified the user ":user", see audit ":meta_id" for more information', [
+                    ':admin'   => Session::getUserObject()->getLogId(),
+                    ':user'    => $this->getLogId(),
+                    ':meta_id' => $this->getMetaId(),
+                ]))
+                ->setDetails(['user' => $this->getLogId()])
+                ->setNotifyRoles('accounts')
+                ->save();
+
+        return $this;
     }
 
 
