@@ -3492,6 +3492,80 @@ class Arrays extends Utils
 
 
     /**
+     * Goes over each entry in the array and makes the key lowercase
+     *
+     * @param array $source         The source array containing keys that should be lowercase
+     *
+     * @return array                The array with all keys updated to lowercase
+     */
+    public static function convertKeysToLowercase(array $source): array
+    {
+        $return = [];
+
+        foreach ($source as $key => $value) {
+            $return[strtoupper($key)] = $value;
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Goes over each entry in the array and makes the key uppercase
+     *
+     * @param array $source The source array containing keys that should be uppercase
+     *
+     * @return array                The array with all keys updated to uppercase
+     */
+    public static function convertKeysToUppercase(array $source): array
+    {
+        $return = [];
+
+        foreach ($source as $key => $value) {
+            $return[strtoupper($key)] = $value;
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Goes over each entry in the array and translates string keys to its constant counterpart
+     *
+     * @param array $source         The source array containing keys that should be translated to constant values
+     *
+     * @return array                The array with all keys updated to (possibly integer) constant values
+     */
+    public static function convertKeysToConstants(array $source): array
+    {
+        $return = [];
+
+        foreach ($source as $key => $value) {
+            if (is_string($key)) {
+                $key = constant($key);
+            }
+
+            $return[$key] = $value;
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Re-indexes the given array
+     *
+     * @param array $source
+     *
+     * @return array
+     */
+    public static function reindex(array $source): array
+    {
+        return array_values($source);
+    }
+
+
+    /**
      * Remove empty values from the given array
      *
      * @param array $source The array to be filtered

@@ -81,12 +81,15 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Utils\Exception\ConfigEnvironmentDoesNotExistException;
+use Phoundation\Utils\Exception\ConfigEnvironmentNotSetException;
 use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Exception\ConfigFailedException;
 use Phoundation\Utils\Exception\ConfigFileDoesNotExistsException;
 use Phoundation\Utils\Exception\ConfigParseFailedException;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Exception\ConfigReadFailedException;
+use Phoundation\Web\Html\Components\P;
 use Throwable;
 
 class Config implements ConfigInterface
@@ -700,6 +703,37 @@ class Config implements ConfigInterface
 
 
     /**
+     * Return configuration STRING for the specified key path
+     *
+     * @note Will throw an exception if a non string value is returned!
+     *
+     * @param string|array $path
+     * @param string|null  $default
+     *
+     * @return array|string
+     */
+    public function getArrayString(string|array $path, string|null $default = null): array|string
+    {
+        $return = $this->get($path, $default);
+
+        if (is_string($return)) {
+            return $return;
+        }
+
+        if (is_array($return)) {
+            return $return;
+        }
+
+        throw ConfigException::new(tr('The configuration path ":path" should be an array or a string but has value ":value"', [
+            ':path'  => $path,
+            ':value' => $return,
+        ]))->addData([
+            'value' => $return
+        ]);
+    }
+
+
+    /**
      * Return configuration STRING or BOOLEAN for the specified key path
      *
      * @note Will throw an exception if a non-string and non-bool value is returned!
@@ -1153,6 +1187,11 @@ class Config implements ConfigInterface
     protected function read(bool $include_production = true): bool
     {
         try {
+            if ($this->failed) {
+                // The Config class is in failed state, do not load more configuration files
+                return false;
+            }
+
             if (!$this->environment) {
                 // We don't really have an environment, don't read configuration
                 return false;
@@ -1186,6 +1225,7 @@ class Config implements ConfigInterface
             foreach ($environments as $environment) {
                 try {
                     $file = DIRECTORY_ROOT . 'config/environments/' . $environment . '/' . $this->section . '.yaml';
+
                     if (Core::isReady()) {
                         // Only check restrictions if Core is ready to avoid endless loops
                         PhoRestrictions::new(DIRECTORY_ROOT . 'config/')
@@ -1196,8 +1236,16 @@ class Config implements ConfigInterface
                     if (!file_exists($file)) {
                         if ($environment === 'production') {
                             // Do NOT use tr() here as it will cause endless loops!
-                            throw ConfigFileDoesNotExistsException::new('Production Configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" does not exist')
+                            throw ConfigFileDoesNotExistsException::new('Production configuration file "' . Strings::from($file, DIRECTORY_ROOT) . '" does not exist')
                                                                   ->makeWarning();
+                        }
+
+                        // Check if the directory for this environment exists. If it does not, then we conclude that the
+                        // environment does not exist
+                        if (!file_exists(dirname($file))) {
+                            // Do NOT use tr() here as it will cause endless loops!
+                            throw ConfigEnvironmentDoesNotExistException::new('Environment "' . $environment . '" does not exist')
+                                                                        ->makeWarning();
                         }
 
                         continue;
@@ -1305,5 +1353,16 @@ class Config implements ConfigInterface
     public function getFailed(): string|false
     {
         return $this->failed;
+    }
+
+
+    /**
+     * Returns the source of this configuration object
+     *
+     * @return array
+     */
+    public function getSource(): array
+    {
+        return $this->data;
     }
 }

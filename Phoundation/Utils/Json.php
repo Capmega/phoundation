@@ -58,10 +58,15 @@ class Json
             return '';
         }
 
-        $return = json_encode($source, $options, $depth);
+        try {
+            $return = json_encode($source, $options | JSON_THROW_ON_ERROR, $depth);
 
-        if (json_last_error()) {
-            throw new JsonException(tr('JSON encoding failed with :error', [':error' => json_last_error_msg()]));
+            if (json_last_error()) {
+                throw new JsonException(tr('JSON encoding failed with :error', [':error' => json_last_error_msg()]));
+            }
+
+        } catch (\JsonException $e) {
+            throw new JsonException(tr('JSON encoding failed with :error', [':error' => json_last_error_msg()]), $e);
         }
 
         return $return;
@@ -135,10 +140,15 @@ class Json
             return null;
         }
 
-        $return = json_decode($source, $as_array, $depth, $options);
+        try {
+            $return = json_decode($source, $as_array, $depth, $options | JSON_THROW_ON_ERROR);
 
-        if (json_last_error()) {
-            throw new JsonException(tr('JSON decoding failed with ":error"', [':error' => json_last_error_msg()]));
+            if (json_last_error()) {
+                throw new JsonException(tr('JSON decoding failed with ":error"', [':error' => json_last_error_msg()]));
+            }
+
+        } catch (\JsonException $e) {
+            throw new JsonException(tr('JSON decoding failed with :error', [':error' => json_last_error_msg()]), $e);
         }
 
         return $return;
