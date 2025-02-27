@@ -39,6 +39,7 @@ use Phoundation\Core\Exception\ProjectException;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Libraries\Version;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Tmp;
 use Phoundation\Data\Traits\TraitDataStaticExecuted;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -285,7 +286,7 @@ class CliCommand
     #[NoReturn] public static function execute(): void
     {
         // Get parameters, get the command to execute, get a run file
-        $parameters = CliCommand::startup();
+        $parameters = CliCommand::start();
 
         CliCommand::setCommandOrExecuteDocumentation($parameters);
         CliCommand::$run_file = new CliRunFile(CliCommand::$command_file);
@@ -374,7 +375,7 @@ class CliCommand
      *
      * @return array
      */
-    public static function startup(): array
+    public static function start(): array
     {
         if (CliCommand::$started_up) {
             throw new CliCommandException(tr('Cannot startup the CliCommand class, it has already been started up'));
@@ -1787,6 +1788,9 @@ return 'under construction';
 
         // Set environment
         Core::setEnvironment($environment);
+
+        // Set session configuration in case session data must be accessed
+        Session::setIni();
 
         // Define basic platform constants
         define('ADMIN'     , '');

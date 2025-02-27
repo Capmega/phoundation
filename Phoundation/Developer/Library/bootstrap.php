@@ -29,5 +29,5 @@ try {
 }
 
 // Startup Phoundation Core
-CliCommand::startup();
+CliCommand::start();
 Core::setUnitTestMode(true);
