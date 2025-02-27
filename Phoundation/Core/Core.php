@@ -386,16 +386,17 @@ class Core implements CoreInterface
                                ->addFix(tr('If the "data/" directory is a symlink to another directory, please ensure that the symlink is valid and points to a directory that exists'));
         }
 
-        define('DIRECTORY_DATA'    , $data . '/');
-        define('DIRECTORY_SYSTEM'  , DIRECTORY_DATA   . 'system/');
-        define('DIRECTORY_CDN'     , DIRECTORY_DATA   . 'content/cdn/');
-        define('DIRECTORY_PUBTMP'  , DIRECTORY_CDN    . 'content/cdn/tmp/');
-        define('DIRECTORY_TMP'     , DIRECTORY_SYSTEM . 'tmp/');
-        define('DIRECTORY_COMMANDS', DIRECTORY_SYSTEM . 'cache/system/commands/');
-        define('DIRECTORY_HOOKS'   , DIRECTORY_SYSTEM . 'cache/system/hooks/');
-        define('DIRECTORY_WEB'     , DIRECTORY_SYSTEM . 'cache/system/web/');
-        define('DIRECTORY_CRON'    , DIRECTORY_SYSTEM . 'cache/system/cron/');
-        define('DIRECTORY_TESTS'   , DIRECTORY_SYSTEM . 'cache/system/Tests/');
+        define('DIRECTORY_DATA'       , $data . '/');
+        define('DIRECTORY_SYSTEM'     , DIRECTORY_DATA   . 'system/');
+        define('DIRECTORY_CDN'        , DIRECTORY_DATA   . 'content/cdn/');
+        define('DIRECTORY_PUBTMP'     , DIRECTORY_CDN    . 'tmp/');
+        define('DIRECTORY_TMP'        , DIRECTORY_SYSTEM . 'tmp/');
+        define('DIRECTORY_COMMANDS'   , DIRECTORY_SYSTEM . 'cache/system/commands/');
+        define('DIRECTORY_HOOKS'      , DIRECTORY_SYSTEM . 'cache/system/hooks/');
+        define('DIRECTORY_WEB'        , DIRECTORY_SYSTEM . 'cache/system/web/');
+        define('DIRECTORY_CRON'       , DIRECTORY_SYSTEM . 'cache/system/cron/');
+        define('DIRECTORY_TESTS'      , DIRECTORY_SYSTEM . 'cache/system/Tests/');
+        define('DIRECTORY_PHOUNDATION', realpath(__DIR__ . '/..') . '/');
     }
 
 
@@ -718,11 +719,6 @@ class Core implements CoreInterface
             }
         }
 
-        if (Log::syslogIsOpen()) {
-            // Close the syslog
-            closelog();
-        }
-
         exit();
     }
 
@@ -1025,11 +1021,6 @@ class Core implements CoreInterface
         // Uncomment the following line in case the exception handler is not working correctly and does not display exceptions
         //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); exit();
 
-        // Make sure that the uncaught exception handler doesn't end in a loop if it crashes by itself
-        if (!Core::isReady()) {
-            Core::setScriptState();
-        }
-
         Core::uncaughtExceptionHandlerAvoidEndlessLoop($e);
 
         // Track state
@@ -1056,29 +1047,30 @@ class Core implements CoreInterface
         // Start processing the uncaught exception
         try {
             try {
-                if (!defined('PLATFORM')) {
-                    // The system crashed before platform detection.
-                    Log::error(tr('*** UNCAUGHT EXCEPTION ":class" IN ":type" TYPE SCRIPT ":command" ***', [
-                        ':class'   => get_class($e),
-                        ':type'    => Request::getRequestType()->value,
-                        ':command' => Strings::from(Core::getExecutedPath(), DIRECTORY_COMMANDS),
-                    ]));
+                if (Core::isReady()) {
+                    // Register exception incident in the database
+                    Core::registerUncaughtExceptionIncident($e);
 
-                    Log::error($e);
+                    // Process platform-specific handling of this exception
+                    switch (PLATFORM) {
+                        case 'cli':
+                            Core::processUncaughtCliException($e, $state);
 
-                    exit('exception before platform detection');
+                        case 'web':
+                            Core::processUncaughtWebException($e, $state);
+                    }
                 }
 
-                // Register exception incident in the database
-                Core::registerUncaughtExceptionIncident($e);
+                // The system crashed before Core wsa ready
+                Log::error(tr('*** UNCAUGHT STARTUP EXCEPTION ":class" IN ":type" TYPE SCRIPT ":command" ***', [
+                    ':class'   => get_class($e),
+                    ':type'    => Request::getRequestType()->value,
+                    ':command' => Strings::from(Core::getExecutedPath(), DIRECTORY_COMMANDS),
+                ]));
 
-                switch (PLATFORM) {
-                    case 'cli':
-                        Core::processUncaughtCliException($e, $state);
+                Log::error($e);
 
-                    case 'web':
-                        Core::processUncaughtWebException($e, $state);
-                }
+                exit('exception before platform detection');
 
             } catch (Throwable $f) {
                 // Great! The uncaught exception handler caused an exception itself! Try to log / notify both
@@ -1088,8 +1080,6 @@ class Core implements CoreInterface
         } catch (Throwable $g) {
             Core::uncaughtExceptionHandlerCrash($e, $f, $g);
         }
-
-        exit(1);
     }
 
 
@@ -2806,46 +2796,49 @@ class Core implements CoreInterface
      */
     protected static function registerUncaughtExceptionIncident(Throwable $e): void
     {
-        // Don't register warning exceptions
-        if (!$e->isWarning()) {
-            if (Core::getReadonly()) {
-                Log::error('Not attempting to register the following uncaught exception incident in the database, system is in readonly mode');
+        // We can only register exceptions when Core is ready
+        if (Core::isReady()) {
+            // Don't register warning exceptions
+            if (!$e->isWarning()) {
+                if (Core::getReadonly()) {
+                    Log::error('Not attempting to register the following uncaught exception incident in the database, system is in readonly mode');
 
-            } else {
-                if (defined('ENVIRONMENT')) {
-                    if ($e instanceof EnvironmentNotExistsException) {
-                        // Don't register the uncaught exception incident, the exception is the environment does not exist
-                        Log::error(tr('Not attempting to register the following uncaught exception incident in the database, environment ":environment" does not exist', [
-                            ':environment' => ENVIRONMENT
-                        ]));
+                } else {
+                    if (defined('ENVIRONMENT')) {
+                        if ($e instanceof EnvironmentNotExistsException) {
+                            // Don't register the uncaught exception incident, the exception is the environment does not exist
+                            Log::error(tr('Not attempting to register the following uncaught exception incident in the database, environment ":environment" does not exist', [
+                                ':environment' => ENVIRONMENT
+                            ]));
 
-                    } else {
-                        // Only notify and register developer incident if we're on production
-                        if (Core::isProductionEnvironment()) {
-                            // We CAN only notify if Core is ready
-                            if (Core::isReady()) {
-                                try {
-                                    $e->registerIncident(EnumSeverity::severe);
+                        } else {
+                            // Only notify and register developer incident if we're on production
+                            if (Core::isProductionEnvironment()) {
+                                // We CAN only notify if Core is ready
+                                if (Core::isReady()) {
+                                    try {
+                                        $e->registerIncident(EnumSeverity::severe);
 
-                                } catch (Throwable $f) {
-                                    Log::error(tr('Failed to register uncaught exception because of the following exception'));
-                                    Log::error($f);
-                                }
+                                    } catch (Throwable $f) {
+                                        Log::error(tr('Failed to register uncaught exception because of the following exception'));
+                                        Log::error($f);
+                                    }
 
-                                try {
-                                    $e->getNotificationObject()
-                                      ->send(false);
+                                    try {
+                                        $e->getNotificationObject()
+                                          ->send(false);
 
-                                } catch (Throwable $f) {
-                                    Log::error(tr('Failed to notify developers of uncaught exception because of the following exception'));
-                                    Log::error($f);
+                                    } catch (Throwable $f) {
+                                        Log::error(tr('Failed to notify developers of uncaught exception because of the following exception'));
+                                        Log::error($f);
+                                    }
                                 }
                             }
                         }
-                    }
 
-                } else {
-                    Log::error('Not attempting to register the following uncaught exception incident, environment has not yet been defined');
+                    } else {
+                        Log::error('Not attempting to register the following uncaught exception incident, environment has not yet been defined');
+                    }
                 }
             }
         }
@@ -2936,9 +2929,9 @@ class Core implements CoreInterface
      * @param Throwable $e
      * @param string    $state
      *
-     * @return void
+     * @return never
      */
-    #[NoReturn] protected static function processUncaughtCliException(Throwable $e, string $state): void
+    #[NoReturn] protected static function processUncaughtCliException(Throwable $e, string $state): never
     {
         // Command line command crashed.
         // If not using Debug::enabled() mode, then try to give nice error messages for known issues
@@ -3007,9 +3000,9 @@ class Core implements CoreInterface
      * @param Throwable $e
      * @param string    $state
      *
-     * @return void
+     * @return never
      */
-    #[NoReturn] protected static function processUncaughtWebException(Throwable $e, string $state): void
+    #[NoReturn] protected static function processUncaughtWebException(Throwable $e, string $state): never
     {
         if ($e instanceof ValidationFailedException) {
             // This is just a simple validation warning, show warning messages in the exception data

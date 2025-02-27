@@ -35,9 +35,11 @@ use Phoundation\Data\DataEntries\Exception\DataEntryStatusException;
 use Phoundation\Data\Traits\TraitDataStaticFlashMessages;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Databases\Mc;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
@@ -508,16 +510,32 @@ class Session implements SessionInterface
         // Set session and cookie parameters
         try {
             if (config()->getBoolean('web.sessions.enabled', true)) {
+                $handler = config()->getString('web.sessions.handler', 'files');
+
                 // Force session cookie configuration
-                ini_set('session.gc_maxlifetime' , config()->getBoolString('web.sessions.timeout', true));
+                ini_set('session.gc_maxlifetime' , config()->getInteger('web.sessions.timeout', 86400));
                 ini_set('session.cookie_lifetime', config()->getInteger('web.sessions.cookies.lifetime', 0));
                 ini_set('session.use_strict_mode', config()->getBoolean('web.sessions.cookies.strict_mode', true));
                 ini_set('session.name'           , config()->getString('web.sessions.cookies.name', 'phoundation'));
                 ini_set('session.cookie_httponly', config()->getBoolean('web.sessions.cookies.http-only', true));
                 ini_set('session.cookie_secure'  , config()->getBoolean('web.sessions.cookies.secure', true));
                 ini_set('session.cookie_samesite', config()->getBoolean('web.sessions.cookies.same-site', true));
-                ini_set('session.save_handler'   , config()->getString('sessions.handler', 'files'));
-                ini_set('session.save_path'      , config()->getString('sessions.path', DIRECTORY_SYSTEM . 'sessions/'));
+                ini_set('session.save_handler'   , $handler);
+                ini_set('session.save_path'      , Strings::force(config()->getArrayString('web.sessions.save-path', DIRECTORY_SYSTEM . 'sessions/'), ';'));
+
+                // Are we using memcached?
+                if ($handler === 'memcached') {
+                    // Do we have the memcached driver loaded?
+                    Mc::checkDriver();
+
+                    // Remove the memcached session prefix, we don't want or need people to know we use memcached
+                    ini_set('memcached.sess_prefix', '');
+
+                    // Is memcached enabled?
+                    if (!config()->getBoolean('databases.memcached.enabled', true)) {
+                        throw new SessionException(tr('Cannot use memcached session handler (Configured in web.sessions.handler) because memcached is not enabled'));
+                    }
+                }
 
                 if (config()->getBoolean('web.sessions.check-referrer', true)) {
                     ini_set('session.referer_check', static::$domain);
@@ -631,7 +649,7 @@ class Session implements SessionInterface
                 break;
 
             case 'memcached':
-                // no break
+                break;
 
             case 'redis':
                 // no break
@@ -650,8 +668,16 @@ class Session implements SessionInterface
                 ]));
         }
 
-        // Start session
+        // Start session. Two log entries are added around it to more easily debug issues with PHP session starting
+        Log::action(tr('About to start session ":session"', [
+            ':session' => session_id() ?: 'new',
+        ]), 1);
+
         session_start();
+
+        Log::success(tr('Started session ":session"', [
+            ':session' => session_id() ?: 'new',
+        ]), 2);
 
         static::$user              = null;
         static::$impersonated_user = null;
