@@ -1377,7 +1377,7 @@ class Request implements RequestInterface
         switch ($request_type) {
             case EnumRequestTypes::api:
                 // Manually startup session for API requests
-                Session::startup();
+                Session::start();
                 break;
 
             case EnumRequestTypes::unsupported:
@@ -1414,7 +1414,7 @@ class Request implements RequestInterface
 
         if (!Session::hasStartedUp()) {
             // Start session here because the reply will need it
-            Session::startup();
+            Session::start();
         }
 
         switch (static::getRequestType()) {
@@ -1666,7 +1666,7 @@ class Request implements RequestInterface
 
                 if (!static::$stack_level) {
                     // Start session only for AJAX and HTML requests
-                    Session::startup();
+                    Session::start();
                 }
 
                 Log::action(tr('Executing AJAX page ":target" on stack level ":level" with in language ":language" and sending output as AJAX API page', [
@@ -1688,7 +1688,7 @@ class Request implements RequestInterface
                 if (!static::$stack_level) {
                     // Start session only for AJAX and HTML requests
                     // Initialize the flash messages
-                    Session::startup();
+                    Session::start();
                     Response::getFlashMessagesObject()->addSource(Session::getFlashMessagesObject());
                 }
 

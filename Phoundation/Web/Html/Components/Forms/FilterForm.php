@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Forms;
 
+use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Accounts\Users\User;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\Definitions;
@@ -38,6 +40,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Forms\Interfaces\FilterFormInterface;
 use Phoundation\Web\Html\Components\Input\InputDateRange;
+use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Enums\EnumInputType;
@@ -80,6 +83,13 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      * @var IteratorInterface $apply_filters
      */
     protected IteratorInterface $apply_filters;
+
+    /**
+     * Tracks if special users should be filtered out
+     *
+     * @var bool $filter_special_users
+     */
+    protected bool $filter_special_users = true;
 
 
     /**
@@ -153,9 +163,9 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                                                ->setSourceQuery('SELECT    `accounts_users`.`id`, COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `accounts_users`.`first_names`, `accounts_users`.`last_names`)), ""), `accounts_users`.`nickname`, `accounts_users`.`username`, `accounts_users`.`email`, "' . tr('System') . '") AS `name` 
                                                                                                  FROM      `accounts_users`
                                                                                                  JOIN      `accounts_users_rights` ON `accounts_users_rights`.`users_id` = `accounts_users`.`id` AND `accounts_users_rights`.`name` = "biller"                                        
-                                                                                                 LEFT JOIN `accounts_users_rights` AS `exclude` ON `exclude`.`users_id` = `accounts_users`.`id` AND `exclude`.`name` IN (' . implode(',', Arrays::quote(config()->getArray('accounts.rights.test', ['developer', 'test', 'demo']))) . ')
+                                                                                                 ' . ($this->filter_special_users ? ' LEFT JOIN `accounts_users_rights` AS `exclude` ON `exclude`.`users_id` = `accounts_users`.`id` AND `exclude`.`name` IN (' . implode(',', Arrays::quote(config()->getArray('accounts.rights.test', ['developer', 'test', 'demo']))) . ') ' : null) . '
                                                                                                  WHERE     `accounts_users`.`status` IS NULL
-                                                                                                   AND     `exclude`.`id` IS NULL
+                                                                                                 ' . ($this->filter_special_users ? '  AND     `exclude`.`id` IS NULL' : null) . '
                                                                                                  ORDER BY  `name`')
                                                                                ->setAutoSubmit(true)
                                                                                ->setName($field_name)
@@ -173,6 +183,31 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
         // Auto apply
         $this->applyValidator(self::class);
+    }
+
+
+    /**
+     * Returns if special users will be filtered
+     *
+     * @return bool
+     */
+    public function getFilterSpecialUsers(): bool
+    {
+        return $this->filter_special_users;
+    }
+
+
+    /**
+     * Sets if special users should be filtered
+     *
+     * @param bool $filter
+     *
+     * @return $this
+     */
+    public function setFilterSpecialUsers(bool $filter): static
+    {
+        $this->filter_special_users = $filter;
+        return $this;
     }
 
 
@@ -422,6 +457,17 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
     public function getUsersId(): ?int
     {
         return get_null((int) $this->get('users_id'));
+    }
+
+
+    /**
+     * Returns the filtered user object
+     *
+     * @return UserInterface|null
+     */
+    public function getUserObject(): ?UserInterface
+    {
+        return User::new()->loadOrNull($this->getUsersId());
     }
 
 

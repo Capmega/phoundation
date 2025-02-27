@@ -280,11 +280,6 @@ class Route
             // Set environment and protocol
             Core::setEnvironment($environment);
 
-            if (str_ends_with($_SERVER['REQUEST_URI'], 'favicon.ico')) {
-                // By default, increase logger threshold on all favicon.ico requests to avoid log clutter
-                Log::setThreshold(config()->getInteger('log.levels.web.favicon', 10));
-            }
-
             // Register basic HTTP information
 //                    static::$register['http']['accepts'] = Request::accepts();
 //                    static::$register['http']['accepts_languages'] = Request::acceptsLanguages();
