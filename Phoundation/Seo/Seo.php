@@ -198,6 +198,8 @@ class Seo
      */
     public static function string($source, $replace = '-')
     {
+        $source = (string) $source;
+
         if (Strings::isUtf8($source)) {
             // Clean up string
             $source = mb_strtolower(trim(mb_strip_tags($source)));
