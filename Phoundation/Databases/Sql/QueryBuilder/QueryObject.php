@@ -18,7 +18,6 @@ namespace Phoundation\Databases\Sql\QueryBuilder;
 
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
-use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryObjectInterface;
 use Phoundation\Exception\OutOfBoundsException;
@@ -39,6 +38,11 @@ class QueryObject implements QueryObjectInterface
      * @var int $limit_count
      */
     protected int $limit_count = 0;
+
+    /**
+     * @var int $int_count
+     */
+    protected int $in_count = 0;
 
     /**
      * Select part of query
@@ -559,9 +563,11 @@ class QueryObject implements QueryObjectInterface
             case 'NULL':
                 return ' IS NULL ';
 
+            case 'integer':
+                return $this->compareQuery($column, (string) $value);
+
             case 'string':
                 $this->execute[Strings::ensureStartsWith($column, ':')] = $value;
-
                 return ' = :' . $column . ' ';
 
             case 'array':
@@ -584,6 +590,43 @@ class QueryObject implements QueryObjectInterface
                 }
 
                 return ' = IN (' . implode(', ', $columns) . ') ';
+        }
+
+        throw new OutOfBoundsException(tr('Unknown / unsupported datatype specified for value ":value"', [
+            ':value' => $value,
+        ]));
+    }
+
+
+    /**
+     * Adds a WHERE = or WHERE IN depending on parameter type
+     *
+     * @param string                $column
+     * @param array|string|int|null $value
+     *
+     * @return static
+     */
+    public function addWhereIn(string $column, array|string|int|null $value): static
+    {
+        $this->in_count++;
+
+        switch (gettype($value)) {
+            case 'NULL':
+                return $this;
+
+            case 'integer':
+            case 'string':
+                return $this->addWhere($column . ' = :value' . $this->in_count, ['value'. $this->in_count => $value]);
+
+            case 'array':
+                switch (count($value)) {
+                    case 0:
+                        return $this;
+                    case 1:
+                        return $this->addWhereIn($column, current($value));
+                }
+
+                return $this->addWhere($column . ' IN (' . implode(', ', $value) . ') ');
         }
 
         throw new OutOfBoundsException(tr('Unknown / unsupported datatype specified for value ":value"', [
