@@ -102,11 +102,11 @@ trait TraitDataEntryDetails
     /**
      * Returns either the specified value, or its source
      *
-     * @param Stringable|ArrayableInterface|array|string|null $value
+     * @param mixed $value
      *
-     * @return array|string|null
+     * @return mixed
      */
-    protected function getDetailsSource(Stringable|ArrayableInterface|array|string|null $value): array|string|null
+    protected function getDetailsSource(mixed $value): mixed
     {
         if ($value instanceof ArrayableInterface) {
             return $value->__toArray();
