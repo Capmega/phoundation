@@ -3,7 +3,7 @@
 /**
  * Command sessions truncate
  *
- * This command  the accounts_sessions table. USE WITH CARE!
+ * This command  the accounts_user_sessions table. USE WITH CARE!
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -22,7 +22,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 
 CliDocumentation::setUsage('./pho sessions truncate -F');
 
-CliDocumentation::setHelp(User::getHelpText('This command truncates the accounts_sessions table. USE WITH CARE!  
+CliDocumentation::setHelp(User::getHelpText('This command truncates the accounts_user_sessions table. USE WITH CARE!  
 
 
 ARGUMENTS
@@ -37,7 +37,7 @@ $argv = ArgvValidator::new()->validate();
 
 
 if (!FORCE) {
-    throw new ValidationFailedException(tr('Cannot truncate accounts_sessions table without FORCE flag (-F, --force)'));
+    throw new ValidationFailedException(tr('Cannot truncate accounts_user_sessions table without FORCE flag (-F, --force)'));
 }
 
 

@@ -21,7 +21,6 @@ use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Sessions\Exception\SessionDuplicateIdentifierException;
 use Phoundation\Data\Traits\TraitDataSourceArray;
 use Phoundation\Databases\Sql\Exception\SqlContstraintDuplicateEntryException;
-use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\NotExistsException;
@@ -33,7 +32,7 @@ use Phoundation\Utils\Strings;
 use ReturnTypeWillChange;
 use Stringable;
 
-class Session
+class UserSession
 {
     use TraitDataSourceArray{
         get as protected __Get;
@@ -55,7 +54,7 @@ class Session
         }
 
         $data   = static::load($identifier);
-        $source = sql()->get('SELECT * FROM `accounts_sessions` WHERE `identifier` = :identifier', [
+        $source = sql()->getRow('SELECT * FROM `accounts_user_sessions` WHERE `identifier` = :identifier', [
             ':identifier' => $identifier
         ]);
 
@@ -233,7 +232,7 @@ class Session
      * @param Stringable|string|float|int $key
      * @param bool                        $skip_null_values
      *
-     * @return Session
+     * @return UserSession
      */
     public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = true): static
     {
@@ -288,7 +287,7 @@ class Session
      */
     public static function exists(string $identifier): bool
     {
-        return sql()->exists('accounts_sessions', 'identifier', $identifier);
+        return sql()->exists('accounts_user_sessions', 'identifier', $identifier);
     }
 
 
@@ -337,7 +336,7 @@ class Session
 
 
     /**
-     * Registers a new started session in the accounts_sessions table
+     * Registers a new started session in the accounts_user_sessions table
      *
      * @param int    $users_id
      * @param string $domain
@@ -349,7 +348,7 @@ class Session
     public static function start(int $users_id, string $domain, string $ip, string $identifier): static
     {
         try {
-            sql()->insert('accounts_sessions', [
+            sql()->insert('accounts_user_sessions', [
                 'users_id'   => $users_id,
                 'domain'     => $domain,
                 'ip'         => $ip,

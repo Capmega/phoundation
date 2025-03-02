@@ -349,7 +349,7 @@ class Rights extends DataIterator implements RightsInterface
             throw OutOfBoundsException::new('Cannot check if parent has the specified right, this rights list has no parent specified');
         }
         if ($this->parent instanceof UserInterface) {
-            return (bool) sql()->get('SELECT `id` 
+            return (bool) sql()->getRow('SELECT `id` 
                                             FROM   `accounts_users_rights` 
                                             WHERE  `users_id`  = :users_id 
                                             AND    `rights_id` = :rights_id', [
@@ -359,7 +359,7 @@ class Rights extends DataIterator implements RightsInterface
         }
 
         // No user? Then it must be a role
-        return (bool) sql()->get('SELECT `id` 
+        return (bool) sql()->getRow('SELECT `id` 
                                         FROM   `accounts_roles_rights` 
                                         WHERE  `roles_id`  = :roles_id 
                                         AND    `rights_id` = :rights_id', [

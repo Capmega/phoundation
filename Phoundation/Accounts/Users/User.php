@@ -370,7 +370,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         if (static::determineColumn($this->identifier) === 'email') {
             if ((static::getDefaultConnector() === 'system') and (static::getTable() === 'accounts_users')) {
                 // Try to find the user by alternative email address
-                $user = sql()->get('SELECT `users_id`, `verified_on`
+                $user = sql()->getRow('SELECT `users_id`, `verified_on`
                                     FROM   `accounts_emails` 
                                     WHERE  `email` = :email 
                                       AND  `status` IS NULL', [
@@ -2800,7 +2800,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                                $validator->orColumn('remote_id');
                                                $validator->isUnique(tr('already exists as a primary email address'));
 
-                                               $exists = sql()->get('SELECT `id` 
+                                               $exists = sql()->getRow('SELECT `id` 
                                                                      FROM   `accounts_emails` 
                                                                      WHERE  `email` = :email', [
                                                                          ':email' => $validator->getSelectedValue(),

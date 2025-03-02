@@ -142,7 +142,7 @@ class Users extends DataIterator implements UsersInterface
         }
 
         if ($this->parent instanceof RoleInterface) {
-            return (bool) sql()->get('SELECT `id` 
+            return (bool) sql()->getRow('SELECT `id` 
                                             FROM   `accounts_users_roles` 
                                             WHERE  `users_id` = :users_id 
                                             AND    `roles_id` = :roles_id', [
@@ -152,7 +152,7 @@ class Users extends DataIterator implements UsersInterface
         }
 
         // No user? Then it must be a right
-        return (bool) sql()->get('SELECT `id` 
+        return (bool) sql()->getRow('SELECT `id` 
                                         FROM   `accounts_users_rights` 
                                         WHERE  `users_id`  = :users_id 
                                         AND    `rights_id` = :rights_id', [

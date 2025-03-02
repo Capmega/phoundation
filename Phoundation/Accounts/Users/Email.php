@@ -179,7 +179,7 @@ class Email extends DataEntry implements EmailInterface
                                                // Email cannot exist in accounts_users or accounts_emails!
                                                $validator->isUnique(tr('already exists as an additional email address'));
 
-                                               $exists = sql()->get('SELECT `id` FROM `accounts_users` WHERE `email` = :email', [
+                                               $exists = sql()->getRow('SELECT `id` FROM `accounts_users` WHERE `email` = :email', [
                                                    ':email' => $validator->getSelectedValue(),
                                                ]);
 

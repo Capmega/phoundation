@@ -32,7 +32,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.7.1';
+        return '0.7.2';
     }
 
 
@@ -1219,7 +1219,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.7.0', function () {
             // Create the users_roles table.
-            sql()->getSchemaObject()->getTableObject('accounts_sessions')
+            sql()->getSchemaObject()->getTableObject('accounts_user_sessions')
                  ->drop()
                  ->define()
                  ->setColumns('  
@@ -1239,14 +1239,21 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     KEY `start` (`start`),
                     KEY `stop` (`stop`),')
                 ->setForeignKeys('
-                    CONSTRAINT `fk_accounts_sessions_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE CASCADE')
+                    CONSTRAINT `fk_accounts_user_sessions_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE CASCADE')
                 ->create();
 
         })->addUpdate('0.7.1', function () {
-            $table = sql()->getSchemaObject()->getTableObject('accounts_sessions');
+            $table = sql()->getSchemaObject()->getTableObject('accounts_user_sessions');
 
             if ($table->columnExists('session')) {
                 $table->alter()->renameColumn('session', 'identifier');
+            }
+
+        })->addUpdate('0.7.2', function () {
+            $table = sql()->getSchemaObject()->getTableObject('accounts_user_sessions');
+
+            if ($table->exists()) {
+                $table->rename('accounts_user_sessions');
             }
         });
     }

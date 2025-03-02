@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Accounts\Users\Sessions\Session;
+use Phoundation\Accounts\Users\Sessions\UserSession;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
@@ -38,4 +38,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Log::cli(Session::new($argv['session'])->getSource());
+Log::cli(UserSession::new($argv['session'])->getSource());

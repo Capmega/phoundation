@@ -306,7 +306,7 @@ class Password extends DataEntry implements PasswordInterface
      */
     protected static function isCompromised(string $password): bool
     {
-        return (bool) sql()->get('SELECT `id` FROM `accounts_compromised_passwords` WHERE `password` = :password', [
+        return (bool) sql()->getRow('SELECT `id` FROM `accounts_compromised_passwords` WHERE `password` = :password', [
             ':password' => $password,
         ]);
     }
