@@ -141,7 +141,9 @@ class Seo
                 }
 
                 try {
-                    $exists = sql()->get('SELECT COUNT(*) AS `count` FROM `' . $table . '` WHERE `' . Arrays::implodeWithKeys($source, '" AND `', '` = "', null) . '"' . $ownid . ';');
+                    $exists = sql()->getRow('SELECT COUNT(*) AS `count` 
+                                             FROM   `' . $table . '` 
+                                             WHERE  `' . Arrays::implodeWithKeys($source, '" AND `', '` = "', null) . '"' . $ownid . ';');
 
                 } catch (SqlUnknownDatabaseException $e) {
                     // In case database does not exist during the init phase, we can assume this value is okay
@@ -172,7 +174,9 @@ class Seo
                 }
 
                 try {
-                    $exists = sql()->get('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = "' . $return . '"' . $ownid . ';');
+                    $exists = sql()->getRow('SELECT `' . $column . '` 
+                                             FROM   `' . $table . '` 
+                                             WHERE  `' . $column . '` = "' . $return . '"' . $ownid . ';');
 
                 } catch (SqlUnknownDatabaseException $e) {
                     // In case database does not exist during the init phase, we can assume this value is okay
