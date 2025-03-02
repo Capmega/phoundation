@@ -1277,7 +1277,7 @@ trait TraitProcessVariables
                         ]));
 
                         // Proceed to install the packages and retry
-                        Log::warning(tr('Failed to find the command ":command", installing required packages', [
+                        Log::warning(ts('Failed to find the command ":command", installing required packages', [
                             ':command' => $command,
                         ]));
 
@@ -1329,7 +1329,7 @@ trait TraitProcessVariables
         $this->log_file            = DIRECTORY_DATA . 'log/' . $identifier;
         $this->cached_command_line = null;
 
-        Log::notice(tr('Set process identifier ":identifier"', [':identifier' => $identifier]), 2);
+        Log::notice(ts('Set process identifier ":identifier"', [':identifier' => $identifier]), 2);
 
         return $identifier;
     }

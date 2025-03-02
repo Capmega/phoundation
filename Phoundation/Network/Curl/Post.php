@@ -277,7 +277,7 @@ class Post extends Get
 
         // Log cURL request?
         if ($this->log_directory) {
-            Log::action(tr('Sending following post data'), 3);
+            Log::action(ts('Sending following post data'), 3);
             Log::printr($this->post_data                 , 3, echo_header: false);
         }
 

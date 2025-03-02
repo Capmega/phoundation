@@ -304,7 +304,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
         if ($this->getAutoUnmount()) {
             // This mount must be removed once the process finishes!
             Core::addShutdownCallback('unmount-' . $this->getSeoName(), function () {
-                Log::action(tr('Automatically unmounting ":source" from ":target"', [
+                Log::action(ts('Automatically unmounting ":source" from ":target"', [
                     ':source' => $this->getSourcePath(),
                     ':target' => $this->getTargetPath(),
                 ]));
@@ -313,7 +313,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
         }
 
         // FsMount and try again!
-        Log::action(tr('Automatically mounting ":source" to ":target"', [
+        Log::action(ts('Automatically mounting ":source" to ":target"', [
             ':source' => $this->getSourcePath(),
             ':target' => $this->getTargetPath(),
         ]));

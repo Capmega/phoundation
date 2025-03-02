@@ -45,7 +45,7 @@ $argv = ArgvValidator::new()
 
 
 // Display image information
-Log::information(tr('Resizing image ":file" to ":xx:y"', [
+Log::information(ts('Resizing image ":file" to ":xx:y"', [
     ':x'    => $argv['width'],
     ':y'    => $argv['height'],
     ':file' => $argv['file'],

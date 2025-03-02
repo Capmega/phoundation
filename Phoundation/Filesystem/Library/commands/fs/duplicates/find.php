@@ -67,7 +67,7 @@ $argv = ArgvValidator::new()
 $duplicates = PhoDirectory::new($argv['path'], $restrictions)->getDuplicateFiles($argv['recursive'], $argv['max_size']);
 
 if ($duplicates->getCount()) {
-    Log::success(tr('Found ":count" duplicate files', [
+    Log::success(ts('Found ":count" duplicate files', [
         ':count' => $duplicates->getCount()
     ]));
 

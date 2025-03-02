@@ -350,7 +350,7 @@ class Url implements UrlInterface
                                ->validate(false);
 
         } catch (ValidationFailedException) {
-            Log::warning(tr('Validation for redirect url ":url" failed, ignoring', [
+            Log::warning(ts('Validation for redirect url ":url" failed, ignoring', [
                 ':url' => GetValidator::new()
                                       ->get('redirect'),
             ]));
@@ -369,7 +369,7 @@ class Url implements UrlInterface
                                         ->validate(false);
 
             } catch (ValidationFailedException) {
-                Log::warning(tr('Validation for HTTP_REFERRER ":url" failed, ignoring', [
+                Log::warning(ts('Validation for HTTP_REFERRER ":url" failed, ignoring', [
                     ':url' => $_SERVER['HTTP_REFERER'],
                 ]));
             }
@@ -880,12 +880,12 @@ class Url implements UrlInterface
      */
     public static function cleanupCloak(): int
     {
-        Log::notice(tr('Cleaning up `url_cloaks` table'));
+        Log::notice(ts('Cleaning up `url_cloaks` table'));
 
         $r = sql()->query('DELETE FROM `url_cloaks` 
                                  WHERE `created_on` < DATE_SUB(NOW(), INTERVAL ' . config()->get('web.url.cloaking.expires', 86400) . ' SECOND);');
 
-        Log::success(tr('Removed ":count" expired entries from the `url_cloaks` table', [
+        Log::success(ts('Removed ":count" expired entries from the `url_cloaks` table', [
             ':count' => $r->rowCount(),
         ]));
 

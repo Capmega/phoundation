@@ -1012,7 +1012,7 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
             $this->data['fixes'] = [];
 
         } elseif (!is_array($this->data['fixes'])) {
-            Log::warning(tr('Exception data "fixes" is not an array, but contains data below instead. forcing array'));
+            Log::warning(ts('Exception data "fixes" is not an array, but contains data below instead. forcing array'));
             Log::printr($this->data['fixes']);
 
             $this->data['fixes'] = [];

@@ -86,7 +86,7 @@ class MetaList
                 }
 
             } catch (JsonException) {
-                Log::warning(tr('Failed to decode JSON data ":data" for meta id ":id"', [
+                Log::warning(ts('Failed to decode JSON data ":data" for meta id ":id"', [
                     ':id'   => $row['id'],
                     ':data' => $row['data'],
                 ]));

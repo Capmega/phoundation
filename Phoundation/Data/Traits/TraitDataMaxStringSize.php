@@ -48,7 +48,7 @@ trait TraitDataMaxStringSize
         }
 
         if ($max_size > $this->max_string_size) {
-            Log::warning(tr('The specified number of maximum characters ":specified" surpasses the configured maximum number of ":configured". Forcing configured maximum amount instead', [
+            Log::warning(ts('The specified number of maximum characters ":specified" surpasses the configured maximum number of ":configured". Forcing configured maximum amount instead', [
                 ':specified'  => $max_size,
                 ':configured' => $this->max_string_size,
             ]));

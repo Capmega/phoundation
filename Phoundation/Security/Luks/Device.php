@@ -138,7 +138,7 @@ class Device extends PhoFile
 
         $this->luksCheckPath();
 
-        Log::action(tr('Formatting LUKS device file ":file"', [
+        Log::action(ts('Formatting LUKS device file ":file"', [
             ':file' => $this->source,
         ]));
 
@@ -322,7 +322,7 @@ class Device extends PhoFile
         $this->code        = $passphrase;
         $this->device_name = new PhoFile('/dev/mapper/' . $device_name);
 
-        Log::success(tr('Opened LUKS file ":file" and mapped it to device ":device"', [
+        Log::success(ts('Opened LUKS file ":file" and mapped it to device ":device"', [
             ':file'   => $this->source,
             ':device' => $device_name
         ]), 2);
@@ -343,7 +343,7 @@ class Device extends PhoFile
         if (empty($this->device_name)) {
             if ($force) {
                 // It's closed, what more do you want?
-                Log::warning(tr('Will not close LUKS file ":file", the file is not open', [
+                Log::warning(ts('Will not close LUKS file ":file", the file is not open', [
                     ':file'   => $this->source,
                 ]), 2);
 
@@ -361,7 +361,7 @@ class Device extends PhoFile
                 ->setSudo(true)
                 ->executeNoReturn();
 
-            Log::success(tr('Closed LUKS device ":device" that was mapped from file ":file"', [
+            Log::success(ts('Closed LUKS device ":device" that was mapped from file ":file"', [
                 ':file'   => $this->source,
                 ':device' => $this->device_name
             ]), 2);
@@ -373,7 +373,7 @@ class Device extends PhoFile
                 // The device wasn't even open!
                 if ($force) {
                     // That's fine, we were just making sure
-                    Log::warning(tr('Will not close LUKS device ":device" that was mapped from file ":file", the device was not open', [
+                    Log::warning(ts('Will not close LUKS device ":device" that was mapped from file ":file", the device was not open', [
                         ':file'   => $this->source,
                         ':device' => $this->device_name
                     ]), 2);
@@ -422,14 +422,14 @@ class Device extends PhoFile
             throw OutOfBoundsException::new(tr('No keys specified'))->makeWarning();
         }
 
-        Log::action(tr('Trying ":total" combinations for ":count" keys', [
+        Log::action(ts('Trying ":total" combinations for ":count" keys', [
             ':total' => count($combinations),
             ':count' => $count
         ]));
 
         foreach ($combinations as $id => $combination) {
             try {
-                Log::action(tr('Trying key ":id"', [':id' => $id]), 3, echo_newline: false);
+                Log::action(ts('Trying key ":id"', [':id' => $id]), 3, echo_newline: false);
                 $this->luksOpen($combination, $device)
                      ->luksClose();
 

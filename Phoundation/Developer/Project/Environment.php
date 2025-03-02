@@ -105,7 +105,7 @@ class Environment
      */
     public static function new(string $project, string $environment): static
     {
-        Log::action(tr('Generating new environment ":env"', [':env' => $environment]));
+        Log::action(ts('Generating new environment ":env"', [':env' => $environment]));
         if (static::exists($environment)) {
             throw new OutOfBoundsException(tr('Specified environment ":environment" already exist', [
                 ':environment' => $environment,
@@ -188,7 +188,7 @@ class Environment
     {
         // Use the requested environment
         Config::setDefaultEnvironment($this->name);
-        Log::action(tr('Removing environment ":env"', [':env' => strtolower($this->name)]));
+        Log::action(ts('Removing environment ":env"', [':env' => strtolower($this->name)]));
         // Drop core database
         try {
             sql('system', false)
@@ -196,7 +196,7 @@ class Environment
                 ->getDatabaseObject()
                 ->drop();
         } catch (Throwable $e) {
-            Log::warning(tr('Failed to drop system database for environment ":env" because ":message", continuing...', [
+            Log::warning(ts('Failed to drop system database for environment ":env" because ":message", continuing...', [
                 ':env'     => strtolower($this->name),
                 ':message' => $e->getMessage() . ($e->getPrevious() ? ', ' . $e->getPrevious()
                                                                                ->getMessage() : null),
@@ -222,7 +222,7 @@ class Environment
     public function setup(): void
     {
         try {
-            Log::action(tr('Generating configuration for environment ":env"...', [
+            Log::action(ts('Generating configuration for environment ":env"...', [
                 ':env' => strtolower($this->name),
             ]));
 
@@ -247,14 +247,14 @@ class Environment
             ]));
         }
 
-        Log::action(tr('Ensuring system database is gone'));
+        Log::action(ts('Ensuring system database is gone'));
 
         sql(null, false)
             ->getSchemaObject()
             ->getDatabaseObject()
             ->drop();
 
-        Log::action(tr('Initializing system...'));
+        Log::action(ts('Initializing system...'));
         Libraries::initialize(true, true, true, 'System setup');
     }
 

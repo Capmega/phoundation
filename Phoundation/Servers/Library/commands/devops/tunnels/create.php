@@ -88,7 +88,7 @@ $tunnel->execute();
 // If the command was executed in the background, return the PID of the command and the tunnel itself so we can easily
 // terminate it later
 if ($argv['background']) {
-    Log::cli(tr('Created SSH tunnel ":tunnel" with PID ":pid", tunnel PID ":tunnel_pid"', [
+    Log::cli(ts('Created SSH tunnel ":tunnel" with PID ":pid", tunnel PID ":tunnel_pid"', [
         'pid'        => $tunnel->getPid(),
         'tunnel_pid' => $tunnel->getTunnelPid(),
         'tunnel'     => $argv['local_port'] . ':' . $argv['host'] . ':' . $argv['port'],

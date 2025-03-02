@@ -219,14 +219,14 @@ abstract class Updates implements UpdatesInterface
                 // no break
 
             case 'post_always':
-                Log::action(tr('Executing ":library" ":version" init', [
+                Log::action(ts('Executing ":library" ":version" init', [
                     ':library' => $this->vendor . '/' . $this->library,
                     ':version' => $version,
                 ]));
                 break;
 
             default:
-                Log::action(tr('Updating ":library" library to version ":version"', [
+                Log::action(ts('Updating ":library" library to version ":version"', [
                     ':library' => $this->vendor . '/' . $this->library,
                     ':version' => $version,
                 ]));
@@ -420,7 +420,7 @@ abstract class Updates implements UpdatesInterface
 
             case 1:
                 // The file version is later than the specified version
-                Log::warning(tr('Skipping init version ":version" for library ":library" because it is a future update', [
+                Log::warning(ts('Skipping init version ":version" for library ":library" because it is a future update', [
                     ':library' => $this->vendor . '/' . $this->library,
                     ':version' => $version,
                 ]), Debug::isEnabled() ? 10 : 4);
@@ -483,7 +483,7 @@ abstract class Updates implements UpdatesInterface
         if (array_key_exists('post_once', $this->updates)) {
             if (!$this->databaseVersionExists('post_once')) {
                 // This post_once has not yet been executed, do so now and register
-                Log::action(tr('Executing "post_once" for library ":library"', [
+                Log::action(ts('Executing "post_once" for library ":library"', [
                     ':library' => $this->vendor . '/' . $this->library,
                 ]));
 
@@ -496,7 +496,7 @@ abstract class Updates implements UpdatesInterface
 
         // Execute the post_always
         if (array_key_exists('post_always', $this->updates)) {
-            Log::action(tr('Executing "post_always" for library ":library"', [
+            Log::action(ts('Executing "post_always" for library ":library"', [
                 ':library' => $this->vendor . '/' . $this->library,
             ]));
 
@@ -577,7 +577,7 @@ abstract class Updates implements UpdatesInterface
 
             case -1:
                 // The file version is newer than the specified version
-                Log::warning(tr('Skipping init version ":version" for library ":library" because it already has been executed', [
+                Log::warning(ts('Skipping init version ":version" for library ":library" because it already has been executed', [
                     ':library' => $this->vendor . '/' . $this->library,
                     ':version' => $version,
                 ]), 5);

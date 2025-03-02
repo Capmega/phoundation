@@ -59,7 +59,7 @@ class Free extends Command
                     $return['swap'] = $data;
                     break;
                 default:
-                    Log::warning(tr('Ignoring unknown output ":line" from the command "free"', [':line' => $line]));
+                    Log::warning(ts('Ignoring unknown output ":line" from the command "free"', [':line' => $line]));
             }
         }
 

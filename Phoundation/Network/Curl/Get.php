@@ -122,7 +122,7 @@ class Get extends Curl
         // Do we log?
         if ($this->log_directory) {
             // We log!
-            Log::notice(tr('cURL result status:'));
+            Log::notice(ts('cURL result status:'));
             $this->result_status = curl_getinfo($this->curl);
 
             foreach ($this->result_status as $key => $value) {
@@ -242,7 +242,7 @@ class Get extends Curl
             curl_setopt($this->curl, CURLOPT_STDERR, PhoFile::new($this->log_directory . getmypid(), $this->log_restrictions)
                                                             ->open(EnumFileOpenMode::writeOnlyAppend)
                                                             ->getStream());
-            Log::action(tr('Preparing ":method" cURL request to URL ":url"', [
+            Log::action(ts('Preparing ":method" cURL request to URL ":url"', [
                 ':method' => $this->method,
                 ':url'    => $this->url,
             ]), 2);
@@ -384,7 +384,7 @@ class Get extends Curl
                     // For whatever reason, connection gave HTTP code 0 which probably means that the server died
                     // off during connection. This again may mean that the server overloaded. Wait for a few
                     // seconds, and try again for a limited number of times
-                    Log::warning(tr('Got HTTP0 for url ":url" at attempt ":retry" with ":connect_timeout" seconds connect timeout', [
+                    Log::warning(ts('Got HTTP0 for url ":url" at attempt ":retry" with ":connect_timeout" seconds connect timeout', [
                         ':url'             => $this->url,
                         ':retry'           => $this->retry,
                         ':connect_timeout' => $this->connect_timeout,
@@ -396,7 +396,7 @@ class Get extends Curl
 
                 case 'CURL92':
                     // This server apparently doesn't support anything beyond HTTP1.1
-                    Log::warning(tr('Got HTTP92 for url ":url" at attempt ":retry", forcing protocol HTTP 1.1 to fix', [
+                    Log::warning(ts('Got HTTP92 for url ":url" at attempt ":retry", forcing protocol HTTP 1.1 to fix', [
                         ':url'             => $this->url,
                         ':retry'           => $this->retry,
                         ':connect_timeout' => $this->connect_timeout,

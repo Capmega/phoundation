@@ -185,8 +185,8 @@ class Bundler
         // Ensure file is not 0 bytes. This might be caused due to a number of issues, but mainly due to disk full
         // events. When this happens, the 0 bytes bundle files remain, leaving the site without CSS or JS
         if (!filesize($bundle_file)) {
-            Log::warning(tr('Encountered empty bundle file ":file"', [':file' => $bundle_file]));
-            Log::warning(tr('Deleting empty bundle file ":file"', [':file' => $bundle_file]));
+            Log::warning(ts('Encountered empty bundle file ":file"', [':file' => $bundle_file]));
+            Log::warning(ts('Deleting empty bundle file ":file"', [':file' => $bundle_file]));
             PhoFile::new($bundle_file, $this->restrictions)
                 ->delete();
 
@@ -194,7 +194,7 @@ class Bundler
         }
         // Bundle files are essentially cached files. Ensure the cache is not too old
         if (config()->get('cache.bundler.max-age', 3600) and (filemtime($bundle_file) + config()->get('cache.bundler.max-age', 3600)) < time()) {
-            Log::warning(tr('Deleting expired cached bundle file ":file"', [':file' => $bundle_file]));
+            Log::warning(ts('Deleting expired cached bundle file ":file"', [':file' => $bundle_file]));
             PhoFile::new($bundle_file, $this->restrictions)
                 ->delete();
 
@@ -222,7 +222,7 @@ class Bundler
                      foreach ($files as $file => $data) {
                          $org_file = $file;
                          $file     = $this->directory . $file . $this->extension;
-                         Log::action(tr('Adding file ":file" to bundle file ":bundle"', [
+                         Log::action(ts('Adding file ":file" to bundle file ":bundle"', [
                              ':file'   => $file,
                              ':bundle' => $this->bundle_file,
                          ]), 3);
@@ -376,7 +376,7 @@ class Bundler
             $html_file_object = PhoFilesystem::createTempFile(false, 'html')
                                              ->append(Request::getHtml());
             $bundle_file = Css::purge($this->bundle_file, $html_file_object->getSource());
-            Log::success(tr('Purged not-used CSS rules from bundled file ":file"', [
+            Log::success(ts('Purged not-used CSS rules from bundled file ":file"', [
                 ':file' => $bundle_file,
             ]));
             $html_file_object->delete();

@@ -37,7 +37,7 @@ class Fprint extends Command
              ->addArgument($id);
         if ($method === EnumExecuteMethod::background) {
             $pid = $this->executeBackground();
-            Log::success(tr('Executed fprint-enroll as a background process with PID ":pid"', [
+            Log::success(ts('Executed fprint-enroll as a background process with PID ":pid"', [
                 ':pid' => $pid,
             ]), 4);
 

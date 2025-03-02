@@ -134,7 +134,7 @@ class SystemRequest implements SystemRequestInterface
             Log::exception($e);
         }
 
-        Log::warning(tr('Executing system page ":page"', [':page' => $http_code]));
+        Log::warning(ts('Executing system page ":page"', [':page' => $http_code]));
 
         if (($http_code < 1) or ($http_code > 1000)) {
             throw new OutOfBoundsException(tr('Specified HTTP code ":code" is invalid', [
@@ -143,7 +143,7 @@ class SystemRequest implements SystemRequestInterface
         }
 
         if (!method_exists($this, $method)) {
-            Log::warning(tr('Specified HTTP code ":code" does not exist', [
+            Log::warning(ts('Specified HTTP code ":code" does not exist', [
                 ':code' => $http_code,
             ]));
 
@@ -207,7 +207,7 @@ class SystemRequest implements SystemRequestInterface
             // A system page doesn't exist? Has the web cache directory been built? Rebuild it once and try again.
             $rebuild = true;
             try {
-                Log::warning(tr('The ":code" page does not exist in the web cache directory. Trying to rebuild the web cache ', [
+                Log::warning(ts('The ":code" page does not exist in the web cache directory. Trying to rebuild the web cache ', [
                     ':code' => $variables['code'],
                 ]));
 
@@ -218,7 +218,7 @@ class SystemRequest implements SystemRequestInterface
                 // Nah, didn't solve the issue
                 if (!($e instanceof SystemPageNotFoundException)) {
                     // A different issue?
-                    Log::error(tr('Rebuilding web cache failed with exception below'));
+                    Log::error(ts('Rebuilding web cache failed with exception below'));
                     Log::error($e);
                 }
             }
@@ -239,7 +239,7 @@ class SystemRequest implements SystemRequestInterface
         // System page failed to display? That is weird... Display an exception page template instead
         try {
             // We don't have a nice page for this system code
-            Log::warning(tr('The ":code" page failed to show with an exception, showing ":code" template message instead and logging exception below', [
+            Log::warning(ts('The ":code" page failed to show with an exception, showing ":code" template message instead and logging exception below', [
                 ':code' => $variables['code'],
             ]));
             Log::setBacktraceDisplay('BACKTRACE_DISPLAY_BOTH');
@@ -339,11 +339,11 @@ class SystemRequest implements SystemRequestInterface
      */
     #[NoReturn] protected function execute404(): never
     {
-        Log::warning(tr('Found no applicable routes or webserver called for 404, testing for hacks'));
+        Log::warning(ts('Found no applicable routes or webserver called for 404, testing for hacks'));
 
         // Test the URI for known hacks. If so, apply configured response
         if (config()->get('web.route.known-hacks', false)) {
-            Log::warning(tr('Applying known hacking rules'));
+            Log::warning(ts('Applying known hacking rules'));
 
             foreach (config()->get('web.route.known-hacks') as $hacks) {
                 // TODO Fix this. This is old code and the specified method doesn't even exist anymore

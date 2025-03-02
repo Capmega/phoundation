@@ -76,12 +76,12 @@ if (FORCE) {
 $passwords = $device->luksTryPasswordSections($argv['sections']);
 
 if ($passwords->getCount()) {
-    Log::information(tr('Found following passwords for the specified sections'));
+    Log::information(ts('Found following passwords for the specified sections'));
 
     foreach ($passwords as $password) {
         Log::cli($password);
     }
 
 } else {
-    Log::warning(tr('No passwords found for the specified sections'));
+    Log::warning(ts('No passwords found for the specified sections'));
 }

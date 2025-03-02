@@ -62,7 +62,7 @@ $repositories = PhoFile::new($argv['source'], $source_restrictions);
 $target       = PhoDirectory::new($argv['target'], $target_restrictions);
 $repositories = $repositories->getContentsAsIterator();
 
-Log::information(tr('About to sync ":count" repositories, this might take a while...', [
+Log::information(ts('About to sync ":count" repositories, this might take a while...', [
     ':count' => $repositories->getCount(),
 ]));
 
@@ -74,14 +74,14 @@ foreach ($repositories as $repository) {
     $path = $target->addDirectory($file);
 
     if ($path->exists()) {
-        Log::action(tr('Fetching all for MDB repository ":repository"', [
+        Log::action(ts('Fetching all for MDB repository ":repository"', [
             ':repository' => $repository,
         ]));
 
         Git::new($path)->fetchAll();
 
     } else {
-        Log::action(tr('Cloning MDB repository ":repository"', [
+        Log::action(ts('Cloning MDB repository ":repository"', [
             ':repository' => $repository,
         ]));
 
@@ -90,6 +90,6 @@ foreach ($repositories as $repository) {
     }
 }
 
-Log::success(tr('Finished MDB repository sync, MDB repositories size is now ":size"', [
+Log::success(ts('Finished MDB repository sync, MDB repositories size is now ":size"', [
     ':size' => Numbers::getHumanReadableBytes(PhoDirectory::new($argv['target'])->getSize()),
 ]));

@@ -860,7 +860,7 @@ class Log implements LogInterface
 
                     if (Debug::isEnabled()) {
                         // Log where this empty log message came from
-                        Log::warning(tr('Encountered an empty log message at ":call"', [
+                        Log::warning(ts('Encountered an empty log message at ":call"', [
                             ':call' => Debug::getCall(null, Log::class)->getLocation()
                         ]));
                     }
@@ -1850,7 +1850,7 @@ class Log implements LogInterface
         if (($each === 0) or ($each === true)) {
             if ($count) {
                 // Only show "Done" if we have shown any dot at all
-                Log::write(tr('Done'), $color, 10, false, true, false);
+                Log::write(ts('Done'), $color, 10, false, true, false);
             }
 
             $l_each = 0;
@@ -1894,7 +1894,7 @@ class Log implements LogInterface
         $file = $file->rename($target)->gzip();
 
         static::setFile($current);
-        Log::information(tr('Continuing syslog from file ":file"', [':file' => $file->getSource()]));
+        Log::information(ts('Continuing syslog from file ":file"', [':file' => $file->getSource()]));
 
         return $file;
     }
@@ -1931,7 +1931,7 @@ class Log implements LogInterface
             $age_in_days = config()->getInteger('log.clean.age', 30);
         }
 
-        Log::action(tr('Cleaning log files older than ":age" days', [
+        Log::action(ts('Cleaning log files older than ":age" days', [
             ':age' => $age_in_days,
         ]));
 

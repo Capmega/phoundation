@@ -457,7 +457,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
             $this->setPipe('gzip');
         }
 
-        Log::action(tr('Creating MySQL dump file ":file" from databases ":databases", this may take a while...', [
+        Log::action(ts('Creating MySQL dump file ":file" from databases ":databases", this may take a while...', [
             ':file'      => $file,
             ':databases' => Strings::force($this->databases, ', '),
         ]));
@@ -466,7 +466,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
         $results = $this->setOutputRedirect((string) $file)->executeReturnArray();
 
         if ($this->debug) {
-            Log::information(tr('Output of the mysqldump command:'), 4);
+            Log::information(ts('Output of the mysqldump command:'), 4);
             Log::debug($results, 4);
         }
 

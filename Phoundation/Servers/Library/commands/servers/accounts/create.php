@@ -68,4 +68,4 @@ $account = SshAccount::new()->apply(source: $argv)->save();
 
 
 // Done!
-Log::success(tr('Created new SSH account ":account"', [':account' => $account->getName()]));
+Log::success(ts('Created new SSH account ":account"', [':account' => $account->getName()]));

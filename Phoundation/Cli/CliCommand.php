@@ -315,7 +315,7 @@ class CliCommand
         if (!stream_isatty(STDIN) and !CliCommand::$stdin_has_been_read) {
             // STDIN might happen with commands executed. Test the input stream if there was any data at all in it
             if (CliCommand::getStdInStream()) {
-                Log::warning(tr('Warning: STDIN stream was specified but not used'));
+                Log::warning(ts('Warning: STDIN stream was specified but not used'));
             }
         }
 
@@ -705,7 +705,7 @@ class CliCommand
                 $exit_code = $exit_code ?? 1;
 
                 Log::warning($e->getMessage());
-                Log::warning(tr('Command ":command" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
+                Log::warning(ts('Command ":command" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
                     ':command'  => CliCommand::getCommandsString(),
                     ':time'     => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'    => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
@@ -716,7 +716,7 @@ class CliCommand
                 $exit_code = $exit_code ?? 255;
 
                 Log::error($e->getMessage());
-                Log::error(tr('Command ":command" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
+                Log::error(ts('Command ":command" ended with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
                     ':command'  => CliCommand::getCommandsString(),
                     ':time'     => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'    => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
@@ -731,7 +731,7 @@ class CliCommand
 
                 } else {
                     // Script ended with warning
-                    Log::warning(tr('Command ":command" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
+                    Log::warning(ts('Command ":command" ended with exit code ":exitcode" warning in ":time" with ":usage" peak memory usage', [
                         ':command'  => CliCommand::getCommandsString(),
                         ':time'     => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
                         ':usage'    => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
@@ -745,7 +745,7 @@ class CliCommand
 
                 } else {
                     // Script ended with error
-                    Log::error(tr('Command ":command" failed with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
+                    Log::error(ts('Command ":command" failed with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
                         ':command'  => CliCommand::getCommandsString(),
                         ':time'     => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
                         ':usage'    => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
@@ -766,7 +766,7 @@ class CliCommand
                 }
 
                 // Script ended successfully
-                Log::success(tr('Finished command ":command" with PID ":pid" in ":time" with ":usage" peak memory usage', [
+                Log::success(ts('Finished command ":command" with PID ":pid" in ":time" with ":usage" peak memory usage', [
                     ':command' => CliCommand::getCommandsString(),
                     ':pid'     => getmypid(),
                     ':time'    => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
@@ -896,7 +896,7 @@ class CliCommand
 //            if ($close) {
 //                if (!$executed) {
 //                    // Hey, this command is being closed but was never opened?
-//                    Log::warning(tr('The cli_run_once_local() function has been called with close option, but it was already closed or never opened.'));
+//                    Log::warning(ts('The cli_run_once_local() function has been called with close option, but it was already closed or never opened.'));
 //                }
 //
 //                file_delete([
@@ -927,7 +927,7 @@ class CliCommand
 //                $pid = trim($pid);
 //
 //                if (!is_numeric($pid) or !is_natural($pid) or ($pid > 65536)) {
-//                    Log::warning(tr('The run file ":file" contains invalid information, ignoring', [':file' => $run_dir . $command]));
+//                    Log::warning(ts('The run file ":file" contains invalid information, ignoring', [':file' => $run_dir . $command]));
 //
 //                } else {
 //                    $name = safe_exec([
@@ -953,7 +953,7 @@ class CliCommand
 //                }
 //                // PhoFile exists, or contains invalid data, but PID either doesn't exist, or is used by a different
 //                // process. Remove the PID file
-//                Log::warning(tr('cli_run_once_local(): Cleaning up stale run file ":file"', [':file' => $run_dir . $command]));
+//                Log::warning(ts('cli_run_once_local(): Cleaning up stale run file ":file"', [':file' => $run_dir . $command]));
 //                file_delete([
 //                    'patterns'     => $run_dir . $command,
 //                    'restrictions' => DIRECTORY_ROOT . 'data/system/run/',
@@ -1019,7 +1019,7 @@ class CliCommand
     {
         Core::setScriptState();
 
-        Log::action(tr('Executing auto complete with command: :command', [
+        Log::action(ts('Executing auto complete with command: :command', [
             ':command' => CliCommand::getCommandline()
         ]), 7, echo_screen: false);
 
@@ -1075,7 +1075,7 @@ class CliCommand
 
         // Ensure commands cache directory exists
         if (!file_exists($file)) {
-            Log::warning(tr('Commands cache directory ":path" does not yet exists, rebuilding commands cache', [
+            Log::warning(ts('Commands cache directory ":path" does not yet exists, rebuilding commands cache', [
                 ':path' => $file,
             ]), 7);
 
@@ -1310,7 +1310,7 @@ GLOBAL SYSTEM ARGUMENTS
             
 ') . CliCommand::getHelpGlobalArguments(), false);
 
-            Log::cli(tr('This is the Phoundation CLI command "pho". It can be used to execute all internal Phoundation commands. 
+            Log::cli(ts('This is the Phoundation CLI command "pho". It can be used to execute all internal Phoundation commands. 
 For more basic information please execute the command ./pho intro which will print an introduction text to Phoundation
 For details about system command line parameters, try executing ./pho -H, or for command specific parameters, try ./pho command [... command] -H
 For usage examples, try ./pho -U, or ./pho command [... command] -U'));
@@ -1432,14 +1432,14 @@ return 'under construction';
     {
         $e = PhoException::new($e);
 
-        Log::warning(tr('MySQL does not yet have the required timezones loaded on connector ":connector". Attempting to load them now. If this is not what you want, please configure the configuration path ":config" to false', [
+        Log::warning(ts('MySQL does not yet have the required timezones loaded on connector ":connector". Attempting to load them now. If this is not what you want, please configure the configuration path ":config" to false', [
             ':connector' => $e->getDataKey('connector'),
             ':config'    => 'databases.connectors.' . $e->getDataKey('connector') . '.timezones-name',
         ]));
 
-        Log::information(tr('Importing timezone data files in MySQL, this may take a couple of seconds'));
-        Log::warning(tr('You may ignore any "Warning: Unable to load \'/usr/share/zoneinfo/........\' as time zone. Skipping it." messages'));
-        Log::warning(tr('Please fill in MySQL root password in the following "Enter password:" request'));
+        Log::information(ts('Importing timezone data files in MySQL, this may take a couple of seconds'));
+        Log::warning(ts('You may ignore any "Warning: Unable to load \'/usr/share/zoneinfo/........\' as time zone. Skipping it." messages'));
+        Log::warning(ts('Please fill in MySQL root password in the following "Enter password:" request'));
 
         $password = Cli::readPassword('Please specify the MySQL root password');
 
@@ -1886,13 +1886,13 @@ return 'under construction';
 
         // Process command line system arguments if we have no exception so far
         if ($argv['version']) {
-            Log::cli(tr('Phoundation framework version ":version"', [
+            Log::cli(ts('Phoundation framework version ":version"', [
                 ':version' => Core::FRAMEWORK_CODE_VERSION,
             ]), 10);
-            Log::cli(tr('Phoundation database version ":version"', [
+            Log::cli(ts('Phoundation database version ":version"', [
                 ':version' => Version::getString(Libraries::getMaximumVersion()),
             ]), 10);
-            Log::cli(tr('Phoundation minimum PHP version ":version"', [
+            Log::cli(ts('Phoundation minimum PHP version ":version"', [
                 ':version' => Core::PHP_MINIMUM_VERSION,
             ]), 10);
 
@@ -1988,12 +1988,12 @@ return 'under construction';
         // Validate parameters and give some startup messages, if needed
         if (Debug::isEnabled()) {
             if (Debug::isEnabled()) {
-                Log::warning(tr('Running in DEBUG mode, started @ ":datetime"', [
+                Log::warning(ts('Running in DEBUG mode, started @ ":datetime"', [
                     ':datetime' => PhoDate::convert(STARTTIME, 'ISO8601'),
                 ]), 8);
 
 // TODO Reimplement terminal size detection
-//                Log::notice(tr('Detected ":size" terminal with ":columns" columns and ":lines" lines', [
+//                Log::notice(ts('Detected ":size" terminal with ":columns" columns and ":lines" lines', [
 //                    ':size'    => CliCommand::$register['cli']['size'],
 //                    ':columns' => CliCommand::$register['cli']['columns'],
 //                    ':lines'   => CliCommand::$register['cli']['lines'],
@@ -2006,10 +2006,10 @@ return 'under construction';
                 throw new CoreException(tr('Both FORCE and TEST modes where specified, these modes are mutually exclusive'));
             }
 
-            Log::warning(tr('Running in FORCE mode'));
+            Log::warning(ts('Running in FORCE mode'));
 
         } elseif (TEST) {
-            Log::warning(tr('Running in TEST mode, various modifications may not be executed!'));
+            Log::warning(ts('Running in TEST mode, various modifications may not be executed!'));
         }
 
         if (!is_natural(PAGE)) {

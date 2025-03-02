@@ -80,7 +80,7 @@ class Turnstile extends Captcha
     {
         if (!$response) {
             // There is no response, this is failed before we even begin
-            Log::warning(tr('No captcha client response received'));
+            Log::warning(ts('No captcha client response received'));
             return false;
         }
 
@@ -117,10 +117,10 @@ class Turnstile extends Captcha
         $response = Strings::toBoolean($response['success']);
 
         if ($response) {
-            Log::success(tr('Passed Turnstile CAPTCHA test'));
+            Log::success(ts('Passed Turnstile CAPTCHA test'));
 
         } else {
-            Log::warning(tr('Failed Turnstile CAPTCHA test'));
+            Log::warning(ts('Failed Turnstile CAPTCHA test'));
         }
 
         return $response;

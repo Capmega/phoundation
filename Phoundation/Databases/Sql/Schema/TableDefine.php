@@ -292,7 +292,7 @@ class TableDefine extends SchemaAbstract
 
         $query .= ') ENGINE=InnoDB AUTO_INCREMENT = ' . config()->get('databases.sql.connectors.' . $connector . '.auto-increment', 1) . ' DEFAULT CHARSET="' . config()->get('databases.sql.connectors.' . $connector . '.character-set', 'utf8mb4') . '" COLLATE="' . config()->get('databases.sql.connectors.' . $connector . '.collate', 'utf8mb4_general_ci') . '";';
 
-        Log::warning(tr('Creating table ":table" in database ":database" for SQL instance ":instance"', [
+        Log::warning(ts('Creating table ":table" in database ":database" for SQL instance ":instance"', [
             ':table'    => $this->name,
             ':instance' => $this->sql->getConnector(),
             ':database' => $this->sql->getDatabase(),

@@ -38,7 +38,7 @@ class Cdn
         if (!config()->get('web.cdn.enabled', true)) {
             return;
         }
-        Log::action(tr('Adding files ":files" to CDN', [':files' => $files]));
+        Log::action(ts('Adding files ":files" to CDN', [':files' => $files]));
         if (!$section) {
             throw new OutOfBoundsException(tr('No section specified'));
         }

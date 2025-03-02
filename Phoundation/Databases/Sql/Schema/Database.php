@@ -93,7 +93,7 @@ class Database extends SchemaAbstract implements DatabaseInterface
             ]));
         }
 
-        Log::action(tr('Creating database ":database" on SQL instance ":instance"', [
+        Log::action(ts('Creating database ":database" on SQL instance ":instance"', [
             ':instance' => $this->sql->getConnector(),
             ':database' => $this->sql->getDatabase()
         ]));
@@ -147,7 +147,7 @@ class Database extends SchemaAbstract implements DatabaseInterface
     public function drop(): static
     {
         // This query cannot use bound variables!
-        Log::warning(tr('Dropping database ":database" on SQL instance ":instance"', [
+        Log::warning(ts('Dropping database ":database" on SQL instance ":instance"', [
             ':instance' => $this->sql->getConnector(),
             ':database' => $this->sql->getDatabase(),
         ]), 5);

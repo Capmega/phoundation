@@ -143,7 +143,7 @@ class Composer extends Command
 
         } catch (ProcessFailedException $e) {
             if (NOWARNINGS) {
-                Log::warning(tr('Warning: The "-W" NOWARNING option was specified, did you mean to use "--W" instead, to pass "-W" on to composer?'));
+                Log::warning(ts('Warning: The "-W" NOWARNING option was specified, did you mean to use "--W" instead, to pass "-W" on to composer?'));
             }
 
             throw new ComposerException(tr('PHP composer failed with exit code ":exitcode", see output', [

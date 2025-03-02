@@ -384,7 +384,7 @@ class PhoExecute extends PhoDirectory implements PhoExecuteInterface
                 $mode = $this->switchMode($this->mode);
             }
 
-            Log::action(tr('Executing callback function on directory ":directory"', [
+            Log::action(ts('Executing callback function on directory ":directory"', [
                 ':directory' => $this->source,
             ]), 2);
 
@@ -461,7 +461,7 @@ class PhoExecute extends PhoDirectory implements PhoExecuteInterface
 
             if ($file[0] === '.') {
                 if (!$this->follow_hidden) {
-                    Log::warning(tr('Not following directory ":directory", hidden files are ignored', [
+                    Log::warning(ts('Not following directory ":directory", hidden files are ignored', [
                         ':directory' => $this->source . $file,
                     ]), 2);
                 }
@@ -469,7 +469,7 @@ class PhoExecute extends PhoDirectory implements PhoExecuteInterface
 
             if (is_link($file)) {
                 if (!$this->follow_symlinks) {
-                    Log::warning(tr('Not following directory ":directory", symlinks are ignored', [
+                    Log::warning(ts('Not following directory ":directory", symlinks are ignored', [
                         ':directory' => $this->source . $file,
                     ]), 2);
                 }
@@ -493,7 +493,7 @@ class PhoExecute extends PhoDirectory implements PhoExecuteInterface
                 if ($this->whitelist_extensions) {
                     // Extension MUST be on this list
                     if (!array_key_exists($extension, $this->whitelist_extensions)) {
-                        Log::warning(tr('Not executing callback function on file ":file", the extension is not whitelisted', [
+                        Log::warning(ts('Not executing callback function on file ":file", the extension is not whitelisted', [
                             ':file' => $this->source . $file,
                         ]), 2);
                     }
@@ -502,13 +502,13 @@ class PhoExecute extends PhoDirectory implements PhoExecuteInterface
                 if ($this->blacklist_extensions) {
                     // Extension MUST NOT be on this list
                     if (array_key_exists($extension, $this->whitelist_extensions)) {
-                        Log::warning(tr('Not executing callback function on file ":file", the extension is blacklisted', [
+                        Log::warning(ts('Not executing callback function on file ":file", the extension is blacklisted', [
                             ':file' => $this->source . $file,
                         ]), 2);
                     }
                 }
 
-                Log::action(tr('Executing callback function on file ":file"', [
+                Log::action(ts('Executing callback function on file ":file"', [
                     ':file' => $this->source . $file,
                 ]), 2);
 
@@ -522,14 +522,14 @@ class PhoExecute extends PhoDirectory implements PhoExecuteInterface
                     }
 
                     // Exceptions will be ignored
-                    Log::warning(tr('File ":file" encountered exception ":e" which will be ignored', [
+                    Log::warning(ts('File ":file" encountered exception ":e" which will be ignored', [
                         ':file' => $file,
                         ':e'    => $e->getMessage(),
                     ]));
                 }
 
             } else {
-                Log::warning(tr('Not executing callback function on file ":file", it does not exist (probably dead symlink)', [
+                Log::warning(ts('Not executing callback function on file ":file", it does not exist (probably dead symlink)', [
                     ':file' => $this->source . $file,
                 ]), 2);
             }

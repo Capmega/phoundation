@@ -177,7 +177,7 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
             return $this;
 
         } catch (ProcessFailedException $e) {
-            Log::warning(tr('Patch failed to apply for target directory ":directory" with following exception', [
+            Log::warning(ts('Patch failed to apply for target directory ":directory" with following exception', [
                 ':directory' => $target_path,
             ]));
             Log::warning($e->getMessages());

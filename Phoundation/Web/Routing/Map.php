@@ -138,7 +138,7 @@ class Map implements MapInterface
             foreach ($this->source as $key => $value) {
                 $url = str_replace($key, $value, $url);
             }
-            Log::success(tr('Applied URL mapping for value ":value"', [
+            Log::success(ts('Applied URL mapping for value ":value"', [
                 ':value' => $this->value,
             ]), 4);
         }

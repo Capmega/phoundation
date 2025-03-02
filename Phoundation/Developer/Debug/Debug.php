@@ -239,7 +239,7 @@ class Debug
                 if (!function_was_called('Log::write()') and !function_was_called('tr()')) {
                     Core::setShutdownState();
 
-                    Log::warning(tr('Reached showdie() call at :location', [
+                    Log::warning(ts('Reached showdie() call at :location', [
                         ':location' => Strings::from(
                             Debug::getPreviousCall($trace_offset)->getLocation(),
                             DIRECTORY_ROOT
@@ -863,7 +863,7 @@ class Debug
                     break;
                 default:
                     // Wut? Just display both
-                    Log::warning(tr('Unknown $display ":display" specified. Please use one of Log::BACKTRACE_DISPLAY_FILE, Log::BACKTRACE_DISPLAY_FUNCTION, or BACKTRACE_DISPLAY_BOTH', [':display' => $display]));
+                    Log::warning(ts('Unknown $display ":display" specified. Please use one of Log::BACKTRACE_DISPLAY_FILE, Log::BACKTRACE_DISPLAY_FUNCTION, or BACKTRACE_DISPLAY_BOTH', [':display' => $display]));
                     $display = Log::BACKTRACE_DISPLAY_BOTH;
             }
             // Build up log line from here. Start by getting the file information
@@ -887,9 +887,9 @@ class Debug
             }
             if (!$line) {
                 // Failed to build backtrace line
-                Log::write(tr('Invalid backtrace data encountered, do not know how to process and display the following entry'), 'warning');
+                Log::write(ts('Invalid backtrace data encountered, do not know how to process and display the following entry'), 'warning');
                 Log::printr($step);
-                Log::write(tr('Original backtrace data entry format below'), 'warning');
+                Log::write(ts('Original backtrace data entry format below'), 'warning');
                 Log::printr($step);
             }
             $lines[] = $line;

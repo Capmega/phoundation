@@ -60,4 +60,4 @@ if ($argv['users']) {
     $count = count($argv['roles']);
 }
 
-Log::success(tr('Sent out ":count" test notifications', [':count' => $count]));
+Log::success(ts('Sent out ":count" test notifications', [':count' => $count]));

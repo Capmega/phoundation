@@ -333,7 +333,7 @@ class Plugin extends DataEntry implements PluginInterface
     public function register(): void
     {
         if (!$this->isNew()) {
-            Log::warning(tr('Not registering plugin ":vendor/:plugin", it is already registered', [
+            Log::warning(ts('Not registering plugin ":vendor/:plugin", it is already registered', [
                 ':vendor' => $this->getVendor(),
                 ':plugin' => $this->getName(),
             ]), 3);
@@ -341,7 +341,7 @@ class Plugin extends DataEntry implements PluginInterface
 
         if (static::exists(['name' => $this->getName()])) {
             // This plugin is already registered
-            Log::warning(tr('Not registering plugin ":vendor/:plugin", it is already registered', [
+            Log::warning(ts('Not registering plugin ":vendor/:plugin", it is already registered', [
                 ':vendor' => $this->getVendor(),
                 ':plugin' => $this->getName(),
             ]), 3);
@@ -352,7 +352,7 @@ class Plugin extends DataEntry implements PluginInterface
         // Only the Phoundation plugin is ALWAYS enabled
         $enabled = ($this->getName() === 'Phoundation');
 
-        Log::action(tr('Registering new plugin ":vendor/:plugin"', [
+        Log::action(ts('Registering new plugin ":vendor/:plugin"', [
             ':vendor' => $this->getVendor(),
             ':plugin' => $this->getName(),
         ]));

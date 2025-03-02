@@ -383,7 +383,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                              ->setIgnoreDeleted($this->ignore_deleted)
                                              ->load($user['users_id']);
 
-                        Log::warning(tr('Identified user ":user" with alternate email ":email"', [
+                        Log::warning(ts('Identified user ":user" with alternate email ":email"', [
                             ':user'  => $user->getLogId(),
                             ':email' => $this->identifier,
                         ]));
@@ -391,7 +391,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                         return $user;
                     }
 
-                    Log::warning(tr('Cannot identify user ":user" on alternate email, the email does not have the required verification', [
+                    Log::warning(ts('Cannot identify user ":user" on alternate email, the email does not have the required verification', [
                         ':user' => $this->identifier,
                     ]));
                 }
@@ -528,7 +528,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                         ->throw(OutOfBoundsException::class);
             }
 
-            Log::warning(tr('Authentication hook ":hook" does not exist, attempting default internal authentication instead', [
+            Log::warning(ts('Authentication hook ":hook" does not exist, attempting default internal authentication instead', [
                 ':hook' => $hook->getFile('authenticate')->getRootname(),
             ]));
 
@@ -564,7 +564,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
         $authentication->setCreatedBy($user->getId())->save();
 
-        Log::warning(tr('Authenticated user ":user" with account authentication hook ":hook"', [
+        Log::warning(ts('Authenticated user ":user" with account authentication hook ":hook"', [
             ':user' => $user->getLogId(),
             ':hook' => $hook->getFile('authenticate')->getRootname(),
         ]));
@@ -753,7 +753,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
-        Log::action(tr('Saving user ":user"', [':user' => $this->getDisplayName()]));
+        Log::action(ts('Saving user ":user"', [':user' => $this->getDisplayName()]));
 
         if ($this->readonly or $this->disabled) {
             throw new DataEntryReadonlyException(tr('Cannot save this ":name" object, the object is readonly or disabled', [
@@ -798,7 +798,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         // Save was successful! If we're saving the current user, then update the session
         if (Session::iSpecificUser($this)) {
             if (!$this->isSystemUser()) {
-                Log::action(tr('Current session user ":user" changed in database, refreshing session user data', [
+                Log::action(ts('Current session user ":user" changed in database, refreshing session user data', [
                     ':user' => $this->getLogId(),
                 ]));
                 Session::reloadUser();

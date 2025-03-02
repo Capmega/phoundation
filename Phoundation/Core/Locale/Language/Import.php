@@ -46,7 +46,7 @@ class Import extends \Phoundation\Developer\Project\Import
      */
     public function execute(): int
     {
-        Log::information(tr('Starting languages import'));
+        Log::information(ts('Starting languages import'));
 
         if ($this->demo) {
             Log::notice('Ignoring "demo" mode for Languages, this does not do anything for this library');
@@ -61,7 +61,7 @@ class Import extends \Phoundation\Developer\Project\Import
         $count = $table->getCount();
 
         if ($count and !FORCE) {
-            Log::warning(tr('Not importing data for "languages", the table already contains data'));
+            Log::warning(ts('Not importing data for "languages", the table already contains data'));
 
             return 0;
         }
@@ -71,7 +71,7 @@ class Import extends \Phoundation\Developer\Project\Import
         $count  = 0;
         $buffer = $file->getBufferSize();
 
-        Log::action(tr('Importing languages, this may take a few seconds...'));
+        Log::action(ts('Importing languages, this may take a few seconds...'));
 
         while ($line = $file->readLine($buffer)) {
             $count++;

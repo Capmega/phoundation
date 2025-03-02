@@ -690,7 +690,7 @@ class Core implements CoreInterface
                 }
 
                 if ($sig_kill) {
-                    Log::warning(tr('Not cleaning up due to kill signal!'), 3);
+                    Log::warning(ts('Not cleaning up due to kill signal!'), 3);
 
                 } else {
                     // Try shutdown with cleanup
@@ -780,7 +780,7 @@ class Core implements CoreInterface
             return;
         }
 
-        Log::action(tr('Executing shutdown callbacks'), 3);
+        Log::action(ts('Executing shutdown callbacks'), 3);
 
         // Reverse the shutdown calls to execute them last added first, first added last
         Core::$shutdown_callbacks = array_reverse(Core::$shutdown_callbacks);
@@ -797,7 +797,7 @@ class Core implements CoreInterface
 
                 // Execute this shutdown function for each data value
                 foreach ($data as $value) {
-                    Log::action(tr('Executing shutdown function ":identifier" with data value ":value"', [
+                    Log::action(ts('Executing shutdown function ":identifier" with data value ":value"', [
                         ':identifier' => $identifier,
                         ':value'      => $value,
                     ]), 1);
@@ -847,7 +847,7 @@ class Core implements CoreInterface
                         // no break
                     }
 
-                    Log::warning(tr('Unknown function information ":function" encountered, quietly skipping', [
+                    Log::warning(ts('Unknown function information ":function" encountered, quietly skipping', [
                         ':function' => $function,
                     ]));
                 }
@@ -897,7 +897,7 @@ class Core implements CoreInterface
 
                 foreach (config()->get('system.shutdown', false) as $name => $parameters) {
                     if ($parameters['interval'] and ($level < $parameters['interval'])) {
-                        Log::notice(tr('Executing periodical shutdown function ":function()"', [
+                        Log::notice(ts('Executing periodical shutdown function ":function()"', [
                             ':function' => $name,
                         ]));
 
@@ -919,7 +919,7 @@ class Core implements CoreInterface
         // Only cleanup if the Config object has an environment set
         if (config()->getEnvironment()) {
             if (sql(connect: false)->isConnected()) {
-                Log::action(tr('Performing exit cleanup'), 2);
+                Log::action(ts('Performing exit cleanup'), 2);
 
                 // Flush the metadata
                 Meta::flush();
@@ -955,8 +955,8 @@ class Core implements CoreInterface
     protected static function logDebug(): void
     {
         // Log debug information
-        Log::information(tr('DEBUG INFORMATION:'), 10);
-        Log::information(tr('Query timers [:count]:', [
+        Log::information(ts('DEBUG INFORMATION:'), 10);
+        Log::information(ts('Query timers [:count]:', [
             ':count' => count(Timers::get('sql', false)) ?? 0,
         ]), 10);
 
@@ -971,7 +971,7 @@ class Core implements CoreInterface
             Log::warning('-', 10);
         }
 
-        Log::information(tr('Other timers [:count]:', [
+        Log::information(ts('Other timers [:count]:', [
             ':count' => Timers::getCount(),
         ]), 10);
 
@@ -1062,7 +1062,7 @@ class Core implements CoreInterface
                 }
 
                 // The system crashed before Core wsa ready
-                Log::error(tr('*** UNCAUGHT STARTUP EXCEPTION ":class" IN ":type" TYPE SCRIPT ":command" ***', [
+                Log::error(ts('*** UNCAUGHT STARTUP EXCEPTION ":class" IN ":type" TYPE SCRIPT ":command" ***', [
                     ':class'   => get_class($e),
                     ':type'    => Request::getRequestType()->value,
                     ':command' => Strings::from(Core::getExecutedPath(), DIRECTORY_COMMANDS),
@@ -1282,7 +1282,7 @@ class Core implements CoreInterface
 
                 if (!in_array($language, $supported)) {
                     $language = config()->get('languages.default', 'en');
-                    Log::warning(tr('Detected language ":language" is not supported, falling back to default. See configuration path "language.supported"', [
+                    Log::warning(ts('Detected language ":language" is not supported, falling back to default. See configuration path "language.supported"', [
                         ':language' => $language,
                     ]));
                 }
@@ -1528,7 +1528,7 @@ class Core implements CoreInterface
      */
     public static function enableInitState(): void
     {
-        Log::warning(tr('Enabling init state'), 4);
+        Log::warning(ts('Enabling init state'), 4);
 
         Core::$init = true;
     }
@@ -1542,7 +1542,7 @@ class Core implements CoreInterface
      */
     public static function disableInitState(): void
     {
-        Log::warning(tr('Disabling init state'), 4);
+        Log::warning(ts('Disabling init state'), 4);
 
         Core::$init = false;
     }
@@ -1787,7 +1787,7 @@ class Core implements CoreInterface
         if ($enable) {
             // Enable maintenance mode
             if ($enabled) {
-                Log::warning(tr('Not placing system in maintenance mode, the system was already placed in maintenance mode by ":user"', [
+                Log::warning(ts('Not placing system in maintenance mode, the system was already placed in maintenance mode by ":user"', [
                     ':user' => $enabled,
                 ]));
 
@@ -1796,21 +1796,21 @@ class Core implements CoreInterface
 
             $directory->ensure()->addFile(Session::getUserObject()->getEmail() ?? get_current_user())->touch();
 
-            Log::warning(tr('System has been placed in maintenance mode. All web requests will be blocked, all commands (except those under ./pho system ...) are blocked'));
+            Log::warning(ts('System has been placed in maintenance mode. All web requests will be blocked, all commands (except those under ./pho system ...) are blocked'));
 
             return;
         }
 
         // Disable maintenance mode
         if (!$enabled) {
-            Log::Warning(tr('Not disabling maintenance mode, the system is not in maintenance mode'));
+            Log::Warning(ts('Not disabling maintenance mode, the system is not in maintenance mode'));
 
             return;
         }
 
         $directory->delete();
 
-        Log::warning(tr('System has been relieved from maintenance mode. All web requests will now again be answered, all commands are available'), 10);
+        Log::warning(ts('System has been relieved from maintenance mode. All web requests will now again be answered, all commands are available'), 10);
     }
 
 
@@ -1870,7 +1870,7 @@ class Core implements CoreInterface
         if ($enable) {
             // Enable readonly mode
             if ($enabled) {
-                Log::warning(tr('Cannot place the system in readonly mode, the system was already placed in readonly mode by ":user"', [
+                Log::warning(ts('Cannot place the system in readonly mode, the system was already placed in readonly mode by ":user"', [
                     ':user' => $enabled->getUserObject()->getLogId(),
                 ]));
 
@@ -1879,19 +1879,19 @@ class Core implements CoreInterface
 
             $directory->ensure()->addFile(Session::getUserObject()->getEmail() ?? get_current_user())->touch();
 
-            Log::warning(tr('System has been placed in readonly mode. All web requests will be blocked, all commands (except those under ./pho system ...) are blocked'));
+            Log::warning(ts('System has been placed in readonly mode. All web requests will be blocked, all commands (except those under ./pho system ...) are blocked'));
 
             return;
         }
 
         // Disable readonly mode
         if (!$enabled) {
-            Log::warning(tr('Cannot disable readonly mode, the system is not in readonly mode'));
+            Log::warning(ts('Cannot disable readonly mode, the system is not in readonly mode'));
 
         } else {
             $directory->delete();
 
-            Log::warning(tr('System has been relieved from readonly mode. All web POST requests will now again be processed, queries can write data again'), 10);
+            Log::warning(ts('System has been relieved from readonly mode. All web POST requests will now again be processed, queries can write data again'), 10);
         }
     }
 
@@ -1983,16 +1983,16 @@ class Core implements CoreInterface
 
         if ($maintenance) {
             PhoFile::new(DIRECTORY_SYSTEM . 'maintenance', $restrictions)->delete();
-            Log::warning(tr('System has been relieved from maintenace mode. All web requests will now again be processed, all commands are available'), 10);
+            Log::warning(ts('System has been relieved from maintenace mode. All web requests will now again be processed, all commands are available'), 10);
         }
 
         if ($readonly) {
             PhoFile::new(DIRECTORY_SYSTEM . 'readonly', $restrictions)->delete();
-            Log::warning(tr('System has been relieved from readonly mode. All write requests will now again be answered, all commands are available'), 10);
+            Log::warning(ts('System has been relieved from readonly mode. All write requests will now again be answered, all commands are available'), 10);
         }
 
         if (!$maintenance and !$readonly) {
-            Log::success(tr('System was neither in maintenance or readonly mode'));
+            Log::success(ts('System was neither in maintenance or readonly mode'));
         }
     }
 
@@ -2307,8 +2307,8 @@ class Core implements CoreInterface
 //            }
 //
 //            try {
-//                Log::warning(tr('Warning: Global data path not found. Normally this path should exist either 1 directory up, 2 directories up, in /var/lib/data, /var/www/data, $USER_HOME/projects/data, or $USER_HOME/data'));
-//                Log::warning(tr('Warning: If you are sure this simply does not exist yet, it can be created now automatically. If it should exist already, then abort this script and check the location!'));
+//                Log::warning(ts('Warning: Global data path not found. Normally this path should exist either 1 directory up, 2 directories up, in /var/lib/data, /var/www/data, $USER_HOME/projects/data, or $USER_HOME/data'));
+//                Log::warning(ts('Warning: If you are sure this simply does not exist yet, it can be created now automatically. If it should exist already, then abort this script and check the location!'));
 //
 //                // TODO Do this better, this is crap
 //                $directory = Process::newCliScript('base/init_global_data_path')->executeReturnArray();
@@ -2500,7 +2500,7 @@ class Core implements CoreInterface
         $available = $limit - $used;
 
         if ($available < 128) {
-            Log::warning(tr('Failed to properly allocate memory, available memory reported as ":memory" with limit being ":limit" and ":used" being used. Trying default of 4096', [
+            Log::warning(ts('Failed to properly allocate memory, available memory reported as ":memory" with limit being ":limit" and ":used" being used. Trying default of 4096', [
                 ':limit'  => $limit,
                 ':used'   => $used,
                 ':memory' => $available,
@@ -2544,7 +2544,7 @@ class Core implements CoreInterface
     public static function ExecuteIfNotInTestMode(callable $function, string $task): void
     {
         if (defined('TEST') and TEST) {
-            Log::warning(tr('Not executing ":task" while running in test mode', [
+            Log::warning(ts('Not executing ":task" while running in test mode', [
                 ':task' => $task,
             ]), 3);
 
@@ -2807,7 +2807,7 @@ class Core implements CoreInterface
                     if (defined('ENVIRONMENT')) {
                         if ($e instanceof EnvironmentNotExistsException) {
                             // Don't register the uncaught exception incident, the exception is the environment does not exist
-                            Log::error(tr('Not attempting to register the following uncaught exception incident in the database, environment ":environment" does not exist', [
+                            Log::error(ts('Not attempting to register the following uncaught exception incident in the database, environment ":environment" does not exist', [
                                 ':environment' => ENVIRONMENT
                             ]));
 
@@ -2820,7 +2820,7 @@ class Core implements CoreInterface
                                         $e->registerIncident(EnumSeverity::severe);
 
                                     } catch (Throwable $f) {
-                                        Log::error(tr('Failed to register uncaught exception because of the following exception'));
+                                        Log::error(ts('Failed to register uncaught exception because of the following exception'));
                                         Log::error($f);
                                     }
 
@@ -2829,7 +2829,7 @@ class Core implements CoreInterface
                                           ->send(false);
 
                                     } catch (Throwable $f) {
-                                        Log::error(tr('Failed to notify developers of uncaught exception because of the following exception'));
+                                        Log::error(ts('Failed to notify developers of uncaught exception because of the following exception'));
                                         Log::error($f);
                                     }
                                 }
@@ -2951,7 +2951,7 @@ class Core implements CoreInterface
         if (($e instanceof PhoException) and $e->isWarning()) {
             // This is just a simple general warning, no backtrace and such needed, only show the
             // principal message
-            Log::warning(tr('Warning: :warning', [':warning' => $e->getMessage()]), 10);
+            Log::warning(ts('Warning: :warning', [':warning' => $e->getMessage()]), 10);
 
             if ($e instanceof CliNoCommandSpecifiedException) {
                 if ($data = $e->getData()) {
@@ -2972,7 +2972,7 @@ class Core implements CoreInterface
             Core::exit(255);
         }
 
-        Log::error(tr('*** UNCAUGHT EXCEPTION ":class" IN ":type" CLI PLATFORM COMMAND ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
+        Log::error(ts('*** UNCAUGHT EXCEPTION ":class" IN ":type" CLI PLATFORM COMMAND ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
             ':class'       => get_class($e),
             ':type'        => Request::getRequestType()->value,
             ':state'       => Core::$state,
@@ -2983,10 +2983,10 @@ class Core implements CoreInterface
         Log::error($e);
 
         //                        Log::error();
-        //                        Log::write(tr('Extended trace:'), 'debug', 10, false);
+        //                        Log::write(ts('Extended trace:'), 'debug', 10, false);
         //                        Log::write(print_r($e->getTrace(), true), 'debug', 10, false);
         //                        Log::error();
-        //                        Log::write(tr('Super extended trace:'), 'debug', 10, false);
+        //                        Log::write(ts('Super extended trace:'), 'debug', 10, false);
         //                        Log::write(print_r(debug_backtrace(), true), 'debug', 10, false);
         //                        Log::printr(debug_backtrace());
 
@@ -3020,7 +3020,7 @@ class Core implements CoreInterface
 
         } else {
             // Log full exception data
-            Log::error(tr('*** UNCAUGHT EXCEPTION ":class" IN ":type" WEB PAGE ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
+            Log::error(ts('*** UNCAUGHT EXCEPTION ":class" IN ":type" WEB PAGE ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
                 ':class'       => get_class($e),
                 ':type'        => Request::getRequestType()->value,
                 ':state'       => Core::$state,
@@ -3028,7 +3028,7 @@ class Core implements CoreInterface
                 ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null),
             ]));
 
-            Log::error(tr('Exception data:'));
+            Log::error(ts('Exception data:'));
             Log::error($e);
         }
 
@@ -3253,17 +3253,17 @@ class Core implements CoreInterface
     protected static function processUncaughtExceptionException(Throwable $e, Throwable $f, string $state): never
     {
         //                if (!isset($core)) {
-        //                    Log::error(tr('*** UNCAUGHT PRE CORE AVAILABLE EXCEPTION HANDLER CRASHED ***'));
-        //                    Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
+        //                    Log::error(ts('*** UNCAUGHT PRE CORE AVAILABLE EXCEPTION HANDLER CRASHED ***'));
+        //                    Log::error(ts('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
         //                    Log::error($f->getMessage());
         //                    exit('Pre core available exception with handling failure. Please your application or webserver error log files, or enable the first line in the exception handler file for more information');
         //                }
 
         if (!defined('PLATFORM') or Core::inStartupState($state)) {
-            Log::error(tr('*** UNCAUGHT SYSTEM STARTUP EXCEPTION HANDLER CRASHED FOR COMMAND ":command" ***', [
+            Log::error(ts('*** UNCAUGHT SYSTEM STARTUP EXCEPTION HANDLER CRASHED FOR COMMAND ":command" ***', [
                 ':command' => Strings::from(Core::getExecutedPath(), DIRECTORY_COMMANDS),
             ]));
-            Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
+            Log::error(ts('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
             Log::exception($f);
 
             exit('System startup exception with handling failure. Please check your DIRECTORY_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information');
@@ -3274,11 +3274,11 @@ class Core implements CoreInterface
 
         switch (PLATFORM) {
             case 'cli':
-                Log::error(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR COMMAND ":command" ***', [
+                Log::error(ts('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR COMMAND ":command" ***', [
                     ':command' => Strings::from(Core::getExecutedPath(), DIRECTORY_COMMANDS),
                 ]));
 
-                Log::error(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
+                Log::error(ts('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
 
                 Debug::setEnabled(true);
 
@@ -3301,7 +3301,7 @@ class Core implements CoreInterface
                             ->setException($e)
                             ->send();
                     } else {
-                        Log::error(tr('Not sending notifications for failed uncaught exception handling, the system database is not available'));
+                        Log::error(ts('Not sending notifications for failed uncaught exception handling, the system database is not available'));
                     }
 
                     Core::executeUncaughtExceptionSystemPage(500, $e);
@@ -3452,7 +3452,7 @@ class Core implements CoreInterface
         } catch (Throwable $e) {
             $e = PhoException::ensurePhoundationException($e);
 
-            Log::error(tr('Failed to generate exception detail, see following details'));
+            Log::error(ts('Failed to generate exception detail, see following details'));
             Log::error($e);
 
             return [

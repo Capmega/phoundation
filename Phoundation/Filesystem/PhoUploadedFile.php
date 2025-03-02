@@ -107,7 +107,7 @@ class PhoUploadedFile extends PhoFileCore implements PhoUploadedFileInterface
         // Move the uploaded file to the Phoundation temporary directory
         $tmp = PhoFile::newTemporaryObject(false, $this->real_name);
 
-        Log::action(tr('Moving uploaded file from PHP temporary directory ":tmp" to Phoundation temporary directory ":phoundation"', [
+        Log::action(ts('Moving uploaded file from PHP temporary directory ":tmp" to Phoundation temporary directory ":phoundation"', [
             ':tmp'         => $this->getSource(),
             ':phoundation' => $tmp->getRootname(),
         ]), 3);

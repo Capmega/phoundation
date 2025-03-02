@@ -105,7 +105,7 @@ class KubernetesObject
     {
         $this->getObjectFile()->save();
 
-        Log::success(tr('Saved ":kind" object ":name" in file ":file"', [
+        Log::success(ts('Saved ":kind" object ":name" in file ":file"', [
             ':kind' => $this->getKind(),
             ':name' => $this->getName(),
             ':file' => $this->getObjectFile()->getFileObject(),
@@ -148,7 +148,7 @@ class KubernetesObject
                    'deployment',
                    $this->name,
                ]);
-        Log::success(tr('Deleted ":kind" kind object ":secret"', [
+        Log::success(ts('Deleted ":kind" kind object ":secret"', [
             ':kind'   => $this->kind,
             ':secret' => $this->name,
         ]));

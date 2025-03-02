@@ -846,7 +846,7 @@ class Sql implements SqlInterface
                 }
             }
 
-            Log::success(tr('Connected to ":connect" in ":time"', [
+            Log::success(ts('Connected to ":connect" in ":time"', [
                 ':connect' => $connect_string,
                 ':time'    => PhoTime::difference($start, microtime(true), 'auto', 5),
             ]), 4);
@@ -1202,7 +1202,7 @@ class Sql implements SqlInterface
             return $this;
         }
 
-        Log::action(tr('(:uniqueid) Using database ":database"', [
+        Log::action(ts('(:uniqueid) Using database ":database"', [
             ':uniqueid' => $this->uniqueid,
             ':database' => $database,
         ]));

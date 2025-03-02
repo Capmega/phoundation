@@ -197,14 +197,14 @@ class Project implements ProjectInterface
 
             $configuration = static::$environment->getConfiguration();
 
-            Log::information(tr('Initializing project ":project", this can take a little while...', [
+            Log::information(ts('Initializing project ":project", this can take a little while...', [
                 ':project' => static::$name,
             ]));
 
             static::getEnvironment()->setup();
 
             // Create admin user
-            Log::action(tr('Creating administrative user ":email", almost done...', [
+            Log::action(ts('Creating administrative user ":email", almost done...', [
                 ':email' => $configuration->getEmail(),
             ]));
 
@@ -212,7 +212,7 @@ class Project implements ProjectInterface
             $user->changePassword($configuration->getPassword(), $configuration->getPassword());
             $user->getRolesObject()->add('god');
 
-            Log::success(tr('Finished project setup'));
+            Log::success(ts('Finished project setup'));
 
         } catch (Throwable $e) {
             Log::warning('Setup failed with the following exception. Cancelling setup process and removing files.');
@@ -220,7 +220,7 @@ class Project implements ProjectInterface
 
             // Remove the project and continue throwing the exception
             Project::remove();
-            Log::warning(tr('Setup process was cancelled'));
+            Log::warning(ts('Setup process was cancelled'));
             throw $e;
         }
     }
@@ -272,7 +272,7 @@ class Project implements ProjectInterface
      */
     public static function remove(): void
     {
-        Log::action(tr('Removing project'));
+        Log::action(ts('Removing project'));
 
         foreach (static::getEnvironments() as $environment) {
             // Delete this environment
@@ -280,7 +280,7 @@ class Project implements ProjectInterface
         }
 
         // Remove the project file
-        Log::warning(tr('Removing project file "config/project/name"'));
+        Log::warning(ts('Removing project file "config/project/name"'));
         PhoFile::new(DIRECTORY_ROOT . 'config/project/name', PhoRestrictions::new(DIRECTORY_ROOT . 'config/project/name', true))
             ->delete();
     }
@@ -322,7 +322,7 @@ class Project implements ProjectInterface
             return false;
         }
 
-        Log::warning(tr('Removing environment ":environment"', [
+        Log::warning(ts('Removing environment ":environment"', [
             ':environment' => $environment,
         ]));
 
@@ -434,7 +434,7 @@ class Project implements ProjectInterface
      */
     public static function import(bool $demo, int $min, int $max, array|string|null $libraries = null): void
     {
-        Log::information(tr('Starting import for all libraries that support it'));
+        Log::information(ts('Starting import for all libraries that support it'));
 return;
 throw new NoLongerSupportedException('Project::import() is no longer supported as it was mostly a bad idea. Find a better solution');
         $libraries = Arrays::force(strtolower(Strings::force($libraries)));
@@ -451,7 +451,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
                             ->addArgument('Import.php')
                             ->executeReturnArray();
 
-            Log::notice(tr('Found ":count" import classes for section ":section"', [
+            Log::notice(ts('Found ":count" import classes for section ":section"', [
                 ':count'   => count($files),
                 ':section' => $section,
             ]), 5);
@@ -467,14 +467,14 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
                     $library = Strings::until(Strings::from($file, $directory), '/');
 
                     if ($libraries and !in_array(strtolower($library), $libraries)) {
-                        Log::warning(tr('Not executing import for library ":library" as it is filtered', [
+                        Log::warning(ts('Not executing import for library ":library" as it is filtered', [
                             ':library' => $library,
                         ]));
                         continue;
                     }
 
                     if (is_subclass_of($class, Import::class)) {
-                        Log::action(tr('Importing data for ":section" library ":library" from file ":file"', [
+                        Log::action(ts('Importing data for ":section" library ":library" from file ":file"', [
                             ':section' => $section,
                             ':library' => $library,
                             ':file'    => Strings::from($file, DIRECTORY_ROOT . $directory),
@@ -482,7 +482,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
 
                         $count = $class::new($demo, $min, $max)->execute();
 
-                        Log::success(tr('Imported ":count" records for ":section" library ":library"', [
+                        Log::success(ts('Imported ":count" records for ":section" library ":library"', [
                             ':section' => $section,
                             ':library' => $library,
                             ':count'   => $count,
@@ -490,7 +490,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
                     }
 
                 } catch (Throwable $e) {
-                    Log::action(tr('Failed to import data for ":section" library ":library" with the following exception', [
+                    Log::action(ts('Failed to import data for ":section" library ":library" with the following exception', [
                         ':section' => $section,
                         ':library' => $library,
                     ]), 3);
@@ -679,7 +679,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
     {
         $branch = $this->getBranch($branch);
 
-        Log::notice(tr('Trying to pull updates from Phoundation using current project branch ":branch"', [
+        Log::notice(ts('Trying to pull updates from Phoundation using current project branch ":branch"', [
             ':branch' => $branch,
         ]));
 
@@ -712,10 +712,10 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
                     $this->git->commit($message, $signed);
                 }
 
-                Log::warning(tr('Committed local Phoundation update to git'));
+                Log::warning(ts('Committed local Phoundation update to git'));
 
             } else {
-                Log::warning(tr('No updates found in local Phoundation update'));
+                Log::warning(ts('No updates found in local Phoundation update'));
             }
 
             // Stash pop the previous changes and reset HEAD to ensure the index is empty
@@ -728,7 +728,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
 
         } catch (Throwable $e) {
             if (isset($stash)) {
-                Log::warning(tr('Moving stashed files back'));
+                Log::warning(ts('Moving stashed files back'));
                 $this->git->getStashObject()
                           ->pop();
                 $this->git->reset('HEAD');
@@ -770,7 +770,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
             // Select the current branch
             $default = $this->git->getBranch();
 
-            Log::notice(tr('Using project branch ":branch"', [
+            Log::notice(ts('Using project branch ":branch"', [
                 ':branch' => $default,
             ]));
         }
@@ -795,7 +795,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         // Select the current branch
         $this->git->setBranch($branch);
 
-        Log::notice(tr('Set project branch to ":branch"', [
+        Log::notice(ts('Set project branch to ":branch"', [
             ':branch' => $branch,
         ]));
 
@@ -1042,7 +1042,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
 // TODO Implement
         $skip = false;
         if ($skip) {
-            Log::action(tr('Caching all Phoundation libraries'));
+            Log::action(ts('Caching all Phoundation libraries'));
             Find::new()
                 ->setPath(DIRECTORY_ROOT . 'Phoundation/')
                 ->setFilenameFilter('*.php')
@@ -1053,7 +1053,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
                 ->execute();
             Log::dot(true);
         } else {
-            Log::warning(tr('Not caching Phoundation libraries'));
+            Log::warning(ts('Not caching Phoundation libraries'));
         }
 
         return $this;
@@ -1076,7 +1076,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
     {
         if (!$branch) {
             $branch = $this->git->getBranch();
-            Log::notice(tr('Trying to pull plugin updates from Phoundation using current project branch ":branch"', [
+            Log::notice(ts('Trying to pull plugin updates from Phoundation using current project branch ":branch"', [
                 ':branch' => $branch,
             ]));
         }
@@ -1114,10 +1114,10 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
                     $this->git->commit($message, $signed);
                 }
 
-                Log::warning(tr('Committed local Phoundation update to git'));
+                Log::warning(ts('Committed local Phoundation update to git'));
 
             } else {
-                Log::warning(tr('No updates found in local Phoundation plugins update'));
+                Log::warning(ts('No updates found in local Phoundation plugins update'));
             }
 
             // Stash pop the previous changes and reset HEAD to ensure the index is empty
@@ -1131,7 +1131,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
 
         } catch (Throwable $e) {
             if (isset($stash)) {
-                Log::warning(tr('Moving stashed files back'));
+                Log::warning(ts('Moving stashed files back'));
                 $this->git->getStashObject()
                           ->pop();
                 $this->git->reset('HEAD');
@@ -1223,7 +1223,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         if ($stash->getCount()) {
             $bad_files = clone $stash;
             // Whoopsie, we have shirts in the stash, meaning some file was naughty.
-            Log::warning(tr('Returning problematic files ":files" from stash', [':files' => $failed]));
+            Log::warning(ts('Returning problematic files ":files" from stash', [':files' => $failed]));
             Git::new(DIRECTORY_ROOT)
                ->getStashObject()
                ->pop();
@@ -1264,7 +1264,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
                 $git   = Git::new(DIRECTORY_ROOT);
 
                 if ($files) {
-                    Log::warning(tr('Trying to fix by stashing ":count" problematic file(s) ":files"', [
+                    Log::warning(ts('Trying to fix by stashing ":count" problematic file(s) ":files"', [
                         ':count' => count($files),
                         ':files' => $files,
                     ]));

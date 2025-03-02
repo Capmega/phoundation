@@ -75,15 +75,15 @@ foreach ($emails->load() as $email) {
 
 // Should we restart?
 if ($count) {
-    Log::success(tr('Sent ":count" emails', [':count' => $count]));
+    Log::success(ts('Sent ":count" emails', [':count' => $count]));
 
     if ($count >= $argv['limit']) {
         if ($argv['auto_restart']) {
             if ($argv['background']) {
-                Log::action(tr('Restarting send process as background process'));
+                Log::action(ts('Restarting send process as background process'));
                 $method = EnumExecuteMethod::background;
             } else {
-                Log::action(tr('Restarting send process as background process'));
+                Log::action(ts('Restarting send process as background process'));
                 $method = EnumExecuteMethod::passthru;
             }
 
@@ -98,5 +98,5 @@ if ($count) {
     }
 
 } else {
-    Log::success(tr('Found no pending emails'));
+    Log::success(ts('Found no pending emails'));
 }

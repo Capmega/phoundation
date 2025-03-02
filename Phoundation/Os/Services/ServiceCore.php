@@ -239,7 +239,7 @@ class ServiceCore
 
         Core::fork(
             function() {
-                Log::success(tr('Started service ":command"', [
+                Log::success(ts('Started service ":command"', [
                     ':command' => CliCommand::getCommandsString()
                 ]));
 

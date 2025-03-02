@@ -201,7 +201,7 @@ class Cli
 
         } else {
             // Oops, empty source!
-            Log::warning(tr('No results'));
+            Log::warning(ts('No results'));
         }
     }
 

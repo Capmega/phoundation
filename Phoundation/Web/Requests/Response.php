@@ -592,7 +592,7 @@ class Response implements ResponseInterface
             }
 
         } catch (FilesystemException $e) {
-            Log::warning(tr('Failed to find favicon, see next message for more information'), 3);
+            Log::warning(ts('Failed to find favicon, see next message for more information'), 3);
             Log::warning($e->makeWarning(), 3);
         }
     }
@@ -749,7 +749,7 @@ class Response implements ResponseInterface
         }
 
         if ($header and static::$html_headers_sent) {
-            Log::warning(tr('Not adding files ":files" to HTML headers as the HTML headers have already been generated', [
+            Log::warning(ts('Not adding files ":files" to HTML headers as the HTML headers have already been generated', [
                 ':files' => $urls,
             ]));
         }
@@ -1000,7 +1000,7 @@ class Response implements ResponseInterface
                     // We're at a different page. Should we redirect to the specified page?
                     if (!static::skipRedirect()) {
                         // No, it's not, redirect!
-                        Log::action(tr('User ":user" has a redirect to ":url", redirecting there instead', [
+                        Log::action(ts('User ":user" has a redirect to ":url", redirecting there instead', [
                             ':user' => Session::getUserObject()
                                               ->getLogId(),
                             ':url'  => $redirect,
@@ -1016,7 +1016,7 @@ class Response implements ResponseInterface
                         static::redirect($redirect);
                     }
 
-                    Log::warning(tr('User ":user" has a redirect to ":url" which MAY NOT redirected to, ignoring redirect', [
+                    Log::warning(ts('User ":user" has a redirect to ":url" which MAY NOT redirected to, ignoring redirect', [
                         ':user' => Session::getUserObject()
                                           ->getLogId(),
                         ':url'  => $redirect,
@@ -1045,7 +1045,7 @@ class Response implements ResponseInterface
     public static function getRedirect(Stringable|string $redirect): ?string
     {
         if (static::skipRedirect($redirect)) {
-            Log::warning(tr('Skipping redirect to ":redirect" as it is now allowed', [
+            Log::warning(ts('Skipping redirect to ":redirect" as it is now allowed', [
                 ':redirect' => $redirect,
             ]));
 
@@ -1243,12 +1243,12 @@ class Response implements ResponseInterface
         static::setHttpCode($http_code);
 
         if ($reason_warning) {
-            Log::warning(tr('Redirecting because: :reason', [':reason' => $reason_warning]));
+            Log::warning(ts('Redirecting because: :reason', [':reason' => $reason_warning]));
         }
 
         // Redirect with time delay
         if ($time_delay) {
-            Log::action(tr('Redirecting with HTTP ":http" and ":time" seconds delay to url ":url"', [
+            Log::action(ts('Redirecting with HTTP ":http" and ":time" seconds delay to url ":url"', [
                 ':http' => $http_code,
                 ':time' => $time_delay,
                 ':url'  => $target,
@@ -1259,7 +1259,7 @@ class Response implements ResponseInterface
 
         } else {
             // Redirect immediately
-            Log::action(tr('Redirecting with HTTP ":http" to url ":url"', [
+            Log::action(ts('Redirecting with HTTP ":http" to url ":url"', [
                 ':http' => $http_code,
                 ':url'  => $target,
             ]));
@@ -1328,13 +1328,13 @@ class Response implements ResponseInterface
                 case 302:
                     // no break
                 case 304:
-                    Log::success(tr('Sent HTTP headers with HTTP code ":http" using ":length" bytes', [
+                    Log::success(ts('Sent HTTP headers with HTTP code ":http" using ":length" bytes', [
                         ':length' => number_format($length),
                         ':http'   => (static::$http_code ? 'HTTP ' . static::$http_code : 'HTTP 0'),
                     ]), 4);
                     break;
                 default:
-                    Log::warning(tr('Sent HTTP headers with HTTP code ":http" using ":length" bytes', [
+                    Log::warning(ts('Sent HTTP headers with HTTP code ":http" using ":length" bytes', [
                         ':length' => number_format($length),
                         ':http'   => (static::$http_code ? 'HTTP ' . static::$http_code : 'HTTP 0'),
                     ]));
@@ -1442,7 +1442,7 @@ class Response implements ResponseInterface
 
                 $length = static::sendHttpHeaders();
 
-                Log::success(tr('Cached ":length" bytes of HTTP to client', [':length' => $length]), 3);
+                Log::success(ts('Cached ":length" bytes of HTTP to client', [':length' => $length]), 3);
             }
 
             // Filter output out for certain HTTP codes, then send headers & output
@@ -1775,12 +1775,12 @@ class Response implements ResponseInterface
 
         // Log how much we sent
         if ($length) {
-            Log::action(tr('Sent ":length" output data to client', [
+            Log::action(ts('Sent ":length" output data to client', [
                 ':length' => Numbers::getHumanReadableBytes($length),
             ]), 4);
 
         } else {
-            Log::warning(tr('Warning: page generated no output for client, sent 0 bytes'));
+            Log::warning(ts('Warning: page generated no output for client, sent 0 bytes'));
         }
     }
 
@@ -1823,7 +1823,7 @@ class Response implements ResponseInterface
                     Log::success($exit_message);
                 }
 
-                Log::success(tr('Script(s) ":script" ended successfully with HTTP code ":http_code", sending ":sent" to client in ":time" with ":usage" peak memory usage', [
+                Log::success(ts('Script(s) ":script" ended successfully with HTTP code ":http_code", sending ":sent" to client in ":time" with ":usage" peak memory usage', [
                     ':script'    => Request::getExecutedPath(true),
                     ':time'      => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'     => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
@@ -1837,7 +1837,7 @@ class Response implements ResponseInterface
                     echo $exit_message;
                 }
 
-                Log::error(tr('Script(s) ":script" ended with HTTP warning code ":http_code", sending ":sent" to client  in ":time" with ":usage" peak memory usage', [
+                Log::error(ts('Script(s) ":script" ended with HTTP warning code ":http_code", sending ":sent" to client  in ":time" with ":usage" peak memory usage', [
                     ':script'    => Request::getExecutedPath(true),
                     ':time'      => PhoTime::difference(STARTTIME, microtime(true), 'auto', 5),
                     ':usage'     => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
@@ -1857,7 +1857,7 @@ class Response implements ResponseInterface
         }
 
         // Normal kill request
-        Log::action(tr('Killing web page process'), 2);
+        Log::action(ts('Killing web page process'), 2);
         exit();
     }
 

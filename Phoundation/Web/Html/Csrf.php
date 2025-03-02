@@ -83,7 +83,7 @@ class Csrf
             $_SESSION['csrf'][$csrf] = new DateTime();
             $_SESSION['csrf'][$csrf] = $_SESSION['csrf'][$csrf]->getTimestamp();
 
-            Log::warning(tr('Added CSRF code ":code" to session buffer', [':code' => $csrf]));
+            Log::warning(ts('Added CSRF code ":code" to session buffer', [':code' => $csrf]));
 
         } else {
             if (empty($_SESSION['csrf'])) {
@@ -91,7 +91,7 @@ class Csrf
 
             } elseif (!is_string($_SESSION['csrf'])) {
                 // Static CSRF must be a string
-                Log::warning(tr('Encountered invalid static CSRF buffer ":code" in session, clearing buffer', [
+                Log::warning(ts('Encountered invalid static CSRF buffer ":code" in session, clearing buffer', [
                     ':code' => $_SESSION['csrf']
                 ]));
 
@@ -101,7 +101,7 @@ class Csrf
                 $_SESSION['csrf_static_test'] = $_SESSION['csrf'];
                 $csrf                         = $_SESSION['csrf'];
 
-                Log::warning(tr('Re-using session CSRF code ":code"', [':code' => $csrf]));
+                Log::warning(ts('Re-using session CSRF code ":code"', [':code' => $csrf]));
             }
 
         }
@@ -138,7 +138,7 @@ class Csrf
     {
         $_SESSION['csrf'] = $prefix . Strings::unique('sha256');
 
-        Log::warning(tr('Set static CSRF code ":code" for session', [':code' => $_SESSION['csrf']]));
+        Log::warning(ts('Set static CSRF code ":code" for session', [':code' => $_SESSION['csrf']]));
 
         return $_SESSION['csrf'];
     }
@@ -181,11 +181,11 @@ class Csrf
             // CSRF check failed, log $_POST data for analysis, drop $_POST data to ensure it won't be used
             $post = PostValidator::new();
 
-            Log::warning(tr('CSRF check failed with: :e', [
+            Log::warning(ts('CSRF check failed with: :e', [
                 ':e' => $e->getMessage(),
             ]));
 
-            Log::warning(tr('POST data logged below for security analysis'));
+            Log::warning(ts('POST data logged below for security analysis'));
             Log::printr(Arrays::hideSensitive($post->getSource()));
 
             $post->clear();
@@ -262,7 +262,7 @@ class Csrf
             }
         }
 
-        Log::success(tr('Accepted POST CSRF code ":csrf" and removed it from session buffer', [
+        Log::success(ts('Accepted POST CSRF code ":csrf" and removed it from session buffer', [
             ':csrf' => $csrf
         ]));
 
@@ -322,7 +322,7 @@ class Csrf
             if (!is_array($_SESSION['csrf'])) {
                 $_SESSION['csrf'] = [];
 
-                Log::warning(tr('Encountered invalid strict CSRF buffer ":code" in session, clearing buffer', [
+                Log::warning(ts('Encountered invalid strict CSRF buffer ":code" in session, clearing buffer', [
                     ':code' => $_SESSION['csrf']
                 ]));
 
@@ -331,7 +331,7 @@ class Csrf
                 while (count($_SESSION['csrf']) > $max_count) {
                     $code = array_shift($_SESSION['csrf']);
 
-                    Log::warning(tr('CSRF buffer size ":size" is too large, dropped CSRF code ":code"', [
+                    Log::warning(ts('CSRF buffer size ":size" is too large, dropped CSRF code ":code"', [
                         ':size' => (count($_SESSION['csrf']) + 1),
                         ':code' => $code
                     ]));

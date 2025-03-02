@@ -244,11 +244,11 @@ class Session implements SessionInterface
     public static function start(): void
     {
         if (static::$has_started_up) {
-            Log::warning(tr('Session has already started, not starting again'));
+            Log::warning(ts('Session has already started, not starting again'));
             return;
         }
 
-        Log::action(tr('Starting session object'), 1);
+        Log::action(ts('Starting session object'), 1);
 
         static::checkDomains();
         static::configureCookies();
@@ -308,7 +308,7 @@ class Session implements SessionInterface
             switch (config()->getBoolean('web.domains.whitelabels', false)) {
                 case '':
                     // White label domains are disabled, so the requested domain MUST match the configured domain
-                    Log::warning(tr('White labels are disabled, redirecting domain ":source" to ":target"', [
+                    Log::warning(ts('White labels are disabled, redirecting domain ":source" to ":target"', [
                         ':source' => $_SERVER['HTTP_HOST'],
                         ':target' => Request::getDomain(),
                     ]));
@@ -322,7 +322,7 @@ class Session implements SessionInterface
                 case 'sub':
                     // White label domains are disabled, but subdomains from the primary domain are allowed
                     if (Strings::from(static::$domain, '.') !== Request::getDomain()) {
-                        Log::warning(tr('Whitelabels are set to subdomains only, redirecting domain ":source" to ":target"', [
+                        Log::warning(ts('Whitelabels are set to subdomains only, redirecting domain ":source" to ":target"', [
                             ':source' => $_SERVER['HTTP_HOST'],
                             ':target' => Request::getDomain(),
                         ]));
@@ -340,7 +340,7 @@ class Session implements SessionInterface
                     ]);
 
                     if (empty(static::$domain)) {
-                        Log::warning(tr('Whitelabel check failed because domain was not found in database, redirecting domain ":source" to ":target"', [
+                        Log::warning(ts('Whitelabel check failed because domain was not found in database, redirecting domain ":source" to ":target"', [
                             ':source' => $_SERVER['HTTP_HOST'],
                             ':target' => Request::getDomain(),
                         ]));
@@ -353,7 +353,7 @@ class Session implements SessionInterface
                     if (is_array(config()->get('web.domains.whitelabels', false))) {
                         // Domain must be specified in one of the array entries
                         if (!in_array(static::$domain, config()->get('web.domains.whitelabels', false))) {
-                            Log::warning(tr('Whitelabel check failed because domain was not found in configured array, redirecting domain ":source" to ":target"', [
+                            Log::warning(ts('Whitelabel check failed because domain was not found in configured array, redirecting domain ":source" to ":target"', [
                                 ':source' => $_SERVER['HTTP_HOST'],
                                 ':target' => Request::getDomain(),
                             ]));
@@ -365,7 +365,7 @@ class Session implements SessionInterface
                         // The domain must match either domain configuration or the domain specified in configuration
                         // "whitelabels.enabled"
                         if (static::$domain !== config()->get('web.domains.whitelabels', false)) {
-                            Log::warning(tr('Whitelabel check failed because domain did not match only configured alternative, redirecting domain ":source" to ":target"', [
+                            Log::warning(ts('Whitelabel check failed because domain did not match only configured alternative, redirecting domain ":source" to ":target"', [
                                 ':source' => $_SERVER['HTTP_HOST'],
                                 ':target' => Request::getDomain(),
                             ]));
@@ -634,7 +634,7 @@ class Session implements SessionInterface
 
         if (isset_get(Core::readRegister('session', 'client')['type']) === 'crawler') {
             // Do not send cookies to crawlers!
-            Log::information(tr('Crawler ":crawler" on URL ":url"', [
+            Log::information(ts('Crawler ":crawler" on URL ":url"', [
                 ':crawler' => Core::readRegister('session', 'client'),
                 ':url'     => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
             ]));
@@ -683,13 +683,13 @@ class Session implements SessionInterface
 
         try {
             // Start session. Two log entries are added around it to more easily debug issues with PHP session starting
-            Log::action(tr('About to start session ":session"', [
+            Log::action(ts('About to start session ":session"', [
                 ':session' => session_id() ?: 'new',
             ]), 1);
 
             session_start();
 
-            Log::success(tr('Started session ":session"', [
+            Log::success(ts('Started session ":session"', [
                 ':session' => session_id() ?: 'new',
             ]), 2);
 
@@ -709,7 +709,7 @@ class Session implements SessionInterface
             // TODO Why are we still doing this? We should be able to do extended sessions better
             // static::checkExtended();
 
-            Log::success(tr('Resumed session ":session" for user ":user" from IP ":ip"', [
+            Log::success(ts('Resumed session ":session" for user ":user" from IP ":ip"', [
                 ':session' => session_id(),
                 ':user'    => static::getUserObject()->getLogId(),
                 ':ip'      => Session::getIpAddress(),
@@ -904,7 +904,7 @@ Log::printr(session_id());
         // Initialize the session for the user
         Session::initializeUser();
 
-        Log::success(tr('Created new session ":session" for user ":user"', [
+        Log::success(ts('Created new session ":session" for user ":user"', [
             ':session' => session_id(),
             ':user'    => static::getUserObject()->getLogId(),
         ]));
@@ -1015,7 +1015,7 @@ showdie('YES!');
                        ->load($users_id);
 
         } catch (DataEntryNotExistsException) {
-            Log::warning(tr('The session user ":id" does not exist, removing session entry and dropping to guest user', [
+            Log::warning(ts('The session user ":id" does not exist, removing session entry and dropping to guest user', [
                 ':id' => isset_get($_SESSION['user']['id']),
             ]));
 
@@ -1023,7 +1023,7 @@ showdie('YES!');
             Log::warning($e->getMessage());
 
         } catch (Throwable $e) {
-            Log::warning(tr('Failed to fetch user ":user" for session with ":e", removing session entry and dropping to guest user', [
+            Log::warning(ts('Failed to fetch user ":user" for session with ":e", removing session entry and dropping to guest user', [
                 ':e'    => $e->getMessage(),
                 ':user' => isset_get($_SESSION['user']['id']),
             ]));

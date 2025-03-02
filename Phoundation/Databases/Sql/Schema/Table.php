@@ -140,7 +140,7 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function drop(): static
     {
-        Log::warning(tr('Dropping table ":table" in database ":database" for SQL instance ":instance"', [
+        Log::warning(ts('Dropping table ":table" in database ":database" for SQL instance ":instance"', [
             ':table'    => $this->name,
             ':instance' => $this->sql->getConnector(),
             ':database' => $this->sql->getDatabase(),
@@ -159,7 +159,7 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function truncate(): void
     {
-        Log::warning(tr('Truncating table :table', [':table' => $this->name]));
+        Log::warning(ts('Truncating table :table', [':table' => $this->name]));
         sql()->query('TRUNCATE `' . $this->name . '`');
     }
 

@@ -155,7 +155,7 @@ class Tasks extends DataIterator implements TasksInterface
                                           ->makeWarning();
         }
 
-        Log::action(tr('Executing ":count" pending tasks with ":workers" child worker', [
+        Log::action(ts('Executing ":count" pending tasks with ":workers" child worker', [
             ':count'   => count($keys),
             ':workers' => static::$max_task_workers,
         ]));
@@ -171,11 +171,11 @@ class Tasks extends DataIterator implements TasksInterface
                ->start();
 
         } catch (TasksException $e) {
-            Log::error(tr('Execution of pending tasks failed'));
+            Log::error(ts('Execution of pending tasks failed'));
             Log::exception($e);
 
             // Restart tasks execution in a separate process
-            Log::action(tr('Restarting pending tasks executer in new background process'));
+            Log::action(ts('Restarting pending tasks executer in new background process'));
 
             Pho::new()
                ->setPhoCommands('tasks,execute')

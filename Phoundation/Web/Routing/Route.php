@@ -246,7 +246,7 @@ class Route
         static::$url    = Strings::until(static::$url, '?');
 
         // Ensure the post-processing function is registered
-        Log::information(tr('[:method] ":url" from client ":client"', [
+        Log::information(ts('[:method] ":url" from client ":client"', [
             ':method' => static::$method,
             ':url'    => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
             ':client' => Session::getIpAddress() . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')'),
@@ -488,7 +488,7 @@ class Route
 
         // URI may not be more than 2048 bytes
         if (strlen(static::$url) > 2048) {
-            Log::warning(tr('Requested URI ":uri" has ":count" characters, where 2048 is a hardcoded limit for compatibility (See Phoundation\Web\Route class). 400-ing the request', [
+            Log::warning(ts('Requested URI ":uri" has ":count" characters, where 2048 is a hardcoded limit for compatibility (See Phoundation\Web\Route class). 400-ing the request', [
                 ':uri'   => static::$url,
                 ':count' => strlen(static::$url),
             ]));
@@ -499,7 +499,7 @@ class Route
         // NOTE: This is checked on $_SERVER['REQUEST_URI'] and not static::$url because static::$url already has the
         // first slash(es) stripped during the __construct() phase
         if (str_contains($_SERVER['REQUEST_URI'], '//')) {
-            Log::warning(tr('Requested URI ":uri" contains one or multiple double slashes, automatically rejecting this with a 404 page', [
+            Log::warning(ts('Requested URI ":uri" contains one or multiple double slashes, automatically rejecting this with a 404 page', [
                 ':uri' => $_SERVER['REQUEST_URI'],
             ]));
             static::executeSystem(404);
@@ -553,14 +553,14 @@ class Route
 
             if (str_contains($queries, '?')) {
                 // The URL contains a ? symbol somewhere in the middle of the queries, which is an invalid request
-                Log::warning(tr('Query string ":queries" contains a double ? somewhere in the middle of the queries, rejecting request', [
+                Log::warning(ts('Query string ":queries" contains a double ? somewhere in the middle of the queries, rejecting request', [
                     ':queries' => $_SERVER['QUERY_STRING'],
                 ]));
 
                 static::executeSystem(400);
             }
 
-            Log::warning(tr('Query string ":queries" contains one or multiple ? characters right at the start of the queries. Removed duplicate characters in case of a correcting redirect', [
+            Log::warning(ts('Query string ":queries" contains one or multiple ? characters right at the start of the queries. Removed duplicate characters in case of a correcting redirect', [
                 ':queries' => $_SERVER['QUERY_STRING'],
             ]));
         }
@@ -578,7 +578,7 @@ class Route
                     array_value_last($query)
                 ];
 
-                Log::warning(tr('Query string ":queries" variable ":variable" contains multiple assignments, using only the last one in case of a correcting redirect', [
+                Log::warning(ts('Query string ":queries" variable ":variable" contains multiple assignments, using only the last one in case of a correcting redirect', [
                     ':queries'  => $_SERVER['QUERY_STRING'],
                     ':variable' => $query[0],
                 ]));
@@ -588,7 +588,7 @@ class Route
             if (array_key_exists($query[0], $variables)) {
                 $redirect = true;
 
-                Log::warning(tr('Query string ":queries" contains multiple versions of the variable ":variable", using only the last one in case of a correcting redirect', [
+                Log::warning(ts('Query string ":queries" contains multiple versions of the variable ":variable", using only the last one in case of a correcting redirect', [
                     ':queries'  => $_SERVER['QUERY_STRING'],
                     ':variable' => $query[0],
                 ]));
@@ -600,7 +600,7 @@ class Route
         if (isset($redirect)) {
             $correct = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . Strings::until($_SERVER['REQUEST_URI'], '?') . '?' . Arrays::implodeWithKeys($variables, '&', '=');
 
-            Log::warning(tr('Detected fixable issues with URL ":url", redirecting request to correct URL ":correct"', [
+            Log::warning(ts('Detected fixable issues with URL ":url", redirecting request to correct URL ":correct"', [
                 ':url'     => $_SERVER['REQUEST_URI'],
                 ':correct' => $correct,
             ]));
@@ -1206,7 +1206,7 @@ class Route
 
                 // Check if the route map has the requested language
                 if (empty($core->register['Route::map'][$language])) {
-                    Log::warning(tr('Requested language ":language" does not have a language map available', [
+                    Log::warning(ts('Requested language ":language" does not have a language map available', [
                         ':language' => $language,
                     ]));
 
@@ -1215,7 +1215,7 @@ class Route
 
                 } else {
                     // Found a map for the requested language
-                    Log::notice(tr('Attempting to remap for language ":language"', [':language' => $language]));
+                    Log::notice(ts('Attempting to remap for language ":language"', [':language' => $language]));
 
                     foreach ($core->register['Route::map'][$language] as $unknown => $remap) {
                         if (str_contains(static::$route, $unknown)) {
@@ -1225,19 +1225,19 @@ class Route
                     }
 
                     if (!file_exists(static::$route)) {
-                        Log::warning(tr('Language remapped route ":route" does not exist', [
+                        Log::warning(ts('Language remapped route ":route" does not exist', [
                             ':route' => static::$route
                         ]));
 
                         static::executeSystem(404);
                     }
 
-                    Log::success(tr('Found remapped route ":route"', [':route' => static::$route]));
+                    Log::success(ts('Found remapped route ":route"', [':route' => static::$route]));
                 }
 
                 if (!$translated) {
                     // Page was not translated, ie it's still the original, and no translation was found.
-                    Log::warning(tr('Requested language ":language" does not have a translation available in the language map for route ":route"', [
+                    Log::warning(ts('Requested language ":language" does not have a translation available in the language map for route ":route"', [
                         ':language' => $language,
                         ':route'    => static::$route,
                     ]));
@@ -1260,7 +1260,7 @@ class Route
         if (!static::$pass_get_variables) {
             if (GetValidator::new()->isNotEmpty()) {
                 // Client specified variables on a URL that does not allow queries, cancel the match
-                Log::warning(tr('Matched route ":route" does not allow query variables while client specified them, cancelling match', [
+                Log::warning(ts('Matched route ":route" does not allow query variables while client specified them, cancelling match', [
                     ':route' => static::$route,
                 ]));
 
@@ -1288,7 +1288,7 @@ class Route
             foreach (GetValidator::new() as $key => $action) {
                 // This key must be allowed, or we're done
                 if (empty(static::$pass_get_variables[$key])) {
-                    Log::warning(tr('Matched route ":route" contains GET key ":key" which is not specifically allowed by the pass_get_variables list, cancelling match', [
+                    Log::warning(ts('Matched route ":route" contains GET key ":key" which is not specifically allowed by the pass_get_variables list, cancelling match', [
                         ':route' => static::$route,
                         ':key'   => $key,
                     ]));
@@ -1310,7 +1310,7 @@ class Route
                         $domain = Url::new()->getDomain();
                         $domain = Strings::until($domain, '?');
 
-                        Log::warning(tr('Matched route ":route" allows GET key ":key" as redirect to URL without query', [
+                        Log::warning(ts('Matched route ":route" allows GET key ":key" as redirect to URL without query', [
                             ':route' => static::$route,
                             ':key'   => $key,
                         ]));
@@ -1350,7 +1350,7 @@ class Route
                     static::$route = str_replace('$' . $replacement . '$', GetValidator::new()->get($replacement), static::$route);
 
                 } catch (Throwable $e) {
-                    Log::warning(tr('Ignoring route ":route" because regex ":regex" has the error ":e"', [
+                    Log::warning(ts('Ignoring route ":route" because regex ":regex" has the error ":e"', [
                         ':regex' => static::$url_regex,
                         ':route' => static::$route,
                         ':e'     => $e->getMessage(),
@@ -1447,7 +1447,7 @@ class Route
 
                 if ($exists) {
                     // Apply semi-permanent routing for this IP
-                    Log::warning(tr('Found active routing for IP ":ip", continuing routing as if request is URI ":url" with regex ":regex", route ":route", and flags ":flags" instead', [
+                    Log::warning(ts('Found active routing for IP ":ip", continuing routing as if request is URI ":url" with regex ":regex", route ":route", and flags ":flags" instead', [
                         ':ip'     => static::$ip,
                         ':url'    => $exists['url'],
                         ':regex'  => $exists['regex'],
@@ -1465,7 +1465,7 @@ class Route
                 }
 
             } else {
-                Log::warning(tr('Not checking for routes per N flag'));
+                Log::warning(ts('Not checking for routes per N flag'));
             }
         }
     }
@@ -1479,7 +1479,7 @@ class Route
     protected static function match(): bool
     {
         // Match the specified regex. If there is no match, there is nothing else to do for us here
-        Log::action(tr('Testing rule ":count" ":regex" on ":type" ":url"', [
+        Log::action(ts('Testing rule ":count" ":regex" on ":type" ":url"', [
             ':count' => static::$rule_count,
             ':regex' => static::$url_regex,
             ':type'  => static::$method,
@@ -1502,7 +1502,7 @@ class Route
         }
 
         if (Debug::isEnabled()) {
-            Log::success(tr('Regex ":count" ":regex" matched with matches ":matches" and flags ":flags"', [
+            Log::success(ts('Regex ":count" ":regex" matched with matches ":matches" and flags ":flags"', [
                 ':count'   => static::$rule_count,
                 ':regex'   => static::$url_regex,
                 ':matches' => Strings::force(static::$regex_matches, ', '),
@@ -1530,12 +1530,12 @@ class Route
                 case 'D':
                     // Include domain in match
                     static::$url = $_SERVER['HTTP_HOST'] . static::$url;
-                    Log::notice(tr('Adding complete HTTP_HOST in match for URI ":url"', [':url' => static::$url]));
+                    Log::notice(ts('Adding complete HTTP_HOST in match for URI ":url"', [':url' => static::$url]));
                     break;
 
                 case 'M':
                     static::$url .= '?' . static::$query;
-                    Log::notice(tr('Adding query to URI ":url"', [':url' => static::$url]));
+                    Log::notice(ts('Adding query to URI ":url"', [':url' => static::$url]));
 
                     if (!array_search('Q', static::$flags)) {
                         // Auto imply Q
@@ -1573,7 +1573,7 @@ class Route
 
                 case 'B':
                     // Block this request, send nothing
-                    Log::warning(tr('Blocking request as per B flag'));
+                    Log::warning(ts('Blocking request as per B flag'));
                     static::$block_request = true;
                     break;
 
@@ -1651,7 +1651,7 @@ class Route
         // Restrict access to users with the specified right, or execute the specified page instead
         // (defaults to 403). Format is Z$RIGHT$[$PAGE$] and multiple Z rules may be specified
         if (!preg_match_all('/^Z(.+?)(?:\[(.+?)])?$/iu', $flag, static::$regex_matches)) {
-            Log::warning(tr('Invalid "Z" (requires right) rule ":flag" encountered, denying access by default for security', [
+            Log::warning(ts('Invalid "Z" (requires right) rule ":flag" encountered, denying access by default for security', [
                 ':flag' => $flag,
             ]));
 
@@ -1662,12 +1662,12 @@ class Route
         static::$page = get_null(isset_get(static::$regex_matches[2][0]));
 
         if (Session::getUserObject()->isGuest()) {
-            Log::warning(tr('Denied guest user access to resource because signed in user is required'));
+            Log::warning(ts('Denied guest user access to resource because signed in user is required'));
             static::executeSystem(401);
         }
 
         if (!Session::getUserObject()->hasAllRights($right)) {
-            Log::warning(tr('Denied user ":user" access to resource because of missing right ":right"', [
+            Log::warning(ts('Denied user ":user" access to resource because of missing right ":right"', [
                 ':user'  => Session::getUserObject()->getLogId(),
                 ':right' => $right,
             ]));
@@ -1710,7 +1710,7 @@ class Route
         if ($until and !is_natural($until)) {
             $until = null;
 
-            Log::warning(tr('Specified S flag value ":value" is invalid, natural number expected. Falling back to default value of 86400', [
+            Log::warning(ts('Specified S flag value ":value" is invalid, natural number expected. Falling back to default value of 86400', [
                 ':value' => $until,
             ]));
         }
@@ -1789,7 +1789,7 @@ class Route
     {
         // MUST be a GET request, NO POST data allowed!
         if (!empty($_POST)) {
-            Log::notice(tr('Matched route ":route" allows only GET requests, cancelling match', [
+            Log::notice(ts('Matched route ":route" allows only GET requests, cancelling match', [
                 ':route' => static::$route
             ]));
 
@@ -1810,7 +1810,7 @@ class Route
     {
         // MUST be a POST request, NO EMPTY POST data allowed!
         if (empty($_POST)) {
-            Log::notice(tr('Matched route ":route" allows only POST requests, cancelling match', [
+            Log::notice(ts('Matched route ":route" allows only POST requests, cancelling match', [
                 ':route' => static::$route
             ]));
 
@@ -1829,7 +1829,7 @@ class Route
      */
     protected static function applyFlagHack(): void
     {
-        Log::notice(tr('*POSSIBLE HACK ATTEMPT DETECTED*'));
+        Log::notice(ts('*POSSIBLE HACK ATTEMPT DETECTED*'));
         Notification::new()
             ->setUrl(Url::new('security/incidents.html')->makeWww())
             ->setMode(EnumDisplayMode::exception)
@@ -1859,7 +1859,7 @@ class Route
         $url = Url::new(static::$route)->makeWww()->decloak();
 
         if (!$url) {
-            Log::warning(tr('Specified cloaked URL ":cloak" does not exist, cancelling match', [
+            Log::warning(ts('Specified cloaked URL ":cloak" does not exist, cancelling match', [
                 ':cloak' => static::$route
             ]));
 
@@ -1870,7 +1870,7 @@ class Route
         $url = Strings::from($url, '://');
         $url = Strings::from($url, '/');
 
-        Log::notice(tr('Redirecting cloaked URL ":cloak" internally to ":url"', [
+        Log::notice(ts('Redirecting cloaked URL ":cloak" internally to ":url"', [
             ':cloak' => static::$route,
             ':url'   => $_SERVER['REQUEST_URI'],
         ]));
@@ -1906,7 +1906,7 @@ class Route
                     static::applyVariableReplacement($url, $queries, $replacement);
 
                 } catch (Exception $e) {
-                    Log::warning(tr('Ignoring route ":route" because regex ":regex" has the error ":e"', [
+                    Log::warning(ts('Ignoring route ":route" because regex ":regex" has the error ":e"', [
                         ':regex' => static::$url_regex,
                         ':route' => static::$route,
                         ':e'     => $e->getMessage(),
@@ -2019,13 +2019,13 @@ class Route
                 Response::redirect(Url::newRootDomainRootUrl());
             }
             if (str_starts_with($_SERVER['HTTP_HOST'], '.') or str_ends_with($_SERVER['HTTP_HOST'], '.')) {
-                Log::warning(tr('Encountered invalid HTTP HOST ":host", it starts or ends with a dot. Redirecting to clean hostname', [
+                Log::warning(ts('Encountered invalid HTTP HOST ":host", it starts or ends with a dot. Redirecting to clean hostname', [
                     ':host' => $_SERVER['HTTP_HOST'],
                 ]));
                 // Remove dots, whitespaces, etc.
                 $domain = trim(trim($_SERVER['HTTP_HOST'], '.'));
                 if (Domains::isConfigured($domain)) {
-                    Log::warning(tr('HTTP HOST ":host" is not configured, redirecting to main site main page', [
+                    Log::warning(ts('HTTP HOST ":host" is not configured, redirecting to main site main page', [
                         ':host' => $_SERVER['HTTP_HOST'],
                     ]));
                     Request::setRoutingParameters(static::getParametersObject()
@@ -2074,7 +2074,7 @@ class Route
      */
     protected static function makeStatic(string $ip): StaticRoute
     {
-        Log::notice(tr('Creating static route ":route" for IP ":ip"', [
+        Log::notice(ts('Creating static route ":route" for IP ":ip"', [
             ':route' => static::$route,
             ':ip'    => $ip,
         ]));
@@ -2142,7 +2142,7 @@ class Route
     public static function mapUrl(string $language, array $map): void
     {
         // Set specific language map
-        Log::notice(tr('Setting specified URL map'));
+        Log::notice(ts('Setting specified URL map'));
         Core::register($map, 'route', 'map');
     }
 
@@ -2161,7 +2161,7 @@ class Route
 
         }
 
-        Log::notice(tr('Blocking IP ":ip" until ":until" because ":reason"', [
+        Log::notice(ts('Blocking IP ":ip" until ":until" because ":reason"', [
             ':until' => PhoDateTime::new(static::$until),
             ':ip'    => $ip,
         ]));

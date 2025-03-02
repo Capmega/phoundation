@@ -91,7 +91,7 @@ class Authentication extends DataEntry implements AuthenticationInterface
                 $city = GeoIp::detect(Session::getIpAddress())->getCity();
 
             } catch (GeoIpException $e) {
-                Log::warning(tr('Geo IP lookup failed for address ":ip", no GEO IP data will be available', [
+                Log::warning(ts('Geo IP lookup failed for address ":ip", no GEO IP data will be available', [
                     ':ip' => Session::getIpAddress()
                 ]));
 
@@ -272,7 +272,7 @@ class Authentication extends DataEntry implements AuthenticationInterface
 
         } catch (CoreReadonlyException) {
             // Core is readonly we cannot write to the database!
-            Log::warning(tr('Cannot save Authentication object for Session ":session" for user ":user" from IP ":ip", core is readonly', [
+            Log::warning(ts('Cannot save Authentication object for Session ":session" for user ":user" from IP ":ip", core is readonly', [
                 ':session' => Session::getId(),
                 ':user'    => Session::getUserObject()->getLogId(),
                 ':ip'      => Session::getIpAddress(),

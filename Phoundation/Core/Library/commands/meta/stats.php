@@ -40,5 +40,5 @@ ArgvValidator::new()->validate();
 
 
 // Display the meta statistics
-Log::information(tr('Meta data statistics:'), echo_prefix: false);
+Log::information(ts('Meta data statistics:'), echo_prefix: false);
 Meta::getStatistics()->displayCliKeyValueTable();

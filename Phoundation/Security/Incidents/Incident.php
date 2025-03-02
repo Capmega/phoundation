@@ -287,7 +287,7 @@ class Incident extends DataEntry implements IncidentInterface
 
         } catch (CoreReadonlyException $e) {
             // Cannot save incidents when Core is in readonly mode!
-            Log::warning(tr('Cannot save Incident object for Session ":session" for user ":user" from IP ":ip", core is readonly', [
+            Log::warning(ts('Cannot save Incident object for Session ":session" for user ":user" from IP ":ip", core is readonly', [
                 ':session'  => Session::getId(),
                 ':user'     => Session::getUserObject()->getLogId(),
                 ':ip'       => Session::getIpAddress(),
@@ -347,7 +347,7 @@ class Incident extends DataEntry implements IncidentInterface
                     // no break
 
                 case 'low':
-                    Log::notice(tr('Security notice (:id): :message', [
+                    Log::notice(ts('Security notice (:id): :message', [
                         ':id'      => $this->getId(),
                         ':message' => $this->getTitle(),
                     ]), (is_integer($this->log) ? $this->log : 3));
@@ -358,7 +358,7 @@ class Incident extends DataEntry implements IncidentInterface
                     // no break
 
                 case 'warning':
-                    Log::warning(tr('Security incident (:id / :severity): :message', [
+                    Log::warning(ts('Security incident (:id / :severity): :message', [
                         ':id'       => $this->getId(),
                         ':severity' => $severity,
                         ':message'  => $this->getTitle(),
@@ -371,7 +371,7 @@ class Incident extends DataEntry implements IncidentInterface
                     break;
 
                 default:
-                    Log::error(tr('Security incident (:id / :severity): :message', [
+                    Log::error(ts('Security incident (:id / :severity): :message', [
                         ':id'       => $this->getId(),
                         ':severity' => $severity,
                         ':message'  => $this->getTitle(),

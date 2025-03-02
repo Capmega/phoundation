@@ -50,7 +50,7 @@ class Import extends \Phoundation\Developer\Project\Import
                 ->getTableObject('business_customers');
             $count = $table->getCount();
             if ($count and !FORCE) {
-                Log::warning(tr('Not importing data for "business_customers", the table already contains data'));
+                Log::warning(ts('Not importing data for "business_customers", the table already contains data'));
 
                 return 0;
             }

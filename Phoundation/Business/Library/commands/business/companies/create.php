@@ -61,4 +61,4 @@ $company = Company::new()->apply(true, $argv)->save();
 
 
 // Done!
-Log::success(tr('Created new company ":company"', [':company' => $company->getName()]));
+Log::success(ts('Created new company ":company"', [':company' => $company->getName()]));

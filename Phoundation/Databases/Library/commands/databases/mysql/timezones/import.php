@@ -36,8 +36,8 @@ ARGUMENTS
 ArgvValidator::new()->validate();
 
 Log::cli(CliColor::apply(tr('Importing timezone data files in MySQL, this may take a couple of seconds'), 'white'));
-Log::cli(tr('You may ignore any "Warning: Unable to load \'/usr/share/zoneinfo/........\' as time zone. Skipping it." messages'));
-Log::cli(tr('Please fill in MySQL root password in the following "Enter password:" request'));
+Log::cli(ts('You may ignore any "Warning: Unable to load \'/usr/share/zoneinfo/........\' as time zone. Skipping it." messages'));
+Log::cli(ts('Please fill in MySQL root password in the following "Enter password:" request'));
 
 $password = Cli::readPassword('Please specify the MySQL root password');
 

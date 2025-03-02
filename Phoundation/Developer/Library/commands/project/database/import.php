@@ -59,5 +59,5 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Log::information(tr('Importing data, this may take a few minutes...'));
+Log::information(ts('Importing data, this may take a few minutes...'));
 Project::import($argv['demo'], $argv['min'], $argv['max'], $argv['libraries']);

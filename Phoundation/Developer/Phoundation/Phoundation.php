@@ -98,7 +98,7 @@ class Phoundation extends Project
                 ]));
             }
 
-            Log::success(tr('Using Phoundation installation in specified directory ":directory"', [':directory' => $directory]));
+            Log::success(ts('Using Phoundation installation in specified directory ":directory"', [':directory' => $directory]));
             $this->directory = $directory;
 
             return $directory;
@@ -129,7 +129,7 @@ class Phoundation extends Project
                 $this->restrictions = PhoRestrictions::new(dirname($test_path));
 
                 if (!file_exists($test_path)) {
-                    Log::warning(tr('Ignoring directory ":directory", it does not exist', [
+                    Log::warning(ts('Ignoring directory ":directory", it does not exist', [
                         ':directory' => $test_path,
                     ]), 2);
                     continue;
@@ -137,7 +137,7 @@ class Phoundation extends Project
 
                 if (!$this->isPhoundationProject($test_path)) {
                     // This is not a Phoundation type project directory
-                    Log::warning(tr('Ignoring directory ":directory", it has the name ":name" but is not a Phoundation project', [
+                    Log::warning(ts('Ignoring directory ":directory", it has the name ":name" but is not a Phoundation project', [
                         ':directory' => $test_path,
                         ':name'      => $name,
                     ]), 4);
@@ -146,7 +146,7 @@ class Phoundation extends Project
 
                 if (!$this->isPhoundation($test_path)) {
                     // This is not the Phoundation directory
-                    Log::warning(tr('Ignoring directory ":directory", it has the name ":name" and is a Phoundation project but is not a Phoundation core project', [
+                    Log::warning(ts('Ignoring directory ":directory", it has the name ":name" and is a Phoundation project but is not a Phoundation core project', [
                         ':directory' => $test_path,
                         ':name'      => $name,
                     ]), 4);
@@ -159,7 +159,7 @@ class Phoundation extends Project
                     ]));
                 }
 
-                Log::success(tr('Found Phoundation installation in ":directory"', [':directory' => $test_path]));
+                Log::success(ts('Found Phoundation installation in ":directory"', [':directory' => $test_path]));
                 $this->directory = $test_path;
 
                 return $test_path;
@@ -191,7 +191,7 @@ class Phoundation extends Project
 
         } catch (FilesystemException $e) {
             // Failed to read the project file for this project
-            Log::warning(tr('Failed to read project file ":file" because ":e"', [
+            Log::warning(ts('Failed to read project file ":file" because ":e"', [
                 ':file' => $directory . 'config/project/name',
                 ':e'    => $e->getMessage()
             ]));
@@ -298,10 +298,10 @@ class Phoundation extends Project
         // Ensure phoundation is on the right branch
         $this->phoundation_branch = $this->git->getBranch();
         if ($branch !== $this->phoundation_branch) {
-            Log::warning(tr('Phoundation is currently on different branch ":current"', [
+            Log::warning(ts('Phoundation is currently on different branch ":current"', [
                 ':current' => $this->phoundation_branch,
             ]), 4);
-            Log::action(tr('Switching Phoundation branch to requested branch ":requested"', [
+            Log::action(ts('Switching Phoundation branch to requested branch ":requested"', [
                 ':requested' => $branch,
             ]), 5);
             $this->git->checkout($branch);
@@ -323,7 +323,7 @@ class Phoundation extends Project
         if (!$branch) {
             // Select the current branch
             $branch = $this->git->getBranch();
-            Log::notice(tr('Trying to patch updates on Phoundation using current project branch ":branch"', [
+            Log::notice(ts('Trying to patch updates on Phoundation using current project branch ":branch"', [
                 ':branch' => $branch,
             ]));
         }
@@ -372,7 +372,7 @@ class Phoundation extends Project
         $sign    = $sign ?? config()->getBoolean('developer.phoundation.patch.sign', true);
         $branch  = $project->getBranch($branch);
 
-        Log::action(tr('Patching branch ":branch" on your local Phoundation repository from this project', [
+        Log::action(ts('Patching branch ":branch" on your local Phoundation repository from this project', [
             ':branch' => $branch,
         ]));
 
@@ -434,7 +434,7 @@ class Phoundation extends Project
             // Find local Phoundation changes and filter Phoundation changes only
             $changed_files = $this->git->getStatusFilesObject($directory);
             if (!$changed_files->getCount()) {
-                Log::notice(tr('Not patching directory ":directory", it has no changes', [
+                Log::notice(ts('Not patching directory ":directory", it has no changes', [
                     ':directory' => $directory,
                 ]));
                 continue;

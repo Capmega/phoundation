@@ -819,7 +819,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             ];
 
             foreach ($tables as $table) {
-                Log::action(tr('Fixing table ":table" seo_name', [
+                Log::action(ts('Fixing table ":table" seo_name', [
                     ':table' => $table,
                 ]));
 
@@ -830,7 +830,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 }
             }
 
-            Log::action(tr('Fixing table "accounts_users_rights" seo_name'));
+            Log::action(ts('Fixing table "accounts_users_rights" seo_name'));
 
             $entries = sql()->query('SELECT `id`, `rights_id`, `name` FROM `accounts_users_rights`');
 

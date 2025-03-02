@@ -42,8 +42,8 @@ class Network
 
         } catch (ProcessFailedException $e) {
             try {
-                Log::warning(tr('The dig command failed with the following exception'));
-                Log::warning(tr('This issue might be caused by a VPN, retrying with curl'));
+                Log::warning(ts('The dig command failed with the following exception'));
+                Log::warning(ts('This issue might be caused by a VPN, retrying with curl'));
                 Log::warning($e);
 
                 return Get::new('https://ipinfo.io/ip')
@@ -51,7 +51,7 @@ class Network
                           ->getResultData();
 
             } catch (CurlException $f) {
-                Log::warning(tr('Failed to get public IP address from ipinfo.io'));
+                Log::warning(ts('Failed to get public IP address from ipinfo.io'));
                 throw new SocketException(tr('Failed to determine public IP address'), $f);
             }
         }

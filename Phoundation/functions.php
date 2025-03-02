@@ -1221,7 +1221,7 @@ function show(mixed $source = null, bool $sort = true, int $trace_offset = 1, bo
         return Debug::show($source, $sort, $trace_offset, $quiet, var_dump: $var_dump);
 
     } else {
-        Log::warning(tr('Ignoring show() call at ":location" because debug mode is not enabled', [
+        Log::warning(ts('Ignoring show() call at ":location" because debug mode is not enabled', [
             ':location' => Strings::from(FunctionCall::new(1)->getLocation(), DIRECTORY_ROOT)
         ]));
     }
@@ -1246,7 +1246,7 @@ function showhex(mixed $source = null, bool $sort = true, int $trace_offset = 1,
         return show(bin2hex($source), $sort, $trace_offset);
 
     } else {
-        Log::warning(tr('Ignoring showhex() call at ":location" because debug mode is not enabled', [
+        Log::warning(ts('Ignoring showhex() call at ":location" because debug mode is not enabled', [
             ':location' => Strings::from(FunctionCall::new(1)->getLocation(), DIRECTORY_ROOT)
         ]));
     }
@@ -1277,7 +1277,7 @@ function showbacktrace(int $count = 0, int $trace_offset = 2, bool $quiet = fals
         return show($backtrace, true, $trace_offset, $quiet);
 
     } else {
-        Log::warning(tr('Ignoring showbacktrace() call at ":location" because debug mode is not enabled', [
+        Log::warning(ts('Ignoring showbacktrace() call at ":location" because debug mode is not enabled', [
             ':location' => Strings::from(FunctionCall::new(1)->getLocation(), DIRECTORY_ROOT)
         ]));
     }
@@ -1312,7 +1312,7 @@ function showbacktrace(int $count = 0, int $trace_offset = 2, bool $quiet = fals
         Debug::showdie($source, $sort, $trace_offset, $quiet, $var_dump);
 
     } else {
-        Log::warning(tr('Ignoring showdie() call at ":location" because debug mode is not enabled', [
+        Log::warning(ts('Ignoring showdie() call at ":location" because debug mode is not enabled', [
             ':location' => Strings::from(FunctionCall::new(1)->getLocation(), DIRECTORY_ROOT)
         ]));
     }

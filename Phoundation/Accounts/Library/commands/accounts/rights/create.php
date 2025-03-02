@@ -50,4 +50,4 @@ $right = Right::new()->apply(false, $argv)->save();
 
 
 // Done!
-Log::success(tr('Created new right ":right"', [':right' => $right->getName()]));
+Log::success(ts('Created new right ":right"', [':right' => $right->getName()]));

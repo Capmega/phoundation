@@ -140,7 +140,7 @@ class Library implements LibraryInterface
                 $this->plugin = $object;
 
             } else {
-                Log::Warning(tr('The Plugin.php file for the library ":library" in ":directory" is invalid, it should contain a class being an instance of the \Phoundation\Libraries\Interfaces\PluginInterface. This file has been ignored', [
+                Log::Warning(ts('The Plugin.php file for the library ":library" in ":directory" is invalid, it should contain a class being an instance of the \Phoundation\Libraries\Interfaces\PluginInterface. This file has been ignored', [
                     ':directory' => $this->directory,
                     ':library'   => $this->library,
                 ]));
@@ -179,7 +179,7 @@ class Library implements LibraryInterface
             $callback($object);
 
         } catch (Error $e) {
-            Log::warning(tr('Failed to load the ":file" file for library ":library", see the following exception for more information', [
+            Log::warning(ts('Failed to load the ":file" file for library ":library", see the following exception for more information', [
                 ':file'    => $file,
                 ':library' => $this->getName(),
             ]));
@@ -275,7 +275,7 @@ class Library implements LibraryInterface
                 $this->updates = $object;
 
             } else {
-                Log::Warning(tr('The Updates.php file for the library ":library" in ":directory" is invalid, it should contain a class being an instance of the \Phoundation\Libraries\Interfaces\UpdatesInterface. This file has been ignored', [
+                Log::Warning(ts('The Updates.php file for the library ":library" in ":directory" is invalid, it should contain a class being an instance of the \Phoundation\Libraries\Interfaces\UpdatesInterface. This file has been ignored', [
                     ':directory' => $this->directory,
                     ':library'   => $this->library,
                 ]));
@@ -303,7 +303,7 @@ class Library implements LibraryInterface
 
         $file = Library::getClassFile($class_path, $check_php);
 
-        Log::action(tr('Manually including class file ":file"', [':file' => $file]), 2);
+        Log::action(ts('Manually including class file ":file"', [':file' => $file]), 2);
 
         include_once($file);
 
@@ -482,14 +482,14 @@ class Library implements LibraryInterface
         if ($this->library === 'libraries') {
             // TODO Check later if we should be able to let init initialize itself
             // Never initialize the Init library itself!
-            Log::warning(tr('Not initializing library "library", it has no versioning control available'));
+            Log::warning(ts('Not initializing library "library", it has no versioning control available'));
 
             return false;
         }
 
         if ($this->updates === null) {
             // This library has no Init available, skip!
-            Log::warning(tr('Not processing library ":library", it has no versioning control defined', [
+            Log::warning(ts('Not processing library ":library", it has no versioning control defined', [
                 ':library' => $this->library,
             ]), 3);
 
@@ -522,14 +522,14 @@ class Library implements LibraryInterface
         // TODO Check later if we should be able to let init initialize itself
         if ($this->library === 'libraries') {
             // Never initialize the Init library itself!
-            Log::warning(tr('Not initializing library "library", it has no versioning control available'));
+            Log::warning(ts('Not initializing library "library", it has no versioning control available'));
 
             return false;
         }
 
         if ($this->updates === null) {
             // This library has no Init available, skip!
-            Log::warning(tr('Not processing library ":library", it has no versioning control defined', [
+            Log::warning(ts('Not processing library ":library", it has no versioning control defined', [
                 ':library' => $this->library,
             ]), 3);
 
@@ -675,7 +675,7 @@ class Library implements LibraryInterface
      */
     public function setVersion(string $version, ?string $comments = null): void
     {
-        Log::action(tr('Forcing version for library ":library" to ":version"', [
+        Log::action(ts('Forcing version for library ":library" to ":version"', [
             ':library' => $this->getName(),
             ':version' => $version,
         ]));
@@ -772,7 +772,7 @@ class Library implements LibraryInterface
      */
     public function rebuildCommandsCache(PhoDirectoryInterface $cache, PhoDirectoryInterface $tmp): void
     {
-        Log::action(tr('Rebuilding command cache for library ":library"', [
+        Log::action(ts('Rebuilding command cache for library ":library"', [
             ':library' => $this->getName(),
         ]), 3);
 
@@ -800,7 +800,7 @@ class Library implements LibraryInterface
      */
     public function rebuildHooksCache(PhoDirectoryInterface $cache, PhoDirectoryInterface $tmp): void
     {
-        Log::action(tr('Rebuilding hooks cache for library ":library"', [
+        Log::action(ts('Rebuilding hooks cache for library ":library"', [
             ':library' => $this->getName(),
         ]), 3);
 
@@ -828,7 +828,7 @@ class Library implements LibraryInterface
      */
     public function rebuildWebCache(PhoDirectoryInterface $cache, PhoDirectoryInterface $tmp): void
     {
-        Log::action(tr('Rebuilding web page cache for library ":library"', [
+        Log::action(ts('Rebuilding web page cache for library ":library"', [
             ':library' => $this->getName(),
         ]), 3);
 
@@ -856,7 +856,7 @@ class Library implements LibraryInterface
      */
     public function rebuildTestsCache(PhoDirectoryInterface $cache, PhoDirectoryInterface $tmp): void
     {
-        Log::action(tr('Rebuilding Tests cache for library ":library"', [
+        Log::action(ts('Rebuilding Tests cache for library ":library"', [
             ':library' => $this->getName(),
         ]), 3);
 
@@ -884,7 +884,7 @@ class Library implements LibraryInterface
      */
     public function rebuildCronCache(PhoDirectoryInterface $cache, PhoDirectoryInterface $tmp): void
     {
-        Log::action(tr('Rebuilding cron cache for library ":library"', [
+        Log::action(ts('Rebuilding cron cache for library ":library"', [
             ':library' => $this->getName(),
         ]), 3);
 

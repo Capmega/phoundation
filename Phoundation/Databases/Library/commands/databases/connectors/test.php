@@ -26,7 +26,7 @@ foreach (Connectors::new()->load() as $connector) {
     try {
         switch ($connector->getType()) {
             case 'sql':
-                Log::action(tr('Attempting to connect to ":type" type database connector ":connector" with database ":database" on host ":hostname"', [
+                Log::action(ts('Attempting to connect to ":type" type database connector ":connector" with database ":database" on host ":hostname"', [
                     ':type'      => $connector->getType(),
                     ':connector' => $connector->getName(),
                     ':database'  => $connector->getDatabase(),
@@ -35,40 +35,40 @@ foreach (Connectors::new()->load() as $connector) {
 
                 $connector->connect(true);
 
-                Log::success(tr('Successfully connected to ":type" database connector ":connector"', [
+                Log::success(ts('Successfully connected to ":type" database connector ":connector"', [
                     ':type'      => $connector->getType(),
                     ':connector' => $connector->getName(),
                 ]));
                 break;
 
             default:
-                Log::warning(tr('Skipping ":type" type connector ":connector", it is not yet supported', [
+                Log::warning(ts('Skipping ":type" type connector ":connector", it is not yet supported', [
                     ':type'      => $connector->getType(),
                     ':connector' => $connector->getDisplayName(),
                 ]));
         }
 
     } catch (SqlAccessDeniedException $e) {
-        Log::warning(tr('Failed to connect to ":type" database connector ":connector", access was denied', [
+        Log::warning(ts('Failed to connect to ":type" database connector ":connector", access was denied', [
             ':type'      => $connector->getType(),
             ':connector' => $connector->getName(),
         ]));
 
     } catch (SqlUnknownDatabaseException $e) {
-        Log::warning(tr('Failed to connect to ":type" database connector ":connector", the configured database ":database" does not exist', [
+        Log::warning(ts('Failed to connect to ":type" database connector ":connector", the configured database ":database" does not exist', [
             ':type'      => $connector->getType(),
             ':connector' => $connector->getName(),
             ':database'  => $connector->getDatabase(),
         ]));
 
     } catch (SqlInvalidConfigurationException $e) {
-        Log::warning(tr('Failed to connect to ":type" database connector ":connector", the connector has an invalid configuration', [
+        Log::warning(ts('Failed to connect to ":type" database connector ":connector", the connector has an invalid configuration', [
             ':type'      => $connector->getType(),
             ':connector' => $connector->getName(),
         ]));
 
     } catch (SqlConnectException $e) {
-        Log::warning(tr('Failed to connect to ":type" database connector ":connector" because ":reason"', [
+        Log::warning(ts('Failed to connect to ":type" database connector ":connector" because ":reason"', [
             ':type'      => $connector->getType(),
             ':connector' => $connector->getName(),
             ':reason'    => $e->getMessage(),

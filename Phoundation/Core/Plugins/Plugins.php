@@ -135,7 +135,7 @@ class Plugins extends DataIterator implements PluginsInterface
                 }
 
             } catch (Throwable $e) {
-                Log::warning(tr('Failed to read plugin ":plugin" because of the following exception. Ignoring it.', [
+                Log::warning(ts('Failed to read plugin ":plugin" because of the following exception. Ignoring it.', [
                     ':plugin' => $name,
                 ]));
                 Log::error($e);
@@ -181,7 +181,7 @@ class Plugins extends DataIterator implements PluginsInterface
                 // Are these valid plugins? Valid plugins must have name uppercase first letter and upper/lowercase rest,
                 // must have Plugin.php file available that is subclass of \Phoundation\Core\Plugin
                 if (!preg_match('/^[A-Z][a-zA-Z]+$/', $plugin)) {
-                    Log::warning(tr('Ignoring plugin ":vendor/:plugin", the name is invalid. It should have a valid CamelCase type name', [
+                    Log::warning(ts('Ignoring plugin ":vendor/:plugin", the name is invalid. It should have a valid CamelCase type name', [
                         ':vendor' => $vendor,
                         ':plugin' => $plugin,
                     ]), 9);
@@ -189,7 +189,7 @@ class Plugins extends DataIterator implements PluginsInterface
                 }
 
                 if (!file_exists($file)) {
-                    Log::warning(tr('Ignoring plugin ":vendor/:plugin", it has no required Plugin.php file in the Library/ directory', [
+                    Log::warning(ts('Ignoring plugin ":vendor/:plugin", it has no required Plugin.php file in the Library/ directory', [
                         ':vendor' => $vendor,
                         ':plugin' => $plugin,
                     ]), 3);
@@ -201,7 +201,7 @@ class Plugins extends DataIterator implements PluginsInterface
 
                 // Ensure that the class directory matches the file directory
                 if (!static::classPathMatchesFilePath($class, $file)) {
-                    Log::warning(tr('Ignoring plugin ":vendor/:plugin", the Plugin.php file has class directory ":class" which does not match its file directory ":file"', [
+                    Log::warning(ts('Ignoring plugin ":vendor/:plugin", the Plugin.php file has class directory ":class" which does not match its file directory ":file"', [
                         ':vendor' => $vendor,
                         ':plugin' => $plugin,
                         ':file'   => Strings::from($file, DIRECTORY_ROOT),
@@ -212,7 +212,7 @@ class Plugins extends DataIterator implements PluginsInterface
                 }
 
                 if (!is_subclass_of($class, Plugin::class)) {
-                    Log::warning(tr('Ignoring plugin ":vendor/:plugin", the Plugin.php file contains a class that is not a subclass of ":class"', [
+                    Log::warning(ts('Ignoring plugin ":vendor/:plugin", the Plugin.php file contains a class that is not a subclass of ":class"', [
                         ':vendor' => $vendor,
                         ':plugin' => $plugin,
                         ':class'  => Plugin::class,
@@ -257,13 +257,13 @@ class Plugins extends DataIterator implements PluginsInterface
             try {
                 if ($plugin['status'] === null) {
                     if ($plugin['blacklisted']) {
-                        Log::warning(tr('Not starting blacklisted plugin ":vendor/:plugin", check your configuration if this should be started', [
+                        Log::warning(ts('Not starting blacklisted plugin ":vendor/:plugin", check your configuration if this should be started', [
                             ':vendor' => $plugin['vendor'],
                             ':plugin' => $plugin['name'],
                         ]), 4);
 
                     } else {
-                        Log::action(tr('Starting plugin ":vendor/:plugin"', [
+                        Log::action(ts('Starting plugin ":vendor/:plugin"', [
                             ':vendor' => $plugin['vendor'],
                             ':plugin' => $plugin['name'],
                         ]), 4);
@@ -291,7 +291,7 @@ class Plugins extends DataIterator implements PluginsInterface
 
                     // Plugin failed to load, we MIGHT disable it automatically to avoid loads of errors in the log files
                     // Do a LOT of logging here to ensure its clear what is happening and why
-                    Log::error(tr('Failed to start plugin ":vendor/:plugin" because of next exception', [
+                    Log::error(ts('Failed to start plugin ":vendor/:plugin" because of next exception', [
                         ':vendor' => $plugin['vendor'],
                         ':plugin' => $plugin['name'],
                     ]));
@@ -300,7 +300,7 @@ class Plugins extends DataIterator implements PluginsInterface
 
                 } catch (PluginNotExistsException $e) {
                     // The plugin does not exist!
-                    Log::error(tr('Failed to start plugin ":vendor/:plugin" because it does not exist', [
+                    Log::error(ts('Failed to start plugin ":vendor/:plugin" because it does not exist', [
                         ':vendor' => $plugin['vendor'],
                         ':plugin' => $plugin['name'],
                     ]));
@@ -309,7 +309,7 @@ class Plugins extends DataIterator implements PluginsInterface
 
                 if (config()->getBoolean('plugins.error.startup.disable', true)) {
                     if (!Debug::isEnabled()) {
-                        Log::warning(tr('Disabling plugin ":vendor/:plugin" because it failed on startup', [
+                        Log::warning(ts('Disabling plugin ":vendor/:plugin" because it failed on startup', [
                             ':vendor' => $plugin['vendor'],
                             ':plugin' => $plugin['name'],
                         ]));
@@ -320,14 +320,14 @@ class Plugins extends DataIterator implements PluginsInterface
                               ->save();
 
                     } else {
-                        Log::warning(tr('Not automatically disabling failed plugin ":vendor/:plugin" because the system is running in debug mode', [
+                        Log::warning(ts('Not automatically disabling failed plugin ":vendor/:plugin" because the system is running in debug mode', [
                             ':vendor' => $plugin['vendor'],
                             ':plugin' => $plugin['name'],
                         ]));
                     }
 
                 } else {
-                    Log::warning(tr('Not automatically disabling failed plugin ":vendor/:plugin" because the option to do so has been disabled with configuration path "plugins.error.startup.disable"', [
+                    Log::warning(ts('Not automatically disabling failed plugin ":vendor/:plugin" because the option to do so has been disabled with configuration path "plugins.error.startup.disable"', [
                         ':vendor' => $plugin['vendor'],
                         ':plugin' => $plugin['name'],
                     ]));
@@ -433,7 +433,7 @@ class Plugins extends DataIterator implements PluginsInterface
             foreach ($blacklist as $item) {
                 if (empty($item)) {
                     // Empty item? Ignore.
-                    Log::warning(tr('Encountered empty plugin blacklist item in blacklist configuration ":configuration" Please check your production and or environment specific configuration', [
+                    Log::warning(ts('Encountered empty plugin blacklist item in blacklist configuration ":configuration" Please check your production and or environment specific configuration', [
                         ':configuration' => Json::encode($blacklist)
                     ]));
 
@@ -442,7 +442,7 @@ class Plugins extends DataIterator implements PluginsInterface
 
                 if (str_contains($item, '/')) {
                     if (!preg_match_all('/^([a-z*]+)?\/([a-z*]+)?$/i', $item, $matches)) {
-                        Log::warning(tr('Ignoring invalid plugin blacklist item ":item" in blacklist configuration ":configuration" Please check your production and or environment specific configuration', [
+                        Log::warning(ts('Ignoring invalid plugin blacklist item ":item" in blacklist configuration ":configuration" Please check your production and or environment specific configuration', [
                             ':item'          => $item,
                             ':configuration' => Json::encode($blacklist)
                         ]));

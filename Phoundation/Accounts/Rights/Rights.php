@@ -298,7 +298,7 @@ class Rights extends DataIterator implements RightsInterface
 
                 // Add entry to parent, User or Role
                 if ($this->parent instanceof UserInterface) {
-                    Log::action(tr('Adding right ":right" to user ":user"', [
+                    Log::action(ts('Adding right ":right" to user ":user"', [
                         ':user'  => $this->parent->getLogId(),
                         ':right' => $value->getLogId(),
                     ]), 3);
@@ -311,7 +311,7 @@ class Rights extends DataIterator implements RightsInterface
                     ]);
 
                 } elseif ($this->parent instanceof RoleInterface) {
-                    Log::action(tr('Adding right ":right" to role ":role"', [
+                    Log::action(ts('Adding right ":right" to role ":role"', [
                         ':role'  => $this->parent->getLogId(),
                         ':right' => $value->getLogId(),
                     ]), 3);
@@ -397,7 +397,7 @@ class Rights extends DataIterator implements RightsInterface
             $right = Right::new()->load($keys);
 
             if ($this->parent instanceof UserInterface) {
-                Log::action(tr('Removing right ":right" from user ":user"', [
+                Log::action(ts('Removing right ":right" from user ":user"', [
                     ':user'  => $this->parent->getLogId(),
                     ':right' => $right->getLogId(),
                 ]), 3);
@@ -411,7 +411,7 @@ class Rights extends DataIterator implements RightsInterface
                 parent::removeKeys($right->getUniqueColumnValue());
 
             } elseif ($this->parent instanceof RoleInterface) {
-                Log::action(tr('Removing right ":right" from role ":role"', [
+                Log::action(ts('Removing right ":right" from role ":role"', [
                     ':role'  => $this->parent->getLogId(),
                     ':right' => $right->getLogId(),
                 ]), 3);
@@ -448,7 +448,7 @@ class Rights extends DataIterator implements RightsInterface
         $this->ensureParent(tr('clear all entries from parent'));
 
         if ($this->parent instanceof UserInterface) {
-            Log::action(tr('Removing all rights from user ":user"', [
+            Log::action(ts('Removing all rights from user ":user"', [
                 ':user' => $this->parent->getLogId(),
             ]));
 
@@ -457,7 +457,7 @@ class Rights extends DataIterator implements RightsInterface
             ]);
 
         } elseif ($this->parent instanceof RoleInterface) {
-            Log::action(tr('Removing all rights from role ":role"', [
+            Log::action(ts('Removing all rights from role ":role"', [
                 ':role' => $this->parent->getLogId(),
             ]));
 

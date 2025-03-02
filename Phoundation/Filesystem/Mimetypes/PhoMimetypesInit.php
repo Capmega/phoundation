@@ -35,7 +35,7 @@ class PhoMimetypesInit
     public static function clear(): void
     {
         // Do NOT use TRUNCATE as that might cause issues with foreign keys
-        Log::action(tr('Clearing mimetypes'));
+        Log::action(ts('Clearing mimetypes'));
         sql()->query('DELETE FROM `filesystem_mimetypes`');
     }
 
@@ -58,7 +58,7 @@ class PhoMimetypesInit
             PhoRestrictions::newRootObject(false, 'Phoundation/Filesystem/Library/data/sources/filesystem')
         )->getContentsAsString();
 
-        Log::action(tr('Registering mimetypes'), echo_newline: false);
+        Log::action(ts('Registering mimetypes'), echo_newline: false);
 
         $types = Arrays::force($types, PHP_EOL);
         $count = 0;
@@ -98,8 +98,8 @@ class PhoMimetypesInit
             }
         }
 
-        Log::success(tr('Done!'));
-        Log::success(tr('Registered ":count" mimetypes and extensions', [
+        Log::success(ts('Done!'));
+        Log::success(ts('Registered ":count" mimetypes and extensions', [
             ':count' => $count,
         ]));
     }

@@ -115,7 +115,7 @@ class Libraries
                         mc($connector)->flush();
 
                     } catch (ConfigPathDoesNotExistsException $e) {
-                        Log::warning(tr('Cannot flush memcached because the current driver is not properly configured, see exception information'));
+                        Log::warning(ts('Cannot flush memcached because the current driver is not properly configured, see exception information'));
                         Log::warning($e);
                     }
 
@@ -128,7 +128,7 @@ class Libraries
                     // no break
 
                 case 'elasticsearch':
-                    Log::error(tr('Ignoring "reset" for connector ":connector", support for required driver ":driver" is under construction', [
+                    Log::error(ts('Ignoring "reset" for connector ":connector", support for required driver ":driver" is under construction', [
                         ':driver'    => $configuration['driver'],
                         ':connector' => $connector,
                     ]));
@@ -277,7 +277,7 @@ class Libraries
 
         // First, ensure all libraries have the correct structure
         static::verifyLibraries($libraries);
-        Log::action(tr('Initializing libraries'));
+        Log::action(ts('Initializing libraries'));
 
         // Keep initializing libraries until none of them have inits available anymore
         while ($libraries) {
@@ -294,7 +294,7 @@ class Libraries
                 }
 
                 // This library has nothing more to initialize, remove it from the list
-                Log::success(tr('Finished updates for library ":library"', [
+                Log::success(ts('Finished updates for library ":library"', [
                     ':library' => $library->getName(),
                 ]));
 
@@ -308,14 +308,14 @@ class Libraries
             Log::warning('Not executing post init files due to test mode');
 
         } else {
-            Log::action(tr('Executing post init updates'));
+            Log::action(ts('Executing post init updates'));
 
             foreach ($post_libraries as $library) {
                 // Execute the update inits for this library and update the library information and start over
                 if ($library->initPost($comments)) {
                     // Library has been post initialized. Break so that we can check which library should be updated next.
                     $update_count++;
-                    Log::success(tr('Finished post updates for library ":library"', [
+                    Log::success(ts('Finished post updates for library ":library"', [
                         ':library' => $library->getName(),
                     ]));
                 }
@@ -327,10 +327,10 @@ class Libraries
 
         if (!$update_count) {
             // No libraries were updated
-            Log::success(tr('Finished initialization, no libraries were updated'));
+            Log::success(ts('Finished initialization, no libraries were updated'));
 
         } else {
-            Log::success(tr('Finished initialization, executed ":count" updates in ":libraries" libraries', [
+            Log::success(ts('Finished initialization, executed ":count" updates in ":libraries" libraries', [
                 ':count'     => $update_count,
                 ':libraries' => $library_count,
             ]));
@@ -357,7 +357,7 @@ class Libraries
 
         $return = [];
 
-        Log::action(tr('Scanning libraries'), 3);
+        Log::action(ts('Scanning libraries'), 3);
 
         // List system libraries
         if ($system) {
@@ -461,7 +461,7 @@ class Libraries
      */
     protected static function verifyLibraries(array $libraries): void
     {
-        Log::action(tr('Verifying libraries'));
+        Log::action(ts('Verifying libraries'));
 
         foreach ($libraries as $library) {
             $library->verify();
@@ -516,7 +516,7 @@ class Libraries
     {
         static::clearCommandsCache();
 
-        Log::action(tr('Rebuilding command cache'), 4);
+        Log::action(ts('Rebuilding command cache'), 4);
 
         // Get temporary directory to build cache and the current cache directory
         $temporary = PhoDirectory::newTemporaryObject();
@@ -544,7 +544,7 @@ class Libraries
 
         static::$cache_has_been_rebuilt = true;
 
-        Log::success(tr('Finished rebuilding command cache'));
+        Log::success(ts('Finished rebuilding command cache'));
     }
 
 
@@ -555,7 +555,7 @@ class Libraries
      */
     public static function clearCommandsCache(): void
     {
-        Log::action(tr('Clearing commands caches (symlinks only)'), 3);
+        Log::action(ts('Clearing commands caches (symlinks only)'), 3);
 
         PhoDirectory::new(DIRECTORY_COMMANDS, PhoRestrictions::newFilesystemRootObject(true))
             ->clearTreeSymlinks(true)
@@ -574,7 +574,7 @@ class Libraries
     {
         static::clearHooksCache();
 
-        Log::action(tr('Rebuilding hook cache'), 4);
+        Log::action(ts('Rebuilding hook cache'), 4);
 
         // Get temporary directory to build cache and the current cache directory
         $temporary = PhoDirectory::newTemporaryObject();
@@ -602,7 +602,7 @@ class Libraries
 
         static::$cache_has_been_rebuilt = true;
 
-        Log::success(tr('Finished rebuilding hook cache'));
+        Log::success(ts('Finished rebuilding hook cache'));
     }
 
 
@@ -613,7 +613,7 @@ class Libraries
      */
     public static function clearHooksCache(): void
     {
-        Log::action(tr('Clearing hooks caches (symlinks only)'), 3);
+        Log::action(ts('Clearing hooks caches (symlinks only)'), 3);
 
         PhoDirectory::new(DIRECTORY_HOOKS, PhoRestrictions::newFilesystemRootObject(true))
                    ->clearTreeSymlinks(true)
@@ -767,7 +767,7 @@ class Libraries
     {
         static::clearWebCache();
 
-        Log::action(tr('Rebuilding web cache'), 4);
+        Log::action(ts('Rebuilding web cache'), 4);
 
         // Get temporary directory to build cache and the current cache directory
         $temporary = PhoDirectory::newTemporaryObject();
@@ -793,7 +793,7 @@ class Libraries
         $cache->replaceWithPath($temporary)
             ->symlinkTargetFromThis($target);
 
-        Log::success(tr('Finished rebuilding web cache'));
+        Log::success(ts('Finished rebuilding web cache'));
     }
 
 
@@ -804,7 +804,7 @@ class Libraries
      */
     public static function clearWebCache(): void
     {
-        Log::action(tr('Clearing web caches (symlinks only)'), 3);
+        Log::action(ts('Clearing web caches (symlinks only)'), 3);
 
         PhoDirectory::new(DIRECTORY_WEB, PhoRestrictions::newFilesystemRootObject(true))
                    ->clearTreeSymlinks(true)
@@ -821,7 +821,7 @@ class Libraries
     {
         static::clearCronCache();
 
-        Log::action(tr('Rebuilding cron cache'), 4);
+        Log::action(ts('Rebuilding cron cache'), 4);
 
         // Get temporary directory to build cache and the current cache directory
         $temporary = PhoDirectory::newTemporaryObject();
@@ -847,7 +847,7 @@ class Libraries
         $cache->replaceWithPath($temporary)
             ->symlinkTargetFromThis($target);
 
-        Log::success(tr('Finished rebuilding cron cache'));
+        Log::success(ts('Finished rebuilding cron cache'));
     }
 
 
@@ -858,7 +858,7 @@ class Libraries
      */
     public static function clearCronCache(): void
     {
-        Log::action(tr('Clearing cron caches (symlinks only)'), 3);
+        Log::action(ts('Clearing cron caches (symlinks only)'), 3);
 
         PhoDirectory::new(DIRECTORY_CRON, PhoRestrictions::newFilesystemRootObject(true))
             ->clearTreeSymlinks(true)
@@ -875,7 +875,7 @@ class Libraries
     {
         static::clearTestsCache();
 
-        Log::action(tr('Rebuilding Tests cache'), 4);
+        Log::action(ts('Rebuilding Tests cache'), 4);
 
         // Get temporary directory to build cache and the current cache directory
         $temporary = PhoDirectory::newTemporaryObject();
@@ -901,7 +901,7 @@ class Libraries
         $cache->replaceWithPath($temporary)
               ->symlinkTargetFromThis($target);
 
-        Log::success(tr('Finished rebuilding Tests cache'));
+        Log::success(ts('Finished rebuilding Tests cache'));
     }
 
 
@@ -912,7 +912,7 @@ class Libraries
      */
     public static function clearTestsCache(): void
     {
-        Log::action(tr('Clearing test caches (symlinks only)'), 3);
+        Log::action(ts('Clearing test caches (symlinks only)'), 3);
 
         PhoDirectory::new(DIRECTORY_TESTS, PhoRestrictions::newFilesystemRootObject(true))
                    ->clearTreeSymlinks(true)
@@ -966,7 +966,7 @@ class Libraries
     {
         $path = DIRECTORY_ROOT . 'Phoundation/';
 
-        Log::action(tr('Pre-loading all library classes into memory'));
+        Log::action(ts('Pre-loading all library classes into memory'));
 
         Find::new(PhoDirectory::new(
             $path,
@@ -990,14 +990,14 @@ class Libraries
                 }
 
                 try {
-                    Log::action(tr('Attempting to pre-loading library file ":file"', [
+                    Log::action(ts('Attempting to pre-loading library file ":file"', [
                         ':file' => Strings::from($file, DIRECTORY_ROOT),
                     ]), 2);
 
                     require_once($file);
 
                 } catch (Throwable $e) {
-                    Log::warning(tr('Pre-loading system library file ":file" caused exception ":message" at ":file@:line", ignoring', [
+                    Log::warning(ts('Pre-loading system library file ":file" caused exception ":message" at ":file@:line", ignoring', [
                         ':file'    => Strings::from($e->getFile(), DIRECTORY_ROOT),
                         ':message' => $e->getMessage(),
                         ':line'    => $e->getLine(),
@@ -1021,7 +1021,7 @@ class Libraries
         ];
 
         foreach ($paths as $path => $type) {
-            Log::action(tr('Pre-loading all ":type" classes into memory', [
+            Log::action(ts('Pre-loading all ":type" classes into memory', [
                 ':type' => $type,
             ]));
 
@@ -1047,14 +1047,14 @@ class Libraries
                     }
 
                     try {
-                        Log::action(tr('Attempting to pre-loading library file ":file"', [
+                        Log::action(ts('Attempting to pre-loading library file ":file"', [
                             ':file' => Strings::from($file, DIRECTORY_ROOT),
                         ]), 2);
 
                         require_once($file);
 
                     } catch (Throwable $e) {
-                        Log::warning(tr('Pre-loading plugin library file ":file" caused exception ":message" at ":file@:line", ignoring', [
+                        Log::warning(ts('Pre-loading plugin library file ":file" caused exception ":message" at ":file@:line", ignoring', [
                             ':file'    => Strings::from($file, DIRECTORY_ROOT),
                             ':message' => $e->getMessage(),
                             ':line'    => $e->getLine(),

@@ -229,7 +229,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
                                         ->bind($this->listen_address, $this->listen_port)
                                         ->listen();
 
-        Log::success(tr('Socket server is now listening on ":address::port"', [
+        Log::success(ts('Socket server is now listening on ":address::port"', [
             ':address' => $this->listen_address,
             ':port'    => $this->listen_port,
         ]));
@@ -504,7 +504,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      */
     public function disconnect(PhoSocketInterface $client, string $message = ''): void
     {
-        Log::action(tr('Disconnecting client ":address::port" from service ":name"', [
+        Log::action(ts('Disconnecting client ":address::port" from service ":name"', [
             ':address' => $client->getRemoteAddress(),
             ':port'    => $client->getRemotePort(),
             ':name'    => $this->getName(),
@@ -565,7 +565,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     protected function triggerConnectionHooks(PhoSocketInterface $client): bool
     {
         try {
-            Log::action(tr('Service ":name" received connection on local address ":local_ip::local_port" from remote address ":remote_ip::remote_port"', [
+            Log::action(ts('Service ":name" received connection on local address ":local_ip::local_port" from remote address ":remote_ip::remote_port"', [
                 ':name'        => $this->getName(),
                 ':local_ip'    => $client->getLocalAddress(),
                 ':local_port'  => $client->getLocalPort(),
@@ -577,7 +577,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
                 $callable($this, $client);
             }
 
-            Log::notice(tr('Service ":name" has ":count" open connections', [
+            Log::notice(ts('Service ":name" has ":count" open connections', [
                 ':name'  => $this->getName(),
                 ':count' => $this->getOpenConnections(),
             ]));
@@ -604,7 +604,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     protected function triggerDisconnectionHooks(PhoSocketInterface $client): bool
     {
         try {
-            Log::action(tr('Client ":address::port" disconnected from service ":name"', [
+            Log::action(ts('Client ":address::port" disconnected from service ":name"', [
                 ':address' => $client->getRemoteAddress(),
                 ':port'    => $client->getRemotePort(),
                 ':name'    => $this->getName(),
@@ -614,7 +614,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
                 $callable($this, $client);
             }
 
-            Log::notice(tr('Service ":name" has ":count" open connections', [
+            Log::notice(ts('Service ":name" has ":count" open connections', [
                 ':name'  => $this->getName(),
                 ':count' => $this->getOpenConnections(),
             ]));
@@ -807,7 +807,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
      */
     protected function disconnectEverything(): void
     {
-        Log::action(tr('Disconnecting all sockets'), 8);
+        Log::action(ts('Disconnecting all sockets'), 8);
 
         foreach ($this->clients as $client) {
             $this->disconnect($client);
@@ -815,7 +815,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
 
         $this->closeMasterSocket();
 
-        Log::success(tr('Disconnected all sockets'), 4);
+        Log::success(ts('Disconnected all sockets'), 4);
 
         unset(
             $this->hooks,

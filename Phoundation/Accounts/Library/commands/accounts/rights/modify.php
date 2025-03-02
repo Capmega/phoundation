@@ -54,4 +54,4 @@ $right->apply(false, $argv)->save();
 
 
 // Done!
-Log::success(tr('Modified right ":right"', [':right' => $right->getName()]));
+Log::success(ts('Modified right ":right"', [':right' => $right->getName()]));

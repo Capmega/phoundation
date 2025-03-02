@@ -344,7 +344,7 @@ class PhoSocket implements Stringable, PhoSocketInterface
      */
     public function connect(): static
     {
-        Log::action(tr('Opening connection for socket ":id" to address ":address::port"', [
+        Log::action(ts('Opening connection for socket ":id" to address ":address::port"', [
             ':id'      => $this->__toString(),
             ':address' => $this->remote_address,
             ':port'    => $this->remote_port,
@@ -955,7 +955,7 @@ class PhoSocket implements Stringable, PhoSocketInterface
      */
     public function listen(int $backlog = 0): static
     {
-        Log::action(tr('Listening on ":ip::port"', [
+        Log::action(ts('Listening on ":ip::port"', [
             ':ip'   => $this->getLocalAddress(),
             ':port' => $this->getLocalPort()
         ]), 1);

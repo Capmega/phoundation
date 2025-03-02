@@ -3125,7 +3125,7 @@ class Definition implements DefinitionInterface
             // Don't perform validations, or ignore the column completely
             $validator->doNotValidate();
 
-            Log::warning(tr('Not validating DataEntry object ":object" column ":column" because it has one of the "no_validation" or "ignored" flag set', [
+            Log::warning(ts('Not validating DataEntry object ":object" column ":column" because it has one of the "no_validation" or "ignored" flag set', [
                 ':column' => $column,
                 ':object' => $this->getDataEntry() ? get_class($this->getDataEntry()) : '-',
             ]), 3);

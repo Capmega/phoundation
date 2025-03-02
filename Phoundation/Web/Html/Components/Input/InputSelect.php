@@ -736,7 +736,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
 //
 //            if (!$key) {
 //                // To avoid select problems with "none" entries, empty id column values are not allowed
-//                Log::warning(tr('Dropping result ":count" without key from source query ":query"', [
+//                Log::warning(ts('Dropping result ":count" without key from source query ":query"', [
 //                    ':count' => $this->count,
 //                    ':query' => $this->source_query->queryString
 //                ]));
@@ -839,7 +839,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
                 }
 
             } else {
-                Log::warning(tr('Encountered empty value with key ":key" in following select source array, not displaying entry', [
+                Log::warning(ts('Encountered empty value with key ":key" in following select source array, not displaying entry', [
                     ':key' => $key,
                 ]));
                 Log::printr(Arrays::force($this->source), echo_header: false);

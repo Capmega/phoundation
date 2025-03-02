@@ -24,7 +24,7 @@ $repositories = Repositories::new()->scan();
 foreach (Repositories::getTypes() as $label => $type) {
     $list = $repositories->getRepositoryType($type);
 
-    Log::information(tr(':data repositories', [':data' => $label]), 10, echo_prefix: false);
+    Log::information(ts(':data repositories', [':data' => $label]), 10, echo_prefix: false);
 
     if ($list->isEmpty()) {
         Log::notice('-', 10, echo_prefix: false);

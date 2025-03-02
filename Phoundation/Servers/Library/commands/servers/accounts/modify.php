@@ -68,4 +68,4 @@ $account->apply()->save();
 
 
 // Done!
-Log::success(tr('Modified SSH account ":account"', [':account' => $account->getName()]));
+Log::success(ts('Modified SSH account ":account"', [':account' => $account->getName()]));

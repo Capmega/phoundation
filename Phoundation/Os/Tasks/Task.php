@@ -480,7 +480,7 @@ class Task extends DataEntry implements TaskInterface
 
         // Task should be executed immediately (execute_after will be NULL) or after now()
         if ($this->getExecuteAfter() and ($this->getExecuteAfter() > now())) {
-            Log::warning(tr('Not yet executing task ":task" as it should not be executed until after ":date"', [
+            Log::warning(ts('Not yet executing task ":task" as it should not be executed until after ":date"', [
                 ':task' => $this->getLogId(),
                 ':date' => $this->getExecuteAfter(),
             ]));
@@ -491,7 +491,7 @@ class Task extends DataEntry implements TaskInterface
         // Task should have its parent task finished
         if ($this->getParentsId()) {
             if (!$this->getParent()->isFinished()) {
-                Log::warning(tr('Not yet executing task ":task" as its parent ":parent" has not finished yet', [
+                Log::warning(ts('Not yet executing task ":task" as its parent ":parent" has not finished yet', [
                     ':task'   => $this->getLogId(),
                     ':parent' => $this->getParent()
                                       ->getCode(),
@@ -616,7 +616,7 @@ class Task extends DataEntry implements TaskInterface
 
             $results = $worker->executeReturnString();
 
-            Log::success(tr('Task ":task" finished execution in ":time"', [
+            Log::success(ts('Task ":task" finished execution in ":time"', [
                 ':task' => $this->getCode(),
                 ':time' => $worker->getExecutionTimeHumanReadable(),
             ]));
@@ -657,7 +657,7 @@ class Task extends DataEntry implements TaskInterface
                 ]);
 
         } catch (ProcessFailedException $e) {
-            Log::warning(tr('Task ":task" failed execution with ":e"', [
+            Log::warning(ts('Task ":task" failed execution with ":e"', [
                 ':task' => $this->getCode(),
                 ':e'    => $e->getMessage(),
             ]));

@@ -98,7 +98,7 @@ $argv = ArgvValidator::new()
 
 
 // Execute the import for the specified driver
-Log::information(tr('Executing database import'));
+Log::information(ts('Executing database import'));
 
 Import::new()
       ->setConnector($argv['connector'])
@@ -111,10 +111,10 @@ Import::new()
 
 // Execute init?
 if ($argv['no_init']) {
-    Log::warning(tr('Not executing database init due to "--no-init" argument but this may leave the database in an incompatible state!'));
+    Log::warning(ts('Not executing database init due to "--no-init" argument but this may leave the database in an incompatible state!'));
 
 } else {
-    Log::information(tr('Executing database init to ensure database layout is compatible with the current code version'));
+    Log::information(ts('Executing database init to ensure database layout is compatible with the current code version'));
 
     Pho::new()
        ->setTimeout(0)
@@ -125,4 +125,4 @@ if ($argv['no_init']) {
 
 
 // Done!
-Log::success(tr('Finished database import'));
+Log::success(ts('Finished database import'));

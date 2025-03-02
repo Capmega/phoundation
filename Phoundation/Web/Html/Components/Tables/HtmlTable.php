@@ -759,7 +759,7 @@ class HtmlTable extends ResourceElementCore implements HtmlTableInterface
         }
 
         // We've rendered an empty row, return nothing
-        Log::warning(tr('Row data ":data" rendered an empty table row', [
+        Log::warning(ts('Row data ":data" rendered an empty table row', [
             ':data' => $row_values,
         ]));
 

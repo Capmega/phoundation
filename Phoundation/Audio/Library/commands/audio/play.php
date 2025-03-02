@@ -53,5 +53,5 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Log::information(tr('Playing audio file ":file"', [':file' => $argv['file']]));
+Log::information(ts('Playing audio file ":file"', [':file' => $argv['file']]));
 Audio::new($argv['file'])->playLocal($argv['background']);

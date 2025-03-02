@@ -285,9 +285,9 @@ class ProcessControlSignals
         // The SIGTERM signal is sent to a process to request its termination. Unlike the SIGKILL signal, it can be
         // caught and interpreted or ignored by the process. This allows the process to perform nice termination
         // releasing resources and saving state if appropriate. SIGINT is nearly identical to SIGTERM.
-        Log::warning(tr('Killing process because of process signal ":signal"', [':signal' => $signal]), 10);
+        Log::warning(ts('Killing process because of process signal ":signal"', [':signal' => $signal]), 10);
         Log::backtrace(backtrace: Debug::getBacktrace(3));
-        Log::warning(tr('Signal information:'), 10);
+        Log::warning(ts('Signal information:'), 10);
         Log::table($info);
 
         Core::exit($exit_code, tr('Command ":script" was terminated because of signal ":signal" with exit code ":exitcode" in ":time" with ":usage" peak memory usage', [
@@ -364,7 +364,7 @@ class ProcessControlSignals
      */
     public static function execute(int $signal, mixed $info = null): void
     {
-        Log::warning(tr('Received process signal ":signal"', [':signal' => $signal]), 10);
+        Log::warning(ts('Received process signal ":signal"', [':signal' => $signal]), 10);
 
         static::getInstance();
 

@@ -160,7 +160,7 @@ class Password extends DataEntry implements PasswordInterface
         $strong   = ($strength > config()->getInteger('security.password.strength', 50));
 
         if (!$strong and Validator::disabled()) {
-            Log::warning(tr('Ignoring weak password because validation is disabled'));
+            Log::warning(ts('Ignoring weak password because validation is disabled'));
 
             return true;
         }
@@ -183,7 +183,7 @@ class Password extends DataEntry implements PasswordInterface
         $weak     = ($strength < config()->getInteger('security.password.strength', 50));
 
         if ($weak and Validator::disabled()) {
-            Log::warning(tr('Ignoring weak password because validation is disabled'));
+            Log::warning(ts('Ignoring weak password because validation is disabled'));
 
             return false;
         }
@@ -290,7 +290,7 @@ class Password extends DataEntry implements PasswordInterface
         $strength = (int) floor(($strength > 99) ? 99 : floor(($strength < 0) ? 0 : $strength));
 
         if (VERBOSE) {
-            Log::notice(tr('Password strength is ":strength"', [':strength' => $strength]));
+            Log::notice(ts('Password strength is ":strength"', [':strength' => $strength]));
         }
 
         return $strength;

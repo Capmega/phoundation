@@ -394,7 +394,7 @@ class Meta implements MetaInterface
     {
         try {
             if (static::$updates) {
-                Log::action(tr('Flushing ":count" meta entries to database', [
+                Log::action(ts('Flushing ":count" meta entries to database', [
                     ':count' => count(static::$updates),
                 ]), 3);
 
@@ -417,7 +417,7 @@ class Meta implements MetaInterface
             }
 
         } catch (Throwable $e) {
-            Log::error(tr('Failed to flush ":count" meta entries with following exception', [
+            Log::error(ts('Failed to flush ":count" meta entries with following exception', [
                 ':count' => count(static::$updates),
             ]));
             Log::error($e);

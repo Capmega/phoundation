@@ -81,6 +81,6 @@ Sync::new()
 
 
 // Done!
-Log::Success(tr('Finished syncing process from environment ":environment"', [
+Log::Success(ts('Finished syncing process from environment ":environment"', [
     ':environment' => $argv['environment'],
 ]));

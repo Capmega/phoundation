@@ -83,7 +83,7 @@ if ($argv['no_password']) {
         throw new OutOfBoundsException(tr('--no-password option specified but received password through pipe'));
     }
 
-    Log::warning(tr('Not setting password due to "--no-password" flag'));
+    Log::warning(ts('Not setting password due to "--no-password" flag'));
 
 } else {
     // Read password from stdin stream?
@@ -105,7 +105,7 @@ if ($argv['no_password']) {
 
             if ($retries-- > 0) {
                 // Borked up, retry!
-                Log::warning(tr('Failed to set password, please try again'));
+                Log::warning(ts('Failed to set password, please try again'));
                 continue;
             }
 
@@ -133,4 +133,4 @@ $user->getPhonesObject()->apply()->save();
 
 
 // Done!
-Log::success(tr('Created new user ":user"', [':user' => $user->getDisplayName()]));
+Log::success(ts('Created new user ":user"', [':user' => $user->getDisplayName()]));

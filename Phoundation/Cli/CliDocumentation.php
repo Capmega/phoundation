@@ -49,7 +49,7 @@ class CliDocumentation
         global $argv;
 
         if (isset_get($argv['help'])) {
-            Log::information(tr('Command help:'), 9);
+            Log::information(ts('Command help:'), 9);
             Log::notice(trim($help), 10, false);
 
             if ($exit) {
@@ -72,7 +72,7 @@ class CliDocumentation
         global $argv;
 
         if (isset_get($argv['usage'])) {
-            Log::information(tr('Command usage:'), 9, echo_prefix: false);
+            Log::information(ts('Command usage:'), 9, echo_prefix: false);
             Log::notice(trim($usage) . PHP_EOL, 10, false, echo_prefix: false);
 
             if ($exit) {

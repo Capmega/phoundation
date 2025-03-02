@@ -889,7 +889,7 @@ class ImgCore extends SpanCore implements ImgInterface
 //        $target_part = Strings::untilReverse($this->source, '.') . '.' . config()->get('cdn.images.convert.' . $this->format);
 //        $target      = Strings::untilReverse($this->source , '.') . '.' . config()->get('cdn.images.convert.' . $this->format);
 //
-//        Log::action(tr('Automatically converting ":format" format image ":src" to format ":target"', [
+//        Log::action(ts('Automatically converting ":format" format image ":src" to format ":target"', [
 //            ':format' => $this->format,
 //            ':src'    => $this->source,
 //            ':target' => config()->get('cdn.images.convert.' . $this->format)
@@ -897,7 +897,7 @@ class ImgCore extends SpanCore implements ImgInterface
 //
 //        try {
 //            if (!file_exists($target)) {
-//                Log::warning(tr('Modified format target ":target" does not exist, converting original source', [
+//                Log::warning(ts('Modified format target ":target" does not exist, converting original source', [
 //                    ':target' => $target
 //                ]));
 //

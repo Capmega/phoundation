@@ -111,12 +111,12 @@ class MaxMind extends GeoIp
             if (isset($cityDbReader) and str_contains($e->getMessage(), '127.0.0.1')) {
                 // THIS... IS... LOCALHOST!!!! We can't get any GeoIP data from this address.
                 // Spoof the IP address, use the public IP address for this machine
-                Log::warning(tr('Connection is localhost, finding public IP address of this machine to spoof IP'));
+                Log::warning(ts('Connection is localhost, finding public IP address of this machine to spoof IP'));
 
                 $ip_address = Network::getPublicIpAddress();
 
                 if ($ip_address) {
-                    Log::warning(tr('Spoofing IP address with this machine public IP address ":ip"', [
+                    Log::warning(ts('Spoofing IP address with this machine public IP address ":ip"', [
                         ':ip' => $ip_address,
                     ]));
 
@@ -125,13 +125,13 @@ class MaxMind extends GeoIp
                     $ip_address = gethostbyname('phoundation.org');
 
                     if ($ip_address) {
-                        Log::warning(tr('Unable to get public IP address, spoofing IP address with ":ip" from phoundation.org', [
+                        Log::warning(ts('Unable to get public IP address, spoofing IP address with ":ip" from phoundation.org', [
                             ':ip' => $ip_address,
                         ]));
 
                     } else {
                         // FINE! We failed...
-                        Log::warning(tr('Unable to get any public IP address for GeoIP data.'));
+                        Log::warning(ts('Unable to get any public IP address for GeoIP data.'));
 
                         return $this;
                     }
@@ -153,7 +153,7 @@ class MaxMind extends GeoIp
         } catch (Throwable $e) {
             if (str_contains($e->getMessage(), 'Failed to open stream: No such file or directory')) {
                 // Database file does not exist, try to download it?
-                Log::warning(tr('MaxMind database file ":file" was not found, maybe try running "./pho geo ip import" ?', [
+                Log::warning(ts('MaxMind database file ":file" was not found, maybe try running "./pho geo ip import" ?', [
                     ':file' => $this->o_directory . ($this->pro ? 'GeoIP2-City.mmdb' : 'GeoLite2-City.mmdb'),
                 ]));
 

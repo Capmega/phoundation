@@ -114,7 +114,7 @@ abstract class ElementsBlock extends Iterator implements ElementsBlockInterface
         };
 
         if ($renderer_class) {
-            Log::write(tr('Using renderer class ":class" for ":this"', [
+            Log::write(ts('Using renderer class ":class" for ":this"', [
                 ':class' => $renderer_class,
                 ':this'  => get_class($this),
             ]), 'debug', 2);
@@ -132,7 +132,7 @@ abstract class ElementsBlock extends Iterator implements ElementsBlockInterface
         }
 
         // The template component does not exist, return the basic Phoundation version
-        Log::warning(tr('No template render class found for block component ":component", rendering basic HTML', [
+        Log::warning(ts('No template render class found for block component ":component", rendering basic HTML', [
             ':component' => get_class($this),
         ]), 2);
 

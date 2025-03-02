@@ -66,7 +66,7 @@ $argv = ArgvValidator::new()
 
 // Download
 if (!$argv['no_download'] and !$argv['no_import']) {
-    Log::information(tr('Downloading geonames data'));
+    Log::information(ts('Downloading geonames data'));
 
     // Download the files
     Import::download($argv['target_path']);
@@ -75,21 +75,21 @@ if (!$argv['no_download'] and !$argv['no_import']) {
 
 // Verify integrity and import into temporary database
 if (!$argv['no_import']) {
-    Log::information(tr('Importing geonames data'));
+    Log::information(ts('Importing geonames data'));
 
     // Process the files
-    Log::action(tr('Processing geonames files'));
+    Log::action(ts('Processing geonames files'));
     Import::process($argv['target_path'], $argv['target_path'] . '_processed', PhoRestrictions::new(DIRECTORY_DATA, true, 'import'));
 
     // Load the datafiles into a geonames database
-    Log::action(tr('Loading geonames files into temporary database'));
+    Log::action(ts('Loading geonames files into temporary database'));
     TODO FIX IMPORT
     Import::new($argv['target_path'] . '_processed', $argv['database'])->load();
 }
 
 
 // Transfer temporary database data to Geo library tables
-Log::action(tr('Importing geonames data into core database'));
+Log::action(ts('Importing geonames data into core database'));
 Import::import($argv['database']);
 
-Log::success(tr('Finished importing all Geo data'));
+Log::success(ts('Finished importing all Geo data'));

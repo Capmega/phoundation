@@ -138,7 +138,7 @@ class Mapping implements MappingInterface
                 }
                 // See if the matching value is registered.
                 if (!array_key_exists($matches[1][0], $maps)) {
-                    Log::warning(tr('No URL mappings found for regex ":regex" value ":value"', [
+                    Log::warning(ts('No URL mappings found for regex ":regex" value ":value"', [
                         ':regex' => $regex,
                         ':value' => $matches[1][0],
                     ]));

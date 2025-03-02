@@ -1557,7 +1557,7 @@ class Request implements RequestInterface
     #[NoReturn] protected static function processFileNotFound(FileNotExistException $e, PhoFileInterface|string $target): never
     {
         if (static::$stack_level >= 0) {
-            Log::warning(tr('Sub target ":target" does not exist, displaying 500 page instead', [
+            Log::warning(ts('Sub target ":target" does not exist, displaying 500 page instead', [
                 ':target' => $target,
             ]));
 
@@ -1573,7 +1573,7 @@ class Request implements RequestInterface
             ]));
         }
 
-        Log::warning(tr('Main target ":target" does not exist, displaying 404 page instead', [
+        Log::warning(ts('Main target ":target" does not exist, displaying 404 page instead', [
             ':target' => $target,
         ]));
 
@@ -1652,7 +1652,7 @@ class Request implements RequestInterface
     {
         switch (static::getRequestType()) {
             case EnumRequestTypes::api:
-                Log::action(tr('Executing API page ":target" on stack level ":level" with in language ":language" and sending output as API page', [
+                Log::action(ts('Executing API page ":target" on stack level ":level" with in language ":language" and sending output as API page', [
                     ':target'   => Strings::from(static::getTarget(), '/web/'),
                     ':level'    => static::$stack_level,
                     ':language' => LANGUAGE,
@@ -1669,7 +1669,7 @@ class Request implements RequestInterface
                     Session::start();
                 }
 
-                Log::action(tr('Executing AJAX page ":target" on stack level ":level" with in language ":language" and sending output as AJAX API page', [
+                Log::action(ts('Executing AJAX page ":target" on stack level ":level" with in language ":language" and sending output as AJAX API page', [
                     ':target'   => Strings::from(static::getTarget(), '/web/'),
                     ':level'    => static::$stack_level,
                     ':language' => LANGUAGE,
@@ -1692,7 +1692,7 @@ class Request implements RequestInterface
                     Response::getFlashMessagesObject()->addSource(Session::getFlashMessagesObject());
                 }
 
-                Log::action(tr('Executing HTML page ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
+                Log::action(ts('Executing HTML page ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
                     ':target'   => Strings::from(static::getTarget(), '/web/'),
                     ':template' => static::$template->getName(),
                     ':level'    => static::$stack_level,
@@ -1715,7 +1715,7 @@ class Request implements RequestInterface
         $cache = Cache::read(static::$hash, 'pages');
         if ($cache) {
             try {
-                Log::action(tr('Sending cached reply to client'), 3);
+                Log::action(ts('Sending cached reply to client'), 3);
 
                 $cache = Json::decode($cache);
 
@@ -1725,7 +1725,7 @@ class Request implements RequestInterface
 
             } catch (Throwable $e) {
                 // Cache failed!
-                Log::warning(tr('Failed to send full cache page ":page" with following exception, ignoring cache and building page', [
+                Log::warning(ts('Failed to send full cache page ":page" with following exception, ignoring cache and building page', [
                     ':page' => static::$hash,
                 ]));
                 Log::exception($e);
@@ -1781,7 +1781,7 @@ class Request implements RequestInterface
                 static::executeSystem(403, $e, tr('Page did not catch the following "IncidentsExceptionInterface or AccessDeniedExceptionInterface" warning. Executing "system/403" instead'));
             }
 
-            Log::warning(tr('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
+            Log::warning(ts('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
                 ':new'    => $new_target,
                 ':target' => static::$target->getRootname(),
                 ':user'   => Session::getUserObject()->getDisplayId(),

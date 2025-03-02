@@ -237,8 +237,8 @@ class CliAutoComplete
 
             } else {
                 if (empty($data['commands'])) {
-                    Log::warning(tr('Auto complete could not find any available cached root commands. try ./pho -Z to rebuild system caches'));
-                    Log::error(tr('no-commands-available-see-logs'), 10);
+                    Log::warning(ts('Auto complete could not find any available cached root commands. try ./pho -Z to rebuild system caches'));
+                    Log::error(ts('no-commands-available-see-logs'), 10);
 
                 } else {
                     CliAutoComplete::showResults($data['commands']);
@@ -247,7 +247,7 @@ class CliAutoComplete
 
         } elseif (static::$position > count($cli_commands)) {
             // Invalid situation, supposedly the location was beyond, after the number of arguments?
-            Log::error(tr('Cannot process commands, command line cursor position ":position" is beyond the command line count ":count"', [
+            Log::error(ts('Cannot process commands, command line cursor position ":position" is beyond the command line count ":count"', [
                 ':position' => static::$position,
                 ':count'    => count($cli_commands),
             ]), echo_screen: false);
@@ -715,7 +715,7 @@ class CliAutoComplete
                 // File is not readable
                 if (!$file->uidMatchesPuid()) {
                     // Owner mismatch of file itself
-                    Log::warning(tr('Not initializing existing bash completion file ":file" as its owner UID ":fuid (:fname)" does not match this process UID ":puid (:pname)"', [
+                    Log::warning(ts('Not initializing existing bash completion file ":file" as its owner UID ":fuid (:fname)" does not match this process UID ":puid (:pname)"', [
                         ':file'  => $file->getAbsolutePath(must_exist: false),
                         ':fuid'  => $file->getOwnerUid(),
                         ':fname' => $file->getOwnerName(),
@@ -727,7 +727,7 @@ class CliAutoComplete
                 }
 
                 // Different reason
-                Log::warning(tr('Cannot access bash completion file ":file", not performing auto-complete initialization check', [
+                Log::warning(ts('Cannot access bash completion file ":file", not performing auto-complete initialization check', [
                     ':file'  => $file->getAbsolutePath(must_exist: false),
                     ':fuid'  => $file->getOwnerUid(),
                     ':fname' => $file->getOwnerName(),
@@ -741,7 +741,7 @@ class CliAutoComplete
         } else {
             // File does not exist. Does the parent directory match?
             if (!$file->getParentDirectory()->uidMatchesPuid()) {
-                Log::warning(tr('Not trying to initialize bash completion file ":file" as the owner UID ":fuid (:fname)" of the parent directory ":directory" does not match this process UID ":puid (:pname)"', [
+                Log::warning(ts('Not trying to initialize bash completion file ":file" as the owner UID ":fuid (:fname)" of the parent directory ":directory" does not match this process UID ":puid (:pname)"', [
                     ':directory' => $file->getParentDirectory()->getAbsolutePath(must_exist: false),
                     ':file'      => $file->getAbsolutePath(must_exist: false),
                     ':fuid'      => $file->getParentDirectory()->getOwnerUid(),

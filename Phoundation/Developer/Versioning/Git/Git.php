@@ -385,7 +385,7 @@ class Git extends Versioning implements GitInterface
                           ->putContents($diff . PHP_EOL);
         }
 
-        Log::warning(tr('Files ":files" have no diff', [':files' => $files]));
+        Log::warning(ts('Files ":files" have no diff', [':files' => $files]));
 
         return null;
     }
@@ -441,7 +441,7 @@ class Git extends Versioning implements GitInterface
     public function apply(?PhoFileInterface $patch_file): static
     {
         if (!$patch_file) {
-            Log::warning(tr('Ignoring empty patch filename'));
+            Log::warning(ts('Ignoring empty patch filename'));
 
         } else {
             $output = $this->git->clearArguments()

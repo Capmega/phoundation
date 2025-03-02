@@ -49,7 +49,7 @@ class Axel extends Command
              ->addArgument($this->source);
         if ($method === EnumExecuteMethod::background) {
             $pid = $this->executeBackground();
-            Log::success(tr('Executed wget as a background process with PID ":pid"', [
+            Log::success(ts('Executed wget as a background process with PID ":pid"', [
                 ':pid' => $pid,
             ]), 4);
 

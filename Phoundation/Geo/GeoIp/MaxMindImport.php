@@ -64,12 +64,12 @@ class MaxMindImport extends GeoIpImport
                             ->setExecutionDirectoryToTemp()
                             ->getExecutionDirectory();
 
-        Log::action(tr('Storing GeoIP files in directory ":directory"', [':directory' => $directory]));
+        Log::action(ts('Storing GeoIP files in directory ":directory"', [':directory' => $directory]));
 
         foreach (static::getMaxMindFiles(true) as $file => $url) {
             $url = str_replace('YOUR_LICENSE_KEY', $license_key, $url);
 
-            Log::action(tr('Downloading MaxMind URL ":url"', [':url' => $url]));
+            Log::action(ts('Downloading MaxMind URL ":url"', [':url' => $url]));
 
             $wget->setSource($url)
                  ->setTarget($file)
@@ -135,7 +135,7 @@ class MaxMindImport extends GeoIpImport
         $target_directory->ensure();
         $target_directory->getRestrictions()->addDirectory(DIRECTORY_DATA . 'garbage/', true);
 
-        Log::action(tr('Processing GeoIP files and moving to directory ":directory"', [
+        Log::action(ts('Processing GeoIP files and moving to directory ":directory"', [
             ':directory' => $target_directory
         ]));
 
@@ -168,7 +168,7 @@ show($garbage->getSource());
                     continue;
                 }
 
-                Log::action(tr('Processing GeoIP file ":file"', [':file' => $file]));
+                Log::action(ts('Processing GeoIP file ":file"', [':file' => $file]));
 
                 // Take the downloaded file, check sha256, untar it, and move the datafile from the resulting directory
                 // to the target
@@ -190,7 +190,7 @@ show('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz');
             $garbage->delete();
 
         } catch (Throwable $e) {
-            Log::error(tr('Failed MaxMindImport->process() with following exception. Moving original files back in place'));
+            Log::error(ts('Failed MaxMindImport->process() with following exception. Moving original files back in place'));
             Log::exception($e);
 
             // Something borked. Move the previous data files back from the garbage to their original path so the system

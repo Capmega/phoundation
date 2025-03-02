@@ -1021,7 +1021,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
             $this->source = $results;
 
             foreach ($results as $entry) {
-                Log::action(tr('Deleting ":class" entry with id ":id"', [
+                Log::action(ts('Deleting ":class" entry with id ":id"', [
                     ':class' => static::class,
                     ':id'    => $entry['id'],
                 ]), 2);

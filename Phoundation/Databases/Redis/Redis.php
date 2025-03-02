@@ -261,7 +261,7 @@ class Redis implements RedisInterface
             $return = $this->connect()->client->getDbNum();
 
             if ($return === false) {
-                Log::error(tr('PHP driver Redis->getDbNum() returned false'));
+                Log::error(ts('PHP driver Redis->getDbNum() returned false'));
                 $return = -1;
             }
 

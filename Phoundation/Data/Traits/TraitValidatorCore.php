@@ -515,7 +515,7 @@ trait TraitValidatorCore
 
         if (Debug::isEnabled()) {
             if ($this->definitions?->getDataEntry()) {
-                Log::write(tr('Validation failed for ":class" DataEntry field ":field" with value ":value" because :failure', [
+                Log::write(ts('Validation failed for ":class" DataEntry field ":field" with value ":value" because :failure', [
                     ':class'   => get_class($this->definitions->getDataEntry()),
                     ':field'   => ($this->parent_field ?? '-') . ' / ' . $selected_field . ' / ' . ($this->process_key ?? '-'),
                     ':failure' => $failure,
@@ -523,7 +523,7 @@ trait TraitValidatorCore
                 ]), 'debug', 6);
 
             } else {
-                Log::write(tr('Validation failed for non DataEntry field ":field" with value ":value" because :failure', [
+                Log::write(ts('Validation failed for non DataEntry field ":field" with value ":value" because :failure', [
                     ':field'   => ($this->parent_field ?? '-') . ' / ' . $selected_field . ' / ' . ($this->process_key ?? '-'),
                     ':failure' => $failure,
                     ':value'   => $this->source[$selected_field],

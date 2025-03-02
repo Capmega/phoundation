@@ -257,7 +257,7 @@ showdie($matches);
      */
     public function execute(): static
     {
-        Log::action(tr('Scraping URL ":url" using the HTTP GET method', [
+        Log::action(ts('Scraping URL ":url" using the HTTP GET method', [
             ':url' => $this->o_url
         ]));
 

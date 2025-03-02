@@ -128,7 +128,7 @@ class Relay
      */
     #[NoReturn] public function get(): void
     {
-        Log::action(tr('Relaying URL ":url"', [':url' => $this->curl->getUrl()]));
+        Log::action(ts('Relaying URL ":url"', [':url' => $this->curl->getUrl()]));
         Response::setRenderMainWrapper(false);
         try {
             $page = $this->curl->addRequestHeaders(Arrays::extractPrefix($_SERVER, 'HTTP_'))

@@ -79,7 +79,7 @@ class ReCaptcha extends Captcha
     {
         if (!$response) {
             // There is no response, this is failed before we even begin
-            Log::warning(tr('No captcha client response received'));
+            Log::warning(ts('No captcha client response received'));
 
             return false;
         }
@@ -117,10 +117,10 @@ class ReCaptcha extends Captcha
         $response = Strings::toBoolean($response['success']);
 
         if ($response) {
-            Log::success(tr('Passed ReCaptcha test'));
+            Log::success(ts('Passed ReCaptcha test'));
 
         } else {
-            Log::warning(tr('Failed ReCaptcha test'));
+            Log::warning(ts('Failed ReCaptcha test'));
         }
 
         return $response;

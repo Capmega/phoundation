@@ -362,7 +362,7 @@ class Config implements ConfigInterface
             if (!is_array($data)) {
 //                echo "<pre>";var_dump($path);var_dump($section);var_dump($data);echo PHP_EOL;
                 if ($data !== null) {
-                    Log::warning(tr('Encountered invalid configuration structure whilst looking for ":path". Section ":section" should contain sub values but does not. Please check your configuration files that this structure exists correctly', [
+                    Log::warning(ts('Encountered invalid configuration structure whilst looking for ":path". Section ":section" should contain sub values but does not. Please check your configuration files that this structure exists correctly', [
                         ':path'    => $path,
                         ':section' => $part,
                     ]));
@@ -935,7 +935,7 @@ class Config implements ConfigInterface
                                  // Extract the configuration path and default value for each call
                                  if (!preg_match_all('/Config::[gs]et\s?\([\'"](.+?)[\'"](?:.+?)?(?:,\s?(.+?))\)/i', $line, $matches)) {
                                      if (!preg_match_all('/Config::[gs]et\s?\([\'"](.+?)[\'"](?:.+?)?(?:,\s?(.+?))?\)/i', $line, $matches)) {
-                                         Log::warning(tr('Failed to extract a config()->get() or config()->set() from line ":line" in file ":file"', [
+                                         Log::warning(ts('Failed to extract a config()->get() or config()->set() from line ":line" in file ":file"', [
                                              ':file' => $file,
                                              ':line' => $line,
                                          ]));
@@ -952,7 +952,7 @@ class Config implements ConfigInterface
                                      // default values
                                      if (array_key_exists($path, $store)) {
                                          if ($store[$path] !== $default) {
-                                             Log::warning(tr('Configuration path ":path" has two different default values ":1" and ":2"', [
+                                             Log::warning(ts('Configuration path ":path" has two different default values ":1" and ":2"', [
                                                  ':path' => $path,
                                                  ':1'    => $default,
                                                  ':2'    => $store[$path],
@@ -1049,7 +1049,7 @@ class Config implements ConfigInterface
         $data = Strings::untilReverse($data, PHP_EOL);
         $data = Strings::untilReverse($data, PHP_EOL) . PHP_EOL;
 
-        Log::action(tr('Saving section ":section" from environment ":environment"', [
+        Log::action(ts('Saving section ":section" from environment ":environment"', [
             ':environment' => static::$default_environment,
             ':section'     => $this->section
         ]));

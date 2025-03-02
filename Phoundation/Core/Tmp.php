@@ -31,7 +31,7 @@ class Tmp
      */
     public static function clear(): void
     {
-        Log::action(tr('Clearing all temporary files'), 3);
+        Log::action(ts('Clearing all temporary files'), 3);
 
         // Delete all private temporary files
         PhoDirectory::new(DIRECTORY_TMP, PhoRestrictions::newWritableObject(DIRECTORY_TMP))
@@ -43,7 +43,7 @@ class Tmp
                    ->delete()
                    ->ensure();
 
-        Log::success(tr('Cleared all temporary files'));
+        Log::success(ts('Cleared all temporary files'));
     }
 
 
@@ -59,7 +59,7 @@ class Tmp
         if (!$age_in_minutes) {
             $age_in_minutes = config()->getInteger('tmp.clean.age', 1440);
         }
-        Log::action(tr('Cleaning temporary files older than ":age" minutes', [
+        Log::action(ts('Cleaning temporary files older than ":age" minutes', [
             ':age' => $age_in_minutes,
         ]));
         Find::new()

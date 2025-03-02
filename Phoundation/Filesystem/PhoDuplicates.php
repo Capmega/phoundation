@@ -132,7 +132,7 @@ class PhoDuplicates extends Iterator implements PhoDuplicatesInterface
                     continue;
                 }
 
-                Log::warning(tr('Deleting duplicate file ":file"', [
+                Log::warning(ts('Deleting duplicate file ":file"', [
                     ':file' => $file
                 ]));
 

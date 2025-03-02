@@ -555,7 +555,7 @@ class Repository extends PhoDirectory implements RepositoryInterface
             return $this;
 
         } catch (ProcessFailedException $e) {
-            Log::warning(tr('Patch failed to apply for repository ":directory" with following exception', [
+            Log::warning(ts('Patch failed to apply for repository ":directory" with following exception', [
                 ':directory' => $this,
             ]));
 
@@ -566,7 +566,7 @@ class Repository extends PhoDirectory implements RepositoryInterface
                 // There is a patch file, so we have a git process
                 // Delete the temporary patch file
                 Core::ExecuteIfNotInTestMode(function () use ($o_patch_file) {
-                    Log::action(tr('Removing patch file ":file"', [':file' => $o_patch_file]));
+                    Log::action(ts('Removing patch file ":file"', [':file' => $o_patch_file]));
                     $o_patch_file->delete();
                 }, tr('Removing git patch file'));
 
@@ -582,7 +582,7 @@ class Repository extends PhoDirectory implements RepositoryInterface
 
                 if (isset($files)) {
                     // Specific files failed to apply
-                    Log::warning(tr('Trying to fix by stashing ":count" problematic file(s) ":files"', [
+                    Log::warning(ts('Trying to fix by stashing ":count" problematic file(s) ":files"', [
                         ':count' => count($files),
                         ':files' => $files,
                     ]));

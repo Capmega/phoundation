@@ -367,7 +367,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
 
         while (true) {
             if (!$this->values) {
-                Log::success(tr('Finished processing values list with ":count" workers', [
+                Log::success(ts('Finished processing values list with ":count" workers', [
                     ':count' => $this->workers_executed
                 ]));
                 break;
@@ -379,12 +379,12 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
                 usleep($this->cycle_sleep);
                 $current = $this->getCurrent();
 
-                Log::notice(tr('Processing list with ":count" workers', [
+                Log::notice(ts('Processing list with ":count" workers', [
                     ':count' => $current
                 ]), 6);
 
             } else {
-                Log::warning(tr('Current number of workers ":current" is higher than the maximum of ":max", not starting new workers', [
+                Log::warning(ts('Current number of workers ":current" is higher than the maximum of ":max", not starting new workers', [
                     ':current' => $current,
                     ':max'     => $this->maximum,
                 ]), 3);
@@ -397,10 +397,10 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
         if ($this->wait_worker_finish) {
             while (true) {
                 $current = $this->getCurrent();
-                Log::notice(tr('Waiting for ":count" workers to finish', [':count' => $current]));
+                Log::notice(ts('Waiting for ":count" workers to finish', [':count' => $current]));
 
                 if (!$this->getCurrent()) {
-                    Log::success(tr('All workers finished'));
+                    Log::success(ts('All workers finished'));
                     break;
                 }
 
@@ -421,7 +421,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
         $worker = clone $this;
         $worker->setVariables([$this->key => $value]);
 
-        Log::action(tr('Starting worker with command ":command"', [
+        Log::action(ts('Starting worker with command ":command"', [
             ':command' => $worker->getFullCommandLine(),
         ]), 3);
 
@@ -429,7 +429,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
         $this->workers[$worker->getPid()] = $worker;
         $this->workers_executed++;
 
-        Log::success(tr('Started worker with PID ":pid" for ":label" ":value"', [
+        Log::success(ts('Started worker with PID ":pid" for ":label" ":value"', [
             ':pid'   => $worker->getPid(),
             ':label' => not_empty($this->label, tr('value')),
             ':value' => $value,
@@ -474,7 +474,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
             }
 
             // This worker is dead, remove it from the list
-            Log::notice(tr('Worker with PI ":pid" finished process, removing from list', [':pid' => $pid]));
+            Log::notice(ts('Worker with PI ":pid" finished process, removing from list', [':pid' => $pid]));
             unset($this->workers[$pid]);
         }
     }

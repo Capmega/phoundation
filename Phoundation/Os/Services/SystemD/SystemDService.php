@@ -452,7 +452,7 @@ WantedBy=multi-user.target');
         Core::checkProcessIsRoot();
         $this->ensureSystemFileInstalled();
 
-        Log::action(tr('Enabling auto startup for SystemD service ":service"', [
+        Log::action(ts('Enabling auto startup for SystemD service ":service"', [
             ':service' => $this->getOsProcessName()
         ]));
 
@@ -474,7 +474,7 @@ WantedBy=multi-user.target');
     {
         Core::checkProcessIsRoot();
 
-        Log::action(tr('Disabling auto startup for SystemD service ":service"', [
+        Log::action(ts('Disabling auto startup for SystemD service ":service"', [
             ':service' => $this->getOsProcessName()
         ]));
 
@@ -497,7 +497,7 @@ WantedBy=multi-user.target');
         Core::checkProcessIsRoot();
         $this->ensureSystemFileInstalled();
 
-        Log::action(tr('Starting service ":service" as a SystemD service', [
+        Log::action(ts('Starting service ":service" as a SystemD service', [
             ':service' => $this->getOsProcessName()
         ]));
 
@@ -537,7 +537,7 @@ WantedBy=multi-user.target');
     {
         Core::checkProcessIsRoot();
 
-        Log::action(tr('Stopping SystemD service ":service"', [
+        Log::action(ts('Stopping SystemD service ":service"', [
             ':service' => $this->getOsProcessName()
         ]));
 

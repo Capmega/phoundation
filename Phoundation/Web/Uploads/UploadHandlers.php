@@ -205,7 +205,7 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
                     static::$files = static::restructureSingleFile($_FILES);
                 }
 
-                Log::notice(tr('Found ":count" uploaded files', [
+                Log::notice(ts('Found ":count" uploaded files', [
                     ':count' => static::$files->getCount()
                 ]), 5);
             }
@@ -318,7 +318,7 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
                 $this->fixMimetypeGroups();
                 $this->validate();
 
-                Log::action(tr('Processing ":count" uploaded files with ":handlers" out of ":max" handlers', [
+                Log::action(ts('Processing ":count" uploaded files with ":handlers" out of ":max" handlers', [
                     ':count'    => static::$files->getCount(),
                     ':max'      => $this->getCount(),
                     ':handlers' => static::$mimetypes_groups->getCount(),
@@ -329,7 +329,7 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
 
                     foreach ($files as $file) {
                         try {
-                            Log::action(tr('Processing uploaded file ":file" with mimetype handler ":handler"', [
+                            Log::action(ts('Processing uploaded file ":file" with mimetype handler ":handler"', [
                                 ':file'    => $file->getBasename(),
                                 ':handler' => get_class($handler)
                             ]), 4);
@@ -465,7 +465,7 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
     {
         $failures  = [];
 
-        Log::action(tr('Validating ":count" uploaded files', [
+        Log::action(ts('Validating ":count" uploaded files', [
             ':count' => static::$files->getCount()
         ]), 4);
 

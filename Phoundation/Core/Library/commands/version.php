@@ -31,9 +31,9 @@ ARGUMENTS
 
 
 
-Log::cli(tr('Phoundation version ":version"', [
+Log::cli(ts('Phoundation version ":version"', [
     ':version' => Core::FRAMEWORK_CODE_VERSION
 ]));
-Log::cli(tr('Project version ":version"', [
+Log::cli(ts('Project version ":version"', [
     ':version' => Core::getProjectVersion()
 ]));

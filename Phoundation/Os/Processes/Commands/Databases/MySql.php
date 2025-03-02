@@ -199,7 +199,7 @@ class MySql extends Command
             }
             if ($method === EnumExecuteMethod::background) {
                 $pid = $this->executeBackground();
-                Log::success(tr('Executed wget as a background process with PID ":pid"', [
+                Log::success(ts('Executed wget as a background process with PID ":pid"', [
                     ':pid' => $pid,
                 ]), 4);
                 // TODO Password file should only be deleted after execution has finished

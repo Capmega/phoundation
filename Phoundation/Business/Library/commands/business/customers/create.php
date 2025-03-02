@@ -61,4 +61,4 @@ $customer = Customer::new()->apply(true, $argv)->save();
 
 
 // Done!
-Log::success(tr('Created new customer ":customer"', [':customer' => $customer->getName()]));
+Log::success(ts('Created new customer ":customer"', [':customer' => $customer->getName()]));

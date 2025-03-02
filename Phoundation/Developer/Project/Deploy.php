@@ -154,43 +154,43 @@ class Deploy implements DeployInterface
 
             static::executeHook('post-test-unit,pre-sync');
             if ($env_config['sync']) {
-                Log::action(tr('Executing system synchronisation'));
+                Log::action(ts('Executing system synchronisation'));
 
             }
             static::executeHook('post-sync,pre-init');
             if ($env_config['init']) {
                 // Initialize the system
-                Log::action(tr('Executing project initialization'));
+                Log::action(ts('Executing project initialization'));
                 Libraries::initialize(true, true, true, 'Executed by the Phoundation deployment system');
             }
             static::executeHook('post-init,pre-translate');
             if ($env_config['translate']) {
-                Log::action(tr('Executing translation'));
+                Log::action(ts('Executing translation'));
 
             }
             static::executeHook('post-translate,pre-minify');
             if ($env_config['minify']) {
-                Log::action(tr('Executing CDN data minification'));
+                Log::action(ts('Executing CDN data minification'));
 
             }
             static::executeHook('post-minify,pre-update-sitemap');
             if ($env_config['update_sitemap']) {
-                Log::action(tr('Executing sitemap update'));
+                Log::action(ts('Executing sitemap update'));
 
             }
             static::executeHook('post-update-sitemap,pre-push');
             if ($env_config['push']) {
-                Log::action(tr('Pushing updates to remote GIT'));
+                Log::action(ts('Pushing updates to remote GIT'));
 
             }
             static::executeHook('post-push,pre-connect,pre-backup');
             if ($env_config['backup']) {
-                Log::action(tr('Executing remote backup'));
+                Log::action(ts('Executing remote backup'));
 
             }
             static::executeHook('post-backup,pre-parallel');
             if ($env_config['parallel']) {
-                Log::action(tr('Executing remote project copy to prepare for parallel rsync'));
+                Log::action(ts('Executing remote project copy to prepare for parallel rsync'));
             }
             static::executeHook('post-parallel,pre-rsync');
             // Build the rsync target
@@ -209,7 +209,7 @@ class Deploy implements DeployInterface
             // Add the project directory to the rsync_target
             $project = Strings::fromReverse(Strings::ensureEndsNotWith(DIRECTORY_ROOT, '/'), '/');
             // Execute rsync
-            Log::action(tr('Executing rsync to target ":target"', [
+            Log::action(ts('Executing rsync to target ":target"', [
                 ':target' => Strings::ensureEndsWith($rsync_target, '/') . $project,
             ]));
             // First ensure the target base directory exists!
@@ -246,11 +246,11 @@ class Deploy implements DeployInterface
                  ->execute();
             static::executeHook('post-rsync,pre-update-file-modes');
             if ($env_config['update_file_modes']) {
-                Log::action(tr('Executing file mode update'));
+                Log::action(ts('Executing file mode update'));
             }
             static::executeHook('post-update-file-modes,pre-notify');
             if ($env_config['notify']) {
-                Log::action(tr('Sending out notifications'));
+                Log::action(ts('Sending out notifications'));
 
             }
             static::executeHook('post-notify,finish');
@@ -272,7 +272,7 @@ class Deploy implements DeployInterface
         static::executeHook('pre-unit-test');
 
         if (!$env_config['unit_test']) {
-            Log::action(tr('Executing unit tests'));
+            Log::action(ts('Executing unit tests'));
 
         }
 
@@ -293,7 +293,7 @@ class Deploy implements DeployInterface
         static::executeHook('pre-content-check');
 
         if (!$env_config['content_check']) {
-            Log::action(tr('Executing content check'));
+            Log::action(ts('Executing content check'));
 
         }
 
@@ -312,7 +312,7 @@ class Deploy implements DeployInterface
         static::executeHook('pre-test-syntax');
 
         if ($env_config['bom_check']) {
-            Log::action(tr('Executing BOM check'));
+            Log::action(ts('Executing BOM check'));
 
         }
 
@@ -333,7 +333,7 @@ class Deploy implements DeployInterface
         static::executeHook('pre-bom-check');
 
         if ($env_config['bom_check']) {
-            Log::action(tr('Executing BOM check'));
+            Log::action(ts('Executing BOM check'));
 //                BomDirectory::new(DIRECTORY_ROOT, DIRECTORY_ROOT)->clearBom();
         }
 

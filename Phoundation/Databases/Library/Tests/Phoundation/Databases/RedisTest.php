@@ -47,7 +47,7 @@ class RedisTest extends TestCase
         $this->redis = Redis::new($o_connector)->setDatabase(0, true);
 
         if (!$this->redis->ping()) {
-            Log::error(tr('Connection to Redis server failed'));
+            Log::error(ts('Connection to Redis server failed'));
         }
 
     }

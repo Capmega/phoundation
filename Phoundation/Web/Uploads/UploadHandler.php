@@ -214,7 +214,7 @@ class UploadHandler implements UploadHandlerInterface
             ]))->registerIncident(EnumSeverity::medium);
         }
 
-        Log::action(tr('About to process ":count" files with mimetypes handler ":mimetypes"', [
+        Log::action(ts('About to process ":count" files with mimetypes handler ":mimetypes"', [
             ':count'     => $this->getDropZoneObject()->getMaxFiles(),
             ':mimetypes' => $this->getDropZoneObject()->getMimetypes()
         ]));

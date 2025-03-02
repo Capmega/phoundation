@@ -316,7 +316,7 @@ class FileResponse extends PhoFile
     #[NoReturn] public function send(): never
     {
         // Send the specified file to the client
-        Log::action(tr('HTTP sending file ":file" with ":bytes" bytes to client as attachment with filename ":filename"', [
+        Log::action(ts('HTTP sending file ":file" with ":bytes" bytes to client as attachment with filename ":filename"', [
             ':bytes'    => $this->size,
             ':filename' => $this->filename,
             ':file'     => $this->file,
@@ -344,7 +344,7 @@ class FileResponse extends PhoFile
 //            $mimetype = mime_content_type($target);
 //            $bytes    = $target->getSize();
 //
-//            Log::action(tr('Sending contents of file ":target" with mime-type ":type" directly to client', [
+//            Log::action(ts('Sending contents of file ":target" with mime-type ":type" directly to client', [
 //                ':target' => $target,
 //                ':type'   => $mimetype
 //            ]));

@@ -53,4 +53,4 @@ $server = Server::new()->load($argv['hostname'])->apply()->save();
 
 
 // Done!
-Log::success(tr('Modified server ":server"', [':server' => $server->getHostname()]));
+Log::success(ts('Modified server ":server"', [':server' => $server->getHostname()]));

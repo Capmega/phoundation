@@ -496,7 +496,7 @@ class Rsync extends Command implements RsyncInterface
     {
         $results = parent::execute($method);
         if ($this->debug) {
-            Log::information(tr('Output of the rsync command:'), 4);
+            Log::information(ts('Output of the rsync command:'), 4);
             Log::notice($results, 4);
         }
 

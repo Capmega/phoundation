@@ -375,7 +375,7 @@ class Repositories extends IteratorCore implements RepositoriesInterface
     public function scan(): static
     {
         // Scan for phoundation repositories
-        Log::action(tr('Scanning for Phoundation core, plugin, and template repositories'), 6);
+        Log::action(ts('Scanning for Phoundation core, plugin, and template repositories'), 6);
 
         $this->scanned_paths = new Iterator();
 
@@ -449,13 +449,13 @@ class Repositories extends IteratorCore implements RepositoriesInterface
             // Track scanned paths
             $this->scanned_paths->add($directory, $directory->getSource());
 
-            Log::action(tr('Scanning directory ":directory"', [
+            Log::action(ts('Scanning directory ":directory"', [
                 ':directory' => $directory->getSource()
             ]));
 
             if (!$directory->exists()) {
                 // Nothing here
-                Log::warning(tr('Ignoring directory ":directory", it does not exist', [
+                Log::warning(ts('Ignoring directory ":directory", it does not exist', [
                     ':directory' => $directory->getSource(),
                 ]), 2);
 
@@ -480,7 +480,7 @@ class Repositories extends IteratorCore implements RepositoriesInterface
                     }
 
 
-                    Log::action(tr('Testing directory ":directory" for Phoundation repository', [
+                    Log::action(ts('Testing directory ":directory" for Phoundation repository', [
                         ':directory' => $path->getSource(),
                     ]), 1);
 
@@ -490,7 +490,7 @@ class Repositories extends IteratorCore implements RepositoriesInterface
                     );
 
                     if (!$repository->isRepository()) {
-                        Log::warning(tr('Ignoring directory ":directory", it is not a repository', [
+                        Log::warning(ts('Ignoring directory ":directory", it is not a repository', [
                             ':directory' => $repository->getSource(),
                         ]), 2);
 
@@ -501,14 +501,14 @@ class Repositories extends IteratorCore implements RepositoriesInterface
                         continue;
                     }
 
-                    Log::success(tr('Found Phoundation repository in ":path"', [
+                    Log::success(ts('Found Phoundation repository in ":path"', [
                         ':path' => $repository->getSource()
                     ]), 3);
 
                     $this->add($repository, $repository->getSource());
 
                 } catch (FileNotWritableException $e) {
-                    Log::warning(tr('Ignoring path ":path", the path cannot be written to', [
+                    Log::warning(ts('Ignoring path ":path", the path cannot be written to', [
                         ':path' => $path,
                     ]));
                 }
@@ -716,11 +716,11 @@ throw new UnderConstructionException();
      */
     protected function checkCorePatching(): static
     {
-        Log::action(tr('Checking core patch ready'));
+        Log::action(ts('Checking core patch ready'));
 
         if ($this->patch_core) {
             if ($this->project->hasCoreChanges()) {
-                Log::notice(tr('Changes detected in core libraries'));
+                Log::notice(ts('Changes detected in core libraries'));
 
                 if (!$this->hasCoreRepository()) {
                     throw new RepositoryNotFoundException(tr('Cannot patch Phoundation core libraries, no Phoundation core repository found'));
@@ -739,11 +739,11 @@ throw new UnderConstructionException();
      */
     protected function checkDataPatching(): static
     {
-        Log::action(tr('Checking data patch ready'));
+        Log::action(ts('Checking data patch ready'));
 
         if ($this->patch_plugins) {
             if ($this->project->hasDataChanges()) {
-                Log::notice(tr('Changes detected in data files'));
+                Log::notice(ts('Changes detected in data files'));
 
                 if (!$this->hasDataRepositories()) {
                     throw new RepositoryNotFoundException(tr('Cannot patch Phoundation plugins, no Phoundation plugins repository found'));
@@ -755,12 +755,12 @@ throw new UnderConstructionException();
 
                 if ($vendors->isNotEmpty()) {
                     foreach ($vendors as $vendor) {
-                        Log::warning(tr('Not patching data files for vendor ":vendor", no plugins repository was found for this vendor', [
+                        Log::warning(ts('Not patching data files for vendor ":vendor", no plugins repository was found for this vendor', [
                             ':vendor' => $vendor->getName()
                         ]));
 
                         foreach ($vendor as $file) {
-                            Log::warning(tr('Not patching file ":file"', [
+                            Log::warning(ts('Not patching file ":file"', [
                                 ':file' => $file
                             ]));
                         }
@@ -780,11 +780,11 @@ throw new UnderConstructionException();
      */
     protected function checkPluginsPatching(): static
     {
-        Log::action(tr('Checking plugins patch ready'));
+        Log::action(ts('Checking plugins patch ready'));
 
         if ($this->patch_plugins) {
             if ($this->project->hasPluginsChanges()) {
-                Log::notice(tr('Changes detected in plugin libraries'));
+                Log::notice(ts('Changes detected in plugin libraries'));
 
                 if (!$this->hasDataRepositories()) {
                     throw new RepositoryNotFoundException(tr('Cannot patch Phoundation plugins, no Phoundation plugins repository found'));
@@ -797,12 +797,12 @@ throw new UnderConstructionException();
 
                 if ($vendors->isNotEmpty()) {
                     foreach ($vendors as $vendor) {
-                        Log::warning(tr('Not patching plugins files for vendor ":vendor", no plugins repository was found for this vendor', [
+                        Log::warning(ts('Not patching plugins files for vendor ":vendor", no plugins repository was found for this vendor', [
                             ':vendor' => $vendor->getName()
                         ]));
 
                         foreach ($vendor as $file) {
-                            Log::warning(tr('Not patching file ":file"', [
+                            Log::warning(ts('Not patching file ":file"', [
                                 ':file' => $file
                             ]));
                         }
@@ -822,11 +822,11 @@ throw new UnderConstructionException();
      */
     protected function checkTemplatesPatching(): static
     {
-        Log::action(tr('Checking templates patch ready'));
+        Log::action(ts('Checking templates patch ready'));
 
         if ($this->patch_templates) {
             if ($this->project->hasTemplatesChanges()) {
-                Log::notice(tr('Changes detected in template files'));
+                Log::notice(ts('Changes detected in template files'));
 
                 if (!$this->hasTemplatesRepositories()) {
                     throw new RepositoryNotFoundException(tr('Cannot patch Phoundation core libraries, no Phoundation templates repository found'));
@@ -839,12 +839,12 @@ throw new UnderConstructionException();
 
                 if ($vendors->isNotEmpty()) {
                     foreach ($vendors as $vendor) {
-                        Log::warning(tr('Not patching templates files for vendor ":vendor", no templates repository was found for this vendor', [
+                        Log::warning(ts('Not patching templates files for vendor ":vendor", no templates repository was found for this vendor', [
                             ':vendor' => $vendor->getName()
                         ]));
 
                         foreach ($vendor as $file) {
-                            Log::warning(tr('Not patching file ":file"', [
+                            Log::warning(ts('Not patching file ":file"', [
                                 ':file' => $file
                             ]));
                         }

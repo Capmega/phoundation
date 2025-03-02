@@ -84,13 +84,13 @@ $argv = ArgvValidator::new()
 
 
 // Connect to remote host
-Log::action(tr('Creating client with on ":host::port"',[
+Log::action(ts('Creating client with on ":host::port"',[
     ':host' => $argv['host'],
     ':port' => $argv['port'],
 ]));
 
 $client = new PhoClient($argv['host'], $argv['port']);
-Log::success(tr('Opened connection'));
+Log::success(ts('Opened connection'));
 
 
 // Check send single message or multiple messages from file
@@ -106,7 +106,7 @@ if ($argv['message']) {
 
 // Send message loop
 for ($i = 1; $i <= $argv['repeat']; ++$i) {
-    Log::action(tr('Sending message ":count", length: ":length"', [
+    Log::action(ts('Sending message ":count", length: ":length"', [
         ':count'  => $i,
         ':length' => strlen($message)
     ]));

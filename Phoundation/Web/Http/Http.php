@@ -274,12 +274,12 @@ class Http
 //        $url = Response::redirect($url);
 //
 //        if ($time_delay) {
-//            Log::action(tr('Redirecting with ":time" seconds delay to url ":url"', [':time' => $time_delay, ':url' => $url]));
+//            Log::action(ts('Redirecting with ":time" seconds delay to url ":url"', [':time' => $time_delay, ':url' => $url]));
 //            header('Refresh: ' . $time_delay.';' . $url, true, $http_code);
 //            exit();
 //        }
 //
-//        Log::action(tr('Redirecting to url ":url"', [':url' => $url]));
+//        Log::action(ts('Redirecting to url ":url"', [':url' => $url]));
 //        header('Location:' . Response::redirect($url), true, $http_code);
 //        exit();
 //    }

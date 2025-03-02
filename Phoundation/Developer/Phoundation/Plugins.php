@@ -91,7 +91,7 @@ class Plugins extends Project
                 ]));
             }
 
-            Log::success(tr('Using Phoundation plugins installation in specified directory ":directory"', [
+            Log::success(ts('Using Phoundation plugins installation in specified directory ":directory"', [
                 ':directory' => $directory,
             ]));
 
@@ -125,7 +125,7 @@ class Plugins extends Project
                 $this->restrictions = PhoRestrictions::new(dirname($test_path));
 
                 if (!file_exists($test_path)) {
-                    Log::warning(tr('Ignoring directory ":directory", it does not exist', [
+                    Log::warning(ts('Ignoring directory ":directory", it does not exist', [
                         ':directory' => $test_path,
                     ]), 2);
                     continue;
@@ -133,14 +133,14 @@ class Plugins extends Project
 
                 if (!$this->isPhoundationPlugins($test_path)) {
                     // This is not a Phoundation plugins directory
-                    Log::warning(tr('Ignoring directory ":directory", it has the name ":name" but is not a Phoundation project', [
+                    Log::warning(ts('Ignoring directory ":directory", it has the name ":name" but is not a Phoundation project', [
                         ':directory' => $test_path,
                         ':name'      => $name,
                     ]), 4);
                     continue;
                 }
 
-                Log::success(tr('Found Phoundation plugins installation in ":directory"', [
+                Log::success(ts('Found Phoundation plugins installation in ":directory"', [
                     ':directory' => $test_path,
                 ]));
 
@@ -184,7 +184,7 @@ class Plugins extends Project
             }
 
             // Select the previous branch and reset it
-            Log::action(tr('Switching Phoundation plugins back to branch ":branch"', [
+            Log::action(ts('Switching Phoundation plugins back to branch ":branch"', [
                 ':branch' => $branch,
             ]), 3);
 
@@ -193,7 +193,7 @@ class Plugins extends Project
 
         } else {
             // Select the previous branch and reset it
-            Log::action(tr('Switching Phoundation plugins to branch ":branch"', [
+            Log::action(ts('Switching Phoundation plugins to branch ":branch"', [
                 ':branch' => $branch,
             ]), 4);
 
@@ -272,10 +272,10 @@ class Plugins extends Project
         $this->phoundation_branch = $this->git->getBranch();
 
         if ($branch !== $this->phoundation_branch) {
-            Log::warning(tr('Phoundation plugins is currently on different branch ":current"', [
+            Log::warning(ts('Phoundation plugins is currently on different branch ":current"', [
                 ':current' => $this->phoundation_branch,
             ]), 4);
-            Log::action(tr('Switching Phoundation plugins branch to requested branch ":requested"', [
+            Log::action(ts('Switching Phoundation plugins branch to requested branch ":requested"', [
                 ':requested' => $branch,
             ]), 5);
 
@@ -299,7 +299,7 @@ class Plugins extends Project
             // Select the current branch
             $branch = $this->git->getBranch();
 
-            Log::notice(tr('Trying to patch updates on Phoundation using current project branch ":branch"', [
+            Log::notice(ts('Trying to patch updates on Phoundation using current project branch ":branch"', [
                 ':branch' => $branch,
             ]));
         }
@@ -347,7 +347,7 @@ class Plugins extends Project
         $sign    = $sign ?? config()->getBoolean('developer.phoundation.patch.sign', true);
         $branch  = $project->getBranch($branch);
 
-        Log::action(tr('Patching branch ":branch" on your local Phoundation plugins repository from this project', [
+        Log::action(ts('Patching branch ":branch" on your local Phoundation plugins repository from this project', [
             ':branch' => $branch,
         ]));
 
@@ -375,7 +375,7 @@ class Plugins extends Project
 
             if ($non_phoundation_stash) {
                 // We have non Phoundation plugins in stash, pop those too
-                Log::warning(tr('Un-stashing non phoundation plugins'));
+                Log::warning(ts('Un-stashing non phoundation plugins'));
                 Git::new(DIRECTORY_ROOT)
                    ->getStashObject()
                    ->pop();
@@ -408,7 +408,7 @@ class Plugins extends Project
         $non_phoundation_plugins = $this->addPluginPaths($non_phoundation_plugins);
 
         if ($non_phoundation_plugins) {
-            Log::warning(tr('Stashing non phoundation plugins ":plugins"', [
+            Log::warning(ts('Stashing non phoundation plugins ":plugins"', [
                 ':plugins' => implode(', ', array_keys($non_phoundation_plugins)),
             ]));
 
@@ -453,7 +453,7 @@ class Plugins extends Project
                 $return[] = $plugin;
 
             } else {
-                Log::warning(tr('Ignoring plugin ":plugin" because it contains no files', [
+                Log::warning(ts('Ignoring plugin ":plugin" because it contains no files', [
                     ':plugin' => $plugin,
                 ]));
             }
@@ -562,7 +562,7 @@ throw new UnderConstructionException(tr('Plugins::updateTo() is under constructi
             $changed_files = $this->git->getStatusFilesObject($directory);
 
             if (!$changed_files->getCount()) {
-                Log::notice(tr('Not patching directory ":directory", it has no changes', [
+                Log::notice(ts('Not patching directory ":directory", it has no changes', [
                     ':directory' => $directory,
                 ]));
                 continue;

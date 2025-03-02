@@ -80,7 +80,7 @@ class Service extends Command
     public function restart(): static
     {
         $this->validateService();
-        Log::action(tr('Restarting service ":service"', [
+        Log::action(ts('Restarting service ":service"', [
             ':service' => $this->service_name,
         ]));
         // Restart the service
@@ -98,7 +98,7 @@ class Service extends Command
     public function start(): static
     {
         $this->validateService();
-        Log::action(tr('Starting service ":service"', [
+        Log::action(ts('Starting service ":service"', [
             ':service' => $this->service_name,
         ]));
         // Start the service
@@ -117,7 +117,7 @@ class Service extends Command
     {
         $this->validateService();
 
-        Log::action(tr('Stopping service ":service"', [
+        Log::action(ts('Stopping service ":service"', [
             ':service' => $this->service_name,
         ]));
 

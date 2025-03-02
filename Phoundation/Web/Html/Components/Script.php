@@ -496,13 +496,13 @@ class Script extends Element implements ScriptInterface
 //                $base = 'cached-'.substr($core->register['script'], 0, -4).'-'.($core->register['script_file'] ? $core->register['script_file'].'-' : '').$count;
 //                $file = DIRECTORY_ROOT.'www/'.LANGUAGE.(Core::getCallType('admin') ? '/admin' : '').'/pub/js/'.$base;
 //
-//                Log::action(tr('Creating externally cached javascript file ":file"', [':file' => $file.'.js']));
+//                Log::action(ts('Creating externally cached javascript file ":file"', [':file' => $file.'.js']));
 //
 //                // Check if the cached file exists and is not too old.
 //                if (file_exists($file.'.js')) {
 //                    if (!filesize($file.'.js')) {
 //                        // The javascript file is empty
-//                        Log::warning(tr('Deleting externally cached javascript file ":file" because the file is 0 bytes', [':file' => $file.'.js']));
+//                        Log::warning(ts('Deleting externally cached javascript file ":file" because the file is 0 bytes', [':file' => $file.'.js']));
 //
 //                        Directory::new(DIRECTORY_CDN . LANGUAGE . '/js', DIRECTORY_CDN . LANGUAGE . '/js')->execute()
 //                            ->setMode(0770)
@@ -517,7 +517,7 @@ class Script extends Element implements ScriptInterface
 //
 //                    } elseif (($_CONFIG['cdn']['cache_max_age'] > 60) and ((filemtime($file.'.js') + $_CONFIG['cdn']['cache_max_age']) < time())) {
 //                        // External cached file is too old
-//                        Log::warning(tr('Deleting externally cached javascript file ":file" because the file cache time expired', [':file' => $file.'.js']));
+//                        Log::warning(ts('Deleting externally cached javascript file ":file" because the file cache time expired', [':file' => $file.'.js']));
 //                        PhoFile::new([$file.'.js', $file.'.min.js'], FsRestrictions::new(DIRECTORY_CDN . LANGUAGE . 'js', true))->delete();
 //                    }
 //                }
@@ -528,7 +528,7 @@ class Script extends Element implements ScriptInterface
 //                    Directory::new(dirname($file), FsRestrictions::new(DIRECTORY_CDN . LANGUAGE . 'js', true))->execute()
 //                        ->setMode(0770)
 //                        ->onDirectoryOnly(function() use ($file, $return) {
-//                            Log::action(tr('Writing internal javascript to externally cached file ":file"', [':file' => $file.'.js']));
+//                            Log::action(ts('Writing internal javascript to externally cached file ":file"', [':file' => $file.'.js']));
 //                            file_put_contents($file.'.js', $return);
 //                        });
 //                }

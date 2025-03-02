@@ -122,7 +122,7 @@ class HttpTester
     public function execute(): static
     {
         while ($this->o_urls->isNotEmpty()) {
-            Log::success(tr('Processing ":count" URL\'s', [
+            Log::success(ts('Processing ":count" URL\'s', [
                 ':count' => $this->o_urls->count(),
             ]));
 
@@ -138,7 +138,7 @@ showdie($urls->getSource());
                     $this->o_urls->addSource($urls)
                                  ->makeValuesUnique();
 
-                    Log::success(tr('Found ":count" URL\'s on page', [
+                    Log::success(ts('Found ":count" URL\'s on page', [
                         ':count' => $this->o_urls->count(),
                     ]));
 
@@ -146,14 +146,14 @@ showdie($urls->getSource());
                     // no break
 
                 case 302:
-                    Log::notice(tr('URL ":url" redirects to ":location"', [
+                    Log::notice(ts('URL ":url" redirects to ":location"', [
                         ':url'      => $scraper->getUrlObject(),
                         ':location' => $scraper->getRedirectLocation(),
                     ]));
                     break;
 
                 case 404:
-                    Log::notice(tr('URL ":url" does not exist', [
+                    Log::notice(ts('URL ":url" does not exist', [
                         ':url'      => $scraper->getUrlObject(),
                         ':location' => $scraper->getRedirectLocation(),
                     ]));
@@ -162,7 +162,7 @@ showdie($urls->getSource());
                     break;
 
                 default:
-                    Log::warning(tr('URL ":url" failed with HTTP code ":code"', [
+                    Log::warning(ts('URL ":url" failed with HTTP code ":code"', [
                         ':url' => $url
                     ]));
 

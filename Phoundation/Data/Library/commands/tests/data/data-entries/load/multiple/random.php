@@ -82,7 +82,7 @@ for ($i = 1; $i <= $argv['count']; $i++) {
 }
 
 Log::cli();
-Log::success(tr('Finished loading ":count" ":class" class DataEntry objects', [
+Log::success(ts('Finished loading ":count" ":class" class DataEntry objects', [
     ':count' => $argv['count'],
     ':class' => $argv['class'],
 ]));

@@ -35,4 +35,4 @@ $server = Server::new()->apply()->save();
 
 
 // Done!
-Log::success(tr('Created new server ":server"', [':server' => $server->getHostName()]));
+Log::success(ts('Created new server ":server"', [':server' => $server->getHostName()]));

@@ -83,7 +83,7 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Log::information(tr('Copying local changes in ":project" project back to your Phoundation installation', [
+Log::information(ts('Copying local changes in ":project" project back to your Phoundation installation', [
     ':project' => PROJECT,
 ]));
 
@@ -118,7 +118,7 @@ try {
     $files = $e->getDataKey('files');
 
     if ($files) {
-        Log::warning(tr('Failed to merge the following files:'));
+        Log::warning(ts('Failed to merge the following files:'));
 
         foreach (Arrays::force($files) as $file) {
             Log::write($file, 'debug');

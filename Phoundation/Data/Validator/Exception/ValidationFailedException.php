@@ -80,7 +80,7 @@ class ValidationFailedException extends ValidatorException implements Validation
 
         if ($processing) {
             // We've entered an endless loop!
-            Log::warning(tr('Failed to apply labels to validation exception keys, creating the source object class ":class" caused another ValidationFailedException', [
+            Log::warning(ts('Failed to apply labels to validation exception keys, creating the source object class ":class" caused another ValidationFailedException', [
                 ':class' => $this->data_entry::class
             ]));
             return;

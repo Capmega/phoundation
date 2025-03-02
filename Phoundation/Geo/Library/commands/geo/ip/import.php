@@ -55,7 +55,7 @@ $provider = Import::getProvider($argv['provider']);
 
 
 // Download the files!
-Log::information(tr('Downloading and importing max mind Geo IP data'));
+Log::information(ts('Downloading and importing max mind Geo IP data'));
 
 if ($argv['source_path']) {
     // Use files that are available in the specified source path
@@ -75,6 +75,6 @@ $provider::process($directory, $argv['target_path'], PhoRestrictions::new([
 
 
 // Done!
-Log::success(tr('Finished importing all GeoIP data for provider ":provider"', [
+Log::success(ts('Finished importing all GeoIP data for provider ":provider"', [
     ':provider' => $provider->getName(),
 ]));

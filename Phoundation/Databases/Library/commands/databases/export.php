@@ -97,7 +97,7 @@ Export::new()
 
 
 // Done!
-Log::success(tr('Finished exporting ":type" type database ":database" to file ":file"', [
+Log::success(ts('Finished exporting ":type" type database ":database" to file ":file"', [
     ':type'     => $argv['connector'],
     ':file'     => $argv['file'],
     ':database' => $argv['database'],

@@ -57,12 +57,12 @@ ArgvValidator::new()->validate();
 $mode = Core::getMaintenanceMode();
 
 if ($mode) {
-    Log::warning(tr('The project is in ":mode" mode, set by ":user" on ":date"', [
+    Log::warning(ts('The project is in ":mode" mode, set by ":user" on ":date"', [
         ':mode' => $mode->getMode(),
         ':user' => $mode->getUserObject()?->getLogId(),
         ':date' => $mode->getDateTime()->format('Y-m-d H:i:s')
     ]));
 
 } else {
-    Log::success(tr('The project is NOT in maintenance mode'));
+    Log::success(ts('The project is NOT in maintenance mode'));
 }

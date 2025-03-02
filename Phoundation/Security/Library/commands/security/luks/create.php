@@ -98,6 +98,6 @@ Device::new($argv['file'])->luksFormat($argv['password']);
 
 
 // Done!
-Log::success(tr('Successfully created luks device file ":file"', [
+Log::success(ts('Successfully created luks device file ":file"', [
     ':file' => $argv['file']
 ]));

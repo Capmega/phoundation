@@ -175,7 +175,7 @@ class Hook implements HookInterface
     {
         if (Core::inInitState()) {
             // Do not execute hooks during project initialization, too many unexpected side effects are possible!
-            Log::warning(tr('Not executing hook ":hook" due to system being in init state', [
+            Log::warning(ts('Not executing hook ":hook" due to system being in init state', [
                 ':hook' => $hook
             ]), 3);
 
@@ -192,7 +192,7 @@ class Hook implements HookInterface
         }
 
         // Try executing it!
-        Log::action(tr('Executing hook ":hook"', [
+        Log::action(ts('Executing hook ":hook"', [
             ':hook' => $this->class . $hook,
         ]));
 
@@ -205,7 +205,7 @@ class Hook implements HookInterface
                 $file->checkReadable();
 
             } catch (FileNotReadableException $e) {
-                Log::Warning(tr('Failed to execute hook ":hook". The file exists, but is not readable', [
+                Log::Warning(ts('Failed to execute hook ":hook". The file exists, but is not readable', [
                     ':hook' => $hook,
                 ]));
 

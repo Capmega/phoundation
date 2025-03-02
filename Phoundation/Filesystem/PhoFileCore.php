@@ -153,7 +153,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
                      ->execute()
                      ->setMode(0770)
                      ->onDirectoryOnly(function () use ($mode) {
-                        Log::warning(tr('File ":file" did not exist and was created empty to ensure system stability, but information may be missing', [
+                        Log::warning(ts('File ":file" did not exist and was created empty to ensure system stability, but information may be missing', [
                             ':file' => $this->source,
                         ]));
 
@@ -815,7 +815,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
                 }
                 if (!file_exists($reallink)) {
                     // This symlink points to no file, its dead
-                    Log::warning(tr('Encountered dead symlink ":source", copying anyway...', [
+                    Log::warning(ts('Encountered dead symlink ":source", copying anyway...', [
                         ':source' => $source,
                     ]));
                 }
@@ -1139,7 +1139,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
         $mode = config()->get('filesystem.mode.default.file', 0640, $mode);
 
         if (!$this->ensureFileWritable($mode)) {
-            Log::action(tr('Creating non existing file ":file" with file mode ":mode"', [
+            Log::action(ts('Creating non existing file ":file" with file mode ":mode"', [
                 ':mode' => Strings::fromOctal($mode),
                 ':file' => $this->source,
             ]), 3);
@@ -1171,7 +1171,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
                 ]));
             }
 
-            Log::warning(tr('WARNING: SHA256 hash for file ":file" does NOT match the required SHA256 hash! Continuing because SHA256 failures are ignored', [
+            Log::warning(ts('WARNING: SHA256 hash for file ":file" does NOT match the required SHA256 hash! Continuing because SHA256 failures are ignored', [
                 ':file' => $this->source,
             ]));
         }
@@ -1349,7 +1349,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
             ]));
         }
 
-        Log::action(tr('Allocating file ":file" with size ":size"', [
+        Log::action(ts('Allocating file ":file" with size ":size"', [
             ':file'       => $this->source,
             ':size'       => Numbers::getHumanReadableAndPreciseBytes($size),
         ]));

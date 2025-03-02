@@ -85,7 +85,7 @@ class Cache implements CacheInterface
      */
     public function clear(bool $force = false): bool
     {
-        Log::action(tr('Clearing all caches'), 3);
+        Log::action(ts('Clearing all caches'), 3);
 
         if (static::$has_been_cleared and !$force) {
             return false;
@@ -98,14 +98,14 @@ class Cache implements CacheInterface
         Libraries::rebuildTestsCache();
         Libraries::rebuildCommandsCache();
 
-        Log::action(tr('Clearing file caches'), 3);
+        Log::action(ts('Clearing file caches'), 3);
 
         PhoPath::new(DIRECTORY_SYSTEM . 'cache/files/', PhoRestrictions::newWritableObject(DIRECTORY_SYSTEM . 'cache/files/'))
                ->delete();
 
         $this->driver()?->clear();
 
-        Log::success(tr('Cleared all caches'));
+        Log::success(ts('Cleared all caches'));
 
         static::$has_been_cleared = true;
 
@@ -210,7 +210,7 @@ class Cache implements CacheInterface
                 return get_null($result);
             }
 
-            Log::success(tr('Found ":size" bytes cache entry for key ":key"', [
+            Log::success(ts('Found ":size" bytes cache entry for key ":key"', [
                 ':key'  => $key,
                 ':size' => strlen($result),
             ]));
@@ -238,7 +238,7 @@ class Cache implements CacheInterface
                 $this->driver()?->set($data, $key, $namespace);
 
             } catch (ConfigPathDoesNotExistsException $e) {
-                Log::warning(tr('Cannot cache because the current driver is not properly configured, see exception information'));
+                Log::warning(ts('Cannot cache because the current driver is not properly configured, see exception information'));
                 Log::warning($e);
             }
         }
@@ -274,7 +274,7 @@ class Cache implements CacheInterface
                 $git->add($directory)
                     ->commit($message, config()->getBoolean('cache.system.commit.signed', false) or $signed);
 
-                Log::success(tr('Committed system cache update to git'));
+                Log::success(ts('Committed system cache update to git'));
             }
         }
     }

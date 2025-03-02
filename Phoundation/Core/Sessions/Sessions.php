@@ -50,7 +50,7 @@ class Sessions
             $age_in_minutes = config()->getInteger('tmp.clean.age', 1440);
         }
 
-        Log::action(tr('Cleaning session files older than ":age" minutes', [
+        Log::action(ts('Cleaning session files older than ":age" minutes', [
             ':age' => $age_in_minutes,
         ]));
 

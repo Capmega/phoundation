@@ -181,7 +181,7 @@ abstract class ProcessCore implements ProcessInterface
 
         $command = $this->getFullCommandLine();
 
-        Log::action(tr('Executing command ":command" using exec() to return an array', [
+        Log::action(ts('Executing command ":command" using exec() to return an array', [
             ':command' => $command,
         ]), $this->log_level);
 
@@ -223,7 +223,7 @@ abstract class ProcessCore implements ProcessInterface
                 // Yeah, this is a ROOT/data/bin executable
                 if ($file->getModePermissions() !== '750') {
                     // Yeah, file permission is not what it should be. Fix and retry.
-                    Log::warning(tr('File mode ":mode" for executable ":file" is incorrect, should be "750". Fixing and retrying', [
+                    Log::warning(ts('File mode ":mode" for executable ":file" is incorrect, should be "750". Fixing and retrying', [
                         ':mode' => $file->getMode(),
                         ':file' => $file->getSource(),
                     ]));
@@ -589,7 +589,7 @@ abstract class ProcessCore implements ProcessInterface
             Log::printr($command);
         }
 
-        Log::action(tr('Executing background command ":command" using exec()', [
+        Log::action(ts('Executing background command ":command" using exec()', [
             ':command' => $command,
         ]), $this->log_level);
 
@@ -610,7 +610,7 @@ abstract class ProcessCore implements ProcessInterface
         // Set the process id and exit code for the nohup command
         $this->setExitCode(null, $output);
 
-        Log::success(tr('Executed background command ":command" with PID ":pid"', [
+        Log::success(ts('Executed background command ":command" with PID ":pid"', [
             ':command' => $this->real_command,
             ':pid'     => $this->pid,
         ]), 3);
@@ -636,7 +636,7 @@ abstract class ProcessCore implements ProcessInterface
             Log::printr(Strings::untilReverse($this->getFullCommandLine(), 'exit '), echo_header: false);
         }
 
-        Log::action(tr('Executing command ":commands" using passthru()', [
+        Log::action(ts('Executing command ":commands" using passthru()', [
             ':commands' => $command,
         ]), $this->log_level);
 

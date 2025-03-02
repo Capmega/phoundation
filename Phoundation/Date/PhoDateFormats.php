@@ -115,7 +115,7 @@ class PhoDateFormats
      */
     public static function convertPhpToJs(string $php_format): string
     {
-        Log::warning(tr('Converting PHP date formats to Javascript it still only partially supported, use with care and check the code in DateFormats->convertPhpToJs()!'));
+        Log::warning(ts('Converting PHP date formats to Javascript it still only partially supported, use with care and check the code in DateFormats->convertPhpToJs()!'));
 
         $js_format = $php_format;
         $lookup    = [
@@ -238,7 +238,7 @@ class PhoDateFormats
      */
     public static function convertJsToPhp(string $js_format): string
     {
-        Log::warning(tr('Converting Javascript date formats to PHP it still only partially supported, use with care and check the code in DateFormats->convertJsToPhp()!'));
+        Log::warning(ts('Converting Javascript date formats to PHP it still only partially supported, use with care and check the code in DateFormats->convertJsToPhp()!'));
 
         $php_format = $js_format;
         $lookup     = [

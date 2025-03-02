@@ -126,7 +126,7 @@ $object->getMetaObject()->erase();
 
 
 // Done!
-Log::success(tr('Finished erasing record ":value" from table ":table" from database ":database"', [
+Log::success(ts('Finished erasing record ":value" from table ":table" from database ":database"', [
     ':database' => $argv['database'],
     ':table'    => $argv['table'],
     ':value'    => $argv['key'] . '=' . $argv['value'],

@@ -72,13 +72,13 @@ $argv = ArgvValidator::new()
 $duplicates = PhoDirectory::new($argv['path'], $restrictions)->getDuplicateFiles($argv['recursive'], $argv['max_size']);
 
 if ($duplicates->getCount()) {
-    Log::success(tr('Found ":count" hashes with duplicate files, deleting duplicates', [
+    Log::success(ts('Found ":count" hashes with duplicate files, deleting duplicates', [
         ':count' => $duplicates->getCount()
     ]));
 
     $duplicates->deleteKeepFirst();
 
-    Log::success(tr('Deleted ":count" files, freed ":size" bytes', [
+    Log::success(ts('Deleted ":count" files, freed ":size" bytes', [
         ':count' => $duplicates->getDeletedCount(),
         ':size'  => $duplicates->getDeletedBytes()
     ]));

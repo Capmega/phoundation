@@ -45,7 +45,7 @@ class ApacheVirtualHost extends Virtualhost
         ]));
 
         if ($link->exists()) {
-            Log::warning(tr('The Apache webserver virtualhost file ":file" for project / environment ":project/:environment" is already installed', [
+            Log::warning(ts('The Apache webserver virtualhost file ":file" for project / environment ":project/:environment" is already installed', [
                 ':file'        => $link->getRootname(),
                 ':project'     => PROJECT,
                 ':environment' => ENVIRONMENT,
@@ -54,7 +54,7 @@ class ApacheVirtualHost extends Virtualhost
         } else {
             $file->symlinkTargetFromThis($link);
 
-            Log::warning(tr('Installed Apache webserver virtualhost file ":file" for project / environment ":project/:environment"', [
+            Log::warning(ts('Installed Apache webserver virtualhost file ":file" for project / environment ":project/:environment"', [
                 ':file'        => $link->getRootname(),
                 ':project'     => PROJECT,
                 ':environment' => ENVIRONMENT,

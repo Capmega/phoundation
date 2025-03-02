@@ -250,7 +250,7 @@ showdie($cmd);
         }
 
         // Wut? Get rid of this, next!
-        Log::warning(tr('Encountered invalid PID file ":pid", removing the file', [
+        Log::warning(ts('Encountered invalid PID file ":pid", removing the file', [
             ':pid' => $pid,
         ]));
 

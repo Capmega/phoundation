@@ -140,7 +140,7 @@ class RoutingParametersList
             $parameters->setMatches($matches)->setUri($uri);
 
             // Use this template
-            Log::success(tr('Selected routing parameters pattern ":pattern" with template ":template" and directory ":directory" for:system page from URI ":uri"', [
+            Log::success(ts('Selected routing parameters pattern ":pattern" with template ":template" and directory ":directory" for:system page from URI ":uri"', [
                 ':system'    => ($system ? ' system' : ''),
                 ':uri'       => $uri,
                 ':directory' => Strings::from($parameters->getRootDirectory(), DIRECTORY_ROOT),
@@ -159,7 +159,7 @@ class RoutingParametersList
         // Use default template
         $parameters->setUri($uri);
 
-        Log::action(tr('Using default parameters ":pattern" with template ":template" and directory ":directory" for:system page from URI ":uri"', [
+        Log::action(ts('Using default parameters ":pattern" with template ":template" and directory ":directory" for:system page from URI ":uri"', [
             ':system'    => ($system ? ' system' : ''),
             ':uri'       => $uri,
             ':directory' => $parameters->getRootDirectory(),

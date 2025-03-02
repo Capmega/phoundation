@@ -470,7 +470,7 @@ FILES variables:
                                  ->sendTo($user->getId());
 
                         } catch (Throwable $e) {
-                            Log::error(tr('Failed to save notification for user ":user" because of the following exception', [
+                            Log::error(ts('Failed to save notification for user ":user" because of the following exception', [
                                 ':user' => $user->getId(),
                             ]));
 
@@ -491,11 +491,11 @@ FILES variables:
             }
 
         } catch (Throwable $e) {
-            Log::error(tr('Failed to send the following notification with the following exception'));
-            Log::write(tr('Code    : ":code"'   , [':code'    => $this->getCode()])   , 'debug', 10, false);
-            Log::write(tr('Title   : ":title"'  , [':title'   => $this->getTitle()])  , 'debug', 10, false);
-            Log::write(tr('Message : ":message"', [':message' => $this->getMessage()]), 'debug', 10, false);
-            Log::write(tr('Data    :'), 'debug', 10, false);
+            Log::error(ts('Failed to send the following notification with the following exception'));
+            Log::write(ts('Code    : ":code"'   , [':code'    => $this->getCode()])   , 'debug', 10, false);
+            Log::write(ts('Title   : ":title"'  , [':title'   => $this->getTitle()])  , 'debug', 10, false);
+            Log::write(ts('Message : ":message"', [':message' => $this->getMessage()]), 'debug', 10, false);
+            Log::write(ts('Data    :'), 'debug', 10, false);
 
             try {
                 $details = $this->getDetails();
@@ -505,12 +505,12 @@ FILES variables:
                 }
 
             } catch (Throwable $f) {
-                Log::error(tr('Failed to display notifications detail due to the following exception. Details following after exception'));
+                Log::error(ts('Failed to display notifications detail due to the following exception. Details following after exception'));
                 Log::error($f);
                 Log::write(print_r($this->getTypesafe('string', 'details'), true), 'debug', 10, false, true, false);
             }
 
-            Log::error(tr('Notification sending exception:'));
+            Log::error(ts('Notification sending exception:'));
             Log::error($e);
         }
 
@@ -536,7 +536,7 @@ FILES variables:
             $log = 8;
         }
 
-        Log::information(tr('Notification:'));
+        Log::information(ts('Notification:'));
 
         // Remove HTML from the message for logging
         $message = (string) $this->getMessage();
@@ -615,7 +615,7 @@ FILES variables:
             }
         }
 
-        Log::information(tr('End notification'));
+        Log::information(ts('End notification'));
         static::$logged = true;
 
         return $this;
@@ -723,7 +723,7 @@ FILES variables:
 
         if (config()->getBoolean('notifications.send.disable', false) and !$this->override_non_production_lockout) {
             // We're not in production environment, don't send any notifications!
-            Log::warning(tr('Not sending notification ":title" to user ":user" because notifications sending has been disabled', [
+            Log::warning(ts('Not sending notification ":title" to user ":user" because notifications sending has been disabled', [
                 ':title' => $this->getTitle(),
                 ':user'  => $user->getEmail()
             ]));
@@ -801,7 +801,7 @@ FILES variables:
         // Nope, no system DB!
         if ($this->is_logged) {
             // Log the entire notification
-            Log::error(tr('Not saving next notification, the system database is not available', [
+            Log::error(ts('Not saving next notification, the system database is not available', [
                 ':id' => $this->getId()
             ]));
 
@@ -809,7 +809,7 @@ FILES variables:
 
         } else {
             // Notification was already logged, don't log again
-            Log::error(tr('Not saving previous notification ":title", there is no system database available', [
+            Log::error(ts('Not saving previous notification ":title", there is no system database available', [
                 ':title' => $this->getTitle()
             ]));
         }

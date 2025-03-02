@@ -214,7 +214,7 @@ class Roles extends DataIterator implements RolesInterface
 
                 // Add entry to parent, User or Right
                 if ($this->parent instanceof UserInterface) {
-                    Log::action(tr('Adding role ":role" to user ":user"', [
+                    Log::action(ts('Adding role ":role" to user ":user"', [
                         ':user' => $this->parent->getLogId(),
                         ':role' => $value->getLogId(),
                     ]), 3);
@@ -236,7 +236,7 @@ class Roles extends DataIterator implements RolesInterface
                     return $this;
 
                 } elseif ($this->parent instanceof RightInterface) {
-                    Log::action(tr('Adding right ":right" to role ":role"', [
+                    Log::action(ts('Adding right ":right" to role ":role"', [
                         ':right' => $this->parent->getLogId(),
                         ':role'  => $value->getLogId(),
                     ]), 3);
@@ -290,7 +290,7 @@ class Roles extends DataIterator implements RolesInterface
             $role = Role::new()->load($keys);
 
             if ($this->parent instanceof UserInterface) {
-                Log::action(tr('Removing role ":role" from user ":user"', [
+                Log::action(ts('Removing role ":role" from user ":user"', [
                     ':user' => $this->parent->getLogId(),
                     ':role' => $role->getLogId(),
                 ]));
@@ -317,7 +317,7 @@ class Roles extends DataIterator implements RolesInterface
                 }
 
             } elseif ($this->parent instanceof RightInterface) {
-                Log::action(tr('Removing role ":role" from right ":right"', [
+                Log::action(ts('Removing role ":role" from right ":right"', [
                     ':right' => $this->parent->getLogId(),
                     ':role'  => $role->getLogId(),
                 ]), 3);
@@ -354,7 +354,7 @@ class Roles extends DataIterator implements RolesInterface
         $this->ensureParent(tr('clear all entries from parent'));
 
         if ($this->parent instanceof UserInterface) {
-            Log::action(tr('Removing all roles from user ":user"', [
+            Log::action(ts('Removing all roles from user ":user"', [
                 ':user' => $this->parent->getLogId(),
             ]));
 
@@ -363,7 +363,7 @@ class Roles extends DataIterator implements RolesInterface
             ]);
 
         } elseif ($this->parent instanceof RightInterface) {
-            Log::action(tr('Removing right ":right" from all roles', [
+            Log::action(ts('Removing right ":right" from all roles', [
                 ':right' => $this->parent->getLogId(),
             ]), 3);
 

@@ -365,7 +365,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                 // The directory WAS empty, but cannot be removed
                 // In all probability, a parallel process added a new content in this directory, so it's no longer empty.
                 // Just register the event and leave it be.
-                Log::warning(tr('Failed to remove empty pattern ":pattern" with exception ":e"', [
+                Log::warning(ts('Failed to remove empty pattern ":pattern" with exception ":e"', [
                     ':pattern' => $this->source,
                     ':e'       => $e,
                 ]));
@@ -796,7 +796,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                     $return += filesize($this->source . $file);
                 }
             } catch (PhpException) {
-                Log::warning(tr('Ignoring file size for path ":path", it does not exist (path is likely a dead symlink)', [
+                Log::warning(ts('Ignoring file size for path ":path", it does not exist (path is likely a dead symlink)', [
                     ':path' => $this->source . $file,
                 ]), 2);
             }
@@ -833,7 +833,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                     $return++;
                 }
             } catch (PhpException) {
-                Log::warning(tr('Ignoring file count for directory ":path", it does not exist (path is likely a dead symlink)', [
+                Log::warning(ts('Ignoring file count for directory ":path", it does not exist (path is likely a dead symlink)', [
                     ':path' => $this->source . $file,
                 ]), 2);
             }
@@ -957,7 +957,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                     );
 
                 } catch (FilesystemException $e) {
-                    Log::warning(tr('Ignoring file ":file" due to exception ":e"', [
+                    Log::warning(ts('Ignoring file ":file" due to exception ":e"', [
                         ':file' => $path,
                         ':e'    => $e,
                     ]), 2);
@@ -984,7 +984,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
         $mode = config()->get('filesystem.mode.default.directory', 0750, $mode);
 
         if (!$this->ensureFileWritable($mode)) {
-            Log::action(tr('Creating non existing directory ":file" with file mode ":mode"', [
+            Log::action(ts('Creating non existing directory ":file" with file mode ":mode"', [
                 ':mode' => Strings::fromOctal($mode),
                 ':file' => $this->source,
             ]), 3);
@@ -1581,7 +1581,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
      */
     public function getDuplicateFiles(?int $recurse_levels = 1_000_000, int $max_size = 1_073_741_824): PhoDuplicatesInterface
     {
-        Log::action(tr('Scanning path ":path" for duplicate files', [
+        Log::action(ts('Scanning path ":path" for duplicate files', [
             ':path' => $this->source
         ]));
 
@@ -1589,7 +1589,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
         $sizes      = $this->getSizesTable($this, $recurse_levels, $max_size);
         $duplicates = [];
 
-        Log::action(tr('Found ":count" potential duplicates, hash checking each', [
+        Log::action(ts('Found ":count" potential duplicates, hash checking each', [
             ':count' => count($sizes)
         ]));
 
@@ -1658,7 +1658,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
 
             if ($size > $max_size) {
                 // Ignore this file, its too large
-                Log::warning(tr('Ignoring file ":file" with size ":size", its larger than the specified maximum of ":maximum"', [
+                Log::warning(ts('Ignoring file ":file" with size ":size", its larger than the specified maximum of ":maximum"', [
                     ':file'    => $file,
                     ':size'    => Numbers::getHumanReadableBytes($size) . ' (' . $size . ' bytes)',
                     ':maximum' => Numbers::getHumanReadableBytes($max_size) . ' (' . $max_size . ' bytes)'

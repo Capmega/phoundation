@@ -60,6 +60,6 @@ try {
 }
 
 foreach ($servers as $server => $statistics) {
-    Log::information(tr('Statistics for memcached server ":server"', [':server' => $server]));
+    Log::information(ts('Statistics for memcached server ":server"', [':server' => $server]));
     Log::printr($statistics, echo_header: false);
 }

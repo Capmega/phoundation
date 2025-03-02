@@ -203,7 +203,7 @@ class Sync
      */
     public function from(string $environment): static
     {
-        Log::information(tr('Synchronizing from environment ":environment" to this environment ":local"', [
+        Log::information(ts('Synchronizing from environment ":environment" to this environment ":local"', [
             ':environment' => $environment,
             ':local'       => ENVIRONMENT,
         ]));
@@ -233,7 +233,7 @@ class Sync
      */
     protected function clearCaches(?ServerInterface $server): static
     {
-        Log::action(tr('Clearing caches on environment ":server"', [
+        Log::action(ts('Clearing caches on environment ":server"', [
             ':server' => $this->getEnvironmentForServer($server),
         ]));
 
@@ -319,7 +319,7 @@ class Sync
      */
     protected function init(?ServerInterface $server): static
     {
-        Log::action(tr('Executing project initialization on environment ":server"', [
+        Log::action(ts('Executing project initialization on environment ":server"', [
             ':server' => $this->getEnvironmentForServer($server),
         ]));
 
@@ -338,7 +338,7 @@ class Sync
      */
     protected function importAllConnectors(?ServerInterface $server): static
     {
-        Log::action(tr('Importing connector dumps on environment ":server"', [
+        Log::action(ts('Importing connector dumps on environment ":server"', [
             ':server' => $this->getEnvironmentForServer($server),
         ]));
 
@@ -363,7 +363,7 @@ class Sync
 
             if (!$connector->getSync() and ($connector->getName() !== 'system')) {
                 // This connector should not be sync. The connector "system" will always be synced, though!
-                Log::warning(tr('Not importing database ":database" because it should not be synced', [
+                Log::warning(ts('Not importing database ":database" because it should not be synced', [
                     ':database' => $connector->getDatabase(),
                 ]));
                 continue;
@@ -389,7 +389,7 @@ class Sync
     {
         $file = PhoFile::new($this->target_temp_path . $file, $this->target_temp_path->getRestrictions());
 
-        Log::action(tr('Importing ":driver" database with connector ":connector" for environment ":environment" from file ":file"', [
+        Log::action(ts('Importing ":driver" database with connector ":connector" for environment ":environment" from file ":file"', [
             ':driver'      => $connector->getDriver(),
             ':environment' => $this->getEnvironmentForServer($server),
             ':connector'   => $connector->getDisplayName(),
@@ -424,7 +424,7 @@ class Sync
      */
     protected function cleanTemporary(?ServerInterface $server): static
     {
-        Log::action(tr('Cleaning all temporary data for environment ":environment"', [
+        Log::action(ts('Cleaning all temporary data for environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
 
@@ -462,7 +462,7 @@ class Sync
      */
     protected function copyContent(?ServerInterface $from, ?ServerInterface $to): static
     {
-        Log::action(tr('Copying all content from environment ":from" to ":to"', [
+        Log::action(ts('Copying all content from environment ":from" to ":to"', [
             ':from' => $this->getEnvironmentForServer($from),
             ':to'   => $this->getEnvironmentForServer($to),
         ]));
@@ -483,7 +483,7 @@ class Sync
      */
     protected function copyDumps(?ServerInterface $from, ?ServerInterface $to): static
     {
-        Log::action(tr('Copying all dumped connector from environment ":from" to ":to"', [
+        Log::action(ts('Copying all dumped connector from environment ":from" to ":to"', [
             ':from' => $this->getEnvironmentForServer($from),
             ':to'   => $this->getEnvironmentForServer($to),
         ]));
@@ -517,13 +517,13 @@ class Sync
             $file = PhoFile::new($target, $this->target_temp_path->getRestrictions());
 
             if ($file->exists()){
-                Log::success(tr('Received target file ":file" with size ":size"', [
+                Log::success(ts('Received target file ":file" with size ":size"', [
                     ':file' => $file->getRootname(),
                     ':size' => Numbers::getHumanReadableAndPreciseBytes($file->getSize()),
                 ]));
 
             } else {
-                Log::warning(tr('Failed to receive target file ":file"', [
+                Log::warning(ts('Failed to receive target file ":file"', [
                     ':file' => $file,
                 ]));
             }
@@ -542,7 +542,7 @@ class Sync
      */
     protected function unlock(?ServerInterface $server): static
     {
-        Log::action(tr('Unlocking environment ":environment"', [
+        Log::action(ts('Unlocking environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
 
@@ -562,7 +562,7 @@ class Sync
      */
     protected function unlockSql(?ServerInterface $server): static
     {
-        Log::action(tr('Unlocking SQL connectors for environment ":environment"', [
+        Log::action(ts('Unlocking SQL connectors for environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
         $this->executeHook('pre-unlock-sql');
@@ -580,7 +580,7 @@ class Sync
      */
     protected function unlockSystem(?ServerInterface $server): static
     {
-        Log::action(tr('Unlocking system for environment ":environment"', [
+        Log::action(ts('Unlocking system for environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
 
@@ -602,7 +602,7 @@ class Sync
      */
     protected function dumpAllDatabases(?ServerInterface $server): static
     {
-        Log::action(tr('Dumping all configured connectors for environment ":environment"', [
+        Log::action(ts('Dumping all configured connectors for environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
 
@@ -628,7 +628,7 @@ class Sync
 
                 if (!$connector->getSync() and ($connector->getName() !== 'system')) {
                     // This connector should not be sync. The connector "system" will always be synced, though!
-                    Log::warning(tr('Not dumping database ":database" because it should not be synced', [
+                    Log::warning(ts('Not dumping database ":database" because it should not be synced', [
                         ':database' => $connector->getDatabase(),
                     ]));
                     continue;
@@ -685,7 +685,7 @@ class Sync
      */
     protected function dumpConnector(?ServerInterface $server, ConnectorInterface $connector): static
     {
-        Log::action(tr('Dumping ":driver" database with connector ":connector" for environment ":environment"', [
+        Log::action(ts('Dumping ":driver" database with connector ":connector" for environment ":environment"', [
             ':driver'      => $connector->getDriver(),
             ':environment' => $this->getEnvironmentForServer($server),
             ':connector'   => $connector->getDisplayName(),
@@ -738,7 +738,7 @@ class Sync
      */
     protected function lock(?ServerInterface $server): static
     {
-        Log::action(tr('Locking environment ":environment"', [
+        Log::action(ts('Locking environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
 
@@ -758,7 +758,7 @@ class Sync
      */
     protected function lockConnectors(?ServerInterface $server): static
     {
-        Log::action(tr('Locking connectors for environment ":environment"', [
+        Log::action(ts('Locking connectors for environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
 
@@ -779,7 +779,7 @@ class Sync
      */
     protected function lockMongoDb(?ServerInterface $server): static
     {
-        Log::action(tr('Locking MongoDB connectors for environment ":environment"', [
+        Log::action(ts('Locking MongoDB connectors for environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
 
@@ -798,7 +798,7 @@ class Sync
      */
     protected function lockRedis(?ServerInterface $server): static
     {
-        Log::action(tr('Locking Redis connectors for environment ":environment"', [
+        Log::action(ts('Locking Redis connectors for environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
 
@@ -817,7 +817,7 @@ class Sync
      */
     protected function lockSql(?ServerInterface $server): static
     {
-        Log::action(tr('Locking SQL connectors for environment ":environment"', [
+        Log::action(ts('Locking SQL connectors for environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
 
@@ -836,7 +836,7 @@ class Sync
      */
     protected function lockSystem(?ServerInterface $server): static
     {
-        Log::action(tr('Locking system for environment ":environment"', [
+        Log::action(ts('Locking system for environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
 
@@ -858,7 +858,7 @@ class Sync
      */
     public function scan(ServerInterface $server): static
     {
-        Log::action(tr('Scanning project installation on server ":server"', [
+        Log::action(ts('Scanning project installation on server ":server"', [
             ':server' => $this->server->getDisplayName(),
         ]));
 
@@ -880,7 +880,7 @@ class Sync
             if ($result) {
                 $this->environment_state = true;
 
-                Log::success(tr('Target environment ":environment" path ":path" is fully available', [
+                Log::success(ts('Target environment ":environment" path ":path" is fully available', [
                     ':environment' => $this->environment,
                     ':path'        => $this->configuration['path'],
                 ]));
@@ -889,7 +889,7 @@ class Sync
                 // The main project directory exists, but the ./pho command does not
                 $this->environment_state = 'partial';
 
-                Log::warning(tr('Target environment ":environment" path ":path" is partially available', [
+                Log::warning(ts('Target environment ":environment" path ":path" is partially available', [
                     ':environment' => $this->environment,
                     ':path'        => $this->configuration['path'],
                 ]));
@@ -899,7 +899,7 @@ class Sync
             // This project doesn't exist yet
             $this->environment_state = false;
 
-            Log::warning(tr('Target environment ":environment" path ":path" is not available', [
+            Log::warning(ts('Target environment ":environment" path ":path" is not available', [
                 ':environment' => $this->environment,
                 ':path'        => $this->configuration['path'],
             ]));
@@ -939,7 +939,7 @@ class Sync
      */
     protected function initConfiguration(string $environment): static
     {
-        Log::action(tr('Reading configuration for environment ":environment"', [
+        Log::action(ts('Reading configuration for environment ":environment"', [
             ':environment' => $environment,
         ]));
 
@@ -1074,7 +1074,7 @@ class Sync
      */
     protected function unlockRedis(?ServerInterface $server): static
     {
-        Log::action(tr('Unlocking Redis connectors for environment ":environment"', [
+        Log::action(ts('Unlocking Redis connectors for environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
 
@@ -1093,7 +1093,7 @@ class Sync
      */
     protected function unlockMongoDb(?ServerInterface $server): static
     {
-        Log::action(tr('Unlocking MongoDB connectors for environment ":environment"', [
+        Log::action(ts('Unlocking MongoDB connectors for environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
 
@@ -1112,7 +1112,7 @@ class Sync
      */
     protected function importSql(?ServerInterface $server): static
     {
-        Log::action(tr('Importing SQL dumps on environment ":server"', [
+        Log::action(ts('Importing SQL dumps on environment ":server"', [
             ':server' => $this->getEnvironmentForServer($server),
         ]));
 
@@ -1131,7 +1131,7 @@ class Sync
      */
     protected function importMongoDb(?ServerInterface $server): static
     {
-        Log::action(tr('Importing MongoDB dumps on environment ":server"', [
+        Log::action(ts('Importing MongoDB dumps on environment ":server"', [
             ':server' => $this->getEnvironmentForServer($server),
         ]));
 
@@ -1150,7 +1150,7 @@ class Sync
      */
     protected function importRedis(?ServerInterface $server): static
     {
-        Log::action(tr('Importing Redis dumps on environment ":server"', [
+        Log::action(ts('Importing Redis dumps on environment ":server"', [
             ':server' => $this->getEnvironmentForServer($server),
         ]));
 

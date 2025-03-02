@@ -149,7 +149,7 @@ class ScanImage extends Command
                             } else {
                                 // Wut?
                                 $value = null;
-                                Log::warning(tr('Failed to parse options section found in line ":line", ignoring', [
+                                Log::warning(ts('Failed to parse options section found in line ":line", ignoring', [
                                     ':line' => $line,
                                 ]));
                             }
@@ -162,7 +162,7 @@ class ScanImage extends Command
                     $section         = Strings::from($section, $matches[0][0]);
 
                 } else {
-                    Log::warning(tr('Unknown options section found in line ":line", ignoring', [
+                    Log::warning(ts('Unknown options section found in line ":line", ignoring', [
                         ':line' => $line,
                     ]));
                 }
@@ -237,7 +237,7 @@ class ScanImage extends Command
                 }
 
                 if (str_contains($line, 'failed: Invalid argument')) {
-                    Log::warning(tr('Failed to find device ":device", retrying as "scanimage" sometimes fails to find the device', [
+                    Log::warning(ts('Failed to find device ":device", retrying as "scanimage" sometimes fails to find the device', [
                         ':device' => $device,
                     ]), 4);
                     break;

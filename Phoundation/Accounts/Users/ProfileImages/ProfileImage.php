@@ -147,7 +147,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
             ]));
         }
 
-        Log::action(tr('Setting image ":file" as default profile image for user ":user"', [
+        Log::action(ts('Setting image ":file" as default profile image for user ":user"', [
             ':file' => $this->getFileObject()->getRootname(),
             ':user' => $this->getUserObject()->getLogId()
         ]));
@@ -231,7 +231,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                 $cdn_directory = PhoDirectory::newCdnObject(true, '/img/files/profile/' . $id)
                                              ->ensure();
 
-                Log::action(tr('Adding image ":file" to profile images for user ":user"', [
+                Log::action(ts('Adding image ":file" to profile images for user ":user"', [
                     ':file' => $this->getFileObject()->getRootname(),
                     ':user' => $o_user->getLogId()
                 ]), 4);
@@ -239,7 +239,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                 if ($o_file) {
                     // If the profile image file is NOT in location CDN/img/files/profile/USERS_ID, move it there first
                     if (!$o_file->isInDirectory($cdn_directory)) {
-                        Log::action(tr('Moving file ":file" to users profile image directory ":directory"', [
+                        Log::action(ts('Moving file ":file" to users profile image directory ":directory"', [
                             ':file'      => $o_file->getRootname(),
                             ':directory' => $cdn_directory->getRootname()
                         ]));
@@ -259,7 +259,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                                                  ->ensure();
 
                     if (!$o_file->isInDirectory($cdn_directory)) {
-                        Log::warning(tr('Profile image ":image" is linked to user ":user" and should be in ":path" but, well, its not...', [
+                        Log::warning(ts('Profile image ":image" is linked to user ":user" and should be in ":path" but, well, its not...', [
                             ':image' => $o_file->getRootname(),
                             ':user'  => $o_user->getLogId(),
                             ':path'  => $cdn_directory->getRootname()
@@ -269,7 +269,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                     $cdn_directory = PhoDirectory::newCdnObject(true, '/img/files/profile/0')
                                                  ->ensure();
 
-                    Log::action(tr('Moving file ":file" to general users profile image directory ":directory"', [
+                    Log::action(ts('Moving file ":file" to general users profile image directory ":directory"', [
                         ':file'      => $o_file->getRootname(),
                         ':directory' => $cdn_directory->getRootname()
                     ]));

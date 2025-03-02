@@ -51,7 +51,7 @@ class Test implements MessageComponentInterface
     {
         // Store the new connection to send messages to later
         $this->clients->attach($conn);
-        Log::notice(tr('Opened web socket connection from ":ip"', [
+        Log::notice(ts('Opened web socket connection from ":ip"', [
             ':ip' => $conn->remoteAddress,
         ]), 6);
     }

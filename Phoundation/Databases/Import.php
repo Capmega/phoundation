@@ -165,7 +165,7 @@ class Import
     {
         switch ($this->driver) {
             case 'mysql':
-                Log::information(tr('Importing ":size" MySQL dump file ":file" to database ":database", this may take a while...', [
+                Log::information(ts('Importing ":size" MySQL dump file ":file" to database ":database", this may take a while...', [
                     ':size'     => Numbers::getHumanReadableAndPreciseBytes($this->file->getSize()),
                     ':file'     => $this->file->getRootname(),
                     ':database' => $this->getConnectorObject()->getDatabase(),
@@ -178,7 +178,7 @@ class Import
                      ->create($this->database ?? $this->getConnectorObject()->getDatabase())
                      ->import($this->file);
 
-                Log::success(tr('Finished importing MySQL dump file ":file" to database ":database"', [
+                Log::success(ts('Finished importing MySQL dump file ":file" to database ":database"', [
                     ':file'     => $this->file,
                     ':database' => $this->database,
                 ]));

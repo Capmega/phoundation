@@ -64,4 +64,4 @@ try {
 
 
 // Done!
-Log::success(tr('Modified role ":role"', [':role' => $role->getName()]));
+Log::success(ts('Modified role ":role"', [':role' => $role->getName()]));

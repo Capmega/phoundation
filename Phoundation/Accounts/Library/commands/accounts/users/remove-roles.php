@@ -64,11 +64,11 @@ try {
 
     if ($roles->save()) {
         // Done!
-        Log::success(tr('Modified user ":user"', [':user' => $user->getDisplayName()]));
+        Log::success(ts('Modified user ":user"', [':user' => $user->getDisplayName()]));
 
     } else {
         // Done!
-        Log::warning(tr('User ":user" was not modified', [':user' => $user->getDisplayName()]));
+        Log::warning(ts('User ":user" was not modified', [':user' => $user->getDisplayName()]));
     }
 
 } catch (DataEntryNotExistsException $e) {

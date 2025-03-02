@@ -143,7 +143,7 @@ class PhoCore extends WorkersCore implements PhoInterface
     {
         $pid = parent::executeBackground();
 
-        Log::action(tr('Executing background Pho command ":command" with PID ":pid"', [
+        Log::action(ts('Executing background Pho command ":command" with PID ":pid"', [
             ':command' => implode(' ', $this->pho_commands),
             ':pid'     => $pid
         ]));
@@ -159,7 +159,7 @@ class PhoCore extends WorkersCore implements PhoInterface
      */
     public function executeReturnArray(): array
     {
-        Log::action(tr('Executing normal Pho command ":command"', [
+        Log::action(ts('Executing normal Pho command ":command"', [
             ':command' => implode(' ', $this->pho_commands)
         ]));
 
@@ -174,7 +174,7 @@ class PhoCore extends WorkersCore implements PhoInterface
      */
     public function executePassthru(): bool
     {
-        Log::action(tr('Executing passthru Pho command ":command"', [
+        Log::action(ts('Executing passthru Pho command ":command"', [
             ':command' => implode(' ', $this->pho_commands)
         ]));
 

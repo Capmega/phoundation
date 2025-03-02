@@ -49,12 +49,12 @@ try {
     PhoMount::new($argv['mount'])->unmount();
 
 } catch (NotMountedException) {
-    Log::warning(tr('Cannot unmount ":path", it is not mounted', [
+    Log::warning(ts('Cannot unmount ":path", it is not mounted', [
         ':path' => $argv['mount']
     ]));
 
 } catch (UnmountBusyException $e) {
-    Log::warning(tr('Cannot unmount ":path", it is busy', [
+    Log::warning(ts('Cannot unmount ":path", it is busy', [
         ':path' => $argv['mount']
     ]));
 

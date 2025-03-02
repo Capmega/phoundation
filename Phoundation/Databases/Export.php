@@ -407,7 +407,7 @@ class Export
                                  ->setDatabases($this->database ?? ($this->getConnectorObject()->getDatabase()))
                                  ->dump($file, $method);
 
-                Log::success(tr('Exported to MySQL dump file ":file" from databases ":database", this may take a while...', [
+                Log::success(ts('Exported to MySQL dump file ":file" from databases ":database", this may take a while...', [
                     ':file'     => $file,
                     ':database' => Strings::force($this->database, ', '),
                 ]));

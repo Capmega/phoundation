@@ -212,7 +212,7 @@ class Domains
                 // Assume the current domain is the primary domain instead
                 static::$primary_web_domain = Domains::getCurrent();
 
-                Log::warning(tr('Failed to get primary domain from configuration, assuming current domain ":domain" is the primary domain', [
+                Log::warning(ts('Failed to get primary domain from configuration, assuming current domain ":domain" is the primary domain', [
                     ':domain' => static::$primary_web_domain,
                 ]));
             }
@@ -240,7 +240,7 @@ class Domains
                 // Assume the current domain is the primary domain instead
                 static::$primary_cdn_domain = Domains::getCurrent();
 
-                Log::warning(tr('Failed to get primary domain from configuration, assuming current domain ":domain" is the primary domain', [
+                Log::warning(ts('Failed to get primary domain from configuration, assuming current domain ":domain" is the primary domain', [
                     ':domain' => static::$primary_cdn_domain,
                 ]));
             }
@@ -269,7 +269,7 @@ class Domains
                 }
 
                 // Core has already failed, yet we are here, likely this is the setup page
-                Log::warning(tr('The configuration path "web.domains" does not exist'));
+                Log::warning(ts('The configuration path "web.domains" does not exist'));
                 static::$domains_configuration = [];
 
             } else {
@@ -375,7 +375,7 @@ class Domains
                 // Okay, this is a bit of a problem. The CURRENT domain apparently is not configured anywhere.
                 // This MIGHT be caused by "http://phoundation.org./foobar" instead of "http://phoundation.org/foobar"
                 // Log this, and redirect to main-domain/current-url
-                Log::warning(tr('The current domain ":domain" is not configured. Redirecting', [
+                Log::warning(ts('The current domain ":domain" is not configured. Redirecting', [
                     ':domain' => $domain,
                 ]));
 

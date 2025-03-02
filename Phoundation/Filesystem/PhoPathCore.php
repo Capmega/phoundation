@@ -939,7 +939,7 @@ class PhoPathCore implements PhoPathInterface
         $correct_filename  = $this->getParentDirectory() . $correct_basename . '.' . $correct_extension;
 
         // Frack! Rename!
-        Log::warning(tr('File ":file" has multiple extensions. Renaming to ":rename" to fix this', [
+        Log::warning(ts('File ":file" has multiple extensions. Renaming to ":rename" to fix this', [
             ':file'      => $this->source,
             ':rename'    => $correct_filename,
         ]));
@@ -1219,7 +1219,7 @@ class PhoPathCore implements PhoPathInterface
         }
 
         if (empty($this->restrictions)) {
-            Log::warning(tr('Skipping auto mount of path ":path" with class instance ":class" attempt because no filesystem restrictions were specified', [
+            Log::warning(ts('Skipping auto mount of path ":path" with class instance ":class" attempt because no filesystem restrictions were specified', [
                 ':path'  => $this->source,
                 ':class' => get_class($this),
             ]));
@@ -1236,7 +1236,7 @@ class PhoPathCore implements PhoPathInterface
 
             } catch (SqlException $e) {
                 if (!Core::inInitState()) {
-                    Log::warning(tr('Failed to search for filesystem mounts in database because ":e", ignoring these possible mount requirements', [
+                    Log::warning(ts('Failed to search for filesystem mounts in database because ":e", ignoring these possible mount requirements', [
                         ':e' => $e->getMessage(),
                     ]), 3);
                 }
@@ -1263,7 +1263,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static
     {
-        Log::action(tr('Deleting file ":file"', [':file' => $this->source]), 2);
+        Log::action(ts('Deleting file ":file"', [':file' => $this->source]), 2);
 
         // Check filesystem restrictions
         $this->checkRestrictions(true)->checkWriteAccess();
@@ -2083,7 +2083,7 @@ class PhoPathCore implements PhoPathInterface
         if (file_exists($this->source)) {
             // Great! The file exists, but it is not writable at this moment. Try to make it readable.
             try {
-                Log::warning(tr('The file ":file" :realis not readable. Attempting to apply default file mode ":mode"', [
+                Log::warning(ts('The file ":file" :realis not readable. Attempting to apply default file mode ":mode"', [
                     ':file' => $this->source,
                     ':real' => $this->getRealPathLogString(),
                     ':mode' => $mode,
@@ -2102,7 +2102,7 @@ class PhoPathCore implements PhoPathInterface
         // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent directory exists.
         PhoDirectory::new(dirname($this->source), $this->restrictions)->ensure();
 
-        Log::action(tr('Creating non existing file ":file" with file mode ":mode"', [
+        Log::action(ts('Creating non existing file ":file" with file mode ":mode"', [
             ':mode' => Strings::fromOctal($mode),
             ':file' => $this->source,
         ]));
@@ -2229,7 +2229,7 @@ class PhoPathCore implements PhoPathInterface
         if (file_exists($this->source)) {
             // Great! The file exists, but it is not writable at this moment. Try to make it writable.
             try {
-                Log::warning(tr('The file ":file" :real is not writable. Attempting to apply default file mode ":mode"', [
+                Log::warning(ts('The file ":file" :real is not writable. Attempting to apply default file mode ":mode"', [
                     ':file' => $this->source,
                     ':real' => $this->getRealPathLogString(),
                     ':mode' => $mode,
@@ -3017,7 +3017,7 @@ class PhoPathCore implements PhoPathInterface
              ->mountIfNeeded();
 
 //        if (Core::isState('script')) {
-//            Log::notice(tr('Opening file ":file" with mode ":mode"', [
+//            Log::notice(ts('Opening file ":file" with mode ":mode"', [
 //                ':file' => $this->getRootname(),
 //                ':mode' => $mode->value,
 //            ]), 2);
@@ -3156,7 +3156,7 @@ class PhoPathCore implements PhoPathInterface
             }
         }
 
-        Log::notice(tr('Closing file ":file"', [
+        Log::notice(ts('Closing file ":file"', [
             ':file' => $this->getRootname(),
         ]), 2);
 
@@ -3261,7 +3261,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function putContents(string $data, int $flags = 0, $context = null): static
     {
-        Log::notice(tr('Putting ":count" bytes to file ":file"', [
+        Log::notice(ts('Putting ":count" bytes to file ":file"', [
             ':file'  => $this->getRootname(),
             ':count' => strlen($data)
         ]), 2);
@@ -3290,7 +3290,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function appendData(string $data, ?int $length = null): static
     {
-        Log::notice(tr('Appending ":count" bytes to file ":file"', [
+        Log::notice(ts('Appending ":count" bytes to file ":file"', [
             ':file'  => $this->getRootname(),
             ':count' => strlen($data)
         ]), 2);
@@ -3515,7 +3515,7 @@ class PhoPathCore implements PhoPathInterface
             $this->delete();
         }
 
-        Log::action(tr('Initializing file ":file" with ":type" data', [
+        Log::action(ts('Initializing file ":file" with ":type" data', [
             ':file' => $this->source,
             ':type' => $type,
         ]), 4);

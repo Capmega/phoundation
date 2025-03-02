@@ -46,7 +46,7 @@ class EchoServer extends PhoSocketServer
     {
         parent::__construct($ip, $port);
 
-        Log::action(tr('Awaiting Connection'));
+        Log::action(ts('Awaiting Connection'));
 
         $this->addHook(PhoSocketServer::HOOK_CONNECT   , [$this, 'onConnect']);
         $this->addHook(PhoSocketServer::HOOK_INPUT     , [$this, 'onInput']);
@@ -66,7 +66,7 @@ class EchoServer extends PhoSocketServer
      */
     public function onConnect(PhoSocketServer $server, PhoSocket $client, $message): void
     {
-        Log::action(tr('Connection Established'));
+        Log::action(ts('Connection Established'));
     }
 
 
@@ -83,7 +83,7 @@ class EchoServer extends PhoSocketServer
     {
         $message = trim($message);
 
-        Log::success(tr('Received ":message", length: ":length"', [
+        Log::success(ts('Received ":message", length: ":length"', [
             ":message" => $message,
             ":length" => strlen($message)
         ]));
@@ -95,7 +95,7 @@ class EchoServer extends PhoSocketServer
 
         $response = $message;
 
-        Log::action(tr('Responding with ":message"', [
+        Log::action(ts('Responding with ":message"', [
             ":message" => $response]));
 
         $client->write($response);
@@ -113,7 +113,7 @@ class EchoServer extends PhoSocketServer
      */
     public function onDisconnect(PhoSocketServer $server, PhoSocket $client, $message): void
     {
-        Log::action(tr('Disconnection'));
+        Log::action(ts('Disconnection'));
     }
 }
 

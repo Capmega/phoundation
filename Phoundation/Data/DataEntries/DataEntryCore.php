@@ -400,7 +400,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 }
 
                 // Core was handling an uncaught exception, the exception likely caused this state
-                Log::warning(tr('Object of class ":class" is destroyed while still having unsaved modifications, this is likely due to the (uncaught) exception that occurred', [
+                Log::warning(ts('Object of class ":class" is destroyed while still having unsaved modifications, this is likely due to the (uncaught) exception that occurred', [
                     ':class' => $this::class
                 ]));
             }
@@ -491,7 +491,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         // This entry has been deleted and can only be viewed by user with the "access_deleted" right
         if ($this->ignore_deleted or Session::getUserObject()->hasAllRights('access_deleted')) {
-            Log::warning(tr('Continuing load of dataEntry object ":class" with identifier ":identifier" and log id ":log_id" with status "deleted"', [
+            Log::warning(ts('Continuing load of dataEntry object ":class" with identifier ":identifier" and log id ":log_id" with status "deleted"', [
                 ':class'      => static::class,
                 ':identifier' => $this->identifier,
                 ':log_id'     => $this->getLogId()
@@ -962,7 +962,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         // If a column is ignored, we won't update anything
         if ($definition->getIgnored()) {
-            Log::warning(tr('Not updating DataEntry object ":object" column ":column" because it has the "ignored" flag set', [
+            Log::warning(ts('Not updating DataEntry object ":object" column ":column" because it has the "ignored" flag set', [
                 ':column' => $key,
                 ':object' => get_class($this),
             ]), 6);
@@ -2652,7 +2652,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 // State mismatch! This means that somebody else updated this record while we were modifying it.
                 switch ($this->state_mismatch_handling) {
                     case EnumStateMismatchHandling::ignore:
-                        Log::warning(tr('Ignoring database and user meta-state mismatch for ":type" type record with ID ":id" and old state ":old" and new state ":new"', [
+                        Log::warning(ts('Ignoring database and user meta-state mismatch for ":type" type record with ID ":id" and old state ":old" and new state ":new"', [
                             ':id'   => $this->getId(false) ?? ts('N/A'),
                             ':type' => static::getEntryName(),
                             ':old'  => $this->getMetaState(),

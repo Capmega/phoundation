@@ -318,7 +318,7 @@ class Updates extends Libraries\Updates
 
         })->addUpdate('0.0.15', function () {
             // Fix meta_id columns
-            Log::action(tr('Fixing meta_id column on all tables'), echo_newline: false);
+            Log::action(ts('Fixing meta_id column on all tables'), echo_newline: false);
 
             $tables = sql()->query('SELECT `TABLE_NAME`, `IS_NULLABLE`
                                     FROM   `information_schema`.`COLUMNS`
@@ -415,14 +415,14 @@ class Updates extends Libraries\Updates
 
         })->addUpdate('0.4.12', function () {
             // Improve meta_history table
-            Log::action(tr('Fixing meta table structure, this may take a second...'));
+            Log::action(ts('Fixing meta table structure, this may take a second...'));
 
             sql()->getSchemaObject()
                      ->getTableObject('meta_history')
                          ->alter()
                              ->changeColumn('comments', '`comments` varchar(2048) NULL DEFAULT NULL');
 
-            Log::action(tr('Fixing meta table content, this may take a second...'));
+            Log::action(ts('Fixing meta table content, this may take a second...'));
             sql()->query('UPDATE `meta_history` SET `comments` = NULL WHERE `comments` = ""');
 
         })->addUpdate('0.5.0', function () {
@@ -438,7 +438,7 @@ class Updates extends Libraries\Updates
             }
 
         })->addUpdate('0.6.0', function () {
-            Log::action(tr('Fixing core versions vendor information'));
+            Log::action(ts('Fixing core versions vendor information'));
 
             // Add indexed "vendor" column to core_plugins table
             $table = sql()->getSchemaObject()->getTableObject('core_versions');
@@ -467,7 +467,7 @@ class Updates extends Libraries\Updates
                     );
 
                 } catch (LibraryNotFoundException) {
-                    Log::warning(tr('Not fixing vendor column for library ":library", the library could not be found', [
+                    Log::warning(ts('Not fixing vendor column for library ":library", the library could not be found', [
                         ':library' => $entry['library']
                     ]));
                 }

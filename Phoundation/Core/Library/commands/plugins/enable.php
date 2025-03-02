@@ -60,7 +60,7 @@ if (ALL) {
     });
 
     // Done!
-    Log::success(tr('All plugins have been enabled'));
+    Log::success(ts('All plugins have been enabled'));
 
 } else {
     // Get specified plugins
@@ -70,7 +70,7 @@ if (ALL) {
     }
 
     // Done!
-    Log::success(tr('Plugins ":plugins" have been enabled', [
+    Log::success(ts('Plugins ":plugins" have been enabled', [
         ':plugins' => Strings::force($argv['plugins'], ', '),
     ]));
 }

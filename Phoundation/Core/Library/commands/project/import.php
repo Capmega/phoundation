@@ -56,5 +56,5 @@ $argv = ArgvValidator::new()
 
 
 // Start import
-Log::information(tr('Importing languages, this may take a few seconds...'));
+Log::information(ts('Importing languages, this may take a few seconds...'));
 Project::import($argv['demo'], $argv['min'], $argv['max']);

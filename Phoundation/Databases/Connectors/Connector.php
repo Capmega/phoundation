@@ -764,7 +764,7 @@ class Connector extends DataEntry implements ConnectorInterface
 
             default:
                 // Here be dragons!
-                Log::warning(tr('Driver ":driver" is not supported', [
+                Log::warning(ts('Driver ":driver" is not supported', [
                     ':driver' => $configuration['driver'],
                 ]));
         }

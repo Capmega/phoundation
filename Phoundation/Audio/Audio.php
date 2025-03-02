@@ -78,11 +78,11 @@ class Audio extends PhoFile
 
                 } catch (FileNotExistException | ProcessesException $e) {
                     if ((defined('NOWARNINGS') and NOWARNINGS) or !config()->getBoolean('debug.exceptions.warnings', true)) {
-                        Log::error(tr('Failed to play the requested audio file because of the following exception'));
+                        Log::error(ts('Failed to play the requested audio file because of the following exception'));
                         Log::error($e);
 
                     } else {
-                        Log::warning(tr('Failed to play the requested audio file because of the following exception'));
+                        Log::warning(ts('Failed to play the requested audio file because of the following exception'));
                         Log::warning($e->getMessage());
                     }
                 }

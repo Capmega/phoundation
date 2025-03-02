@@ -54,7 +54,7 @@ class BomFile extends PhoFile
 
             $this->write(substr($data, 3));
 
-            Log::warning(tr('Cleared BOM from file ":file"', [':file' => $this->source]));
+            Log::warning(ts('Cleared BOM from file ":file"', [':file' => $this->source]));
         }
 
         return $this;
@@ -74,7 +74,7 @@ class BomFile extends PhoFile
 
             if ($data === chr(0xEF) . chr(0xBB) . chr(0xBF)) {
                 // Found a twitcher! Gotta shootem in the head!
-                Log::warning(tr('Found BOM in file ":file"', [':file' => $this->source]));
+                Log::warning(ts('Found BOM in file ":file"', [':file' => $this->source]));
 
                 return true;
             }

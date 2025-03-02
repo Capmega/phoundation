@@ -49,7 +49,7 @@ class Cryptsetup extends Command
                 ]));
             }
 
-            Log::action(tr('Formatting device ":device" with LUKS encryption, this may take a few seconds', [
+            Log::action(ts('Formatting device ":device" with LUKS encryption, this may take a few seconds', [
                 ':device' => $device,
             ]));
 

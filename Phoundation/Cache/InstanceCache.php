@@ -289,7 +289,7 @@ class InstanceCache
      */
     public static function clear(): void
     {
-        Log::warning(tr('Cleared instance cache'));
+        Log::warning(ts('Cleared instance cache'));
         static::$cache = [];
     }
 
@@ -302,14 +302,14 @@ class InstanceCache
     public static function logStatistics(): void
     {
         if (Debug::isEnabled() and !QUIET) {
-            Log::write(tr('STATISTIC InstanceCache object has ":count" cached object(s) with ":checks" checks, ":hits" hits, and ":percent" effectiveness', [
+            Log::write(ts('STATISTIC InstanceCache object has ":count" cached object(s) with ":checks" checks, ":hits" hits, and ":percent" effectiveness', [
                 ':count'   => InstanceCache::getCacheSectionCount(),
                 ':checks'  => InstanceCache::getCacheChecks(),
                 ':hits'    => InstanceCache::getCacheHits(),
                 ':percent' => number_format(InstanceCache::getCacheEfficiency(), 2) . '%',
             ]), 'debug', 9);
 
-            Log::write(tr('STATISTIC SQL object executed ":count" queries in ":time" seconds', [
+            Log::write(ts('STATISTIC SQL object executed ":count" queries in ":time" seconds', [
                 ':count' => Timers::getCount('sql'),
                 ':time'  => number_format(Timers::getTotal('sql'), 5),
             ]), 'debug', 9);

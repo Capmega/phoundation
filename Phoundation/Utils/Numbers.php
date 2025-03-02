@@ -421,7 +421,7 @@ class Numbers
 
         } catch (Exception $e) {
             // random_int() crashed for ... reasons? Fall back on mt_rand()
-            Log::warning(tr('Failed to get result from random_int(), attempting mt_rand()'));
+            Log::warning(ts('Failed to get result from random_int(), attempting mt_rand()'));
             Log::error($e);
 
             return mt_rand($min, $max) / $max;

@@ -223,7 +223,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
             ]));
         }
 
-        Log::warning(tr('Accepted UUID key ":key" for user ":user"', [
+        Log::warning(ts('Accepted UUID key ":key" for user ":user"', [
             ':key'  => $this->getUuid(),
             ':user' => $this->getUserObject()->getLogId(),
         ]));

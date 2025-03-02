@@ -245,7 +245,7 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
 
         $o_connector = Connector::new($database_connector)->setDatabase($database_selector);
 
-        Log::action(tr('Saving key ":key" in database ":connector" at ":domain::port" database number ":db_number" for HL7 component ":component"', [
+        Log::action(ts('Saving key ":key" in database ":connector" at ":domain::port" database number ":db_number" for HL7 component ":component"', [
             ':key'       => $key,
             ':connector' => $database_connector,
             ':domain'    => $o_connector->getHostname(),

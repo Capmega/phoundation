@@ -36,8 +36,8 @@ trait TraitDataEntryDetails
             return Json::decode($this->getTypesafe('string', 'details'));
 
         } catch (JsonException $e) {
-            Log::warning(tr('Failed to decode details because of following exception'));
-            Log::warning(tr('NOTE: This is due to DataEntry::setDetails() JSON encoding incoming arrays automatically, but when reading from DB, it reads strings, it gets messy and a better solution must be found'));
+            Log::warning(ts('Failed to decode details because of following exception'));
+            Log::warning(ts('NOTE: This is due to DataEntry::setDetails() JSON encoding incoming arrays automatically, but when reading from DB, it reads strings, it gets messy and a better solution must be found'));
             Log::error($e);
 
             return [$this->getTypesafe('string', 'details')];

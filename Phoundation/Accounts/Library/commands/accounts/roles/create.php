@@ -70,4 +70,4 @@ $role->getRightsObject()->setRights($argv['rights']);
 
 
 // Done!
-Log::success(tr('Created new role ":role"', [':role' => $role->getName()]));
+Log::success(ts('Created new role ":role"', [':role' => $role->getName()]));
