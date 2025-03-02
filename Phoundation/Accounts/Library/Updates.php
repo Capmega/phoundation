@@ -1250,7 +1250,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             }
 
         })->addUpdate('0.7.2', function () {
-            $table = sql()->getSchemaObject()->getTableObject('accounts_user_sessions');
+            $table = sql()->getSchemaObject()->getTableObject('accounts_sessions');
 
             if ($table->exists()) {
                 $table->rename('accounts_user_sessions');

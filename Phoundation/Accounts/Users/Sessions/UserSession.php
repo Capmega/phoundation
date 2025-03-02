@@ -355,7 +355,7 @@ class UserSession
                 'identifier' => $identifier,
             ]);
 
-            return static::new($identifier);
+            return static::new($identifier, false);
 
         } catch (SqlContstraintDuplicateEntryException $e) {
             throw new SessionDuplicateIdentifierException(tr('Duplicate session identifier ":identifier" encountered', [
