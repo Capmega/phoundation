@@ -36,12 +36,13 @@ class AutoSuggestRequest
      * not cause the loss of auto suggest data
      *
      * @param bool $term_optional
+     * @param bool $require_clean_source
      *
      * @return void
      */
-    public static function init(bool $term_optional = false): void
+    public static function init(bool $term_optional = false, bool $require_clean_source = false): void
     {
-        static::ensureGet($term_optional);
+        static::ensureGet($term_optional, $require_clean_source);
     }
 
 
@@ -49,9 +50,9 @@ class AutoSuggestRequest
      * AutoSuggestRequest class constructor
      *
      * @param bool $term_optional
-     * @param bool $requre_clean_source
+     * @param bool $require_clean_source
      */
-    protected static function ensureGet(bool $term_optional = false, bool $requre_clean_source = false): void
+    protected static function ensureGet(bool $term_optional = false, bool $require_clean_source = false): void
     {
         if (isset(static::$get)) {
             return;
@@ -65,7 +66,7 @@ class AutoSuggestRequest
             $validator = GetValidator::new()->select('term')->sanitizeTrim()->hasMaxCharacters(255)->isPrintable();
         }
 
-        static::$get = $validator->validate($requre_clean_source);
+        static::$get = $validator->validate($require_clean_source);
     }
 
 
