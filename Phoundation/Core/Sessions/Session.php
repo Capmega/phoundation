@@ -26,8 +26,9 @@ use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\SignInKey;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Core;
-use Phoundation\Core\Exception\SessionException;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Sessions\Exception\SessionException;
+use Phoundation\Core\Sessions\Exception\SessionStartFailedException;
 use Phoundation\Core\Sessions\Interfaces\SessionConfigInterface;
 use Phoundation\Core\Sessions\Interfaces\SessionInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
@@ -39,7 +40,7 @@ use Phoundation\Databases\Mc;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Exception\PhpModuleNotAvailableException;
+use Phoundation\Exception\PhpException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
@@ -680,16 +681,21 @@ class Session implements SessionInterface
                 ]));
         }
 
-        // Start session. Two log entries are added around it to more easily debug issues with PHP session starting
-        Log::action(tr('About to start session ":session"', [
-            ':session' => session_id() ?: 'new',
-        ]), 1);
+        try {
+            // Start session. Two log entries are added around it to more easily debug issues with PHP session starting
+            Log::action(tr('About to start session ":session"', [
+                ':session' => session_id() ?: 'new',
+            ]), 1);
 
-        session_start();
+            session_start();
 
-        Log::success(tr('Started session ":session"', [
-            ':session' => session_id() ?: 'new',
-        ]), 2);
+            Log::success(tr('Started session ":session"', [
+                ':session' => session_id() ?: 'new',
+            ]), 2);
+
+        } catch (PhpException $e) {
+            static::handleSessionStartException($e);
+        }
 
         static::$user              = null;
         static::$impersonated_user = null;
@@ -802,6 +808,42 @@ class Session implements SessionInterface
 
 
     /**
+     * Handle session_start() exceptions
+     *
+     * @param Throwable $e
+     * @return void
+     * @throws SessionStartFailedException
+     * @todo Improve implementation. memcached failures, for example, should
+     */
+    protected static function handleSessionStartException(Throwable $e): void
+    {
+        switch (ini_get('session.save_handler')) {
+            case 'files':
+                throw new SessionStartFailedException(tr('Failed to start session using save handler "files" with path ":path"', [
+                    ':path' => session_save_path(),
+                ]), $e);
+
+            case 'memcached':
+                if ($e->messageContains('SERVER HAS FAILED AND IS DISABLED')) {
+                    // Memcached server failed
+                    throw new SessionStartFailedException(tr('Failed to start session using save handler "memcached" with servers ":servers" because memcached server failed. Is memcached installed and running?', [
+                        ':servers' => session_save_path(),
+                    ]), $e);
+                }
+
+                throw new SessionStartFailedException(tr('Failed to start session using save handler "memcached" with servers ":servers"', [
+                    ':servers' => session_save_path(),
+                ]), $e);
+
+            default:
+                throw new SessionStartFailedException(tr('Failed to start session using unknown handler ":handler"', [
+                    ':handler' => ini_get('session.save_handler'),
+                ]), $e);
+        }
+    }
+
+
+    /**
      * Initializes the user for a new session
      *
      * @return void
@@ -831,7 +873,33 @@ class Session implements SessionInterface
     protected static function create(): bool
     {
         // Register the session
-        \Phoundation\Accounts\Users\Sessions\Sessions::start(static::getUserObject()->getId(), static::$domain, Session::getIpAddress(), session_id());
+        if (\Phoundation\Accounts\Users\Sessions\Session::exists(session_id())) {
+Log::printr(session_id());
+            // Wut? This session has already been registered yet?
+            $session = \Phoundation\Accounts\Users\Sessions\Session::new(session_id());
+
+            Incident::new()
+                    ->setSeverity(EnumSeverity::high)
+                    ->setType('Sessions')
+                    ->setTitle(tr('Encountered duplicate session ID'))
+                    ->setBody(tr('Session identifier ":identifier" has already been registered for user ":user", generating new ID', [
+                        ':identifier' => session_id(),
+                        ':user'       => $session->getUserObject()->getLogId(),
+                    ]))
+                    ->setNotifyRoles('developer')
+                    ->addDetails([
+                        'id'           => $session->getId(),
+                        'user'         => $session->getUserObject()->getLogId(),
+                        'identifier'   => $session->getIdentifier(),
+                        'domain'       => $session->getDomain(),
+                        'ip'           => $session->getIp(),
+                        'session_data' => $session->getSource()
+                    ])
+                    ->setLog(9)
+                    ->save();
+
+            session_regenerate_id();
+        }
 
         // Initialize the session for the user
         Session::initializeUser();
@@ -851,6 +919,11 @@ class Session implements SessionInterface
 //                        $_SESSION['location']     = Core::readRegister('system', 'session', 'location');
 //                        $_SESSION['language']     = Core::readRegister('system', 'session', 'language');
 
+Log::printr(session_id());
+Log::printr($_SESSION);
+        // Register the user session
+        \Phoundation\Accounts\Users\Sessions\Session::start(static::getUserObject()->getId(), static::$domain, Session::getIpAddress(), session_id());
+showdie('YES!');
         // Set users timezone
         if (empty($_SESSION['user']['timezone'])) {
             $_SESSION['user']['timezone'] = config()->get('timezone.display', 'UTC');
@@ -916,7 +989,7 @@ class Session implements SessionInterface
     public static function reloadUser(): void
     {
         if (empty($_SESSION['user']['id'])) {
-            throw new OutOfBoundsException(tr('Cannot reload user for session ":session", this session has no user', [
+            throw new SessionException(tr('Cannot reload user for session ":session", this session has no user', [
                 ':session' => session_id(),
             ]));
         }
@@ -1064,9 +1137,9 @@ class Session implements SessionInterface
             static::$user         = $user;
             static::$user_changed = true;
 
-            static::clear();
-            static::updateSignInTracking();
-            static::clearSignInKey();
+            Session::clear();
+            Session::updateSignInTracking();
+            Session::clearSignInKey();
 
             Incident::new()
                     ->setType(tr('User sign in'))
@@ -1106,14 +1179,18 @@ class Session implements SessionInterface
     /**
      * Clear the current session
      *
-     * @return void
+     * @return int|null
      */
-    public static function clear(): void
+    public static function clear(): ?int
     {
         global $_SESSION;
 
+        $users_id = isset_get($_SESSION['user']['id']);
+
         if (isset($_SESSION['init'])) {
-            // Conserve init data
+            // Conserve init data and flash messages
+            $messages = isset_get($_SESSION['flash_messages']);
+
             $_SESSION = [
                 'init'         => $_SESSION['init'],
                 'domain'       => static::$domain,
@@ -1121,9 +1198,15 @@ class Session implements SessionInterface
                 'first_domain' => $_SESSION['first_domain'],
             ];
 
+            if ($messages) {
+                $_SESSION['flash_messages'] = $messages;
+            }
+
         } else {
             $_SESSION = [];
         }
+
+        return $users_id;
     }
 
 
@@ -1528,7 +1611,7 @@ class Session implements SessionInterface
         static::$key  = $key;
         static::$user = $key->getUserObject();
 
-        static::clear();
+        Session::clear();
 
         // Update the users sign-in and last sign-in information
         static::updateSignInTracking();
@@ -1589,12 +1672,10 @@ class Session implements SessionInterface
                             ])
                             ->save();
 
-                    Session::signOut();
-
-                    Response::getFlashMessagesObject()
-                            ->addWarning(tr('Something went wrong with your session, please sign in again'));
-
-                    Response::redirect('sign-in');
+                    Response::signOut(function () {
+                        Response::getFlashMessagesObject()
+                                ->addWarning(tr('Something went wrong with your session, please sign in again'));
+                    });
                 }
             }
         }
@@ -1747,16 +1828,8 @@ class Session implements SessionInterface
         static::$user_changed = !static::getUserObject()->isGuest();
 
         // Destroy all in the session but the flash messages
-        $users_id = $_SESSION['user']['id'];
-        $messages = isset_get($_SESSION['flash_messages']);
-        $_SESSION = [];
-
-        if ($messages) {
-            $_SESSION['flash_messages'] = $messages;
-        }
-
         // Return the user that signed out
-        return new User($users_id);
+        return new User(Session::clear());
     }
 
 

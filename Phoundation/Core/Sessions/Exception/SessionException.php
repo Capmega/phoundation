@@ -14,7 +14,10 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Core\Exception;
+namespace Phoundation\Core\Sessions\Exception;
+
+use Phoundation\Core\Exception\CoreException;
+
 
 class SessionException extends CoreException
 {
