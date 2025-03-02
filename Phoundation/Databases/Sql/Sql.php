@@ -31,12 +31,11 @@ use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Connectors\Exception\ConnectorException;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
-use Phoundation\Databases\Datastores;
 use Phoundation\Databases\Exception\DatabaseTestException;
-use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
 use Phoundation\Databases\Sql\Exception\SqlColumnDoesNotExistsException;
 use Phoundation\Databases\Sql\Exception\SqlConnectException;
+use Phoundation\Databases\Sql\Exception\SqlContstraintDuplicateEntryException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Exception\SqlInvalidConfigurationException;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
@@ -393,8 +392,8 @@ class Sql implements SqlInterface
                                                      ->setQuery($query)
                                                      ->setExecute($execute)
                                                      ->setMessage($message)
-                                                     ->setSqlState($state ?? isset_get($error[0]))
-                                                     ->setDriverState(isset_get($error[1])));
+                                                     ->setSqlState(get_null($state ?? array_get_safe($error, 0)))
+                                                     ->setDriverState(array_get_safe($error, 1)));
         }
     }
 
@@ -415,12 +414,11 @@ class Sql implements SqlInterface
     /**
      * Process the specified query exception
      *
-     * @param SqlExceptionInterface $e
+     * @param SqlException $e
      *
      * @return never
-     * @throws SqlExceptionInterface
      */
-    #[NoReturn] protected function processQueryException(SqlExceptionInterface $e): never
+    #[NoReturn] protected function processQueryException(SqlException $e): never
     {
         $query   = $e->getQuery();
         $execute = $e->getExecute();
@@ -450,7 +448,6 @@ class Sql implements SqlInterface
 //                ':query'    => $query,
 //                ':e'        => $e->getMessage()
 //            ]), $e);
-
 
         // Check SQL state
         switch ($e->getSqlState()) {
@@ -483,6 +480,12 @@ class Sql implements SqlInterface
                     'add'    => 'variables missing in query',
                     'delete' => 'variables missing in execute',
                 ]));
+
+            case 23000:
+                switch ($e->getSqlSecondaryState()) {
+                    case 1062:
+                        throw new SqlContstraintDuplicateEntryException($e);
+                }
 
             case 42000:
                 switch ($e->getDriverState()) {
@@ -698,7 +701,10 @@ class Sql implements SqlInterface
                 throw SqlException::new(tr('The query ":query" returned ":count" columns while Sql::\getColumn() without $column specification can only select and return one single column', [
                     ':query' => $query,
                     ':count' => count($result),
-                ]))->addData($result);
+                ]))->addData([
+                    'result'  => $result,
+                    'columns' => array_keys($result)
+                ]);
             }
 
             return Arrays::firstValue($result);

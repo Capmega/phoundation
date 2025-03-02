@@ -18,11 +18,21 @@ namespace Phoundation\Databases\Sql\Exception;
 
 use PDOStatement;
 use Phoundation\Databases\Exception\DatabasesException;
-use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Utils\Strings;
 
-class SqlException extends DatabasesException implements SqlExceptionInterface
+class SqlException extends DatabasesException
 {
+    /**
+     * Returns the SQL state for this exception
+     *
+     * @return string|null
+     */
+    public function getSqlSecondaryState(): ?string
+    {
+        return $this->getDataKey('sql_secondary_state');
+    }
+
+
     /**
      * Returns the SQL state for this exception
      *
@@ -43,6 +53,10 @@ class SqlException extends DatabasesException implements SqlExceptionInterface
      */
     public function setSqlState(?string $state): static
     {
+        if (preg_match('/^.+?:\s+(\d+)\s+/', $this->getMessage(), $matches)) {
+            $this->addData($matches[1], 'sql_secondary_state');
+        }
+
         return $this->addData($state, 'sql_state');
     }
 

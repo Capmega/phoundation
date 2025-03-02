@@ -18,6 +18,7 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Connectors\Connectors;
+use Phoundation\Databases\Connectors\Exception\ConnectorNotExistsException;
 
 CliDocumentation::setUsage('./pho databases export -d mysql -b system -f system.sql');
 
@@ -54,5 +55,10 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-// Dump all values
-Log::printr(mc($argv['connector'])->get($argv['key']), echo_header: false);
+try {
+    // Dump all values
+    Log::printr(mc($argv['connector'])->get($argv['key']), echo_header: false);
+
+} catch (ConnectorNotExistsException $e) {
+    throw $e->makeWarning();
+}

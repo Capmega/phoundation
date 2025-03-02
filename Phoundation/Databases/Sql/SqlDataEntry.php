@@ -30,7 +30,7 @@ use Phoundation\Data\Traits\TraitDataMaxIdRetries;
 use Phoundation\Data\Traits\TraitDataMetaEnabled;
 use Phoundation\Data\Traits\TraitDataRandomId;
 use Phoundation\Data\Traits\TraitDataTable;
-use Phoundation\Databases\Sql\Exception\SqlDuplicateException;
+use Phoundation\Databases\Sql\Exception\SqlContstraintDuplicateEntryException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Interfaces\SqlDataEntryInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
@@ -249,7 +249,7 @@ class SqlDataEntry implements SqlDataEntryInterface
                 }
 
                 // Duplicate another column, continue throwing
-                throw new SqlDuplicateException(tr('Duplicate entry encountered for column ":column"', [
+                throw new SqlContstraintDuplicateEntryException(tr('Duplicate entry encountered for column ":column"', [
                     ':column' => $column,
                 ]), $e);
             }

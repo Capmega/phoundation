@@ -18,6 +18,7 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Connectors\Connectors;
+use Phoundation\Databases\Connectors\Exception\ConnectorNotExistsException;
 
 CliDocumentation::setUsage('./pho databases memcached dump keys -c session');
 
@@ -51,5 +52,9 @@ $argv = ArgvValidator::new()
 
 
 // Dump all keys
-Log::printr(mc($argv['connector'])->getAllKeys(), echo_header: false);
+try {
+    Log::printr(mc($argv['connector'])->getAllKeys(), echo_header: false);
 
+} catch (ConnectorNotExistsException $e) {
+    throw $e->makeWarning();
+}

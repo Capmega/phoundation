@@ -16,6 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\Exception;
 
-class SqlDuplicateException extends SqlException
+class SqlContstraintDuplicateEntryException extends SqlException
 {
 }

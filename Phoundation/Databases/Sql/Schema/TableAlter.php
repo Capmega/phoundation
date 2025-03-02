@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\Schema;
 
+use Phoundation\Databases\Sql\Exception\SqlDefinitionNotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -186,27 +187,36 @@ class TableAlter extends SchemaAbstract
     /**
      * Rename the specified column
      *
-     * @param string $from_column
-     * @param string $to_column
+     * @param string $from_name
+     * @param string $to_name
+     * @param bool   $rename_index If this option is true, and the table contains an index with the same column name,
+     *                           the index with the old name will be removed, and an index with the new name will be
+     *                           created
      *
      * @return static
      */
-    public function renameColumn(string $from_column, string $to_column): static
+    public function renameColumn(string $from_name, string $to_name, bool $rename_index = true): static
     {
-        if (!$from_column) {
+        if (!$from_name) {
             throw new OutOfBoundsException(tr('No column specified'));
         }
 
-        if (!$to_column) {
+        if (!$to_name) {
             throw new OutOfBoundsException(tr('No new column definition specified'));
         }
 
-        $from_column = Strings::ensureStartsNotWith($from_column, '`');
-        $from_column = Strings::ensureEndsNotWith($from_column, '`');
-        $to_column   = Strings::ensureStartsNotWith($to_column, '`');
-        $to_column   = Strings::ensureEndsNotWith($to_column, '`');
+        $from_name = Strings::ensureStartsNotWith($from_name, '`');
+        $from_name = Strings::ensureEndsNotWith($from_name, '`');
+        $to_name   = Strings::ensureStartsNotWith($to_name, '`');
+        $to_name   = Strings::ensureEndsNotWith($to_name, '`');
 
-        $this->sql->query('ALTER TABLE `' . $this->name . '` RENAME COLUMN `' . $from_column . '` TO `' . $to_column . '`');
+        $this->sql->query('ALTER TABLE `' . $this->name . '` RENAME COLUMN `' . $from_name . '` TO `' . $to_name . '`');
+
+        if ($rename_index) {
+            if ($this->parent->indexExists($from_name)) {
+                $this->renameIndex($from_name, $to_name);
+            }
+        }
 
         return $this;
     }
@@ -229,6 +239,68 @@ class TableAlter extends SchemaAbstract
 
             $this->addIndex($index);
         }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns an array with all table definitions
+     *
+     * @return array
+     */
+    public function getDefinitions(): array
+    {
+        return explode(PHP_EOL, $this->sql->getColumn('SHOW CREATE TABLE ' . $this->name, column: 'create table'));
+    }
+
+
+    /**
+     * Returns the definition for the specified column
+     *
+     * @param string      $column
+     * @param string|null $filter_extra
+     *
+     * @return string
+     */
+    public function getDefinition(string $column, ?string $filter_extra = null): string
+    {
+        foreach($this->getDefinitions() as $line) {
+            if (str_contains($line, $column)) {
+                if ($filter_extra) {
+                    if (!str_contains($line, $filter_extra)) {
+                        continue;
+                    }
+                }
+
+                // Found a matching line. clean it up, and return it
+                $line = trim($line);
+                return Strings::ensureEndsNotWith($line, ',') ;
+            }
+        }
+
+        throw SqlDefinitionNotExistsException::new(tr('No definition found for column ":column" with extra filter ":filter"', [
+            ':column' => $column,
+            ':filter' => $filter_extra,
+        ]));
+    }
+
+
+    /**
+     * Renames the index with the specified name
+     *
+     * @param string $from_name
+     * @param string $to_name
+     *
+     * @return $this
+     */
+    public function renameIndex(string $from_name, string $to_name): static
+    {
+        $definition = $this->getDefinition($from_name, 'KEY');
+        $definition = str_replace($from_name, $to_name, $definition);
+
+        $this->sql->query('ALTER TABLE ' . $this->name . ' DROP KEY `' . $from_name . '`');
+        $this->sql->query('ALTER TABLE ' . $this->name . ' ADD ' . $definition);
 
         return $this;
     }

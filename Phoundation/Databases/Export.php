@@ -26,7 +26,6 @@ use Phoundation\Data\Traits\TraitDataPort;
 use Phoundation\Data\Traits\TraitDataTimeout;
 use Phoundation\Data\Traits\TraitDataUserPassword;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
-use Phoundation\Databases\Sql\Exception\Interfaces\SqlExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
@@ -393,7 +392,7 @@ class Export
      * @param EnumExecuteMethod     $method
      *
      * @return string
-     * @throws SqlExceptionInterface
+     * @throws OutOfBoundsException | OutOfBoundsException | UnderConstructionException
      */
     public function dump(?PhoFileInterface $file, EnumExecuteMethod $method = EnumExecuteMethod::passthru): string
     {

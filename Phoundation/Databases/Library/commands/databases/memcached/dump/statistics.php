@@ -18,6 +18,7 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Connectors\Connectors;
+use Phoundation\Databases\Connectors\Exception\ConnectorNotExistsException;
 
 CliDocumentation::setUsage('./pho databases export -d mysql -b system -f system.sql');
 
@@ -51,7 +52,12 @@ $argv = ArgvValidator::new()
 
 
 // Dump all keys
-$servers = mc($argv['connector'])->getStatistics();
+try {
+    $servers = mc($argv['connector'])->getStatistics();
+
+} catch (ConnectorNotExistsException $e) {
+    throw $e->makeWarning();
+}
 
 foreach ($servers as $server => $statistics) {
     Log::information(tr('Statistics for memcached server ":server"', [':server' => $server]));
