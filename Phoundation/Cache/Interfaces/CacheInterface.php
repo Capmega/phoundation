@@ -9,10 +9,9 @@ interface CacheInterface
      *
      * @param bool $force
      *
-     * @return bool
-     * @todo Implement more
+     * @return static
      */
-    public function clear(bool $force = false): bool;
+    public function clear(bool $force = false): static;
 
     /**
      * Delete the specified page from cache

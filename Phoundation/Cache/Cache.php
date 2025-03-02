@@ -161,12 +161,30 @@ class Cache implements CacheInterface
      *
      * @param bool $force
      *
-     * @return bool
-     * @todo Implement more
+     * @return static
      */
-    public function clear(bool $force = false): bool
+    public function clear(bool $force = false): static
+    {
+        $this->driver()?->clear();
+        return $this;
+    }
+
+
+    /**
+     * Clears all cache groups
+     *
+     * @param bool $force
+     *
+     * @return bool
+     */
+    public static function clearAll(bool $force = false): bool
     {
         Log::action(ts('Clearing all caches'), 3);
+
+        Cache::new(EnumCacheGroups::autosuggest)->clear();
+        Cache::new(EnumCacheGroups::dataentries)->clear();
+        Cache::new(EnumCacheGroups::html)->clear();
+        Cache::new('cache')->clear();
 
         if (static::$has_been_cleared and !$force) {
             return false;
@@ -184,27 +202,12 @@ class Cache implements CacheInterface
         PhoPath::new(DIRECTORY_SYSTEM . 'cache/files/', PhoRestrictions::newWritableObject(DIRECTORY_SYSTEM . 'cache/files/'))
                ->delete();
 
-        $this->driver()?->clear();
 
         Log::success(ts('Cleared all caches'));
 
         static::$has_been_cleared = true;
 
         return true;
-    }
-
-
-    /**
-     * Clears all cache groups
-     *
-     * @return void
-     */
-    public static function clearAll(): void
-    {
-        Cache::new(EnumCacheGroups::autosuggest)->clear();
-        Cache::new(EnumCacheGroups::dataentries)->clear();
-        Cache::new(EnumCacheGroups::html)->clear();
-        Cache('cache')::clear();
     }
 
 
