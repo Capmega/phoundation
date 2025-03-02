@@ -81,6 +81,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Utils\Exception\ConfigEmptyException;
 use Phoundation\Utils\Exception\ConfigEnvironmentDoesNotExistException;
 use Phoundation\Utils\Exception\ConfigEnvironmentNotSetException;
 use Phoundation\Utils\Exception\ConfigException;
@@ -428,7 +429,11 @@ class Config implements ConfigInterface
             return Strings::toBoolean($return);
 
         } catch (OutOfBoundsException $e) {
-            throw ConfigException::new(tr('The configuration path ":path" should be a boolean value (Accepted are true, "true", "yes", "y", "1", false, "false", "no", "n", or 1), but has value ":value" instead', [
+            if (empty($return)) {
+                $this->throwEmptyException($path, 'boolean');
+            }
+
+            throw ConfigException::new(tr('The configuration path ":path" should hold a boolean value (Accepted are true, "true", "yes", "y", "1", false, "false", "no", "n", or 1), but has ":value" instead', [
                 ':path'  => $path,
                 ':value' => $return,
             ]), $e)->addData([
@@ -457,7 +462,11 @@ class Config implements ConfigInterface
             return (int) $return;
         }
 
-        throw ConfigException::new(tr('The configuration path ":path" should be an integer number but has value ":value"', [
+        if (empty($return)) {
+            $this->throwEmptyException($path, 'integer');
+        }
+
+        throw ConfigException::new(tr('The configuration path ":path" should hold an integer value but has ":value" instead', [
             ':path'  => $path,
             ':value' => $return,
         ]))->addData([
@@ -481,7 +490,7 @@ class Config implements ConfigInterface
     public function getPositiveInteger(string|array $path, ?int $default = null): int
     {
         if ($default < 0) {
-            throw new OutOfBoundsException(tr('The specified default ":default" for configuration path ":path" should be a positive integer number but is negative', [
+            throw new OutOfBoundsException(tr('The specified default ":default" for configuration path ":path" should hold a positive integer number but is negative', [
                 ':path'    => $path,
                 ':default' => $default,
             ]));
@@ -493,7 +502,11 @@ class Config implements ConfigInterface
             return $return;
         }
 
-        throw ConfigException::new(tr('The configuration path ":path" should be a positive integer number but has value ":value"', [
+        if (empty($return)) {
+            $this->throwEmptyException($path, 'positive integer');
+        }
+
+        throw ConfigException::new(tr('The configuration path ":path" should hold a positive integer number but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]))->addData([
@@ -517,7 +530,7 @@ class Config implements ConfigInterface
     public function getNegativeInteger(string|array $path, ?int $default = null): int
     {
         if ($default < 0) {
-            throw new OutOfBoundsException(tr('The specified default ":default" for configuration path ":path" should be a positive integer number but is negative', [
+            throw new OutOfBoundsException(tr('The specified default ":default" for configuration path ":path" should hold a positive integer number but is negative', [
                 ':path'    => $path,
                 ':default' => $default,
             ]));
@@ -529,7 +542,11 @@ class Config implements ConfigInterface
             return $return;
         }
 
-        throw ConfigException::new(tr('The configuration path ":path" should be a negative integer number but has value ":value"', [
+        if (empty($return)) {
+            $this->throwEmptyException($path, 'negative integer');
+        }
+
+        throw ConfigException::new(tr('The configuration path ":path" should hold a negative integer number but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]))->addData([
@@ -611,7 +628,11 @@ class Config implements ConfigInterface
             return (float) $return;
         }
 
-        throw ConfigException::new(tr('The configuration path ":path" should be a float but has value ":value"', [
+        if (empty($return)) {
+            $this->throwEmptyException($path, 'float');
+        }
+
+        throw ConfigException::new(tr('The configuration path ":path" should hold a float but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]))->addData([
@@ -645,6 +666,24 @@ class Config implements ConfigInterface
 
 
     /**
+     * Throws an ConfigEmptyException
+     *
+     * @param string $path
+     * @param string $type
+     *
+     * @return void
+     * @throws ConfigEmptyException
+     */
+    protected function throwEmptyException(string $path, string $type): void
+    {
+        throw ConfigEmptyException::new(tr('The configuration path ":path" should hold a ":type" value but exist with no value', [
+            ':path'  => $path,
+            ':type'  => $type,
+        ]));
+    }
+
+
+    /**
      * Return configuration ARRAY for the specified key path
      *
      * @note Will throw a ConfigException if a non-array value is returned
@@ -666,7 +705,11 @@ class Config implements ConfigInterface
             return $return;
         }
 
-        throw ConfigException::new(tr('The configuration path ":path" should be an array but has value ":value"', [
+        if (empty($return)) {
+            $this->throwEmptyException($path, 'array');
+        }
+
+        throw ConfigException::new(tr('The configuration path ":path" should hold an "array" value but has ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]))->addData([
@@ -693,7 +736,11 @@ class Config implements ConfigInterface
             return $return;
         }
 
-        throw ConfigException::new(tr('The configuration path ":path" should be a string but has value ":value"', [
+        if (empty($return)) {
+            $this->throwEmptyException($path, 'string');
+        }
+
+        throw ConfigException::new(tr('The configuration path ":path" should hold a string but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]))->addData([
@@ -724,7 +771,11 @@ class Config implements ConfigInterface
             return $return;
         }
 
-        throw ConfigException::new(tr('The configuration path ":path" should be an array or a string but has value ":value"', [
+        if (empty($return)) {
+            $this->throwEmptyException($path, 'array or string');
+        }
+
+        throw ConfigException::new(tr('The configuration path ":path" should hold an array or a string but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]))->addData([
@@ -763,7 +814,11 @@ class Config implements ConfigInterface
             // fall through
         }
 
-        throw ConfigException::new(tr('The configuration path ":path" should be a string or a boolean value but has value ":value"', [
+        if (empty($return)) {
+            $this->throwEmptyException($path, 'string or boolean');
+        }
+
+        throw ConfigException::new(tr('The configuration path ":path" should hold a string or a boolean value but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]), $e)->addData([
@@ -865,7 +920,7 @@ class Config implements ConfigInterface
             $section = str_replace(':', '.', $section);
 
             if (!is_array($data)) {
-                // Oops, this data section should be an array
+                // Oops, this data section should hold an array
                 throw ConfigException::new(tr('Cannot set configuration path ":path", the configuration section ":section" does not exist', [
                     ':section' => $section,
                     ':path'    => $path,
