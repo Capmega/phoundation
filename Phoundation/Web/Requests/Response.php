@@ -1435,13 +1435,7 @@ class Response implements ResponseInterface
             if (isset(static::$page_headers)) {
                 // Only cache if there are headers. If static::buildHeaders() returned null this means that the headers
                 // have already been sent before, probably by a debugging function like Debug::show(). DON'T CACHE!
-                Cache::write([
-                    'output'  => static::getOutput(false),
-                    'headers' => static::$page_headers,
-                ], 'WebResponse ' . Request::getUri());
-
                 $length = static::sendHttpHeaders();
-
                 Log::success(ts('Cached ":length" bytes of HTTP to client', [':length' => $length]), 3);
             }
 

@@ -1516,19 +1516,8 @@ class Request implements RequestInterface
                 Response::checkForceRedirect();
             }
 
-            if (static::isRequestMethod(EnumHttpRequestMethod::get) or static::isRequestMethod(EnumHttpRequestMethod::head)) {
-                // First try cache, then execute the target
-                $return = static::tryCache($die);
-
-                if ($return === null) {
-                    // Execute the current target
-                    $return = static::executeWebTarget($flush);
-                }
-
-            } else {
-                // Execute the current target
-                $return = static::executeWebTarget($flush);
-            }
+            // Execute the current target
+            $return = static::executeWebTarget($flush);
         }
 
         static::$stack_level--;
@@ -1699,40 +1688,6 @@ class Request implements RequestInterface
                     ':language' => LANGUAGE,
                 ]), (static::$stack_level ? 5 : 7));
         }
-    }
-
-
-    /**
-     * Try to send this page from cache, if available
-     *
-     * @param bool $die
-     *
-     * @return string|null
-     */
-    protected static function tryCache(bool $die): ?string
-    {
-        // Do we have a cached version available?
-        $cache = Cache::read(static::$hash, 'pages');
-        if ($cache) {
-            try {
-                Log::action(ts('Sending cached reply to client'), 3);
-
-                $cache = Json::decode($cache);
-
-                Response::setHttpHeaders($cache['headers']);
-                Response::addOutput($cache['output']);
-                Response::send($die);
-
-            } catch (Throwable $e) {
-                // Cache failed!
-                Log::warning(ts('Failed to send full cache page ":page" with following exception, ignoring cache and building page', [
-                    ':page' => static::$hash,
-                ]));
-                Log::exception($e);
-            }
-        }
-
-        return null;
     }
 
 

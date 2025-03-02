@@ -1437,7 +1437,7 @@ class Route
         if ((static::$rule_count === 1) and config()->get('web.route.static', false)) {
             if (static::$apply_static_routes) {
                 // Check if remote IP is registered for special routing
-                $exists = sql()->get('SELECT   `id`, `url`, `regex`, `route`, `flags`
+                $exists = sql()->getRow('SELECT   `id`, `url`, `regex`, `route`, `flags`
                                       FROM     `routes_static` 
                                       WHERE    `ip` = :ip 
                                         AND    `status` IS NULL 
