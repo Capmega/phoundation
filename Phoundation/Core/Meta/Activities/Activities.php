@@ -206,7 +206,7 @@ class Activities extends IteratorCore
     protected function checkEmpty(int $meta_id, ?DataEntryInterface $object): void
     {
         if (empty($this->source)) {
-            $exists = sql()->get('SELECT `id` FROM `meta` WHERE `id` = :id', [':id' => $meta_id]);
+            $exists = sql()->getRow('SELECT `id` FROM `meta` WHERE `id` = :id', [':id' => $meta_id]);
 
             if (!$exists) {
                 if (empty($object)) {

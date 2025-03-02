@@ -873,10 +873,10 @@ class Session implements SessionInterface
     protected static function create(): bool
     {
         // Register the session
-        if (\Phoundation\Accounts\Users\Sessions\Session::exists(session_id())) {
+        if (\Phoundation\Accounts\Users\Sessions\UserSession::exists(session_id())) {
 Log::printr(session_id());
             // Wut? This session has already been registered yet?
-            $session = \Phoundation\Accounts\Users\Sessions\Session::new(session_id());
+            $session = \Phoundation\Accounts\Users\Sessions\UserSession::new(session_id());
 
             Incident::new()
                     ->setSeverity(EnumSeverity::high)
@@ -922,7 +922,7 @@ Log::printr(session_id());
 Log::printr(session_id());
 Log::printr($_SESSION);
         // Register the user session
-        \Phoundation\Accounts\Users\Sessions\Session::start(static::getUserObject()->getId(), static::$domain, Session::getIpAddress(), session_id());
+        \Phoundation\Accounts\Users\Sessions\UserSession::start(static::getUserObject()->getId(), static::$domain, Session::getIpAddress(), session_id());
 showdie('YES!');
         // Set users timezone
         if (empty($_SESSION['user']['timezone'])) {

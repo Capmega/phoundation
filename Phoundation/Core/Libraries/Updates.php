@@ -335,7 +335,7 @@ abstract class Updates implements UpdatesInterface
     protected function versionsTableExists(): bool
     {
         if (!isset($this->versions_exists)) {
-            $this->versions_exists = (bool) sql()->get('SHOW TABLES LIKE "core_versions"');
+            $this->versions_exists = (bool) sql()->getRow('SHOW TABLES LIKE "core_versions"');
         }
 
         return $this->versions_exists;

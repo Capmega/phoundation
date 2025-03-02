@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Core\Sessions;
 
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
-use Phoundation\Accounts\Users\Sessions\Session;
+use Phoundation\Accounts\Users\Sessions\UserSession;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Exception\SessionException;
 use Phoundation\Core\Sessions\Interfaces\SessionInterface;
@@ -82,7 +82,7 @@ class Sessions
     public static function stopUser(int $users_id): int
     {
         $count    = 0;
-        $sessions = sql()->listKeyValue('SELECT `session`, `stop` FROM `accounts_sessions` WHERE `users_id` = :users_id', [
+        $sessions = sql()->listKeyValue('SELECT `session`, `stop` FROM `accounts_user_sessions` WHERE `users_id` = :users_id', [
             'users_id' => $users_id,
         ]);
 
@@ -91,12 +91,12 @@ class Sessions
                 if ($stop) {
                     // Remove the session
                     $count++;
-                    Session::delete($session);
+                    UserSession::delete($session);
                 }
             }
 
             // Register all sessions as closed
-            sql()->update('accounts_sessions', ['stop' => PhoDateTime::new()->format('mysql')], ['users_id' => $users_id]);
+            sql()->update('accounts_user_sessions', ['stop' => PhoDateTime::new()->format('mysql')], ['users_id' => $users_id]);
         }
 
         return $count;
@@ -113,7 +113,7 @@ class Sessions
     public static function stopIp(string $ip): int
     {
         $count    = 0;
-        $sessions = sql()->listKeyValue('SELECT `session`, `stop` FROM `accounts_sessions` WHERE `ip` = :ip', [
+        $sessions = sql()->listKeyValue('SELECT `session`, `stop` FROM `accounts_user_sessions` WHERE `ip` = :ip', [
             'ip' => $ip,
         ]);
 
@@ -122,12 +122,12 @@ class Sessions
                 if ($stop) {
                     // Remove the session
                     $count++;
-                    Session::delete($session);
+                    UserSession::delete($session);
                 }
             }
 
             // Register all sessions as closed
-            sql()->update('accounts_sessions', ['stop' => PhoDateTime::new()->format('mysql')], ['ip' => $ip]);
+            sql()->update('accounts_user_sessions', ['stop' => PhoDateTime::new()->format('mysql')], ['ip' => $ip]);
         }
 
         return $count;
@@ -150,11 +150,11 @@ class Sessions
     public static function stopExpired(?int $max_seconds = null): int
     {
         $count       = 0;
-        $sessions    = sql()->query('SELECT `session` FROM `accounts_sessions` WHERE `stop` IS NULL');
+        $sessions    = sql()->query('SELECT `session` FROM `accounts_user_sessions` WHERE `stop` IS NULL');
         $max_seconds = $max_seconds ?? config()->getInteger('web.sessions.cookies.lifetime', 0);
 
         while ($session = $sessions->fetch()) {
-            $o_session = Session::new($session, false);
+            $o_session = UserSession::new($session, false);
 
             if (!$o_session->getIdentifier() or !$o_session->get('last_activity') or ((time() - $o_session->get('last_activity')) > $max_seconds)) {
                 $count++;
@@ -175,7 +175,7 @@ class Sessions
      */
     public static function stop(string $session): bool
     {
-        $session_data = sql()->get('SELECT `session`, `stop` FROM `accounts_sessions` WHERE `session` = :session', [
+        $session_data = sql()->getRow('SELECT `session`, `stop` FROM `accounts_user_sessions` WHERE `session` = :session', [
             'session' => $session,
         ]);
 
@@ -187,7 +187,7 @@ class Sessions
 
         if ($session_data['stop']) {
             // Remove the session
-            Session::delete($session);
+            UserSession::delete($session);
             return true;
         }
 
@@ -204,7 +204,7 @@ class Sessions
     public static function getActive(): IteratorInterface
     {
         return Iterator::new(sql()->listKeyValues('SELECT COUNT(`id`) AS `count` 
-                                                   FROM   `accounts_sessions` 
+                                                   FROM   `accounts_user_sessions` 
                                                    WHERE  `stop` IS NULL'));
     }
 
@@ -219,7 +219,7 @@ class Sessions
     public static function getAllForUsersId(int $users_id): IteratorInterface
     {
         return Iterator::new(sql()->listKeyValues('SELECT * 
-                                                   FROM   `accounts_sessions` 
+                                                   FROM   `accounts_user_sessions` 
                                                    WHERE  `users_id` = :users_id', [
             ':users_id' => $users_id
         ]));
@@ -236,7 +236,7 @@ class Sessions
     public static function getActiveForUsersId(int $users_id): IteratorInterface
     {
         return Iterator::new(sql()->listKeyValues('SELECT * 
-                                                   FROM   `accounts_sessions` 
+                                                   FROM   `accounts_user_sessions` 
                                                    WHERE  `users_id` = :users_id 
                                                      AND  `stop` IS NULL', [
             ':users_id' => $users_id
@@ -254,7 +254,7 @@ class Sessions
     public static function getAllForIp(string $ip): IteratorInterface
     {
         return Iterator::new(sql()->listKeyValues('SELECT * 
-                                                   FROM   `accounts_sessions` 
+                                                   FROM   `accounts_user_sessions` 
                                                    WHERE  `ip` = :ip', [
             ':ip' => $ip
         ]));
@@ -271,7 +271,7 @@ class Sessions
     public static function getActiveForIp(string $ip): IteratorInterface
     {
         return Iterator::new(sql()->listKeyValues('SELECT * 
-                                                   FROM   `accounts_sessions` 
+                                                   FROM   `accounts_user_sessions` 
                                                    WHERE  `ip` = :ip 
                                                      AND  `stop` IS NULL', [
             ':ip' => $ip
@@ -287,7 +287,7 @@ class Sessions
     public static function getActiveCount(): int
     {
         return sql()->getColumn('SELECT COUNT(`id`) AS `count` 
-                                 FROM   `accounts_sessions` 
+                                 FROM   `accounts_user_sessions` 
                                  WHERE  `stop` IS NULL');
     }
 
@@ -299,7 +299,7 @@ class Sessions
      */
     public static function getCount(): int
     {
-        return sql()->getColumn('SELECT COUNT(`id`) as `count` FROM `accounts_sessions`');
+        return sql()->getColumn('SELECT COUNT(`id`) as `count` FROM `accounts_user_sessions`');
     }
 
 
@@ -310,18 +310,18 @@ class Sessions
      */
     public static function list(): IteratorInterface
     {
-        return Iterator::new(sql()->listKeyValue('SELECT `session` FROM `accounts_sessions` WHERE `stop` IS NULL'));
+        return Iterator::new(sql()->listKeyValue('SELECT `session` FROM `accounts_user_sessions` WHERE `stop` IS NULL'));
     }
 
 
     /**
-     * Truncates the accounts_sessions table
+     * Truncates the accounts_user_sessions table
      *
      * @return void
      */
     public static function truncate(): void
     {
         mc('sessions')->flush();
-        sql()->truncate('accounts_sessions');
+        sql()->truncate('accounts_user_sessions');
     }
 }
