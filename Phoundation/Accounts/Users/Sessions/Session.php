@@ -16,29 +16,29 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Users\Sessions;
 
 use Phoundation\Accounts\Exception\SessionNotExistsException;
+use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Accounts\Users\User;
+use Phoundation\Core\Sessions\Exception\SessionDuplicateIdentifierException;
 use Phoundation\Data\Traits\TraitDataSourceArray;
+use Phoundation\Databases\Sql\Exception\SqlContstraintDuplicateEntryException;
+use Phoundation\Databases\Sql\Exception\SqlException;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
+use Phoundation\Date\PhoDateTime;
+use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Strings;
+use ReturnTypeWillChange;
+use Stringable;
 
 class Session
 {
-    use TraitDataSourceArray;
-
-    /**
-     * Tracks the session identifier
-     *
-     * @var string|null $identifier
-     */
-    protected ?string $identifier;
-
-    /**
-     * Contains the session data string
-     *
-     * @var string|null $string
-     */
-    protected ?string $string;
+    use TraitDataSourceArray{
+        get as protected __Get;
+        set as protected __Set;
+    }
 
 
     /**
@@ -54,19 +54,22 @@ class Session
             return;
         }
 
-        $string = static::load($identifier);
+        $data   = static::load($identifier);
+        $source = sql()->get('SELECT * FROM `accounts_sessions` WHERE `identifier` = :identifier', [
+            ':identifier' => $identifier
+        ]);
 
-        if (empty($string)) {
+        if (empty($data)) {
             if ($exception) {
                 throw new SessionNotExistsException(tr('The specified session ":session" does not exist', [
-                    ':session' => $identifier
+                    ':session' => $identifier,
                 ]));
             }
 
         } else {
-            $this->identifier = $identifier;
-            $this->string     = $string;
-            $this->source     = static::unserialize($string);
+            $this->source           = $source;
+            $this->source['string'] = $data;
+            $this->source['data']   = static::unserialize($data);
         }
     }
 
@@ -86,13 +89,162 @@ class Session
 
 
     /**
+     * Returns the databse id for this session record
+     *
+     * @return int|null
+     */
+    public function getId(): ?int
+    {
+        return $this->source['id'];
+    }
+
+
+    /**
      * Returns the session identifier
      *
      * @return string
      */
     public function getIdentifier(): string
     {
-        return $this->identifier;
+        return $this->source['identifier'];
+    }
+
+
+    /**
+     * Returns the domain for this session
+     *
+     * @return string
+     */
+    public function getDomain(): string
+    {
+        return $this->source['domain'];
+    }
+
+
+    /**
+     * Returns the session IP
+     *
+     * @return string
+     */
+    public function getIp(): string
+    {
+        return $this->source['ip'];
+    }
+
+
+    /**
+     * Returns the session users id
+     *
+     * @return int
+     */
+    public function getUsersId(): int
+    {
+        return $this->source['users_id'];
+    }
+
+
+    /**
+     * Returns the session user object
+     *
+     * @return UserInterface
+     */
+    public function getUserObject(): UserInterface
+    {
+        return User::new()->load($this->source['users_id']);
+    }
+
+
+    /**
+     * Returns the session start datetime string
+     *
+     * @return string
+     */
+    public function getStart(): string
+    {
+        return $this->source['start'];
+    }
+
+
+    /**
+     * Returns the session start datetime object
+     *
+     * @return PhoDateTimeInterface
+     */
+    public function getStartObject(): PhoDateTimeInterface
+    {
+        return new PhoDateTime($this->source['start']);
+    }
+
+
+    /**
+     * Returns the session stop datetime string
+     *
+     * @return string
+     */
+    public function getStop(): string
+    {
+        return $this->source['stop'];
+    }
+
+
+    /**
+     * Returns the session stop datetime object
+     *
+     * @return PhoDateTimeInterface
+     */
+    public function getStopObject(): PhoDateTimeInterface
+    {
+        return new PhoDateTime($this->source['stop']);
+    }
+
+
+    /**
+     *  Returns the value for the specified session user data key
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $exception
+     *
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed
+    {
+        // Does this entry exist?
+        if (array_key_exists($key, $this->source['data'])) {
+            return $this->source['data'][$key];
+        }
+
+        if ($exception) {
+            // The key does not exist
+            throw new NotExistsException(tr('The key ":key" does not exist in this ":class" object', [
+                ':key'   => $key,
+                ':class' => $this::class,
+            ]));
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Sets the specified session user data key to the specified value
+     *
+     * @param mixed                       $value
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $skip_null_values
+     *
+     * @return Session
+     */
+    public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = true): static
+    {
+        if ($value === null) {
+            if ($skip_null_values) {
+                return $this;
+            }
+        }
+
+        $this->source['data'][$key] = $value;
+        return $this;
     }
 
 
@@ -130,13 +282,13 @@ class Session
     /**
      * Returns true if the specified session exists in the sessions store
      *
-     * @param string $session
+     * @param string $identifier
      *
      * @return bool
      */
-    public static function exists(string $session): bool
+    public static function exists(string $identifier): bool
     {
-        return (bool) static::load($session);
+        return sql()->exists('accounts_sessions', 'identifier', $identifier);
     }
 
 
@@ -163,7 +315,95 @@ class Session
 
 
     /**
-     * Unserializes the specified PHP session dta
+     * Saves the session data
+     *
+     * @return static
+     */
+    public function save(): static
+    {
+        $data    = static::serialize($this->source['data']);
+        $handler = $handler ?? ini_get('session.save_handler');
+
+        return match ($handler) {
+            'memcached' => mc('sessions')->set($data, $this->getIdentifier()),
+            'files'     => PhoFile::new(Strings::slash(ini_get('session.save_path')) . 'sess_' . $this->getIdentifier(), PhoRestrictions::newWritableObject(dirname(ini_get('session.save_path'))))->putContents($data),
+            ''          => throw new OutOfBoundsException(tr('No session save handler ":handler" configured')),
+            default     => throw new OutOfBoundsException(tr('Unknown or unsupported session save handler ":handler" encountered', [
+                ':handler' => $handler,
+            ])),
+        };
+
+    }
+
+
+    /**
+     * Registers a new started session in the accounts_sessions table
+     *
+     * @param int    $users_id
+     * @param string $domain
+     * @param string $ip
+     * @param string $identifier
+     *
+     * @return static
+     */
+    public static function start(int $users_id, string $domain, string $ip, string $identifier): static
+    {
+        try {
+            sql()->insert('accounts_sessions', [
+                'users_id'   => $users_id,
+                'domain'     => $domain,
+                'ip'         => $ip,
+                'identifier' => $identifier,
+            ]);
+
+            return static::new($identifier);
+
+        } catch (SqlContstraintDuplicateEntryException $e) {
+            throw new SessionDuplicateIdentifierException(tr('Duplicate session identifier ":identifier" encountered', [
+                ':identifier' => $identifier,
+            ]), $e);
+        }
+    }
+
+
+    /**
+     * Stops this session
+     *
+     * @return static
+     */
+    public function stop(): static
+    {
+        sql()->update('sessions', ['stop' => PhoDateTime::new()->format('mysql')]);
+        return $this;
+    }
+
+
+    /**
+     * Serializes the specified PHP session data
+     *
+     * @param array       $source
+     * @param string|null $handler
+     *
+     * @return mixed
+     */
+    public static function serialize(array $source, ?string $handler = null): string
+    {
+        $handler = $handler ?? ini_get('session.serialize_handler');
+
+        return match ($handler) {
+            'php_serialize'     => serialize($source),
+            'php', 'php_binary' => throw new UnderConstructionException(tr('Serialization of sessions using session save handler ":handler" is not yet supported', [
+                ':handler' => $handler,
+            ])),
+            default             => throw new OutOfBoundsException(tr('Unknown or unsupported session save handler ":handler" encountered', [
+                ':handler' => $handler,
+            ])),
+        };
+    }
+
+
+    /**
+     * Unserializes the specified PHP session data
      *
      * @note Taken from PHP manual, thank you to Frits dot vanCampen at moxio dot com
      * @note Update for use in Phoundation by Sven Olaf Oostenbrink
@@ -202,7 +442,7 @@ class Session
         $offset = 0;
 
         if (empty($source)) {
-            return [];
+           return [];
         }
 
         while ($offset < strlen($source)) {
@@ -219,9 +459,9 @@ class Session
             $data         = unserialize(substr($source, $offset));
             $return[$key] = $data;
             $offset      += strlen(serialize($data));
-        }
+       }
 
-        return $return;
+       return $return;
     }
 
 
@@ -242,15 +482,15 @@ class Session
         }
 
         while ($offset < strlen($source)) {
-            $num          = ord($source[$offset]);
-            $offset      += 1;
-            $key          = substr($source, $offset, $num);
-            $offset      += $num;
-            $data         = unserialize(substr($source, $offset));
-            $return[$key] = $data;
-            $offset      += strlen(serialize($data));
-        }
+                $num          = ord($source[$offset]);
+                $offset      += 1;
+                $key          = substr($source, $offset, $num);
+                $offset      += $num;
+                $data         = unserialize(substr($source, $offset));
+                $return[$key] = $data;
+                $offset      += strlen(serialize($data));
+            }
 
         return $return;
-    }
+     }
 }

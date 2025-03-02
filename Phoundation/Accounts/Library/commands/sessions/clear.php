@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Accounts\Users\Sessions\Sessions;
+use Phoundation\Core\Sessions\Sessions;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;

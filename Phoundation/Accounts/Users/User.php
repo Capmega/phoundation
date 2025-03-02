@@ -43,10 +43,10 @@ use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImagesInterface;
 use Phoundation\Accounts\Users\ProfileImages\ProfileImage;
 use Phoundation\Accounts\Users\ProfileImages\ProfileImages;
 use Phoundation\Core\Core;
-use Phoundation\Core\Exception\SessionException;
 use Phoundation\Core\Hooks\Hook;
 use Phoundation\Core\Hooks\Interfaces\HookInterface;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Sessions\Exception\SessionException;
 use Phoundation\Core\Sessions\Interfaces\SessionInterface;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Core\Sessions\Sessions;
@@ -92,20 +92,20 @@ use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Notifications\Notification;
-use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\EnumSeverity;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
 use Phoundation\Seo\Seo;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Json\Users;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Json\Users;
 use Stringable;
 use Throwable;
 
@@ -797,10 +797,12 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
         // Save was successful! If we're saving the current user, then update the session
         if (Session::iSpecificUser($this)) {
-            Log::action(tr('Current session user ":user" changed in database, refreshing session user data', [
-                ':user' => $this->getLogId(),
-            ]));
-            Session::reloadUser();
+            if (!$this->isSystemUser()) {
+                Log::action(tr('Current session user ":user" changed in database, refreshing session user data', [
+                    ':user' => $this->getLogId(),
+                ]));
+                Session::reloadUser();
+            }
         }
 
         return $this;
@@ -1241,7 +1243,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function getActiveSessions(): IteratorInterface
     {
-        return \Phoundation\Accounts\Users\Sessions\Sessions::getActiveForUsersId($this->getId());
+        return Sessions::getActiveForUsersId($this->getId());
     }
 
 

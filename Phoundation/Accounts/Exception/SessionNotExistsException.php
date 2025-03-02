@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Exception;
 
-use Phoundation\Core\Exception\SessionException;
+use Phoundation\Core\Sessions\Exception\SessionException;
 
 
 class SessionNotExistsException extends SessionException

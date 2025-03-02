@@ -32,7 +32,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.7.0';
+        return '0.7.1';
     }
 
 
@@ -1241,6 +1241,13 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ->setForeignKeys('
                     CONSTRAINT `fk_accounts_sessions_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE CASCADE')
                 ->create();
+
+        })->addUpdate('0.7.1', function () {
+            $table = sql()->getSchemaObject()->getTableObject('accounts_sessions');
+
+            if ($table->columnExists('session')) {
+                $table->alter()->renameColumn('session', 'identifier');
+            }
         });
     }
 }
