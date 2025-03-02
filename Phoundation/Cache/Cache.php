@@ -16,9 +16,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Cache;
 
+use Phoundation\Cache\Interfaces\CacheInterface;
 use Phoundation\Core\Core;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Traits\TraitDataConnector;
+use Phoundation\Data\Traits\TraitDataEnabled;
 use Phoundation\Databases\Mc;
 use Phoundation\Databases\Mongo;
 use Phoundation\Databases\NullDb;
@@ -31,14 +34,45 @@ use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 
-class Cache
+
+class Cache implements CacheInterface
 {
+    use TraitDataConnector;
+    use TraitDataEnabled;
+
+
     /**
      * Tracks if cache has ben cleared in this process
      *
      * @var bool $has_been_cleared
      */
     protected static bool $has_been_cleared = false;
+
+
+    /**
+     * Cache class constructor
+     *
+     * @param string $connector
+     */
+    public function __construct(string $connector)
+    {
+        $this->setEnabled(!Core::isReady());
+
+        $this->setConnector($connector);
+    }
+
+
+    /**
+     * Returns a static object
+     *
+     * @param string $connector
+     *
+     * @return static
+     */
+    public static function new(string $connector): static
+    {
+        return new static($connector);
+    }
 
 
     /**
@@ -49,7 +83,7 @@ class Cache
      * @return bool
      * @todo Implement more
      */
-    public static function clear(bool $force = false): bool
+    public function clear(bool $force = false): bool
     {
         Log::action(tr('Clearing all caches'), 3);
 
@@ -67,9 +101,9 @@ class Cache
         Log::action(tr('Clearing file caches'), 3);
 
         PhoPath::new(DIRECTORY_SYSTEM . 'cache/files/', PhoRestrictions::newWritableObject(DIRECTORY_SYSTEM . 'cache/files/'))
-            ->delete();
+               ->delete();
 
-        static::driver()?->clear();
+        $this->driver()?->clear();
 
         Log::success(tr('Cleared all caches'));
 
@@ -87,9 +121,9 @@ class Cache
      *
      * @return void
      */
-    public static function delete(string $key, ?string $namespace = null): void
+    public function delete(string $key, ?string $namespace = null): void
     {
-        static::driver()?->delete($key, $namespace);
+        $this->driver()?->delete($key, $namespace);
     }
 
 
@@ -98,7 +132,7 @@ class Cache
      *
      * @return Mc|Mongo|Redis|SqlInterface|NullDb|null
      */
-    protected static function driver(): Mc|Mongo|Redis|SqlInterface|NullDb|null
+    protected function driver(): Mc|Mongo|Redis|SqlInterface|NullDb|null
     {
         if (!config()->get('cache.enabled', false)) {
             return null;
@@ -111,25 +145,28 @@ class Cache
                 // no break
 
             case 'memcached':
-                return mc();
+                return mc($this->connector);
 
             case 'mongo':
-                return mongo();
+                return mongo($this->connector);
 
             case 'redis':
-                return redis();
+                return redis($this->connector);
 
             case 'sql':
-                return sql();
+                return sql($this->connector);
+
+            case 'file':
+                return filedb($this->connector);
 
             case 'none':
-                return null();
+                return null($this->connector);
 
             case '':
-                throw new ConfigException(tr('No cache driver configured, please check configuration path "cache.driver" and use one of "memcached", "mongo", "redis" or "sql"'));
+                throw new ConfigException(tr('No cache driver configured, please check configuration path "cache.driver" and use one of "memcached", "mongo", "redis", "sql", "file", or "null"'));
 
             default:
-                throw new ConfigException(tr('Unknown cache driver ":driver" configured, please check configuration path "cache.driver" and use one of "memcached", "mongo", "redis" or "sql"', [
+                throw new ConfigException(tr('Unknown cache driver ":driver" configured, please check configuration path "cache.driver" and use one of "memcached", "mongo", "redis", "sql", "file", or "null"', [
                     ':driver' => $driver,
                 ]));
         }
@@ -141,9 +178,47 @@ class Cache
      *
      * @return bool
      */
-    public static function hasBeenCleared(): bool
+    public function hasBeenCleared(): bool
     {
         return static::$has_been_cleared;
+    }
+
+
+    /**
+     * Read the specified page from cache.
+     *
+     * @note: NULL will be returned if the specified hash does not exist in cache
+     *
+     * @param string        $key
+     * @param callable|null $callback
+     *
+     * @return string|null
+     */
+    public function get(string $key, ?callable $callback = null): ?string
+    {
+        if ($this->enabled) {
+            $result = $this->driver()?->get($key);
+
+            if (!$result) {
+                if ($callback) {
+                    // Execute the callback for hard retrieval and store the results in cache
+                    $result = $callback();
+                    $this->set($result, $key);
+                }
+
+                // Return the results
+                return get_null($result);
+            }
+
+            Log::success(tr('Found ":size" bytes cache entry for key ":key"', [
+                ':key'  => $key,
+                ':size' => strlen($result),
+            ]));
+
+            return $result;
+        }
+
+        return null;
     }
 
 
@@ -154,57 +229,26 @@ class Cache
      * @param string       $key
      * @param string|null  $namespace
      *
-     * @return void
+     * @return static
      */
-    public static function write(array|string $data, string $key, ?string $namespace = null): void
+    public function set(array|string $data, string $key, ?string $namespace = null): static
     {
-        try {
-            static::driver()
-                  ?->set($data, $key, $namespace);
+        if ($this->enabled) {
+            try {
+                $this->driver()?->set($data, $key, $namespace);
 
-        } catch (ConfigPathDoesNotExistsException $e) {
-            Log::warning(tr('Cannot cache because the current driver is not properly configured, see exception information'));
-            Log::warning($e);
+            } catch (ConfigPathDoesNotExistsException $e) {
+                Log::warning(tr('Cannot cache because the current driver is not properly configured, see exception information'));
+                Log::warning($e);
+            }
         }
+
+        return $this;
     }
 
 
     /**
-     * Read the specified page from cache.
-     *
-     * @note: NULL will be returned if the specified hash does not exist in cache
-     *
-     * @param string      $key
-     * @param string|null $namespace
-     *
-     * @return string|null
-     */
-    public static function read(string $key, ?string $namespace = null): ?string
-    {
-        if (!Core::isState('script')) {
-            // When core is NOT in script state, cache will be disabled
-            return null;
-        }
-
-        return null;
-
-        $result = static::driver()?->get($key, $namespace);
-
-        if (!$result) {
-            return null;
-        }
-
-        Log::success(tr('Found ":size" bytes cache entry for key ":key"', [
-            ':key'  => $key,
-            ':size' => strlen($result),
-        ]));
-
-        return $result;
-    }
-
-
-    /**
-     * Try to automatically comm
+     * Try to automatically commit system cache updates to git
      *
      * @param string|null $section
      * @param bool|null   $auto_commit
@@ -213,7 +257,7 @@ class Cache
      *
      * @return void
      */
-    public static function systemAutoGitCommit(?string $section = null, ?bool $auto_commit = null, ?bool $signed = null, ?string $message = null): void
+    public function systemAutoGitCommit(?string $section = null, ?bool $auto_commit = null, ?bool $signed = null, ?string $message = null): void
     {
         $auto_commit = $auto_commit ?? config()->getBoolean('cache.system.commit.auto', false);
 

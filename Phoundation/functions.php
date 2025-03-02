@@ -18,6 +18,8 @@ declare(strict_types=1);
 
 use CNZ\Helpers\Yml;
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Cache\Cache;
+use Phoundation\Cache\Interfaces\CacheInterface;
 use Phoundation\Core\Core;
 use Phoundation\Core\Hooks\Interfaces\HookInterface;
 use Phoundation\Core\Interfaces\ConfigInterface;
@@ -1611,6 +1613,21 @@ function variable_zts_safe(mixed $variable, int $level = 0): mixed
 
     return $variable;
 }
+
+
+/**
+ * Returns the system cache object
+ *
+ * @param string $connector
+ *
+ * @return CacheInterface
+ */
+function cache(string $connector): CacheInterface
+{
+    return new Cache($connector);
+}
+
+
 
 /**
  * Returns the system SQL database object
