@@ -100,6 +100,23 @@ class Cache implements CacheInterface
 
 
     /**
+     * Converts the specified cache group into a connector string
+     *
+     * @param EnumCacheGroups|string|null $group
+     *
+     * @return string|null
+     */
+    protected function getConnectorStringFromCacheGroup(EnumCacheGroups|string|null $group): ?string
+    {
+        if (is_enum($group)) {
+            return $group->value;
+        }
+
+        return $group;
+    }
+
+
+    /**
      * Sets the cache connector by name
      *
      * @param EnumCacheGroups|string|null $connector
@@ -108,7 +125,10 @@ class Cache implements CacheInterface
      * @return static
      */
     public function setConnector(EnumCacheGroups|string|null $connector, ?string $database = null): static {
+        $connector = $this->getConnectorStringFromCacheGroup($connector);
+
         try {
+
             return $this->__setConnector($connector, $database);
 
         } catch (ConnectorNotExistsException $e) {
@@ -171,6 +191,20 @@ class Cache implements CacheInterface
         static::$has_been_cleared = true;
 
         return true;
+    }
+
+
+    /**
+     * Clears all cache groups
+     *
+     * @return void
+     */
+    public static function clearAll(): void
+    {
+        Cache::new(EnumCacheGroups::autosuggest)->clear();
+        Cache::new(EnumCacheGroups::dataentries)->clear();
+        Cache::new(EnumCacheGroups::html)->clear();
+        Cache('cache')::clear();
     }
 
 

@@ -201,7 +201,7 @@ class Libraries
 
         try {
             // Wipe all cache data
-            Cache::clear();
+            Cache::clearAll();
 
         } catch (ConfigPathDoesNotExistsException $e) {
             Log::warning($e->getMessage());

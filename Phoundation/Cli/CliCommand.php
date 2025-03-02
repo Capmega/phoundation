@@ -2049,7 +2049,7 @@ return 'under construction';
         if ($argv['clear_caches']) {
             // Clear all caches
             Core::enableInitState();
-            Cache::clear();
+            Cache::clearAll();
             CliCommand::setRequireDefault(false);
             Core::disableInitState();
         }
