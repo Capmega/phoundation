@@ -3,7 +3,26 @@
 /**
  * Cache class
  *
+ * This class manages cache control
  *
+ * This class can read and write to different types cache stores using different database connectors. Currently
+ * supported cache stores are:
+ *
+ * memcached Stores cache in the configured memcached server
+ * mongo     Stores cache in the configured mongo server
+ * redis     Stores cache in the configured redis server
+ * sql       Stores cache in the configured MySQL server in the table "cache"
+ * file      Stores cache in files
+ * null      Stores cache nowhere. This driver will always return null no matter what has been written
+ *
+ * Cache is divided into different groups. Each group can have their own different connector, allowing different
+ * datasets to be written to different data stores, allowing grouping. This allows, for example, only HTML cache to be
+ * flushed, while other cache groups will remain unaffected
+ *
+ * Currently supported cache groups are:
+ * cache-autosuggest
+ * cache-dataentries
+ * cache-html
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -16,12 +35,15 @@ declare(strict_types=1);
 
 namespace Phoundation\Cache;
 
+use Phoundation\Cache\Enums\EnumCacheGroups;
+use Phoundation\Cache\Exception\CacheGroupNotExistsException;
 use Phoundation\Cache\Interfaces\CacheInterface;
 use Phoundation\Core\Core;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataEnabled;
+use Phoundation\Databases\Connectors\Exception\ConnectorNotExistsException;
 use Phoundation\Databases\Mc;
 use Phoundation\Databases\Mongo;
 use Phoundation\Databases\NullDb;
@@ -33,11 +55,14 @@ use Phoundation\Filesystem\PhoPath;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
+use ValueError;
 
 
 class Cache implements CacheInterface
 {
-    use TraitDataConnector;
+    use TraitDataConnector {
+        setConnector as protected __setConnector;
+    }
     use TraitDataEnabled;
 
 
@@ -52,26 +77,62 @@ class Cache implements CacheInterface
     /**
      * Cache class constructor
      *
-     * @param string $connector
+     * @param EnumCacheGroups|string $connector
      */
-    public function __construct(string $connector)
+    public function __construct(EnumCacheGroups|string $connector)
     {
-        $this->setEnabled(!Core::isReady());
-
-        $this->setConnector($connector);
+        $this->setEnabled(Core::isReady() and config()->getBoolean('cache.enabled', false))
+             ->setConnector($connector);
     }
 
 
     /**
      * Returns a static object
      *
-     * @param string $connector
+     * @param EnumCacheGroups|string $connector
      *
      * @return static
      */
-    public static function new(string $connector): static
+    public static function new(EnumCacheGroups|string $connector): static
     {
         return new static($connector);
+    }
+
+
+    /**
+     * Sets the cache connector by name
+     *
+     * @param EnumCacheGroups|string|null $connector
+     * @param string|null                 $database
+     *
+     * @return static
+     */
+    public function setConnector(EnumCacheGroups|string|null $connector, ?string $database = null): static {
+        try {
+            return $this->__setConnector($connector, $database);
+
+        } catch (ConnectorNotExistsException $e) {
+            // The requested connector does not exist. If the specified connector is a valid cache connector, then just
+            // use the general "cache" connector instead as a default
+            if (EnumCacheGroups::tryFrom($connector)) {
+                return $this->setConnector('cache', $database);
+            }
+
+            // The specified group was not recognized, maybe the "cache-" prefix was missing? Try adding it
+            if (EnumCacheGroups::tryFrom('cache-' . $connector)) {
+                return $this->setConnector('cache-' . $connector, $database);
+            }
+
+            if ($connector === 'cache') {
+                throw new CacheGroupNotExistsException(tr('The main cache group ":group" does not exist, please check configuration path "databases.connectors"', [
+                    ':group' => $connector
+                ]), $e);
+            }
+
+            throw new CacheGroupNotExistsException(tr('The specified cache group ":group" does not exist, please check configuration path "databases.connectors"', [
+                ':group' => $connector
+            ]), $e);
+        }
     }
 
 
@@ -117,13 +178,12 @@ class Cache implements CacheInterface
      * Delete the specified page from cache
      *
      * @param string      $key
-     * @param string|null $namespace
      *
      * @return void
      */
-    public function delete(string $key, ?string $namespace = null): void
+    public function delete(string $key): void
     {
-        $this->driver()?->delete($key, $namespace);
+        $this->driver()?->delete($key);
     }
 
 
@@ -192,14 +252,14 @@ class Cache implements CacheInterface
      * @param string        $key
      * @param callable|null $callback
      *
-     * @return string|null
+     * @return mixed
      */
-    public function get(string $key, ?callable $callback = null): ?string
+    public function get(string $key, ?callable $callback = null): mixed
     {
         if ($this->enabled) {
             $result = $this->driver()?->get($key);
 
-            if (!$result) {
+            if (empty($result)) {
                 if ($callback) {
                     // Execute the callback for hard retrieval and store the results in cache
                     $result = $callback();
@@ -210,9 +270,8 @@ class Cache implements CacheInterface
                 return get_null($result);
             }
 
-            Log::success(ts('Found ":size" bytes cache entry for key ":key"', [
+            Log::success(ts('Found cache entry for key ":key"', [
                 ':key'  => $key,
-                ':size' => strlen($result),
             ]));
 
             return $result;
@@ -225,17 +284,16 @@ class Cache implements CacheInterface
     /**
      * Write the specified page to cache
      *
-     * @param array|string $data
-     * @param string       $key
-     * @param string|null  $namespace
+     * @param mixed  $data
+     * @param string $key
      *
      * @return static
      */
-    public function set(array|string $data, string $key, ?string $namespace = null): static
+    public function set(mixed $data, string $key): static
     {
         if ($this->enabled) {
             try {
-                $this->driver()?->set($data, $key, $namespace);
+                $this->driver()?->set($data, $key);
 
             } catch (ConfigPathDoesNotExistsException $e) {
                 Log::warning(ts('Cannot cache because the current driver is not properly configured, see exception information'));

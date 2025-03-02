@@ -38,19 +38,19 @@ interface CacheInterface
      * @param string        $key
      * @param callable|null $callback
      *
-     * @return string|null
+     * @return mixed
      */
-    public function get(string $key, ?callable $callback = null): ?string;
+    public function get(string $key, ?callable $callback = null): mixed;
 
     /**
      * Write the specified page to cache
      *
-     * @param array|string $data
-     * @param string       $key
+     * @param mixed  $data
+     * @param string $key
      *
      * @return static
      */
-    public function set(array|string $data, string $key): static;
+    public function set(mixed $data, string $key): static;
 
 
     /**
