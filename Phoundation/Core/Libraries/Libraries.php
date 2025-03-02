@@ -112,7 +112,7 @@ class Libraries
 
                 case 'memcached':
                     try {
-                        mc($connector)->flush();
+                        mc($connector)->clear();
 
                     } catch (ConfigPathDoesNotExistsException $e) {
                         Log::warning(ts('Cannot flush memcached because the current driver is not properly configured, see exception information'));

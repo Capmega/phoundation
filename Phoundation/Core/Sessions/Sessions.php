@@ -321,7 +321,7 @@ class Sessions
      */
     public static function truncate(): void
     {
-        mc('sessions')->flush();
+        mc('sessions')->clear();
         sql()->truncate('accounts_user_sessions');
     }
 }

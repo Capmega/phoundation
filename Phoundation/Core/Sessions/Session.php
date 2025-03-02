@@ -23,6 +23,7 @@ use Phoundation\Accounts\Users\Authentication;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Accounts\Users\Sessions\UserSession;
 use Phoundation\Accounts\Users\SignInKey;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Core;
@@ -873,10 +874,9 @@ class Session implements SessionInterface
     protected static function create(): bool
     {
         // Register the session
-        if (\Phoundation\Accounts\Users\Sessions\UserSession::exists(session_id())) {
-Log::printr(session_id());
+        if (UserSession::exists(session_id())) {
             // Wut? This session has already been registered yet?
-            $session = \Phoundation\Accounts\Users\Sessions\UserSession::new(session_id());
+            $session = UserSession::new(session_id());
 
             Incident::new()
                     ->setSeverity(EnumSeverity::high)
@@ -919,11 +919,9 @@ Log::printr(session_id());
 //                        $_SESSION['location']     = Core::readRegister('system', 'session', 'location');
 //                        $_SESSION['language']     = Core::readRegister('system', 'session', 'language');
 
-Log::printr(session_id());
-Log::printr($_SESSION);
         // Register the user session
-        \Phoundation\Accounts\Users\Sessions\UserSession::start(static::getUserObject()->getId(), static::$domain, Session::getIpAddress(), session_id());
-showdie('YES!');
+        UserSession::start(static::getUserObject()->getId(), static::$domain, Session::getIpAddress(), session_id());
+
         // Set users timezone
         if (empty($_SESSION['user']['timezone'])) {
             $_SESSION['user']['timezone'] = config()->get('timezone.display', 'UTC');
