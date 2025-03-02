@@ -2179,11 +2179,17 @@ return 'under construction';
                                         restrictions. See --help for information on how specific commands deal with this
                                         flag
 
+[-G, --add-prefix]                      Will suppress the DATETIME - LOGLEVEL - PROCESS ID - GLOBAL PROCESS ID prefix
+                                        that normally begins each log line output
+
 [-H, --help]                            If specified, will display the help page for the typed command
 
-[-J, --json]                            Allows argument to be specified in JSON format. The system will decode the 
+[-I, --json-input]                      Allows argument to be specified in JSON format. The system will decode the 
                                         arguments and add them to the rest of the argument list without overwriting 
                                         arguments that were already specified on the command line
+
+[-J, --json-output]                     Will output all results in JSON format. 
+                                        Warning: This is currently still only partially implemented
 
 [-L, --log-level LEVEL]                 If specified, will set the minimum threshold level for log messages to appear.
                                         Any message with a threshold level below the indicated amount will not appear in
@@ -2199,9 +2205,6 @@ return 'under construction';
 [-Q, --quiet]                           Will have the system run in quiet mode, suppressing log startup and shutdown
                                         messages. NOTE: This will override DEBUG output; QUIET will suppress all debug
                                         messages!
-
-[-G, --no-prefix]                       Will suppress the DATETIME - LOGLEVEL - PROCESS ID - GLOBAL PROCESS ID prefix
-                                        that normally begins each log line output
 
 [-S, --systemd COMMAND]                 If specified, will convert the specified command into a SystemD service and 
                                         execute the specified systemctl command
