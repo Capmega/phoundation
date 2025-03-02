@@ -118,7 +118,7 @@ interface McInterface extends DatastoreInterface
      *
      * @return static
      */
-    public function flush(int $delay = 0): static;
+    public function clear(int $delay = 0): static;
 
 
     /**
