@@ -1093,17 +1093,42 @@ class Response implements ResponseInterface
     /**
      * Signs the user out of the session and optionally redirects
      *
-     * @param UrlInterface|string|null $redirect
+     * @param callable|null                  $callback_after_signout
+     * @param UrlInterface|string|false|null $redirect
      *
      * @return void
      */
-    public static function signOut(UrlInterface|string|null $redirect = 'signin'): void
+    public static function signOut(?callable $callback_after_signout = null, UrlInterface|string|false|null $redirect = null): void
     {
-        Session::signOut();
+        // Sign out and get the user that just signed out
+        $user = Session::signOut();
 
-        if ($redirect) {
-            static::redirect($redirect);
+        if ($callback_after_signout) {
+            // Execute the post-sign-out callback
+            $callback_after_signout();
         }
+
+        if ($redirect === false) {
+            // Do NOT redirect
+            return;
+        }
+
+        // Get a redirect URL and sign the user out
+        $previous = Url::newPrevious('/');
+        $test     = clone $previous;
+
+        // Redirect URL is NOT allowed to be sign-out type URL
+        if ($test->removeAllQueries()->getSource() === Url::new('signout')->makeWww()->removeAllQueries()->getSource()) {
+            $previous = null;
+        }
+
+        // Redirect to the requested page, or default to the sign-in page
+        $redirect = $redirect ?? Url::new('signin')
+                                    ->makeWww()
+                                    ->addRedirect($previous)
+                                    ->addQueries('email=' . $user->getEmail());
+
+        static::redirect($redirect ?? 'signin');
     }
 
 
