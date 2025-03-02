@@ -129,7 +129,7 @@ class Table extends SchemaAbstract implements TableInterface
     public function exists(): bool
     {
         // If this query returns nothing, the table does not exist. If it returns anything, it does exist.
-        return (bool) sql()->get('SHOW TABLES LIKE :name', [':name' => $this->name]);
+        return (bool) sql()->getRow('SHOW TABLES LIKE :name', [':name' => $this->name]);
     }
 
 

@@ -47,7 +47,7 @@ interface McInterface extends DatastoreInterface
 
 
     /**
-     * Returns the specified data to the specified key (and optionally the specified namespace)
+     * Returns the value for the specified key
      *
      * @param string|float|int|null $key
      * @param callable|null         $cache_callback An optional callback function for read-through caching
@@ -60,18 +60,17 @@ interface McInterface extends DatastoreInterface
 
 
     /**
-     * Sets the specified key to the specified value on the memcached server(s)
+     * Sets the value for the specified key on the memcached server(s)
      *
      * @param mixed                 $value
      * @param string|float|int|null $key
      * @param int|null              $expires
-     * @param int                   $udf_flags
      *
      * @return mixed
      * @see https://www.php.net/manual/en/memcached.set.php
      */
-    public function set(mixed $value, string|float|int|null $key, ?int $expires = null, int $udf_flags = 0): static;
-
+    public function set(mixed $value, string|float|int|null $key, ?int $expires = null): static;
+    
 
     /**
      * Adds the specified key to the memcached server(s)
@@ -81,11 +80,10 @@ interface McInterface extends DatastoreInterface
      * @param mixed                 $value
      * @param string|float|int|null $key
      * @param int|null              $expires
-     * @param int                   $udf_flags
      *
      * @return Mc
      */
-    public function add(mixed $value, string|float|int|null $key, ?int $expires = null, int $udf_flags = 0): static;
+    public function add(mixed $value, string|float|int|null $key, ?int $expires = null): static;
 
 
     /**
@@ -96,11 +94,10 @@ interface McInterface extends DatastoreInterface
      * @param mixed                 $value
      * @param string|float|int|null $key
      * @param int|null              $expires
-     * @param int                   $udf_flags
      *
      * @return Mc
      */
-    public function replace(mixed $value, string|float|int|null $key, ?int $expires = null, int $udf_flags = 0): static;
+    public function replace(mixed $value, string|float|int|null $key, ?int $expires = null): static;
 
 
     /**

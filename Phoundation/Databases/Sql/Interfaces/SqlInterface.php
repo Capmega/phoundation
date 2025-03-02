@@ -6,14 +6,12 @@ namespace Phoundation\Databases\Sql\Interfaces;
 
 use PDO;
 use PDOStatement;
-use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Schema\Interfaces\SchemaInterface;
-use Phoundation\Databases\Sql\Schema\Schema;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
+
 
 interface SqlInterface extends DatabaseInterface
 {
@@ -237,7 +235,7 @@ interface SqlInterface extends DatabaseInterface
      *
      * @return array|null
      */
-    public function get(string|PDOStatement $query, array $execute = null, bool $meta_enabled = true): ?array;
+    public function getRow(string|PDOStatement $query, array $execute = null, bool $meta_enabled = true): ?array;
 
 
     /**

@@ -100,7 +100,7 @@ switch (count($results)) {
         break;
 
     case 1:
-        $results = sql($connector)->get($argv['query']);
+        $results = sql($connector)->getRow($argv['query']);
         break;
 }
 

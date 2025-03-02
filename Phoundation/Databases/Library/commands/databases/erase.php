@@ -109,7 +109,7 @@ $argv = ArgvValidator::new()
 
 
 // Select the record and detect if record is from a DataEntry table
-$source = sql()->get('');
+$source = sql()->getRow('');
 $class  = DataEntry::detectClassFromArray($source);
 
 if ($class) {

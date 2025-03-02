@@ -237,7 +237,7 @@ class Sql implements SqlInterface
      *
      * @return array|null
      */
-    public function get(string|PDOStatement $query, array $execute = null, bool $meta_enabled = true): ?array
+    public function getRow(string|PDOStatement $query, array $execute = null, bool $meta_enabled = true): ?array
     {
         $result = $this->query($query, $execute);
 
@@ -273,6 +273,35 @@ class Sql implements SqlInterface
                     'connector' => $this->connector,
                 ]);
         }
+    }
+
+
+    /**
+     * Returns the value for the specified key from the cache table
+     *
+     * @param string|float|int|null $key
+     * @param callable|null         $cache_callback An optional callback function for read-through caching
+     *
+     * @return mixed
+     */
+    public function get(string|float|int|null $key, ?callable $cache_callback): mixed
+    {
+        return $this->getColumn('SELECT `value` FROM `cache` WHERE `key` = :key`');
+    }
+
+
+    /**
+     * Sets the value for the specified key in the cache table
+     *
+     * @param mixed                 $value
+     * @param string|float|int|null $key
+     *
+     * @return mixed
+     * @see https://www.php.net/manual/en/memcached.set.php
+     */
+    public function set(mixed $value, string|float|int|null $key): static
+    {
+        return $this->insert('cache', ['key' => $key, 'value' => $value], ['value' => $value]);
     }
 
 
@@ -675,7 +704,7 @@ class Sql implements SqlInterface
      */
     public function getColumn(string|PDOStatement $query, array $execute = null, ?string $column = null): string|float|int|bool|null
     {
-        $result = $this->get($query, $execute);
+        $result = $this->getRow($query, $execute);
 
         if (!$result) {
             // No results
@@ -1357,13 +1386,13 @@ class Sql implements SqlInterface
     public function exists(string $table, string|int|float $column, string|int|null $value, ?int $id = null, string $id_column = 'id', bool $ignore_deleted_status = false): bool
     {
         if ($id) {
-            return (bool) $this->get('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column . ' AND `' . $id_column . '` != :id', [
+            return (bool) $this->getRow('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column . ' AND `' . $id_column . '` != :id', [
                 ':' . $column => $value,
                 ':id'         => $id,
             ]);
         }
 
-        return (bool) $this->get('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column, [$column => $value]);
+        return (bool) $this->getRow('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column, [$column => $value]);
     }
 
 
@@ -1733,7 +1762,7 @@ class Sql implements SqlInterface
         }
 
         // Count value was not found cached, count it directly
-        $count = $this->get('SELECT COUNT(' . $column . ') AS `count` FROM `' . $table . '` ' . $where, 'count', $execute);
+        $count = $this->getRow('SELECT COUNT(' . $column . ') AS `count` FROM `' . $table . '` ' . $where, 'count', $execute);
 
         // TODO Use a query cache class
         $this->query('INSERT INTO `counts` (`created_by`, `count`, `hash`, `until`)
@@ -1773,7 +1802,7 @@ class Sql implements SqlInterface
      */
     public function getDatabaseInformation(string $database): array
     {
-        $return = $this->get('SELECT  `databases`.`id`,
+        $return = $this->getRow('SELECT  `databases`.`id`,
                                             `databases`.`servers_id`,
                                             `databases`.`status`,
                                             `databases`.`replication_status`,

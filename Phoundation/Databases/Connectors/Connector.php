@@ -713,6 +713,7 @@ class Connector extends DataEntry implements ConnectorInterface
             'port'        => $this->getPort() ?? 11211,
             'options'     => null,
             'database'    => $this->getDatabase(),
+            'expires'     => 86400,
             'servers'     => $this->getServers()
         ];
     }

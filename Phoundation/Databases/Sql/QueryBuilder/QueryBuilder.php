@@ -140,7 +140,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function get(bool $debug = false): ?array
     {
-        return sql($this->o_connector)->get($this->getQuery($debug), $this->execute, $this->meta_enabled);
+        return sql($this->o_connector)->getRow($this->getQuery($debug), $this->execute, $this->meta_enabled);
     }
 
 
