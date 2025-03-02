@@ -93,6 +93,7 @@ use Phoundation\Filesystem\Exception\ReadOnlyModeException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
+use Phoundation\Utils\Exception\ConfigEmptyException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
@@ -1758,7 +1759,18 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function loadFromConfiguration(string $path, string|int $identifier): ?array
     {
-        $source = config()->getArray(Strings::ensureEndsWith($path, '.') . Config::escape($identifier), []);
+        try {
+            $source = config()->getArray(Strings::ensureEndsWith($path, '.') . Config::escape($identifier), []);
+
+        } catch (ConfigEmptyException) {
+            // The configuration key exists, but is empty. Act as if it does not exist
+            Log::warning(ts('Ignoring empty value for configuration path ":path" while trying to load a ":class" DataEntry object', [
+                ':path'  => $path,
+                ':class' => static::class
+            ]));
+
+            return null;
+        }
 
         if (count($source)) {
             // Found the entry in configuration! Make it a readonly DataEntry object
@@ -2832,7 +2844,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             $execute[':id'] = $not_id;
         }
 
-        return sql(static::getDefaultConnector())->get('SELECT `id`, `status`
+        return sql(static::getDefaultConnector())->getRow('SELECT `id`, `status`
                                                         FROM   `' . static::getTable() . '`
                                                         WHERE  ' . $where . '
                                         ' . ($not_id ? '  AND  `id` != :id' : '') . '
