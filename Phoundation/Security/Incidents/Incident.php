@@ -198,7 +198,8 @@ class Incident extends DataEntry implements IncidentInterface
                      ->setDetails([
                          'exception' => $e->exportToArray(),
                          'data'      => $e->getData(),
-                         'details'   => Core::getProcessDetails()
+                         'details'   => Core::getProcessDetails(),
+                         'backtrace' => $e->getTrace(),
                      ]);
 
             } else {
