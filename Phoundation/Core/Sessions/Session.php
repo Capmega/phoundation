@@ -37,7 +37,7 @@ use Phoundation\Data\DataEntries\Exception\DataEntryStatusException;
 use Phoundation\Data\Traits\TraitDataStaticFlashMessages;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Databases\Mc;
+use Phoundation\Databases\Memcached\Memcached;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -66,6 +66,13 @@ class Session implements SessionInterface
 {
     use TraitDataStaticFlashMessages;
 
+
+    /**
+     * Tracks if the current session is open or not
+     *
+     * @var bool $open
+     */
+    protected static bool $open = false;
 
     /**
      * The IP address for this session
@@ -557,10 +564,13 @@ class Session implements SessionInterface
         // Are we using memcached?
         if ($handler === 'memcached') {
             // Do we have the memcached driver loaded?
-            Mc::checkDriver();
+            Memcached::checkDriver();
 
             // Remove the memcached session prefix, we don't want or need people to know we use memcached
-            ini_set('memcached.sess_prefix', '');
+            ini_set('memcached.sess_prefix'       , '');
+            ini_set('memcached.sess_lock_retries' , config()->getPositiveInteger('web.sessions.memcached.lock-retries' , 10));
+            ini_set('memcached.sess_lock_wait_min', config()->getPositiveInteger('web.sessions.memcached.lock-wait-min', 1000));
+            ini_set('memcached.sess_lock_wait_max', config()->getPositiveInteger('web.sessions.memcached.lock-wait-max', 2000));
 
             // Is memcached enabled?
             if (!config()->getBoolean('databases.memcached.enabled', true)) {
@@ -689,6 +699,7 @@ class Session implements SessionInterface
             ]), 1);
 
             session_start();
+            static::$open = true;
 
             Log::success(ts('Started session ":session"', [
                 ':session' => session_id() ?: 'new',
@@ -828,6 +839,12 @@ class Session implements SessionInterface
                 if ($e->messageContains('SERVER HAS FAILED AND IS DISABLED')) {
                     // Memcached server failed
                     throw new SessionStartFailedException(tr('Failed to start session using save handler "memcached" with servers ":servers" because memcached server failed. Is memcached installed and running?', [
+                        ':servers' => session_save_path(),
+                    ]), $e);
+
+                } elseif($e->messageContains('Unable to clear session lock record')) {
+                    // This might happen from time to time
+                    throw new SessionStartFailedException(tr('Failed to start session using save handler "memcached" with servers ":servers" because memcached could not achieve a session record lock', [
                         ':servers' => session_save_path(),
                     ]), $e);
                 }
@@ -1243,7 +1260,7 @@ class Session implements SessionInterface
             }
         }
 
-        session_write_close();
+        Session::release();
     }
 
 
@@ -1879,5 +1896,22 @@ class Session implements SessionInterface
     public static function iSpecificUser(UserInterface $user): bool
     {
         return static::getUserObject()->getId(false) === $user->getId(false);
+    }
+
+
+    /**
+     * Releases the lock on this session so that other requests may pass without blocking
+     *
+     * @note This will write session data to the datastore and then closes the session. any updates to $_SESSION will no
+     *       longer be recorded for future page loads!
+     *
+     * @return void
+     */
+    public static function release(): void
+    {
+        if (static::$open) {
+            session_write_close();
+            static::$open = false;
+        }
     }
 }
