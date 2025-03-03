@@ -1083,6 +1083,23 @@ class Arrays extends Utils
 
 
     /**
+     * Return the source array with the specified values kept, all else removed.
+     *
+     * @param IteratorInterface|array                            $source  The source array on which to work
+     * @param IteratorInterface|Stringable|array|string|int|null $needles The needles to keep
+     * @param int                                                $flags
+     * @param string|null                                        $column
+     *
+     * @return array
+     * @see EnumMatchMode
+     */
+    public static function keepMatchingFullValues(IteratorInterface|array $source, IteratorInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): array
+    {
+        return static::matchValues(Utils::MATCH_ACTION_RETURN_FULL_VALUES, $source, $needles, $flags, $column);
+    }
+
+
+    /**
      * Return the source array with the specified values removed.
      *
      * @param IteratorInterface|array                             $source
@@ -1095,6 +1112,22 @@ class Arrays extends Utils
     public static function removeMatchingValues(IteratorInterface|array $source, ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): array
     {
         return static::matchValues(Utils::MATCH_ACTION_RETURN_NOT_VALUES, $source, $needles, $flags, $column);
+    }
+
+
+    /**
+     * Return the source array with the specified values removed.
+     *
+     * @param IteratorInterface|array                             $source
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param int                                                 $flags
+     * @param string|null                                         $column
+     *
+     * @return array
+     */
+    public static function removeMatchingFullValues(IteratorInterface|array $source, ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): array
+    {
+        return static::matchValues(Utils::MATCH_ACTION_RETURN_NOT_FULL_VALUES, $source, $needles, $flags, $column);
     }
 
 

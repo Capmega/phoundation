@@ -56,13 +56,15 @@ class Utils
     /**
      * Match actions
      */
-    protected const int MATCH_ACTION_RETURN_VALUES      = 1;
-    protected const int MATCH_ACTION_RETURN_KEYS        = 2;
-    protected const int MATCH_ACTION_RETURN_NEEDLES     = 3;
-    protected const int MATCH_ACTION_RETURN_NOT_VALUES  = 4;
-    protected const int MATCH_ACTION_RETURN_NOT_KEYS    = 5;
-    protected const int MATCH_ACTION_RETURN_NOT_NEEDLES = 6;
-    protected const int MATCH_ACTION_DELETE             = 7;
+    protected const int MATCH_ACTION_RETURN_VALUES          = 1;
+    protected const int MATCH_ACTION_RETURN_FULL_VALUES     = 2;
+    protected const int MATCH_ACTION_RETURN_KEYS            = 3;
+    protected const int MATCH_ACTION_RETURN_NEEDLES         = 4;
+    protected const int MATCH_ACTION_RETURN_NOT_VALUES      = 5;
+    protected const int MATCH_ACTION_RETURN_NOT_FULL_VALUES = 6;
+    protected const int MATCH_ACTION_RETURN_NOT_KEYS        = 7;
+    protected const int MATCH_ACTION_RETURN_NOT_NEEDLES     = 8;
+    protected const int MATCH_ACTION_DELETE                 = 9;
 
 
     /**
@@ -439,6 +441,9 @@ class Utils
         if ($matched) {
             switch ($action) {
                 case Utils::MATCH_ACTION_RETURN_VALUES:
+                    // no break
+
+                case Utils::MATCH_ACTION_RETURN_FULL_VALUES:
                     $return[$key] = $value;
                     return;
 
@@ -454,6 +459,9 @@ class Utils
         } else {
             switch ($action) {
                 case Utils::MATCH_ACTION_RETURN_NOT_VALUES:
+                    // no break
+
+                case Utils::MATCH_ACTION_RETURN_NOT_FULL_VALUES:
                     $return[$key] = $value;
                     return;
 
@@ -551,13 +559,13 @@ class Utils
             $needles_match = false;
 
             foreach ($needles as $needle) {
-                $value = static::getStringValue($value, $column);
+                $string_value = static::getStringValue($value, $column);
 
-                if (!static::useCleanedHaystackValue($value, $flags)) {
+                if (!static::useCleanedHaystackValue($string_value, $flags)) {
                     continue;
                 }
 
-                $match = $function($value, $needle, $flags);
+                $match = $function($string_value, $needle, $flags);
 
                 if ($flags['not']) {
                     // Invert the match result
@@ -586,7 +594,12 @@ class Utils
                 }
             }
 
-            static::processMatch($needles_match, $action, $return, $needle, $key, $value, $flags);
+            if ($action === static::MATCH_ACTION_RETURN_FULL_VALUES) {
+                static::processMatch($needles_match, $action, $return, $needle, $key, $value, $flags);
+
+            } else {
+                static::processMatch($needles_match, $action, $return, $needle, $key, $string_value, $flags);
+            }
         }
 
         return static::checkMatch($needles, $flags, $return);
@@ -631,7 +644,7 @@ class Utils
         }
 
         if (is_array($value) or ($value instanceof EntryInterface)) {
-            throw new OutOfBoundsException(tr('Cannot extract string value from array or EntryInterface object, no column specified', [
+            throw new OutOfBoundsException(tr('Cannot extract string value ":value" from array or EntryInterface object, no column specified', [
                 ':value' => $value,
             ]));
         }
