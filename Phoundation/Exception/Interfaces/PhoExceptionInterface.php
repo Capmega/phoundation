@@ -40,6 +40,17 @@ interface PhoExceptionInterface extends Throwable, ArrayableInterface
 
 
     /**
+     * Returns true if the exception message matches the specified needle(s)
+     *
+     * @param array|string $needle
+     * @param bool         $case_insensitive
+     *
+     * @return bool
+     */
+    public function messageContains(array|string $needle, bool $case_insensitive = true): bool;
+
+
+    /**
      * Returns the exception messages
      *
      * @param array|string|null $messages
