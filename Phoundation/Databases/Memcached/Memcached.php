@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class Mc
+ * Class Memcached
  *
  * This is the default memcached driver object
  *
@@ -15,14 +15,13 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Databases;
+namespace Phoundation\Databases\Memcached;
 
-use Memcached;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Exception\MemcachedException;
-use Phoundation\Databases\Interfaces\McInterface;
+use Phoundation\Databases\Interfaces\MemcachedInterface;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Security\Incidents\Incident;
@@ -31,7 +30,7 @@ use Phoundation\Web\Http\Url;
 use Throwable;
 
 
-class Mc implements McInterface
+class Memcached implements MemcachedInterface
 {
     use TraitDataConnector {
         setConnectorObject as protected __setConnectorObject;
@@ -41,9 +40,9 @@ class Mc implements McInterface
     /**
      * PHP Memcached driver
      *
-     * @var Memcached|null $memcached
+     * @var \Memcached|null $memcached
      */
-    protected ?Memcached $memcached = null;
+    protected ?\Memcached $memcached = null;
 
     /**
      * Memcached configuration
@@ -104,7 +103,7 @@ class Mc implements McInterface
      */
     protected function connect(): void
     {
-        $this->memcached = new Memcached();
+        $this->memcached = new \Memcached();
         $failed = 0;
 
         // Connect to all memcached servers, but only if no servers were added yet (this should normally be the case)
@@ -253,7 +252,7 @@ class Mc implements McInterface
      * @param string|float|int|null $key
      * @param int|null              $expires
      *
-     * @return Mc
+     * @return static
      */
     public function add(mixed $value, string|float|int|null $key, ?int $expires = null): static
     {
@@ -290,7 +289,7 @@ class Mc implements McInterface
      * @param string|float|int|null $key
      * @param int|null              $expires
      *
-     * @return Mc
+     * @return static
      */
     public function replace(mixed $value, string|float|int|null $key, ?int $expires = null): static
     {

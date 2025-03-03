@@ -23,6 +23,19 @@ use Phoundation\Web\Requests\Request;
 class Paging
 {
     /**
+     * Returns the autosuggest paging limit for this session
+     *
+     * @param int|null $limit
+     *
+     * @return int
+     */
+    public static function getAutosuggestLimit(?int $limit = 20): int
+    {
+        return static::getLimit($limit);
+    }
+
+
+    /**
      * Returns the paging limit for this session
      *
      * @param int|null $limit

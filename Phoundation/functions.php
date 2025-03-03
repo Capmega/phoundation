@@ -30,8 +30,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\SessionConfig;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Datastores;
-use Phoundation\Databases\Interfaces\McInterface;
-use Phoundation\Databases\Mc;
+use Phoundation\Databases\Interfaces\MemcachedInterface;
 use Phoundation\Databases\Mongo;
 use Phoundation\Databases\NullDb;
 use Phoundation\Databases\Redis\Redis;
@@ -1649,9 +1648,9 @@ function sql(ConnectorInterface|string|null $connector = 'system', bool $use_dat
  *
  * @param ConnectorInterface|string|null $connector
  *
- * @return McInterface
+ * @return MemcachedInterface
  */
-function mc(ConnectorInterface|string|null $connector): McInterface
+function mc(ConnectorInterface|string|null $connector): MemcachedInterface
 {
     return Datastores::getMc($connector);
 }

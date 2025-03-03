@@ -3,9 +3,9 @@
 namespace Phoundation\Databases\Interfaces;
 
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
-use Phoundation\Databases\Mc;
+use Phoundation\Databases\Memcached\Memcached;
 
-interface McInterface extends DatastoreInterface
+interface MemcachedInterface extends DatastoreInterface
 {
     /**
      *
@@ -81,7 +81,7 @@ interface McInterface extends DatastoreInterface
      * @param string|float|int|null $key
      * @param int|null              $expires
      *
-     * @return Mc
+     * @return Memcached
      */
     public function add(mixed $value, string|float|int|null $key, ?int $expires = null): static;
 
@@ -95,7 +95,7 @@ interface McInterface extends DatastoreInterface
      * @param string|float|int|null $key
      * @param int|null              $expires
      *
-     * @return Mc
+     * @return Memcached
      */
     public function replace(mixed $value, string|float|int|null $key, ?int $expires = null): static;
 

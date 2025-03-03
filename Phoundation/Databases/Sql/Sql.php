@@ -875,7 +875,7 @@ class Sql implements SqlInterface
                 }
             }
 
-            Log::success(ts('Connected to ":connect" in ":time"', [
+            Log::success(ts('Connected to database ":connect" in ":time"', [
                 ':connect' => $connect_string,
                 ':time'    => PhoTime::difference($start, microtime(true), 'auto', 5),
             ]), 4);

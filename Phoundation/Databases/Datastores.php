@@ -17,15 +17,14 @@ declare(strict_types=1);
 namespace Phoundation\Databases;
 
 use Exception;
-use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Connectors;
-use Phoundation\Databases\Connectors\Exception\ConnectorNotExistsException;
 use Phoundation\Databases\Connectors\Exception\NoConnectorSpecifiedException;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
 use Phoundation\Databases\Interfaces\DatabaseInterface;
-use Phoundation\Databases\Interfaces\McInterface;
+use Phoundation\Databases\Interfaces\MemcachedInterface;
+use Phoundation\Databases\Memcached\Memcached;
 use Phoundation\Databases\Redis\Interfaces\RedisInterface;
 use Phoundation\Databases\Redis\Redis;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
@@ -188,10 +187,10 @@ class Datastores
      *
      * @param ConnectorInterface|string|null $connector
      *
-     * @return McInterface
+     * @return MemcachedInterface
      * @throws Exception
      */
-    public static function getMc(ConnectorInterface|string|null $connector): McInterface
+    public static function getMc(ConnectorInterface|string|null $connector): MemcachedInterface
     {
         if (!$connector) {
             throw new NoConnectorSpecifiedException(tr('Cannot return memcached object, no connector specified.'));
@@ -209,7 +208,7 @@ class Datastores
         if (!array_key_exists($connector_name, static::$mc)) {
             // No panic now! This connector isn't registered yet, so it might very well be the first time we're using it.
             // Connect and add it
-            static::$mc[$connector_name] = new Mc($connector);
+            static::$mc[$connector_name] = new Memcached($connector);
         }
 
         return static::$mc[$connector_name];
