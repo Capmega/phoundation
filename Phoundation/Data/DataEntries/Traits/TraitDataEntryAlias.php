@@ -142,8 +142,9 @@ trait TraitDataEntryAlias
     public function setAlias(?string $alias, bool $set_seo_alias = true): static
     {
         if ($set_seo_alias) {
-            // TODO This method does not exist anywhere?!
-            $this->setSeoAliasFromAlias($alias);
+            if (!$this->is_loading) {
+                $this->setSeoAliasFromAlias($alias);
+            }
         }
 
         return $this->set(get_null($alias), 'alias');

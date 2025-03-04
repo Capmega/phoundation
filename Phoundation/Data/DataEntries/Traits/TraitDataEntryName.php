@@ -142,7 +142,9 @@ trait TraitDataEntryName
     public function setName(?string $name, bool $set_seo_name = true): static
     {
         if ($set_seo_name) {
-            $this->setSeoNameFromName($name);
+            if (!$this->is_loading) {
+                $this->setSeoNameFromName($name);
+            }
         }
 
         return $this->set(get_null($name), 'name');

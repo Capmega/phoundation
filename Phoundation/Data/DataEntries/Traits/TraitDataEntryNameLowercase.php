@@ -55,7 +55,9 @@ trait TraitDataEntryNameLowercase
         if (empty($name)) {
             $this->set(null, 'seo_name', true);
 
-        } else {
+        }
+
+        if (!$this->is_loading) {
             // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
             // the entry if it does!
             $name     = strtolower($name);
@@ -66,10 +68,10 @@ trait TraitDataEntryNameLowercase
                 'seo_name'
             );
 
-            $this->set($seo_name, 'seo_name', true);
+            $this->set($seo_name, 'seo_name');
         }
 
-        return $this->set(get_null($name), 'name');
+        return $this->set($name, 'name');
     }
 
 
