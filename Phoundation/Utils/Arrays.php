@@ -37,8 +37,9 @@ class Arrays extends Utils
     const int GROUP_BY_DROP      = 1;
 
     const int GROUP_BY_NULL      = 2;
+    const int NO_GROUP_BY        = 3;
 
-    const int GROUP_BY_EXCEPTION = 3;
+    const int GROUP_BY_EXCEPTION = 4;
 
 
     /**
@@ -3664,12 +3665,12 @@ class Arrays extends Utils
      *
      * @return array
      */
-    public static function groupByPrefix(array $source, string $separator = '_', #[ExpectedValues(values: [self::GROUP_BY_NULL, self::GROUP_BY_DROP, self::GROUP_BY_EXCEPTION])] int $non_prefix_action = self::GROUP_BY_DROP): array
+    public static function groupByPrefix(array $source, string $separator = '_', #[ExpectedValues(values: [self::GROUP_BY_NULL, self::GROUP_BY_DROP, self::GROUP_BY_EXCEPTION, self::NO_GROUP_BY])] int $non_prefix_action = self::NO_GROUP_BY): array
     {
         $return = [];
 
         foreach ($source as $key => $value) {
-            if (str_contains((string) $key, $separator)) {
+            if (str_contains((string) $key, $separator) and (!str_starts_with($key, $separator))) {
                 $prefix = Strings::until($key, $separator);
                 $key    = Strings::from($key, $separator);
                 $return[$prefix][$key] = $value;
@@ -3678,8 +3679,13 @@ class Arrays extends Utils
                 switch ($non_prefix_action):
                     case self::GROUP_BY_DROP:
                         break;
+
                     case self::GROUP_BY_NULL: $return[null][$key] = $value;
                         break;
+
+                    case self::NO_GROUP_BY: $return[$key] = $value;
+                        break;
+
                     case self::GROUP_BY_EXCEPTION: throw ArraysKeyException::new(tr('Key ":key" did not contain separator ":separator", unable to assign it to one of the following groups: ":groups"', [
                         ':key'       => $key,
                         ':separator' => $separator,
