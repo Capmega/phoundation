@@ -610,8 +610,8 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
 
             foreach ($this->source as $key => $value) {
                 $render .= InputCheckbox::new()
-                                        ->setName($this->name)
-                                        ->setId($this->name . $count++)
+                                        ->setName($this->name . '[' . $key . ']')
+                                        ->setId($this->name . '[' . $key . ']')
                                         ->setValue($key)
                                         ->setLabel($value)
                                         ->setInline(false)
