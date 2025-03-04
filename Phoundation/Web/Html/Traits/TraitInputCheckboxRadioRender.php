@@ -16,8 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Traits;
 
-use Phoundation\Web\Html\Components\Label;
-
 
 trait TraitInputCheckboxRadioRender
 {

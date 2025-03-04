@@ -38,6 +38,7 @@ class InputCheckbox extends Input
         $this->setElement('input')
              ->setInputType(EnumInputType::checkbox)
              ->setValue(1);
+
         parent::__construct($content);
     }
 
