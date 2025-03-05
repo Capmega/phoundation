@@ -34,13 +34,13 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
     /**
      * FilterForm class constructor
      *
-     * @param string|null $content
+     * @param string|null $source
      */
-    public function __construct(?string $content = null)
+    public function __construct(?string $source = null)
     {
         $this->setRequestMethod(EnumHttpRequestMethod::post);
 
-        parent::__construct($content);
+        parent::__construct($source);
 
         // Set basic definitions
         $this->definitions->setRender('date_range', false)
