@@ -390,6 +390,24 @@ class Definitions extends IteratorCore implements DefinitionsInterface
         return $this;
     }
 
+    
+    /**
+     * Direct method to render or not display entries
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $render
+     * @param bool                        $exception
+     *
+     * @return static
+     */
+    public function setDisplay(Stringable|string|float|int $key, bool $render, bool $exception = true): static
+    {
+        $this->get($key, $exception)
+             ->setDisplay($render);
+
+        return $this;
+    }
+
 
     /**
      * Direct method to set size for entries
