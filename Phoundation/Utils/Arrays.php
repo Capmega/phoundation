@@ -148,7 +148,7 @@ class Arrays extends Utils
             }
 
             // This is an object that can convert to string
-            return $source->__toArray();
+            return $source->getSource();
         }
 
         if (!$separator) {
@@ -3515,6 +3515,11 @@ class Arrays extends Utils
             return $source;
         }
 
+        if ($source instanceof IteratorInterface) {
+            // This is another iterator object, get the data from it
+            return $source->getSource();
+        }
+
         if (is_string($source)) {
             // This must be a query. Execute it and get a list of all entries from the result
             return sql()->list($source, $execute);
@@ -3523,11 +3528,6 @@ class Arrays extends Utils
         if ($source instanceof PDOStatement) {
             // Get a list of all entries from the specified query PDOStatement
             return sql()->list($source);
-        }
-
-        if ($source instanceof IteratorInterface) {
-            // This is another iterator object, get the data from it
-            return $source->getSource();
         }
 
         // NULL was specified
@@ -3690,5 +3690,98 @@ class Arrays extends Utils
         }
 
         return $return;
+    }
+
+
+    /**
+     * Removes all sub columns from the specified source, except the specified needles
+     *
+     * @param array        $source
+     * @param array|string $needles
+     *
+     * @return array
+     */
+    public static function keepColumns(array $source, array|string $needles): array
+    {
+        $needles = Arrays::force($needles);
+
+        foreach ($source as &$value) {
+            foreach ($value as $sub_key => $sub_value) {
+                if (!in_array($sub_key, $needles)) {
+                    unset($value[$sub_key]);
+                }
+            }
+        }
+
+        unset($value);
+        return $source;
+    }
+
+
+    /**
+     * Removes all sub columns from the specified source that are specified in $needles
+     *
+     * @param array        $source
+     * @param array|string $needles
+     *
+     * @return array
+     */
+    public static function removeColumns(array $source, array|string $needles): array
+    {
+        $needles = Arrays::force($needles);
+
+        foreach ($source as &$value) {
+            foreach ($value as $sub_key => $sub_value) {
+                if (in_array($sub_key, $needles)) {
+                    unset($value[$sub_key]);
+                }
+            }
+        }
+
+        unset($value);
+        return $source;
+    }
+
+
+    /**
+     * Renames all sub columns from the specified source that are specified in $needles
+     *
+     * @param array $source
+     * @param array $needles
+     *
+     * @return array
+     */
+    public static function renameColumns(array $source, array $needles): array
+    {
+        foreach ($source as &$value) {
+            foreach ($value as $sub_key => $sub_value) {
+                if (array_key_exists($sub_key, $needles)) {
+                    $value[$needles[$sub_key]] = $sub_value;
+                    unset($value[$sub_key]);
+                }
+            }
+        }
+
+        unset($value);
+        return $source;
+    }
+
+
+    /**
+     * Places all found values in a sub array with the specified column name
+     *
+     * @param array  $source
+     * @param string $column
+     *
+     * @return array
+     */
+    public static function putInColumn(array $source, string $column): array
+    {
+        foreach ($source as &$value) {
+            $value = [$column => $value];
+        }
+
+        unset($value);
+        return $source;
     }
 }

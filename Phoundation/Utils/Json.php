@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils;
 
+use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Exception\JsonException;
 use Throwable;
@@ -50,10 +51,17 @@ class Json
      * @param int   $depth Until what depth will we recurse until an exception will be thrown
      *
      * @return string
-     * @throws JsonException If JSON encoding failed
      */
-    public static function encode(mixed $source, int $options = JSON_PRETTY_PRINT | JSON_BIGINT_AS_STRING, int $depth = 512): string
+    public static function encode(mixed $source, int $options = 0, int $depth = 512): string
     {
+        // JavaScript does NOT handle the big numbers that Phoundation manages, so always require JSON_BIGINT_AS_STRING!
+        $options |= JSON_BIGINT_AS_STRING;
+
+        if (Debug::isEnabled()) {
+            // When debug mode is enabled, always encode to pretty print for readability
+            $options |= JSON_PRETTY_PRINT;
+        }
+
         if ($source === null) {
             return '';
         }
