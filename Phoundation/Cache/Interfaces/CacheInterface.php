@@ -2,6 +2,10 @@
 
 namespace Phoundation\Cache\Interfaces;
 
+use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Core\Interfaces\PoaInterface;
+use Stringable;
+
 interface CacheInterface
 {
     /**
@@ -37,19 +41,19 @@ interface CacheInterface
      * @param string        $key
      * @param callable|null $callback
      *
-     * @return mixed
+     * @return PoaInterface|array|string|float|int|null
      */
-    public function get(string $key, ?callable $callback = null): mixed;
+    public function get(string $key, ?callable $callback = null): PoaInterface|array|string|float|int|null;
 
     /**
      * Write the specified page to cache
      *
-     * @param mixed  $data
-     * @param string $key
+     * @param PoaInterface|array|string|float|int|null $value
+     * @param string                                   $key
      *
      * @return static
      */
-    public function set(mixed $data, string $key): static;
+    public function set(PoaInterface|array|string|float|int|null $value, string $key): static;
 
 
     /**
