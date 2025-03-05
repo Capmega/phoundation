@@ -599,23 +599,39 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      */
     public function render(): ?string
     {
-        static $count = 0;
-
         if ($this->render_checkboxes) {
-            // Render checkboxes instead of a <select> component
-            $render = '';
+            if ($this->getMultiple()) {
+                // Render checkboxes instead of a <select> component
+                $render = '';
 
-            foreach ($this->source as $key => $value) {
-                $render .= InputCheckbox::new()
-                                        ->setName($this->name . '[' . $key . ']')
-                                        ->setId($this->name . '[' . $key . ']')
-                                        ->setValue($key)
-                                        ->setLabel($value)
-                                        ->setInline(false)
-                                        ->render();
+                foreach ($this->source as $key => $value) {
+                    $render .= InputCheckbox::new()
+                                            ->setName($this->name . '[' . $key . ']')
+                                            ->setId($this->name . '[' . $key . ']')
+                                            ->setValue($key)
+                                            ->setLabel($value)
+                                            ->setInline(false)
+                                            ->render();
+                }
+
+                return '<div>' . $render . '</div>';
+
+            } else {
+                // Render radiobuttons instead of a <select> component
+                $render = '';
+
+                foreach ($this->source as $key => $value) {
+                    $render .= InputRadio::new()
+                                         ->setName($this->name)
+                                         ->setId($this->name . '_' . strtolower((string) $key))
+                                         ->setValue($key)
+                                         ->setLabel($value)
+                                         ->setInline(false)
+                                         ->render();
+                }
+
+                return '<div>' . $render . '</div>';
             }
-
-            return '<div>' . $render . '</div>';
         }
 
         return parent::render();

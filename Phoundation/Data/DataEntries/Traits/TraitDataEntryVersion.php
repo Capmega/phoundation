@@ -53,9 +53,10 @@ trait TraitDataEntryVersion
     public function setVersion(?string $version): static
     {
         if (empty($version)) {
-            $this->set(null, 'seo_version', true);
+            return $this->set(null, 'seo_version');
+        }
 
-        } else {
+        if (!$this->is_loading) {
             // Get SEO version and ensure that the seo_version does NOT surpass the version maxlength because MySQL
             // won't find the entry if it does!
             $seo_version = Seo::unique(
@@ -65,10 +66,10 @@ trait TraitDataEntryVersion
                 'seo_version'
             );
 
-            $this->set($seo_version, 'seo_version', true);
+            $this->setSeoVersion($seo_version);
         }
 
-        return $this->set(get_null($version), 'version');
+        return $this->set($version, 'version');
     }
 
 

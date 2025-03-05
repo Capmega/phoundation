@@ -138,7 +138,9 @@ trait TraitDataEntryHostname
         }
 
         if ($set_seo_name) {
-            $this->setSeoHostnameFromHostname($hostname);
+            if (!$this->is_loading) {
+                $this->setSeoHostnameFromHostname($hostname);
+            }
         }
 
         return $this->set(get_null($hostname), 'hostname');

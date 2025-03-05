@@ -257,7 +257,9 @@ trait TraitElementAttributes
 
         // By default, name and id should be equal
         if ($name_too) {
-            $this->setName($id, false);
+            if (empty($this->name)) {
+                $this->setName($id, false);
+            }
         }
 
         return $this;
@@ -1008,7 +1010,9 @@ trait TraitElementAttributes
 
         // By default, name and id should be equal
         if ($id_too) {
-            $this->setId($name, false);
+            if (empty($this->id_too)) {
+                $this->setId($name, false);
+            }
         }
 
         return $this;

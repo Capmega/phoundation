@@ -1330,11 +1330,11 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
             if (!$result and $fail_on_null) {
                 $this->addFailure(
-                    Strings::plural(count($value),
+                    Strings::plural(count(Arrays::force($value)),
                     tr('value ":values" does not exist', [
-                        ':values' => implode(', ', $value)
+                        ':values' => implode(', ', Arrays::force($value))
                     ]),
-                    tr('values ":values" do not exist', [':values' => implode(', ', $value)]))
+                    tr('values ":values" do not exist', [':values' => implode(', ', Arrays::force($value))]))
                 );
             }
 

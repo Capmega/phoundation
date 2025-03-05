@@ -51,6 +51,7 @@ use Phoundation\Data\DataEntries\Exception\DataEntryIsNewException;
 use Phoundation\Data\DataEntries\Exception\DataEntryMetaException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNoIdentifierSpecifiedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntries\Exception\DataEntryNotInitializedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotSavedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntries\Exception\DataEntryStateMismatchException;
@@ -87,6 +88,7 @@ use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhoException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\ReadOnlyModeException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
@@ -304,6 +306,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected bool $is_loaded_from_cache = false;
 
+    /**
+     * The specified columns to load. If empty, load all columns
+     *
+     * @var array
+     */
+    protected array $columns = [];
 
 
     /**
@@ -470,8 +478,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         $this->loadFromDatabase();
 
-        if ($this->isNew()) {
-            // So this entry does not exist in the database (or, SQL table doesn't exist either).
+        if (empty($this->source)) {
+            // Source is still empty, so nothing was loaded from database (or, SQL table doesn't exist, also possible!)
             // Try to load it from configuration if this DataEntry supports that
             $this->tryLoadFromConfiguration($this->identifier);
         }
@@ -1299,13 +1307,39 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
+     * Returns the specified columns from the DataEntry object matching the specified identifier
+     * (MUST exist in the database)
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param array|string                              $columns
+     *
+     * @return static
+     */
+    public function loadColumns(IdentifierInterface|array|string|int|null $identifier = null, array|string $columns = 'id'): static
+    {
+        $columns = Arrays::force($columns);
+
+        foreach ($columns as &$column) {
+            if ($column === 'id') {
+                $column = static::getIdColumn();
+            }
+        }
+
+        unset($column);
+
+        $this->columns = $columns;
+        return $this->load($identifier);
+    }
+
+
+    /**
      * Generates and returns a unique cache key for this DataEntry object
      *
      * @return string
      */
     protected function getCacheKey(): string
     {
-        return $this::class . '-' . Json::encode($this->identifier, JSON_BIGINT_AS_STRING);
+        return $this::class . '-' . Json::encode($this->identifier, JSON_BIGINT_AS_STRING) . '-' . Json::encode($this->columns, JSON_BIGINT_AS_STRING);
     }
 
 
@@ -1326,15 +1360,15 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         // Cached entry exists, gettit!
-        $dataentry = InstanceCache::getLastChecked();
+        $data_entry = InstanceCache::getLastChecked();
 
         // Only use cached entries that are NOT modified!
-        if ($dataentry->isModified()) {
+        if ($data_entry->isModified()) {
             return false;
         }
 
         $this->is_loaded_from_cache = true;
-        $this->source               = $dataentry->getSource();
+        $this->source               = $data_entry->getSource();
         return true;
     }
 
@@ -1720,6 +1754,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 $source = $this->loadFromConfiguration($path, $identifier);
 
                 if ($source) {
+                    if ($this->columns) {
+                        $source = Arrays::keepKeys($source, $this->columns);
+                    }
+
                     // Load the source in this object and make this object readonly
                     return $this->setSource($source)
                                 ->setReadonly(true);
@@ -1731,7 +1769,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             ':class'      => static::getClassName(),
             ':identifier' => Json::encode($this->identifier),
         ]))->addData([
-            'class'      => static::getClassName(),
+            'class'       => static::getClassName(),
             ':identifier' => Json::encode($this->identifier),
         ]);
     }
@@ -1785,6 +1823,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         // TODO This may no longer be necessary with the upgraded setIdentifier() which already ensures identifier internally is an array!
         if (is_array($this->identifier)) {
+            if (count($this->identifier) > 1) {
+                throw UnderConstructionException::new(tr('Sorry, DataEntry->loadColumns() does not yet support array identifiers'));
+            }
+
             // Filter on multiple columns, multi column filter always pretends filtered column was id column
             static::buildManualQuery($this->identifier, $where, $joins, $group, $order, $execute);
             $column = null;
@@ -1858,12 +1900,26 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         try {
             // Get the data using the query builder
-            $source = $this->getQueryBuilderObject()->setDebug($this->debug)
+            $query = $this->getQueryBuilderObject()->setDebug($this->debug)
                                                     ->setMetaEnabled($this->meta_enabled)
                                                     ->setConnectorObject($this->getConnectorObject())
-                                                    ->addSelect('`' . static::getTable() . '`.*')
-                                                    ->addWhere($where, $execute)
-                                                    ->get();
+                                                    ->addWhere($where, $execute);
+
+            // Generate columns that will be selected
+            if ($this->columns) {
+                $query->setSelect(null);
+
+                // Add selects for each specified column
+                foreach ($this->columns as $column) {
+                    $query->addSelect('`' . static::getTable() . '`.' . $column);
+                }
+
+            } else {
+                // Load all columns
+                $query->setSelect('`' . static::getTable() . '`.*');
+            }
+
+            $source = $query->get();
 
             if ($source) {
                 // If data was found, store all data in the object
@@ -2308,7 +2364,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Modify the data for this object with the new specified data
+     * Apply the specified data source over the current source
      *
      * @param bool                           $clear_source
      * @param ValidatorInterface|array|null &$source
@@ -4430,5 +4486,51 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function isLoadedFromCache(): bool
     {
         return $this->is_loaded_from_cache;
+    }
+
+
+    /**
+     * Returns the prefix to use for all DataEntry key names
+     *
+     * @return string|null
+     */
+    public function getPrefix(): ?string
+    {
+        return $this->checkInitialized('DataEntry::getPrefix()')->definitions->getPrefix();
+    }
+
+
+    /**
+     * Sets the prefix to use for all DataEntry key names
+     *
+     * @param string|null $prefix
+     *
+     * @return static
+     */
+    public function setPrefix(?string $prefix): static
+    {
+        $this->checkInitialized('DataEntry::setPrefix()')->definitions->setPrefix($prefix);
+        return $this;
+    }
+
+
+    /**
+     * Checks if the DataEntry has been initialized, throws an DataEntryNotInitializedException if not
+     *
+     * @param string $action
+     *
+     * @return static
+     * @throws DataEntryNotInitializedException
+     */
+    protected function checkInitialized(string $action): static
+    {
+        if ($this->is_initialized) {
+            return $this;
+        }
+
+        throw new DataEntryNotInitializedException(tr('Cannot ":action" on ":class" class DataEntry, the object has not yet been initialized', [
+            ':action' => $action,
+            ':class'  => static::class,
+        ]));
     }
 }

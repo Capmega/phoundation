@@ -38,29 +38,7 @@ class InputRadio extends Input
         $this->setElement('input')
              ->setInputType(EnumInputType::radio)
              ->setValue(1);
+
         parent::__construct($content);
-    }
-
-
-    /**
-     *
-     * Overrides ElementAttributes::setName()
-     *
-     * @param string|null $name
-     * @param bool        $id_too
-     *
-     * @return static
-     */
-    public function setName(?string $name, bool $id_too = true): static
-    {
-        static $names = [];
-        if (!isset($names[$name])) {
-            $names[$name] = 0;
-        }
-        if ($id_too) {
-            $this->setId($name . '-' . $names[$name]++);
-        }
-
-        return parent::setName($name);
     }
 }
