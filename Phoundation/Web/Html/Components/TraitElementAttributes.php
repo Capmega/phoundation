@@ -21,7 +21,6 @@ use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataDefinition;
-use Phoundation\Data\Traits\TraitDataPrefix;
 use Phoundation\Data\Traits\TraitMethodHasRendered;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
@@ -44,6 +43,7 @@ trait TraitElementAttributes
         setDefinition as protected __setDefinition;
         getDefinition as protected __getDefinition;
     }
+
 
     /**
      * The HTML autofocus attribute

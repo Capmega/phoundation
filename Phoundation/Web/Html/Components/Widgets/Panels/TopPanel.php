@@ -27,9 +27,9 @@ class TopPanel extends Panel
     /**
      * TopPanel class constructor
      *
-     * @param string|null $content
+     * @param string|null $source
      */
-    public function __construct(?string $content = null)
+    public function __construct(?string $source = null)
     {
         // Set the default menu for top panels
         $this->source['menu'] = Menu::new()
@@ -41,7 +41,7 @@ class TopPanel extends Panel
             $this->source['menu']->add((string) Url::new('demos.html')->makeWww(), tr('Demos'));
         }
 
-        parent::__construct($content);
+        parent::__construct($source);
 
         $this->elements = Iterator::new([
             'search',

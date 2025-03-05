@@ -123,7 +123,7 @@ interface DataIteratorInterface extends IteratorInterface
      *
      * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', ?string $key_column = null, ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface;
+    public function getHtmlSelectOld(string $value_column = 'name', ?string $key_column = null, ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface;
 
 
     /**

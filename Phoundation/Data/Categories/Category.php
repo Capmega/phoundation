@@ -143,7 +143,7 @@ class Category extends DataEntry implements CategoryInterface
                                     ->setElement(EnumElement::select)
                                     ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
-                                                         ->getHtmlSelect()
+                                                         ->getHtmlSelectOld()
                                                          ->setName($field_name)
                                                          ->setSelected(isset_get($source[$key]));
                                     })

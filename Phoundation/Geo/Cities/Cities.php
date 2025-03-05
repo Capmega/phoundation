@@ -99,9 +99,9 @@ class Cities extends DataIterator implements CitiesInterface
      *
      * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
+    public function getHtmlSelectOld(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
-        return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
+        return parent::getHtmlSelectOld($value_column, $key_column, $order, $joins, $filters)
                      ->setName('cities_id')
                      ->setNotSelectedLabel(tr('Select a city'))
                      ->setComponentEmptyLabel(tr('No cities available'));

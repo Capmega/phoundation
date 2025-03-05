@@ -25,9 +25,9 @@ use Phoundation\Web\Html\Enums\EnumInputType;
 
 class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
 {
-    public function __construct(?string $content = null)
+    public function __construct(?string $source = null)
     {
-        parent::__construct($content);
+        parent::__construct($source);
 
         $this->definitions->get('status')->setRender(false);
 
@@ -39,7 +39,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                  ->setOptional(true)
                  ->setInputType(EnumInputType::text)
                  ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
-                     return Severities::new()->getHtmlSelect()
+                     return Severities::new()->getHtmlSelectOld()
                                              ->setAutoSubmit(true)
                                              ->setName($field_name)
                                              ->setSelected(isset_get($this->source[$key], 'medium'));

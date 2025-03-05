@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components;
 
 use PDOStatement;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
@@ -147,7 +148,13 @@ abstract class ElementsBlock extends Iterator implements ElementsBlockInterface
      */
     public function __toArray(): array
     {
-        return $this->source;
+        return [
+            'poad'      => 'PHOUNDATION',
+            'generator' => Core::PHOUNDATION_VERSION,
+            'datatype'  => 'object',
+            'class'     => static::class,
+            'source'    => $this->source
+        ];
     }
 
 

@@ -360,9 +360,9 @@ interface HtmlTableInterface extends ResourceElementInterface
     /**
      * Returns the Iterator object where this table was generated from
      *
-     * @param IteratorInterface|null $from
+     * @param IteratorInterface|array|null $from
      *
      * @return HtmlTable
      */
-    public function setFrom(?IteratorInterface $from = null): static;
+    public function setFrom(IteratorInterface|array|null $from = null): static;
 }

@@ -18,18 +18,22 @@ namespace Phoundation\Web\Html\Components;
 
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
+use Phoundation\Data\Traits\TraitMethodEnsureArrayString;
 use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
 use Phoundation\Web\Html\Exception\HtmlException;
 use Phoundation\Web\Html\Traits\TraitInputElement;
+
 
 abstract class ResourceElementCore extends ElementCore implements ResourceElementInterface
 {
     use TraitInputElement;
     use TraitDataConnector;
     use TraitDataDebug;
+    use TraitMethodEnsureArrayString {
+        setSource as protected __setSource;
+    }
 
 
     /**
@@ -54,13 +58,6 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
     protected bool $hide_empty = false;
 
     /**
-     * The source array
-     *
-     * @var IteratorInterface|null $source
-     */
-    protected ?IteratorInterface $source = null;
-
-    /**
      * The query that will generate the source data
      *
      * @var PDOStatement|null $source_query
@@ -77,9 +74,9 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
     /**
      * The source for "data-*" attributes where the data key matches the source key
      *
-     * @var array $source_data
+     * @var array $data_source
      */
-    protected array $source_data = [];
+    protected array $data_source = [];
 
     /**
      * The number of entries added to this element from the source data (query or array)
@@ -201,18 +198,7 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
 
 
     /**
-     * Returns the array source
-     *
-     * @return IteratorInterface|null
-     */
-    public function getSource(): ?IteratorInterface
-    {
-        return $this->source;
-    }
-
-
-    /**
-     * Sets the array source
+     *  Sets the source data for this object
      *
      * @param IteratorInterface|PDOStatement|array|string|null $source
      * @param array|null                                       $execute
@@ -226,7 +212,8 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
             throw new HtmlException(tr('Cannot specify source, a source query was already specified'));
         }
 
-        $this->source = Iterator::new()->setSource($source);
+        $this->__setSource($source, $execute)
+             ->ensureArrayStrings();
 
         return $this;
     }
@@ -254,14 +241,17 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
      */
     public function setSourceQuery(PDOStatement|string|null $source_query, array|string|null $execute = null, ?array $use_columns = null): static
     {
-        if ($this->source) {
-            throw new HtmlException(tr('Cannot specify source query, a source was already specified'));
+        if ($source_query and $this->source) {
+            throw new HtmlException(tr('Cannot specify source query ":query", this ":class" object already contains source data', [
+                ':query' => $source_query,
+                ':class' => static::class,
+            ]));
         }
 
         if (is_string($source_query)) {
             // Get a PDOStatement instead by executing the query
             $source_query = sql($this->o_connector)->setDebug($this->debug)
-                                                 ->query($source_query, $execute);
+                                                   ->query($source_query, $execute);
         }
 
         $this->source_query = $source_query;
@@ -278,9 +268,9 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
      *       then add the specified keys to each option where the value matches the id
      * @return array
      */
-    public function getSourceData(): array
+    public function getDataSource(): array
     {
-        return $this->source_data;
+        return $this->data_source;
     }
 
 
@@ -290,14 +280,13 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
      * @note The format should be as follows: [id => [key => value, key => value], id => [...] ...] This format will
      *       then add the specified keys to each option where the value matches the id
      *
-     * @param array $source_data
+     * @param array $data_source
      *
      * @return static
      */
-    public function setSourceData(array $source_data): static
+    public function setDataSource(array $data_source): static
     {
-        $this->source_data = $source_data;
-
+        $this->data_source = $data_source;
         return $this;
     }
 

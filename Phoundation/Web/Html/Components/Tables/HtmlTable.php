@@ -40,7 +40,8 @@ use Phoundation\Web\Html\Traits\TraitButtons;
 use Phoundation\Web\Http\Url;
 use Stringable;
 
-class HtmlTable extends ResourceElementCore implements HtmlTableInterface
+
+class HtmlTable extends ResourceElement implements HtmlTableInterface
 {
     use TraitButtons;
     use TraitDataColumns {
@@ -178,7 +179,7 @@ class HtmlTable extends ResourceElementCore implements HtmlTableInterface
     protected ?IteratorInterface $from = null;
 
     /**
-     * Cache of $this->columns that has the columns inverted to do more rapid hash lookups
+     * Cache of HtmlTable::$columns that has the columns inverted to do more rapid hash lookups
      *
      * @var array|null $column_cache
      */
@@ -188,28 +189,15 @@ class HtmlTable extends ResourceElementCore implements HtmlTableInterface
     /**
      * Table constructor
      *
-     * @param IteratorInterface|null $from
+     * @param IteratorInterface|array|null $source
      */
-    public function __construct(?IteratorInterface $from = null)
+    public function __construct(IteratorInterface|array|null $source = null)
     {
         parent::__construct();
 
         $this->setElement('table')
              ->setNullStatus(tr('Active'))
-             ->setFrom($from);
-    }
-
-
-    /**
-     * Returns a new HtmlTable object
-     *
-     * @param IteratorInterface|null $from
-     *
-     * @return HtmlTable
-     */
-    public static function new(?IteratorInterface $from = null): static
-    {
-        return new static($from);
+             ->setFrom($source);
     }
 
 
@@ -248,11 +236,11 @@ class HtmlTable extends ResourceElementCore implements HtmlTableInterface
     /**
      * Returns the Iterator object where this table was generated from
      *
-     * @param IteratorInterface|null $from
+     * @param IteratorInterface|array|null $from
      *
      * @return HtmlTable
      */
-    public function setFrom(?IteratorInterface $from = null): static
+    public function setFrom(IteratorInterface|array|null $from = null): static
     {
         if ($from) {
             $this->setComponentEmptyLabel(tr('No :types available', [
@@ -263,7 +251,10 @@ class HtmlTable extends ResourceElementCore implements HtmlTableInterface
             $this->setComponentEmptyLabel(tr('No results available'));
         }
 
-        $this->from = $from;
+        if ($from instanceof IteratorInterface) {
+            $this->from = $from;
+        }
+
         return $this;
     }
 
@@ -712,8 +703,8 @@ class HtmlTable extends ResourceElementCore implements HtmlTableInterface
         $this->count++;
 
         // Add data-* in this option?
-        if (array_key_exists($row_id, $this->source_data)) {
-            $row_data = ' data-' . $row_id . '="' . $this->source_data[$row_id] . '"';
+        if (array_key_exists($row_id, $this->data_source)) {
+            $row_data = ' data-' . $row_id . '="' . $this->data_source[$row_id] . '"';
         }
 
         $cells = null;

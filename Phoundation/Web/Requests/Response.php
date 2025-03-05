@@ -1583,7 +1583,7 @@ class Response implements ResponseInterface
 
             case 'full':
                 header(tr('Powered-By-Framework: Phoundation/:version"', [
-                    ':version' => Core::FRAMEWORK_CODE_VERSION,
+                    ':version' => Core::PHOUNDATION_VERSION,
                 ]));
                 break;
 

@@ -164,7 +164,7 @@ class Bundler
         $this->extension   = (config()->get('web.minify', true) ? '.min.' . $extension : '.' . $extension);
         $this->directory   = DIRECTORY_WEB . LANGUAGE . '/' . $admin_path . 'pub/' . $extension . '/';
         $this->bundle_file = Strings::force($files);
-        $this->bundle_file = substr(sha1($this->bundle . Core::FRAMEWORK_CODE_VERSION), 1, 32);
+        $this->bundle_file = substr(sha1($this->bundle . Core::PHOUNDATION_VERSION), 1, 32);
         $this->bundle_file = $this->directory . 'bundle-' . $this->bundle_file . $this->extension;
         $this->count       = 0;
     }

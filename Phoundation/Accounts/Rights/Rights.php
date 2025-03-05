@@ -542,9 +542,9 @@ class Rights extends DataIterator implements RightsInterface
      *
      * @return InputSelect
      */
-    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', ?string $key_column = 'id', ?string $order = '`name` ASC', ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
+    public function getHtmlSelectOld(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', ?string $key_column = 'id', ?string $order = '`name` ASC', ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
-        return parent::getHtmlSelect($value_column, $key_column, $order, $joins, $filters)
+        return parent::getHtmlSelectOld($value_column, $key_column, $order, $joins, $filters)
                      ->setName('rights_id')
                      ->setNotSelectedLabel(tr('Select a right'))
                      ->setComponentEmptyLabel(tr('No rights available'));

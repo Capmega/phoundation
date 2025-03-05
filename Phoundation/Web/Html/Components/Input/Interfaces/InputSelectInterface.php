@@ -23,6 +23,7 @@ use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
 use Phoundation\Web\Html\Components\ResourceElement;
 
+
 interface InputSelectInterface extends ResourceElementInterface
 {
     /**

@@ -77,7 +77,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      *
      * @var string|null $query
      */
-    protected ?string $query;
+    protected ?string $query = null;
 
     /**
      * The execution array for the HTML query
@@ -142,17 +142,6 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      * @var int|null $modified_entries
      */
     protected ?int $modified_entries = null;
-
-
-    /**
-     * Return the object source contents in JSON string format
-     *
-     * @return string
-     */
-    public function __toString(): string
-    {
-        return Json::encode($this->source);
-    }
 
 
     /**
@@ -587,7 +576,8 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
 
         if ($this->source) {
             // Source is already loaded, use that
-            return parent::getHtmlTableObject($columns)->setId(static::getTable());
+            return parent::getHtmlTableObject($columns)
+                         ->setId(static::getTable());
         }
 
         $this->selectQuery();
@@ -616,7 +606,8 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
 
         if ($this->is_loaded) {
             // Source is already loaded, use that
-            return parent::getHtmlDataTableObject($columns)->setId(static::getTable());
+            return parent::getHtmlDataTableObject($columns)
+                         ->setId(static::getTable());
         }
 
         // This DataIterator is empty, automatically load
@@ -636,6 +627,34 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     /**
      * Returns an HTML <select> for the available object entries
      *
+     * @param string|null $value_column
+     * @param string|null $key_column
+     * @param string      $class
+     *
+     * @return InputSelectInterface
+     */
+    public function getHtmlSelectObject(?string $value_column = null, ?string $key_column = null, string $class = InputSelect::class): InputSelectInterface
+    {
+        if ($this->is_loaded) {
+            // Source is already loaded, use that
+            return parent::getHtmlSelectObject($value_column, $key_column, $class)
+                         ->setId(static::getTable());
+        }
+
+        // Create and return the select object
+        return ($class ?? InputSelect::class)::new($this)
+                                             ->setId(static::getTable())
+                                             ->setKeyColumn($key_column)
+                                             ->setValueColumn($value_column)
+                                             ->setName(static::getTable())
+                                             ->setConnectorObject($this->getConnectorObject())
+                                             ->setSourceQuery($this->query, $this->execute);
+    }
+
+
+    /**
+     * Returns an HTML <select> for the available object entries
+     *
      * @param string      $value_column
      * @param string|null $key_column
      * @param string|null $order
@@ -644,10 +663,11 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      *
      * @return InputSelectInterface
      */
-    public function getHtmlSelect(string $value_column = 'name', ?string $key_column = null, ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
+    public function getHtmlSelectOld(string $value_column = 'name', ?string $key_column = null, ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
-        $select  = $this->input_select_class::new();
         $execute = [];
+        $select  = $this->input_select_class::new()
+                                            ->setValueColumn($value_column);
 
         if (!$key_column) {
             $key_column = static::getUniqueColumn();

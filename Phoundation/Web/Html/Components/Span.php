@@ -24,12 +24,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
-use Phoundation\Data\Traits\TraitStaticMethodNewWithContent;
+use Phoundation\Data\Traits\TraitStaticMethodNewStringContent;
 
 
 class Span extends SpanCore
 {
-    use TraitStaticMethodNewWithContent;
+    use TraitStaticMethodNewStringContent;
 
 
     /**

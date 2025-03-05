@@ -82,23 +82,22 @@ interface ResourceElementInterface extends ElementInterface
 
 
     /**
-     * Returns the array source
+     * Returns the source array for this object
      *
-     * @return IteratorInterface|null
+     * @return array
      */
-    public function getSource(): ?IteratorInterface;
+    public function getSource(): array;
 
 
     /**
-     * Sets the array source
+     * Sets the source array for this object
      *
      * @param IteratorInterface|PDOStatement|array|string|null $source
      * @param array|null                                       $execute
-     * @param bool                                             $filter_meta
      *
      * @return static
      */
-    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, bool $filter_meta = false): static;
+    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
 
 
     /**
@@ -126,11 +125,11 @@ interface ResourceElementInterface extends ElementInterface
      * @note The format should be as follows: [id => [key => value, key => value], id => [...] ...] This format will
      *       then add the specified keys to each option where the value matches the id
      *
-     * @param array $source_data
+     * @param array $data_source
      *
      * @return static
      */
-    public function setSourceData(array $source_data): static;
+    public function setDataSource(array $data_source): static;
 
 
     /**
@@ -140,7 +139,7 @@ interface ResourceElementInterface extends ElementInterface
      *       then add the specified keys to each option where the value matches the id
      * @return array
      */
-    public function getSourceData(): array;
+    public function getDataSource(): array;
 
 
     /**

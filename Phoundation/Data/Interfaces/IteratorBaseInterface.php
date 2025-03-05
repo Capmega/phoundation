@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Data\Interfaces;
 
 use Iterator;
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Stringable;
+
 
 interface IteratorBaseInterface extends Iterator, Stringable, ArraySourceInterface
 {

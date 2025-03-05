@@ -62,5 +62,5 @@ interface RightsInterface extends DataIteratorInterface
      *
      * @return InputSelect
      */
-    public function getHtmlSelect(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', ?string $key_column = 'seo_name', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface;
+    public function getHtmlSelectOld(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', ?string $key_column = 'seo_name', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface;
 }

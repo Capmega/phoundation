@@ -39,14 +39,14 @@ class TreeViewer extends Widget
     /**
      * TreeViewer class constructor
      *
-     * @param string|null $content
+     * @param string|null $source
      */
-    public function __construct(?string $content = null)
+    public function __construct(?string $source = null)
     {
         parent::__construct();
 
-        if ($content) {
-            $this->setSource($content);
+        if ($source) {
+            $this->setSource($source);
         }
     }
 
