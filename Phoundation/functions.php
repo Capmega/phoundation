@@ -31,6 +31,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\SessionConfig;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Datastores;
+use Phoundation\Databases\FileDb;
 use Phoundation\Databases\Interfaces\MemcachedInterface;
 use Phoundation\Databases\Mongo;
 use Phoundation\Databases\NullDb;
@@ -1654,9 +1655,9 @@ function sql(ConnectorInterface|string|null $connector = 'system', bool $use_dat
  *
  * @return MemcachedInterface
  */
-function mc(ConnectorInterface|string|null $connector): MemcachedInterface
+function mc(ConnectorInterface|string|null $connector, bool $connect = true): MemcachedInterface
 {
-    return Datastores::getMc($connector);
+    return Datastores::getMemcached($connector, $connect);
 }
 
 
@@ -1667,9 +1668,9 @@ function mc(ConnectorInterface|string|null $connector): MemcachedInterface
  *
  * @return Mongo
  */
-function mongo(?string $instance_name = null): Mongo
+function mongo(?string $instance_name = null, bool $connect = true): Mongo
 {
-    return Datastores::getMongo($instance_name);
+    return Datastores::getMongo($instance_name, $connect);
 }
 
 
@@ -1696,7 +1697,20 @@ function redis(ConnectorInterface|string|null $connector = 'system-redis', bool 
  */
 function null(?string $instance_name = null): NullDb
 {
-    return Datastores::nullDb($instance_name);
+    return Datastores::getNullDb($instance_name);
+}
+
+
+/**
+ * Returns the file database object
+ *
+ * @param string|null $instance_name
+ *
+ * @return FileDb
+ */
+function filedb(?string $instance_name = null): FileDb
+{
+    return Datastores::getFileDb($instance_name);
 }
 
 
@@ -2147,10 +2161,10 @@ function logmsg(string $file = 'syslog'): LogInterface
  * @param array|string|float|int|null $source
  * @param bool                        $exception
  *
- * @return PoaInterface|array|string|null
+ * @return PoaInterface|array|string|float|int|null
  * @see TraitDataSourceArray::__toArray()
  */
-function get_poad_object(array|string|float|int|null $source, bool $exception = false): PoaInterface|array|string|null
+function get_poad_object(array|string|float|int|null $source, bool $exception = false): PoaInterface|array|string|float|int|null
 {
     if (!$source) {
         return $source;
@@ -2176,16 +2190,20 @@ function get_poad_object(array|string|float|int|null $source, bool $exception = 
             // Return source as-is
             return $source;
         }
+
     }
 
-    // Source is an array now. Check for a valid PAO format.
-    if (array_key_exists('poad', $source)) {
-        if (array_key_exists('generator', $source)) {
-            if (array_key_exists('datatype', $source)) {
-                if (array_key_exists('class', $source)) {
-                    if (array_key_exists('source', $source)) {
-                        // This is an PAO array, yay!
-                        return $source['class']::newFromSource($source['source']);
+    if (is_array($source)) {
+        // Source is an array now. Check for a valid PAO format.
+        if (array_key_exists('poad', $source)) {
+            // This seems to be a POAD array! Confirm and decode
+            if (array_key_exists('generator', $source)) {
+                if (array_key_exists('datatype', $source)) {
+                    if (array_key_exists('class', $source)) {
+                        if (array_key_exists('source', $source)) {
+                            // This is an PAO array, yay!
+                            return $source['class']::newFromSource($source['source']);
+                        }
                     }
                 }
             }
