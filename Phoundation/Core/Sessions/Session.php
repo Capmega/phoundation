@@ -261,7 +261,6 @@ class Session implements SessionInterface
         static::checkDomains();
         static::configureCookies();
         static::resume();
-
         static::$has_started_up = true;
 
         Http::setSslDefaultContext();
@@ -975,6 +974,11 @@ class Session implements SessionInterface
     {
         if (empty(session_id())) {
             if (PLATFORM_WEB) {
+                // TODO Add support for session users. For now we return the system user
+                if (Request::isRequestType(EnumRequestTypes::api)) {
+                    return User::newSystem();
+                }
+
                 throw new SessionException(tr('Cannot access session data yet, session has not yet been initialized'));
             }
 
