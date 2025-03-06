@@ -2289,12 +2289,12 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                             ->load();
 
         $entry  = DataEntryForm::new()->setRenderContentsOnly(true);
-        $select = $roles->getHtmlSelect()->setCache(true)
-                                         ->setNotSelectedLabel(null)
-                                         ->setMultiple(true)
-                                         ->setName($name)
-                                         ->setSize($roles->getCount())
-                                         ->setSelected($selected);
+        $select = $roles->getHtmlSelectOld()->setCache(true)
+                        ->setNotSelectedLabel(null)
+                        ->setMultiple(true)
+                        ->setName($name)
+                        ->setSize($roles->getCount())
+                        ->setSelected($selected);
 
         return $entry->appendContent($select->render());
     }

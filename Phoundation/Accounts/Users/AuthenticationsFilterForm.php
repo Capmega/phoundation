@@ -24,13 +24,13 @@ use Phoundation\Web\Html\Enums\EnumElement;
 
 class AuthenticationsFilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
 {
-    public function __construct(?string $content = null)
+    public function __construct(?string $source = null)
     {
         $this->states = Authentication::getFilterStatuses();
 
         GetValidator::new()->setColumnDefault('all', 'status');
 
-        parent::__construct($content);
+        parent::__construct($source);
 
         $this->definitions->get('date_range')->setSize(3);
         $this->definitions->get('users_id')->setSize(3);

@@ -75,7 +75,7 @@ class DefinitionFactory
                          ->setOptional(true)
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
                              return Categories::new()
-                                              ->getHtmlSelect()
+                                              ->getHtmlSelectOld()
                                               ->setName($key)
                                               ->setReadonly($definition->getReadonly())
                                               ->setDisabled($definition->getDisabled())
@@ -148,7 +148,7 @@ class DefinitionFactory
                          ->setOptional(true)
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
                              return Servers::new()
-                                           ->getHtmlSelect()
+                                           ->getHtmlSelectOld()
                                            ->setName($key)
                                            ->setReadonly($definition->getReadonly())
                                            ->setDisabled($definition->getDisabled())
@@ -255,7 +255,7 @@ class DefinitionFactory
                          ->setOptional(true)
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
                              return Companies::new()
-                                             ->getHtmlSelect()
+                                             ->getHtmlSelectOld()
                                              ->setName($key)
                                              ->setReadonly($definition->getReadonly())
                                              ->setDisabled($definition->getDisabled())
@@ -329,7 +329,7 @@ class DefinitionFactory
                          ->setInputType(EnumInputType::number)
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
                              return Languages::new()
-                                             ->getHtmlSelect()
+                                             ->getHtmlSelectOld()
                                              ->setName($key)
                                              ->setReadonly($definition->getReadonly())
                                              ->setDisabled($definition->getDisabled())
@@ -441,7 +441,7 @@ class DefinitionFactory
                          ->setOptional(true)
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
                              return Providers::new()
-                                             ->getHtmlSelect()
+                                             ->getHtmlSelectOld()
                                              ->setName($key)
                                              ->setReadonly($definition->getReadonly())
                                              ->setDisabled($definition->getDisabled())
@@ -513,7 +513,7 @@ class DefinitionFactory
                          ->setOptional(true)
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
                              return Customers::new()
-                                             ->getHtmlSelect()
+                                             ->getHtmlSelectOld()
                                              ->setName($key)
                                              ->setReadonly($definition->getReadonly())
                                              ->setDisabled($definition->getDisabled())
@@ -586,7 +586,7 @@ class DefinitionFactory
                          ->setInputType(EnumInputType::number)
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
                              return Timezones::new()
-                                             ->getHtmlSelect()
+                                             ->getHtmlSelectOld()
                                              ->setName($key)
                                              ->setReadonly($definition->getReadonly())
                                              ->setDisabled($definition->getDisabled())
@@ -1056,7 +1056,7 @@ class DefinitionFactory
                          ->setCliAutoComplete(true)
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters, $column) {
                              return Users::new()
-                                         ->getHtmlSelect()
+                                         ->getHtmlSelectOld()
                                          ->setId($column)
                                          ->setName($column)
                                          ->setReadonly($definition->getReadonly())
@@ -1164,7 +1164,7 @@ class DefinitionFactory
                          ->setCliAutoComplete(true)
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters, $column) {
                              return Roles::new()
-                                         ->getHtmlSelect()
+                                         ->getHtmlSelectOld()
                                          ->setId($column)
                                          ->setName($column)
                                          ->setReadonly($definition->getReadonly())

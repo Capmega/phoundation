@@ -39,17 +39,6 @@ class EntryCore implements EntryInterface
 
 
     /**
-     * Return the object contents in JSON string format
-     *
-     * @return string
-     */
-    public function __toString(): string
-    {
-        return Json::encode($this);
-    }
-
-
-    /**
      * Returns all keys that are protected and cannot be removed from this object
      *
      * @return array

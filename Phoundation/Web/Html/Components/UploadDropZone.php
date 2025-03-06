@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataSelector;
 use Phoundation\Data\Traits\TraitDataUrl;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
@@ -27,6 +28,7 @@ class UploadDropZone extends ResourceElement
 {
     use TraitDataSelector;
     use TraitDataUrl;
+
 
     /**
      * Start upload button
@@ -81,11 +83,12 @@ class UploadDropZone extends ResourceElement
     /**
      * UploadDropZone class constructor
      *
-     * @param string|null $content
+     * @param IteratorInterface|array|null $source
      */
-    public function __construct(?string $content = null)
+    public function __construct(IteratorInterface|array|null $source = null)
     {
-        parent::__construct($content);
+        parent::__construct($source);
+
         $this->selector                   = 'document.body';
         $this->total_progress_selector    = '#total-progress';
         $this->progress_bar_selector      = '.progress-bar';

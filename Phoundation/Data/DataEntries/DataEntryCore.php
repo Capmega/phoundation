@@ -42,10 +42,8 @@ use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Enums\EnumStateMismatchHandling;
 use Phoundation\Data\DataEntries\Exception\DataEntryAlreadyExistsException;
-use Phoundation\Data\DataEntries\Exception\DataEntryBadException;
 use Phoundation\Data\DataEntries\Exception\DataEntryColumnNotDefinedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryDeletedException;
-use Phoundation\Data\DataEntries\Exception\DataEntryDisabledException;
 use Phoundation\Data\DataEntries\Exception\DataEntryException;
 use Phoundation\Data\DataEntries\Exception\DataEntryInvalidIdentifierException;
 use Phoundation\Data\DataEntries\Exception\DataEntryInvalidVirtualConfigurationException;
@@ -103,7 +101,6 @@ use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
-use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Stringable;
 use Throwable;
@@ -925,6 +922,23 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
+     * Checks if this DataEntry class has any definitions at all available
+     *
+     * @return static
+     */
+    protected function checkDefinitions(): static
+    {
+        if (empty($this->definitions) or $this->definitions->isEmpty()) {
+            throw new OutOfBoundsException(tr('This ":class" class has no definitions', [
+                ':class' => get_class($this),
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Sets the value for the specified data key
      *
      * @param mixed                       $value
@@ -1044,33 +1058,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         return $keys;
-    }
-
-
-    /**
-     * Returns a new DataEntry object from the specified array source
-     *
-     * @param DataEntryInterface|array $source
-     *
-     * @return static
-     */
-    public static function newFromSource(DataEntryInterface|array $source): static
-    {
-        if ($source instanceof DataEntryInterface) {
-            if ($source instanceof static) {
-                return clone $source;
-            }
-
-            throw new DataEntryBadException(
-                tr('The specified source ":source" must be either an array or an instance of ":static"', [
-                    ':static' => static::class,
-                    ':source' => get_class($source),
-                ])
-            );
-        }
-
-        $entry = new static(null);
-        return $entry->setSource($source);
     }
 
 
@@ -1713,20 +1700,20 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                     $source = Json::decode($source);
 
                 } catch (Throwable) {
-                    // This is not JSON
+                    // This is not JSON, is it an SQL query?
                     $source = sql()->list($source, $execute);
                 }
             }
 
             $this->is_loading = true;
 
-            // Load data with object init
-            $this->copyValuesToSource($source, false);
-
             if (!$filter_meta) {
                 // Load meta data too
                 $this->setMetaData($source);
             }
+
+            // Load data with object init
+            $this->copyValuesToSource($source, false);
         }
 
         // Done!
@@ -1994,11 +1981,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function copyValuesToSource(array $source, bool $modify, bool $directly = false, bool $force = false): static
     {
-        if (empty($this->definitions) or $this->definitions->isEmpty()) {
-            throw new OutOfBoundsException(tr('Data keys were not defined for this ":class" class', [
-                ':class' => get_class($this),
-            ]));
-        }
+        $this->checkDefinitions();
 
         // Setting columns will make $this->is_validated false, so store the current value;
         $validated = $this->is_validated;
@@ -2230,11 +2213,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function setMetaData(?array $data = null): static
     {
-        if ($this->definitions->isEmpty()) {
-            throw new OutOfBoundsException(tr('Data keys were not defined for this ":class" class', [
-                ':class' => get_class($this),
-            ]));
-        }
+        $this->checkDefinitions();
 
         if ($data === null) {
             // No data specified, all columns should be null

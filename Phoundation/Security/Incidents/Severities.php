@@ -48,7 +48,7 @@ class Severities extends Iterator
      *
      * @return InputSelectInterface
      */
-    public function getHtmlSelect(): InputSelectInterface
+    public function getHtmlSelectOld(): InputSelectInterface
     {
         return InputSelect::new()->setSource($this->source);
     }

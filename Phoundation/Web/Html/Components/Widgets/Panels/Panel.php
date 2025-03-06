@@ -134,11 +134,11 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     /**
      * Panel class constructor
      *
-     * @param IteratorInterface|PDOStatement|array|string|null $content
+     * @param IteratorInterface|PDOStatement|array|string|null $source
      */
-    public function __construct(IteratorInterface|PDOStatement|array|string|null $content = null)
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null)
     {
-        parent::__construct($content);
+        parent::__construct($source);
         $this->background_color = EnumBootstrapColor::primary;
     }
 

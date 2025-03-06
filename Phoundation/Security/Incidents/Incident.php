@@ -178,10 +178,12 @@ class Incident extends DataEntry implements IncidentInterface
      * Sets the exception for this incident
      *
      * @param Throwable|string|null $e
+     * @param int                   $log
+     * @param array|string          $notify_roles
      *
      * @return static
      */
-    public function setException(Throwable|string|null $e): static
+    public function setException(Throwable|string|null $e, int $log = 10, array|string $notify_roles = 'developer'): static
     {
         if ($e) {
             if (is_string($e)) {
@@ -218,7 +220,10 @@ class Incident extends DataEntry implements IncidentInterface
             }
         }
 
-        return $this->__setException($e);
+        // Set this for all exceptions
+        return $this->__setException($e)
+                    ->setNotifyRoles($notify_roles)
+                    ->setLog($log);
     }
 
 

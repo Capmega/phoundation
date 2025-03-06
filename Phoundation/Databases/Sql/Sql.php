@@ -286,7 +286,7 @@ class Sql implements SqlInterface
      */
     public function get(string|float|int|null $key, ?callable $cache_callback): mixed
     {
-        return $this->getColumn('SELECT `value` FROM `cache` WHERE `key` = :key`');
+        return $this->getColumn('SELECT `value` FROM `core_cache` WHERE `key` = :key`');
     }
 
 
@@ -301,7 +301,7 @@ class Sql implements SqlInterface
      */
     public function set(mixed $value, string|float|int|null $key): static
     {
-        return $this->insert('cache', ['key' => $key, 'value' => $value], ['value' => $value]);
+        return $this->insert('core_cache', ['key' => $key, 'value' => $value], ['value' => $value]);
     }
 
 
@@ -892,10 +892,10 @@ class Sql implements SqlInterface
 
                 } catch (Throwable $e) {
                     Log::warning(static::getConnectorLogPrefix() . tr('Failed to set timezone ":timezone" for database connector ":connector" with error ":e"', [
-                            ':timezone'  => $this->configuration['timezones_name'],
-                            ':connector' => $this->connector,
-                            ':e'         => $e->getMessage(),
-                        ]));
+                        ':timezone'  => $this->configuration['timezones_name'],
+                        ':connector' => $this->connector,
+                        ':e'         => $e->getMessage(),
+                    ]));
 
                     if (!Core::readRegister('no_time_zone') and (Core::isExecutedPath('system/init'))) {
                         throw $e;

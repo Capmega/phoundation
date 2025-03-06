@@ -25,11 +25,13 @@ use Phoundation\Core\Hooks\Interfaces\HookInterface;
 use Phoundation\Core\Interfaces\ConfigInterface;
 use Phoundation\Core\Interfaces\FloatableInterface;
 use Phoundation\Core\Interfaces\IntegerableInterface;
+use Phoundation\Core\Interfaces\PoaInterface;
 use Phoundation\Core\Log\Interfaces\LogInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\SessionConfig;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Datastores;
+use Phoundation\Databases\FileDb;
 use Phoundation\Databases\Interfaces\MemcachedInterface;
 use Phoundation\Databases\Mongo;
 use Phoundation\Databases\NullDb;
@@ -39,11 +41,14 @@ use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeZoneInterface;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Developer\Debug\FunctionCall;
+use Phoundation\Exception\ObjectDecodeException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhoException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Config;
+use Phoundation\Utils\Exception\JsonException;
+use Phoundation\Utils\Json;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
@@ -1650,9 +1655,9 @@ function sql(ConnectorInterface|string|null $connector = 'system', bool $use_dat
  *
  * @return MemcachedInterface
  */
-function mc(ConnectorInterface|string|null $connector): MemcachedInterface
+function mc(ConnectorInterface|string|null $connector, bool $connect = true): MemcachedInterface
 {
-    return Datastores::getMc($connector);
+    return Datastores::getMemcached($connector, $connect);
 }
 
 
@@ -1663,9 +1668,9 @@ function mc(ConnectorInterface|string|null $connector): MemcachedInterface
  *
  * @return Mongo
  */
-function mongo(?string $instance_name = null): Mongo
+function mongo(?string $instance_name = null, bool $connect = true): Mongo
 {
-    return Datastores::getMongo($instance_name);
+    return Datastores::getMongo($instance_name, $connect);
 }
 
 
@@ -1692,7 +1697,20 @@ function redis(ConnectorInterface|string|null $connector = 'system-redis', bool 
  */
 function null(?string $instance_name = null): NullDb
 {
-    return Datastores::nullDb($instance_name);
+    return Datastores::getNullDb($instance_name);
+}
+
+
+/**
+ * Returns the file database object
+ *
+ * @param string|null $instance_name
+ *
+ * @return FileDb
+ */
+function filedb(?string $instance_name = null): FileDb
+{
+    return Datastores::getFileDb($instance_name);
 }
 
 
@@ -2131,6 +2149,77 @@ function sessionconfig(string $section = 'default', ?string $environment = null)
 function logmsg(string $file = 'syslog'): LogInterface
 {
     return Log::toFile($file);
+}
+
+
+/**
+ * Returns an object from the given source data
+ *
+ * This requires the source data to have the POA (Phoundation Object Array) format
+ * (See TraitDataSourceArray::__toArray() for more information). A JSON encoded array version is also accepted
+ *
+ * @param array|string|float|int|null $source
+ * @param bool                        $exception
+ *
+ * @return PoaInterface|array|string|float|int|null
+ * @see TraitDataSourceArray::__toArray()
+ */
+function get_poad_object(array|string|float|int|null $source, bool $exception = false): PoaInterface|array|string|float|int|null
+{
+    if (!$source) {
+        return $source;
+    }
+
+    if (is_string($source)) {
+        if (!str_starts_with($source, 'POADJSON')) {
+            return $source;
+        }
+
+        // This is a Phoundation Object Array Data string with JSON encoding. Strip the header and decode it now.
+        try {
+            $source = Json::decode(substr($source, 8));
+
+        } catch (JsonException $e) {
+            if ($exception) {
+                throw ObjectDecodeException::new(tr('Failed to decode specified POADJSON source string into object because source string is not valid JSON'), $e)
+                                           ->setData([
+                                               'source' => $source
+                                           ]);
+            }
+
+            // Return source as-is
+            return $source;
+        }
+
+    }
+
+    if (is_array($source)) {
+        // Source is an array now. Check for a valid PAO format.
+        if (array_key_exists('poad', $source)) {
+            // This seems to be a POAD array! Confirm and decode
+            if (array_key_exists('generator', $source)) {
+                if (array_key_exists('datatype', $source)) {
+                    if (array_key_exists('class', $source)) {
+                        if (array_key_exists('source', $source)) {
+                            // This is an PAO array, yay!
+                            return $source['class']::newFromSource($source['source']);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if ($exception) {
+        throw ObjectDecodeException::new(tr('Failed to decode specified POAD source array into object because source array is not a valid PAO array'))
+                                   ->setData([
+                                       'source' => $source
+                                   ]);
+
+    }
+
+    // Return source as-is
+    return $source;
 }
 
 

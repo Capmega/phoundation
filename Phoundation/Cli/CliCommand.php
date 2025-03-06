@@ -1887,7 +1887,7 @@ return 'under construction';
         // Process command line system arguments if we have no exception so far
         if ($argv['version']) {
             Log::cli(ts('Phoundation framework version ":version"', [
-                ':version' => Core::FRAMEWORK_CODE_VERSION,
+                ':version' => Core::PHOUNDATION_VERSION,
             ]), 10);
             Log::cli(ts('Phoundation database version ":version"', [
                 ':version' => Version::getString(Libraries::getMaximumVersion()),

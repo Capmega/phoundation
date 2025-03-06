@@ -89,12 +89,12 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
     /**
      * Select constructor
      *
-     * @param string|null $content
+     * @param IteratorInterface|array|null $source
      */
-    public function __construct(?string $content = null)
+    public function __construct(IteratorInterface|array|null $source = null)
     {
-        parent::__construct($content);
-        parent::setElement('select');
+        parent::__construct($source);
+        $this->setElement('select');
     }
 
 
@@ -119,7 +119,6 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
     public function setKeyColumn(?string $key_column): static
     {
         $this->key_column = $key_column;
-
         return $this;
     }
 
@@ -145,7 +144,6 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
     public function setRenderCheckboxes(bool $render_checkboxes): static
     {
         $this->render_checkboxes = $render_checkboxes;
-
         return $this;
     }
 
@@ -171,7 +169,6 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
     public function setValueColumn(?string $value_column): static
     {
         $this->value_column = $value_column;
-
         return $this;
     }
 
@@ -684,15 +681,12 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      * @see \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
+     * @todo Refactor this. Query rendering should render each row immediately once it comes from database fetch, instead of dumping it first in the source.
      */
     protected function renderBodyQuery(): ?string
     {
         if (empty($this->source_query)) {
             return null;
-        }
-
-        if (empty($this->source)) {
-            $this->source = new Iterator();
         }
 
         while ($row = $this->source_query->fetch()) {
@@ -710,70 +704,12 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
                 $value = $row[array_key_last($row)];
             }
 
-            $this->source->add($value, $key);
+            $this->source[$key] = $value;
         }
 
         $this->source_query = null;
 
         return null;
-
-//        $return = '';
-//
-//        if (!$this->source_query) {
-//            return '';
-//        }
-//
-//        if (!$this->source_query->rowCount()) {
-//            return '';
-//        }
-//
-//        // Get resource data from a query
-//        if ($this->auto_select and ($this->source_query->rowCount() == 1)) {
-//            // Auto select the only available element
-//// :TODO: Implement
-//        }
-//
-//        // Process SQL resource
-//        while ($row = $this->source_query->fetch(PDO::FETCH_NUM)) {
-//            $this->count++;
-//            $option_data = '';
-//
-//            $key   = $row[array_key_first($row)];
-//            $value = $row[array_key_last($row)];
-//
-//            if ($this->cache) {
-//                // Store the data in array
-//                if (empty($this->source)) {
-//                    $this->source = new Iterator();
-//                }
-//
-//                $this->source->add($value, $key);
-//            }
-//
-//            if (!$key) {
-//                // To avoid select problems with "none" entries, empty id column values are not allowed
-//                Log::warning(ts('Dropping result ":count" without key from source query ":query"', [
-//                    ':count' => $this->count,
-//                    ':query' => $this->source_query->queryString
-//                ]));
-//                continue;
-//            }
-//
-//            // Add data- in this option?
-//            if (array_key_exists($key, $this->source_data)) {
-//                foreach ($this->source_data as $data_key => $data_value) {
-//                    $option_data .= ' data-' . $data_key . '="' . $data_value . '"';
-//                }
-//            }
-//
-//            $return .= '<option' . $this->buildOptionClassString() . $this->buildSelectedString($key) . ' value="' . htmlspecialchars((string) $key) . '"' . $option_data . '>' . htmlentities((string) $value) . '</option>';
-//        }
-//
-//        if ($this->cache) {
-//            $this->source_query = null;
-//        }
-//
-//        return $return;
     }
 
 
@@ -810,8 +746,8 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
             $option_data = '';
 
             // Add data- in this option?
-            if (array_key_exists($key, $this->source_data)) {
-                foreach ($this->source_data as $data_key => $data_value) {
+            if (array_key_exists($key, $this->data_source)) {
+                foreach ($this->data_source as $data_key => $data_value) {
                     $option_data = ' data-' . $data_key . '="' . $data_value . '"';
                 }
             }
@@ -832,8 +768,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
                         if (!$this->value_column) {
                             throw OutOfBoundsException::new(tr('The specified ":id" select source array contains array values, but no value column was specified', [
                                 ':id' => $this->getId() . ' / ' . $this->getName(),
-                            ]))
-                                                      ->addData($this->source);
+                            ]))->addData($this->source);
                         }
 
                         try {
@@ -842,11 +777,10 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
                         } catch (Throwable $e) {
                             throw OutOfBoundsException::new(tr('Failed to build select body because the data row does not contain the specified value column ":column"', [
                                 ':column' => $this->value_column,
-                            ]))
-                                                      ->setData([
-                                                          'value'        => $value,
-                                                          'value_column' => $this->value_column,
-                                                      ]);
+                            ]))->setData([
+                                'value'        => $value,
+                                'value_column' => $this->value_column,
+                            ]);
                         }
                     }
 

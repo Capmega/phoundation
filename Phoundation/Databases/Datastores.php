@@ -36,40 +36,11 @@ use Phoundation\Exception\UnderConstructionException;
 class Datastores
 {
     /**
-     * The register with all SQL database connectors
-     * @todo Move all connectors (sql, mc, redis, etc) into a connectors Iterator object
+     * The register with all database connections
      *
-     * @var array $sql
+     * @var array $databases
      */
-    protected static array $sql = [];
-
-    /**
-     * The register with all Memcached connectors
-     *
-     * @var array $mc
-     */
-    protected static array $mc = [];
-
-    /**
-     * The register with all Redis database connectors
-     *
-     * @var array $redis
-     */
-    protected static array $redis = [];
-
-    /**
-     * The register with all Mongo database connectors
-     *
-     * @var array $mongo
-     */
-    protected static array $mongo = [];
-
-    /**
-     * The register with all NullDb database connectors
-     *
-     * @var array $null_db
-     */
-    protected static array $null_db = [];
+    protected static array $databases = [];
 
     /**
      * Database connectors handler
@@ -87,11 +58,11 @@ class Datastores
     public static function getDrivers(): array
     {
         return [
+            'null',
+            'file',
             'mysql',
             'redis',
             'mongo',
-            'mongodb',
-            'elastic',
             'elasticsearch',
         ];
     }
@@ -108,12 +79,12 @@ class Datastores
      */
     public static function getConnectorObject(ConnectorInterface|string $connector): ConnectorInterface
     {
-        if ($connector instanceof ConnectorInterface) {
-            $connector = $connector->getName();
+        if (!$connector) {
+            throw new NoConnectorSpecifiedException(tr('Cannot return Connector object, no connector specified.'));
         }
 
-        if (!$connector) {
-            throw new OutOfBoundsException(tr('Cannot get connector object, no connector name specified'));
+        if ($connector instanceof ConnectorInterface) {
+            $connector = $connector->getName();
         }
 
         // Connectors::get() will automatically load the required connector object if it isn't loaded yet
@@ -140,17 +111,48 @@ class Datastores
      * Returns a Database connector for the specified connector
      *
      * @param ConnectorInterface $connector
+     * @param bool               $connect
      * @param bool               $use_database
      *
      * @return DatabaseInterface
-     * @throws Exception
      */
-    public static function fromConnector(ConnectorInterface $connector, bool $use_database = true): DatabaseInterface
+    public static function fromConnector(ConnectorInterface $connector, bool $connect = true, bool $use_database = true): DatabaseInterface
     {
         return match ($connector->getType()) {
-            'sql'   => Datastores::getSql($connector, $use_database),
-            default => throw new UnderConstructionException(),
+            'sql'       => Datastores::getSql($connector, $connect, $use_database),
+            'null'      => Datastores::getNullDb($connector, $connect, $use_database),
+            'file'      => Datastores::getFileDb($connector, $connect, $use_database),
+            'mongo'     => Datastores::getMongo($connector, $connect, $use_database),
+            'redis'     => Datastores::getRedis($connector, $connect, $use_database),
+            'memcached' => Datastores::getMemcached($connector, $connect, $use_database),
+            default     => throw new OutOfBoundsException(tr('Unknown connector type ":type" specified', [
+                ':type' => $connector->getType()
+            ])),
         };
+    }
+
+
+    /**
+     * Returns a database object for the specified database connector
+     *
+     * @param ConnectorInterface|string|null $connector
+     * @param string                         $class
+     * @param bool                           $connect
+     * @param bool                           $use_database
+     *
+     * @return SqlInterface|RedisInterface|MemcachedInterface|Mongo|FileDb|NullDb
+     */
+    protected static function getDatabase(ConnectorInterface|string|null $connector, string $class, bool $connect = true, bool $use_database = true): SqlInterface|RedisInterface|MemcachedInterface|Mongo|FileDb|NullDb
+    {
+        $connector      = Datastores::getConnectorObject($connector);
+        $connector_name = $connector->getDisplayName();
+
+        if (!array_key_exists($connector_name, static::$databases)) {
+            // This connector isn't registered yet, so connect and add it to the "connectors" list
+            static::$databases[$connector_name] = new $class($connector, $connect, $use_database);
+        }
+
+        return static::$databases[$connector_name];
     }
 
 
@@ -158,159 +160,93 @@ class Datastores
      * Access SQL database connectors
      *
      * @param ConnectorInterface|string|null $connector
-     * @param bool                           $use_database
      * @param bool                           $connect
+     * @param bool                           $use_database
      *
      * @return SqlInterface
      */
-    public static function getSql(ConnectorInterface|string|null $connector = 'system', bool $use_database = true, bool $connect = true): SqlInterface
+    public static function getSql(ConnectorInterface|string|null $connector = 'system', bool $connect = true, bool $use_database = true): SqlInterface
     {
         if (!$connector) {
             // Default to system connector
             $connector = 'system';
         }
 
-        $connector      = Datastores::getConnectorObject($connector);
-        $connector_name = $connector->getDisplayName();
-
-        if (!array_key_exists($connector_name, static::$sql)) {
-            // This connector isn't registered yet, so connect and add it to the "connectors" list
-            static::$sql[$connector_name] = new Sql($connector, $use_database, $connect);
-        }
-
-        return static::$sql[$connector_name];
+        return static::getDatabase($connector, Sql::class, $connect, $use_database);
     }
 
 
     /**
      * Access Memcached database connectors
      *
-     * @param ConnectorInterface|string|null $connector
+     * @param ConnectorInterface|string $connector
+     * @param bool                      $connect
+     * @param bool                      $use_database
      *
      * @return MemcachedInterface
-     * @throws Exception
      */
-    public static function getMc(ConnectorInterface|string|null $connector): MemcachedInterface
+    public static function getMemcached(ConnectorInterface|string $connector, bool $connect = true, bool $use_database = true): MemcachedInterface
     {
-        if (!$connector) {
-            throw new NoConnectorSpecifiedException(tr('Cannot return memcached object, no connector specified.'));
-        }
-
-        if ($connector) {
-            // The connector specified was a connector name, get a connector object
-            $connector_name = $connector;
-            $connector      = new Connector($connector);
-
-        } else {
-            $connector_name = $connector->getDisplayName();
-        }
-
-        if (!array_key_exists($connector_name, static::$mc)) {
-            // No panic now! This connector isn't registered yet, so it might very well be the first time we're using it.
-            // Connect and add it
-            static::$mc[$connector_name] = new Memcached($connector);
-        }
-
-        return static::$mc[$connector_name];
+        return static::getDatabase($connector, Memcached::class, $connect, $use_database);
     }
 
 
     /**
      * Access Redis database connectors
      *
-     * @param ConnectorInterface|string|null $connector
-     * @param bool                           $connect
+     * @param ConnectorInterface|string $connector
+     * @param bool                      $connect
+     * @param bool                      $use_database
      *
      * @return RedisInterface
      */
-    public static function getRedis(ConnectorInterface|string|null $connector = 'system-redis', bool $connect = true): RedisInterface
+    public static function getRedis(ConnectorInterface|string $connector, bool $connect = true, bool $use_database = true): RedisInterface
     {
-        if ($connector instanceof ConnectorInterface) {
-            $connector_name = $connector->getDisplayName();
-
-        } else {
-            // The connector specified was a connector name or null
-            if ($connector === null) {
-                $connector = 'system-redis';
-            }
-            $connector_name = $connector;
-        }
-
-        if (!array_key_exists($connector_name, static::$redis)) {
-            // No panic now! This connector isn't registered yet, so it might very well be the first time we're using it
-            // Try connecting
-            static::$redis[$connector] = new Redis($connector);
-        }
-
-        return static::$redis[$connector_name];
+        return static::getDatabase($connector, Redis::class, $connect, $use_database);
     }
 
 
     /**
      * Access Mongo database connectors
      *
-     * @param string|null $connector
+     * @param ConnectorInterface|string $connector
+     * @param bool                      $connect
+     * @param bool                      $use_database
      *
      * @return Mongo
-     * @throws Exception
      */
-    public static function getMongo(?string $connector): Mongo
+    public static function getMongo(ConnectorInterface|string $connector, bool $connect = true, bool $use_database = true): Mongo
     {
-        if (!$connector) {
-            // Default to system connector
-            $connector = 'system-mongodb';
-        }
-
-
-        if ($connector instanceof ConnectorInterface) {
-            $connector_name = $connector->getDisplayName();
-
-        } else {
-            // The connector specified was a connector name
-            $connector_name = $connector;
-        }
-
-        if (!array_key_exists($connector, static::$mongo)) {
-            // No panic now! This connector isn't registered yet, so it might very well be the first time we're using it
-            // Try connecting
-            static::$mongo[$connector] = new Mongo($connector);
-        }
-
-        return static::$mongo[$connector];
+        return static::getDatabase($connector, Mongo::class, $connect, $use_database);
     }
 
 
     /**
      * Access NullDb database connectors
      *
-     * @param string|null $connector
+     * @param ConnectorInterface|string $connector
+     * @param bool                      $connect
+     * @param bool                      $use_database
      *
      * @return NullDb
-     * @throws Exception
      */
-    public static function nullDb(?string $connector): NullDb
+    public static function getNullDb(ConnectorInterface|string $connector, bool $connect = true, bool $use_database = true): NullDb
     {
-        if (!$connector) {
-            // Default to system connector
-            $connector = 'system-nulldb';
-        }
-
-        if ($connector instanceof ConnectorInterface) {
-            $connector_name = $connector->getDisplayName();
-
-        } else {
-            // The connector specified was a connector name
-            $connector_name = $connector;
-        }
-
-        if (!array_key_exists($connector, static::$null_db)) {
-            // No panic now! This connector isn't registered yet, so it might very well be the first time we're using it
-            // Try connecting
-            static::$null_db[$connector] = new NullDb($connector);
-        }
-
-        return static::$null_db[$connector];
+        return static::getDatabase($connector, NullDb::class, $connect, $use_database);
+    }
 
 
+    /**
+     * Access FileDb database connectors
+     *
+     * @param ConnectorInterface|string $connector
+     * @param bool                      $connect
+     * @param bool                      $use_database
+     *
+     * @return FileDb
+     */
+    public static function getFileDb(ConnectorInterface|string $connector, bool $connect = true, bool $use_database = true): FileDb
+    {
+        return static::getDatabase($connector, FileDb::class, $connect, $use_database);
     }
 }

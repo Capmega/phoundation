@@ -64,11 +64,11 @@ class DateNavigator extends ElementsBlock
     /**
      * DateNavigator class constructor
      *
-     * @param string|null $content
+     * @param string|null $source
      */
-    public function __construct(?string $content = null)
+    public function __construct(?string $source = null)
     {
-        parent::__construct($content);
+        parent::__construct($source);
         // Create the next button
         $this->next_button = Button::new();
     }

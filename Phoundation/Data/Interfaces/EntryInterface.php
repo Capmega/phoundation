@@ -8,7 +8,7 @@ use Phoundation\Data\EntryCore;
 use Stringable;
 
 
-interface EntryInterface extends ArraySourceInterface, CliFormInterface, Stringable
+interface EntryInterface extends ArraySourceInterface, CliFormInterface
 {
     /**
      * Returns all keys that are protected and cannot be removed from this object

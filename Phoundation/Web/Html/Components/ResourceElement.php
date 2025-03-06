@@ -16,22 +16,25 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
-use Phoundation\Data\Traits\TraitStaticMethodNewWithContent;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Traits\TraitStaticMethodNewIteratorArraySource;
 
 
 abstract class ResourceElement extends ResourceElementCore
 {
-    use TraitStaticMethodNewWithContent;
+    use TraitStaticMethodNewIteratorArraySource;
 
 
     /**
      * ResourceElement class constructor
      *
-     * @param string|null $content
+     * @param IteratorInterface|array|null $source
      */
-    public function __construct(?string $content = null)
+    public function __construct(IteratorInterface|array|null $source = null)
     {
-        parent::__construct($content);
-        $this->component_empty_label = tr('No results available');
+        parent::__construct();
+
+        $this->setSource($source)
+             ->component_empty_label = tr('No results available');
     }
 }

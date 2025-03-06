@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Trait TraitStaticMethodNewWithContent
+ * Trait TraitStaticMethodNewStringContent
  *
  *
  *
@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 
-trait TraitStaticMethodNewWithContent
+trait TraitStaticMethodNewStringContent
 {
     /**
      * Returns a new class

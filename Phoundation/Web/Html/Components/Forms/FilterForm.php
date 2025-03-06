@@ -95,11 +95,11 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
     /**
      * FilterForm class constructor
      *
-     * @param string|null $content
+     * @param string|null $source
      */
-    public function __construct(?string $content = null)
+    public function __construct(?string $source = null)
     {
-        parent::__construct($content);
+        parent::__construct($source);
 
         $this->defaultRequestMethod()
              ->setFormat(PhoDateFormats::getDefaultPhp());
@@ -159,7 +159,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                         ->setOptional(true)
                                                         ->setInputType(EnumInputType::dbid)
                                                         ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
-                                                            return Users::new()->getHtmlSelect()
+                                                            return Users::new()->getHtmlSelectOld()
                                                                                ->setSourceQuery('SELECT    `accounts_users`.`id`, COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `accounts_users`.`first_names`, `accounts_users`.`last_names`)), ""), `accounts_users`.`nickname`, `accounts_users`.`username`, `accounts_users`.`email`, "' . tr('System') . '") AS `name` 
                                                                                                  FROM      `accounts_users`
                                                                                                  JOIN      `accounts_users_rights` ON `accounts_users_rights`.`users_id` = `accounts_users`.`id` AND `accounts_users_rights`.`name` = "biller"                                        

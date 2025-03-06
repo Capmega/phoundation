@@ -60,7 +60,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                                           ->setInputType(EnumInputType::dbid)
                                           ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                                               return Roles::new()
-                                                          ->getHtmlSelect()
+                                                          ->getHtmlSelectOld()
                                                           ->setAutoSubmit(true)
                                                           ->setName($field_name)
                                                           ->setNotSelectedLabel(tr('All'))
@@ -75,7 +75,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                                           ->setInputType(EnumInputType::dbid)
                                           ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                                               return Rights::new()
-                                                           ->getHtmlSelect()
+                                                           ->getHtmlSelectOld()
                                                            ->setAutoSubmit(true)
                                                            ->setName($field_name)
                                                            ->setNotSelectedLabel(tr('All'))

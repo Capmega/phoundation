@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class MemcachedException
+ * Class Database
  *
- * This is the standard exception for the Phoundation Databases Memcached class
+ * This is the base class for all Database entine classes
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -14,8 +14,8 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Databases\Exception;
+namespace Phoundation\Databases;
 
-class MemcachedException extends DatabasesException
-{
+
+class Database {
 }

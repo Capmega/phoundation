@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 use PDOStatement;
+use Phoundation\Core\Core;
 use Phoundation\Data\Exception\IteratorKeyExistsException;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\NotExistsException;
@@ -42,7 +43,13 @@ trait TraitDataStaticSourceArray
      */
     public static function __toArray(): array
     {
-        return static::getSource();
+        return [
+            'poad'      => 'PHOUNDATION',
+            'generator' => Core::PHOUNDATION_VERSION,
+            'datatype'  => 'object',
+            'class'     => static::class,
+            'source'    => static::getSource()
+        ];
     }
 
 

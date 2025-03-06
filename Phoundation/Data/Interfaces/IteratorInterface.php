@@ -725,7 +725,7 @@ interface IteratorInterface extends IteratorBaseInterface
      *
      * @return InputSelectInterface
      */
-    public function getHtmlSelect(): InputSelectInterface;
+    public function getHtmlSelectOld(): InputSelectInterface;
 
     /**
      * Executes the specified callback function on each

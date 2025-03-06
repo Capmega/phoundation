@@ -17,16 +17,19 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Memcached;
 
+use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Core\Interfaces\PoaInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
-use Phoundation\Databases\Exception\MemcachedException;
 use Phoundation\Databases\Interfaces\MemcachedInterface;
+use Phoundation\Databases\Memcached\Exception\MemcachedException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Http\Url;
+use Stringable;
 use Throwable;
 
 
@@ -191,52 +194,57 @@ class Memcached implements MemcachedInterface
      * @param callable|null         $cache_callback An optional callback function for read-through caching
      * @param int                   $flags          Currently supports Memcached::GET_EXTENDED
      *
-     * @return mixed
+     * @return PoaInterface|array|string|float|int|null
      * @see https://www.php.net/manual/en/memcached.get.php
      */
-    public function get(string|float|int|null $key, ?callable $cache_callback = null, int $flags = 0): mixed
+    public function get(string|float|int|null $key, ?callable $cache_callback = null, int $flags = 0): PoaInterface|array|string|float|int|null
     {
-        $value = $this->memcached->get($key, $cache_callback, $flags);
+        $value = $this->memcached->get($this->getSafeKey($key), $cache_callback, $flags);
 
-        Log::success($this->log(tr('Read ":bytes" bytes to memcached for key ":key"', [
-            ':key'   => $key,
-            ':bytes' => (is_scalar($value) ? strlen((string) $value) : count($value)),
-        ])), 3);
+        if ($value) {
+            Log::success($this->log(tr('Found key ":key" in memcached', [
+                ':key' => $key,
+            ])), 3);
+        }
 
-        return get_null($value);
+        return get_poad_object(get_null($value));
     }
 
 
     /**
      * Sets the specified key to the specified value on the memcached server(s)
      *
-     * @param mixed                 $value
-     * @param string|float|int|null $key
-     * @param int|null              $expires
+     * @param PoaInterface|array|string|float|int|null $value
+     * @param string|float|int|null                    $key
+     * @param int|null                                 $expires
      *
      * @return mixed
      * @see https://www.php.net/manual/en/memcached.set.php
      */
-    public function set(mixed $value, string|float|int|null $key, ?int $expires = null): static
+    public function set(PoaInterface|array|string|float|int|null $value, string|float|int|null $key, ?int $expires = null): static
     {
-        if (is_bool($value)) {
-            throw new MemcachedException($this->log(tr('Cannot set boolean values in memcached for key ":key"', [
-                ':key' => $key,
-            ])));
+        if ($value instanceof Stringable) {
+            // Prefix the JSON string from this object with PAODJSON to indicate that this is a
+            // Phoundation Object Array Data (POAD) string with JSON encoding that, upon Memcached::get() can be
+            // converted back into an object
+            $value = 'POADJSON' . $value;
+
+        } elseif ($value instanceof ArrayableInterface) {
+            $value = $value->__toArray();
         }
 
-        $result = $this->memcached->set($key, $value, $expires ?? $this->configuration['expires']);
+        $result = $this->memcached->set($this->getSafeKey($key), $value, $expires ?? $this->configuration['expires']);
 
         if ($result) {
-            Log::success($this->log(tr('Wrote ":bytes" bytes to memcached for key ":key"', [
-                ':key'   => $key,
-                ':bytes' => (is_scalar($value) ? strlen((string) $value) : count($value)),
+            Log::success($this->log(tr('Wrote key ":key" to memcached', [
+                ':key' => $key,
             ])), 3);
 
             return $this;
         }
 
         throw new MemcachedException($this->log(tr('Setting value for key ":key" failed with code ":code" and message ":message"', [
+            ':key'     => $key,
             ':code'    => $this->memcached->getResultCode(),
             ':message' => $this->memcached->getResultMessage()
         ])));
@@ -262,7 +270,7 @@ class Memcached implements MemcachedInterface
             ])));
         }
 
-        $result = $this->memcached->add($key, $value, $expires ?? $this->configuration['expires']);
+        $result = $this->memcached->add($this->getSafeKey($key), $value, $expires ?? $this->configuration['expires']);
 
         if ($result) {
             Log::success($this->log(tr('Wrote ":bytes" bytes to memcached for key ":key"', [
@@ -299,7 +307,7 @@ class Memcached implements MemcachedInterface
             ])));
         }
 
-        $result = $this->memcached->replace($key, $value, $expires ?? $this->configuration['expires']);
+        $result = $this->memcached->replace($this->getSafeKey($key), $value, $expires ?? $this->configuration['expires']);
 
         if ($result) {
             Log::success($this->log(tr('Wrote ":bytes" bytes to memcached for key ":key"', [
@@ -327,7 +335,7 @@ class Memcached implements MemcachedInterface
      */
     public function delete(string|float|int|null $key, ?int $time = null): void
     {
-        $result = $this->memcached->delete($key, $time);
+        $result = $this->memcached->delete($this->getSafeKey($key), $time);
 
         if ($result) {
             Log::success($this->log(tr('Deleted key ":key"', [
@@ -380,7 +388,7 @@ class Memcached implements MemcachedInterface
      */
     public function increment(string|float|int|null $key, int $offset = 1, int $initial_value = 0, int $expiry = 0): static
     {
-        $result = $this->memcached->increment($key, $offset, $initial_value, $expiry);
+        $result = $this->memcached->increment($this->getSafeKey($key), $offset, $initial_value, $expiry);
 
         if ($result) {
             Log::success($this->log(tr('Incremented key ":key" by ":offset"', [
@@ -461,6 +469,19 @@ class Memcached implements MemcachedInterface
         if (!class_exists('Memcached')) {
             throw new PhpModuleNotAvailableException(tr('The PHP module "memcached" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo sudo apt-get -y install php-memcached; sudo phpenmod memcached" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-memcached" to install the module. After this, a restart of your webserver or php-fpm server might be needed'));
         }
+    }
+
+
+    /**
+     * Returns a key that is safe for use with memcached
+     *
+     * @param string|float|int|null $key
+     *
+     * @return string
+     */
+    protected function getSafeKey(string|float|int|null $key): string
+    {
+        return str_replace(['/', '\\', ':', '*', '?', '"', '<', '>', '|', ' '], '-', $key);
     }
 
 

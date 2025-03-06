@@ -17,7 +17,10 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 use PDOStatement;
+use Phoundation\Core\Core;
 use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Data\DataEntries\Exception\DataEntryBadException;
+use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Utils\Arrays;
@@ -43,18 +46,60 @@ trait TraitDataSourceArray
      */
     public function __toString(): string
     {
-        return Json::encode($this->source);
+        return Json::encode($this->__toArray());
     }
 
 
     /**
-     * Returns the source data when cast to array
+     * Returns the source data when cast to array in POA (Phoundation Object Array) format. This format allows any
+     * object to be recreated from this array
+     *
+     * POA structures must have the following format
+     * [
+     *     "datatype" => The phoundation version that created this array
+     *     "datatype" => "object"
+     *     "class"    => The class name (static::class should suffice)
+     *     "source"   => The object's source data
+     * ]
      *
      * @return array
      */
     public function __toArray(): array
     {
-        return $this->source;
+        return [
+            'poad'      => 'PHOUNDATION',
+            'generator' => Core::PHOUNDATION_VERSION,
+            'datatype'  => 'object',
+            'class'     => static::class,
+            'source'    => $this->source
+        ];
+    }
+
+
+    /**
+     * Returns a new DataEntry object from the specified array source
+     *
+     * @param EntryInterface|array $source
+     *
+     * @return static
+     */
+    public static function newFromSource(EntryInterface|array $source): static
+    {
+        if ($source instanceof EntryInterface) {
+            if ($source instanceof static) {
+                return clone $source;
+            }
+
+            throw new DataEntryBadException(
+                tr('The specified source ":source" must be either an array or an instance of ":static"', [
+                    ':static' => static::class,
+                    ':source' => $source::class,
+                ])
+            );
+        }
+
+        $entry = new static(null);
+        return $entry->setSource($source);
     }
 
 
@@ -70,7 +115,26 @@ trait TraitDataSourceArray
 
 
     /**
-     * Returns the source
+     * Returns the source with the array keys re-indexed, starting from 0
+     *
+     * @note: The arrays returned from this method will no longer contain key information that are linked to the value.
+     *        Instead, the keys will be linear numbers going up, starting from 0.
+     *
+     * @note: PHP arrays can either be real arrays (with index keystarting from 0, continuing linearly) or (anything
+     *        else) hash maps. Most PHP arrays are hash maps because they don't contain "just a list of values", they
+     *        contain a key => value list. These hash maps work exactly the same as normal arrays in PHP and in 99.9%
+     *        of the cases, you won't notice the difference. Json::encode(), however, WILL notice the difference. A PHP
+     *        array will be JSON encoded as "[item, item, ...]" and may be required for many JavaScript applications.
+     *        Hash maps, on the other hand, will be JSON encoded as "{key: item, key: item, ...}". Almost all
+     *        Phoundation Iterator objects will contain sources that are in reality hash maps, and as such, will render
+     *        in JSON as "{ ... }" which may cause issues in JavaScript applications. For those instances, use source
+     *        arrays not from Iterator::getSource() but from this Iterator::getSourceReindexed() which will return a
+     *        true array with keys starting from 0.
+     *
+     * @note  Just to be very clear: A PHP array that contains a single entry where the key was specified is a hash map.
+     *        An array that was created like $a = ["a", "b", "c"] is an actual array. A PHP array that was created like
+     *        $a = ["a", "b", "c", 3 => "d"] is a hash map, even though the fourth entry has the key 3, like a normal
+     *        array would!
      *
      * @return array
      */
@@ -103,7 +167,7 @@ trait TraitDataSourceArray
 
 
     /**
-     * Sets the source
+     * Sets the source data for this object
      *
      * @param IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null
      * @param array|null                                       $execute
@@ -113,7 +177,6 @@ trait TraitDataSourceArray
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
     {
         $this->source = Arrays::extractSourceArray($source, $execute);
-
         return $this;
     }
 

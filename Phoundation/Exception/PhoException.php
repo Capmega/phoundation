@@ -61,6 +61,7 @@ use Phoundation\Utils\Utils;
 use RuntimeException;
 use Throwable;
 
+
 class PhoException extends RuntimeException implements Interfaces\PhoExceptionInterface
 {
     /**
@@ -430,7 +431,6 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
     public function setCode(string|int|null $code = null): static
     {
         $this->code = $code;
-
         return $this;
     }
 
@@ -443,9 +443,7 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
      */
     public function __toString(): string
     {
-        parent::__toString();
-
-        return '[ ' . ($this->warning ? 'WARNING ' : '') . $this->getCode() . ' ] ' . $this->getMessage();
+        return Json::encode($this->__toArray());
     }
 
 
@@ -454,7 +452,7 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
      *
      * @return array
      */
-    public function __toArray(): array
+    public function getSource(): array
     {
         $return = [
             'code'     => $this->getCode(),
@@ -496,9 +494,14 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
      *
      * @return array
      */
-    public function getSource(): array
+    public function __toArray(): array
     {
-        return $this->__toArray();
+        return [
+            'generator' => 'PHOUNDATION-' . Core::PHOUNDATION_VERSION,
+            'datatype'  => 'object',
+            'class'     => static::class,
+            'source'    => $this->getSource()
+        ];
     }
 
 

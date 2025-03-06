@@ -22,4 +22,6 @@ enum EnumCacheGroups: string
     case autosuggest = 'cache-autosuggest';
     case dataentries = 'cache-dataentries';
     case html        = 'cache-html';
+    case objects     = 'cache-objects';
+    case values      = 'cache-values';
 }

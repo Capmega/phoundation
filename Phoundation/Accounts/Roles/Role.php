@@ -126,12 +126,12 @@ class Role extends DataEntry implements RoleInterface
                ->load();
 
         $entry  = DataEntryForm::new()->setRenderContentsOnly(true);
-        $select = $rights->getHtmlSelect()->setCache(true)
-                                          ->setNotSelectedLabel(null)
-                                          ->setMultiple(true)
-                                          ->setName($name)
-                                          ->setSize($rights->getCount())
-                                          ->setSelected($selected);
+        $select = $rights->getHtmlSelectOld()->setCache(true)
+                         ->setNotSelectedLabel(null)
+                         ->setMultiple(true)
+                         ->setName($name)
+                         ->setSize($rights->getCount())
+                         ->setSelected($selected);
 
         return $entry->appendContent($select->render());
     }

@@ -662,14 +662,14 @@ class Debug
                         $value = [
                             ''         => 'DataEntry object',
                             'class'    => get_class($value),
-                            'contents' => $value->__toArray(),
+                            'contents' => $value->getSource(),
                         ];
 
                     } else {
                         $value = [
                             ''         => 'Entry object',
                             'class'    => get_class($value),
-                            'contents' => $value->__toArray(),
+                            'contents' => $value->getSource(),
                         ];
                     }
 
@@ -678,14 +678,14 @@ class Debug
                         $value = [
                             ''         => 'DataIterator object',
                             'class'    => get_class($value),
-                            'contents' => $value->__toArray(),
+                            'contents' => $value->getSource(),
                         ];
 
                     } else {
                         $value = [
                             ''         => 'Iterator object',
                             'class'    => get_class($value),
-                            'contents' => $value->__toArray(),
+                            'contents' => $value->getSource(),
                         ];
                     }
 
@@ -693,7 +693,7 @@ class Debug
                     $value = [
                         ''         => 'Arreable object',
                         'class'    => get_class($value),
-                        'contents' => $value->__toArray(),
+                        'contents' => $value->getSource(),
                     ];
                 }
                 // no break

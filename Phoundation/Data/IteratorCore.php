@@ -49,6 +49,7 @@ use Phoundation\Data\Traits\TraitDataRowCallbacks;
 use Phoundation\Data\Traits\TraitDataParent;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Data\Traits\TraitDataSourceArray;
+use Phoundation\Data\Traits\TraitMethodEnsureArrayString;
 use Phoundation\Databases\Sql\Limit;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -1694,9 +1695,13 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
         foreach (Arrays::force($columns) as $column) {
             if (!array_key_exists($column, $value)) {
-                throw new OutOfBoundsException(tr('The requested column ":column" does not exist', [
+                throw OutOfBoundsException::new(tr('The specified column ":column" does not exist', [
                     ':column' => $column,
-                ]));
+                ]))->setData([
+                    'column'  => $column,
+                    'columns' => Arrays::force($columns),
+
+                ]);
             }
         }
 
@@ -1950,8 +1955,6 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      */
     public function getHtmlTableObject(array|string|null $columns = null): HtmlTableInterface
     {
-        $this->ensureArrays();
-
         $columns = get_null(Arrays::force($columns ?? $this->columns));
 
         return HtmlTable::new()
@@ -1972,8 +1975,6 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      */
     public function getHtmlDataTableObject(array|string|null $columns = null): HtmlDataTableInterface
     {
-        $this->ensureArrays();
-
         $columns = get_null(Arrays::force($columns ?? $this->columns));
 
         return HtmlDataTable::new()
@@ -1986,13 +1987,45 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
-     * Returns a SpreadSheet object with this object's source data in it
+     * Returns an HTML <select> for the available object entries
      *
-     * @return SpreadSheetInterface
+     * @param string|null $value_column
+     * @param string|null $key_column
+     * @param string      $class
+     *
+     * @return InputSelectInterface
      */
-    public function getSpreadSheet(): SpreadSheetInterface
+    public function getHtmlSelectObject(?string $value_column = null, ?string $key_column = null, string $class = InputSelect::class): InputSelectInterface
     {
-        return new SpreadSheet($this);
+        $class = $this->ensureInputSelectClass($class);
+
+        // Create and return the input select
+        return $class::new($this)
+                     ->setId(static::getTable())
+                     ->setName(static::getTable())
+                     ->setSource($this->source)
+                     ->setKeyColumn($key_column)
+                     ->setValueColumn($value_column);
+    }
+
+
+    /**
+     * Ensures that the specified class is an InputSelect type class
+     *
+     * @param string $class
+     *
+     * @return string
+     */
+    protected function ensureInputSelectClass(string $class): string
+    {
+        if (is_a($class, InputSelect::class, true)) {
+            return $class;
+        }
+
+        throw new OutOfBoundsException(tr('Invalid class ":invalid" specified, it must be ":class" or a child class of this type', [
+            ':invalid' => $class,
+            ':class'   => InputSelect::class,
+        ]));
     }
 
 
@@ -2001,9 +2034,20 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @return InputSelectInterface
      */
-    public function getHtmlSelect(): InputSelectInterface
+    public function getHtmlSelectOld(): InputSelectInterface
     {
         return $this->input_select_class::new()->setSource($this->source);
+    }
+
+
+    /**
+     * Returns a SpreadSheet object with this object's source data in it
+     *
+     * @return SpreadSheetInterface
+     */
+    public function getSpreadSheet(): SpreadSheetInterface
+    {
+        return new SpreadSheet($this);
     }
 
 
@@ -2133,53 +2177,5 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         $this->source[$key] = $this->getAcceptedDataType()::new()->setSource($this->source[$key]);
 
         return $this->source[$key];
-    }
-
-
-    /**
-     * Ensures that all iterator entries are arrays
-     *
-     * @return static
-     */
-    public function ensureArrays(): static
-    {
-        foreach ($this->source as $key => &$value) {
-            $value = $this->ensureArray($key);
-        }
-
-        unset($value);
-        return $this;
-    }
-
-
-    /**
-     * Ensure the entry we're going to return is from DataEntryInterface interface
-     *
-     * @param string|float|int $key
-     *
-     * @return mixed
-     *
-     * @throws OutOfBoundsException
-     */
-    #[ReturnTypeWillChange] protected function ensureArray(string|float|int $key): array
-    {
-        if (is_array($this->source[$key])) {
-            // Already object, assume it's the right type
-            return $this->source[$key];
-        }
-
-        if (is_scalar($this->source[$key])) {
-            return [$this->source[$key]];
-        }
-
-        if (is_a($this->source[$key], ArraySourceInterface::class, true)) {
-            // Can only do this for objects that have ArraySourceInterface so that we can dump array sources in them.
-            return $this->source[$key]->__toArray();
-        }
-
-        throw new OutOfBoundsException(tr('Cannot convert source key ":key" to array, the value ":value" cannot be converted', [
-            ':key'   => $key,
-            ':value' => $this->source[$key]
-        ]));
     }
 }

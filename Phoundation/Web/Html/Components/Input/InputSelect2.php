@@ -25,11 +25,11 @@ class InputSelect2 extends InputSelect
     /**
      * InputSelect2 class constructor
      *
-     * @param string|null $content
+     * @param string|null $source
      */
-    public function __construct(?string $content = null)
+    public function __construct(?string $source = null)
     {
-        parent::__construct($content);
+        parent::__construct($source);
 
         $this->addClasses('select2bs4');
 

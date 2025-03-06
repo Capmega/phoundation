@@ -694,7 +694,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setElement(EnumElement::select)
                                     ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
-                                                         ->getHtmlSelect()
+                                                         ->getHtmlSelectOld()
                                                          ->setName($field_name)
                                                          ->setSelected(isset_get($source['categories_id']));
                                     })
@@ -711,7 +711,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setElement(EnumElement::select)
                                     ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
-                                                         ->getHtmlSelect()
+                                                         ->getHtmlSelectOld()
                                                          ->setName($field_name)
                                                          ->setSelected(isset_get($source['providers_id']));
                                     })
@@ -728,7 +728,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setElement(EnumElement::select)
                                     ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
-                                                         ->getHtmlSelect()
+                                                         ->getHtmlSelectOld()
                                                          ->setName($field_name)
                                                          ->setSelected(isset_get($source['customers_id']));
                                     })
@@ -746,7 +746,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setHelpText(tr('The country where this server is hosted'))
                                     ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
-                                                         ->getHtmlSelect()
+                                                         ->getHtmlSelectOld()
                                                          ->setName($field_name)
                                                          ->setSelected(isset_get($source['countries_id']));
                                     })
@@ -764,7 +764,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setHelpText(tr('The state where this server is hosted'))
                                     ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
-                                                         ->getHtmlSelect()
+                                                         ->getHtmlSelectOld()
                                                          ->setName($field_name)
                                                          ->setSelected(isset_get($source['states_id']));
                                     })
@@ -780,7 +780,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setElement(EnumElement::select)
                                     ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
-                                                         ->getHtmlSelect()
+                                                         ->getHtmlSelectOld()
                                                          ->setName($field_name)
                                                          ->setSelected(isset_get($source['cities_id']));
                                     })

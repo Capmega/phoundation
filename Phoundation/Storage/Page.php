@@ -95,7 +95,7 @@ class Page extends DataEntry implements PageInterface
                                            ->setElement(EnumElement::select)
                                            ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                                                return Pages::new()
-                                                           ->getHtmlSelect()
+                                                           ->getHtmlSelectOld()
                                                            ->setName($key)
                                                            ->setSelected(isset_get($source[$key]));
                                            })

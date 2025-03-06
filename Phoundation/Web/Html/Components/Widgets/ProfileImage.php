@@ -28,9 +28,9 @@ class ProfileImage extends ImageMenu
     /**
      * ProfileImage class constructor
      *
-     * @param string|null $content
+     * @param string|null $source
      */
-    public function __construct(?string $content = null)
+    public function __construct(?string $source = null)
     {
         // Set up the default image URL
 //        $this->setUrl('sign-in');
@@ -47,7 +47,7 @@ class ProfileImage extends ImageMenu
             $this->setMenu(Request::getMenusObject()
                                   ->getMenu('profile_image'));
         }
-        parent::__construct($content);
+        parent::__construct($source);
     }
 
 

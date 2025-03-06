@@ -30,4 +30,4 @@ JsonPage::new()->reply(Notification::new()
                                    ->load($get['id'])
                                    ->load()
                                    ->setStatus('READ')
-                                   ->__toArray());
+                                   ->getSource());

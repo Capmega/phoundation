@@ -23,12 +23,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
-use Phoundation\Data\Traits\TraitStaticMethodNewWithContent;
+use Phoundation\Data\Traits\TraitStaticMethodNewStringContent;
 
 
 abstract class Element extends ElementCore
 {
-    use TraitStaticMethodNewWithContent;
+    use TraitStaticMethodNewStringContent;
 
 
     /**

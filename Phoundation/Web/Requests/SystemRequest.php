@@ -71,7 +71,7 @@ class SystemRequest implements SystemRequestInterface
     {
         switch (Core::getExposePhoundation()) {
             case 'full':
-                $phoundation = '<address>Phoundation ' . Core::FRAMEWORK_CODE_VERSION . '</address>';
+                $phoundation = '<address>Phoundation ' . Core::PHOUNDATION_VERSION . '</address>';
                 break;
 
             case 'limited':
