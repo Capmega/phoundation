@@ -16,11 +16,13 @@ interface RedisInterface extends DatabaseInterface
     /**
      * Returns a value for the specified key
      *
-     * @param string $key
+     *
+     * @param string|float|int|null $key
+     * @param callable|null         $cache_callback *
      *
      * @return mixed
      */
-    public function get(string $key): mixed;
+    public function get(string|float|int|null $key, ?callable $cache_callback): mixed;
 
 
     /**
