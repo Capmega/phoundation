@@ -101,7 +101,7 @@ class Csrf
                 $_SESSION['csrf_static_test'] = $_SESSION['csrf'];
                 $csrf                         = $_SESSION['csrf'];
 
-                Log::warning(ts('Re-using session CSRF code ":code"', [':code' => $csrf]));
+                Log::action(ts('Re-using session CSRF code ":code"', [':code' => $csrf]), 4);
             }
 
         }
