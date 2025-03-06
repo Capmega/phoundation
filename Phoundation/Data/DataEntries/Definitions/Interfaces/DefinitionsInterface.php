@@ -214,4 +214,15 @@ interface DefinitionsInterface extends IteratorInterface
      * @return string
      */
     public function removeColumnPrefix(string $key): string;
+
+    /**
+     * Direct method to render or not display entries
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $render
+     * @param bool                        $exception
+     *
+     * @return static
+     */
+    public function setDisplay(Stringable|string|float|int $key, bool $render, bool $exception = true): static;
 }

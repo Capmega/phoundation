@@ -888,7 +888,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     {
         foreach ($sources as $source) {
             if (is_object($source)) {
-                $source = $source->__toArray();
+                $source = $source->getSource();
             }
 
             $this->source = array_merge($this->source, $source);
@@ -909,7 +909,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     {
         foreach ($sources as $source) {
             if (is_object($source)) {
-                $source = $source->__toArray();
+                $source = $source->getSource();
             }
 
             $this->source = array_merge($source, $this->source);
@@ -1690,7 +1690,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
                 ]));
             }
 
-            $value = $value->__toArray();
+            $value = $value->getSource();
         }
 
         foreach (Arrays::force($columns) as $column) {
@@ -1729,7 +1729,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
                 ]));
             }
 
-            $value = $value->__toArray();
+            $value = $value->getSource();
         }
 
         foreach (Arrays::force($columns) as $column) {
