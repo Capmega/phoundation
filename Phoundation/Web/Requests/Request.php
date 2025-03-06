@@ -1377,7 +1377,8 @@ class Request implements RequestInterface
         switch ($request_type) {
             case EnumRequestTypes::api:
                 // Manually startup session for API requests
-                Session::start();
+                // TODO Implement support for API requests and sessions, user access, etc
+                //Session::start();
                 break;
 
             case EnumRequestTypes::unsupported:
@@ -1510,10 +1511,21 @@ class Request implements RequestInterface
             ob_start();
             static::preparePageVariable();
 
-            if (!static::getSystem()) {
-                // Check if the user has access to the requested page, then check if the user should be force redirected
-                static::hasRightsOrRedirect(static::$parameters->getRequiredRights((string) static::$target));
-                Response::checkForceRedirect();
+            switch (static::getRequestType()) {
+                case EnumRequestTypes::html:
+                    // no break
+
+                case EnumRequestTypes::ajax:
+                    if (!static::getSystem()) {
+                        // Check if the user has access to the requested page, then check if the user should be force redirected
+                        static::hasRightsOrRedirect(static::$parameters->getRequiredRights((string) static::$target));
+                        Response::checkForceRedirect();
+                    }
+
+                    break;
+
+                case EnumRequestTypes::api:
+                    // TODO Implement support for sessions, user rights, etc for API's
             }
 
             // Execute the current target
