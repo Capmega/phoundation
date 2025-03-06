@@ -1245,9 +1245,23 @@ class Updates extends \Phoundation\Core\Libraries\Updates
         })->addUpdate('0.7.1', function () {
             $table = sql()->getSchemaObject()->getTableObject('accounts_sessions');
 
-            if ($table->columnExists('session')) {
-                $table->alter()->renameColumn('session', 'identifier');
+            if ($table->exists()) {
+                $table->rename('accounts_user_sessions');
+                if ($table->columnExists('session')) {
+                    $table->alter()->renameColumn('session', 'identifier');
+                }
+
+            } else {
+                $table = sql()->getSchemaObject()->getTableObject('accounts_user_sessions');
+                if ($table->exists()) {
+                    if ($table->columnExists('session')) {
+                        $table->alter()->renameColumn('session', 'identifier');
+                    }
+                }
             }
+
+
+
 
         })->addUpdate('0.7.2', function () {
             $table = sql()->getSchemaObject()->getTableObject('accounts_sessions');
