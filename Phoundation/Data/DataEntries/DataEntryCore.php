@@ -1836,7 +1836,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         // TODO This may no longer be necessary with the upgraded setIdentifier() which already ensures identifier internally is an array!
         if (is_array($this->identifier)) {
-            if (count($this->identifier) > 1) {
+            if ((!empty($this->columns)) and (count($this->identifier) > 1)) {
                 throw UnderConstructionException::new(tr('Sorry, DataEntry->loadColumns() does not yet support array identifiers'));
             }
 
