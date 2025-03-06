@@ -240,6 +240,8 @@ class Cache extends Database implements CacheInterface
 
         Cache::new(EnumCacheGroups::autosuggest)->clear();
         Cache::new(EnumCacheGroups::dataentries)->clear();
+        Cache::new(EnumCacheGroups::objects)->clear();
+        Cache::new(EnumCacheGroups::values)->clear();
         Cache::new(EnumCacheGroups::html)->clear();
         Cache::new('cache')->clear();
 
