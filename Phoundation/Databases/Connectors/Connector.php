@@ -78,8 +78,9 @@ class Connector extends DataEntry implements ConnectorInterface
      * Connector class constructor
      *
      * @param IdentifierInterface|array|string|int|false|null $identifier
+     * @param string|null                                     $database
      */
-    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false)
+    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false, string $database = null)
     {
         $this->initializeVirtualConfiguration([
             'timezones' => ['name'],
@@ -90,6 +91,10 @@ class Connector extends DataEntry implements ConnectorInterface
         $this->connector             = 'system';
 
         parent::__construct($identifier);
+
+        if ($database) {
+            $this->setDatabase($database);
+        }
     }
 
 
@@ -97,12 +102,13 @@ class Connector extends DataEntry implements ConnectorInterface
      * Returns a new DataEntry object
      *
      * @param IdentifierInterface|array|string|int|false|null $identifier
+     * @param string|null                                     $database
      *
      * @return static
      */
-    public static function new(IdentifierInterface|array|string|int|false|null $identifier = false): static
+    public static function new(IdentifierInterface|array|string|int|false|null $identifier = false, string $database = null): static
     {
-        return new static($identifier);
+        return new static($identifier, $database);
     }
 
 

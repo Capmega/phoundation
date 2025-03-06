@@ -26,7 +26,7 @@ class SystemConnector extends Connector
     {
         $this->connector = 'system';
 
-        parent::__construct('system', false, false);
+        parent::__construct('system');
 
         $source = $this->loadFromConfiguration(static::getConfigurationPath(), 'system');
 
