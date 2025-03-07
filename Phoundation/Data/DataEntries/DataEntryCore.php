@@ -478,7 +478,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         $this->loadFromDatabase();
 
-        if (empty($this->source)) {
+        if ($this->isNew()) {
             // Source is still empty, so nothing was loaded from database (or, SQL table doesn't exist, also possible!)
             // Try to load it from configuration if this DataEntry supports that
             $this->tryLoadFromConfiguration($this->identifier);
