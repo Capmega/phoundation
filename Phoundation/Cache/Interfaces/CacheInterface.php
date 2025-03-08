@@ -22,9 +22,9 @@ interface CacheInterface
      *
      * @param string $key
      *
-     * @return void
+     * @return static
      */
-    public function delete(string $key): void;
+    public function delete(string $key): static;
 
     /**
      * Returns true if in this process the cache has been cleared
@@ -49,11 +49,11 @@ interface CacheInterface
      * Write the specified page to cache
      *
      * @param PoaInterface|array|string|float|int|null $value
-     * @param string                                   $key
+     * @param Stringable|string|float|int|null         $key
      *
      * @return static
      */
-    public function set(PoaInterface|array|string|float|int|null $value, string $key): static;
+    public function set(PoaInterface|array|string|float|int|null $value, Stringable|string|float|int|null $key): static;
 
 
     /**

@@ -38,8 +38,8 @@ namespace Phoundation\Cache;
 use Phoundation\Cache\Enums\EnumCacheGroups;
 use Phoundation\Cache\Exception\CacheGroupNotExistsException;
 use Phoundation\Cache\Interfaces\CacheInterface;
+use Phoundation\Cache\Traits\TraitCacheStatistics;
 use Phoundation\Core\Core;
-use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Interfaces\PoaInterface;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
@@ -48,16 +48,18 @@ use Phoundation\Data\Traits\TraitDataEnabled;
 use Phoundation\Databases\Connectors\Exception\ConnectorNotExistsException;
 use Phoundation\Databases\Database;
 use Phoundation\Databases\Memcached\Memcached;
-use Phoundation\Databases\Mongo;
-use Phoundation\Databases\NullDb;
+use Phoundation\Databases\MongoDb\MongoDb;
+use Phoundation\Databases\NullDb\NullDb;
 use Phoundation\Databases\Redis\Redis;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Developer\Versioning\Git\Git;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoPath;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
+use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Stringable;
@@ -65,6 +67,7 @@ use Stringable;
 
 class Cache extends Database implements CacheInterface
 {
+    use TraitCacheStatistics;
     use TraitDataConnector {
         setConnector as protected __setConnector;
     }
@@ -89,25 +92,50 @@ class Cache extends Database implements CacheInterface
     /**
      * Cache class constructor
      *
-     * @param EnumCacheGroups|string $connector
+     * @param EnumCacheGroups|string|null $connector
+     * @param string|null                 $database
+     * @param bool                        $allow_alternate_connector
      */
-    public function __construct(EnumCacheGroups|string $connector)
+    public function __construct(EnumCacheGroups|string|null $connector, ?string $database = null, bool $allow_alternate_connector = true)
     {
-        $this->setEnabled(Core::isReady() and config()->getBoolean('cache.enabled', false) and static::$global_enabled)
-             ->setConnector($connector);
+        try {
+            $this->setEnabled(Cache::isEnabled())
+                 ->setConnector($connector, $database, $allow_alternate_connector);
+
+        } catch (CacheGroupNotExistsException $e) {
+            if ($allow_alternate_connector) {
+                throw $e;
+            }
+
+            // Alternate connector isn't allowed, continue disabled quietly
+            $this->enabled = false;
+        }
     }
 
 
     /**
-     * Returns a static object
+     * Returns a new static object
      *
-     * @param EnumCacheGroups|string $connector
+     * @param EnumCacheGroups|string|null $connector
+     * @param string|null                 $database
+     * @param bool                        $allow_alternate_connector
      *
      * @return static
      */
-    public static function new(EnumCacheGroups|string $connector): static
+    public static function new(EnumCacheGroups|string|null $connector, ?string $database = null, bool $allow_alternate_connector = true): static
     {
-        return new static($connector);
+        return new static($connector, $database, $allow_alternate_connector);
+    }
+
+
+    /**
+     * Returns if caching is enabled
+     *
+     * @return bool
+     */
+    public static function isEnabled(): bool
+    {
+        return Core::isReady() and config()->getBoolean('cache.enabled', false) and static::$global_enabled;
     }
 
 
@@ -154,35 +182,100 @@ class Cache extends Database implements CacheInterface
 
 
     /**
+     * Return statistics from the cache driver instance
+     *
+     * @return array
+     */
+    public function getStatistics(): array
+    {
+        if ($this->enabled) {
+            return $this->getDriver()?->getStatistics();
+        }
+
+        return [];
+    }
+
+
+    /**
+     * Return statistics from the cache driver instance
+     *
+     * @param string $key
+     *
+     * @return array
+     */
+    public function getStatistic(string $key): array
+    {
+        if ($this->enabled) {
+            $return  = [];
+            $servers = $this->getStatistics();
+
+            foreach ($servers as $server) {
+                if (array_key_exists($key, $server)) {
+                    $return[$key] = $server[$key];
+                    continue;
+                }
+
+                throw new OutOfBoundsException(tr('Cannot return statistics for key ":key", the key does not exist', [
+                    ':key' => $key,
+                ]));
+            }
+
+            return $return;
+        }
+
+        return [];
+    }
+
+
+    /**
+     * Returns the number of all object sections in cache
+     *
+     * @return int
+     */
+    public static function geSectionCount(): int
+    {
+        $total  = Arrays::sum(cache('autosuggest', allow_alternate_connector: false)->getStatistic('curr_items'));
+        $total += Arrays::sum(cache('dataentries', allow_alternate_connector: false)->getStatistic('curr_items'));
+        $total += Arrays::sum(cache('html'       , allow_alternate_connector: false)->getStatistic('curr_items'));
+        $total += Arrays::sum(cache('objects'    , allow_alternate_connector: false)->getStatistic('curr_items'));
+        $total += Arrays::sum(cache('values'     , allow_alternate_connector: false)->getStatistic('curr_items'));
+        $total += Arrays::sum(cache('cache'      , allow_alternate_connector: false)->getStatistic('curr_items'));
+
+        return $total;
+    }
+
+
+    /**
      * Sets the cache connector by name
      *
      * @param EnumCacheGroups|string|null $connector
      * @param string|null                 $database
+     * @param bool                        $allow_alternate
      *
      * @return static
      */
-    public function setConnector(EnumCacheGroups|string|null $connector, ?string $database = null): static
+    public function setConnector(EnumCacheGroups|string|null $connector, ?string $database = null, bool $allow_alternate = true): static
     {
         if (static::$global_enabled) {
             $connector = $this->getConnectorStringFromCacheGroup($connector);
 
             try {
-
                 return $this->__setConnector($connector, $database);
 
             } catch (ConnectorNotExistsException $e) {
                 // The requested cache connector does not exist, try the default "cache" connector instead
-
                 try {
                     // The requested connector does not exist. If the specified connector is a valid cache connector, then just
                     // use the general "cache" connector instead as a default
-                    if (EnumCacheGroups::tryFrom($connector)) {
-                        return $this->setConnector('cache', $database);
+                    if ($allow_alternate) {
+                        if (EnumCacheGroups::tryFrom($connector)) {
+                            return $this->setConnector('cache', $database, $allow_alternate);
+                        }
                     }
 
                     // The specified group was not recognized, maybe the "cache-" prefix was missing? Try adding it
                     if (EnumCacheGroups::tryFrom('cache-' . $connector)) {
-                        return $this->setConnector('cache-' . $connector, $database);
+                        return $this->setConnector('cache-' . $connector, $database, $allow_alternate);
                     }
 
                     if ($connector === 'cache') {
@@ -200,6 +293,7 @@ class Cache extends Database implements CacheInterface
                     static::$global_enabled = false;
 
                     Incident::new()
+                            ->setException($e)
                             ->setSeverity(EnumSeverity::medium)
                             ->setType('configuration')
                             ->setTitle(tr('Cache connector not configured'))
@@ -222,7 +316,10 @@ class Cache extends Database implements CacheInterface
      */
     public function clear(bool $force = false): static
     {
-        $this->driver()?->clear();
+        if ($this->enabled) {
+            $this->getDriver()?->clear();
+        }
+
         return $this;
     }
 
@@ -275,20 +372,24 @@ class Cache extends Database implements CacheInterface
      *
      * @param string      $key
      *
-     * @return void
+     * @return static
      */
-    public function delete(string $key): void
+    public function delete(string $key): static
     {
-        $this->driver()?->delete($key);
+        if ($this->enabled) {
+            $this->getDriver()?->delete($key);
+        }
+
+        return $this;
     }
 
 
     /**
      * Selects and returns the correct cache database driver
      *
-     * @return Memcached|Mongo|Redis|SqlInterface|NullDb|null
+     * @return Memcached|MongoDb|Redis|SqlInterface|NullDb|null
      */
-    protected function driver(): Memcached|Mongo|Redis|SqlInterface|NullDb|null
+    protected function getDriver(): Memcached|MongoDb|Redis|SqlInterface|NullDb|null
     {
         if (!config()->get('cache.enabled', false)) {
             return null;
@@ -345,17 +446,26 @@ class Cache extends Database implements CacheInterface
      *
      * @note: NULL will be returned if the specified hash does not exist in cache
      *
-     * @param string        $key
-     * @param callable|null $callback
+     * @param string|float|int|null $key
+     * @param callable|null         $callback
      *
      * @return PoaInterface|array|string|float|int|null
      */
-    public function get(string $key, ?callable $callback = null): PoaInterface|array|string|float|int|null
+    public function get(string|float|int|null $key, ?callable $callback = null): PoaInterface|array|string|float|int|null
     {
+        static::$cache_lookups++;
+
+        if ($key === null) {
+            // NULL keys always ignore cache
+            return $callback ? $callback() : null;
+        }
+
         if ($this->enabled) {
-            $result = $this->driver()?->get($key);
+            $result = $this->getDriver()?->get($key);
 
             if (empty($result)) {
+                static::$cache_miss++;
+
                 if ($callback) {
                     // Execute the callback for hard retrieval and store the results in cache
                     $result = $callback();
@@ -366,14 +476,16 @@ class Cache extends Database implements CacheInterface
                 return get_null($result);
             }
 
-            Log::success(ts('Found cache entry for key ":key"', [
-                ':key'  => $key,
-            ]));
+            Log::success(ts('Found ":connector" cache entry for key ":key"', [
+                ':connector' => $this->connector,
+                ':key'       => $key,
+            ]), 4);
 
+            static::$cache_hits++;
             return $result;
         }
 
-        return null;
+        return $callback ? $callback() : null;
     }
 
 
@@ -381,16 +493,21 @@ class Cache extends Database implements CacheInterface
      * Write the specified page to cache
      *
      * @param PoaInterface|array|string|float|int|null $value
-     * @param string                                   $key
+     * @param Stringable|string|float|int|null         $key
      *
      * @return static
      */
-    public function set(PoaInterface|array|string|float|int|null $value, string $key): static
+    public function set(PoaInterface|array|string|float|int|null $value, Stringable|string|float|int|null $key): static
     {
         if ($this->enabled) {
+            if ($key === null) {
+                // NULL key will never store anything
+                return $this;
+            }
+
             if ($value) {
                 try {
-                    $this->driver()?->set($value, $key);
+                    $this->getDriver()?->set($value, $key);
 
                 } catch (ConfigPathDoesNotExistsException $e) {
                     Log::warning(ts('Cannot cache because the current driver is not properly configured, see exception information'));

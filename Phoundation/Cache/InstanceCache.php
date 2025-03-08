@@ -19,13 +19,16 @@ declare(strict_types=1);
 namespace Phoundation\Cache;
 
 use Phoundation\Cache\Exception\CacheNotFoundException;
+use Phoundation\Cache\Traits\TraitCacheStatistics;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Timers;
-use Phoundation\Developer\Debug\Debug;
 use Stringable;
+
 
 class InstanceCache
 {
+    use TraitCacheStatistics;
+
+
     /**
      * The cache storage
      *
@@ -40,37 +43,16 @@ class InstanceCache
      */
     protected static mixed $last_checked = null;
 
-    /**
-     * Tracks the number of time the cache was hit
-     *
-     * @var int $cache_hits
-     */
-    protected static int $cache_hits = 0;
-
-    /**
-     * Tracks the number of time the cache was missed
-     *
-     * @var int $cache_miss
-     */
-    protected static int $cache_miss = 0;
-
-    /**
-     * Tracks the number of time the cache was checked
-     *
-     * @var int $cache_checks
-     */
-    protected static int $cache_checks = 0;
-
 
     /**
      * Deletes and returns the cached value from the cache for the given key / value
      *
-     * @param Stringable|string|int $key
-     * @param Stringable|string|int $sub_key
+     * @param Stringable|string|float|int|null $key
+     * @param Stringable|string|float|int|null $sub_key
      *
      * @return mixed
      */
-    public static function delete(Stringable|string|int $key, Stringable|string|int $sub_key): mixed
+    public static function delete(Stringable|string|float|int|null $key, Stringable|string|float|int|null $sub_key): mixed
     {
         if (array_key_exists($key, static::$cache)) {
             $section = &static::$cache[$key];
@@ -90,13 +72,13 @@ class InstanceCache
      * Returns the cached value from the cache IF it exists, or will execute the callback, store that as cache and
      * return its value
      *
-     * @param Stringable|string|int $key
-     * @param Stringable|string|int $sub_key
-     * @param callable              $callback
+     * @param Stringable|string|float|int|null $key
+     * @param Stringable|string|float|int|null $sub_key
+     * @param callable                         $callback
      *
      * @return mixed
      */
-    public static function getOrGenerate(Stringable|string|int $key, Stringable|string|int $sub_key, callable $callback): mixed
+    public static function getOrGenerate(Stringable|string|float|int|null $key, Stringable|string|float|int|null $sub_key, callable $callback): mixed
     {
         $return = static::get($key, $sub_key);
 
@@ -113,15 +95,19 @@ class InstanceCache
     /**
      * Returns the cached value from the cache IF it exists
      *
-     * @param Stringable|string|int $key
-     * @param Stringable|string|int $sub_key
-     * @param bool                  $exception
+     * @param Stringable|string|float|int|null $key
+     * @param Stringable|string|float|int|null $sub_key
+     * @param bool                             $exception
      *
      * @return mixed
      */
-    public static function get(Stringable|string|int $key, Stringable|string|int $sub_key, bool $exception = false): mixed
+    public static function get(Stringable|string|float|int|null $key, Stringable|string|float|int|null $sub_key, bool $exception = false): mixed
     {
-        static::$cache_checks++;
+        static::$cache_lookups++;
+
+        if (($key === null) or ($sub_key === null)) {
+            return null;
+        }
 
         if (array_key_exists($key, static::$cache)) {
             $section = &static::$cache[$key];
@@ -148,14 +134,18 @@ class InstanceCache
     /**
      * Returns true if there is a cache for the specified key / sub_key
      *
-     * @param Stringable|string|int $key
-     * @param Stringable|string|int $sub_key
+     * @param Stringable|string|float|int|null $key
+     * @param Stringable|string|float|int|null $sub_key
      *
      * @return bool
      */
-    public static function exists(Stringable|string|int $key, Stringable|string|int $sub_key): bool
+    public static function exists(Stringable|string|float|int|null $key, Stringable|string|float|int|null $sub_key): bool
     {
-        static::$cache_checks++;
+        static::$cache_lookups++;
+
+        if (($key === null) or ($sub_key === null)) {
+            return false;
+        }
 
         if (array_key_exists($key, static::$cache)) {
             $section = &static::$cache[$key];
@@ -187,14 +177,18 @@ class InstanceCache
     /**
      * Stores the specified value in the cache with the given key / sub_key and will return the value
      *
-     * @param mixed                 $value
-     * @param Stringable|string|int $key
-     * @param Stringable|string|int $sub_key
+     * @param mixed                            $value
+     * @param Stringable|string|float|int|null $key
+     * @param Stringable|string|float|int|null $sub_key
      *
      * @return mixed
      */
-    public static function set(mixed $value, Stringable|string|int $key, Stringable|string|int $sub_key): mixed
+    public static function set(mixed $value, Stringable|string|float|int|null $key, Stringable|string|float|int|null $sub_key): mixed
     {
+        if (($key === null) or ($sub_key === null)) {
+            return false;
+        }
+
         if (!array_key_exists($key, static::$cache)) {
             static::$cache[$key] = [];
         }
@@ -206,44 +200,11 @@ class InstanceCache
 
 
     /**
-     * Returns the number of cache hits so far
-     *
-     * @return int
-     */
-    public static function getCacheHits(): int
-    {
-        return self::$cache_hits;
-    }
-
-
-    /**
-     * Returns the number of cache misses so far
-     *
-     * @return int
-     */
-    public static function getCacheMiss(): int
-    {
-        return self::$cache_miss;
-    }
-
-
-    /**
-     * Returns the number of cache checks
-     *
-     * @return int
-     */
-    public static function getCacheChecks(): int
-    {
-        return self::$cache_checks;
-    }
-
-
-    /**
      * Returns the number of all object sections in cache
      *
      * @return int
      */
-    public static function getCacheSectionCount(): int
+    public static function geSectionCount(): int
     {
         return count(self::$cache);
     }
@@ -254,7 +215,7 @@ class InstanceCache
      *
      * @return int
      */
-    public static function getCacheCount(): int
+    public static function getCount(): int
     {
         $count = 0;
 
@@ -271,11 +232,11 @@ class InstanceCache
      *
      * @return float
      */
-    public static function getCacheEfficiency(): float
+    public static function getEfficiency(): float
     {
         // Avoid division by 0
-        if (static::$cache_checks) {
-            return (self::$cache_hits / static::$cache_checks) * 100;
+        if (static::$cache_lookups) {
+            return (self::$cache_hits / static::$cache_lookups) * 100;
         }
 
         return 0;
@@ -291,28 +252,5 @@ class InstanceCache
     {
         Log::warning(ts('Cleared instance cache'));
         static::$cache = [];
-    }
-
-
-    /**
-     * Logs the cache statistics when in debug mode
-     *
-     * @return void
-     */
-    public static function logStatistics(): void
-    {
-        if (Debug::isEnabled() and !QUIET) {
-            Log::write(ts('STATISTIC InstanceCache object has ":count" cached object(s) with ":checks" checks, ":hits" hits, and ":percent" effectiveness', [
-                ':count'   => InstanceCache::getCacheSectionCount(),
-                ':checks'  => InstanceCache::getCacheChecks(),
-                ':hits'    => InstanceCache::getCacheHits(),
-                ':percent' => number_format(InstanceCache::getCacheEfficiency(), 2) . '%',
-            ]), 'debug', 9);
-
-            Log::write(ts('STATISTIC SQL object executed ":count" queries in ":time" seconds', [
-                ':count' => Timers::getCount('sql'),
-                ':time'  => number_format(Timers::getTotal('sql'), 5),
-            ]), 'debug', 9);
-        }
     }
 }
