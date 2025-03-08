@@ -56,7 +56,7 @@ class Backtrace extends Entry
 
 
     /**
-     * Returns a static object
+     * Returns a new static object
      *
      * @param ArrayableInterface|array|null $source
      *
@@ -69,7 +69,7 @@ class Backtrace extends Entry
 
 
     /**
-     * Returns a static object starting at the moment pho or index.php started up and ending when a program started
+     * Returns a new static object starting at the moment pho or index.php started up and ending when a program started
      *
      * @param ArrayableInterface|array|null $source
      *
@@ -82,7 +82,7 @@ class Backtrace extends Entry
 
 
     /**
-     * Returns a static object starting when a program started
+     * Returns a new static object starting when a program started
      *
      * @param ArrayableInterface|array|null $source
      *
