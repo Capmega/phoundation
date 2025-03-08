@@ -45,6 +45,7 @@ trait TraitValidatorCore
     use TraitDataMetaColumns;
     use TraitDataSourceArray;
     use TraitDataIgnoreIterator;
+    use TraitDataMethodPickValidatorInterface;
 
 
     /**
@@ -232,36 +233,6 @@ trait TraitValidatorCore
         if (!array_key_exists($column, $this->source)) {
             $this->source[$column] = $value;
         }
-    }
-
-
-    /**
-     * Returns the required validator, depending on the specified source
-     *
-     * @param ValidatorInterface|array|null &$source
-     *
-     * @return ValidatorInterface
-     */
-    public static function pick(ValidatorInterface|array|null &$source = null): ValidatorInterface
-    {
-        // Determine data-source for this modification
-        if (!$source) {
-            // Use default data depending on platform
-            if (PLATFORM_WEB) {
-                return PostValidator::new();
-            }
-
-            // This is the default for the CLI platform
-            return ArgvValidator::new();
-        }
-
-        if (is_object($source)) {
-            // The specified data source is a DataValidatorInterface type validator
-            return $source;
-        }
-
-        // Data source is an array, put it in an ArrayValidator.
-        return ArrayValidator::new($source);
     }
 
 
