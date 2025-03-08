@@ -49,6 +49,7 @@ trait TraitValidatorCore
     use TraitDataDataEntry {
         setDataEntry as protected __setDataEntry;
     }
+    use TraitDataMethodPickValidatorInterface;
 
 
     /**
@@ -249,36 +250,6 @@ trait TraitValidatorCore
     public function setDataEntry(?DataEntryInterface $data_entry): static {
         return $this->__setDataEntry($data_entry)
                     ->setId($data_entry?->getId(false));
-    }
-
-
-    /**
-     * Returns the required validator, depending on the specified source
-     *
-     * @param ValidatorInterface|array|null &$source
-     *
-     * @return ValidatorInterface
-     */
-    public static function pick(ValidatorInterface|array|null &$source = null): ValidatorInterface
-    {
-        // Determine data-source for this modification
-        if (!$source) {
-            // Use default data depending on platform
-            if (PLATFORM_WEB) {
-                return PostValidator::new();
-            }
-
-            // This is the default for the CLI platform
-            return ArgvValidator::new();
-        }
-
-        if (is_object($source)) {
-            // The specified data source is a DataValidatorInterface type validator
-            return $source;
-        }
-
-        // Data source is an array, put it in an ArrayValidator.
-        return ArrayValidator::new($source);
     }
 
 

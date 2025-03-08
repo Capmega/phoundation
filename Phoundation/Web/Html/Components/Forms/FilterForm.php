@@ -526,11 +526,11 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      * Apply the filters from the Validator
      *
      * @param string $class
-     * @param bool   $clear_source
+     * @param bool   $require_clean_source
      *
      * @return static
      */
-    protected function applyValidator(string $class, bool $clear_source = true): static
+    protected function applyValidator(string $class, bool $require_clean_source = true): static
     {
         // Auto apply
         if ($class === static::class) {
@@ -551,7 +551,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
             try {
                 // Execute the validate method to get the results of the validation
-                $this->source = $validator->validate($clear_source);
+                $this->source = $validator->validate($require_clean_source);
 
             } catch (ValidationFailedException $e) {
                 // Add the DataEntry object type to the exception message
