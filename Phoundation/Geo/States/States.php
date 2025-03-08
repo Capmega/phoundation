@@ -19,7 +19,6 @@ namespace Phoundation\Geo\States;
 
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Geo\States\Interfaces\StatesInterface;
-use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 
@@ -85,25 +84,5 @@ class States extends DataIterator implements StatesInterface
         $table->setCheckboxSelectors(EnumTableIdColumn::checkbox);
 
         return $table;
-    }
-
-
-    /**
-     * Returns an HTML <select> for the available object entries
-     *
-     * @param string      $value_column
-     * @param string|null $key_column
-     * @param string|null $order
-     * @param array|null  $joins
-     * @param array|null  $filters
-     *
-     * @return InputSelectInterface
-     */
-    public function getHtmlSelectOld(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
-    {
-        return parent::getHtmlSelectOld($value_column, $key_column, $order, $joins, $filters)
-                     ->setName('states_id')
-                     ->setNotSelectedLabel(tr('Select a state'))
-                     ->setComponentEmptyLabel(tr('No states available'));
     }
 }

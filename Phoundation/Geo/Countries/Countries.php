@@ -19,8 +19,6 @@ namespace Phoundation\Geo\Countries;
 
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Geo\Countries\Interfaces\CountriesInterface;
-use Phoundation\Web\Html\Components\Input\InputSelect;
-use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 
@@ -86,45 +84,5 @@ class Countries extends DataIterator implements CountriesInterface
         $table->setCheckboxSelectors(EnumTableIdColumn::checkbox);
 
         return $table;
-    }
-
-
-    /**
-     * Returns an HTML <select> object with all states available in this country
-     *
-     * @param string $name
-     *
-     * @return InputSelect
-     */
-    public static function getHtmlCountriesSelect(string $name = 'countries_id'): InputSelect
-    {
-        return InputSelect::new()
-                          ->setConnectorObject(static::getDefaultConnectorObject())
-                          ->setSourceQuery('SELECT `id`, `name` 
-                                            FROM  `geo_countries` 
-                                            WHERE `status` IS NULL ORDER BY `name`')
-                          ->setName($name)
-                          ->setNotSelectedLabel(tr('Select a country'))
-                          ->setComponentEmptyLabel(tr('No countries available'));
-    }
-
-
-    /**
-     * Returns an HTML <select> for the available object entries
-     *
-     * @param string      $value_column
-     * @param string|null $key_column
-     * @param string|null $order
-     * @param array|null  $joins
-     * @param array|null  $filters
-     *
-     * @return InputSelectInterface
-     */
-    public function getHtmlSelectOld(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
-    {
-        return parent::getHtmlSelectOld($value_column, $key_column, $order, $joins, $filters)
-                     ->setName('countries_id')
-                     ->setNotSelectedLabel(tr('Select a country'))
-                     ->setComponentEmptyLabel(tr('No countries available'));
     }
 }
