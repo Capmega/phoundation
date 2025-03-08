@@ -167,12 +167,12 @@ class Emails extends DataIterator implements EmailsInterface
     /**
      * Apply all email account updates
      *
-     * @param bool $clear_source
+     * @param bool $require_clean_source
      *
      * @return static
      * @throws ValidationFailedException|OutOfBoundsExceptionInterface
      */
-    public function apply(bool $clear_source = true): static
+    public function apply(bool $require_clean_source = true): static
     {
         $this->checkReadonly('apply');
 
@@ -183,7 +183,7 @@ class Emails extends DataIterator implements EmailsInterface
         $emails = [];
         $post   = Validator::pick()
                            ->select('emails')->isOptional()->sanitizeForceArray()
-                           ->validate($clear_source);
+                           ->validate($require_clean_source);
 
         // Parse and sub validate
         if (isset($post['emails'])) {
@@ -240,7 +240,7 @@ class Emails extends DataIterator implements EmailsInterface
         }
 
         // Clear source if required
-        if ($clear_source) {
+        if ($require_clean_source) {
             PostValidator::new()->noArgumentsLeft();
         }
 
