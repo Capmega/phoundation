@@ -319,24 +319,24 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
     /**
      * Modify the data for this object with the new specified data
      *
-     * @param bool                           $clear_source
+     * @param bool                           $require_clean_source
      * @param ValidatorInterface|array|null &$source
      *
      * @return static
      */
-    public function apply(bool $clear_source = true, ValidatorInterface|array|null &$source = null): static;
+    public function apply(bool $require_clean_source = true, ValidatorInterface|array|null &$source = null): static;
 
     /**
      * Forcibly modify the data for this object with the new specified data, putting the object in readonly mode
      *
      * @note In readonly mode this object will no longer be able to write its data!
      *
-     * @param bool                          $clear_source
+     * @param bool                          $require_clean_source
      * @param ValidatorInterface|array|null $source
      *
      * @return static
      */
-    public function forceApply(bool $clear_source = true, ValidatorInterface|array|null &$source = null): static;
+    public function forceApply(bool $require_clean_source = true, ValidatorInterface|array|null &$source = null): static;
 
     /**
      * Will validate the source data of this DataEntry object
@@ -645,7 +645,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      *
      * @return static
      */
-    public function setQueryBuilder(QueryBuilderInterface $query_builder): static;
+    public function setQueryBuilderObject(QueryBuilderInterface $query_builder): static;
 
     /**
      * Returns a SpreadSheet object with this object's source data in it

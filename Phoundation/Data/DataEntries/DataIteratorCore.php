@@ -20,6 +20,7 @@ use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntries\Exception\DataIteratorNotCleanException;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
@@ -32,9 +33,12 @@ use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Data\Traits\TraitDataFilterForm;
 use Phoundation\Data\Traits\TraitDataMetaEnabled;
+use Phoundation\Data\Traits\TraitDataMethodPickValidatorInterface;
 use Phoundation\Data\Traits\TraitDataReadonly;
 use Phoundation\Data\Traits\TraitDataStatusFilter;
 use Phoundation\Data\Traits\TraitMethodBuildManualQuery;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\SqlQueries;
@@ -263,6 +267,20 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     {
         $this->useQueryBuilder();
         return $this->query_builder;
+    }
+
+
+    /**
+     * Allows the query builder to be modified through a callback function
+     *
+     * @param callable $callback
+     *
+     * @return static
+     */
+    public function modifyQueryBuilderObject(callable $callback): static
+    {
+        $callback($this->query_builder);
+        return $this;
     }
 
 
@@ -1284,27 +1302,6 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
 
 
     /**
-     * Saves each DataEntry object stored in this DataIterator
-     *
-     * @param bool        $force
-     * @param bool        $skip_validation
-     * @param string|null $comments
-     *
-     * @return static
-     */
-    public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
-    {
-        foreach ($this as $entry) {
-            if ($entry) {
-                $entry->save($force, $skip_validation, $comments);
-            }
-        }
-
-        return $this;
-    }
-
-
-    /**
      * Returns an array of
      *
      * @param string|null $word
@@ -1414,6 +1411,57 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     protected function setModifiedEntries(int $count): static
     {
         $this->modified_entries = $count;
+        return $this;
+    }
+
+
+    /**
+     * Apply the specified data source over the current source
+     *
+     * @param bool                           $require_clean_source
+     * @param ValidatorInterface|array|null &$source
+     *
+     * @return static
+     */
+    public function apply(bool $require_clean_source = true, ValidatorInterface|array|null &$source = null): static
+    {
+        if ($this->readonly) {
+            throw new DataEntryReadonlyException(tr('Cannot apply changes to ":name" object, the object is readonly', [
+                ':name' => static::class,
+            ]));
+        }
+
+        $source = Validator::pick($source);
+        $source = Arrays::groupByPrefix($source->getSource(), non_prefix_action: Arrays::GROUP_BY_DROP);
+
+        // Apply will first validate, so we know ALL has been validated before we're saving
+        foreach ($source as $data_entry_id => $data_entry_source) {
+            $this->get($data_entry_id)->apply(true, $data_entry_source);
+        }
+
+        // TODO Implement support for $require_clean_source somehow
+
+        return $this;
+    }
+
+
+    /**
+     * Saves each DataEntry object stored in this DataIterator
+     *
+     * @param bool        $force
+     * @param bool        $skip_validation
+     * @param string|null $comments
+     *
+     * @return static
+     */
+    public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
+    {
+        foreach ($this as $entry) {
+            if ($entry) {
+                $entry->save($force, $skip_validation, $comments);
+            }
+        }
+
         return $this;
     }
 }

@@ -1091,7 +1091,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // Initialize all columns that are NOT the ID column for this DataEntry object
             foreach($identifier as $column => $value) {
                 if ($column !== static::getIdColumn()) {
-                    $this->set($value, $column);
+                    $this->setColumnValueWithObjectSetter($column, $value, false, $this->definitions->get($column));
                 }
             }
 
@@ -1856,35 +1856,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $this->is_saved    = false;
         $this->is_modified = false;
 
-        // If this is a new entry, assign the identifier by default (NOT id though, since that is a DB identifier
-        // meaning that it would HAVE to exist!)
-        if ($this->isNew()) {
-            $this->assignIdentifiers($column);
-        }
-
         return $this;
-    }
-
-
-    /**
-     * Assigns the specified identifier / column (or identifier array) to the DataEntry source
-     *
-     * @param string|null $column
-     *
-     * @return void
-     */
-    protected function assignIdentifiers(?string $column): void
-    {
-        if (is_array($this->identifier)) {
-            foreach ($this->identifier as $column => $value) {
-                if ($column !== static::getIdColumn()) {
-                    $this->setColumnValueWithObjectSetter($column, $value, false, $this->definitions->get($column));
-                }
-            }
-
-        } elseif ($column !== static::getIdColumn()) {
-            $this->setColumnValueWithObjectSetter($column, $this->identifier, false, $this->definitions->get($column));
-        }
     }
 
 
@@ -1901,9 +1873,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         try {
             // Get the data using the query builder
             $query = $this->getQueryBuilderObject()->setDebug($this->debug)
-                                                    ->setMetaEnabled($this->meta_enabled)
-                                                    ->setConnectorObject($this->getConnectorObject())
-                                                    ->addWhere($where, $execute);
+                                                   ->setMetaEnabled($this->meta_enabled)
+                                                   ->setConnectorObject($this->getConnectorObject())
+                                                   ->addWhere($where, $execute);
 
             // Generate columns that will be selected
             if ($this->columns) {
@@ -1962,9 +1934,23 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return static
      */
-    public function setQueryBuilder(QueryBuilderInterface $query_builder): static
+    public function setQueryBuilderObject(QueryBuilderInterface $query_builder): static
     {
         $this->query_builder = $query_builder;
+        return $this;
+    }
+
+
+    /**
+     * Allows the query builder to be modified through a callback function
+     *
+     * @param callable $callback
+     *
+     * @return static
+     */
+    public function modifyQueryBuilderObject(callable $callback): static
+    {
+        $callback($this->query_builder);
         return $this;
     }
 
@@ -2366,12 +2352,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Apply the specified data source over the current source
      *
-     * @param bool                           $clear_source
+     * @param bool                           $require_clean_source
      * @param ValidatorInterface|array|null &$source
      *
      * @return static
      */
-    public function apply(bool $clear_source = true, ValidatorInterface|array|null &$source = null): static
+    public function apply(bool $require_clean_source = true, ValidatorInterface|array|null &$source = null): static
     {
         if ($this->readonly or $this->disabled) {
             throw new DataEntryReadonlyException(tr('Cannot apply changes to ":name" object, the object is readonly or disabled', [
@@ -2380,20 +2366,20 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         return $this->checkReadonly('apply')
-                    ->doApply($clear_source, $source, false);
+                    ->doApply($require_clean_source, $source, false);
     }
 
 
     /**
      * Modify the data for this object with the new specified data
      *
-     * @param bool                           $clear_source
+     * @param bool                           $require_clean_source
      * @param ValidatorInterface|array|null &$source
      * @param bool                           $force
      *
      * @return static
      */
-    protected function doApply(bool $clear_source, ValidatorInterface|array|null &$source, bool $force): static
+    protected function doApply(bool $require_clean_source, ValidatorInterface|array|null &$source, bool $force): static
     {
         // Are we allowed to create or modify this DataEntry?
         if ($this->isNew()) {
@@ -2437,12 +2423,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         if ($force) {
             // Force was used, but the object will now be in readonly mode, so we can save failed data
             // Validate data and copy data into the source array
-            $data_source = $this->doNotValidate($data_source, $clear_source);
+            $data_source = $this->doNotValidate($data_source, $require_clean_source);
             $this->copyValuesToSource($data_source, true, true);
 
         } else {
             // Validate data and copy data into the source array
-            $data_source = $this->validateSourceData($data_source, $clear_source);
+            $data_source = $this->validateSourceData($data_source, $require_clean_source);
 
             if ($this->debug) {
                 Log::debug('VALIDATED DATA', echo_header: false);
@@ -2470,11 +2456,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * Extracts the data from the validator without validating
      *
      * @param ValidatorInterface $validator
-     * @param bool               $clear_source
+     * @param bool               $require_clean_source
      *
      * @return array
      */
-    protected function doNotValidate(ValidatorInterface $validator, bool $clear_source): array
+    protected function doNotValidate(ValidatorInterface $validator, bool $require_clean_source): array
     {
         $return = [];
         $source = $validator->getSource();
@@ -2483,7 +2469,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         foreach ($source as $key => $value) {
             $return[Strings::from($key, $prefix)] = $value;
 
-            if ($clear_source) {
+            if ($require_clean_source) {
                 $validator->removeKeys($key);
             }
         }
@@ -2498,11 +2484,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * @note This method will also fix column names in case column prefix was specified
      *
      * @param ValidatorInterface $validator
-     * @param bool               $clear_source
+     * @param bool               $require_clean_source
      *
      * @return array
      */
-    protected function validateSourceData(ValidatorInterface $validator, bool $clear_source): array
+    protected function validateSourceData(ValidatorInterface $validator, bool $require_clean_source): array
     {
         if (!$this->validate) {
             // This data entry won't validate data, just continue.
@@ -2551,7 +2537,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         try {
             // Execute the validate method to get the results of the validation
-            $source             = $validator->validate($clear_source);
+            $source             = $validator->validate($require_clean_source);
             $this->is_validated = true;
 
         } catch (ValidationFailedException $e) {
@@ -3776,14 +3762,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @note In readonly mode this object will no longer be able to write its data!
      *
-     * @param bool                          $clear_source
+     * @param bool                          $require_clean_source
      * @param ValidatorInterface|array|null $source
      *
      * @return static
      */
-    public function forceApply(bool $clear_source = true, ValidatorInterface|array|null &$source = null): static
+    public function forceApply(bool $require_clean_source = true, ValidatorInterface|array|null &$source = null): static
     {
-        return $this->doApply($clear_source, $source, true);
+        return $this->doApply($require_clean_source, $source, true);
     }
 
 
