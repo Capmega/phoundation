@@ -47,6 +47,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
 use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
+use Phoundation\Databases\Sql\Sql;
 use Phoundation\Date\PhoDate;
 use Phoundation\Date\PhoTime;
 use Phoundation\Developer\Debug\Debug;
@@ -777,6 +778,8 @@ class CliCommand
 
         if (!CliAutoComplete::isActive()) {
             InstanceCache::logStatistics();
+            Cache::logStatistics();
+            Sql::logStatistics();
 
             echo CliColor::getColorReset();
 
