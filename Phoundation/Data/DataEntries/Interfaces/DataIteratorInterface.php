@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries\Interfaces;
 
-
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
+use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
@@ -360,4 +360,15 @@ interface DataIteratorInterface extends IteratorInterface
      * @return DataEntryInterface|null
      */
     #[ReturnTypeWillChange] public function extractFirstValue(): ?DataEntryInterface;
+
+    /**
+     * Returns an HTML <select> for the available object entries
+     *
+     * @param string|null $value_column
+     * @param string|null $key_column
+     * @param string      $class
+     *
+     * @return InputSelectInterface
+     */
+    public function getHtmlSelectObject(?string $value_column = 'name', ?string $key_column = 'id', string $class = InputSelect::class): InputSelectInterface;
 }

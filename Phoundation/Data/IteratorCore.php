@@ -1656,7 +1656,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
-     * Returns a static object with multiple random entries
+     * Returns a new static object with multiple random entries
      *
      * @param int $count
      *

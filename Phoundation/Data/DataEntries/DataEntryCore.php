@@ -26,6 +26,7 @@ use Exception;
 use PDOStatement;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
+use Phoundation\Cache\Cache;
 use Phoundation\Cache\InstanceCache;
 use Phoundation\Cli\CliColor;
 use Phoundation\Content\Documents\Interfaces\SpreadSheetInterface;
@@ -61,6 +62,7 @@ use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDefinitions;
 use Phoundation\Data\EntryCore;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Traits\TraitDataCacheKey;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Data\Traits\TraitDataDisabled;
@@ -79,6 +81,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\Validator;
+use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
@@ -108,6 +111,7 @@ use Throwable;
 
 class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierInterface
 {
+    use TraitDataCacheKey;
     use TraitDataConnector;
     use TraitDataDebug;
     use TraitDataDisabled;
@@ -293,13 +297,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     protected ?bool $allow_modified_destruct = null;
 
     /**
-     * Tracks if caching should be used or not
-     *
-     * @var bool $caching
-     */
-    protected bool $caching = false;
-
-    /**
      * Tracks if this object was loaded from cache
      *
      * @var bool $is_loaded_from_cache
@@ -329,7 +326,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function __construct(IdentifierInterface|array|string|int|false|null $identifier = null)
     {
-        $this->caching = config()->getBoolean('storage.data-entries.cache.enabled', true);
+        $this->cache = config()->getBoolean('cache.data-entries.enabled', true);
 
         if ($identifier === false) {
             // If the identifier is false, do NOT automatically initialize the DataEntry object
@@ -1337,9 +1334,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return string
      */
-    protected function getCacheKey(): string
+    protected function initCacheKey(): string
     {
-        return $this::class . '-' . Json::encode($this->identifier, JSON_BIGINT_AS_STRING) . '-' . Json::encode($this->columns, JSON_BIGINT_AS_STRING);
+        if (PLATFORM_WEB) {
+            return static::class . '-' . $_SERVER['REQUEST_URI'] . '-' . Json::encode($this->identifier, JSON_BIGINT_AS_STRING) . '-' . Json::encode($this->columns, JSON_BIGINT_AS_STRING);
+        }
+
+        return static::class . '-' . Json::encode($_SERVER['argv']) . '-' . Json::encode($this->identifier, JSON_BIGINT_AS_STRING) . '-' . Json::encode($this->columns, JSON_BIGINT_AS_STRING);
     }
 
 
@@ -1350,12 +1351,31 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function loadFromCache(): bool
     {
-        if (!$this->caching) {
+        if (is_a($this, Connector::class)) {
+            // Connectors are non-cachable because they would cause endless loops
+            return false;
+        }
+
+        if (!Cache::isEnabled()) {
+            // Caching is disabled for everything
+            return false;
+        }
+
+        if (!$this->cache) {
             // Caching has been disabled for this DataEntry object
             return false;
         }
 
-        if (!InstanceCache::exists('data-entries', $this->getCacheKey())) {
+        if (!InstanceCache::exists('dataentries', $this->getCacheKey())) {
+            $data_entry = cache('dataentries')->get($this->getCacheKey());
+
+            if ($data_entry) {
+                // Found it in external cache!
+                $this->is_loaded_from_cache = true;
+                $this->source               = $data_entry->getSource();
+                return true;
+            }
+
             return false;
         }
 
@@ -1380,7 +1400,39 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function saveToCache(): static
     {
-        InstanceCache::set($this, 'data-entries', $this->getCacheKey());
+        InstanceCache::set($this, 'dataentries', $this->getCacheKey());
+
+        // Cache the dataentry and update table state
+        if (!is_a($this, Connector::class)) {
+            if (Cache::isEnabled()) {
+                // Connector objects CANNOT be cached
+                cache('dataentries')->set($this, $this->getCacheKey());
+                $this->updateTableState();
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Saves this DataEntry object to cache
+     *
+     * @return static
+     */
+    protected function removeFromCache(): static
+    {
+        InstanceCache::delete('dataentries', $this->getCacheKey());
+
+        // Cache the dataentry and update table state
+        if (!is_a($this, Connector::class)) {
+            if (Cache::isEnabled()) {
+                // Connector objects CANNOT be cached
+                cache('dataentries')->delete($this->getCacheKey());
+                $this->updateTableState();
+            }
+        }
+
         return $this;
     }
 
@@ -2514,7 +2566,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         // Set ID so that the array validator can do unique lookups, etc.
         // Tell the validator what table this DataEntry is using and get the column prefix so that the validator knows
         // what columns to select
-        $validator->setId($this->getId(false))
+        $validator->setDataEntry($this)
                   ->setDefinitionsObject($this->definitions)
                   ->setColumnPrefix($prefix)
                   ->setMetaColumns($this->getMetaColumns())
@@ -3523,18 +3575,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 ]));
             }
 
-            $this->checkReadonly('set-status "' . $status . '"');
+            $this->checkReadonly('set-status "' . $status . '"')
+                 ->saveToCache()->source['status'] = $status;
 
-            if ($this->getId(false)) {
+            if ($auto_save and $this->isNotNew()) {
                 SqlDataEntry::new(sql($this->o_connector), $this)
                             ->setDebug($this->debug)
                             ->setStatus($status, $comments);
-            }
-
-            $this->source['status'] = $status;
-
-            if ($auto_save and $this->isNotNew()) {
-                $this->save();
             }
         }
 
@@ -3581,7 +3628,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         sql($this->o_connector)->erase(static::getTable(), ['id' => $this->getId()]);
-        return $this;
+
+        return $this->removeFromCache();
     }
 
 
@@ -3837,7 +3885,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         if ($this->saveBecauseModified($force)) {
             // Object must ALWAYS be validated before writing! Validate data and write it to the database.
-            return $this->validate($skip_validation)->write($comments);
+            return $this->validate($skip_validation)->write($comments)->saveToCache();
         }
 
         return $this;
@@ -4455,30 +4503,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Returns true if caching is enabled for this object
-     *
-     * @return bool
-     */
-    public function getCacheEnabled(): bool
-    {
-        return $this->caching;
-    }
-
-
-    /**
-     * Sets if caching is enabled for this object
-     *
-     * @param bool $enabled
-     * @return DataEntryCore
-     */
-    public function setCacheEnabled(bool $enabled): static
-    {
-        $this->caching = $enabled;
-        return $this;
-    }
-
-
-    /**
      * Returns true if this DataEntry object was loaded from cache
      *
      * @return bool
@@ -4532,5 +4556,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             ':action' => $action,
             ':class'  => static::class,
         ]));
+    }
+
+
+    /**
+     * Updates the state for the table for this data entry
+     *
+     * @return static
+     */
+    public function updateTableState(): static
+    {
+        cache('dataentries')->set(Strings::getUuid(), 'table-state-' . static::getTable());
+        return $this;
     }
 }

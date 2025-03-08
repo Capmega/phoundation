@@ -20,6 +20,7 @@ use Phoundation\Cli\Cli;
 use Phoundation\Core\Core;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\ArrayValidator;
@@ -45,6 +46,9 @@ trait TraitValidatorCore
     use TraitDataMetaColumns;
     use TraitDataSourceArray;
     use TraitDataIgnoreIterator;
+    use TraitDataDataEntry {
+        setDataEntry as protected __setDataEntry;
+    }
 
 
     /**
@@ -232,6 +236,19 @@ trait TraitValidatorCore
         if (!array_key_exists($column, $this->source)) {
             $this->source[$column] = $value;
         }
+    }
+
+
+    /**
+     * Link the specified DataEntry to this validator
+     *
+     * @param DataEntryInterface|null $data_entry
+     *
+     * @return $this
+     */
+    public function setDataEntry(?DataEntryInterface $data_entry): static {
+        return $this->__setDataEntry($data_entry)
+                    ->setId($data_entry?->getId(false));
     }
 
 
@@ -974,6 +991,7 @@ trait TraitValidatorCore
             if (Core::inBootState() or config()->getBoolean('security.validation.enabled', true)) {
                 throw ValidationFailedException::new(tr('Data validation failed with the following issues:'))
                                                ->addData([
+                                                   'class'    => $this->data_entry ? $this->data_entry::class : 'N/A',
                                                    'failures' => $this->failures,
                                                    'values'   => $values
                                                ])

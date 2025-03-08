@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries;
 
+use PDOStatement;
 use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
@@ -28,6 +29,7 @@ use Phoundation\Data\DataEntries\Interfaces\ListOperationsInterface;
 use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\IteratorCore;
+use Phoundation\Data\Traits\TraitDataCacheKey;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Data\Traits\TraitDataFilterForm;
@@ -41,7 +43,6 @@ use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
@@ -50,16 +51,18 @@ use Phoundation\Web\Html\Components\Tables\HtmlTable;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
+use Phoundation\Web\Requests\Request;
 use ReturnTypeWillChange;
 use Stringable;
 
 
 class DataIteratorCore extends IteratorCore implements DataIteratorInterface, IdentifierInterface
 {
-    use TraitDataStatusFilter;
+    use TraitDataCacheKey;
     use TraitDataConnector;
     use TraitDataDebug;
     use TraitDataFilterForm;
+    use TraitDataStatusFilter;
     use TraitDataReadonly;
     use TraitDataMetaEnabled;
     use TraitMethodBuildManualQuery;
@@ -142,6 +145,26 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      * @var int|null $modified_entries
      */
     protected ?int $modified_entries = null;
+
+
+    /**
+     * DataIterator class constructor
+     *
+     * @param IteratorInterface|array|string|PDOStatement|null $source
+     */
+    public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
+    {
+        if ($source) {
+            $this->setSource($source);
+        }
+
+        // Set what datatypes this DataIterator will accept
+        // If this data iterator had a source specified, consider it loaded
+        $this->setAcceptedDataTypes(static::getDefaultContentDataType());
+        $this->is_loaded = (bool) $source;
+        $this->cache     = config()->getBoolean('cache.data-entries.enabled', true);
+
+    }
 
 
     /**
@@ -392,6 +415,21 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
 
 
     /**
+     * Returns the state for the table for this DataIterator
+     *
+     * @return string|null
+     */
+    public static function getTableState(): ?string
+    {
+        if (static::getTable()) {
+            return cache('values')->get('table-state-' . static::getTable());
+        }
+
+        return null;
+    }
+
+
+    /**
      * Returns if this Iterator requires a parent or not
      *
      * @return bool
@@ -633,7 +671,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      *
      * @return InputSelectInterface
      */
-    public function getHtmlSelectObject(?string $value_column = null, ?string $key_column = null, string $class = InputSelect::class): InputSelectInterface
+    public function getHtmlSelectObject(?string $value_column = 'name', ?string $key_column = 'id', string $class = InputSelect::class): InputSelectInterface
     {
         if ($this->is_loaded) {
             // Source is already loaded, use that
@@ -666,8 +704,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     public function getHtmlSelectOld(string $value_column = 'name', ?string $key_column = null, ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         $execute = [];
-        $select  = $this->input_select_class::new()
-                                            ->setValueColumn($value_column);
+        $select  = $this->input_select_class::new();
 
         if (!$key_column) {
             $key_column = static::getUniqueColumn();
@@ -679,7 +716,8 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
             $value_column = Strings::fromReverse($value_column, ' ');
             $value_column = str_replace('`', '', $value_column);
 
-            $select->setSource($this->getAllRowsSingleColumn($value_column, true));
+            $select->setSource($this->getAllRowsSingleColumn($value_column, true))
+                   ->setValueColumn($value_column);
 
         } else {
             $query = 'SELECT ' . $key_column . ', ' . $value_column . '
@@ -713,10 +751,15 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
                 $query .= ' ORDER BY ' . $order;
             }
 
+            $value_column = trim($value_column);
+            $value_column = Strings::fromReverse($value_column, ' ');
+            $value_column = str_replace('`', '', $value_column);
+
             // No data was loaded from DB or manually added
             $select->setDebug($this->debug)
                    ->setConnectorObject($this->getConnectorObject())
-                   ->setSourceQuery($query, $execute);
+                   ->setSourceQuery($query, $execute)
+                   ->setValueColumn($value_column);
         }
 
         return $select;
@@ -1097,29 +1140,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
 
             } else {
                 if (is_array($this->source[$key])) {
-                    if (static::uniqueColumnIs('id')) {
-                        // Entries are stored with database ID
-                        if (!is_numeric($key)) {
-                            throw new OutOfBoundsException(tr('Invalid ":class" ID key ":key" encountered. The key should be a numeric database ID', [
-                                ':class' => get_class($this),
-                                ':key'   => $key,
-                            ]));
-                        }
-
-                        // Ensure the id key is available in the entry
-                        $this->source[$key][$this->getAcceptedDataType()::getIdColumn()] = $key;
-
-                    } else {
-                        if (empty($this->source[$key][static::getUniqueColumn()])) {
-                            // No database ID available, and entries are not stored by ID so we can't get ID
-                            throw new OutOfBoundsException(tr('Cannot ensure DataEntry for key ":key", Iterator source data does not contain the unique id column ":column"', [
-                                ':key'    => $key,
-                                ':column' => static::getUniqueColumn()
-                            ]));
-                        }
-                    }
-
-                    // Copy the source into the entry
+                    // Souce is stored as array. Create a new DataEntry and copy the source array into the entry
                     $entry = $this->getAcceptedDataType()::newFromSource($this->source[$key]);
 
                 } elseif ($this->source[$key] === null) {
@@ -1129,11 +1150,6 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
                     // Load the entry manually from DB. REQUIRES the DataEntry object to have a unique column specified!
                     $entry = $this->loadObject($this->source[$key]);
                 }
-            }
-
-            if ($entry->isLoadedFromConfiguration()) {
-                // Entries loaded from configuration are always readonly
-                $entry->setReadonly(true);
             }
 
             $this->source[$key] = $entry;
@@ -1211,6 +1227,17 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
 
 
     /**
+     * Returns a cache key for this object
+     *
+     * @return string|null
+     */
+    protected function initCacheKey(): ?string
+    {
+        return static::class . '-' . Request::getTarget()->getRootname() . ($this->parent ? '-' . $this->parent::class . '-' . $this->parent->getId() : '');
+    }
+
+
+    /**
      * Load the id list from the database
      *
      * @param array|string|int|null $identifiers
@@ -1220,34 +1247,38 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      */
     public function load(array|string|int|null $identifiers = null, bool $only_if_empty = true): static
     {
-        // Log::debug(static::getTable() . ' > ' . $this->getConnectorObject()?->getDisplayName());
-        $this->setIsLoading(true)
-             ->selectQuery($identifiers);
+        cache('dataentries')->get($this->getCacheKey(), function ()  use ($identifiers, $only_if_empty) {
+            // Log::debug(static::getTable() . ' > ' . $this->getConnectorObject()?->getDisplayName());
 
-        if (empty($this->source)) {
-            $this->source = sql($this->getConnectorObject())->setDebug($this->debug)
-                                                            ->listKeyValues($this->query, $this->execute);
+            $this->setIsLoading(true)
+                 ->selectQuery($identifiers);
 
-            if (static::getConfigurationPath()) {
-                $this->source = array_merge($this->source, $this->loadFromConfiguration());
+            if (empty($this->source)) {
+                $this->source = sql($this->getConnectorObject())->setDebug($this->debug)
+                                                                ->listKeyValues($this->query, $this->execute);
+
+                if (static::getConfigurationPath()) {
+                    $this->source = array_merge($this->source, $this->loadFromConfiguration());
+                }
+
+            } else {
+                if ($only_if_empty) {
+                    throw new DataIteratorNotCleanException(tr('Cannot load database data into DataIterator, source is not empty'));
+                }
+
+                $this->source = array_merge(
+                    $this->source,
+                    sql($this->getConnectorObject())->setDebug($this->debug)
+                                                    ->listKeyValues(
+                                                        $this->query,
+                                                        $this->execute,
+                                                        static::getUniqueColumn()));
             }
 
-        } else {
-            if ($only_if_empty) {
-                throw new DataIteratorNotCleanException(tr('Cannot load database data into DataIterator, source is not empty'));
-            }
+            $this->is_loaded  = true;
+            $this->is_loading = false;
+        });
 
-            $this->source = array_merge(
-                $this->source,
-                sql($this->getConnectorObject())->setDebug($this->debug)
-                                                ->listKeyValues(
-                                                    $this->query,
-                                                    $this->execute,
-                                                    static::getUniqueColumn()));
-        }
-
-        $this->is_loaded  = true;
-        $this->is_loading = false;
         return $this;
     }
 

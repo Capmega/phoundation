@@ -19,26 +19,9 @@ namespace Phoundation\Data\DataEntries;
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 
+
 class DataIterator extends DataIteratorCore
 {
-    /**
-     * DataIterator class constructor
-     *
-     * @param IteratorInterface|array|string|PDOStatement|null $source
-     */
-    public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
-    {
-        if ($source) {
-            $this->setSource($source);
-        }
-
-        // Set what datatypes this DataIterator will accept
-        // If this data iterator had a source specified, consider it loaded
-        $this->setAcceptedDataTypes(static::getDefaultContentDataType())
-             ->is_loaded = (bool) $source;
-    }
-
-
     /**
      * Returns a new DataIterator type object
      *

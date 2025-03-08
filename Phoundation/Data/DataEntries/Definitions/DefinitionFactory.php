@@ -585,12 +585,11 @@ class DefinitionFactory
                          ->setOptional(true)
                          ->setInputType(EnumInputType::number)
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
-                             return Timezones::new()
-                                             ->getHtmlSelectOld()
-                                             ->setName($key)
-                                             ->setReadonly($definition->getReadonly())
-                                             ->setDisabled($definition->getDisabled())
-                                             ->setSelected(isset_get($source[$key]));
+                             return Timezones::new()->getHtmlSelectObject()
+                                                    ->setName($key)
+                                                    ->setReadonly($definition->getReadonly())
+                                                    ->setDisabled($definition->getDisabled())
+                                                    ->setSelected(isset_get($source[$key]));
                          })
                          ->setCliColumn('--timezones-id TIMEZONE-DATABASE-ID')
                          ->setCliAutoComplete(true)
@@ -700,11 +699,11 @@ class DefinitionFactory
                          ->setElement(EnumElement::select)
                          ->setInputType(EnumInputType::number)
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
-                             return Countries::getHtmlCountriesSelect()
-                                             ->setName($key)
-                                             ->setReadonly($definition->getReadonly())
-                                             ->setDisabled($definition->getDisabled())
-                                             ->setSelected(isset_get($source[$key]));
+                             return Countries::new()->getHtmlSelectObject()
+                                                    ->setName($key)
+                                                    ->setReadonly($definition->getReadonly())
+                                                    ->setDisabled($definition->getDisabled())
+                                                    ->setSelected(isset_get($source[$key]));
                          })
                          ->setSize(3)
                          ->setCliColumn('--countries-id COUNTRY-DATABASE-ID')
@@ -2005,16 +2004,14 @@ class DefinitionFactory
                                  return InputText::new()
                                                  ->setDisabled(true)
                                                  ->addClasses('text-center')
-                                                 ->setValue(Session::getUserObject()
-                                                     ->getDisplayName());
+                                                 ->setValue(Session::getUserObject()->getDisplayName());
                              } else {
                                  // This is created by a user or by the system user
                                  if ($source[$key]) {
                                      return InputText::new()
                                                      ->setDisabled(true)
                                                      ->addClasses('text-center')
-                                                     ->setValue(User::new()->load($source[$key])
-                                                         ->getDisplayName());
+                                                     ->setValue(User::new()->load($source[$key])->getDisplayName());
                                  } else {
                                      return InputText::new()
                                                      ->setDisabled(true)

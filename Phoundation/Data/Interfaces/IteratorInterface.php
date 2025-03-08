@@ -633,7 +633,7 @@ interface IteratorInterface extends IteratorBaseInterface
     public function getRandom(): mixed;
 
     /**
-     * Returns a static object with multiple random entries
+     * Returns a new static object with multiple random entries
      *
      * @param int $count
      *
