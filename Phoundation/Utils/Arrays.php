@@ -3790,4 +3790,28 @@ class Arrays extends Utils
         unset($value);
         return $source;
     }
+
+
+    /**
+     * Calculates and returns the sum of values in an array, optionally in a sub array key
+     *
+     * @param array                 $source
+     * @param string|float|int|null $key
+     *
+     * @return int|float
+     */
+    public static function sum(array $source, string|float|int|null $key = null): int|float
+    {
+        if ($key) {
+            $return = 0;
+
+            foreach ($source as $value) {
+                $return += $value[$key];
+            }
+
+            return $return;
+        }
+
+        return array_sum($source);
+    }
 }
