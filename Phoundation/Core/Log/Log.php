@@ -1642,6 +1642,7 @@ class Log implements LogInterface
 
         $messages = Strings::force($messages, PHP_EOL);
 
+               static::write(Strings::interleave($messages, '  ', chunk_size: 1), 'debug', $threshold, false, $echo_newline, $echo_prefix, $echo_screen);
         return static::write(Strings::interleave(bin2hex($messages), ' ', chunk_size: 2), 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }
 

@@ -19,6 +19,7 @@ namespace Phoundation\Core\Locale\Language;
 
 use Phoundation\Core\Locale\Language\Interfaces\LanguagesInterface;
 use Phoundation\Data\DataEntries\DataIterator;
+use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
 
@@ -67,26 +68,6 @@ class Languages extends DataIterator implements LanguagesInterface
     public static function getUniqueColumn(): ?string
     {
         return 'code_639_1';
-    }
-
-
-    /**
-     * Returns an HTML <select> for the available object entries
-     *
-     * @param string      $value_column
-     * @param string|null $key_column
-     * @param string|null $order
-     * @param array|null  $joins
-     * @param array|null  $filters
-     *
-     * @return InputSelectInterface
-     */
-    public function getHtmlSelectOld(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
-    {
-        return parent::getHtmlSelectOld($value_column, $key_column, $order, $joins, $filters)
-                     ->setName('languages_id')
-                     ->setNotSelectedLabel(tr('Select a language'))
-                     ->setComponentEmptyLabel(tr('No languages available'));
     }
 
 

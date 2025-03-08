@@ -420,12 +420,12 @@ class Session implements SessionInterface
     /**
      * Returns the value for the given key / sub_key
      *
-     * @param string      $key
-     * @param string|null $sub_key
+     * @param string|float|int      $key
+     * @param string|float|int|null $sub_key
      *
      * @return mixed
      */
-    public static function get(string $key, ?string $sub_key = null): mixed
+    public static function get(string|float|int $key, string|float|int|null $sub_key = null): mixed
     {
         if ($sub_key) {
             $section = isset_get($_SESSION[$key]);
@@ -596,13 +596,13 @@ class Session implements SessionInterface
     /**
      * Returns the value for the given key
      *
-     * @param string      $value
-     * @param string      $key
-     * @param string|null $sub_key
+     * @param string                $value
+     * @param string|float|int      $key
+     * @param string|float|int|null $sub_key
      *
      * @return void
      */
-    public static function set(mixed $value, string $key, ?string $sub_key = null): void
+    public static function set(mixed $value, string|float|int $key, string|float|int|null $sub_key = null): void
     {
         if ($sub_key) {
             if (array_key_exists($key, $_SESSION)) {
