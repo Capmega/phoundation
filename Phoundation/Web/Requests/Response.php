@@ -30,6 +30,7 @@ use Phoundation\Data\Traits\TraitDataStaticFlashMessages;
 use Phoundation\Data\Traits\TraitDataStaticContentType;
 use Phoundation\Data\Traits\TraitDataStaticExecuted;
 use Phoundation\Data\Traits\TraitGetInstance;
+use Phoundation\Databases\Sql\Sql;
 use Phoundation\Date\PhoDate;
 use Phoundation\Date\PhoTime;
 use Phoundation\Exception\OutOfBoundsException;
@@ -1841,6 +1842,8 @@ class Response implements ResponseInterface
         }
 
         InstanceCache::logStatistics();
+        Cache::logStatistics();
+        Sql::logStatistics();
 
         // Remove subprocess run directory
         Process::deleteRunDirectory();

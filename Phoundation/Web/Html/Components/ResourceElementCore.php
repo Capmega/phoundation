@@ -18,9 +18,11 @@ namespace Phoundation\Web\Html\Components;
 
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Traits\TraitDataCacheKey;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Data\Traits\TraitMethodEnsureArrayString;
+use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
 use Phoundation\Web\Html\Exception\HtmlException;
 use Phoundation\Web\Html\Traits\TraitInputElement;
@@ -28,6 +30,7 @@ use Phoundation\Web\Html\Traits\TraitInputElement;
 
 abstract class ResourceElementCore extends ElementCore implements ResourceElementInterface
 {
+    use TraitDataCacheKey;
     use TraitInputElement;
     use TraitDataConnector;
     use TraitDataDebug;
@@ -292,21 +295,38 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
 
 
     /**
+     * Generates and returns a unique cache key for this DataEntry object
+     *
+     * @return string
+     */
+    protected function initCacheKey(): string
+    {
+        if ($this->data_entry) {
+            // Get cache key from DataEntry object
+        } else {
+            // Filter by current page and resource element id
+        }
+    }
+
+
+    /**
      * Generates and returns the HTML string for this resource element
      *
      * @return string|null
      */
     public function render(): ?string
     {
-        // Render the body
-        $this->content = $this->renderBody();
+        return cache('html')->get($this->getCacheKey(), function () {
+            // Render the body
+            $this->content = $this->renderBody();
 
-        if (!$this->content and $this->hide_empty) {
-            return '';
-        }
+            if (!$this->content and $this->hide_empty) {
+                return '';
+            }
 
-        // Render the top element around the resource block
-        return parent::render();
+            // Render the top element around the resource block
+            return parent::render();
+        });
     }
 
 

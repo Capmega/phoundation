@@ -25,7 +25,6 @@ use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataDateFormat;
-use Phoundation\Data\Traits\TraitDataIterator;
 use Phoundation\Data\Traits\TraitDataRequestMethod;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
@@ -40,7 +39,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Forms\Interfaces\FilterFormInterface;
 use Phoundation\Web\Html\Components\Input\InputDateRange;
-use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Enums\EnumInputType;
@@ -53,7 +51,6 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 {
     use TraitDataRequestMethod;
     use TraitDataDateFormat;
-    use TraitDataIterator;
 
 
     /**

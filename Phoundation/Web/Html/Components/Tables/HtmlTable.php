@@ -836,6 +836,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
             case EnumTableIdColumn::checkbox:
                 // no break
+
             default:
                 $made_checkbox = true;
 
