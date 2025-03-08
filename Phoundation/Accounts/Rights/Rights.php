@@ -96,8 +96,8 @@ class Rights extends DataIterator implements RightsInterface
         $values = SqlQueries::in($rights);
         $rights = array_flip($rights);
         $exist  = sql()->query('SELECT `seo_name`
-                                      FROM   `accounts_rights`
-                                      WHERE  `seo_name` IN (' . implode(', ', array_keys($values)) . ')', $values);
+                                FROM   `accounts_rights`
+                                WHERE  `seo_name` IN (' . implode(', ', array_keys($values)) . ')', $values);
 
         while ($right = $exist->fetchColumn(0)) {
             unset($rights[$right]);

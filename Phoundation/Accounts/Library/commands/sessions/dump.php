@@ -19,6 +19,7 @@ use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Utils\Arrays;
 
 
 CliDocumentation::setUsage('./pho sessions dump SESSION');
@@ -38,4 +39,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Log::cli(UserSession::new($argv['session'])->getSource());
+Log::cli(Arrays::removeKeys(UserSession::new($argv['session'])->getSource(), 'string'));
