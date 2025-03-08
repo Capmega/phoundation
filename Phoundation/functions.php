@@ -30,11 +30,11 @@ use Phoundation\Core\Log\Interfaces\LogInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\SessionConfig;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
-use Phoundation\Databases\Datastores;
-use Phoundation\Databases\FileDb;
+use Phoundation\Databases\Databases;
+use Phoundation\Databases\FileDb\FileDb;
 use Phoundation\Databases\Interfaces\MemcachedInterface;
-use Phoundation\Databases\Mongo;
-use Phoundation\Databases\NullDb;
+use Phoundation\Databases\MongoDb\MongoDb;
+use Phoundation\Databases\NullDb\NullDb;
 use Phoundation\Databases\Redis\Redis;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
@@ -1574,63 +1574,19 @@ function execute_hook(string $__file, HookInterface $hook): mixed
 }
 
 
-
-/**
- * ??? No idea what this is supposed to do or if its important. Figure it out later, I guess?
- *
- * @todo Remove this function
- * @param mixed $variable
- * @param int   $level
- *
- * @return mixed
- */
-function variable_zts_safe(mixed $variable, int $level = 0): mixed
-{
-    if (!defined('PHP_ZTS')) {
-        return $variable;
-    }
-
-    if (++$level > 20) {
-        // Recursion level reached, until here, no further!
-        return '***  Resource limit reached! ***';
-    }
-
-    if (is_resource($variable)) {
-        $variable = print_r($variable, true);
-    }
-
-    if (is_array($variable) or (is_object($variable) and (($variable instanceof PhoException) or ($variable instanceof Error)))) {
-        foreach ($variable as $key => &$value) {
-            if ($key === 'object') {
-                $value = print_r($value, true);
-
-            } else {
-                $value = variable_zts_safe($value, $level);
-            }
-        }
-
-    } elseif (is_object($variable)) {
-        $variable = print_r($variable, true);
-    }
-
-    unset($value);
-
-    return $variable;
-}
-
-
 /**
  * Returns the system cache object
  *
- * @param string $connector
+ * @param string      $connector
+ * @param string|null $database
+ * @param bool        $allow_alternate_connector
  *
  * @return CacheInterface
  */
-function cache(string $connector): CacheInterface
+function cache(string $connector, ?string $database = null, bool $allow_alternate_connector = true): CacheInterface
 {
-    return new Cache($connector);
+    return new Cache($connector, $database, $allow_alternate_connector);
 }
-
 
 
 /**
@@ -1644,7 +1600,7 @@ function cache(string $connector): CacheInterface
  */
 function sql(ConnectorInterface|string|null $connector = 'system', bool $use_database = true, bool $connect = true): SqlInterface
 {
-    return Datastores::getSql($connector, $use_database, $connect);
+    return Databases::getSql($connector, $use_database, $connect);
 }
 
 
@@ -1652,12 +1608,28 @@ function sql(ConnectorInterface|string|null $connector = 'system', bool $use_dat
  * Returns the system SQL database object
  *
  * @param ConnectorInterface|string|null $connector
+ * @param bool                           $connect
+ *
+ * @return MemcachedInterface
+ */
+function memcached(ConnectorInterface|string|null $connector, bool $connect = true): MemcachedInterface
+{
+    return Databases::getMemcached($connector, $connect);
+}
+
+
+/**
+ * Returns the system SQL database object
+ *
+ * @note This is a wrapper for memcached() with a shorter name
+ * @param ConnectorInterface|string|null $connector
+ * @param bool                           $connect
  *
  * @return MemcachedInterface
  */
 function mc(ConnectorInterface|string|null $connector, bool $connect = true): MemcachedInterface
 {
-    return Datastores::getMemcached($connector, $connect);
+    return Databases::getMemcached($connector, $connect);
 }
 
 
@@ -1665,12 +1637,13 @@ function mc(ConnectorInterface|string|null $connector, bool $connect = true): Me
  * Returns the system SQL database object
  *
  * @param string|null $instance_name
+ * @param bool        $connect
  *
- * @return Mongo
+ * @return MongoDb
  */
-function mongo(?string $instance_name = null, bool $connect = true): Mongo
+function mongo(?string $instance_name = null, bool $connect = true): MongoDb
 {
-    return Datastores::getMongo($instance_name, $connect);
+    return Databases::getMongo($instance_name, $connect);
 }
 
 
@@ -1684,7 +1657,7 @@ function mongo(?string $instance_name = null, bool $connect = true): Mongo
  */
 function redis(ConnectorInterface|string|null $connector = 'system-redis', bool $connect = true): Redis
 {
-    return Datastores::getRedis($connector, $connect);
+    return Databases::getRedis($connector, $connect);
 }
 
 
@@ -1697,7 +1670,7 @@ function redis(ConnectorInterface|string|null $connector = 'system-redis', bool 
  */
 function null(?string $instance_name = null): NullDb
 {
-    return Datastores::getNullDb($instance_name);
+    return Databases::getNullDb($instance_name);
 }
 
 
@@ -1710,7 +1683,7 @@ function null(?string $instance_name = null): NullDb
  */
 function filedb(?string $instance_name = null): FileDb
 {
-    return Datastores::getFileDb($instance_name);
+    return Databases::getFileDb($instance_name);
 }
 
 

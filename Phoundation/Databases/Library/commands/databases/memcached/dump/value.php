@@ -51,7 +51,7 @@ CliDocumentation::setAutoComplete([
 // Validate arguments
 $argv = ArgvValidator::new()
                      ->select('-c,--connector', true)->isVariable()
-                     ->select('-k,--key', true)->isVariable()
+                     ->select('key')->isVariable()
                      ->validate();
 
 

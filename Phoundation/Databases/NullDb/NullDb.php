@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class FileDb
+ * Class NullDb
  *
- * This is the FileDb database, which will store all data in files
+ * This is the NullDb database, which will always return NULL values
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -14,13 +14,12 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Databases;
+namespace Phoundation\Databases\NullDb;
 
 use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 
-
-class FileDb implements DatabaseInterface
+class NullDb implements DatabaseInterface
 {
     /**
      * Do nothing, really

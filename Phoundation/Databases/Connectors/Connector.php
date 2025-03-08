@@ -37,7 +37,7 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Exception\ConnectorNotExistsException;
 use Phoundation\Databases\Connectors\Exception\InvalidConnectorTypeException;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
-use Phoundation\Databases\Datastores;
+use Phoundation\Databases\Databases;
 use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Utils\Arrays;
@@ -207,7 +207,7 @@ class Connector extends DataEntry implements ConnectorInterface
             parent::load($identifier);
 
             // TODO $this->identifier['name'] should always exist for a connector, but what if someone specified $identifier['id'] ???
-            Datastores::getConnectorsObject()->add($this, $this->identifier['name'], exception: false);
+            Databases::getConnectorsObject()->add($this, $this->identifier['name'], exception: false);
             return $this;
 
         } catch (DataEntryNotExistsException $e) {
@@ -668,7 +668,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function test(): static
     {
-        Datastores::fromConnector($this)
+        Databases::fromConnector($this)
                   ->test();
 
         return $this;

@@ -14,7 +14,8 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Databases;
+namespace Phoundation\Databases\ElasticSearch;
+
 
 class ElasticSearch
 {

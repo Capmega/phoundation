@@ -1993,4 +1993,20 @@ class Sql implements SqlInterface
         throw new UnderConstructionException();
         // TODO: Implement import() method.
     }
+
+
+    /**
+     * Logs the cache statistics when in debug mode
+     *
+     * @return void
+     */
+    public static function logStatistics(): void
+    {
+        if (Debug::isEnabled() and !QUIET) {
+            Log::write(ts('STATISTIC SQL object executed ":count" queries in ":time" seconds', [
+                ':count' => Timers::getCount('sql'),
+                ':time'  => number_format(Timers::getTotal('sql'), 5),
+            ]), 'debug', 9);
+        }
+    }
 }

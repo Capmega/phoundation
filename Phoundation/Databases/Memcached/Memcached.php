@@ -5,6 +5,7 @@
  *
  * This is the default memcached driver object
  *
+ * @see       https://www.adayinthelifeof.nl/2011/02/06/memcache-internals/
  * @see       https://www.php.net/manual/en/class.memcached.php
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -199,12 +200,18 @@ class Memcached implements MemcachedInterface
      */
     public function get(string|float|int|null $key, ?callable $cache_callback = null, int $flags = 0): PoaInterface|array|string|float|int|null
     {
+        if ($key === null) {
+            // NULL key always returns null
+            return null;
+        }
+
         $value = $this->memcached->get($this->getSafeKey($key), $cache_callback, $flags);
 
         if ($value) {
-            Log::success($this->log(tr('Found key ":key" in memcached', [
-                ':key' => $key,
-            ])), 3);
+            Log::success($this->log(tr('Found key ":key" through memcached connector ":connector"', [
+                ':connector' => $this->connector,
+                ':key'       => $key,
+            ])), 2);
         }
 
         return get_poad_object(get_null($value));
@@ -215,14 +222,19 @@ class Memcached implements MemcachedInterface
      * Sets the specified key to the specified value on the memcached server(s)
      *
      * @param PoaInterface|array|string|float|int|null $value
-     * @param string|float|int|null                    $key
+     * @param Stringable|string|float|int|null         $key
      * @param int|null                                 $expires
      *
      * @return mixed
      * @see https://www.php.net/manual/en/memcached.set.php
      */
-    public function set(PoaInterface|array|string|float|int|null $value, string|float|int|null $key, ?int $expires = null): static
+    public function set(PoaInterface|array|string|float|int|null $value, Stringable|string|float|int|null $key, ?int $expires = null): static
     {
+        if ($key === null) {
+            // NULL key will never store anything
+            return $this;
+        }
+
         if ($value instanceof Stringable) {
             // Prefix the JSON string from this object with PAODJSON to indicate that this is a
             // Phoundation Object Array Data (POAD) string with JSON encoding that, upon Memcached::get() can be
@@ -236,17 +248,19 @@ class Memcached implements MemcachedInterface
         $result = $this->memcached->set($this->getSafeKey($key), $value, $expires ?? $this->configuration['expires']);
 
         if ($result) {
-            Log::success($this->log(tr('Wrote key ":key" to memcached', [
-                ':key' => $key,
-            ])), 3);
+            Log::success($this->log(tr('Set key ":key" through memcached connector ":connector"', [
+                ':connector' => $this->connector,
+                ':key'       => $key,
+            ])), 2);
 
             return $this;
         }
 
-        throw new MemcachedException($this->log(tr('Setting value for key ":key" failed with code ":code" and message ":message"', [
-            ':key'     => $key,
-            ':code'    => $this->memcached->getResultCode(),
-            ':message' => $this->memcached->getResultMessage()
+        throw new MemcachedException($this->log(tr('Setting value for key ":key" through connector ":connector" failed with code ":code" and message ":message"', [
+            ':connector' => $this->connector,
+            ':key'       => $key,
+            ':code'      => $this->memcached->getResultCode(),
+            ':message'   => $this->memcached->getResultMessage()
         ])));
     }
 
@@ -281,9 +295,11 @@ class Memcached implements MemcachedInterface
             return $value;
         }
 
-        throw new MemcachedException($this->log(tr('Adding value for key ":key" failed with code ":code" and message ":message"', [
-            ':code'    => $this->memcached->getResultCode(),
-            ':message' => $this->memcached->getResultMessage()
+        throw new MemcachedException($this->log(tr('Adding value for key ":key" through connector ":connector" failed with code ":code" and message ":message"', [
+            ':key'       => $key,
+            ':connector' => $this->connector,
+            ':code'      => $this->memcached->getResultCode(),
+            ':message'   => $this->memcached->getResultMessage()
         ])));
     }
 
@@ -318,9 +334,11 @@ class Memcached implements MemcachedInterface
             return $value;
         }
 
-        throw new MemcachedException($this->log(tr('Replacing value for key ":key" failed with code ":code" and message ":message"', [
-            ':code'    => $this->memcached->getResultCode(),
-            ':message' => $this->memcached->getResultMessage()
+        throw new MemcachedException($this->log(tr('Replacing value for key ":key" through connector ":connector" failed with code ":code" and message ":message"', [
+            ':key'       => $key,
+            ':connector' => $this->connector,
+            ':code'      => $this->memcached->getResultCode(),
+            ':message'   => $this->memcached->getResultMessage()
         ])));
     }
 
@@ -329,11 +347,11 @@ class Memcached implements MemcachedInterface
      * Deletes the specified key from the memcached server(s)
      *
      * @param string|float|int|null $key
-     * @param int|null              $time
+     * @param int                   $time
      *
-     * @return void
+     * @return static
      */
-    public function delete(string|float|int|null $key, ?int $time = null): void
+    public function delete(string|float|int|null $key, int $time = 0): static
     {
         $result = $this->memcached->delete($this->getSafeKey($key), $time);
 
@@ -343,9 +361,16 @@ class Memcached implements MemcachedInterface
             ])), 3);
         }
 
-        throw new MemcachedException($this->log(tr('Deleting key ":key" failed with code ":code" and message ":message"', [
-            ':code'    => $this->memcached->getResultCode(),
-            ':message' => $this->memcached->getResultMessage()
+        if ($this->memcached->getResultCode() === 16) {
+            // This means the deleted key did not exist in the first place, that is fine
+            return $this;
+        }
+
+        throw new MemcachedException($this->log(tr('Deleting key ":key" through connector ":connector" failed with code ":code" and message ":message"', [
+            ':key'       => $key,
+            ':connector' => $this->connector,
+            ':code'      => $this->memcached->getResultCode(),
+            ':message'   => $this->memcached->getResultMessage()
         ])));
     }
 
@@ -369,9 +394,10 @@ class Memcached implements MemcachedInterface
             return $this;
         }
 
-        throw new MemcachedException($this->log(tr('Flushing all data failed with code ":code" and message ":message"', [
-            ':code'    => $this->memcached->getResultCode(),
-            ':message' => $this->memcached->getResultMessage()
+        throw new MemcachedException($this->log(tr('Flushing all data through connector ":connector" failed with code ":code" and message ":message"', [
+            ':connector' => $this->connector,
+            ':code'      => $this->memcached->getResultCode(),
+            ':message'   => $this->memcached->getResultMessage()
         ])));
     }
 
@@ -410,6 +436,51 @@ class Memcached implements MemcachedInterface
      * Return statistics for this memcached instance
      *
      * @return array
+     *
+     * Information on output:
+     *
+     * @see http://www.pal-blog.de/entwicklung/perl/memcached-statistics-stats-command.html
+     *
+     * Field                 Sample     Description
+     *
+     * accepting_conns       1          The Memcached server is currently accepting new connections.
+     * auth_cmds             0          Number of authentication commands processed by the server - if you use authentication within your installation. The default is IP (routing) level security which speeds up the actual Memcached usage by removing the authentication requirement.
+     * auth_errors           0          Number of failed authentication tries of clients.
+     * bytes                 6775829    Number of bytes currently used for caching items, this server currently uses ~6 MB of it's maximum allowed (limit_maxbytes) 1 GB cache size.
+     * bytes_read            880545081  Total number of bytes received from the network by this server.
+     * bytes_written         3607442137 Total number of bytes send to the network by this server.
+     * cas_badval            0          The "cas" command is some kind of Memcached's way to avoid locking. 'cas' calls with bad identifier are counted in this stats key.
+     * cas_hits              0          Number of successful 'cas' commands.
+     * cas_misses            0          'cas' calls fail if the value has been changed since it was requested from the cache. We're currently not using "cas" at all, so all three cas values are zero.
+     * cmd_flush             0          The "flush_all" command clears the whole cache and shouldn't be used during normal operation.
+     * cmd_get               1626823    Number of 'get' commands received since server startup not counting if they were successful or not.
+     * cmd_set               2279784    Number of 'set' commands serviced since startup.
+     * connection_structures 42         Number of internal connection handles currently held by the server. May be used as some kind of 'maximum parallel connection count' but the server may destroy connection structures (don't know if he ever does) or prepare some without having actual connections for them (also don't know if he does). 42 maximum connections and 34 current connections (curr_connections) sounds reasonable, the live servers also have about 10% more connection_structures than curr_connections.
+     * conn_yields           1          Memcached has a configurable maximum number of requests per event (-R command line argument), this counter shows the number of times any client hit this limit.
+     * curr_connections      34         Number of open connections to this Memcached server, should be the same value on all servers during normal operation. This is something like the count of mySQL's "SHOW PROCESSLIST" result rows.
+     * curr_items            30345      Number of items currently in this server's cache. The production system of this development environment holds more than 8 million items.
+     * decr_hits             0          The 'decr' command decreases a stored (integer) value by 1. A 'hit' is a 'decr' call to an existing key.
+     * decr_misses           0          'decr' command calls to undefined keys.
+     * delete_hits           138707     Stored keys may be deleted using the 'delete' command, this system doesn't delete cached data itself, but it's using the Memcached to avoid recaching-races and the race keys are deleted once the race is over and fresh content has been cached.
+     * delete_misses         107095     Number of 'delete' commands for keys not existing within the cache. These 107k failed deletes are deletions of non existent race keys (see above).
+     * evictions             0          Number of objects removed from the cache to free up memory for new items because Memcached reached it's maximum memory setting (limit_maxbytes).
+     * get_hits              391283     Number of successful "get" commands (cache hits) since startup, divide them by the "cmd_get" value to get the cache hitrate: This server was able to serve 24% of it's get requests from the cache, the live servers of this installation usually have more than 98% hits.
+     * get_misses            1235540    Number of failed 'get' requests because nothing was cached for this key or the cached value was too old.
+     * incr_hits             0          Number of successful 'incr' commands processed. 'incr' is a replace adding 1 to the stored value and failing if no value is stored. This specific installation (currently) doesn't use incr/decr commands, so all their values are zero.
+     * incr_misses           0          Number of failed "incr" commands (see incr_hits).
+     * limit_maxbytes        1073741824 Maximum configured cache size (set on the command line while starting the memcached server), look at the "bytes" value for the actual usage.
+     * listen_disabled_num   0          Number of denied connection attempts because memcached reached it's configured connection limit ('-c' command line argument).
+     * pid                   24040      Current process ID of the Memcached task.
+     * pointer_size          64         Number of bits of the hostsystem, may show '32' instead of '64' if the running Memcached binary was compiled for 32 bit environments and is running on a 64 bit system.
+     * reclaimed             14740      Number of times a write command to the cached used memory from another expired key. These are not storage operations deleting old items due to a full cache.
+     * rusage_system         310.030000 Number of system time seconds for this server process.
+     * rusage_user           103.230000 Number of user time seconds for this server process.
+     * threads               4          Number of threads used by the current Memcached server process.
+     * time                  1323008181 Current unix timestamp of the Memcached's server.
+     * total_connections     27384      Number of successful connect attempts to this server since it has been started. Roughly $number_of_connections_per_task * $number_of_webserver_tasks * $number_of_webserver_restarts.
+     * total_items           323615     Number of items stored ever stored on this server. This is no "maximum item count" value but a counted increased by every new item stored in the cache.
+     * uptime                1145873    Number of seconds the Memcached server has been running since last restart.1145873 / (60 * 60 * 24) = ~13 days since this server has been restarted
+     * version               1.4.5      Version number of the server
      */
     public function getStatistics(): array
     {
@@ -481,7 +552,32 @@ class Memcached implements MemcachedInterface
      */
     protected function getSafeKey(string|float|int|null $key): string
     {
-        return str_replace(['/', '\\', ':', '*', '?', '"', '<', '>', '|', ' '], '-', $key);
+        $key = (string) $key;
+
+        if (strlen($key) > 250) {
+            // Invalid key!
+            Incident::new()
+                ->setType(ts('Database issue'))
+                ->setTitle(ts('Invalid memcached key length'))
+                ->setBody(ts('The length of the specified memcached key ":key" is ":count" characters, which is longer than 250 characters, which is not allowed by memcached. Converting to SHA1 instead', [
+                    ':key'   => $key,
+                    ':count' => strlen($key),
+                ]))
+                ->setData([
+                    'key'   => $key,
+                    'count' => strlen($key),
+                ])
+                ->setNotifyRoles('developer')
+                ->setLog(9)
+                ->save();
+
+            $key = sha1($key) . 'this key was too long and was converted to sha1';
+        }
+
+        $key = str_replace(["\0", "\r", "\n", "\t", ' '], '-', $key);
+        $key = str_replace('--', '-', $key);
+
+        return $key;
     }
 
 

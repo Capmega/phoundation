@@ -66,13 +66,13 @@ interface MemcachedInterface extends DatastoreInterface
      * Sets the value for the specified key on the memcached server(s)
      *
      * @param PoaInterface|array|string|float|int|null $value
-     * @param string|float|int|null                    $key
+     * @param Stringable|string|float|int|null         $key
      * @param int|null                                 $expires
      *
      * @return mixed
      * @see https://www.php.net/manual/en/memcached.set.php
      */
-    public function set(PoaInterface|array|string|float|int|null $value, string|float|int|null $key, ?int $expires = null): static;
+    public function set(PoaInterface|array|string|float|int|null $value, Stringable|string|float|int|null $key, ?int $expires = null): static;
 
 
     /**
@@ -107,11 +107,11 @@ interface MemcachedInterface extends DatastoreInterface
      * Deletes the specified key from the memcached server(s)
      *
      * @param string|float|int|null $key
-     * @param int|null              $time
+     * @param int                   $time
      *
-     * @return void
+     * @return static
      */
-    public function delete(string|float|int|null $key, ?int $time = null): void;
+    public function delete(string|float|int|null $key, int $time = 0): static;
 
 
     /**

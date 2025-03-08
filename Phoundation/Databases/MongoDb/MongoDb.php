@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class Mongo
+ * Class MongoDb
  *
  *
  *
@@ -14,13 +14,14 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Databases;
+namespace Phoundation\Databases\MongoDb;
 
 use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 
-class Mongo implements DatabaseInterface
+
+class MongoDb implements DatabaseInterface
 {
 //    /**
 //     * Configuration

@@ -16,24 +16,25 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases;
 
-use Exception;
-use Phoundation\Databases\Connectors\Connector;
+use Phoundation\Core\Libraries\Library;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Connectors\Exception\NoConnectorSpecifiedException;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
+use Phoundation\Databases\FileDb\FileDb;
 use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Databases\Interfaces\MemcachedInterface;
 use Phoundation\Databases\Memcached\Memcached;
+use Phoundation\Databases\MongoDb\MongoDb;
+use Phoundation\Databases\NullDb\NullDb;
 use Phoundation\Databases\Redis\Interfaces\RedisInterface;
 use Phoundation\Databases\Redis\Redis;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Exception\UnderConstructionException;
 
 
-class Datastores
+class Databases
 {
     /**
      * The register with all database connections
@@ -119,12 +120,12 @@ class Datastores
     public static function fromConnector(ConnectorInterface $connector, bool $connect = true, bool $use_database = true): DatabaseInterface
     {
         return match ($connector->getType()) {
-            'sql'       => Datastores::getSql($connector, $connect, $use_database),
-            'null'      => Datastores::getNullDb($connector, $connect, $use_database),
-            'file'      => Datastores::getFileDb($connector, $connect, $use_database),
-            'mongo'     => Datastores::getMongo($connector, $connect, $use_database),
-            'redis'     => Datastores::getRedis($connector, $connect, $use_database),
-            'memcached' => Datastores::getMemcached($connector, $connect, $use_database),
+            'sql'       => Databases::getSql($connector, $connect, $use_database),
+            'null'      => Databases::getNullDb($connector, $connect, $use_database),
+            'file'      => Databases::getFileDb($connector, $connect, $use_database),
+            'mongo'     => Databases::getMongo($connector, $connect, $use_database),
+            'redis'     => Databases::getRedis($connector, $connect, $use_database),
+            'memcached' => Databases::getMemcached($connector, $connect, $use_database),
             default     => throw new OutOfBoundsException(tr('Unknown connector type ":type" specified', [
                 ':type' => $connector->getType()
             ])),
@@ -140,11 +141,11 @@ class Datastores
      * @param bool                           $connect
      * @param bool                           $use_database
      *
-     * @return SqlInterface|RedisInterface|MemcachedInterface|Mongo|FileDb|NullDb
+     * @return SqlInterface|RedisInterface|MemcachedInterface|MongoDb|FileDb|NullDb
      */
-    protected static function getDatabase(ConnectorInterface|string|null $connector, string $class, bool $connect = true, bool $use_database = true): SqlInterface|RedisInterface|MemcachedInterface|Mongo|FileDb|NullDb
+    protected static function getDatabase(ConnectorInterface|string|null $connector, string $class, bool $connect = true, bool $use_database = true): SqlInterface|RedisInterface|MemcachedInterface|MongoDb|FileDb|NullDb
     {
-        $connector      = Datastores::getConnectorObject($connector);
+        $connector      = Databases::getConnectorObject($connector);
         $connector_name = $connector->getDisplayName();
 
         if (!array_key_exists($connector_name, static::$databases)) {
@@ -213,11 +214,11 @@ class Datastores
      * @param bool                      $connect
      * @param bool                      $use_database
      *
-     * @return Mongo
+     * @return MongoDb
      */
-    public static function getMongo(ConnectorInterface|string $connector, bool $connect = true, bool $use_database = true): Mongo
+    public static function getMongo(ConnectorInterface|string $connector, bool $connect = true, bool $use_database = true): MongoDb
     {
-        return static::getDatabase($connector, Mongo::class, $connect, $use_database);
+        return static::getDatabase($connector, MongoDb::class, $connect, $use_database);
     }
 
 
