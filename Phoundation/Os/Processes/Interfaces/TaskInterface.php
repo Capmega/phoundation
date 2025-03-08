@@ -620,11 +620,11 @@ interface TaskInterface extends DataEntryInterface
     /**
      * Apply the given source
      *
-     * @param bool                          $clear_source
+     * @param bool                          $require_clean_source
      * @param array|ValidatorInterface|null $source
      *
      * @return static
      * @throws \Exception
      */
-    public function apply(bool $clear_source = true, array|ValidatorInterface|null &$source = null): static;
+    public function apply(bool $require_clean_source = true, array|ValidatorInterface|null &$source = null): static;
 }
