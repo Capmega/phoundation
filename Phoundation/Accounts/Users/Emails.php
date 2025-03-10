@@ -25,6 +25,7 @@ use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataParent;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
@@ -158,7 +159,7 @@ class Emails extends DataIterator implements EmailsInterface
         }
 
         return DataEntryForm::new()
-                            ->setDataEntry($this->parent)
+                            ->setDataEntryObject($this->parent)
                             ->appendContent(implode('<hr>', $content))
                             ->setRenderContentsOnly(true);
     }
@@ -168,11 +169,10 @@ class Emails extends DataIterator implements EmailsInterface
      * Apply all email account updates
      *
      * @param bool $require_clean_source
-     *
+     * @param ValidatorInterface|array|null $source
      * @return static
-     * @throws ValidationFailedException|OutOfBoundsExceptionInterface
      */
-    public function apply(bool $require_clean_source = true): static
+    public function apply(bool $require_clean_source = true, ValidatorInterface|array|null &$source = null): static
     {
         $this->checkReadonly('apply');
 

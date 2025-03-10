@@ -78,11 +78,14 @@ if (Request::isPostRequestMethod()) {
                                      ->validate(false);
 
                 // Update user, roles, emails, and phones
-                // :TODO: Validation failures in (for example) Phones object would still have the user saved! Make it ATOMIC by first applying EVERYTHING then saving everything
-                $user->apply(false)->save();
+                $user->apply(false);
+                $user->getEmailsObject()->apply(false);
+                $user->getPhonesObject()->apply();
+
+                $user->save();
                 $user->getRolesObject()->setRoles($post['roles_id']);
-                $user->getEmailsObject()->apply(false)->save();
-                $user->getPhonesObject()->apply()->save();
+                $user->getEmailsObject()->save();
+                $user->getPhonesObject()->save();
 
                 Response::getFlashMessagesObject()->addSuccess(tr('The account for user ":user" has been saved', [
                     ':user' => $user->getDisplayName(),

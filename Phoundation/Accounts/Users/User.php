@@ -1628,11 +1628,20 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      *
      * @return DateTimeInterface|null
      */
-    public function getFingerprint(): ?DateTimeInterface
+    public function getFingerprintObject(): ?DateTimeInterface
     {
-        $fingerprint = $this->getTypesafe('string', 'fingerprint');
+        return PhoDateTime::newOrNull($this->getFingerprint());
+    }
 
-        return new PhoDateTime($fingerprint);
+
+    /**
+     * Returns the fingerprint datetime for this user
+     *
+     * @return string|null
+     */
+    public function getFingerprint(): ?string
+    {
+        return $this->getTypesafe('string', 'fingerprint');
     }
 
 

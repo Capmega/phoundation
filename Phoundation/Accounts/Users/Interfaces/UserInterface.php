@@ -220,7 +220,15 @@ interface UserInterface extends DataEntryInterface
      *
      * @return DateTimeInterface|null
      */
-    public function getFingerprint(): ?DateTimeInterface;
+    public function getFingerprintObject(): ?DateTimeInterface;
+
+
+    /**
+     * Returns the fingerprint datetime for this user
+     *
+     * @return string|null
+     */
+    public function getFingerprint(): ?string;
 
 
     /**
