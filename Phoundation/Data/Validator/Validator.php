@@ -18,6 +18,8 @@ namespace Phoundation\Data\Validator;
 
 use PDOStatement;
 use Phoundation\Accounts\Users\Password;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\IteratorBase;
 use Phoundation\Data\Traits\TraitDataRestrictions;
@@ -3753,6 +3755,31 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                 }
 
                 $value = PhoDate::new($value);
+            }
+        });
+    }
+
+
+    /**
+     * Makes the current field a DataEntry object of the specified class, loaded with the specified identifier.
+     * The object MUST exist.
+     *
+     * @param string                                    $class
+     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param string                                    $method
+     *
+     * @return static
+     * @todo replace method datatype string with an Enum containing only all the possible DataEntry load methods
+     */
+    public function sanitizeMakeDataEntry(string $class, IdentifierInterface|array|string|int|null $identifier, string $method = 'load'): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) use ($class, $identifier, $method) {
+            if (!$this->checkIsOptional($value)) {
+                // Since we cannot know what identifier column value we may expect, we don't know if it should be a
+                // database id, a code, a name, etcetera, so no prior validations are possible here
+                $value = $class::new()->$method($identifier);
             }
         });
     }
