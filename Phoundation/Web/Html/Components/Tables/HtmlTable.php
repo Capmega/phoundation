@@ -18,10 +18,12 @@ namespace Phoundation\Web\Html\Components\Tables;
 
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataCellCallbacks;
 use Phoundation\Data\Traits\TraitDataColumns;
+use Phoundation\Data\Traits\TraitDataDataIterator;
 use Phoundation\Data\Traits\TraitDataRowCallbacks;
 use Phoundation\Data\Traits\TraitDataTitle;
 use Phoundation\Developer\Debug\Debug;
@@ -197,7 +199,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
         $this->setElement('table')
              ->setNullStatus(tr('Active'))
-             ->setFrom($source);
+             ->setDataIteratorObject($source);
     }
 
 
@@ -223,39 +225,24 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
 
     /**
-     * Returns the Iterator object where this table was generated from
+     * Sets the DataIterator object
      *
-     * @return IteratorInterface|null
+     * @param DataIteratorInterface|null $o_data_iterator
+     *
+     * @return static
      */
-    public function getFrom(): ?IteratorInterface
+    public function setDataIteratorObject(?DataIteratorInterface $o_data_iterator): static
     {
-        return $this->from;
-    }
-
-
-    /**
-     * Returns the Iterator object where this table was generated from
-     *
-     * @param IteratorInterface|array|null $from
-     *
-     * @return HtmlTable
-     */
-    public function setFrom(IteratorInterface|array|null $from = null): static
-    {
-        if ($from) {
+        if ($o_data_iterator) {
             $this->setComponentEmptyLabel(tr('No :types available', [
-                ':types' => $from->getIteratorName(),
+                ':types' => $o_data_iterator->getIteratorName(),
             ]));
 
         } else {
             $this->setComponentEmptyLabel(tr('No results available'));
         }
 
-        if ($from instanceof IteratorInterface) {
-            $this->from = $from;
-        }
-
-        return $this;
+        return parent::setDataIteratorObject($o_data_iterator);
     }
 
 
@@ -280,7 +267,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setHeaderText(?string $header_text): static
     {
         $this->header_text = $header_text;
-
         return $this;
     }
 
@@ -306,7 +292,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setNullStatus(?string $null_status): static
     {
         $this->null_status = $null_status;
-
         return $this;
     }
 
@@ -332,7 +317,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setResponsive(bool $responsive): static
     {
         $this->responsive = $responsive;
-
         return $this;
     }
 
@@ -358,7 +342,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setProcessEntities(bool $process_entities): static
     {
         $this->process_entities = $process_entities;
-
         return $this;
     }
 
@@ -384,7 +367,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setFullWidth(bool $full_width): static
     {
         $this->full_width = $full_width;
-
         return $this;
     }
 
@@ -455,7 +437,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setRowClasses(?string $classes): static
     {
         $this->row_classes = $classes;
-
         return $this;
     }
 
@@ -481,7 +462,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setColumnClasses(?string $classes): static
     {
         $this->column_classes = $classes;
-
         return $this;
     }
 
@@ -507,7 +487,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setAnchorClasses(?string $classes): static
     {
         $this->anchor_classes = $classes;
-
         return $this;
     }
 

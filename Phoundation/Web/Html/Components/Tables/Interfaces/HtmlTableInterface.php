@@ -349,20 +349,4 @@ interface HtmlTableInterface extends ResourceElementInterface
      * @return string
      */
     public function renderRow(int $row_id): string;
-
-    /**
-     * Returns the Iterator object where this table was generated from
-     *
-     * @return IteratorInterface|null
-     */
-    public function getFrom(): ?IteratorInterface;
-
-    /**
-     * Returns the Iterator object where this table was generated from
-     *
-     * @param IteratorInterface|array|null $from
-     *
-     * @return HtmlTable
-     */
-    public function setFrom(IteratorInterface|array|null $from = null): static;
 }

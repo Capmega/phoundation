@@ -735,6 +735,52 @@ class Response implements ResponseInterface
 
 
     /**
+     * Adds the specified header item to the
+     *
+     * @param string       $type
+     * @param array|string $headers
+     * @param bool         $prefix
+     * @return void
+     */
+    public static function addHeaders(string $type, array|string $headers, bool $prefix = false): void
+    {
+        $headers = Arrays::force($headers, null);
+
+        foreach ($headers as $header) {
+            if ($prefix) {
+                array_unshift(static::$page_headers[$type], $header);
+
+            } else {
+                static::$page_headers[$type][] = $header;
+            }
+        }
+    }
+
+
+    /**
+     * Adds the specified footer item to the
+     *
+     * @param string       $type
+     * @param array|string $footers
+     * @param bool         $prefix
+     * @return void
+     */
+    public static function addFooters(string $type, array|string $footers, bool $prefix = false): void
+    {
+        $footers = Arrays::force($footers, null);
+
+        foreach ($footers as $footer) {
+            if ($prefix) {
+                array_unshift(static::$page_footers[$type], $footer);
+
+            } else {
+                static::$page_footers[$type][] = $footer;
+            }
+        }
+    }
+
+
+    /**
      * Load the specified javascript file(s)
      *
      * @param string|array $urls
@@ -774,20 +820,10 @@ class Response implements ResponseInterface
 
         // Add scripts to header or footer
         if ($header) {
-            if ($prefix) {
-                static::$page_headers['javascript'] = array_merge($scripts, static::$page_headers['javascript']);
-
-            } else {
-                static::$page_headers['javascript'] = array_merge(static::$page_headers['javascript'], $scripts);
-            }
+            static::addHeaders('javascript', $scripts, $prefix);
 
         } else {
-            if ($prefix) {
-                static::$page_footers['javascript'] = array_merge($scripts, static::$page_footers['javascript']);
-
-            } else {
-                static::$page_footers['javascript'] = array_merge(static::$page_footers['javascript'], $scripts);
-            }
+            static::addFooters('javascript', $scripts, $prefix);
         }
     }
 
@@ -819,12 +855,64 @@ class Response implements ResponseInterface
             ];
         }
 
-        if ($prefix) {
-            static::$page_headers['link'] = array_merge($scripts, static::$page_headers['link']);
+        static::addHeaders('link', $scripts, $prefix);
+    }
 
-        } else {
-            static::$page_headers['link'] = array_merge(static::$page_headers['link'], $scripts);
-        }
+
+    /**
+     * Returns the current amount of page headers
+     *
+     * @return int
+     */
+    public static function getPageHeadersCount(): int
+    {
+        return count(static::$page_headers);
+    }
+
+
+    /**
+     * Returns the current amount of page footers
+     *
+     * @return int
+     */
+    public static function getPageFootersCount(): int
+    {
+        return count(static::$page_footers);
+    }
+
+
+    /**
+     * Returns the current amount of page headers and footers
+     *
+     * @return int
+     */
+    public static function getPageHeadersFootersCount(): int
+    {
+        return count(static::$page_footers) + count(static::$page_headers);
+    }
+
+
+    /**
+     * Returns the specified amount of last page headers
+     *
+     * @param int $count
+     * @return array
+     */
+    public static function getLastAmountOfPageHeaders(int $count): array
+    {
+        return array_slice(static::$page_headers, -$count, preserve_keys: true);
+    }
+
+
+    /**
+     * Returns the specified amount of last page footers
+     *
+     * @param int $count
+     * @return array
+     */
+    public static function getLastAmountOfPageFooters(int $count): array
+    {
+        return array_slice(static::$page_footers, -$count, preserve_keys: true);
     }
 
 

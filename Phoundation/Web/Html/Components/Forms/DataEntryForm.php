@@ -25,6 +25,7 @@ use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataCache;
 use Phoundation\Data\Traits\TraitDataCacheKey;
+use Phoundation\Data\Traits\TraitDataDataEntry;
 use Phoundation\Data\Traits\TraitDataDefinitions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
@@ -47,6 +48,7 @@ use Throwable;
 class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 {
     use TraitDataCacheKey;
+    use TraitDataDataEntry;
     use TraitDataDefinitions;
 
 
@@ -77,13 +79,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
      * @var DataEntryFormRowsInterface $rows
      */
     protected DataEntryFormRowsInterface $rows;
-
-    /**
-     * The data entry that generated this form
-     *
-     * @var DataEntryInterface|null $data_entry
-     */
-    protected ?DataEntryInterface $data_entry = null;
 
 
     /**
@@ -139,38 +134,14 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
 
     /**
-     * Returns the data fields for this DataEntryForm
-     *
-     * @return DataEntryInterface|null
-     */
-    public function getDataEntry(): ?DataEntryInterface
-    {
-        return $this->data_entry;
-    }
-
-
-    /**
-     * Set the data fields for this DataEntryForm
-     *
-     * @param DataEntryInterface $data_entry
-     *
-     * @return static
-     */
-    public function setDataEntry(DataEntryInterface $data_entry): static
-    {
-        $this->data_entry = $data_entry;
-        return $this;
-    }
-
-
-    /**
      * Returns the cache key for this DataEntryForm object
      *
+     * @param String|null $append_string
      * @return string
      */
-    protected function initCacheKey(): string
+    public function getCacheKeySeed(?String $append_string = null): string
     {
-        return ($this->data_entry?->getCacheKey() ?? (static::class . Json::encode($this->source))) . '-render';
+        return 'DataEntryForm-' . ($this->o_data_entry?->getCacheKey() ?? (static::class . Json::encode($this->source))) . '-render' . $append_string;
     }
 
 
@@ -188,7 +159,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                 }
 
                 throw new OutOfBoundsException(tr('Cannot render DataEntryForm for class ":class", no column definitions specified. Either specify definitions, or set render_contents_only', [
-                    ':class' => isset($this->data_entry) ? get_class($this->data_entry) : null,
+                    ':class' => isset($this->o_data_entry) ? get_class($this->o_data_entry) : null,
                 ]));
             }
 
@@ -655,7 +626,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                         if (!$component instanceof RenderInterface) {
                                             // The content function did NOT return a render object
                                             throw new WebRenderException(tr('Failed to render DataEntryForm ":class", the column ":column" setContent method should return a RenderInterface object but returns a ":type" instead', [
-                                                ':class'  => get_class($this->data_entry),
+                                                ':class'  => get_class($this->o_data_entry),
                                                 ':column' => $column,
                                                 ':type'   => get_datatype_or_class($component),
                                             ]));
@@ -687,7 +658,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 if (!$component instanceof RenderInterface) {
                                     // The content function did NOT return a render object
                                     throw new WebRenderException(tr('Failed to render DataEntryForm ":class", the column ":column" setContent method should return a RenderInterface object but returns a ":type" instead', [
-                                        ':class'  => get_class($this->data_entry),
+                                        ':class'  => get_class($this->o_data_entry),
                                         ':column' => $column,
                                         ':type'   => get_datatype_or_class($component),
                                     ]));
@@ -705,7 +676,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                 } catch (Throwable $e) {
 
-                    if (empty($this->data_entry)) {
+                    if (empty($this->o_data_entry)) {
                         throw new FormsException(tr('Failed to render DataEntryForm column ":column"', [
                             ':column' => $column,
                         ]),                      $e);
@@ -713,7 +684,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                     throw new FormsException(tr('Failed to render DataEntryForm column ":column" for class ":class"', [
                         ':column' => $column,
-                        ':class'  => get_class($this->data_entry),
+                        ':class'  => get_class($this->o_data_entry),
                     ]),                      $e);
                 }
             }
@@ -723,12 +694,12 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
             // Add the data entry object name in the ID field
             // TODO Should we always do this?
-            if (empty($this->data_entry)) {
+            if (empty($this->o_data_entry)) {
                 $return = '<div>' . $this->rows->render() . '</div>';
 
             }
             else {
-                $return = '<div id="' . $this->data_entry->getObjectName() . ($this->data_entry->getId(false) ? '_' . $this->data_entry->getId(false) : null) . '" class="' . $this->data_entry->getObjectName() . '">' .
+                $return = '<div id="' . $this->o_data_entry->getObjectName() . ($this->o_data_entry->getId(false) ? '_' . $this->o_data_entry->getId(false) : null) . '" class="' . $this->o_data_entry->getObjectName() . '">' .
                     $this->rows->render() .
                     '</div>';
             }

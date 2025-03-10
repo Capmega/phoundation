@@ -17,15 +17,18 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components;
 
 use PDOStatement;
+use Phoundation\Cache\Cache;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataCacheKey;
 use Phoundation\Data\Traits\TraitDataConnector;
+use Phoundation\Data\Traits\TraitDataDataIterator;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Data\Traits\TraitMethodEnsureArrayString;
-use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
 use Phoundation\Web\Html\Exception\HtmlException;
 use Phoundation\Web\Html\Traits\TraitInputElement;
+use Phoundation\Web\Requests\Request;
 
 
 abstract class ResourceElementCore extends ElementCore implements ResourceElementInterface
@@ -33,6 +36,7 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
     use TraitDataCacheKey;
     use TraitInputElement;
     use TraitDataConnector;
+    use TraitDataDataIterator;
     use TraitDataDebug;
     use TraitMethodEnsureArrayString {
         setSource as protected __setSource;
@@ -94,6 +98,23 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
      * @var bool $cache
      */
     protected bool $cache = false;
+
+
+    /**
+     * Table constructor
+     *
+     * @param IteratorInterface|array|null $source
+     */
+    public function __construct(IteratorInterface|array|null $source = null)
+    {
+        parent::__construct();
+
+        $this->cache = Cache::isEnabled();
+
+        if ($source instanceof IteratorInterface) {
+            $this->setDataIteratorObject($source);
+        }
+    }
 
 
     /**
@@ -297,15 +318,18 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
     /**
      * Generates and returns a unique cache key for this DataEntry object
      *
+     * @param String|null $append_string
      * @return string
      */
-    protected function initCacheKey(): string
+    public function getCacheKeySeed(?String $append_string = null): string
     {
-        if ($this->data_entry) {
+        if ($this->o_data_iterator) {
             // Get cache key from DataEntry object
-        } else {
-            // Filter by current page and resource element id
+            return 'ResourceElement-' . $this->o_data_iterator->getCacheKeySeed('-render') . $append_string;
         }
+
+        // Filter by current page and resource element id
+        return 'ResourceElement-' . static::class . '-' . Request::getTarget()->getRootname() . '-' . $this->getId() . '-' . $this->getName() . '-' . $this->getValue() . '-render' . $append_string;
     }
 
 
