@@ -53,6 +53,7 @@ use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Requests\Request;
+use Phoundation\Web\Requests\Response;
 
 function is_version(string $version): bool
 {
@@ -2163,7 +2164,6 @@ function get_poad_object(array|string|float|int|null $source, bool $exception = 
             // Return source as-is
             return $source;
         }
-
     }
 
     if (is_array($source)) {
@@ -2174,6 +2174,45 @@ function get_poad_object(array|string|float|int|null $source, bool $exception = 
                 if (array_key_exists('datatype', $source)) {
                     if (array_key_exists('class', $source)) {
                         if (array_key_exists('source', $source)) {
+                            // Yay, all required fields are there! Check datatype to see how to handle this
+                            switch ($source['datatype']) {
+                                case 'object':
+                                    return $source['class']::newFromSource($source['source']);
+
+                                case 'combined_cache':
+                                    $return = null;
+
+                                    foreach ($source['source'] as $key => $value) {
+                                        switch ($key) {
+                                            case 'headers':
+                                                foreach ($value as $type => $header) {
+                                                    Response::addHeaders($type, $header);
+                                                }
+
+                                                break;
+
+                                            case 'footers':
+                                                foreach ($value as $type => $header) {
+                                                    Response::addFooters($type, $header);
+                                                }
+
+                                                break;
+
+                                            case 'source':
+                                                $return = $value;
+                                        }
+                                    }
+
+                                    return get_poad_object($return);
+
+                                default:
+                                    throw OutOfBoundsException::new(tr('Unknown POAD datatype :datatype"" encountered in specified data source', [
+                                        ':datatype' => $source['datatype']
+                                    ]))->addData([
+                                        'source' => $source
+                                    ]);
+                            }
+
                             // This is an PAO array, yay!
                             return $source['class']::newFromSource($source['source']);
                         }
