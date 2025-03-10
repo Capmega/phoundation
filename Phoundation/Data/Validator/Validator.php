@@ -3641,7 +3641,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                 return;
             }
 
-            $data_entry = $this->definitions?->getDataEntry();
+            $data_entry = $this->definitions?->getDataEntryObject();
             $field      = Strings::from($this->selected_field, $this->field_prefix);
 
             if ($data_entry) {
@@ -4577,7 +4577,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
         if ($this->selected_field and !$this->test_count) {
             throw new ValidatorException(tr('Cannot select field ":field" for object ":object", the previously selected field ":previous" has no validations performed yet', [
-                ':object'   => ($this->definitions?->getDataEntry() ? get_class($this->definitions->getDataEntry()) : '-'),
+                ':object'   => ($this->definitions?->getDataEntryObject() ? get_class($this->definitions->getDataEntryObject()) : '-'),
                 ':field'    => $field,
                 ':previous' => $this->selected_field,
             ]));

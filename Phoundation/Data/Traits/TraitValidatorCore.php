@@ -47,7 +47,7 @@ trait TraitValidatorCore
     use TraitDataSourceArray;
     use TraitDataIgnoreIterator;
     use TraitDataDataEntry {
-        setDataEntry as protected __setDataEntry;
+        setDataEntryObject as protected __setDataEntry;
     }
     use TraitDataMethodPickValidatorInterface;
 
@@ -247,7 +247,7 @@ trait TraitValidatorCore
      *
      * @return $this
      */
-    public function setDataEntry(?DataEntryInterface $data_entry): static {
+    public function setDataEntryObject(?DataEntryInterface $data_entry): static {
         return $this->__setDataEntry($data_entry)
                     ->setId($data_entry?->getId(false));
     }
@@ -502,9 +502,9 @@ trait TraitValidatorCore
         $failure = trim($failure);
 
         if (Debug::isEnabled()) {
-            if ($this->definitions?->getDataEntry()) {
+            if ($this->definitions?->getDataEntryObject()) {
                 Log::write(ts('Validation failed for ":class" DataEntry field ":field" with value ":value" because :failure', [
-                    ':class'   => get_class($this->definitions->getDataEntry()),
+                    ':class'   => get_class($this->definitions->getDataEntryObject()),
                     ':field'   => ($this->parent_field ?? '-') . ' / ' . $selected_field . ' / ' . ($this->process_key ?? '-'),
                     ':failure' => $failure,
                     ':value'   => $this->source[$selected_field],
@@ -962,11 +962,11 @@ trait TraitValidatorCore
             if (Core::inBootState() or config()->getBoolean('security.validation.enabled', true)) {
                 throw ValidationFailedException::new(tr('Data validation failed with the following issues:'))
                                                ->addData([
-                                                   'class'    => $this->data_entry ? $this->data_entry::class : 'N/A',
+                                                   'class'    => $this->o_data_entry ? $this->o_data_entry::class : 'N/A',
                                                    'failures' => $this->failures,
                                                    'values'   => $values
                                                ])
-                                               ->setDataEntry($this->definitions?->getDataEntry())
+                                               ->setDataEntryObject($this->definitions?->getDataEntryObject())
                                                ->makeWarning();
             }
 

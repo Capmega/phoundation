@@ -24,9 +24,9 @@ trait TraitDataDataEntry
     /**
      * The data entry
      *
-     * @var DataEntryInterface|null $data_entry
+     * @var DataEntryInterface|null $o_data_entry
      */
-    protected ?DataEntryInterface $data_entry = null;
+    protected ?DataEntryInterface $o_data_entry = null;
 
 
     /**
@@ -34,22 +34,22 @@ trait TraitDataDataEntry
      *
      * @return DataEntryInterface|null
      */
-    public function getDataEntry(): ?DataEntryInterface
+    public function getDataEntryObject(): ?DataEntryInterface
     {
-        return $this->data_entry;
+        return $this->o_data_entry;
     }
 
 
     /**
      * Sets the data entry
      *
-     * @param DataEntryInterface|null $data_entry
+     * @param DataEntryInterface|null $o_data_entry
      *
      * @return static
      */
-    public function setDataEntry(?DataEntryInterface $data_entry): static
+    public function setDataEntryObject(?DataEntryInterface $o_data_entry): static
     {
-        $this->data_entry = $data_entry;
+        $this->o_data_entry = $o_data_entry;
         return $this;
     }
 }

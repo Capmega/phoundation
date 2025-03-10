@@ -22,7 +22,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 trait TraitStaticMethodNewIteratorArraySource
 {
     /**
-     * Returns a new class
+     * Returns a new static class
      *
      * @param IteratorInterface|array|null $source
      *

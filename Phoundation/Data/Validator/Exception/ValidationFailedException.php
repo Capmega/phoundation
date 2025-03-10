@@ -28,7 +28,7 @@ use Throwable;
 class ValidationFailedException extends ValidatorException implements ValidationFailedExceptionInterface
 {
     use TraitDataDataEntry {
-        setDataEntry as protected __setDataEntry;
+        setDataEntryObject as protected __setDataEntry;
     }
 
 
@@ -59,7 +59,7 @@ class ValidationFailedException extends ValidatorException implements Validation
      *
      * @return static
      */
-    public function setDataEntry(?DataEntryInterface $data_entry): static
+    public function setDataEntryObject(?DataEntryInterface $data_entry): static
     {
         $this->__setDataEntry($data_entry);
         $this->applyLabels();
@@ -81,7 +81,7 @@ class ValidationFailedException extends ValidatorException implements Validation
         if ($processing) {
             // We've entered an endless loop!
             Log::warning(ts('Failed to apply labels to validation exception keys, creating the source object class ":class" caused another ValidationFailedException', [
-                ':class' => $this->data_entry::class
+                ':class' => $this->o_data_entry::class
             ]));
             return;
         }
@@ -89,9 +89,9 @@ class ValidationFailedException extends ValidatorException implements Validation
         $processing = true;
 
         // Apply the data entry definition labels to the data
-        if ($this->getDataKey('failures') and $this->data_entry) {
+        if ($this->getDataKey('failures') and $this->o_data_entry) {
             // Create a temporary data entry object to get its definitions.
-            $definitions = $this->data_entry->getDefinitionsObject();
+            $definitions = $this->o_data_entry->getDefinitionsObject();
 
             // Create a new exception data array with labels instead of keys
             foreach ($this->getDataKey('failures') as $key => $failure) {

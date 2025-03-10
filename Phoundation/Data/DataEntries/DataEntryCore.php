@@ -326,7 +326,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function __construct(IdentifierInterface|array|string|int|false|null $identifier = null)
     {
-        $this->cache = config()->getBoolean('cache.data-entries.enabled', true);
+        $this->cache = Cache::isEnabled();
 
         if ($identifier === false) {
             // If the identifier is false, do NOT automatically initialize the DataEntry object
@@ -1332,15 +1332,16 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Generates and returns a unique cache key for this DataEntry object
      *
+     * @param String|null $append_string
      * @return string
      */
-    protected function initCacheKey(): string
+    public function getCacheKeySeed(?String $append_string = null): string
     {
         if (PLATFORM_WEB) {
-            return static::class . '-' . $_SERVER['REQUEST_URI'] . '-' . Json::encode($this->identifier, JSON_BIGINT_AS_STRING) . '-' . Json::encode($this->columns, JSON_BIGINT_AS_STRING);
+            return 'DataEntry-' . static::class . '-' . Json::encode($this->identifier, JSON_BIGINT_AS_STRING) . '-' . Json::encode($this->columns, JSON_BIGINT_AS_STRING) . '-' . $this->getQueryHash() . ($append_string ? '-' . $append_string : null);
         }
 
-        return static::class . '-' . Json::encode($_SERVER['argv']) . '-' . Json::encode($this->identifier, JSON_BIGINT_AS_STRING) . '-' . Json::encode($this->columns, JSON_BIGINT_AS_STRING);
+        return 'DataEntry-' . static::class . '-' . Json::encode($this->identifier, JSON_BIGINT_AS_STRING) . '-' . Json::encode($this->columns, JSON_BIGINT_AS_STRING) . '-' . $this->getQueryHash() . ($append_string ? '-' . $append_string : null);
     }
 
 
@@ -1352,7 +1353,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     protected function loadFromCache(): bool
     {
         if (is_a($this, Connector::class)) {
-            // Connectors are non-cachable because they would cause endless loops
+            // Connectors are non-cacheable because they would cause endless loops
             return false;
         }
 
@@ -1407,7 +1408,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             if (Cache::isEnabled()) {
                 // Connector objects CANNOT be cached
                 cache('dataentries')->set($this, $this->getCacheKey());
-                $this->updateTableState();
             }
         }
 
@@ -1965,6 +1965,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
+     * Returns the hash for the executed query
+     *
+     * @return string|null
+     */
+    public function getQueryHash(): ?string
+    {
+        return $this->getQueryBuilderObject()->getQueryHash();
+    }
+
+
+    /**
      * Returns the query builder for this data entry
      *
      * @return QueryBuilderInterface
@@ -2167,9 +2178,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                             ':short'  => Strings::fromReverse(get_class($this), '\\'),
                         ]), $e)
                         ->setData([
-                            'column' => $column,
-                            'value'  => $value . ' (' . gettype($value) . ')',
-                            'method' => $this::class . '::' . $method . '()',
+                            'column'   => $column,
+                            'datatype' => gettype($value),
+                            'value'    => $value,
+                            'method'   => $this::class . '::' . $method . '()',
                         ]);
                     }
 
@@ -2552,7 +2564,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         // Set ID so that the array validator can do unique lookups, etc.
         // Tell the validator what table this DataEntry is using and get the column prefix so that the validator knows
         // what columns to select
-        $validator->setDataEntry($this)
+        $validator->setDataEntryObject($this)
                   ->setDefinitionsObject($this->definitions)
                   ->setColumnPrefix($prefix)
                   ->setMetaColumns($this->getMetaColumns())
@@ -2725,15 +2737,15 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * 3 - Throw the DataEntryStateMismatchException() exception, but after reloading the meta_state. This allows the
      *     user to try and save a second time, which would then overwrite the previous changes.
      *
-     * @param ValidatorInterface|array|null $data
+     * @param ValidatorInterface|array|null $source
      *
      * @return static
      */
-    protected function validateMetaState(ValidatorInterface|array|null $data = null): static
+    protected function validateMetaState(ValidatorInterface|array|null $source = null): static
     {
         // Check entry meta-state. If this entry was modified in the meantime, can we update?
         if ($this->getMetaState()) {
-            if (array_get_safe($data, 'meta_state') !== $this->getMetaState()) {
+            if (array_get_safe($source, 'meta_state') !== $this->getMetaState()) {
                 // State mismatch! This means that somebody else updated this record while we were modifying it.
                 switch ($this->state_mismatch_handling) {
                     case EnumStateMismatchHandling::ignore:
@@ -2741,14 +2753,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                             ':id'   => $this->getId(false) ?? ts('N/A'),
                             ':type' => static::getEntryName(),
                             ':old'  => $this->getMetaState(),
-                            ':new'  => $data['meta_state'],
+                            ':new'  => array_get_safe($source, 'meta_state'),
                         ]));
                         break;
 
                     case EnumStateMismatchHandling::allow_override:
                         // Okay, so the state did NOT match, and we WILL throw the state mismatch exception, BUT we WILL
                         // update the state data so that a second attempt can succeed
-                        $data['meta_state'] = $this->getMetaState();
+                        $source['meta_state'] = $this->getMetaState();
                         break;
 
                     case EnumStateMismatchHandling::restrict:
@@ -3132,7 +3144,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         $data_entry->getDefinitionsObject()->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null)
                                            ->appendSource($this->definitions)
-                                           ->setDataEntry($this);
+                                           ->setDataEntryObject($this);
 
         return $this;
     }
@@ -3562,7 +3574,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
             $this->checkReadonly('set-status "' . $status . '"')
-                 ->saveToCache()->source['status'] = $status;
+                 ->saveToCache()
+                 ->updateTableState()->source['status'] = $status;
 
             if ($auto_save and $this->isNotNew()) {
                 SqlDataEntry::new(sql($this->o_connector), $this)
@@ -3871,7 +3884,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         if ($this->saveBecauseModified($force)) {
             // Object must ALWAYS be validated before writing! Validate data and write it to the database.
-            return $this->validate($skip_validation)->write($comments)->saveToCache();
+            return $this->validate($skip_validation)->write($comments)->saveToCache()->updateTableState();
         }
 
         return $this;
@@ -4113,7 +4126,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function getHtmlDataEntryFormObject(): DataEntryFormInterface
     {
         return DataEntryForm::new()
-                            ->setDataEntry($this)
+                            ->setDataEntryObject($this)
                             ->setSource($this->source)
                             ->setReadonly($this->readonly)
                             ->setDisabled($this->disabled)

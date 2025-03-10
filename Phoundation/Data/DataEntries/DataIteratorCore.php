@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntries;
 
 use PDOStatement;
+use Phoundation\Cache\Cache;
 use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
@@ -166,8 +167,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
         // If this data iterator had a source specified, consider it loaded
         $this->setAcceptedDataTypes(static::getDefaultContentDataType());
         $this->is_loaded = (bool) $source;
-        $this->cache     = config()->getBoolean('cache.data-entries.enabled', true);
-
+        $this->cache     = Cache::isEnabled();
     }
 
 
@@ -290,6 +290,21 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     {
         $this->useQueryBuilder();
         return $this->query_builder;
+    }
+
+
+    /**
+     * Returns the hash for the executed query
+     *
+     * @return string|null
+     */
+    public function getQueryHash(): ?string
+    {
+        if (empty($this->query)) {
+            return null;
+        }
+
+        return sha1($this->query);
     }
 
 
@@ -777,7 +792,9 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
             $select->setDebug($this->debug)
                    ->setConnectorObject($this->getConnectorObject())
                    ->setSourceQuery($query, $execute)
-                   ->setValueColumn($value_column);
+                   ->setValueColumn($value_column)
+                   ->setNotSelectedLabel(tr('Select an item'))
+                   ->setComponentEmptyLabel(tr('No items available'));
         }
 
         return $select;
@@ -1247,11 +1264,12 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     /**
      * Returns a cache key for this object
      *
+     * @param String|null $append_string
      * @return string|null
      */
-    protected function initCacheKey(): ?string
+    public function getCacheKeySeed(?String $append_string = null): ?string
     {
-        return static::class . '-' . Request::getTarget()->getRootname() . ($this->parent ? '-' . $this->parent::class . '-' . $this->parent->getId() : '');
+        return 'DataIterator-' . static::class . '-' . static::getTableState() . '-' . ($this->parent ? $this->parent::class . '-' . $this->parent->getId() : '') . $this->getQueryHash() . ($append_string ? '-' . $append_string : null);
     }
 
 
@@ -1265,12 +1283,11 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      */
     public function load(array|string|int|null $identifiers = null, bool $only_if_empty = true): static
     {
+        // Log::debug(static::getTable() . ' > ' . $this->getConnectorObject()?->getDisplayName());
+        $this->setIsLoading(true)
+            ->selectQuery($identifiers);
+
         cache('dataentries')->get($this->getCacheKey(), function ()  use ($identifiers, $only_if_empty) {
-            // Log::debug(static::getTable() . ' > ' . $this->getConnectorObject()?->getDisplayName());
-
-            $this->setIsLoading(true)
-                 ->selectQuery($identifiers);
-
             if (empty($this->source)) {
                 $this->source = sql($this->getConnectorObject())->setDebug($this->debug)
                                                                 ->listKeyValues($this->query, $this->execute);

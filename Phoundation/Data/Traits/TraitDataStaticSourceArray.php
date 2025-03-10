@@ -22,6 +22,7 @@ use Phoundation\Data\Exception\IteratorKeyExistsException;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Json;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -42,6 +43,17 @@ trait TraitDataStaticSourceArray
      * @return array
      */
     public static function __toArray(): array
+    {
+        return static::getPoad();
+    }
+
+
+    /**
+     * Returns the source data when cast to array
+     *
+     * @return array
+     */
+    public static function getPoad(): array
     {
         return [
             'poad'      => 'PHOUNDATION',

@@ -51,7 +51,7 @@ trait TraitDataSourceArray
 
 
     /**
-     * Returns the source data when cast to array in POA (Phoundation Object Array) format. This format allows any
+     * Returns the source data when cast to array in POAD (Phoundation Object Array Data) format. This format allows any
      * object to be recreated from this array
      *
      * POA structures must have the following format
@@ -65,6 +65,26 @@ trait TraitDataSourceArray
      * @return array
      */
     public function __toArray(): array
+    {
+        return $this->getPoad();
+    }
+
+
+    /**
+     * Returns the source data when cast to array in POA (Phoundation Object Array) format. This format allows any
+     * object to be recreated from this array
+     *
+     * POA structures must have the following format
+     * [
+     *     "datatype" => The phoundation version that created this array
+     *     "datatype" => "object"
+     *     "class"    => The class name (static::class should suffice)
+     *     "source"   => The object's source data
+     * ]
+     *
+     * @return array
+     */
+    public function getPoad(): array
     {
         return [
             'poad'      => 'PHOUNDATION',

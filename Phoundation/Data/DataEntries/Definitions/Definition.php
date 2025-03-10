@@ -52,7 +52,7 @@ class Definition implements DefinitionInterface
     use TraitBeforeAfterButtons;
     use TraitDataRestrictions;
     use TraitDataDataEntry {
-        setDataEntry as protected __setDataEntry;
+        setDataEntryObject as protected __setDataEntry;
     }
 
 
@@ -246,7 +246,7 @@ class Definition implements DefinitionInterface
      */
     public function getQueryBuilder(): QueryBuilderInterface
     {
-        return $this->data_entry->getQueryBuilderObject();
+        return $this->o_data_entry->getQueryBuilderObject();
     }
 
 
@@ -265,7 +265,7 @@ class Definition implements DefinitionInterface
 
         $this->query_builder_modifications[] = $callback;
 
-        if ($this->data_entry) {
+        if ($this->o_data_entry) {
             return $this->applyQueryBuilderModifications();
         }
 
@@ -285,7 +285,7 @@ class Definition implements DefinitionInterface
     {
         if (isset($this->query_builder_modifications)) {
             foreach ($this->query_builder_modifications as $callback) {
-                $callback($this->data_entry->getQueryBuilderObject());
+                $callback($this->o_data_entry->getQueryBuilderObject());
             }
 
             unset($this->query_builder_modifications);
@@ -304,7 +304,7 @@ class Definition implements DefinitionInterface
      *
      * @return static
      */
-    public function setDataEntry(?DataEntryInterface $data_entry): static
+    public function setDataEntryObject(?DataEntryInterface $data_entry): static
     {
         $this->__setDataEntry($data_entry);
         return $this->applyQueryBuilderModifications();
@@ -1073,7 +1073,7 @@ class Definition implements DefinitionInterface
      */
     public function setValue(RenderInterface|callable|string|float|int|bool|null $value, bool $only_when_new = false): static
     {
-        if ($only_when_new and !$this->data_entry->isNew()) {
+        if ($only_when_new and !$this->o_data_entry->isNew()) {
             // Don't set this value, only set it on new entries
             return $this;
         }
@@ -2948,7 +2948,7 @@ class Definition implements DefinitionInterface
         // Process empty values
         $this->validateProcessEmptyValues($validator, $column);
 
-        if ($this->data_entry?->isApplying()) {
+        if ($this->o_data_entry?->isApplying()) {
             // If we are applying to a DataEntry, READONLY, DISABLED, and NORENDER columns are treated differently
             if ($this->validateProcessAppliedReadonlyDisabled($validator, $column)) {
                 // Yeah, this column is readonly / disabled and should not be validated (and not saved either)
@@ -3127,7 +3127,7 @@ class Definition implements DefinitionInterface
 
             Log::warning(ts('Not validating DataEntry object ":object" column ":column" because it has one of the "no_validation" or "ignored" flag set', [
                 ':column' => $column,
-                ':object' => $this->getDataEntry() ? get_class($this->getDataEntry()) : '-',
+                ':object' => $this->getDataEntryObject() ? get_class($this->getDataEntryObject()) : '-',
             ]), 3);
 
             return false;
@@ -3215,9 +3215,9 @@ class Definition implements DefinitionInterface
      */
     final public function getMetaColumns(): array
     {
-        if ($this->data_entry) {
+        if ($this->o_data_entry) {
             // Return the meta-columns from the data entry
-            return $this->data_entry->getMetaColumns();
+            return $this->o_data_entry->getMetaColumns();
         }
 
         // There is no data entry specified, we don't know anything about meta columns!
@@ -3267,7 +3267,7 @@ class Definition implements DefinitionInterface
      */
     public function getCliColumn(): ?string
     {
-        if (PLATFORM_WEB or !$this->data_entry->isApplying()) {
+        if (PLATFORM_WEB or !$this->o_data_entry->isApplying()) {
             // We're either on web, or on CLI while data is not being applied but set manually. Return the HTTP column
             return $this->getColumn();
         }

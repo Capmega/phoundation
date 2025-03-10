@@ -36,7 +36,7 @@ interface DefinitionsInterface extends IteratorInterface
      *
      * @return DataEntryInterface|null
      */
-    public function getDataEntry(): ?DataEntryInterface;
+    public function getDataEntryObject(): ?DataEntryInterface;
 
 
     /**
@@ -46,7 +46,7 @@ interface DefinitionsInterface extends IteratorInterface
      *
      * @return static
      */
-    public function setDataEntry(DataEntryInterface $data_entry): static;
+    public function setDataEntryObject(DataEntryInterface $data_entry): static;
 
 
     /**

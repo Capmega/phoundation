@@ -63,6 +63,7 @@ use Phoundation\Web\Html\Components\Tables\HtmlTable;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
+use Phoundation\Web\Requests\Request;
 use ReturnTypeWillChange;
 use Stringable;
 use Throwable;
@@ -1947,6 +1948,18 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
+     * Returns a cache key for this object
+     *
+     * @param String|null $append_string
+     * @return string|null
+     */
+    public function getCacheKeySeed(?String $append_string = null): ?string
+    {
+        return static::class . '-' . Request::getTarget()->getRootname() . ($this->parent ? '-' . $this->parent::class . '-' . $this->parent->getId() : '') . $append_string;
+    }
+
+
+    /**
      * Creates and returns an HTML table for the data in this list
      *
      * @param array|string|null $columns
@@ -1957,7 +1970,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     {
         $columns = get_null(Arrays::force($columns ?? $this->columns));
 
-        return HtmlTable::new()
+        return HtmlTable::new($this)
                         ->setId(strtolower(Strings::fromReverse(static::class, '\\')))
                         ->setHeaders($this->prepareHeaders($columns))
                         ->setSource($this->source)
@@ -1977,7 +1990,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     {
         $columns = get_null(Arrays::force($columns ?? $this->columns));
 
-        return HtmlDataTable::new()
+        return HtmlDataTable::new($this)
                             ->setId(strtolower(Strings::fromReverse(static::class, '\\')))
                             ->setHeaders($this->prepareHeaders($columns))
                             ->setSource($this->source)

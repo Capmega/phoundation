@@ -56,7 +56,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
     public function __construct(?DataEntryInterface $data_entry = null)
     {
         $this->setAcceptedDataTypes(DefinitionInterface::class)
-             ->setDataEntry($data_entry);
+             ->setDataEntryObject($data_entry);
     }
 
 
@@ -86,7 +86,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
     {
         if (!$value instanceof DefinitionInterface) {
             throw new OutOfBoundsException(tr('Cannot add the specified value ":value" to the Definitions list for DataEntry class ":class", it must be a DefinitionInterface object but is a ":type" instead', [
-                ':class' => get_datatype_or_class($this->data_entry),
+                ':class' => get_datatype_or_class($this->o_data_entry),
                 ':value' => $value,
                 ':type'  => get_datatype_or_class($value)
             ]));
@@ -96,13 +96,13 @@ class Definitions extends IteratorCore implements DefinitionsInterface
 
         if (in_array($key, ['connector'], true)) {
             throw new OutOfBoundsException(tr('The DataEntry ":class" class column / definition name ":column" is reserved and cannot be used for DataEntry columns', [
-                ':class'  => ($this->data_entry ? $this->data_entry::class : '-'),
+                ':class'  => ($this->o_data_entry ? $this->o_data_entry::class : '-'),
                 ':column' => $key
             ]));
         }
 
         // Ensure the added Definition has DataEntry set
-        $value->setDataEntry($this->data_entry);
+        $value->setDataEntryObject($this->o_data_entry);
 
         if ($this->prefix) {
             $value->setColumn($this->prefix . $value->getColumn());

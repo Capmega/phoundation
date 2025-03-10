@@ -329,7 +329,7 @@ class DefinitionFactory
                          ->setInputType(EnumInputType::number)
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
                              return Languages::new()
-                                             ->getHtmlSelectOld()
+                                             ->getHtmlSelectOld(key_column: 'id')
                                              ->setName($key)
                                              ->setReadonly($definition->getReadonly())
                                              ->setDisabled($definition->getDisabled())
@@ -1874,7 +1874,7 @@ class DefinitionFactory
                          ->setLabel(tr('Created by'))
                          ->setTooltip(tr('This column contains the user who created this object. Other users may have made further edits to this object, that information may be found in the object\'s meta data'))
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) {
-                             if ($definition->getDataEntry()->isNew()) {
+                             if ($definition->getDataEntryObject()->isNew()) {
                                  // This is a new DataEntry object, so the creator is.. Well, you!
                                  return InputText::new()
                                                  ->setDisabled(true)
@@ -1999,7 +1999,7 @@ class DefinitionFactory
                              $validator->dbIdExists(tr('must be an existing user'), 'accounts_users');
                          })
                          ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) {
-                             if ($definition->getDataEntry()->isNew()) {
+                             if ($definition->getDataEntryObject()->isNew()) {
                                  // This is a new DataEntry object, so the creator is.. Well, you!
                                  return InputText::new()
                                                  ->setDisabled(true)
