@@ -62,6 +62,7 @@ use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
+use Phoundation\Web\Requests\Response;
 use Stringable;
 
 
@@ -447,11 +448,11 @@ class Cache extends Database implements CacheInterface
      * @note: NULL will be returned if the specified hash does not exist in cache
      *
      * @param string|float|int|null $key
-     * @param callable|null         $callback
-     *
+     * @param callable|null $callback
+     * @param bool $process_headers_footers
      * @return PoaInterface|array|string|float|int|null
      */
-    public function get(string|float|int|null $key, ?callable $callback = null): PoaInterface|array|string|float|int|null
+    public function get(string|float|int|null $key, ?callable $callback = null, bool $process_headers_footers = true): PoaInterface|array|string|float|int|null
     {
         static::$cache_lookups++;
 
@@ -467,8 +468,26 @@ class Cache extends Database implements CacheInterface
                 static::$cache_miss++;
 
                 if ($callback) {
+IMPLEMENT $process_headers_footers
                     // Execute the callback for hard retrieval and store the results in cache
-                    $result = $callback();
+                    $count   = Response::getPageHeadersFootersCount();
+                    $headers = Response::getPageHeadersCount();
+                    $footers = Response::getPageFootersCount();
+                    $result  = $callback();
+
+                    if ($count !== Response::getPageHeadersFootersCount()) {
+                        // The callback modified page headers or footers. Include these in the cache object
+                        $result = [
+                            'poad'      => 'PHOUNDATION',
+                            'generator' => Core::PHOUNDATION_VERSION,
+                            'datatype'  => 'combined_cache',
+                            'class'     => static::class,
+                            'source'    => $result,
+                            'headers'   => Response::getLastAmountOfPageHeaders(Response::getPageHeadersCount() - $headers),
+                            'footers'   => Response::getLastAmountOfPageFooters(Response::getPageFootersCount() - $footers),
+                        ];
+                    }
+
                     $this->set($result, $key);
                 }
 
