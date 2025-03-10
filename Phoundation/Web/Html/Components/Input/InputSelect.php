@@ -488,7 +488,6 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
     public function setSelected(IteratorInterface|array|string|int|null $selected = null, bool $value = false): static
     {
         $this->selected = [];
-
         return $this->addSelected($selected, $value);
     }
 
@@ -518,7 +517,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
             // Add each selected to the list
             $this->selected[$selected] = $value;
         }
-
+        
         return $this;
     }
 
@@ -621,13 +620,18 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
                 $render = '';
 
                 foreach ($this->source as $key => $value) {
-                    $render .= InputRadio::new()
-                                         ->setName($this->name)
-                                         ->setId($this->name . '_' . strtolower((string) $key))
-                                         ->setValue($key)
-                                         ->setLabel($value)
-                                         ->setInline(false)
-                                         ->render();
+                    $input_radio = InputRadio::new()
+                                             ->setName($this->name)
+                                             ->setId($this->name . '_' . strtolower((string) $key))
+                                             ->setValue($key)
+                                             ->setLabel($value)
+                                             ->setInline(false);
+
+                    if (in_array($key, array_keys($this->selected))) {
+                        $input_radio->setChecked(true);
+                    }
+
+                    $render .= $input_radio->render();
                 }
 
                 return '<div>' . $render . '</div>';
