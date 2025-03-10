@@ -468,7 +468,6 @@ class Cache extends Database implements CacheInterface
                 static::$cache_miss++;
 
                 if ($callback) {
-IMPLEMENT $process_headers_footers
                     // Execute the callback for hard retrieval and store the results in cache
                     $count   = Response::getPageHeadersFootersCount();
                     $headers = Response::getPageHeadersCount();
