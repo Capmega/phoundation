@@ -1332,9 +1332,11 @@ class Log implements LogInterface
 
         } catch (Throwable $e) {
             // Don't crash the process because of this, log it and return -1 to indicate an exception
-            static::error(tr('Failed to write backtrace to log because of exception ":e"', [
+            Log::exception($e);
+            Log::error(tr('Failed to write backtrace to log because of exception ":e" cause by backtrace specified below', [
                 ':e' => $e->getMessage(),
             ]));
+            Log::printr($backtrace);
 
             return -1;
         }
