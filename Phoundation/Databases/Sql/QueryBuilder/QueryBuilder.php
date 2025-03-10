@@ -41,6 +41,13 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     protected QueryDefinitionsInterface $definitions;
 
+    /**
+     * Caches the executed query
+     *
+     * @var string $query
+     */
+    protected string $query;
+
 
     /**
      * Returns the bound variables execute array
@@ -73,7 +80,8 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function execute(bool $debug = false): PDOStatement
     {
-        return sql($this->o_connector)->query($this->getQuery($debug), $this->execute);
+        $this->query = $this->getQuery($debug);
+        return sql($this->o_connector)->query($this->query, $this->execute);
     }
 
 
@@ -128,6 +136,21 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
         }
 
         return $query;
+    }
+
+
+    /**
+     * Returns a hash from the executed query
+     *
+     * @return string|null
+     */
+    public function getQueryHash(): ?string
+    {
+        if (empty($this->query)) {
+            return null;
+        }
+
+        return sha1($this->query);
     }
 
 

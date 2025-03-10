@@ -288,4 +288,11 @@ interface QueryBuilderInterface extends QueryObjectInterface
      * @return static
      */
     public function setConnectorObject(ConnectorInterface $o_connector, ?string $database = null): static;
+
+    /**
+     * Returns a hash from the executed query
+     *
+     * @return string|null
+     */
+    public function getQueryHash(): ?string;
 }

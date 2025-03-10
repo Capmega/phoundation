@@ -44,7 +44,7 @@ use Phoundation\Utils\Strings;
 class SqlDataEntry implements SqlDataEntryInterface
 {
     use TraitDataDataEntry {
-        setDataEntry as protected __setDataEntry;
+        setDataEntryObject as protected __setDataEntry;
     }
     use TraitDataDebug;
     use TraitDataIdColumn;
@@ -79,7 +79,7 @@ class SqlDataEntry implements SqlDataEntryInterface
     public function __construct(SqlInterface $sql, DataEntryInterface $data_entry)
     {
         $this->setSql($sql)
-             ->setDataEntry($data_entry);
+             ->setDataEntryObject($data_entry);
     }
 
 
@@ -104,7 +104,7 @@ class SqlDataEntry implements SqlDataEntryInterface
      *
      * @return static
      */
-    public function setDataEntry(DataEntryInterface $data_entry): static
+    public function setDataEntryObject(DataEntryInterface $data_entry): static
     {
         $this->setTable($data_entry->getTable())
              ->setIdColumn($data_entry->getIdColumn())
@@ -194,31 +194,31 @@ class SqlDataEntry implements SqlDataEntryInterface
                 if ($this->insert_update) {
                     // THIS OBJECT ALWAYS INSERT / UPDATES. Init the random table ID
                     if ($this->random_id) {
-                        $random_id = Numbers::getRandomInt($this->data_entry->getIdLowerLimit(), $this->data_entry->getIdUpperLimit());
+                        $random_id = Numbers::getRandomInt($this->o_data_entry->getIdLowerLimit(), $this->o_data_entry->getIdUpperLimit());
                     }
 
-                    $update = $this->data_entry->getSqlColumns(false);
-                    $insert = $this->data_entry->getSqlColumns(true);
+                    $update = $this->o_data_entry->getSqlColumns(false);
+                    $insert = $this->o_data_entry->getSqlColumns(true);
 
                     // With these queries always do add the id column
-                    $insert[$this->data_entry->getIdColumn()] = ($update[$this->data_entry->getIdColumn()] ?? $random_id);
-                    return $this->insertUpdate($insert, $update, $comments, $this->data_entry->getDiff());
+                    $insert[$this->o_data_entry->getIdColumn()] = ($update[$this->o_data_entry->getIdColumn()] ?? $random_id);
+                    return $this->insertUpdate($insert, $update, $comments, $this->o_data_entry->getDiff());
                 }
 
-                if ($this->data_entry->isNew()) {
+                if ($this->o_data_entry->isNew()) {
                     // NEW ENTRY, INSERT. Init the random table ID
                     if ($this->random_id) {
-                        $random_id = Numbers::getRandomInt($this->data_entry->getIdLowerLimit(), $this->data_entry->getIdUpperLimit());
+                        $random_id = Numbers::getRandomInt($this->o_data_entry->getIdLowerLimit(), $this->o_data_entry->getIdUpperLimit());
                     }
 
-                    $insert = $this->data_entry->getSqlColumns(true);
+                    $insert = $this->o_data_entry->getSqlColumns(true);
                     $insert = Arrays::prepend($insert, $this->id_column, $random_id);
 
-                    return $this->insert($insert, $comments, $this->data_entry->getDiff());
+                    return $this->insert($insert, $comments, $this->o_data_entry->getDiff());
                 }
 
                 // EXISTING ENTRY, UPDATE
-                return $this->update($this->data_entry->getSqlColumns(false), $comments, $this->data_entry->getDiff());
+                return $this->update($this->o_data_entry->getSqlColumns(false), $comments, $this->o_data_entry->getDiff());
 
             } catch (SqlException $e) {
                 if ($e->getCode() !== 1062) {
@@ -288,13 +288,13 @@ class SqlDataEntry implements SqlDataEntryInterface
         $insert_row = static::initializeInsertRow($insert_row, $comments, $diff, array_get_safe($update_row, 'meta_state'));
 
         // Build variables for the insert part of the query
-        $insert_columns = SqlQueries::getPrefixedColumns($insert_row, $this->data_entry->getColumnPrefix());
-        $insert_values  = SqlQueries::getBoundValues($insert_row, $this->data_entry->getColumnPrefix(), true);
+        $insert_columns = SqlQueries::getPrefixedColumns($insert_row, $this->o_data_entry->getColumnPrefix());
+        $insert_values  = SqlQueries::getBoundValues($insert_row, $this->o_data_entry->getColumnPrefix(), true);
         $keys           = SqlQueries::getBoundKeys($insert_row);
 
         // Build variables for the update part of the query
-        $updates       = SqlQueries::getUpdateKeyValues($update_row, 'update_' . $this->data_entry->getColumnPrefix(), $this->id_column);
-        $update_values = SqlQueries::getBoundValues($update_row, 'update_' . $this->data_entry->getColumnPrefix(), false, [$this->id_column]);
+        $updates       = SqlQueries::getUpdateKeyValues($update_row, 'update_' . $this->o_data_entry->getColumnPrefix(), $this->id_column);
+        $update_values = SqlQueries::getBoundValues($update_row, 'update_' . $this->o_data_entry->getColumnPrefix(), false, [$this->id_column]);
         $execute       = array_merge($insert_values, $update_values);
 
         $this->sql->setDebug($this->debug)
@@ -308,7 +308,7 @@ class SqlDataEntry implements SqlDataEntryInterface
         }
 
         // Return the meta-columns for this insert/update action
-        return Arrays::keepKeys($insert_row, $this->data_entry->getMetaColumns());
+        return Arrays::keepKeys($insert_row, $this->o_data_entry->getMetaColumns());
     }
 
 
@@ -325,18 +325,18 @@ class SqlDataEntry implements SqlDataEntryInterface
     protected function initializeInsertRow(array $row, ?string $comments, ?string $diff, ?string $meta_state = null): array
     {
         // Filter out non modified rows
-        $row = Arrays::keepKeys($row, array_merge($this->data_entry->getChanges(), $this->data_entry->getMetaColumns()));
+        $row = Arrays::keepKeys($row, array_merge($this->o_data_entry->getChanges(), $this->o_data_entry->getMetaColumns()));
 
         // Set meta fields
-        if ($this->data_entry->isMetaColumn('meta_id')) {
+        if ($this->o_data_entry->isMetaColumn('meta_id')) {
             $row['meta_id'] = ($this->meta_enabled ? Meta::init($comments, $diff)->getId() : null);
         }
 
-        if ($this->data_entry->isMetaColumn('created_by')) {
+        if ($this->o_data_entry->isMetaColumn('created_by')) {
             $row['created_by'] = Session::getUserObject()->getId(false);
         }
 
-        if ($this->data_entry->isMetaColumn('meta_state')) {
+        if ($this->o_data_entry->isMetaColumn('meta_state')) {
             $row['meta_state'] = $meta_state ?? Strings::getRandom(16);
         }
 
@@ -360,22 +360,22 @@ class SqlDataEntry implements SqlDataEntryInterface
     protected function initializeUpdateRow(array $row, ?string $comments, ?string $diff, string $meta_action): array
     {
         // Filter out non modified rows
-        $row = Arrays::keepKeys($row, array_merge($this->data_entry->getChanges(), $this->data_entry->getMetaColumns()));
+        $row = Arrays::keepKeys($row, array_merge($this->o_data_entry->getChanges(), $this->o_data_entry->getMetaColumns()));
 
         // Log meta_id action
-        if ($this->data_entry->isMetaColumn('meta_id')) {
+        if ($this->o_data_entry->isMetaColumn('meta_id')) {
             if ($this->meta_enabled) {
                 Meta::get($row['meta_id'])
                     ->action($meta_action, $comments, $diff);
             }
         }
 
-        if ($this->data_entry->isMetaColumn('meta_state')) {
+        if ($this->o_data_entry->isMetaColumn('meta_state')) {
             $row['meta_state'] = Strings::getRandom(16);
         }
 
         // Never update the other meta-information
-        foreach ($this->data_entry->getMetaColumns() as $column) {
+        foreach ($this->o_data_entry->getMetaColumns() as $column) {
             if ($column === $this->id_column) {
                 // We DO need the ID column for update, though!
                 continue;
@@ -413,8 +413,8 @@ class SqlDataEntry implements SqlDataEntryInterface
 
         // Build bound variables for the query
         $columns = SqlQueries::getPrefixedColumns($row);
-        $values  = SqlQueries::getBoundValues($row, $this->data_entry->getColumnPrefix(), true);
-        $keys    = SqlQueries::getBoundKeys($row, $this->data_entry->getColumnPrefix());
+        $values  = SqlQueries::getBoundValues($row, $this->o_data_entry->getColumnPrefix(), true);
+        $keys    = SqlQueries::getBoundKeys($row, $this->o_data_entry->getColumnPrefix());
 
         $this->sql->setDebug($this->debug)
                   ->query('INSERT INTO `' . $this->table . '` (' . $columns . ')
@@ -426,7 +426,7 @@ class SqlDataEntry implements SqlDataEntryInterface
         }
 
         // Return the meta-columns for this insert action
-        return Arrays::keepKeys($row, $this->data_entry->getMetaColumns());
+        return Arrays::keepKeys($row, $this->o_data_entry->getMetaColumns());
     }
 
 
@@ -462,7 +462,7 @@ class SqlDataEntry implements SqlDataEntryInterface
                            WHERE  `' . $this->id_column . '` = :' . $this->id_column, $values);
 
         // Return the meta-columns for this update action
-        return Arrays::keepKeys($row, $this->data_entry->getMetaColumns());
+        return Arrays::keepKeys($row, $this->o_data_entry->getMetaColumns());
     }
 
 
@@ -510,12 +510,12 @@ class SqlDataEntry implements SqlDataEntryInterface
         Core::checkReadonly('sql data-entry-erase');
 
         // Erase the meta-history and entries
-        Meta::get($this->data_entry->getMetaId())->erase();
+        Meta::get($this->o_data_entry->getMetaId())->erase();
 
         // Erase the record
         sql()->setDebug($this->debug)
                     ->query('DELETE FROM `' . $this->table . '` WHERE `' . $this->getIdColumn() . '` = :id', [
-                        ':id' => $this->data_entry->get($this->getIdColumn()),
+                        ':id' => $this->o_data_entry->get($this->getIdColumn()),
                     ]);
 
         return $this;
@@ -534,7 +534,7 @@ class SqlDataEntry implements SqlDataEntryInterface
     {
         Core::checkReadonly('sql set-status');
 
-        $entry = $this->data_entry;
+        $entry = $this->o_data_entry;
 
         if ($entry->isNew()) {
             throw new OutOfBoundsException(tr('Cannot set status, the specified data entry is new'));

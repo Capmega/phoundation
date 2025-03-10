@@ -36,7 +36,7 @@ use Phoundation\Utils\Json;
 class SqlDataIterator implements SqlDataIteratorInterface
 {
     use TraitDataDataIterator {
-        setDataIterator as protected __setDataIterator;
+        setDataIteratorObject as protected __setDataIterator;
     }
     use TraitDataDebug;
     use TraitDataIdColumn;
@@ -71,23 +71,23 @@ class SqlDataIterator implements SqlDataIteratorInterface
     public function __construct(SqlInterface $sql, DataIteratorInterface $data_iterator)
     {
         $this->setSql($sql)
-             ->setDataIterator($data_iterator);
+             ->setDataIteratorObject($data_iterator);
     }
 
 
     /**
      * Sets the data list
      *
-     * @param DataIteratorInterface $data_iterator
+     * @param DataIteratorInterface $o_data_iterator
      *
      * @return static
      */
-    public function setDataIterator(DataIteratorInterface $data_iterator): static
+    public function setDataIteratorObject(DataIteratorInterface $o_data_iterator): static
     {
-        $this->setTable($data_iterator->getTable())
-             ->setIdColumn($data_iterator->getUniqueColumn());
+        $this->setTable($o_data_iterator->getTable())
+             ->setIdColumn($o_data_iterator->getUniqueColumn());
 
-        return $this->__setDataIterator($data_iterator);
+        return $this->__setDataIterator($o_data_iterator);
     }
 
 

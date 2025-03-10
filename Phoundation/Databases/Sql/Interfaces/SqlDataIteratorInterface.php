@@ -29,11 +29,11 @@ interface SqlDataIteratorInterface
     /**
      * Sets the data list
      *
-     * @param DataIteratorInterface $data_iterator
+     * @param DataIteratorInterface $o_data_iterator
      *
      * @return static
      */
-    public function setDataIterator(DataIteratorInterface $data_iterator): static;
+    public function setDataIteratorObject(DataIteratorInterface $o_data_iterator): static;
 
 
     /**
