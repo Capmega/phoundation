@@ -866,6 +866,10 @@ class Response implements ResponseInterface
      */
     public static function getPageHeadersCount(): int
     {
+        if (empty(static::$page_headers)) {
+            return 0;
+        }
+
         return count(static::$page_headers);
     }
 
@@ -877,6 +881,10 @@ class Response implements ResponseInterface
      */
     public static function getPageFootersCount(): int
     {
+        if (empty(static::$page_footers)) {
+            return 0;
+        }
+
         return count(static::$page_footers);
     }
 
@@ -888,7 +896,7 @@ class Response implements ResponseInterface
      */
     public static function getPageHeadersFootersCount(): int
     {
-        return count(static::$page_footers) + count(static::$page_headers);
+        return static::getPageHeadersCount() + static::getPageFootersCount();
     }
 
 
