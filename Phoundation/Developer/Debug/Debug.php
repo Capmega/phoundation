@@ -844,6 +844,7 @@ class Debug
         foreach ($backtrace as $step) {
             // We usually don't want to see arguments as that clogs up BADLY
             unset($step['args']);
+
             // Remove unneeded information depending on the specified display
             switch ($display) {
                 case Log::BACKTRACE_DISPLAY_FILE:
@@ -852,39 +853,54 @@ class Debug
                         unset($step['class']);
                         unset($step['function']);
                     }
+
                     break;
+
                 case Log::BACKTRACE_DISPLAY_FUNCTION:
                     // Display only function / class information
                     unset($step['file']);
                     unset($step['line']);
                     break;
+
                 case Log::BACKTRACE_DISPLAY_BOTH:
                     // Display both function / class and file@line information
                     break;
+
                 default:
                     // Wut? Just display both
                     Log::warning(ts('Unknown $display ":display" specified. Please use one of Log::BACKTRACE_DISPLAY_FILE, Log::BACKTRACE_DISPLAY_FUNCTION, or BACKTRACE_DISPLAY_BOTH', [':display' => $display]));
                     $display = Log::BACKTRACE_DISPLAY_BOTH;
             }
+
             // Build up log line from here. Start by getting the file information
             $line = [];
+
             if (isset($step['class'])) {
-                if (isset_get($step['class']) === 'Closure') {
+                if (array_get_safe($step, 'class') === 'Closure') {
                     // Log the closure call
                     $line['call'] = '{closure}';
+
                 } else {
                     // Log the class method call
-                    $line['call'] = $step['class'] . $step['type'] . $step['function'] . '()';
+                    $line['call'] = array_get_safe($step, 'class') . array_get_safe($step, 'type') . array_get_safe($step, 'function') . '()';
                 }
+
             } elseif (isset($step['function'])) {
                 // Log the function call
-                $line['call'] = $step['function'] . '()';
+                $line['call'] = array_get_safe($step, 'function') . '()';
             }
+
             // Log the file@line information
             if (isset($step['file'])) {
                 // Remove DIRECTORY_ROOT from the filenames for clarity
-                $line['location'] = Strings::from($step['file'], DIRECTORY_ROOT) . '@' . $step['line'];
+                if (array_key_exists('line', $step)) {
+                    $line['location'] = Strings::from(array_get_safe($step, 'file'), DIRECTORY_ROOT) . '@' . array_get_safe($step, 'line');
+
+                } else {
+                    $line['location'] = 'UNKNOWN';
+                }
             }
+
             if (!$line) {
                 // Failed to build backtrace line
                 Log::write(ts('Invalid backtrace data encountered, do not know how to process and display the following entry'), 'warning');
@@ -892,6 +908,7 @@ class Debug
                 Log::write(ts('Original backtrace data entry format below'), 'warning');
                 Log::printr($step);
             }
+
             $lines[] = $line;
         }
 
