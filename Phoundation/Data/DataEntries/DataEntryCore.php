@@ -2581,6 +2581,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 continue;
             }
 
+            if (!array_key_exists($column, $validator->getSource())) {
+Log::warning(tr('CHECK DATAENTRYCORE->VALIDATESOURCEDATA() CALL! SHOULD NON EXISTIGN COLUMNS BE VALIDATED OR NOT?'), 10);
+                continue;
+            }
+
             if ($this->debug) {
                 Log::debug('VALIDATING COLUMN "' . get_class($this) . ' > ' . $column . '" WITH VALUE "'  . $this->get($column). ' ['  . gettype($this->get($column)). ']"', echo_header: false);
             }
@@ -2692,9 +2697,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
                     if (array_get_safe($this->source, $key) != array_get_safe($data, $key)) {
                         // If both records were empty (from NULL to 0 for example) then don't register
-                        if ($this->source[$key] or $data[$key]) {
-                            $diff['from'][$key] = (string) $this->source[$key];
-                            $diff['to'][$key]   = (string) $data[$key];
+                        if (array_get_safe($this->source,$key) or array_get_safe($data,$key)) {
+                            $diff['from'][$key] = (string) array_get_safe($this->source,$key);
+                            $diff['to'][$key]   = (string) array_get_safe($data,$key);
                         }
                     }
                 }
