@@ -241,7 +241,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function getMenuEnabled(): ?bool
     {
-        return $this->getTypesafe('int', 'menu_enabled', 50);
+        return $this->getTypesafe('bool', 'menu_enabled', false);
     }
 
 
