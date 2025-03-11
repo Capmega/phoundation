@@ -577,21 +577,23 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
 
         if ($exception) {
             if (is_object($variable)) {
-                throw OutOfBoundsException::new(tr('Specified variable ":variable" is an object of the class ":class" but it should be one of ":types"', [
+                throw OutOfBoundsException::new(tr('Specified variable value ":variable" is an object of the class ":class" but it should be one of ":types"', [
                     ':variable' => $variable,
                     ':class'    => get_class($variable),
                     ':types'    => $types,
                 ]))->addData([
-                    'variable' => $variable
+                    'variable' => $variable,
+                    'default'  => $default
                 ]);
             }
 
-            throw OutOfBoundsException::new(tr('Specified variable ":variable" has datatype ":has" but it should be one of ":types"', [
+            throw OutOfBoundsException::new(tr('Specified variable value ":variable" has datatype ":has" but it should be one of ":types"', [
                 ':variable' => $variable,
                 ':has'      => gettype($variable),
                 ':types'    => $types,
             ]))->addData([
-                'variable' => $variable
+                'variable' => $variable,
+                'default'  => $default
             ]);
         }
 
