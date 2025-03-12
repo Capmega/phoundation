@@ -140,19 +140,4 @@ interface PhoRestrictionsInterface extends ArraySourceInterface
      * @return false|string
      */
     public function isRestricted(Stringable|string $pattern, bool $write, ?Throwable $e = null): false|string;
-
-    /**
-     * Exports this "restrictions" object to an array
-     *
-     * @return array
-     */
-    public function exportToArray(): array;
-
-
-    /**
-     * Exports this "restrictions" object to a JSON string
-     *
-     * @return string
-     */
-    public function exportToString(): string;
 }
