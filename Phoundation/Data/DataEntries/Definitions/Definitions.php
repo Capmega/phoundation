@@ -108,6 +108,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
             $value->setColumn($this->prefix . $value->getColumn());
         }
 
+        // TODO Should this not add $this->prefix as well??
         return $key;
     }
 
