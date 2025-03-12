@@ -32,7 +32,7 @@ abstract class ResourceElement extends ResourceElementCore
      */
     public function __construct(IteratorInterface|array|null $source = null)
     {
-        parent::__construct();
+        parent::__construct($source);
 
         $this->setSource($source)
              ->component_empty_label = tr('No results available');

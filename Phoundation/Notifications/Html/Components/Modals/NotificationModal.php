@@ -37,7 +37,7 @@ class NotificationModal extends LargeModal
              ->setTitle(':title')
              ->setContent(':content');
         // Add the modal HTML to the page footer as it should be attached to the body tag directly
-        Response::addToFooter(parent::render());
+        Response::addHtmlToPageFooters(parent::render());
 
         // Render the sign in modal.
         return Script::new()

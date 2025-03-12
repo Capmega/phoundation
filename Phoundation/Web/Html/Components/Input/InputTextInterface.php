@@ -2,7 +2,10 @@
 
 namespace Phoundation\Web\Html\Components\Input;
 
-interface InputTextInterface
+use Phoundation\Web\Html\Components\Input\Interfaces\InputInterface;
+
+
+interface InputTextInterface extends InputInterface
 {
     /**
      * Returns the minimum length this text input

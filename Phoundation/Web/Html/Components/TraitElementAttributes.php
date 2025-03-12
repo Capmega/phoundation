@@ -216,9 +216,9 @@ trait TraitElementAttributes
     /**
      * Tracks the value to be displayed if the element value is NULL
      *
-     * @var string|null $null_display
+     * @var Stringable|string|float|int|null $null_display
      */
-    protected ?string $null_display = null;
+    protected Stringable|string|float|int|null $null_display = null;
 
 
     /**
@@ -1287,9 +1287,9 @@ trait TraitElementAttributes
     /**
      * Returns the HTML "null_display" element attribute
      *
-     * @return string|null
+     * @return Stringable|string|float|int|null
      */
-    public function getNullDisplay(): ?string
+    public function getNullDisplay(): Stringable|string|float|int|null
     {
         return $this->null_display;
     }
@@ -1298,11 +1298,11 @@ trait TraitElementAttributes
     /**
      * Set the HTML "null_display" element attribute
      *
-     * @param string|null $null_display
+     * @param Stringable|string|float|int|null $null_display
      *
      * @return static
      */
-    public function setNullDisplay(?string $null_display): static
+    public function setNullDisplay(Stringable|string|float|int|null $null_display): static
     {
         $this->null_display = $null_display;
 

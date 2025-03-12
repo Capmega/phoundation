@@ -1953,7 +1953,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     public function setRedirect(Stringable|string|null $redirect = null): static
     {
         if ($redirect) {
-            // Ensure we have a valid redirect URL
+            // Ensure there is a valid redirect URL
             $redirect = Url::new($redirect)->makeWww();
         }
 

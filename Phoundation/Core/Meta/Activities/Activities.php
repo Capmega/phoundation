@@ -18,6 +18,7 @@ namespace Phoundation\Core\Meta\Activities;
 
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\Interfaces\ArraySourceInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\IteratorCore;
 use Phoundation\Data\Traits\TraitMethodHasRendered;
@@ -87,11 +88,28 @@ class Activities extends IteratorCore
     /**
      * Returns a new activities object
      *
-     * @param IteratorInterface|array $source
+     * @param ArraySourceInterface|array|string|null $source
+     *
+     * @return Activities|null
+     */
+    public static function newFromSourceOrNull(ArraySourceInterface|array|string|null $source): ?static
+    {
+        if ($source === null) {
+            return null;
+        }
+
+        return static::new()->setSource($source);
+    }
+
+
+    /**
+     * Returns a new activities object
+     *
+     * @param ArraySourceInterface|array|string|null $source
      *
      * @return static
      */
-    public static function newFromSource(IteratorInterface|array $source): static
+    public static function newFromSource(ArraySourceInterface|array|string|null $source): static
     {
         return static::new()->setSource($source);
     }

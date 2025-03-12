@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Interfaces;
 
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Components\Interfaces\ComponentInterface;
+
 
 interface TemplateRendererInterface
 {
@@ -29,19 +30,19 @@ interface TemplateRendererInterface
     /**
      * Sets the element to be rendered
      *
-     * @param RenderInterface|null $component
+     * @param ComponentInterface|null $component
      *
      * @return static
      */
-    public function setComponent(RenderInterface|null $component): static;
+    public function setComponentObject(ComponentInterface|null $component): static;
 
 
     /**
      * Returns the element to be rendered
      *
-     * @return RenderInterface|null
+     * @return ComponentInterface|null
      */
-    public function getComponent(): RenderInterface|null;
+    public function getComponentObject(): ComponentInterface|null;
 
 
     /**

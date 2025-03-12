@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Trait TraitStaticMethodNewArrayContent
+ * Trait TraitStaticMethodNewIteratorArraySource
  *
  *
  *

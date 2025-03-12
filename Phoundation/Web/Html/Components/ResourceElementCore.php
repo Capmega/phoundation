@@ -19,12 +19,17 @@ namespace Phoundation\Web\Html\Components;
 use PDOStatement;
 use Phoundation\Cache\Cache;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataCacheKey;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDataIterator;
 use Phoundation\Data\Traits\TraitDataDebug;
+use Phoundation\Data\Traits\TraitDataIterator;
 use Phoundation\Data\Traits\TraitMethodEnsureArrayString;
+use Phoundation\Utils\Json;
+use Phoundation\Web\Html\Components\Input\Interfaces\SelectedInterface;
+use Phoundation\Web\Html\Components\Input\Interfaces\ValueInterface;
 use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
 use Phoundation\Web\Html\Exception\HtmlException;
 use Phoundation\Web\Html\Traits\TraitInputElement;
@@ -36,7 +41,7 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
     use TraitDataCacheKey;
     use TraitInputElement;
     use TraitDataConnector;
-    use TraitDataDataIterator;
+    use TraitDataIterator;
     use TraitDataDebug;
     use TraitMethodEnsureArrayString {
         setSource as protected __setSource;
@@ -112,7 +117,7 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
         $this->cache = Cache::isEnabled();
 
         if ($source instanceof IteratorInterface) {
-            $this->setDataIteratorObject($source);
+            $this->setIteratorObject($source);
         }
     }
 
@@ -138,7 +143,6 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
     public function setNotSelectedLabel(?string $label): static
     {
         $this->not_selected_label = $label;
-
         return $this;
     }
 
@@ -164,7 +168,6 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
     public function setComponentEmptyLabel(?string $label): static
     {
         $this->component_empty_label = $label;
-
         return $this;
     }
 
@@ -190,7 +193,6 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
     public function setCache(bool $cache): static
     {
         $this->cache = $cache;
-
         return $this;
     }
 
@@ -216,7 +218,6 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
     public function setHideEmpty(bool $hide_empty): static
     {
         $this->hide_empty = $hide_empty;
-
         return $this;
     }
 
@@ -319,17 +320,28 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
      * Generates and returns a unique cache key for this DataEntry object
      *
      * @param String|null $append_string
-     * @return string
+     *
+     * @return string|null
      */
-    public function getCacheKeySeed(?String $append_string = null): string
+    public function getCacheKeySeed(?String $append_string = null): ?string
     {
-        if ($this->o_data_iterator) {
+        if ($this->o_iterator) {
             // Get cache key from DataEntry object
-            return 'ResourceElement-' . $this->o_data_iterator->getCacheKeySeed('-render') . $append_string;
+            return 'ResourceElement-' . $this->o_iterator->getCacheKeySeed('-render') . $append_string;
         }
 
-        // Filter by current page and resource element id
-        return 'ResourceElement-' . static::class . '-' . Request::getTarget()->getRootname() . '-' . $this->getId() . '-' . $this->getName() . '-' . $this->getValue() . '-render' . $append_string;
+        if ($this instanceof SelectedInterface) {
+            // This resource element contains a single or multiple selected value
+            return 'ResourceElement-' . static::class . '-' . $this->getId() . '-' . $this->getName() . '-' . Json::encode($this->getSelected()) . '-render' . $append_string;
+        }
+
+        if ($this instanceof ValueInterface) {
+            // This resource element contains a single value
+            return 'ResourceElement-' . static::class . '-' . $this->getId() . '-' . $this->getName() . '-' . $this->getValue() . '-render' . $append_string;
+        }
+
+        // This object can't be cached
+        return null;
     }
 
 

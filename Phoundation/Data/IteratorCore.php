@@ -42,6 +42,7 @@ use Phoundation\Data\Exception\IteratorKeyExistsException;
 use Phoundation\Data\Exception\IteratorKeyNotExistsException;
 use Phoundation\Data\Interfaces\ArraySourceInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Traits\TraitDataCache;
 use Phoundation\Data\Traits\TraitDataColumns;
 use Phoundation\Data\Traits\TraitDataFilterForm;
 use Phoundation\Data\Traits\TraitDataName;
@@ -49,7 +50,6 @@ use Phoundation\Data\Traits\TraitDataRowCallbacks;
 use Phoundation\Data\Traits\TraitDataParent;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Data\Traits\TraitDataSourceArray;
-use Phoundation\Data\Traits\TraitMethodEnsureArrayString;
 use Phoundation\Databases\Sql\Limit;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -71,6 +71,7 @@ use Throwable;
 
 class IteratorCore extends IteratorBase implements IteratorInterface
 {
+    use TraitDataCache;
     use TraitDataColumns {
         getColumns as protected __getColumns;
     }
@@ -1951,6 +1952,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      * Returns a cache key for this object
      *
      * @param String|null $append_string
+     *
      * @return string|null
      */
     public function getCacheKeySeed(?String $append_string = null): ?string

@@ -2730,14 +2730,16 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * Validates if the selected field is a valid variable
      *
+     * @param int|null $max_characters
+     *
      * @return static
      */
-    public function isVariable(): static
+    public function isVariable(?int $max_characters = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(32);
+        return $this->validateValues(function (&$value) use ($max_characters) {
+            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters($max_characters);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more

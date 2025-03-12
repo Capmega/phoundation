@@ -3531,7 +3531,7 @@ class Arrays extends Utils
             return sql()->list($source);
         }
 
-        // NULL was specified
+        // Only option left is NULL
         return [];
     }
 

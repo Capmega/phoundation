@@ -1212,157 +1212,160 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      */
     public function render(): ?string
     {
-        // TODO Load many of these javascripts conditionally and only if their functions are enabled (button is there, functionality is required, etc)
-        Response::loadJavascript([
-            'phoundation/adminlte/plugins/datatables/jquery.dataTables',
-            'phoundation/adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4',
-            'phoundation/adminlte/plugins/datatables-responsive/js/dataTables.responsive',
-            'phoundation/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4',
-            'phoundation/adminlte/plugins/datatables-buttons/js/dataTables.buttons',
-            'phoundation/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4',
-            'phoundation/adminlte/plugins/jszip/jszip',
-            'phoundation/adminlte/plugins/pdfmake/pdfmake',
-            'phoundation/adminlte/plugins/pdfmake/vfs_fonts',
-            'phoundation/adminlte/plugins/datatables-buttons/js/buttons.html5',
-            'phoundation/adminlte/plugins/datatables-buttons/js/buttons.print',
-            'phoundation/adminlte/plugins/datatables-buttons/js/buttons.colVis',
-        ]);
+        // HtmlDataTable objects handle caching themselves to avoid Script class output not being cached
+        return cache('html')->get($this->getCacheKey(), function () {
+            $this->setCache(false);
 
-        Response::loadCss('phoundation/adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4');
-        Response::loadCss('phoundation/adminlte/plugins/datatables-responsive/css/responsive.bootstrap4');
-        Response::loadCss('phoundation/adminlte/plugins/datatables-buttons/css/buttons.bootstrap4');
-
-        // Build options
-        $options = [];
-        $content = '';
-
-        if ($this->page_length !== null) {
-            $options[] = 'pageLength: ' . $this->page_length;
-        }
-
-        if ($this->display_start !== null) {
-            $options[] = 'displayStart: ' . $this->display_start;
-        }
-
-        if ($this->info_enabled !== null) {
-            $options[] = 'info: ' . Strings::fromBoolean($this->info_enabled);
-        }
-
-        if ($this->searching_enabled !== null) {
-            $options[] = 'searching: ' . Strings::fromBoolean($this->searching_enabled);
-        }
-
-        if ($this->search_case_insensitive_enabled !== null) {
-            $options[] = 'searchCaseInsensitive: ' . Strings::fromBoolean($this->search_case_insensitive_enabled);
-        }
-
-        if ($this->search_regex_enabled !== null) {
-            $options[] = 'searchRegex: ' . Strings::fromBoolean($this->search_regex_enabled);
-        }
-
-        if ($this->search_smart_enabled !== null) {
-            $options[] = 'searchSmart: ' . Strings::fromBoolean($this->search_smart_enabled);
-        }
-
-        if ($this->search_return_enabled !== null) {
-            $options[] = 'searchReturn: ' . Strings::fromBoolean($this->search_return_enabled);
-        }
-
-        if ($this->search !== null) {
-            $options[] = 'search": "' . ($this->search) . '"';
-        }
-
-        if ($this->paging_enabled !== null) {
-            $options[] = 'paging: ' . Strings::fromBoolean($this->paging_enabled);
-        }
-
-        if ($this->paging_type !== null) {
-            $options[] = 'pagingType: "' . $this->paging_type->value . '"';
-        }
-
-        if ($this->length_menu !== null) {
-            $options[] = 'lengthMenu: ' . $this->getDataTableLengthMenu();
-        }
-
-        if ($this->length_change_enabled !== null) {
-            $options[] = 'lengthChange: ' . Strings::fromBoolean($this->length_change_enabled);
-        }
-
-        if ($this->auto_width_enabled !== null) {
-            $options[] = 'autoWidth: ' . Strings::fromBoolean($this->auto_width_enabled);
-        }
-
-        if ($this->defer_render_enabled !== null) {
-            $options[] = 'deferRender: ' . Strings::fromBoolean($this->defer_render_enabled);
-        }
-
-        if ($this->ordering_enabled !== null) {
-            $options[] = 'ordering: ' . Strings::fromBoolean($this->ordering_enabled);
-        }
-
-        if ($this->order_classes_enabled !== null) {
-            $options[] = 'orderClasses: ' . Strings::fromBoolean($this->order_classes_enabled);
-        }
-
-        if ($this->order_multi_enabled !== null) {
-            $options[] = 'orderMulti: ' . Strings::fromBoolean($this->order_multi_enabled);
-        }
-
-        if ($this->order !== null) {
-            $options[] = 'order: [' . implode(', ' . PHP_EOL, $this->order) . ']';
-        }
-
-        if ($this->order_fixed !== null) {
-            $options[] = 'orderFixed: { pre: [' . implode(', ' . PHP_EOL, $this->order_fixed) . '] }';
-        }
-
-        if (isset($this->buttons) and $this->buttons->isNotEmpty()) {
-            $options[] = 'buttons: { buttons: [ ' . implode(', ' . PHP_EOL, array_keys($this->buttons->getSource())) . ' ] }';
-        }
-
-        if ($this->responsive) {
-            $options[] = $this->getDataTableResponsive();
-        }
-
-        if ($this->columns_orderable) {
-            $options[] = $this->getDataTableColumnDefinitions();
-        }
-
-        if ($this->js_date_format) {
+            // TODO Load many of these javascripts conditionally and only if their functions are enabled (button is there, functionality is required, etc)
             Response::loadJavascript([
-                'phoundation/adminlte/plugins/moment/moment',
-                'phoundation/adminlte/plugins/datatables-DateTime-1.5.1/js/dataTables.dateTime',
-                'phoundation/adminlte/plugins/datatables-sorting/datetime-moment',
+                'phoundation/adminlte/plugins/datatables/jquery.dataTables',
+                'phoundation/adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4',
+                'phoundation/adminlte/plugins/datatables-responsive/js/dataTables.responsive',
+                'phoundation/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4',
+                'phoundation/adminlte/plugins/datatables-buttons/js/dataTables.buttons',
+                'phoundation/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4',
+                'phoundation/adminlte/plugins/jszip/jszip',
+                'phoundation/adminlte/plugins/pdfmake/pdfmake',
+                'phoundation/adminlte/plugins/pdfmake/vfs_fonts',
+                'phoundation/adminlte/plugins/datatables-buttons/js/buttons.html5',
+                'phoundation/adminlte/plugins/datatables-buttons/js/buttons.print',
+                'phoundation/adminlte/plugins/datatables-buttons/js/buttons.colVis',
             ]);
 
-            $content .= 'DataTable.moment("' . $this->js_date_format . '")' . PHP_EOL;
-        }
+            Response::loadCss('phoundation/adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4');
+            Response::loadCss('phoundation/adminlte/plugins/datatables-responsive/css/responsive.bootstrap4');
+            Response::loadCss('phoundation/adminlte/plugins/datatables-buttons/css/buttons.bootstrap4');
 
-        $id = $this->getId();
+            // Build options
+            $options = [];
+            $content = '';
 
-        if (!$id) {
-            if ($this->source) {
-                throw new OutOfBoundsException(tr('Cannot generate HTML DataTable, no table id specified'));
+            if ($this->page_length !== null) {
+                $options[] = 'pageLength: ' . $this->page_length;
             }
-        }
 
-        $render = Script::new()
-//->setAttach(EnumAttachJavascript::here)
-                        ->setJavascriptWrapper(EnumJavascriptWrappers::dom_content)
-                        ->setContent($content . '
-                $("#' . Html::safe($id) . '").DataTable({
-                  ' . implode(', ' . PHP_EOL, $options) . '
-                })  .buttons()
-                    .container()
-                    .appendTo("#' . Html::safe($id) . '_wrapper .col-md-6:eq(0)");')
-                        ->render();
-//        ' . ($this->date_format ? '.datetime("' . $this->date_format . '")' . PHP_EOL : '') . '
-//showdie('$("#' . Html::safe($id) . '").DataTable({
-//                  ' . implode(', ' . PHP_EOL, $options) . '
-//                }).buttons().container().appendTo("#' . Html::safe($id) . '_wrapper .col-md-6:eq(0)");');
+            if ($this->display_start !== null) {
+                $options[] = 'displayStart: ' . $this->display_start;
+            }
 
-//showdie($render);
-        return $render . parent::render();
+            if ($this->info_enabled !== null) {
+                $options[] = 'info: ' . Strings::fromBoolean($this->info_enabled);
+            }
+
+            if ($this->searching_enabled !== null) {
+                $options[] = 'searching: ' . Strings::fromBoolean($this->searching_enabled);
+            }
+
+            if ($this->search_case_insensitive_enabled !== null) {
+                $options[] = 'searchCaseInsensitive: ' . Strings::fromBoolean($this->search_case_insensitive_enabled);
+            }
+
+            if ($this->search_regex_enabled !== null) {
+                $options[] = 'searchRegex: ' . Strings::fromBoolean($this->search_regex_enabled);
+            }
+
+            if ($this->search_smart_enabled !== null) {
+                $options[] = 'searchSmart: ' . Strings::fromBoolean($this->search_smart_enabled);
+            }
+
+            if ($this->search_return_enabled !== null) {
+                $options[] = 'searchReturn: ' . Strings::fromBoolean($this->search_return_enabled);
+            }
+
+            if ($this->search !== null) {
+                $options[] = 'search": "' . ($this->search) . '"';
+            }
+
+            if ($this->paging_enabled !== null) {
+                $options[] = 'paging: ' . Strings::fromBoolean($this->paging_enabled);
+            }
+
+            if ($this->paging_type !== null) {
+                $options[] = 'pagingType: "' . $this->paging_type->value . '"';
+            }
+
+            if ($this->length_menu !== null) {
+                $options[] = 'lengthMenu: ' . $this->getDataTableLengthMenu();
+            }
+
+            if ($this->length_change_enabled !== null) {
+                $options[] = 'lengthChange: ' . Strings::fromBoolean($this->length_change_enabled);
+            }
+
+            if ($this->auto_width_enabled !== null) {
+                $options[] = 'autoWidth: ' . Strings::fromBoolean($this->auto_width_enabled);
+            }
+
+            if ($this->defer_render_enabled !== null) {
+                $options[] = 'deferRender: ' . Strings::fromBoolean($this->defer_render_enabled);
+            }
+
+            if ($this->ordering_enabled !== null) {
+                $options[] = 'ordering: ' . Strings::fromBoolean($this->ordering_enabled);
+            }
+
+            if ($this->order_classes_enabled !== null) {
+                $options[] = 'orderClasses: ' . Strings::fromBoolean($this->order_classes_enabled);
+            }
+
+            if ($this->order_multi_enabled !== null) {
+                $options[] = 'orderMulti: ' . Strings::fromBoolean($this->order_multi_enabled);
+            }
+
+            if ($this->order !== null) {
+                $options[] = 'order: [' . implode(', ' . PHP_EOL, $this->order) . ']';
+            }
+
+            if ($this->order_fixed !== null) {
+                $options[] = 'orderFixed: { pre: [' . implode(', ' . PHP_EOL, $this->order_fixed) . '] }';
+            }
+
+            if (isset($this->buttons) and $this->buttons->isNotEmpty()) {
+                $options[] = 'buttons: { buttons: [ ' . implode(', ' . PHP_EOL, array_keys($this->buttons->getSource())) . ' ] }';
+            }
+
+            if ($this->responsive) {
+                $options[] = $this->getDataTableResponsive();
+            }
+
+            if ($this->columns_orderable) {
+                $options[] = $this->getDataTableColumnDefinitions();
+            }
+
+            if ($this->js_date_format) {
+                Response::loadJavascript([
+                    'phoundation/adminlte/plugins/moment/moment',
+                    'phoundation/adminlte/plugins/datatables-DateTime-1.5.1/js/dataTables.dateTime',
+                    'phoundation/adminlte/plugins/datatables-sorting/datetime-moment',
+                ]);
+                $content .= 'DataTable.moment("' . $this->js_date_format . '");' . PHP_EOL;
+            }
+
+            $id = $this->getId();
+
+            if (!$id) {
+                if ($this->source) {
+                    throw new OutOfBoundsException(tr('Cannot generate HTML DataTable, no table id specified'));
+                }
+            }
+
+            $render = Script::new()
+                //->setAttach(EnumAttachJavascript::here)
+                            ->setJavascriptWrapper(EnumJavascriptWrappers::dom_content)
+                            ->setContent($content . '
+                    $("#' . Html::safe($id) . '").DataTable({
+                      ' . implode(', ' . PHP_EOL, $options) . '
+                    })  .buttons()
+                        .container()
+                        .appendTo("#' . Html::safe($id) . '_wrapper .col-md-6:eq(0)");');
+            //        ' . ($this->date_format ? '.datetime("' . $this->date_format . '")' . PHP_EOL : '') . '
+            //showdie('$("#' . Html::safe($id) . '").DataTable({
+            //                  ' . implode(', ' . PHP_EOL, $options) . '
+            //                }).buttons().container().appendTo("#' . Html::safe($id) . '_wrapper .col-md-6:eq(0)");');
+            //showdie($render);
+
+            return $render . parent::render();
+        });
     }
 
 

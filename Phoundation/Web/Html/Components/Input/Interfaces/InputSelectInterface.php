@@ -109,31 +109,31 @@ interface InputSelectInterface extends ResourceElementInterface
     /**
      * Sets multiple selected options
      *
-     * @param IteratorInterface|array|string|int|null $selected
-     * @param bool                                    $value
+     * @param IteratorInterface|array|string|float|int|null $selected
+     * @param bool                                          $value
      *
      * @return static
      */
-    public function setSelected(IteratorInterface|array|string|int|null $selected = null, bool $value = false): static;
+    public function setSelected(IteratorInterface|array|string|float|int|null $selected = null, bool $value = false): static;
 
 
     /**
      * Adds a single or multiple selected options
      *
-     * @param IteratorInterface|array|string|int|null $selected
-     * @param bool                                    $value
+     * @param IteratorInterface|array|string|float|int|null $selected
+     * @param bool                                          $value
      *
      * @return static
      */
-    public function addSelected(IteratorInterface|array|string|int|null $selected, bool $value = false): static;
+    public function addSelected(IteratorInterface|array|string|float|int|null $selected, bool $value = false): static;
 
 
     /**
      * Returns the selected option(s)
      *
-     * @return array|string|int|null
+     * @return array|string|float|int|null
      */
-    public function getSelected(): array|string|int|null;
+    public function getSelected(): array|string|float|int|null;
 
 
     /**

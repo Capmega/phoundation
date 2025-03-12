@@ -34,6 +34,7 @@ use Phoundation\Web\Requests\Request;
 use Stringable;
 use Throwable;
 
+
 class PhoRestrictions implements PhoRestrictionsInterface
 {
     use TraitDataSourceArray;
@@ -119,28 +120,6 @@ class PhoRestrictions implements PhoRestrictionsInterface
         }
 
         return PhoRestrictions::new()->setSource($source);
-    }
-
-
-    /**
-     * Exports this "restrictions" object to an array
-     *
-     * @return array
-     */
-    public function exportToArray(): array
-    {
-        return $this->source;
-    }
-
-
-    /**
-     * Exports this "restrictions" object to a JSON string
-     *
-     * @return string
-     */
-    public function exportToString(): string
-    {
-        return Json::encode($this->exportToArray());
     }
 
 

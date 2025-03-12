@@ -61,6 +61,24 @@ class PhoFiles extends PhoFilesCore implements PhoFilesInterface
 
 
     /**
+     * Returns a new PhoFiles object from the given source, or NULL
+     *
+     * @param mixed|null                                 $source
+     * @param PhoRestrictionsInterface|array|string|null $restrictions
+     *
+     * @return PhoFiles|null
+     */
+    public static function newFromSourceOrNull(mixed $source = null, PhoRestrictionsInterface|array|string|null $restrictions = null): ?static
+    {
+        if ($source === null) {
+            return null;
+        }
+
+        return static::newFromSource($source, $restrictions);
+    }
+
+
+    /**
      * Returns a new PhoFiles object from the given source
      *
      * @param mixed|null                                 $source

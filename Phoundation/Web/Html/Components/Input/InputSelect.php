@@ -24,6 +24,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Input\Interfaces\SelectedInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\ResourceElement;
 use Phoundation\Web\Html\Traits\TraitBeforeAfterButtons;
@@ -31,7 +32,7 @@ use Stringable;
 use Throwable;
 
 
-class InputSelect extends ResourceElement implements InputSelectInterface, InputInterface
+class InputSelect extends ResourceElement implements InputSelectInterface, InputInterface, SelectedInterface
 {
     use TraitBeforeAfterButtons;
 
@@ -469,9 +470,9 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
     /**
      * Returns the selected option(s)
      *
-     * @return array|string|int|null
+     * @return array|string|float|int|null
      */
-    public function getSelected(): array|string|int|null
+    public function getSelected(): array|string|float|int|null
     {
         return $this->selected;
     }
@@ -480,12 +481,12 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
     /**
      * Sets multiple selected options
      *
-     * @param IteratorInterface|array|string|int|null $selected
-     * @param bool                                    $value
+     * @param IteratorInterface|array|string|float|int|null $selected
+     * @param bool                                          $value
      *
      * @return static
      */
-    public function setSelected(IteratorInterface|array|string|int|null $selected = null, bool $value = false): static
+    public function setSelected(IteratorInterface|array|string|float|int|null $selected = null, bool $value = false): static
     {
         $this->selected = [];
         return $this->addSelected($selected, $value);
@@ -495,12 +496,12 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
     /**
      * Adds a single or multiple selected options
      *
-     * @param IteratorInterface|array|string|int|null $selected
-     * @param bool                                    $value
+     * @param IteratorInterface|array|string|float|int|null $selected
+     * @param bool                                          $value
      *
      * @return static
      */
-    public function addSelected(IteratorInterface|array|string|int|null $selected, bool $value = false): static
+    public function addSelected(IteratorInterface|array|string|float|int|null $selected, bool $value = false): static
     {
         if (is_array($selected) or ($selected instanceof IteratorInterface)) {
             // Add multiple selected, only supported when multiple is enabled
@@ -517,7 +518,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
             // Add each selected to the list
             $this->selected[$selected] = $value;
         }
-        
+
         return $this;
     }
 

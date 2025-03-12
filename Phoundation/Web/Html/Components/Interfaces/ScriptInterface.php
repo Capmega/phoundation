@@ -7,7 +7,7 @@ namespace Phoundation\Web\Html\Components\Interfaces;
 use Phoundation\Web\Html\Enums\EnumAttachJavascript;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 
-interface ScriptInterface
+interface ScriptInterface extends ElementInterface
 {
     /**
      * Returns if this script is loaded async

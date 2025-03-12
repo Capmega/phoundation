@@ -17,20 +17,21 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 use PDOStatement;
-use Phoundation\Core\Core;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryBadException;
-use Phoundation\Data\Interfaces\EntryInterface;
+use Phoundation\Data\Interfaces\ArraySourceInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Json;
 use ReturnTypeWillChange;
 use Stringable;
 
 
 trait TraitDataSourceArray
 {
+    use TraitMethodsPoad;
+
+
     /**
      * The source to use
      *
@@ -46,7 +47,7 @@ trait TraitDataSourceArray
      */
     public function __toString(): string
     {
-        return Json::encode($this->__toArray());
+        return $this->getPoadString();
     }
 
 
@@ -66,56 +67,47 @@ trait TraitDataSourceArray
      */
     public function __toArray(): array
     {
-        return $this->getPoad();
-    }
-
-
-    /**
-     * Returns the source data when cast to array in POA (Phoundation Object Array) format. This format allows any
-     * object to be recreated from this array
-     *
-     * POA structures must have the following format
-     * [
-     *     "datatype" => The phoundation version that created this array
-     *     "datatype" => "object"
-     *     "class"    => The class name (static::class should suffice)
-     *     "source"   => The object's source data
-     * ]
-     *
-     * @return array
-     */
-    public function getPoad(): array
-    {
-        return [
-            'poad'      => 'PHOUNDATION',
-            'generator' => Core::PHOUNDATION_VERSION,
-            'datatype'  => 'object',
-            'class'     => static::class,
-            'source'    => $this->source
-        ];
+        return $this->getPoadArray();
     }
 
 
     /**
      * Returns a new DataEntry object from the specified array source
      *
-     * @param EntryInterface|array $source
+     * @param ArraySourceInterface|array|string|null $source
+     *
+     * @return TraitDataSourceArray|null
+     */
+    public static function newFromSourceOrNull(ArraySourceInterface|array|string|null $source): ?static
+    {
+        if ($source === null) {
+            return null;
+        }
+
+        return static::newFromSource($source);
+    }
+
+
+    /**
+     * Returns a new DataEntry object from the specified array source
+     *
+     * @param ArraySourceInterface|array|string $source
      *
      * @return static
      */
-    public static function newFromSource(EntryInterface|array $source): static
+    public static function newFromSource(ArraySourceInterface|array|string $source): static
     {
-        if ($source instanceof EntryInterface) {
-            if ($source instanceof static) {
-                return clone $source;
+        if ($source instanceof ArraySourceInterface) {
+            if (!is_a($source, static::class)) {
+                throw new DataEntryBadException(
+                    tr('The specified source ":source" must be either an array or an instance of ":static"', [
+                        ':static' => static::class,
+                        ':source' => $source::class,
+                    ])
+                );
             }
 
-            throw new DataEntryBadException(
-                tr('The specified source ":source" must be either an array or an instance of ":static"', [
-                    ':static' => static::class,
-                    ':source' => $source::class,
-                ])
-            );
+            $source = $source->getSource();
         }
 
         $entry = new static(null);

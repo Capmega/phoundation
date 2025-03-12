@@ -155,22 +155,6 @@ interface PhoExceptionInterface extends Throwable, ArrayableInterface
 
 
     /**
-     * Export this exception as an array
-     *
-     * @return array
-     */
-    public function exportToArray(): array;
-
-
-    /**
-     * Export this exception as a Json string
-     *
-     * @return string
-     */
-    public function exportToString(): string;
-
-
-    /**
      * Returns the exception stack trace limited to everything after the execute_page() call
      *
      * This limited trace is useful to show a more relevant stack trace. Once script processing has begun, everything

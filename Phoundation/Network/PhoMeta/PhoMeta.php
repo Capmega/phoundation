@@ -106,10 +106,11 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
 
     /**
      * @param bool $filter_meta
+     * @param bool $filter_protected_columns
      *
      * @return array
      */
-    public function getSource(bool $filter_meta = false): array
+    public function getSource(bool $filter_meta = false, bool $filter_protected_columns = true): array
     {
         $source = parent::getSource($filter_meta);
 

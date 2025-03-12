@@ -51,13 +51,22 @@ CliDocumentation::setAutoComplete([
 // Validate arguments
 $argv = ArgvValidator::new()
                      ->select('-c,--connector', true)->isVariable()
-                     ->select('key')->isVariable()
+                     ->select('key')->hasMaxCharacters(250)
                      ->validate();
 
 
 try {
-    // Dump all values
-    Log::printr(mc($argv['connector'])->get($argv['key']), echo_header: false);
+    // Dump the value for the specified key
+    $value = mc($argv['connector'])->exists($argv['key']);
+
+    if ($value === false) {
+        Log::warning(tr('The specified key ":key" does not exist', [
+            ':key' => $argv['key']
+        ]));
+
+    } else {
+        Log::printr(mc($argv['connector'])->get($argv['key']), echo_header: false);
+    }
 
 } catch (ConnectorNotExistsException $e) {
     throw $e->makeWarning();

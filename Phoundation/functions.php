@@ -22,13 +22,14 @@ use Phoundation\Cache\Cache;
 use Phoundation\Cache\Interfaces\CacheInterface;
 use Phoundation\Core\Core;
 use Phoundation\Core\Hooks\Interfaces\HookInterface;
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Interfaces\ConfigInterface;
 use Phoundation\Core\Interfaces\FloatableInterface;
 use Phoundation\Core\Interfaces\IntegerableInterface;
-use Phoundation\Core\Interfaces\PoaInterface;
 use Phoundation\Core\Log\Interfaces\LogInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\SessionConfig;
+use Phoundation\Data\Interfaces\PoadInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Databases;
 use Phoundation\Databases\FileDb\FileDb;
@@ -2125,115 +2126,6 @@ function sessionconfig(string $section = 'default', ?string $environment = null)
 function logmsg(string $file = 'syslog'): LogInterface
 {
     return Log::toFile($file);
-}
-
-
-/**
- * Returns an object from the given source data
- *
- * This requires the source data to have the POA (Phoundation Object Array) format
- * (See TraitDataSourceArray::__toArray() for more information). A JSON encoded array version is also accepted
- *
- * @param array|string|float|int|null $source
- * @param bool                        $exception
- *
- * @return PoaInterface|array|string|float|int|null
- * @see TraitDataSourceArray::__toArray()
- */
-function get_poad_object(array|string|float|int|null $source, bool $exception = false): PoaInterface|array|string|float|int|null
-{
-    if (!$source) {
-        return $source;
-    }
-
-    if (is_string($source)) {
-        if (!str_starts_with($source, 'POADJSON')) {
-            return $source;
-        }
-
-        // This is a Phoundation Object Array Data string with JSON encoding. Strip the header and decode it now.
-        try {
-            $source = Json::decode(substr($source, 8));
-
-        } catch (JsonException $e) {
-            if ($exception) {
-                throw ObjectDecodeException::new(tr('Failed to decode specified POADJSON source string into object because source string is not valid JSON'), $e)
-                                           ->setData([
-                                               'source' => $source
-                                           ]);
-            }
-
-            // Return source as-is
-            return $source;
-        }
-    }
-
-    if (is_array($source)) {
-        // Source is an array now. Check for a valid PAO format.
-        if (array_key_exists('poad', $source)) {
-            // This seems to be a POAD array! Confirm and decode
-            if (array_key_exists('generator', $source)) {
-                if (array_key_exists('datatype', $source)) {
-                    if (array_key_exists('class', $source)) {
-                        if (array_key_exists('source', $source)) {
-                            // Yay, all required fields are there! Check datatype to see how to handle this
-                            switch ($source['datatype']) {
-                                case 'object':
-                                    return $source['class']::newFromSource($source['source']);
-
-                                case 'combined_cache':
-                                    $return = null;
-
-                                    foreach ($source['source'] as $key => $value) {
-                                        switch ($key) {
-                                            case 'headers':
-                                                foreach ($value as $type => $header) {
-                                                    Response::addHeaders($type, $header);
-                                                }
-
-                                                break;
-
-                                            case 'footers':
-                                                foreach ($value as $type => $header) {
-                                                    Response::addFooters($type, $header);
-                                                }
-
-                                                break;
-
-                                            case 'source':
-                                                $return = $value;
-                                        }
-                                    }
-
-                                    return get_poad_object($return);
-
-                                default:
-                                    throw OutOfBoundsException::new(tr('Unknown POAD datatype :datatype"" encountered in specified data source', [
-                                        ':datatype' => $source['datatype']
-                                    ]))->addData([
-                                        'source' => $source
-                                    ]);
-                            }
-
-                            // This is an PAO array, yay!
-                            return $source['class']::newFromSource($source['source']);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    if ($exception) {
-        throw ObjectDecodeException::new(tr('Failed to decode specified POAD source array into object because source array is not a valid PAO array'))
-                                   ->setData([
-                                       'source' => $source
-                                   ]);
-
-    }
-
-    // Return source as-is
-    return $source;
 }
 
 

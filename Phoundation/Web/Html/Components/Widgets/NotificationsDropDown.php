@@ -97,7 +97,6 @@ class NotificationsDropDown extends ElementsBlock
     public function setNotificationsUrl(Stringable|string|null $notifications_url): static
     {
         $this->notifications_url = Url::new($notifications_url)->makeWww();
-
         return $this;
     }
 
@@ -123,7 +122,6 @@ class NotificationsDropDown extends ElementsBlock
     public function setAllNotificationsUrl(Stringable|string|null $notifications_url): static
     {
         $this->notifications_all_url = Url::new($notifications_url)->makeWww();
-
         return $this;
     }
 
@@ -189,7 +187,6 @@ class NotificationsDropDown extends ElementsBlock
     public function setNotifications(?Notifications $notifications): static
     {
         $this->notifications = $notifications;
-
         return $this;
     }
 }

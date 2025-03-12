@@ -26,11 +26,11 @@ trait TraitDataEntryIcon
     /**
      * Returns the icon for this object
      *
-     * @return IconInterface|null
+     * @return string|null
      */
-    public function getIcon(): ?IconInterface
+    public function getIcon(): ?string
     {
-        return Icon::new($this->getTypesafe('string', 'icon'));
+        return $this->getTypesafe('string', 'icon');
 //
 //        if (!$return) {
 //            // Assign default icon
@@ -43,6 +43,17 @@ trait TraitDataEntryIcon
 //        }
 //
 //        return Icon::new($return);
+    }
+
+
+    /**
+     * Returns the icon for this object
+     *
+     * @return IconInterface|null
+     */
+    public function getIconObject(): ?IconInterface
+    {
+        return Icon::new($this->getIcon());
     }
 
 

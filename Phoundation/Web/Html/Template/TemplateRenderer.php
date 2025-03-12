@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Template;
 
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Components\Interfaces\ComponentInterface;
 use Phoundation\Web\Html\Interfaces\TemplateRendererInterface;
 
 
@@ -33,9 +33,9 @@ class TemplateRenderer implements TemplateRendererInterface
     /**
      * The object to render
      *
-     * @var RenderInterface|null $component
+     * @var ComponentInterface|null $o_component
      */
-    protected RenderInterface|null $component;
+    protected ComponentInterface|null $o_component;
 
     /**
      * The parent render function
@@ -48,22 +48,22 @@ class TemplateRenderer implements TemplateRendererInterface
     /**
      * Renderer class element
      *
-     * @param RenderInterface|null $component
+     * @param ComponentInterface|null $o_component
      */
-    public function __construct(RenderInterface|null $component)
+    public function __construct(ComponentInterface|null $o_component)
     {
-        $this->component = $component;
+        $this->o_component = $o_component;
     }
 
 
     /**
      * Returns a new renderer object
      *
-     * @param RenderInterface|null $component
+     * @param ComponentInterface|null $component
      *
      * @return static
      */
-    public static function new(RenderInterface|null $component): static
+    public static function new(ComponentInterface|null $component): static
     {
         return new static($component);
     }
@@ -118,24 +118,24 @@ class TemplateRenderer implements TemplateRendererInterface
     /**
      * Returns the component to be rendered
      *
-     * @return RenderInterface|null
+     * @return ComponentInterface|null
      */
-    public function getComponent(): RenderInterface|null
+    public function getComponentObject(): ComponentInterface|null
     {
-        return $this->component;
+        return $this->o_component;
     }
 
 
     /**
      * Sets the component to be rendered
      *
-     * @param RenderInterface|null $component
+     * @param ComponentInterface|null $component
      *
      * @return static
      */
-    public function setComponent(RenderInterface|null $component): static
+    public function setComponentObject(ComponentInterface|null $component): static
     {
-        $this->component = $component;
+        $this->o_component = $component;
 
         return $this;
     }

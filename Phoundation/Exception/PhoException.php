@@ -48,6 +48,11 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Exception\LogException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
+use Phoundation\Data\Enums\EnumPoadTypes;
+use Phoundation\Data\Interfaces\ArraySourceInterface;
+use Phoundation\Data\Interfaces\PoadInterface;
+use Phoundation\Data\Poad\Poad;
+use Phoundation\Data\Traits\TraitMethodsPoad;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\Interfaces\PhoExceptionInterface;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
@@ -62,8 +67,11 @@ use RuntimeException;
 use Throwable;
 
 
-class PhoException extends RuntimeException implements Interfaces\PhoExceptionInterface
+class PhoException extends RuntimeException implements Interfaces\PhoExceptionInterface, PoadInterface
 {
+    use TraitMethodsPoad;
+
+
     /**
      * Exception data, if available
      *
@@ -209,6 +217,29 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
         }
 
         parent::__construct($message, 0, $previous);
+    }
+
+
+    /**
+     * Returns the source data of this exception
+     *
+     * @return array
+     */
+    public function __toArray(): array
+    {
+        return $this->getPoadArray();
+    }
+
+
+    /**
+     * Returns this exception object as a string
+     *
+     * @note Some (important!) information may be dropped, like the exception data
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->getPoadString();
     }
 
 
@@ -382,21 +413,50 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
     /**
      * Import exception data and return this as an exception
      *
-     * @param array|string|null $source
+     * @param ArraySourceInterface|array|string|null $source
      *
      * @return static|null
      */
-    public static function newFromImport(array|string|null $source): ?static
+    public static function newFromSourceOrNull(ArraySourceInterface|array|string|null $source): ?static
     {
         if ($source === null) {
             // Nothing to import, there is no exception
             return null;
         }
 
+        return static::newFromSource($source);
+    }
+
+
+    /**
+     * Import exception data and return this as an exception
+     *
+     * @param ArraySourceInterface|array|string $source
+     *
+     * @return static
+     */
+    public static function newFromSource(ArraySourceInterface|array|string $source): static
+    {
         try {
             if (is_string($source)) {
                 // Make it an exception array
                 $source = Json::decode($source);
+            }
+
+            if (array_key_exists('poad', $source)) {
+                // Do POAD import
+                $return = Poad::new($source)->getObject();
+
+                if ($return instanceof PhoException) {
+                    return $return;
+                }
+
+                // The specified POAD does not contain a PhoException compatible object but something entirely different
+                throw PhoException::new(tr('Failed to import exception object from POAD (Phoundation Object Array Data) source, decoded POAD data does not contain a valid exception object'))
+                                  ->addData([
+                                      'source'  => $source,
+                                      'decoded' => $return
+                                  ]);
             }
 
             $source['class'] = isset_get($source['class'], PhoException::class);
@@ -436,14 +496,22 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
 
 
     /**
-     * Returns this exception object as a string
+     * Returns the source data when cast to array in POA (Phoundation Object Array) format. This format allows any
+     * object to be recreated from this array
      *
-     * @note Some (important!) information may be dropped, like the exception data
-     * @return string
+     * POA structures must have the following format
+     * [
+     *     "datatype" => The phoundation version that created this array
+     *     "datatype" => "object"
+     *     "class"    => The class name (static::class should suffice)
+     *     "source"   => The object's source data
+     * ]
+     *
+     * @return array
      */
-    public function __toString(): string
+    public function getPoadArray(): array
     {
-        return Json::encode($this->__toArray());
+        return Poad::generateArray($this->getSource(), static::class, EnumPoadTypes::object);
     }
 
 
@@ -486,22 +554,6 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
         }
 
         return $return;
-    }
-
-
-    /**
-     * Returns the source data of this exception
-     *
-     * @return array
-     */
-    public function __toArray(): array
-    {
-        return [
-            'generator' => 'PHOUNDATION-' . Core::PHOUNDATION_VERSION,
-            'datatype'  => 'object',
-            'class'     => static::class,
-            'source'    => $this->getSource()
-        ];
     }
 
 
@@ -871,38 +923,6 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
         throw new OutOfBoundsException(tr('Cannot ensure exception is specified Phoundation exception class ":class" because the specified class should have the ExceptionInterface', [
             ':class' => $exception_class,
         ]), $e);
-    }
-
-
-    /**
-     * Export this exception as a Json string
-     *
-     * @return string
-     */
-    public function exportToString(): string
-    {
-        $return = $this->exportToArray();
-        $return = Json::encode($return);
-
-        return $return;
-    }
-
-
-    /**
-     * Export this exception as an array
-     *
-     * @return array
-     */
-    public function exportToArray(): array
-    {
-        return [
-            'class'    => get_class($this),
-            'code'     => $this->getCode(),
-            'message'  => $this->getMessage(),
-            'messages' => $this->getMessages(),
-            'data'     => $this->getData(),
-            'warning'  => $this->getWarning(),
-        ];
     }
 
 
