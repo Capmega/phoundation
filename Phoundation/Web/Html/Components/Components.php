@@ -23,7 +23,7 @@ class Components
      *
      * @param string|null $content
      *
-     * @return P
+     * @return Header
      */
     public static function header(?string $content = null): Header
     {

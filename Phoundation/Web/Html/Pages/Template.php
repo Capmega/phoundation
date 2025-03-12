@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Pages;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataIteratorSource;
@@ -25,6 +26,7 @@ use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Html\Pages\Interfaces\TemplateInterface;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
+use Throwable;
 
 
 class Template implements TemplateInterface
@@ -159,7 +161,15 @@ class Template implements TemplateInterface
         $renderer_class = Request::getTemplate()->getRendererClass($this);
 
         if ($renderer_class) {
-            $this->text = $renderer_class::new($this)->render();
+            try {
+                $this->text = $renderer_class::new($this)->render();
+            } catch (Throwable $e) {
+                Log::printr(tr('Failed to create class ":class"', [
+                    ':class' => $renderer_class
+                ]));
+
+                throw $e;
+            }
 
         } else {
             $sign_out = Session::isGuest() ? null : '<p>' . tr('Click :here to sign out', [
