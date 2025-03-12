@@ -16,7 +16,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Tabs;
 
+use PDOStatement;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataLabel;
+use Phoundation\Data\Traits\TraitDataName;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\ElementsBlock;
@@ -26,6 +29,15 @@ use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabInterface;
 class Tab extends ElementsBlock implements TabInterface
 {
     use TraitDataLabel;
+    use TraitDataName {
+        setName as protected __setName;
+    }
+
+    public function __construct(?string $name = null, array|null|PDOStatement|IteratorInterface|string $source = null)
+    {
+        $this->setName($name);
+        parent::__construct($source);
+    }
 
     /**
      * @return string|null
@@ -50,5 +62,19 @@ class Tab extends ElementsBlock implements TabInterface
         }
 
         return $this->id;
+    }
+
+
+    /**
+     * Sets the name for this tab
+     *
+     * @param string|null $name
+     * @param bool        $id_too
+     *
+     * @return $this
+     */
+    public function setName(?string $name, bool $id_too = false): static
+    {
+        return $this->__setName($name);
     }
 }

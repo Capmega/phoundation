@@ -42,6 +42,13 @@ class Tabs extends ElementsBlock implements TabsInterface
      */
     protected EnumDisplaySize $content_display_size = EnumDisplaySize::ten;
 
+    /**
+     * Which tab is active
+     *
+     * @var string|null
+     */
+    protected ?string $active_tab = null;
+
 
     /**
      * Tabs class constructor
@@ -100,5 +107,30 @@ class Tabs extends ElementsBlock implements TabsInterface
         }
 
         return parent::add($value, $key, $skip_null_values, $exception);
+    }
+
+
+    /**
+     * Returns the active_tab property
+     *
+     * @return string|null
+     */
+    public function getActiveTab(): ?string
+    {
+        return $this->active_tab;
+    }
+
+
+    /**
+     * Sets the active tab property
+     *
+     * @param string $active_tab
+     *
+     * @return $this
+     */
+    public function setActiveTab(string $active_tab): static
+    {
+        $this->active_tab = $active_tab;
+        return $this;
     }
 }
