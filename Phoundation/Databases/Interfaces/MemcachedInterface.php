@@ -2,8 +2,7 @@
 
 namespace Phoundation\Databases\Interfaces;
 
-use Phoundation\Core\Interfaces\ArrayableInterface;
-use Phoundation\Core\Interfaces\PoaInterface;
+use Phoundation\Data\Interfaces\PoadInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Memcached\Memcached;
 use Stringable;
@@ -56,23 +55,23 @@ interface MemcachedInterface extends DatastoreInterface
      * @param callable|null         $cache_callback An optional callback function for read-through caching
      * @param int                   $flags          Currently supports Memcached::GET_EXTENDED
      *
-     * @return PoaInterface|array|string|float|int|null
+     * @return array|string|float|int|null
      * @see https://www.php.net/manual/en/memcached.get.php
      */
-    public function get(string|float|int|null $key, ?callable $cache_callback = null, int $flags = 0): PoaInterface|array|string|float|int|null;
+    public function get(string|float|int|null $key, ?callable $cache_callback = null, int $flags = 0): array|string|float|int|null;
 
 
     /**
      * Sets the value for the specified key on the memcached server(s)
      *
-     * @param PoaInterface|array|string|float|int|null $value
-     * @param Stringable|string|float|int|null         $key
-     * @param int|null                                 $expires
+     * @param array|string|float|int|null      $value
+     * @param Stringable|string|float|int|null $key
+     * @param int|null                         $expires
      *
      * @return mixed
      * @see https://www.php.net/manual/en/memcached.set.php
      */
-    public function set(PoaInterface|array|string|float|int|null $value, Stringable|string|float|int|null $key, ?int $expires = null): static;
+    public function set(array|string|float|int|null $value, Stringable|string|float|int|null $key, ?int $expires = null): static;
 
 
     /**

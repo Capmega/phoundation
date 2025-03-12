@@ -19,8 +19,9 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Memcached;
 
 use Phoundation\Core\Interfaces\ArrayableInterface;
-use Phoundation\Core\Interfaces\PoaInterface;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\PoadInterface;
+use Phoundation\Data\Poad\Poad;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Interfaces\MemcachedInterface;
@@ -28,11 +29,11 @@ use Phoundation\Databases\Memcached\Exception\MemcachedException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Security\Incidents\Incident;
+use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Http\Url;
 use Stringable;
 use Throwable;
-
 
 class Memcached implements MemcachedInterface
 {
@@ -189,63 +190,94 @@ class Memcached implements MemcachedInterface
 
 
     /**
+     * Returns true if the specified key exists or not
+     *
+     * @param string|float|int|null $key
+     * @param callable|null         $cache_callback
+     * @param int                   $flags
+     *
+     * @return bool
+     */
+    public function exists(string|float|int|null $key, ?callable $cache_callback = null, int $flags = 0): bool
+    {
+        return !($this->memcached->get($this->getSafeKey($key), $cache_callback, $flags) === false);
+    }
+
+
+    /**
      * Returns the specified data to the specified key (and optionally the specified namespace)
      *
      * @param string|float|int|null $key
      * @param callable|null         $cache_callback An optional callback function for read-through caching
      * @param int                   $flags          Currently supports Memcached::GET_EXTENDED
      *
-     * @return PoaInterface|array|string|float|int|null
+     * @return array|string|float|int|null
      * @see https://www.php.net/manual/en/memcached.get.php
      */
-    public function get(string|float|int|null $key, ?callable $cache_callback = null, int $flags = 0): PoaInterface|array|string|float|int|null
+    public function get(string|float|int|null $key, ?callable $cache_callback = null, int $flags = 0): array|string|float|int|null
     {
         if ($key === null) {
             // NULL key always returns null
             return null;
         }
 
-        $value = $this->memcached->get($this->getSafeKey($key), $cache_callback, $flags);
+        $return = $this->memcached->get($this->getSafeKey($key), $cache_callback, $flags);
 
-        if ($value) {
-            Log::success($this->log(tr('Found key ":key" through memcached connector ":connector"', [
-                ':connector' => $this->connector,
-                ':key'       => $key,
-            ])), 2);
+        if ($return === false) {
+            // Nothing found for this key
+            return null;
         }
 
-        return get_poad_object(get_null($value));
+        Log::success($this->log(tr('Found key ":key" through memcached connector ":connector"', [
+            ':connector' => $this->connector,
+            ':key'       => $key,
+        ])), 2);
+
+        return $return;
     }
 
 
     /**
      * Sets the specified key to the specified value on the memcached server(s)
      *
-     * @param PoaInterface|array|string|float|int|null $value
-     * @param Stringable|string|float|int|null         $key
-     * @param int|null                                 $expires
+     * @param array|string|float|int|null      $value
+     * @param Stringable|string|float|int|null $key
+     * @param int|null                         $expires
      *
      * @return mixed
      * @see https://www.php.net/manual/en/memcached.set.php
      */
-    public function set(PoaInterface|array|string|float|int|null $value, Stringable|string|float|int|null $key, ?int $expires = null): static
+    public function set(array|string|float|int|null $value, Stringable|string|float|int|null $key, ?int $expires = null): static
     {
         if ($key === null) {
             // NULL key will never store anything
             return $this;
         }
 
-        if ($value instanceof Stringable) {
-            // Prefix the JSON string from this object with PAODJSON to indicate that this is a
-            // Phoundation Object Array Data (POAD) string with JSON encoding that, upon Memcached::get() can be
-            // converted back into an object
-            $value = 'POADJSON' . $value;
+        try {
+            $result = $this->memcached->set($this->getSafeKey($key), $value, $expires ?? $this->configuration['expires']);
 
-        } elseif ($value instanceof ArrayableInterface) {
-            $value = $value->__toArray();
+        } catch (Throwable $e) {
+            if ($this->memcached->getResultCode() === -1001) {
+                throw MemcachedException::new(tr('Failed to set key ":key" through memcached connector ":connector" due to value containing unserialized objects. Memcached only supports storing array, string, or numeric values.', [
+                    ':key'       => $key,
+                    ':connector' => $this->connector,
+                ]), $e)->setData([
+                    'code'    => $this->memcached->getResultCode(),
+                    'message' => $this->memcached->getResultMessage(),
+                    'value'   => Json::encode($value)
+                ]);
+            }
+
+            throw MemcachedException::new(tr('Failed to set key ":key" through memcached connector ":connector"', [
+                ':key'       => $key,
+                ':connector' => $this->connector,
+            ]), $e)->setData([
+                'code'    => $this->memcached->getResultCode(),
+                'message' => $this->memcached->getResultMessage(),
+                'value'   => Json::encode($value)
+            ]);
         }
-
-        $result = $this->memcached->set($this->getSafeKey($key), $value, $expires ?? $this->configuration['expires']);
 
         if ($result) {
             Log::success($this->log(tr('Set key ":key" through memcached connector ":connector"', [
@@ -359,6 +391,8 @@ class Memcached implements MemcachedInterface
             Log::success($this->log(tr('Deleted key ":key"', [
                 ':key' => $key,
             ])), 3);
+
+            return $this;
         }
 
         if ($this->memcached->getResultCode() === 16) {
