@@ -161,15 +161,7 @@ class Template implements TemplateInterface
         $renderer_class = Request::getTemplate()->getRendererClass($this);
 
         if ($renderer_class) {
-            try {
-                $this->text = $renderer_class::new($this)->render();
-            } catch (Throwable $e) {
-                Log::printr(tr('Failed to create class ":class"', [
-                    ':class' => $renderer_class
-                ]));
-
-                throw $e;
-            }
+            $this->text = $renderer_class::new($this)->render();
 
         } else {
             $sign_out = Session::isGuest() ? null : '<p>' . tr('Click :here to sign out', [
