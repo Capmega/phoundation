@@ -101,7 +101,6 @@ class Script extends Element implements ScriptInterface
     public function setAsync(bool $async): static
     {
         $this->async = $async;
-
         return $this;
     }
 
@@ -127,7 +126,6 @@ class Script extends Element implements ScriptInterface
     public function setToFile(bool $to_file): static
     {
         $this->to_file = $to_file;
-
         return $this;
     }
 
@@ -153,7 +151,6 @@ class Script extends Element implements ScriptInterface
     public function setSrc(string $src): static
     {
         $this->src = $src;
-
         return $this;
     }
 
@@ -189,7 +186,6 @@ class Script extends Element implements ScriptInterface
     public function setAttach(EnumAttachJavascript $attach): static
     {
         $this->attach = $attach;
-
         return $this;
     }
 
@@ -226,7 +222,6 @@ class Script extends Element implements ScriptInterface
     public function setDefer(bool $defer): static
     {
         $this->defer = $defer;
-
         return $this;
     }
 
@@ -264,13 +259,12 @@ class Script extends Element implements ScriptInterface
     public function setJavascriptWrapper(EnumJavascriptWrappers $javascript_wrapper): static
     {
         $this->javascript_wrapper = $javascript_wrapper;
-
         return $this;
     }
 
 
     /**
-     * Attached this Javascript Script object to the page
+     * Attached this JavaScript object to the page
      *
      * @return static
      */
@@ -282,22 +276,14 @@ class Script extends Element implements ScriptInterface
             ]));
         }
 
-        // Where should this script be attached?
+        // Where should this script attach itself to?
         switch ($this->attach) {
             case EnumAttachJavascript::header:
-                Response::addToHeader('javascript', [
-                    'type'    => 'text/javascript',
-                    'content' => ($this->hasRendered() ? $this->render() : $this),
-                ]);
-
+                Response::addHtmlToPageHeaders($this->hasRendered() ? $this->render() : $this);
                 break;
 
             case EnumAttachJavascript::footer:
-                Response::addToFooter([
-                    'type'    => 'text/javascript',
-                    'content' => ($this->hasRendered() ? $this->render() : $this),
-                ], 'javascript');
-
+                Response::addHtmlToPageFooters($this->hasRendered() ? $this->render() : $this);
                 break;
 
             case EnumAttachJavascript::here:
@@ -328,45 +314,49 @@ class Script extends Element implements ScriptInterface
     {
         $render = '';
 
-        if ($this->content) {
-            // Apply event wrapper
-            switch ($this->javascript_wrapper) {
-                case EnumJavascriptWrappers::dom_content:
-                    // Wrap it within the window DOMContentLoaded event
-                    $render = 'document.addEventListener("DOMContentLoaded", function(e) {
-                                  ' . $this->content . '
-                               });' . PHP_EOL;
-                    break;
+        if (empty($this->content)) {
+            return null;
+        }
 
-                case EnumJavascriptWrappers::window:
-                    // Wrap it within the window load event
-                    $render = 'window.addEventListener("load", function(e) {
-                                  ' . $this->content . '
-                               });' . PHP_EOL;
-                    break;
+        // Apply event wrapper
+        switch ($this->javascript_wrapper) {
+            case EnumJavascriptWrappers::dom_content:
+                // Wrap it within the window DOMContentLoaded event
+                $render = 'document.addEventListener("DOMContentLoaded", function(e) {
+                              ' . $this->content . '
+                           });' . PHP_EOL;
+                break;
 
-                case EnumJavascriptWrappers::function:
-                    // Wrap it within a self-executing function
-                    $render = '$(function() {
-                                  ' . $this->content . '
-                               });' . PHP_EOL;
-                    break;
+            case EnumJavascriptWrappers::window:
+                // Wrap it within the window load event
+                $render = 'window.addEventListener("load", function(e) {
+                              ' . $this->content . '
+                           });' . PHP_EOL;
+                break;
 
-                case EnumJavascriptWrappers::ready:
-                    // Wrap it with a jQuery document.ready
-                    $render = '$(document).ready(function () {
-                                  ' . $this->content . '
-                               });' . PHP_EOL;
-                    break;
+            case EnumJavascriptWrappers::function:
+                // Wrap it within a self-executing function
+                $render = '$(function() {
+                              ' . $this->content . '
+                           });' . PHP_EOL;
+                break;
 
-                case EnumJavascriptWrappers::none:
-                    // No wrapping
-                    $render = $this->content . PHP_EOL;
-                    break;
-            }
+            case EnumJavascriptWrappers::ready:
+                // Wrap it with a jQuery document.ready
+                $render = '$(document).ready(function () {
+                              ' . $this->content . '
+                           });' . PHP_EOL;
+                break;
 
-        } else {
-            $this->content = '';
+            case EnumJavascriptWrappers::none:
+                // No wrapping
+                $render = $this->content . PHP_EOL;
+                break;
+        }
+
+        // If this Script object is already attached then don't attach it again, return it directly instead
+        if ($this->attached) {
+            $this->attach = EnumAttachJavascript::here;
         }
 
         switch ($this->attach) {

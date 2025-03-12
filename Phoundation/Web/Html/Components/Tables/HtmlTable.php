@@ -227,22 +227,22 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Sets the DataIterator object
      *
-     * @param DataIteratorInterface|null $o_data_iterator
+     * @param IteratorInterface|null $o_iterator
      *
      * @return static
      */
-    public function setDataIteratorObject(?DataIteratorInterface $o_data_iterator): static
+    public function setDataIteratorObject(?IteratorInterface $o_iterator): static
     {
-        if ($o_data_iterator) {
+        if ($o_iterator) {
             $this->setComponentEmptyLabel(tr('No :types available', [
-                ':types' => $o_data_iterator->getIteratorName(),
+                ':types' => $o_iterator->getIteratorName(),
             ]));
 
         } else {
             $this->setComponentEmptyLabel(tr('No results available'));
         }
 
-        return parent::setDataIteratorObject($o_data_iterator);
+        return parent::setIteratorObject($o_iterator);
     }
 
 

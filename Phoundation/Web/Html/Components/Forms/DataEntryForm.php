@@ -137,9 +137,10 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
      * Returns the cache key for this DataEntryForm object
      *
      * @param String|null $append_string
-     * @return string
+     *
+     * @return string|null
      */
-    public function getCacheKeySeed(?String $append_string = null): string
+    public function getCacheKeySeed(?String $append_string = null): ?string
     {
         return 'DataEntryForm-' . ($this->o_data_entry?->getCacheKey() ?? (static::class . Json::encode($this->source))) . '-render' . $append_string;
     }

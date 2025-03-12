@@ -19,8 +19,10 @@ namespace Phoundation\Web\Html\Components;
 use PDOStatement;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Enums\EnumPoadTypes;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Poad\Poad;
 use Phoundation\Web\Html\Components\Forms\Form;
 use Phoundation\Web\Html\Components\Forms\Interfaces\FormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
@@ -148,13 +150,7 @@ abstract class ElementsBlock extends Iterator implements ElementsBlockInterface
      */
     public function __toArray(): array
     {
-        return [
-            'poad'      => 'PHOUNDATION',
-            'generator' => Core::PHOUNDATION_VERSION,
-            'datatype'  => 'object',
-            'class'     => static::class,
-            'source'    => $this->source
-        ];
+        return Poad::generateArray($this->getSource(), static::class, EnumPoadTypes::object);
     }
 
 

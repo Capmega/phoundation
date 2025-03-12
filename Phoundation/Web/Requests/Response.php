@@ -48,22 +48,19 @@ use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
-use Phoundation\Web\Html\Components\Widgets\FlashMessages\FlashMessages;
-use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessagesInterface;
 use Phoundation\Web\Html\Components\Widgets\Interfaces\BreadCrumbsInterface;
 use Phoundation\Web\Html\Enums\EnumAttachJavascript;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Requests\Enums\EnumHeaderFooterType;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Exception\PageNotFoundException;
 use Phoundation\Web\Requests\Exception\ResponseHeadersException;
 use Phoundation\Web\Requests\Exception\ResponseRedirectException;
 use Phoundation\Web\Requests\Interfaces\ResponseInterface;
 use Phoundation\Web\Uploads\Interfaces\UploadHandlersInterface;
-use Phoundation\Web\Uploads\UploadHandlers;
-use PHPMD\Renderer\Option\Color;
 use Stringable;
 use Throwable;
 
@@ -126,7 +123,7 @@ class Response implements ResponseInterface
      *
      * @var array $http_headers
      */
-    protected static array $http_headers;
+    protected static array $http_headers = [];
 
     /**
      * CORS headers
@@ -213,14 +210,14 @@ class Response implements ResponseInterface
      *
      * @var array $page_footers
      */
-    protected static array $page_footers;
+    protected static array $page_footers = [];
 
     /**
      * Tracks data that goes into the HTML headers
      *
      * @var array $page_headers
      */
-    protected static array $page_headers;
+    protected static array $page_headers = [];
 
     /**
      * Tracks the total number of bytes sent
@@ -244,18 +241,10 @@ class Response implements ResponseInterface
     {
         // Take file access restrictions from the Request object
         static::$restrictions = Request::getRestrictions();
-        static::$http_headers = [];
-        static::$page_headers = [
-            'link'       => [],
-            'javascript' => [],
-            'meta'       => [
-                'character_set' => config()->get('languages.encoding.character-set', 'UTF-8'),
-                'viewport'      => config()->get('web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no'),
-            ],
-        ];
-        static::$page_footers = [
-            'javascript' => [],
-        ];
+
+        // Add required headers
+        Response::addMetaToPageHeaders(config()->get('languages.encoding.character-set', 'UTF-8')                            , 'character_set');
+        Response::addMetaToPageHeaders(config()->get('web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no'), 'character_set');
     }
 
 
@@ -494,7 +483,7 @@ class Response implements ResponseInterface
      */
     public static function getCharset(): ?string
     {
-        return isset_get(static::$page_headers['meta']['character_set']);
+        return array_get_safe(static::$page_headers, 'meta-character_set');
     }
 
 
@@ -507,7 +496,7 @@ class Response implements ResponseInterface
      */
     public static function setCharset(?string $character_set): void
     {
-        static::$page_headers['meta']['character_set'] = $character_set;
+        Response::addMetaToPageHeaders($character_set, 'character_set');
     }
 
 
@@ -518,7 +507,7 @@ class Response implements ResponseInterface
      */
     public static function getViewport(): ?string
     {
-        return isset_get(static::$page_headers['meta']['viewport']);
+        return array_get_safe(static::$page_headers, 'meta-viewport');
     }
 
 
@@ -531,32 +520,7 @@ class Response implements ResponseInterface
      */
     public static function setViewport(?string $viewport): void
     {
-        static::$page_headers['meta']['viewport'] = $viewport;
-    }
-
-
-    /**
-     * Add meta-information
-     *
-     * @param string                $key
-     * @param string|int|float|null $value
-     *
-     * @return void
-     */
-    public static function addMeta(string $key, string|int|float|null $value): void
-    {
-        static::$page_headers['meta'][$key] = $value;
-    }
-
-
-    /**
-     * Returns the current page footers for this request
-     *
-     * @return array
-     */
-    public static function getPageFooters(): array
-    {
-        return static::$page_footers;
+        Response::addMetaToPageHeaders($viewport, 'viewport');
     }
 
 
@@ -570,26 +534,26 @@ class Response implements ResponseInterface
     public static function setFavIcon(?string $url = null): void
     {
         try {
-            if (!$url) {
+            if (empty($url)) {
                 $url  = 'img/favicons/' . Core::getProjectSeoName() . '/project.png';
                 $url  = static::versionFile($url, 'img');
                 $file = PhoPath::absolutePath(LANGUAGE . '/' . $url, DIRECTORY_CDN);
 
-                static::$page_headers['link'][$url] = [
+                Response::addLinkToPageHeaders([
                     'rel'  => 'icon',
                     'href' => Url::new($url)->makeImg(),
                     'type' => PhoFile::new($file, PhoRestrictions::newCdn())->getMimetype(),
-                ];
+                ], $url);
 
             } else {
                 $url = static::versionFile($url, 'img');
 
                 // Unknown (likely remote?) link
-                static::$page_headers['link'][$url] = [
+                Response::addLinkToPageHeaders([
                     'rel'  => 'icon',
                     'href' => Url::new($url)->makeImg(),
                     'type' => 'image/' . Strings::fromReverse($url, '.'),
-                ];
+                ], $url);
             }
 
         } catch (FilesystemException $e) {
@@ -665,9 +629,9 @@ class Response implements ResponseInterface
     /**
      * Returns the HTTP headers for this response
      *
-     * @return IteratorInterface
+     * @return array
      */
-    public static function getHttpHeaders(): IteratorInterface
+    public static function getHttpHeaders(): array
     {
         return static::$http_headers;
     }
@@ -675,6 +639,8 @@ class Response implements ResponseInterface
 
     /**
      * Sets the HTTP headers for this response
+     *
+     * @param IteratorInterface|array $http_headers
      *
      * @return void
      */
@@ -688,28 +654,14 @@ class Response implements ResponseInterface
 
 
     /**
-     * Add the specified HTML to the HEAD tag
-     *
-     * @param string $key
-     * @param array  $entry
-     *
-     * @return void
-     * @todo This should -in the near future- be updated to sending Javascript, Css, etc objects instead of "some array"
-     */
-    public static function addToHeader(string $key, array $entry): void
-    {
-        static::$http_headers[$key][] = $entry;
-    }
-
-
-    /**
-     * Sets the status code that will be sent to the client
+     * Sets the CORS response headers
      *
      * @param string $origin
      * @param string $methods
      * @param string $headers
      *
      * @return void
+     * @todo Implement
      */
     public static function setCors(string $origin, string $methods, string $headers): void
     {
@@ -735,57 +687,188 @@ class Response implements ResponseInterface
 
 
     /**
-     * Adds the specified header item to the
+     * Returns the correct header type prefix for the specified header type
      *
-     * @param string       $type
-     * @param array|string $headers
-     * @param bool         $prefix
+     * @param EnumHeaderFooterType|string $type
+     *
+     * @return string|null
+     */
+    protected static function getHeaderTypePrefix(EnumHeaderFooterType|string $type): ?string
+    {
+        if (is_string($type)) {
+            $type = EnumHeaderFooterType::from(strtolower($type));
+        }
+
+        if ($type === EnumHeaderFooterType::autodetect) {
+            // The specified header key should already have a type header. Usually, this comes from the Cache object
+            return null;
+
+        }
+
+        return $type->value . '/';
+    }
+
+
+    /**
+     * Adds the specified header item to the "headers" list
+     *
+     * @param EnumHeaderFooterType|string $type
+     * @param IteratorInterface|array     $headers
+     * @param bool                        $prefix
+     *
      * @return void
      */
-    public static function addHeaders(string $type, array|string $headers, bool $prefix = false): void
+    public static function addPageHeaders(EnumHeaderFooterType|string $type, IteratorInterface|array $headers, bool $prefix = false): void
     {
+        if (is_string($type)) {
+            $type = EnumHeaderFooterType::from($type);
+        }
+
         $headers = Arrays::force($headers, null);
 
-        foreach ($headers as $header) {
-            if ($prefix) {
-                array_unshift(static::$page_headers[$type], $header);
-
-            } else {
-                static::$page_headers[$type][] = $header;
-            }
+        foreach ($headers as $key => $value) {
+            Response::addPageHeader($type, $value, $key, $prefix);
         }
     }
 
 
     /**
-     * Adds the specified footer item to the
+     * Adds the specified header item to the "headers" list
      *
-     * @param string       $type
-     * @param array|string $footers
-     * @param bool         $prefix
+     * @param EnumHeaderFooterType|string                                   $type
+     * @param RenderInterface|IteratorInterface|array|string|int|float|null $value
+     * @param string|null                                                   $key
+     * @param bool                                                          $prefix
+     *
      * @return void
      */
-    public static function addFooters(string $type, array|string $footers, bool $prefix = false): void
+    public static function addPageHeader(EnumHeaderFooterType|string $type, RenderInterface|IteratorInterface|array|string|int|float|null $value, ?string $key = null, bool $prefix = false): void
     {
-        $footers = Arrays::force($footers, null);
+        $type = static::getHeaderTypePrefix($type);
 
-        foreach ($footers as $footer) {
-            if ($prefix) {
-                array_unshift(static::$page_footers[$type], $footer);
+        if ($prefix) {
+            static::$page_headers = array_merge(static::$page_headers, [$type . $key => $value]);
 
-            } else {
-                static::$page_footers[$type][] = $footer;
-            }
+        } else {
+            static::$page_headers[$type . $key] = $value;
         }
     }
 
 
     /**
-     * Load the specified javascript file(s)
+     * Adds the specified footer item to the "footers" list
+     *
+     * @param EnumHeaderFooterType|string $type
+     * @param array|string                $footers
+     * @param bool                        $prefix
+     *
+     * @return void
+     */
+    public static function addPageFooters(EnumHeaderFooterType|string $type, array|string $footers, bool $prefix = false): void
+    {
+        if (is_string($type)) {
+            $type = EnumHeaderFooterType::from($type);
+        }
+
+        $footers = Arrays::force($footers, null);
+
+        foreach ($footers as $key => $value) {
+            Response::addPageFooter($type, $value, $key, $prefix);
+        }
+    }
+
+
+    /**
+     * Adds the specified footer to the "footers" list
+     *
+     * @param EnumHeaderFooterType|string                                   $type
+     * @param RenderInterface|IteratorInterface|array|string|int|float|null $value
+     * @param string|null                                                   $key
+     * @param bool                                                          $prefix
+     *
+     * @return void
+     */
+    public static function addPageFooter(EnumHeaderFooterType|string $type, RenderInterface|IteratorInterface|array|string|int|float|null $value, ?string $key = null, bool $prefix = false): void
+    {
+        $type = static::getHeaderTypePrefix($type);
+
+        if ($prefix) {
+            static::$page_footers = array_merge(static::$page_footers, [$type . $key => $value]);
+
+        } else {
+            static::$page_footers[$type . $key] = $value;
+        }
+    }
+
+
+    /**
+     * Add the specified HTML to the HEAD tag
+     *
+     * @param RenderInterface|array|string|int|float|null $value
+     * @param bool                                        $prefix
+     *
+     * @return void
+     * @todo This should -in the near future- be updated to sending Javascript, Css, etc objects instead of "some array"
+     */
+    public static function addHtmlToPageHeaders(RenderInterface|array|string|int|float|null $value, bool $prefix = false): void
+    {
+        static $count = 0;
+        Response::addPageHeader(EnumHeaderFooterType::html, $value, 'html' . $count++, $prefix);
+    }
+
+
+    /**
+     * Add the specified HTML to the footer
+     *
+     * @param RenderInterface|array|string|int|float|null $value
+     * @param bool                                        $prefix
+     *
+     * @return void
+     * @todo This should -in the near future- be updated to sending Javascript, Css, etc objects instead of "some array"
+     */
+    public static function addHtmlToPageFooters(RenderInterface|array|string|int|float|null $value, bool $prefix = false): void
+    {
+        static $count = 0;
+        Response::addPageFooter(EnumHeaderFooterType::html, $value, 'html' . $count++, $prefix);
+    }
+
+
+    /**
+     * Add meta page header
+     *
+     * @param IteratorInterface|array|string|int|float|null $value
+     * @param string                                        $key
+     * @param bool                                          $prefix
+     *
+     * @return void
+     */
+    public static function addMetaToPageHeaders(IteratorInterface|array|string|int|float|null $value, string $key, bool $prefix = false): void
+    {
+        Response::addPageHeader(EnumHeaderFooterType::meta, $value, $key, $prefix);
+    }
+
+
+    /**
+     * Add link page header
+     *
+     * @param IteratorInterface|array|string|int|float|null $value
+     * @param string                                        $key
+     * @param bool                                          $prefix
+     *
+     * @return void
+     */
+    public static function addLinkToPageHeaders(IteratorInterface|array|string|int|float|null $value, string $key, bool $prefix = false): void
+    {
+        Response::addPageHeader(EnumHeaderFooterType::link, $value, $key, $prefix);
+    }
+
+
+    /**
+     * Load the specified JavaScript file(s) by adding them to the "headers" or "footers" list
      *
      * @param string|array $urls
      * @param bool|null    $header
-     * @param bool         $prefix If true, the scripts will be added at the beginning of the scripts list
+     * @param bool         $prefix If true, the scripts are added at the beginning of the "headers" or "footers" list
      *
      * @return void
      */
@@ -820,10 +903,10 @@ class Response implements ResponseInterface
 
         // Add scripts to header or footer
         if ($header) {
-            static::addHeaders('javascript', $scripts, $prefix);
+            static::addPageHeaders(EnumHeaderFooterType::javascript, $scripts, $prefix);
 
         } else {
-            static::addFooters('javascript', $scripts, $prefix);
+            static::addPageFooters(EnumHeaderFooterType::javascript, $scripts, $prefix);
         }
     }
 
@@ -832,7 +915,7 @@ class Response implements ResponseInterface
      * Load the specified CSS file(s)
      *
      * @param UrlInterface|array|string $urls
-     * @param bool                      $prefix If true, the scripts will be added at the beginning of the scripts list
+     * @param bool                      $prefix If true, the scripts are added at the beginning of the "headers" list
      *
      * @return void
      */
@@ -855,42 +938,56 @@ class Response implements ResponseInterface
             ];
         }
 
-        static::addHeaders('link', $scripts, $prefix);
+        static::addPageHeaders(EnumHeaderFooterType::link, $scripts, $prefix);
     }
 
 
     /**
-     * Returns the current amount of page headers
+     * Returns the current page headers for this request
+     *
+     * @return array
+     */
+    public static function getPageHeaders(): array
+    {
+        return static::$page_headers;
+    }
+
+
+    /**
+     * Returns the current page footers for this request
+     *
+     * @return array
+     */
+    public static function getPageFooters(): array
+    {
+        return static::$page_footers;
+    }
+
+
+    /**
+     * Returns the current number of page headers
      *
      * @return int
      */
     public static function getPageHeadersCount(): int
     {
-        if (empty(static::$page_headers)) {
-            return 0;
-        }
-
         return count(static::$page_headers);
     }
 
 
     /**
-     * Returns the current amount of page footers
+     * Returns the current number of page footers
      *
      * @return int
      */
     public static function getPageFootersCount(): int
     {
-        if (empty(static::$page_footers)) {
-            return 0;
-        }
-
         return count(static::$page_footers);
     }
 
 
     /**
-     * Returns the current amount of page headers and footers
+     * Returns the current number of page headers and footers
      *
      * @return int
      */
@@ -925,55 +1022,89 @@ class Response implements ResponseInterface
 
 
     /**
-     * Add the specified HTML to the footer
-     *
-     * @param \Stringable|array|string|null $entry
-     * @param string                        $key
-     *
-     * @return void
-     * @todo This should -in the near future- be updated to sending Javascript, Css, etc objects instead of "some array"
-     */
-    public static function addToFooter(Stringable|array|string|null $entry, string $key = 'html'): void
-    {
-        if (is_object($entry)) {
-            $entry = (string) $entry;
-        }
-
-        static::$page_footers[$key][] = $entry;
-    }
-
-
-    /**
      * Builds and return the HTML <head> tag
      *
      * @return string|null
      */
     public static function renderHtmlHeaders(): ?string
     {
-        static::$html_headers_sent = true;
-
         $return = '<!DOCTYPE ' . static::$doctype . '>
-        <html lang="' . Session::getLanguage() . '">' . PHP_EOL . '<head>';
+                   <html lang="' . Session::getLanguage() . '">' . PHP_EOL . '<head>';
 
         if (static::getPageTitle()) {
             $return .= '<title>' . (Core::isProductionEnvironment() ? null : '(' . ENVIRONMENT . ') ') . static::$page_title . '</title>' . PHP_EOL;
         }
 
-        foreach (static::$page_headers['meta'] as $key => $value) {
-            $return .= '<meta name="' . $key . '" content="' . $value . '" />' . PHP_EOL;
+        foreach (static::$page_headers as $key => $value) {
+            $return .= static::renderHtmlHeaderOrFooter($value, $key);
         }
 
-        foreach (static::$page_headers['link'] as $header) {
-            $header = Arrays::implodeWithKeys($header, ' ', '=', '"');
-            $return .= '<link ' . $header . ' />' . PHP_EOL;
-        }
-
-        foreach (static::$page_headers['javascript'] as $header) {
-            $header = Arrays::implodeWithKeys($header, ' ', '=', '"');
-            $return .= '<script ' . $header . '></script>' . PHP_EOL;
-        }
+        static::$html_headers_sent = true;
 
         return $return . '</head>';
+    }
+
+
+    /**
+     * Build and return the HTML page_footers
+     *
+     * @return string|null
+     * @todo This should be upgraded to using Javascript / Css objects
+     */
+    public static function renderHtmlFooters(): ?string
+    {
+        Log::warning('TODO Reminder: static::buildFooters() should be upgraded to using Javascript / Css objects');
+
+        $return = '';
+
+        foreach (static::$page_footers as $key => $value) {
+            $return .= static::renderHtmlHeaderOrFooter($value, $key);
+        }
+
+//        foreach (static::$page_footers as $footer) {
+//            if (isset($footer['src'])) {
+//                $footer = Arrays::implodeWithKeys($footer, ' ', '=', '"');
+//                $return .= '<script ' . $footer . '></script>' . PHP_EOL;
+//
+//            } elseif (isset($footer['content'])) {
+//                if ($footer['content'] instanceof ScriptInterface) {
+//                    $footer['content']->setAttach(EnumAttachJavascript::here)->render();
+//                }
+//
+//                $return .= $footer['content'] . PHP_EOL;
+//
+//            } else {
+//                throw new OutOfBoundsException(tr('Invalid script footer specified, should contain at least "src" or "content"'));
+//            }
+//        }
+
+        return $return;
+    }
+
+
+    /**
+     * Renders the single specified header and returns it
+     *
+     * @param RenderInterface|IteratorInterface|array|string|int|float|null $value
+     * @param string                                                        $key
+     *
+     * @return string|null
+     */
+    public static function renderHtmlHeaderOrFooter(RenderInterface|IteratorInterface|array|string|int|float|null $value, string $key): ?string
+    {
+        $type = Strings::until($key, '/');
+        $key  = Strings::from($key, '/');
+
+        if (is_object($value)) {
+            $value = (string) $value;
+        }
+
+        return match ($type) {
+            'html'       => $value . PHP_EOL,
+            'meta'       => '<meta name="' . $key . '" content="' . $value . '" />' . PHP_EOL,
+            'link'       => '<link ' . Arrays::implodeWithKeys($value, ' ', '=', '"') . ' />' . PHP_EOL,
+            'javascript' => '<script ' . Arrays::implodeWithKeys($value, ' ', '=', '"') . '></script>' . PHP_EOL,
+        };
     }
 
 
@@ -1038,43 +1169,6 @@ class Response implements ResponseInterface
         if (empty(static::$page_title) or $force) {
             static::$page_title = get_null(strip_tags((string) $page_title));
         }
-    }
-
-
-    /**
-     * Build and return the HTML page_footers
-     *
-     * @return string|null
-     * @todo This should be upgraded to using Javascript / Css objects
-     */
-    public static function renderHtmlFooters(): ?string
-    {
-        Log::warning('TODO Reminder: static::buildFooters() should be upgraded to using Javascript / Css objects');
-
-        $return = '';
-
-        if (isset_get(static::$page_footers['html'])) {
-            $return .= implode('', static::$page_footers['html']);
-        }
-
-        foreach (static::$page_footers['javascript'] as $footer) {
-            if (isset($footer['src'])) {
-                $footer = Arrays::implodeWithKeys($footer, ' ', '=', '"');
-                $return .= '<script ' . $footer . '></script>' . PHP_EOL;
-
-            } elseif (isset($footer['content'])) {
-                if ($footer['content'] instanceof ScriptInterface) {
-                    $footer['content']->setAttach(EnumAttachJavascript::here)->render();
-                }
-
-                $return .= $footer['content'] . PHP_EOL;
-
-            } else {
-                throw new OutOfBoundsException(tr('Invalid script footer specified, should contain at least "src" or "content"'));
-            }
-        }
-
-        return $return;
     }
 
 
@@ -1690,7 +1784,7 @@ class Response implements ResponseInterface
                 ]));
         }
 
-        $headers[] = 'Content-Type: ' . static::$content_type . '; charset=' . (static::$page_headers['meta']['character_set'] ?? config()->get('languages.encoding.character-set', 'UTF-8'));
+        $headers[] = 'Content-Type: ' . static::$content_type . '; charset=' . (array_get_safe(static::$page_headers, 'meta/character_set', config()->get('languages.encoding.character-set', 'UTF-8')));
         $headers[] = 'Content-Language: ' . LANGUAGE;
         $headers[] = 'Content-Length: ' . ob_get_length();
 

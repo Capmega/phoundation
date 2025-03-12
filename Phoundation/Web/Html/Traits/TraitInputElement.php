@@ -169,9 +169,9 @@ trait TraitInputElement
     /**
      * Returns the value for the input element
      *
-     * @return string|null
+     * @return Stringable|string|float|int|null
      */
-    public function getValue(): ?string
+    public function getValue(): Stringable|string|float|int|null
     {
         return $this->value ?? $this->null_display;
     }

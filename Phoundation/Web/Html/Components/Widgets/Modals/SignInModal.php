@@ -16,13 +16,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Modals;
 
-use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Forms\SignInForm;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Html\Layouts\GridRow;
-use Phoundation\Web\Http\Url;
 
 
 class SignInModal extends Modal
@@ -67,19 +65,6 @@ class SignInModal extends Modal
              ->setContent($layout);
 
         // Render the sign in modal.
-        return parent::render() . Script::new()
-                ->setContent('
-                    $("form#form-sign-in").submit(function(e) {
-                        e.stopPropagation();
-                        
-                        $.post("' . Url::new('sign-in')->makeAjax() . '", $(this).serialize())
-                            .done(function (data, textStatus, jqXHR) {
-                                $(".image-menu").replaceWith(data.html);
-                                $("#signinModal").modal("hide");                     
-                            });
-                            
-                        return false;
-                    })')
-                ->render();
+        return parent::render();
     }
 }

@@ -10,7 +10,7 @@ use Phoundation\Web\Html\Components\Span;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Stringable;
 
-interface ElementInterface extends RenderInterface
+interface ElementInterface extends ComponentInterface
 {
     /**
      * Sets the type of element to display

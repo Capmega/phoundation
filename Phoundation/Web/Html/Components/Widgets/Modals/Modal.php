@@ -27,6 +27,7 @@ abstract class Modal extends ElementsBlock
     use TraitDataTitle;
     use TraitButtons;
 
+
     /**
      * The Modal identifier
      *

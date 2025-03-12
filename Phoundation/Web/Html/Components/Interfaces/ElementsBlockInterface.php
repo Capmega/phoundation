@@ -11,7 +11,7 @@ use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Span;
 use Stringable;
 
-interface ElementsBlockInterface extends RenderInterface, IteratorInterface
+interface ElementsBlockInterface extends ComponentInterface, IteratorInterface
 {
     /**
      * Sets the content of the element to display

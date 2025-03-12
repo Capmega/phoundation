@@ -96,7 +96,7 @@ class Css
 //        }
 //
 //        if (config()->get('cdn')) {
-//            Html::addToFooter($return);
+//            Html::addHtmlToPageFooters($return);
 //        }
 //
 //        return $return;
