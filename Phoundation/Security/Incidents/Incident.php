@@ -188,7 +188,7 @@ class Incident extends DataEntry implements IncidentInterface
         if ($e) {
             if (is_string($e)) {
                 // This is (presumably) a JSON encoded exception data source. Import it into a new exception
-                $e = PhoException::newFromImport($e);
+                $e = PhoException::newFromSource($e);
             }
 
             if ($e instanceof PhoException) {
