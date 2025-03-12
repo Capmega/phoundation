@@ -40,9 +40,11 @@ use Phoundation\Cache\Exception\CacheGroupNotExistsException;
 use Phoundation\Cache\Interfaces\CacheInterface;
 use Phoundation\Cache\Traits\TraitCacheStatistics;
 use Phoundation\Core\Core;
-use Phoundation\Core\Interfaces\PoaInterface;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Enums\EnumPoadTypes;
+use Phoundation\Data\Interfaces\PoadInterface;
+use Phoundation\Data\Poad\Poad;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataEnabled;
 use Phoundation\Databases\Connectors\Exception\ConnectorNotExistsException;
@@ -64,7 +66,6 @@ use Phoundation\Utils\Exception\ConfigException;
 use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Web\Requests\Response;
 use Stringable;
-
 
 class Cache extends Database implements CacheInterface
 {
@@ -130,7 +131,29 @@ class Cache extends Database implements CacheInterface
 
 
     /**
-     * Returns if caching is enabled
+     * Disables caching for all Cache objects
+     *
+     * @return bool
+     */
+    public static function disable(): bool
+    {
+        return static::$global_enabled = false;
+    }
+
+
+    /**
+     * Enables caching for all Cache objects
+     *
+     * @return bool
+     */
+    public static function enable(): bool
+    {
+        return static::$global_enabled = true;
+    }
+
+
+    /**
+     * Returns if caching is enabled or not
      *
      * @return bool
      */
@@ -371,11 +394,11 @@ class Cache extends Database implements CacheInterface
     /**
      * Delete the specified page from cache
      *
-     * @param string      $key
+     * @param Stringable|string|float|int|null $key
      *
      * @return static
      */
-    public function delete(string $key): static
+    public function delete(Stringable|string|float|int|null $key): static
     {
         if ($this->enabled) {
             $this->getDriver()?->delete($key);
@@ -443,16 +466,17 @@ class Cache extends Database implements CacheInterface
 
 
     /**
-     * Read the specified page from cache.
+     * Read the specified object from the cache.
      *
-     * @note: NULL will be returned if the specified hash does not exist in cache
+     * @note: NULL is returned if the specified hash doesn't exist in cache
      *
-     * @param string|float|int|null $key
-     * @param callable|null $callback
-     * @param bool $process_headers_footers
-     * @return PoaInterface|array|string|float|int|null
+     * @param Stringable|string|float|int|null $key
+     * @param callable|null                    $callback
+     * @param bool                             $process_headers_footers
+     *
+     * @return PoadInterface|array|string|float|int|null
      */
-    public function get(string|float|int|null $key, ?callable $callback = null, bool $process_headers_footers = true): PoaInterface|array|string|float|int|null
+    public function get(Stringable|string|float|int|null $key, ?callable $callback = null, bool $process_headers_footers = true): PoadInterface|array|string|float|int|null
     {
         static::$cache_lookups++;
 
@@ -462,36 +486,18 @@ class Cache extends Database implements CacheInterface
         }
 
         if ($this->enabled) {
-            $result = $this->getDriver()?->get($key);
+            $return = $this->getDriver()?->get($key);
 
-            if (empty($result)) {
+            if ($return === null) {
                 static::$cache_miss++;
 
                 if ($callback) {
-                    // Execute the callback for hard retrieval and store the results in cache
-                    $count   = Response::getPageHeadersFootersCount();
-                    $headers = Response::getPageHeadersCount();
-                    $footers = Response::getPageFootersCount();
-                    $result  = $callback();
-
-                    if ($count !== Response::getPageHeadersFootersCount()) {
-                        // The callback modified page headers or footers. Include these in the cache object
-                        $result = [
-                            'poad'      => 'PHOUNDATION',
-                            'generator' => Core::PHOUNDATION_VERSION,
-                            'datatype'  => 'combined_cache',
-                            'class'     => static::class,
-                            'source'    => $result,
-                            'headers'   => Response::getLastAmountOfPageHeaders(Response::getPageHeadersCount() - $headers),
-                            'footers'   => Response::getLastAmountOfPageFooters(Response::getPageFootersCount() - $footers),
-                        ];
-                    }
-
-                    $this->set($result, $key);
+                    // Execute the callback, save, and return the return value
+                    return $this->getFromCallback($key, $callback);
                 }
 
-                // Return the results
-                return get_null($result);
+                // There is no cache value, there is no callback either, so return nothing
+                return null;
             }
 
             Log::success(ts('Found ":connector" cache entry for key ":key"', [
@@ -500,22 +506,55 @@ class Cache extends Database implements CacheInterface
             ]), 4);
 
             static::$cache_hits++;
-            return $result;
+            return Poad::new($return)->getObject($process_headers_footers);
         }
 
+        // Cache is disabled, execute the callback if it is specified
         return $callback ? $callback() : null;
+    }
+
+
+    /**
+     * Execute the callback to generate the object, store it in cache, and return it
+     *
+     * @param Stringable|string|float|int|null $key
+     * @param callable                         $callback
+     *
+     * @return PoadInterface|array|string|float|int|null
+     */
+
+    protected function getFromCallback(Stringable|string|float|int|null $key, callable $callback): PoadInterface|array|string|float|int|null
+    {
+        // Execute the callback for hard retrieval and store the results in cache
+        $count   = Response::getPageHeadersFootersCount();
+        $headers = Response::getPageHeadersCount();
+        $footers = Response::getPageFootersCount();
+        $result  = $callback();
+
+        if ($count === Response::getPageHeadersFootersCount()) {
+            $this->set($result, $key);
+
+        } else {
+            // The callback modified page headers or footers. Include these changes in the cache object
+            $this->set(Poad::generateArray($result, static::class, EnumPoadTypes::compound, [
+                'headers'  => Response::getLastAmountOfPageHeaders(Response::getPageHeadersCount() - $headers),
+                'footers'  => Response::getLastAmountOfPageFooters(Response::getPageFootersCount() - $footers),
+            ]), $key);
+        }
+
+        return $result;
     }
 
 
     /**
      * Write the specified page to cache
      *
-     * @param PoaInterface|array|string|float|int|null $value
-     * @param Stringable|string|float|int|null         $key
+     * @param PoadInterface|array|string|float|int|null $value
+     * @param Stringable|string|float|int|null          $key
      *
      * @return static
      */
-    public function set(PoaInterface|array|string|float|int|null $value, Stringable|string|float|int|null $key): static
+    public function set(PoadInterface|array|string|float|int|null $value, Stringable|string|float|int|null $key): static
     {
         if ($this->enabled) {
             if ($key === null) {
@@ -523,7 +562,18 @@ class Cache extends Database implements CacheInterface
                 return $this;
             }
 
-            if ($value) {
+            if ($value === null) {
+                // NULL value? Delete the key instead
+                $this->delete($key);
+
+            } else {
+                if ($value instanceof Stringable) {
+                    // Prefix the JSON string from this object with PAODJSON to indicate that this is a
+                    // Phoundation Object Array Data (POAD) string with JSON encoding that, upon Memcached::get() can be
+                    // converted back into an object
+                    $value = $value->getPoadString();
+                }
+
                 try {
                     $this->getDriver()?->set($value, $key);
 
@@ -531,10 +581,6 @@ class Cache extends Database implements CacheInterface
                     Log::warning(ts('Cannot cache because the current driver is not properly configured, see exception information'));
                     Log::warning($e);
                 }
-
-            } else {
-                // Empty value? Delete the key instead
-                $this->delete($key);
             }
         }
 
