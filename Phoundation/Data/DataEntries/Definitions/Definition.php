@@ -768,9 +768,9 @@ class Definition implements DefinitionInterface
      */
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
     {
-        $this->source = (array) $source;
-
-        return $this;
+        throw new DefinitionException(ts('Setting class ":class" Definition object source directly is not supported', [
+            ':class' => $this->o_data_entry ? get_class($this->o_data_entry) : 'N/A',
+        ]));
     }
 
 

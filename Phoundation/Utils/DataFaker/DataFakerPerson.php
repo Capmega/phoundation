@@ -17,10 +17,12 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Utils;
+namespace Phoundation\Utils\DataFaker;
 
 use Faker\Factory;
 use Faker\Generator;
+use Phoundation\Utils\Numbers;
+
 
 class DataFakerPerson extends DataFaker
 {

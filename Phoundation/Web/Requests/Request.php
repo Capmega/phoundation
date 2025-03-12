@@ -862,16 +862,17 @@ class Request implements RequestInterface
      *
      * @param mixed                       $value
      * @param Stringable|string|float|int $key
+     * @param bool                        $skip_null_values
      *
      * @return void
      */
-    public static function set(mixed $value, Stringable|string|float|int $key): void
+    public static function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = false): void
     {
         if (empty(static::$source)) {
             static::$source = new Iterator();
         }
 
-        static::$source->set($value, $key);
+        static::$source->set($value, $key, $skip_null_values);
     }
 
 
