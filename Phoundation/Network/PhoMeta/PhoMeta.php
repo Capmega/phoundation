@@ -28,7 +28,6 @@ use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryData;
-use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaException;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaInvalidDataException;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaTestException;
@@ -107,10 +106,11 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
 
     /**
      * @param bool $filter_meta
+     * @param bool $filter_protected_columns
      *
      * @return array
      */
-    public function getSource(bool $filter_meta = false): array
+    public function getSource(bool $filter_meta = false, bool $filter_protected_columns = true): array
     {
         $source = parent::getSource($filter_meta);
 
