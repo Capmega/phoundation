@@ -18,12 +18,12 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Utils;
+namespace Phoundation\Utils\DataFaker;
 
 use Faker\Factory;
 use Faker\Generator;
 use Phoundation\Core\Locale\PhoLocale;
-use Phoundation\Exception\OutOfBoundsException;
+
 
 class DataFaker
 {
