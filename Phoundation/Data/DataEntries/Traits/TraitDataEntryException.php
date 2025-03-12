@@ -29,7 +29,7 @@ trait TraitDataEntryException
      */
     public function getException(): ?PhoException
     {
-        return PhoException::newFromImport($this->getTypesafe('string', 'exception'));
+        return PhoException::newFromSourceOrNull($this->getTypesafe('string', 'exception'));
     }
 
 
@@ -48,7 +48,7 @@ trait TraitDataEntryException
                 $e = new PhoException($e);
             }
 
-            $e = $e->exportToString();
+            $e = $e->getPoadString();
         }
 
         return $this->set(get_null($e), 'exception');

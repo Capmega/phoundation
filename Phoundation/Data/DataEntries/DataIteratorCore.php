@@ -40,6 +40,7 @@ use Phoundation\Data\Traits\TraitDataMethodPickValidatorInterface;
 use Phoundation\Data\Traits\TraitDataReadonly;
 use Phoundation\Data\Traits\TraitDataStatusFilter;
 use Phoundation\Data\Traits\TraitMethodBuildManualQuery;
+use Phoundation\Data\Traits\TraitMethodsTableState;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
@@ -71,6 +72,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     use TraitDataReadonly;
     use TraitDataMetaEnabled;
     use TraitMethodBuildManualQuery;
+    use TraitMethodsTableState;
 
 
     /**
@@ -448,21 +450,6 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
 
 
     /**
-     * Returns the state for the table for this DataIterator
-     *
-     * @return string|null
-     */
-    public static function getTableState(): ?string
-    {
-        if (static::getTable()) {
-            return cache('values')->get('table-state-' . static::getTable());
-        }
-
-        return null;
-    }
-
-
-    /**
      * Returns if this Iterator requires a parent or not
      *
      * @return bool
@@ -737,7 +724,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     public function getHtmlSelectOld(string $value_column = 'name', ?string $key_column = null, ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
     {
         $execute = [];
-        $select  = $this->input_select_class::new();
+        $select  = $this->input_select_class::new($this);
 
         if (!$key_column) {
             $key_column = static::getUniqueColumn();
@@ -1265,11 +1252,12 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      * Returns a cache key for this object
      *
      * @param String|null $append_string
+     *
      * @return string|null
      */
     public function getCacheKeySeed(?String $append_string = null): ?string
     {
-        return 'DataIterator-' . static::class . '-' . static::getTableState() . '-' . ($this->parent ? $this->parent::class . '-' . $this->parent->getId() : '') . $this->getQueryHash() . ($append_string ? '-' . $append_string : null);
+        return 'DataIterator-' . static::class . '-' . static::getTableState() . '-' . $this->getQueryHash() . ($append_string ? '-' . $append_string : null);
     }
 
 

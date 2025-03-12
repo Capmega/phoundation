@@ -18,8 +18,10 @@ namespace Phoundation\Data\Traits;
 
 use PDOStatement;
 use Phoundation\Core\Core;
+use Phoundation\Data\Enums\EnumPoadTypes;
 use Phoundation\Data\Exception\IteratorKeyExistsException;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Poad\Poad;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
@@ -44,7 +46,7 @@ trait TraitDataStaticSourceArray
      */
     public static function __toArray(): array
     {
-        return static::getPoad();
+        return static::getPoadArray();
     }
 
 
@@ -53,15 +55,9 @@ trait TraitDataStaticSourceArray
      *
      * @return array
      */
-    public static function getPoad(): array
+    public static function getPoadArray(): array
     {
-        return [
-            'poad'      => 'PHOUNDATION',
-            'generator' => Core::PHOUNDATION_VERSION,
-            'datatype'  => 'object',
-            'class'     => static::class,
-            'source'    => static::getSource()
-        ];
+        return Poad::generateArray(static::getSource(), static::class, EnumPoadTypes::object);
     }
 
 

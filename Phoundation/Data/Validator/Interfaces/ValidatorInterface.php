@@ -685,12 +685,15 @@ interface ValidatorInterface extends IteratorBaseInterface
      */
     public function isWord(): static;
 
+
     /**
      * Validates if the selected field is a valid variable
      *
+     * @param int|null $max_characters
+     *
      * @return static
      */
-    public function isVariable(): static;
+    public function isVariable(?int $max_characters = null): static;
 
 
     /**

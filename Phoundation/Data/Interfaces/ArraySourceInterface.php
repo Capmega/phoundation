@@ -6,29 +6,13 @@ namespace Phoundation\Data\Interfaces;
 
 use Countable;
 use PDOStatement;
-use Phoundation\Core\Interfaces\PoaInterface;
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use ReturnTypeWillChange;
 use Stringable;
 
 
-interface ArraySourceInterface extends PoaInterface, Countable
+interface ArraySourceInterface extends ArraySourceMethodsInterface, PoadInterface, Countable, Stringable, ArrayableInterface
 {
-    /**
-     * Returns a new DataEntry object from the specified array source
-     *
-     * @param EntryInterface|array $source
-     *
-     * @return static
-     */
-    public static function newFromSource(EntryInterface|array $source): static;
-
-    /**
-     * Returns the source data when cast to array
-     *
-     * @return array
-     */
-    public function __toArray(): array;
-
     /**
      * Returns the source
      *

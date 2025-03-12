@@ -46,6 +46,7 @@ use Phoundation\Data\DataEntries\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryColumnNotDefinedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryException;
+use Phoundation\Data\DataEntries\Exception\DataEntryInvalidCacheException;
 use Phoundation\Data\DataEntries\Exception\DataEntryInvalidIdentifierException;
 use Phoundation\Data\DataEntries\Exception\DataEntryInvalidVirtualConfigurationException;
 use Phoundation\Data\DataEntries\Exception\DataEntryIsNewException;
@@ -76,6 +77,7 @@ use Phoundation\Data\Traits\TraitDataRandomId;
 use Phoundation\Data\Traits\TraitDataReadonly;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Data\Traits\TraitMethodBuildManualQuery;
+use Phoundation\Data\Traits\TraitMethodsTableState;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
@@ -130,6 +132,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     }
     use TraitDataRestrictions;
     use TraitMethodBuildManualQuery;
+    use TraitMethodsTableState;
 
 
     /**
@@ -950,6 +953,19 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             Log::debug('TRY SET "' . Strings::fromReverse(static::class, '\\') . '::$' . $key . ' TO "' . Strings::log($value) . ' [' . gettype($value) . ']"', 10, echo_header: false);
         }
 
+        // Make sure that definitions are available or give a clear error on what is going on
+        if (empty($this->definitions)) {
+            if ($this->is_initialized) {
+                throw new DataEntryException(tr('The ":class" class has been initialized but has no definitions object', [
+                    ':class' => get_class($this),
+                ]));
+            }
+
+            throw new DataEntryException(tr('The ":class" class has not yet been initialized', [
+                ':class' => get_class($this),
+            ]));
+        }
+
         // Only save values that are defined for this object
         if (!$this->definitions->keyExists($key)) {
             if ($this->definitions->isEmpty()) {
@@ -1010,7 +1026,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
             if ($this->debug) {
-                Log::debug('USE DEFAULT VALUE "' . Strings::log($value) . '" FOR FIELD "' . Strings::fromReverse(static::class, '\\') . '::$' . $key, 10, echo_header: false);
+                Log::debug('USE DEFAULT VALUE "' . Strings::log($value) . '" FOR FIELD "' . Strings::fromReverse(static::class, '\\') . '::$' . $key . '"', 10, echo_header: false);
             }
         }
 
@@ -1333,9 +1349,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * Generates and returns a unique cache key for this DataEntry object
      *
      * @param String|null $append_string
-     * @return string
+     *
+     * @return string|null
      */
-    public function getCacheKeySeed(?String $append_string = null): string
+    public function getCacheKeySeed(?String $append_string = null): ?string
     {
         if (PLATFORM_WEB) {
             return 'DataEntry-' . static::class . '-' . Json::encode($this->identifier, JSON_BIGINT_AS_STRING) . '-' . Json::encode($this->columns, JSON_BIGINT_AS_STRING) . '-' . $this->getQueryHash() . ($append_string ? '-' . $append_string : null);
@@ -1363,7 +1380,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         if (!$this->cache) {
-            // Caching has been disabled for this DataEntry object
+            // Caching is disabled for this DataEntry object
             return false;
         }
 
@@ -1371,10 +1388,19 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             $data_entry = cache('dataentries')->get($this->getCacheKey());
 
             if ($data_entry) {
-                // Found it in external cache!
-                $this->is_loaded_from_cache = true;
-                $this->source               = $data_entry->getSource();
-                return true;
+                if ($data_entry instanceof DataEntryInterface) {
+                    // Found it in external cache!
+                    $this->is_loaded_from_cache = true;
+                    $this->source               = $data_entry->getSource();
+                    return true;
+                }
+
+                throw DataEntryInvalidCacheException::new(tr('Failed to load ":class" DataEntry with identifier ":identifier" from cache, cache returned invalid non DataEntry object', [
+                    ':class'      => static::class,
+                    ':identifier' => $this->identifier
+                ]))->setData([
+                    'data_entry' => $data_entry
+                ]);
             }
 
             return false;
@@ -1429,7 +1455,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             if (Cache::isEnabled()) {
                 // Connector objects CANNOT be cached
                 cache('dataentries')->delete($this->getCacheKey());
-                $this->updateTableState();
+                $this->setTableState();
             }
         }
 
@@ -1656,19 +1682,25 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
      *       will not become available outside this object
      *
-     * @param bool $filter_meta If true, will also filter out the DataEntry meta-columns
+     * @param bool $filter_meta              If true, will filter out the DataEntry meta-columns
+     * @param bool $filter_protected_columns If true, will filter out the DataEntry protected columns (typically
+     *                                       passwords, etc)
      *
      * @return array
      */
-    public function getSource(bool $filter_meta = false): array
+    public function getSource(bool $filter_meta = false, bool $filter_protected_columns = true): array
     {
+        $source = $this->getSourceWithResolvedVirtualColumns();
+
         if ($filter_meta) {
-            // Remove meta-columns too
-            return Arrays::removeKeys(Arrays::removeKeys($this->source, $this->meta_columns), $this->protected_columns);
+            // Remove meta-columns
+            $source = Arrays::removeKeys($source, $this->meta_columns);
         }
 
-        $source = $this->getSourceWithResolvedVirtualColumns();
-        $source = Arrays::removeKeys($source, $this->protected_columns);
+        if ($filter_protected_columns) {
+            // Remove protected columns
+            $source = Arrays::removeKeys($source, $this->protected_columns);
+        }
 
         return $source;
     }
@@ -1683,40 +1715,42 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         $source = [];
 
-        foreach ($this->definitions as $column => $definition) {
-            if (!$definition->getContainsData()) {
-                // Don't process data-less columns
-                continue;
-            }
-
-            if ($definition->getVirtual()) {
-                // This is a virtual column, it would typically not contain data, leave empty
-                continue;
-            }
-
-            // Get the value from the source, ensure to apply default or initial default values
-            $value = array_get_safe($this->source, $column, $this->isNew() ? ($definition->getInitialDefault() ?? $definition->getDefault()) : $definition->getDefault());
-
-            // If the value is null, apply the get method for the column IF IT EXISTS. If the get method doesn't exist,
-            // just copy the NULL value as-is
-            if ($value === null) {
-                // Meta columns are never virtual, ignore them as accessing them might cause issues
-                if ($this->isMetaColumn($column)) {
-                    $source[$column] = $value;
+        if ($this->definitions) {
+            foreach ($this->definitions as $column => $definition) {
+                if (!$definition->getContainsData()) {
+                    // Don't process data-less columns
                     continue;
                 }
 
-                $method = $this->convertColumnToMethod($column, 'get');
+                if ($definition->getVirtual()) {
+                    // This is a virtual column, it would typically not contain data, leave empty
+                    continue;
+                }
 
-                if (method_exists(static::class, $method)) {
-                    $source[$column] = $this->$method();
+                // Get the value from the source, ensure to apply default or initial default values
+                $value = array_get_safe($this->source, $column, $this->isNew() ? ($definition->getInitialDefault() ?? $definition->getDefault()) : $definition->getDefault());
+
+                // If the value is null, apply the get method for the column IF IT EXISTS. If the get method doesn't exist,
+                // just copy the NULL value as-is
+                if ($value === null) {
+                    // Meta columns are never virtual, ignore them as accessing them might cause issues
+                    if ($this->isMetaColumn($column)) {
+                        $source[$column] = $value;
+                        continue;
+                    }
+
+                    $method = $this->convertColumnToMethod($column, 'get');
+
+                    if (method_exists(static::class, $method)) {
+                        $source[$column] = $this->$method();
+
+                    } else {
+                        $source[$column] = $value;
+                    }
 
                 } else {
                     $source[$column] = $value;
                 }
-
-            } else {
-                $source[$column] = $value;
             }
         }
 
@@ -2492,7 +2526,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         } else {
             // Validate data and copy data into the source array
-            $data_source = $this->validateSourceData($data_source, $require_clean_source);
+            $data_source = $this->validateSource($data_source, $require_clean_source, true);
 
             if ($this->debug) {
                 Log::debug('VALIDATED DATA', echo_header: false);
@@ -2549,10 +2583,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @param ValidatorInterface $validator
      * @param bool               $require_clean_source
+     * @param bool               $external
      *
      * @return array
      */
-    protected function validateSourceData(ValidatorInterface $validator, bool $require_clean_source): array
+    protected function validateSource(ValidatorInterface $validator, bool $require_clean_source, bool $external): array
     {
         if (!$this->validate) {
             // This data entry won't validate data, just continue.
@@ -2581,8 +2616,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 continue;
             }
 
-            if (!array_key_exists($column, $validator->getSource())) {
-Log::warning(tr('CHECK DATAENTRYCORE->VALIDATESOURCEDATA() CALL! SHOULD NON EXISTIGN COLUMNS BE VALIDATED OR NOT?'), 10);
+            if (!array_key_exists($column, $validator->getSource()) and $external) {
+                // External data does not apply defaults, if the column doesn't exist, skip it
                 continue;
             }
 
@@ -2748,17 +2783,43 @@ Log::warning(tr('CHECK DATAENTRYCORE->VALIDATESOURCEDATA() CALL! SHOULD NON EXIS
      */
     protected function validateMetaState(ValidatorInterface|array|null $source = null): static
     {
-        // Check entry meta-state. If this entry was modified in the meantime, can we update?
+        // Check entry meta-state. If this entry is modified in the meantime, is it okay to update?
         if ($this->getMetaState()) {
-            if (array_get_safe($source, 'meta_state') !== $this->getMetaState()) {
-                // State mismatch! This means that somebody else updated this record while we were modifying it.
+            if (array_get_safe($source, 'meta_state')) {
+                if (array_get_safe($source, 'meta_state') !== $this->getMetaState()) {
+                    // State mismatch! This means that somebody else updated this record while we were modifying it.
+                    switch ($this->state_mismatch_handling) {
+                        case EnumStateMismatchHandling::ignore:
+                            Log::warning(ts('Ignoring database and supplied meta-state mismatch for ":type" type record with ID ":id" and old state ":old" and new state ":new"', [
+                                ':id'   => $this->getId(false) ?? ts('N/A'),
+                                ':type' => static::getEntryName(),
+                                ':old'  => $this->getMetaState(),
+                                ':new'  => array_get_safe($source, 'meta_state'),
+                            ]));
+                            break;
+
+                        case EnumStateMismatchHandling::allow_override:
+                            // Okay, so the state did NOT match, and we WILL throw the state mismatch exception, BUT we WILL
+                            // update the state data so that a second attempt can succeed
+                            $source['meta_state'] = $this->getMetaState();
+                            break;
+
+                        case EnumStateMismatchHandling::restrict:
+                            throw new DataEntryStateMismatchException(tr('Database and user meta-state for ":type" type record with ID ":id" do not match', [
+                                ':id'   => $this->getLogId(),
+                                ':type' => static::getEntryName(),
+                            ]));
+                    }
+                }
+
+            } else {
+                // The external data has no meta-state specified!
                 switch ($this->state_mismatch_handling) {
                     case EnumStateMismatchHandling::ignore:
-                        Log::warning(ts('Ignoring database and user meta-state mismatch for ":type" type record with ID ":id" and old state ":old" and new state ":new"', [
+                        Log::warning(ts('Skipping meta-state check for ":type" type record with ID ":id" and state ":old", supplied data source has no meta-state', [
                             ':id'   => $this->getId(false) ?? ts('N/A'),
                             ':type' => static::getEntryName(),
                             ':old'  => $this->getMetaState(),
-                            ':new'  => array_get_safe($source, 'meta_state'),
                         ]));
                         break;
 
@@ -2769,8 +2830,8 @@ Log::warning(tr('CHECK DATAENTRYCORE->VALIDATESOURCEDATA() CALL! SHOULD NON EXIS
                         break;
 
                     case EnumStateMismatchHandling::restrict:
-                        throw new DataEntryStateMismatchException(tr('Database and user meta-state for ":type" type record with ID ":id" do not match', [
-                            ':id'   => $this->getId(false) ?? ts('N/A'),
+                        throw new DataEntryStateMismatchException(tr('Supplied data contains no meta-state for ":type" type record with ID ":id"', [
+                            ':id'   => $this->getLogId(),
                             ':type' => static::getEntryName(),
                         ]));
                 }
@@ -3580,7 +3641,9 @@ Log::warning(tr('CHECK DATAENTRYCORE->VALIDATESOURCEDATA() CALL! SHOULD NON EXIS
 
             $this->checkReadonly('set-status "' . $status . '"')
                  ->saveToCache()
-                 ->updateTableState()->source['status'] = $status;
+                 ->source['status'] = $status;
+
+            $this->setTableState();
 
             if ($auto_save and $this->isNotNew()) {
                 SqlDataEntry::new(sql($this->o_connector), $this)
@@ -3889,7 +3952,7 @@ Log::warning(tr('CHECK DATAENTRYCORE->VALIDATESOURCEDATA() CALL! SHOULD NON EXIS
     {
         if ($this->saveBecauseModified($force)) {
             // Object must ALWAYS be validated before writing! Validate data and write it to the database.
-            return $this->validate($skip_validation)->write($comments)->saveToCache()->updateTableState();
+            $this->validate($skip_validation)->write($comments)->saveToCache()->setTableState();
         }
 
         return $this;
@@ -4099,7 +4162,7 @@ Log::warning(tr('CHECK DATAENTRYCORE->VALIDATESOURCEDATA() CALL! SHOULD NON EXIS
                 // WARNING! DO NOT EXECUTE validateSourceData DIRECTLY IN THE ARRAY_MERGE! $this->validateSourceData()
                 // updates $this->source and the array_merge() call will use the initial version (so without the
                 // modifications from $this->validateSourceData())
-                $source       = $this->validateSourceData(ArrayValidator::new($source), true);
+                $source       = $this->validateSource(ArrayValidator::new($source), true, false);
                 $this->source = array_merge($this->source, $source);
             }
         }
@@ -4560,17 +4623,5 @@ Log::warning(tr('CHECK DATAENTRYCORE->VALIDATESOURCEDATA() CALL! SHOULD NON EXIS
             ':action' => $action,
             ':class'  => static::class,
         ]));
-    }
-
-
-    /**
-     * Updates the state for the table for this data entry
-     *
-     * @return static
-     */
-    public function updateTableState(): static
-    {
-        cache('dataentries')->set(Strings::getUuid(), 'table-state-' . static::getTable());
-        return $this;
     }
 }
