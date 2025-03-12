@@ -28,7 +28,6 @@ use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryData;
-use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaException;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaInvalidDataException;
 use Phoundation\Network\PhoMeta\Exceptions\PhoMetaTestException;
@@ -118,7 +117,12 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
             $source['data'] = Json::ensureDecoded($source['data']);
 
         } catch (Throwable $e) {
-            throw PhoMetaInvalidDataException::new(tr('Failed to decode PhoMeta source data'), $e);
+            if (array_get_safe($source, 'data') === null) {
+             // Encountered empty string
+
+            } else {
+                throw PhoMetaInvalidDataException::new(tr('Failed to decode PhoMeta source data'), $e);
+            }
         }
 
         return $source;
