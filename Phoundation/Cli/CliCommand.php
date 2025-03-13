@@ -783,6 +783,7 @@ class CliCommand
 
             echo CliColor::getColorReset();
 
+            // ????????
             system('stty echo');
         }
 
