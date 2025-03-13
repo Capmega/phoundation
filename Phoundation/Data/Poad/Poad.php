@@ -107,12 +107,13 @@ class Poad
      * @param string|null   $class
      * @param EnumPoadTypes $type
      * @param array|null    $additional_fields
+     * @param bool          $force_pretty_print
      *
      * @return string
      */
-    public static function generateString(mixed $value, ?string $class, EnumPoadTypes $type, ?array $additional_fields = null): string
+    public static function generateString(mixed $value, ?string $class, EnumPoadTypes $type, ?array $additional_fields = null, bool $force_pretty_print = false): string
     {
-        return 'POADJSON' . Json::encode(static::generateArray($value, $class, $type, $additional_fields));
+        return 'POADJSON' . Json::encode(static::generateArray($value, $class, $type, $additional_fields), ($force_pretty_print ? JSON_PRETTY_PRINT : 0));
     }
 
 

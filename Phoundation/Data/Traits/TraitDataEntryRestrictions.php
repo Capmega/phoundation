@@ -53,7 +53,7 @@ trait TraitDataEntryRestrictions
             $restrictions = PhoRestrictions::newFromImport($restrictions);
         }
 
-        return $this->set($restrictions->exportToString(), 'restrictions')
+        return $this->set($restrictions->getPoadString(), 'restrictions')
                     ->__setRestrictions($restrictions);
     }
 }
