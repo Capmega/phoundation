@@ -28,7 +28,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.1.1';
+        return '0.1.2';
     }
 
 
@@ -119,6 +119,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->getSchemaObject()->getTableObject('security_incidents')->alter()
                  ->modifyColumn('`body`'   , 'text COLLATE utf8mb4_general_ci NULL DEFAULT NULL,')
                  ->modifyColumn('`details`', 'text COLLATE utf8mb4_general_ci NULL DEFAULT NULL,');
+
+        })->addUpdate('0.1.2', function () {
+            sql()->getSchemaObject()->getTableObject('security_incidents')->alter()
+                 ->modifyColumn('`details`'   , 'mediumtext COLLATE utf8mb4_general_ci NULL DEFAULT NULL,');
         });
     }
 }

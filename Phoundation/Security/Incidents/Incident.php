@@ -555,7 +555,7 @@ class Incident extends DataEntry implements IncidentInterface
                                     ->setReadonly(true)
                                     ->setSize(12)
                                     ->setRows(15)
-                                    ->setMaxlength(65_535)
+                                    ->setMaxlength(16_777_200)
                                     ->setDisplayCallback(function (mixed $details, array $source) {
                                         // Since the details almost always have an array encoded in JSON, decode it and
                                         // display it using print_r
