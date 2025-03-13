@@ -19,23 +19,20 @@ namespace Phoundation\Web\Html\Template;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Interfaces\ComponentInterface;
 use Phoundation\Web\Html\Interfaces\TemplateRendererInterface;
+use Phoundation\Web\Traits\TraitDataComponent;
 
 
 class TemplateRenderer implements TemplateRendererInterface
 {
+    use TraitDataComponent;
+
+
     /**
      * The rendered HTML, so far
      *
      * @var string|null $render
      */
     protected ?string $render = null;
-
-    /**
-     * The object to render
-     *
-     * @var ComponentInterface|null $o_component
-     */
-    protected ComponentInterface|null $o_component;
 
     /**
      * The parent render function
@@ -63,7 +60,7 @@ class TemplateRenderer implements TemplateRendererInterface
      *
      * @return static
      */
-    public static function new(ComponentInterface|null $component): static
+    public static function new(?ComponentInterface $component): static
     {
         return new static($component);
     }
@@ -112,32 +109,6 @@ class TemplateRenderer implements TemplateRendererInterface
     public function getParentRenderFunction(): callable
     {
         return $this->render_function;
-    }
-
-
-    /**
-     * Returns the component to be rendered
-     *
-     * @return ComponentInterface|null
-     */
-    public function getComponentObject(): ComponentInterface|null
-    {
-        return $this->o_component;
-    }
-
-
-    /**
-     * Sets the component to be rendered
-     *
-     * @param ComponentInterface|null $component
-     *
-     * @return static
-     */
-    public function setComponentObject(ComponentInterface|null $component): static
-    {
-        $this->o_component = $component;
-
-        return $this;
     }
 
 
