@@ -323,7 +323,7 @@ class Memcached implements MemcachedInterface
             Log::success($this->log(tr('Wrote ":bytes" bytes to memcached for key ":key"', [
                 ':key'   => $key,
                 ':bytes' => (is_scalar($value) ? strlen((string) $value) : count($value)),
-            ])), 3);
+            ])), 2);
 
             return $value;
         }
@@ -362,7 +362,7 @@ class Memcached implements MemcachedInterface
             Log::success($this->log(tr('Wrote ":bytes" bytes to memcached for key ":key"', [
                 ':key'   => $key,
                 ':bytes' => (is_scalar($value) ? strlen((string) $value) : count($value)),
-            ])), 3);
+            ])), 2);
 
             return $value;
         }
@@ -391,7 +391,7 @@ class Memcached implements MemcachedInterface
         if ($result) {
             Log::success($this->log(tr('Deleted key ":key"', [
                 ':key' => $key,
-            ])), 3);
+            ])), 2);
 
             return $this;
         }
@@ -424,7 +424,7 @@ class Memcached implements MemcachedInterface
         if ($result) {
             Log::success($this->log(tr('Flushed all data with delay ":delay"', [
                 ':delay' => $delay,
-            ])), 3);
+            ])), 2);
 
             return $this;
         }
@@ -455,7 +455,7 @@ class Memcached implements MemcachedInterface
             Log::success($this->log(tr('Incremented key ":key" by ":offset"', [
                 ':key'    => $key,
                 ':offset' => $offset,
-            ])), 3);
+            ])), 2);
 
             return $this;
         }

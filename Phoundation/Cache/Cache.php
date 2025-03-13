@@ -503,7 +503,7 @@ class Cache extends Database implements CacheInterface
             Log::success(ts('Found ":connector" cache entry for key ":key"', [
                 ':connector' => $this->connector,
                 ':key'       => $key,
-            ]), 4);
+            ]), 3);
 
             static::$cache_hits++;
             return Poad::new($return)->getObject($process_headers_footers);
