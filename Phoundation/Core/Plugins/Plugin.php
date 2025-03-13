@@ -123,17 +123,23 @@ class Plugin extends DataEntry implements PluginInterface
      *       Phoundation\Core\Plugins\Plugin
      *
      * @param IdentifierInterface|array|string|int|null $identifier
+     * @param bool                                      $load_plugin_file
      *
      * @return static
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier = null): static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null, bool $load_plugin_file = true): static
     {
         $plugin = parent::load($identifier);
         $file   = DIRECTORY_ROOT . $plugin->getDirectoryObject() . 'Library/Plugin.php';
-        $class  = Library::getClassPath($file);
-        $class  = Library::includeClassFile($class);
 
-        return $class::newFromSource($plugin->getSource());
+        if ($load_plugin_file) {
+            $class = Library::getClassPath($file);
+            $class = Library::includeClassFile($class);
+
+            return $class::newFromSource($plugin->getSource());
+        }
+
+        return $this;
     }
 
 
@@ -144,7 +150,7 @@ class Plugin extends DataEntry implements PluginInterface
      */
     public function getDirectoryObject(): PhoDirectoryInterface
     {
-        $directory = $this->getTypesafe(PhoDirectoryInterface::class, 'directory');
+        $directory = $this->getTypesafe('string', 'directory');
 
         if (!$directory) {
             // Path hasn't been set yet? It should always be set UNLESS it's new.
