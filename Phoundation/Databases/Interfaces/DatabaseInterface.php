@@ -50,7 +50,7 @@ interface DatabaseInterface extends DatastoreInterface
      *
      * @return mixed
      */
-    public function get(string|float|int|null $key, ?callable $cache_callback): mixed;
+    public function get(string|float|int|null $key, ?callable $cache_callback = null): mixed;
 
     /**
      * Sets the specified key to the specified value on the memcached server(s)

@@ -22,7 +22,7 @@ interface RedisInterface extends DatabaseInterface
      *
      * @return mixed
      */
-    public function get(string|float|int|null $key, ?callable $cache_callback): mixed;
+    public function get(string|float|int|null $key, ?callable $cache_callback = null): mixed;
 
 
     /**
