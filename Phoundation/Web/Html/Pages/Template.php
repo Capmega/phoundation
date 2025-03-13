@@ -65,11 +65,11 @@ class Template implements TemplateInterface
     /**
      * Returns the rendered version of this object
      *
-     * @return string|null
+     * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->render();
+        return (string) $this->render();
     }
 
 

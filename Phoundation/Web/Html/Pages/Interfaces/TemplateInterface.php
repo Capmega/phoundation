@@ -16,9 +16,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Pages\Interfaces;
 
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Components\Interfaces\ComponentInterface;
 
-interface TemplateInterface extends RenderInterface
+
+interface TemplateInterface extends ComponentInterface
 {
     /**
      * Returns the template text
