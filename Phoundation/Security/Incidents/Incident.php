@@ -293,7 +293,7 @@ class Incident extends DataEntry implements IncidentInterface
             parent::save($force, $skip_validation, $comments);
 
         } catch (CoreReadonlyException $e) {
-            // Cannot save incidents when Core is in readonly mode!
+            // Can't save incidents when Core is in readonly mode!
             Log::warning(ts('Cannot save Incident object for Session ":session" for user ":user" from IP ":ip", core is readonly', [
                 ':session'  => Session::getId(),
                 ':user'     => Session::getUserObject()->getLogId(),
@@ -314,7 +314,7 @@ class Incident extends DataEntry implements IncidentInterface
             ]);
         }
 
-        // Notify anybody?
+        // Notify anybody? If we notify somebody, logging is not required as the notification will log too
         if (isset($this->notify_roles)) {
             // Notify the specified roles
             $notification = Notification::new();
@@ -385,7 +385,7 @@ class Incident extends DataEntry implements IncidentInterface
                     ]), (is_integer($this->log) ? $this->log : 9));
 
                     if ($details) {
-                        Log::error(print_r($details, true), (is_integer($this->log) ? $this->log : 9));
+                        Log::error(print_r($details, true), (is_integer($this->log) ? $this->log : 9), clean: false);
                     }
             }
         }
@@ -524,11 +524,12 @@ class Incident extends DataEntry implements IncidentInterface
                                     ->setSize(6)
                                     ->setMaxlength(6)
                                     ->setDataSource([
-                                        EnumSeverity::notice->value => tr('Notice'),
-                                        EnumSeverity::low->value    => tr('Low'),
-                                        EnumSeverity::medium->value => tr('Medium'),
-                                        EnumSeverity::high->value   => tr('High'),
-                                        EnumSeverity::severe->value => tr('Severe'),
+                                        EnumSeverity::notice->value  => tr('Notice'),
+                                        EnumSeverity::low->value     => tr('Low'),
+                                        EnumSeverity::medium->value  => tr('Medium'),
+                                        EnumSeverity::high->value    => tr('High'),
+                                        EnumSeverity::severe->value  => tr('Severe'),
+                                        EnumSeverity::unknown->value => tr('Unknown'),
                                     ]))
 
                     ->add(Definition::new('title')
