@@ -108,6 +108,8 @@ class Incident extends DataEntry implements IncidentInterface
 
         parent::__construct($identifier);
 
+        $this->setSeverity(EnumSeverity::severe);
+
         if ($this->isNew()) {
             // By default, the object is created by the current user
             $this->setCreatedBy(Session::getUserObject()->getId());
