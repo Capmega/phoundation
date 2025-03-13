@@ -28,6 +28,7 @@ use Phoundation\Databases\Interfaces\MemcachedInterface;
 use Phoundation\Databases\Memcached\Exception\MemcachedException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
@@ -591,6 +592,7 @@ class Memcached implements MemcachedInterface
         if (strlen($key) > 250) {
             // Invalid key!
             Incident::new()
+                ->setSeverity(EnumSeverity::low)
                 ->setType(ts('Database issue'))
                 ->setTitle(ts('Invalid memcached key length'))
                 ->setBody(ts('The length of the specified memcached key ":key" is ":count" characters, which is longer than 250 characters, which is not allowed by memcached. Converting to SHA1 instead', [
