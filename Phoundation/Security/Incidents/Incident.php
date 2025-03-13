@@ -198,7 +198,7 @@ class Incident extends DataEntry implements IncidentInterface
                      ->setSeverity($e->isWarning() ? EnumSeverity::medium : EnumSeverity::high)
                      ->setBody(get_null(implode(PHP_EOL, $e->getMessages())) ?? $e->getMessage())
                      ->setDetails([
-                         'exception' => $e->exportToArray(),
+                         'exception' => $e->getPoadString(true),
                          'data'      => $e->getData(),
                          'details'   => Core::getProcessDetails(),
                          'backtrace' => $e->getTrace(),

@@ -930,7 +930,11 @@ trait TraitProcessVariables
     public static function deleteRunDirectory(): void
     {
         if (static::$run_directory) {
-            PhoDirectory::new(static::$run_directory, PhoRestrictions::newSystem(true))->delete(false, use_run_file: false);
+            $directory = PhoDirectory::new(static::$run_directory, PhoRestrictions::newSystem(true));
+
+            if ($directory->exists()) {
+                $directory->delete(false, use_run_file: false);
+            }
         }
     }
 

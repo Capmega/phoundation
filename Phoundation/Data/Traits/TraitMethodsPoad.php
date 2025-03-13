@@ -31,10 +31,12 @@ trait TraitMethodsPoad
     /**
      * Returns the POAD array in JSON string format
      *
+     * @param bool $force_pretty_print
+     *
      * @return string
      */
-    public function getPoadString(): string
+    public function getPoadString(bool $force_pretty_print = false): string
     {
-        return Poad::generateString($this->getSource(false, false), static::class, EnumPoadTypes::object);
+        return Poad::generateString($this->getSource(false, false), static::class, EnumPoadTypes::object, null, $force_pretty_print);
     }
 }

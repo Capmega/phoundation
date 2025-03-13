@@ -29,6 +29,7 @@ use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\PhoException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
@@ -299,38 +300,56 @@ class Plugins extends DataIterator implements PluginsInterface
                     Log::error($e);
 
                 } catch (PluginNotExistsException $e) {
-                    // The plugin does not exist!
+                    // The plugin doesn't exist!
                     Log::error(ts('Failed to start plugin ":vendor/:plugin" because it does not exist', [
                         ':vendor' => $plugin['vendor'],
                         ':plugin' => $plugin['name'],
                     ]));
                 }
 
+                try {
+                    if (config()->getBoolean('plugins.error.startup.disable', true)) {
+                        if (Debug::isEnabled()) {
+                            Log::warning(ts('Disabling plugin ":vendor/:plugin" because it failed on startup', [
+                                ':vendor' => $plugin['vendor'],
+                                ':plugin' => $plugin['name'],
+                            ]));
 
-                if (config()->getBoolean('plugins.error.startup.disable', true)) {
-                    if (!Debug::isEnabled()) {
-                        Log::warning(ts('Disabling plugin ":vendor/:plugin" because it failed on startup', [
-                            ':vendor' => $plugin['vendor'],
-                            ':plugin' => $plugin['name'],
-                        ]));
+                            Plugin::new()
+                                  ->load($id, false)
+                                  ->disable()
+                                  ->save();
 
-                        Plugin::new()
-                              ->load($id)
-                              ->disable()
-                              ->save();
+                        } else {
+                            Log::warning(ts('Not automatically disabling failed plugin ":vendor/:plugin" because the system is running in debug mode', [
+                                ':vendor' => $plugin['vendor'],
+                                ':plugin' => $plugin['name'],
+                            ]));
+                        }
 
                     } else {
-                        Log::warning(ts('Not automatically disabling failed plugin ":vendor/:plugin" because the system is running in debug mode', [
+                        Log::warning(ts('Not automatically disabling failed plugin ":vendor/:plugin" because the option to do so has been disabled with configuration path "plugins.error.startup.disable"', [
                             ':vendor' => $plugin['vendor'],
                             ':plugin' => $plugin['name'],
                         ]));
                     }
 
-                } else {
-                    Log::warning(ts('Not automatically disabling failed plugin ":vendor/:plugin" because the option to do so has been disabled with configuration path "plugins.error.startup.disable"', [
-                        ':vendor' => $plugin['vendor'],
-                        ':plugin' => $plugin['name'],
-                    ]));
+                } catch (Throwable $f) {
+                    Incident::new()
+                            ->setException($f)
+                            ->setType('plugins')
+                            ->setTitle(tr('Failed to handle plugin startup failure'))
+                            ->setBody(tr('Plugin ":plugin" failed to properly startup, and the handling of this failed as well', [
+                                ':plugin' => $plugin['name'],
+                            ]))
+                            ->setDetails([
+                                'vendor'            => $plugin['vendor'],
+                                'plugin'            => $plugin['name'],
+                                'startup-exception' => $e->getPoadString(true),
+                                'handler-exception' => $f->getPoadString(true)
+                            ])
+                            ->setNotifyRoles('developer')
+                            ->save();
                 }
             }
         }

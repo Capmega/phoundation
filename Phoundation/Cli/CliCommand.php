@@ -295,7 +295,7 @@ class CliCommand
         // TODO Move this to the Request object
         CliCommand::addExecutedPath(CliCommand::$command_file);
 
-        // Should we execute usage or help documentation instead?
+        // Should usage or help documentation be executed instead?
         CliCommand::checkUsage();
         CliCommand::checkHelp();
         CliCommand::processServiceCommands();
@@ -320,13 +320,13 @@ class CliCommand
             }
         }
 
-        // We're done, start the shutdown procedures
+        // The execution process has finished, start the shutdown procedures
         exit();
     }
 
 
     /**
-     * Processes command line -S or --service commands
+     * Processes command line service commands (-S or --service)
      *
      * @return bool
      */
@@ -624,6 +624,7 @@ class CliCommand
         passthru($command, $result_code);
 
         // We likely won't be able to log here (nor should we), so disable logging
+        Core::setScriptState();
         Core::exit($result_code, direct_exit: true);
     }
 
