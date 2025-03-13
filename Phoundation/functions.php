@@ -1546,15 +1546,25 @@ function execute_callback(?callable $callback, ?array $params = null): ?string
  */
 function execute(): ?string
 {
-    Core::setScriptState();
+    try {
+        Core::setScriptState();
 
-    $result = include(Request::getTarget());
+        $result = include(Request::getTarget());
 
-    if ($result and (is_string($result) or $result instanceof RenderInterface)) {
-        echo $result;
+        if ($result and (is_string($result) or $result instanceof RenderInterface)) {
+            echo $result;
+        }
+
+        return get_null((string) ob_get_clean());
+
+    } catch (Throwable $e) {
+        Log::error(tr('Program ":program" failed with exception: :exception', [
+            ':program'   => Request::getTarget(),
+            ':exception' => $e->getMessage(),
+        ]));
+
+        throw $e;
     }
-
-    return get_null((string) ob_get_clean());
 }
 
 
