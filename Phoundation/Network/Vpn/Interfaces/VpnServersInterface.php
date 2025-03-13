@@ -1,10 +1,9 @@
 <?php
 
 /**
- * Class OpenVpn
+ * Interface VpnServersInterface
  *
  *
- * @see       https://openvpn.net/as-docs/dco-troubleshooting.html#openvpn-dco-with-an-os-that-stays-on-a-specific-kernel-version
  *
  * @author    Sven Olaf Oostenbrink <sven@medinet.ca>
  * @license   This plugin is developed by Medinet and may only be used by others with explicit written authorization
@@ -15,12 +14,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Network\Vpn\OpenVpn;
+namespace Phoundation\Network\Vpn\Interfaces;
 
-use Phoundation\Network\Vpn\Vpn;
-
-
-class OpenVpn extends Vpn
-{
-
+interface VpnServersInterface {
 }
