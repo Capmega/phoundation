@@ -302,11 +302,20 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      */
     public function getQueryHash(): ?string
     {
-        if (empty($this->query)) {
-            return null;
+        if (isset($this->query_builder)) {
+            $hash = 'QB-' . $this->query_builder->getQueryHash() . sha1(sql()->parseQuery($this->query, $this->execute));
+//Log::printr('QUERY BUILDER: ' . sql()->parseQuery($this->query_builder->getQuery(), $this->query_builder->getExecute()));
+
+        } elseif ($this->query) {
+            $hash = 'SQL-' . sha1(sql()->parseQuery($this->query, $this->execute));
+//Log::printr('QUERY SQL: ' . sql()->parseQuery($this->query, $this->execute));
+
+        } else {
+            $hash = null;
         }
 
-        return sha1($this->query);
+//Log::printr($hash);
+        return $hash;
     }
 
 

@@ -35,16 +35,18 @@ trait TraitDataCacheKey
     /**
      * Returns what cache key will be used for this object
      *
+     * @param string|null $append
+     *
      * @return string|null
      */
-    public function getCacheKey(): ?string
+    public function getCacheKey(?string $append = null): ?string
     {
         if ($this->cache) {
             if (empty($this->cache_key)) {
                 $this->cache_key = PROJECT . '-' . $this->getCacheKeySeed();
             }
 
-            return $this->cache_key;
+            return $this->cache_key . ($append ? '-' . $append : null);
         }
 
         return null;

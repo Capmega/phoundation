@@ -53,7 +53,7 @@ trait TraitDataIdentifier
     public function setIdentifier(IdentifierInterface|array|string|int|false|null $identifier): static
     {
         if ($this->isNotNew()) {
-            // This DataEntry object already contains data from a source, we cannot set the identifier anymore
+            // This DataEntry object already contains data from a source, it can't set the identifier anymore
             throw DataEntryException::new(tr('Cannot set identifier ":identifier" for DataEntry class ":class", the object already contains source data', [
                 ':class'      => $this::class,
                 ':identifier' => $identifier,
@@ -69,7 +69,7 @@ trait TraitDataIdentifier
             $identifier = $identifier->getIdentifier();
 
         } elseif ($identifier instanceof IteratorInterface) {
-            $identifier =  $identifier->getSource();
+            $identifier =  $identifier->getIdentifiers();
 
         } elseif (is_numeric($identifier)) {
             $identifier = [static::getIdColumn() => $identifier];

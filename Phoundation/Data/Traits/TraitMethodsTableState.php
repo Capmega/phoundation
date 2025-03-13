@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Utils\Strings;
 
 
@@ -51,7 +52,7 @@ trait TraitMethodsTableState
     {
         $state = Strings::getUuid();
 
-        cache('dataentries')->set($state, 'table-state-' . static::getTable());
+        cache('dataentries')->set($state, $this->connector . '-table-state-' . static::getTable());
 
         return $state;
     }
