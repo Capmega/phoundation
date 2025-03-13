@@ -306,6 +306,31 @@ class Sql implements SqlInterface
 
 
     /**
+     * Parses and returns the query with the execute variables
+     *
+     * @param \PDOStatement|SqlQueryInterface|string|null $query
+     * @param array|null                                  $execute
+     *
+     * @return string|null
+     */
+    public function parseQuery(PDOStatement|SqlQueryInterface|string|null $query, ?array $execute = null): ?string
+    {
+        if (empty($query)) {
+            return 'EMPTY QUERY';
+        }
+
+        if ($execute) {
+            foreach ($execute as $key => $value) {
+                $value = Strings::fromDatatype($value, '"');
+                $query = str_replace($key, $value, $query);
+            }
+        }
+
+        return Strings::ensureEndsWith($query, ';');
+    }
+
+
+    /**
      * Executes specified query and returns a PDOStatement object
      *
      * @param PDOStatement|SqlQueryInterface|string $query

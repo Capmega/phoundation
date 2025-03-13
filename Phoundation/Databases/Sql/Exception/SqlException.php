@@ -193,17 +193,6 @@ class SqlException extends DatabasesException
      */
     protected function parseQuery(): ?string
     {
-        if ($this->getQuery() and $this->getExecute()) {
-            $query = $this->getQuery();
-
-            foreach ($this->getExecute() as $key => $value) {
-                $value = Strings::fromDatatype($value, '"');
-                $query = str_replace($key, $value, $query);
-            }
-
-            return Strings::ensureEndsWith($query, ';');
-        }
-
-        return null;
+        return sql()->parseQuery($this->getQuery(), $this->getExecute());
     }
 }

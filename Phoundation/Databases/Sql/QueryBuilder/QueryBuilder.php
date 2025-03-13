@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Sql\QueryBuilder;
 
 use PDOStatement;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataFilterForm;
@@ -44,9 +45,9 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
     /**
      * Caches the executed query
      *
-     * @var string $query
+     * @var string|null $query
      */
-    protected string $query;
+    protected ?string $query = null;
 
 
     /**
@@ -150,7 +151,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
             return null;
         }
 
-        return sha1($this->query);
+        return sha1(sql()->parseQuery($this->query, $this->execute));
     }
 
 
