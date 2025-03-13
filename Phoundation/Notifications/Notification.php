@@ -43,6 +43,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryTrace;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUrl;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUser;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Poad\Poad;
 use Phoundation\Data\Traits\TraitDataOverrideNonProductionLockout;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Debug\Debug;
@@ -302,7 +303,7 @@ FILES variables:
             ':class'            =>   get_class($e),
             ':url'              => (($details['platform'] === 'web') ? '[' . $details['method'] . '] ' . $this->getUrl() : $details['command']),
             ':request'          => (($details['platform'] === 'web') ? Strings::size('Requested URL', 23) : Strings::size('Executed command', 23)),
-            ':exception'        =>   $this->generateExceptionHtmlSection($e, tr('Exception:')),
+            ':exception'        =>   $this->generateExceptionSection($e, tr('Exception:')),
             ':project'          =>   $details['project'],
             ':version_project'  =>   $details['project_version'],
             ':version_database' =>   $details['database_version'],
@@ -320,7 +321,7 @@ FILES variables:
 
 
     /**
-     * Generates an HTML message section for the given exception
+     * Generates a message section for the given exception
      *
      * @param Throwable $e
      * @param string    $title
@@ -328,7 +329,7 @@ FILES variables:
      *
      * @return string
      */
-    protected function generateExceptionHtmlSection(Throwable $e, string $title, int $indent = 0): string
+    protected function generateExceptionSection(Throwable $e, string $title, int $indent = 0): string
     {
         $indent_string = str_repeat(' ', $indent);
 
@@ -366,7 +367,7 @@ FILES variables:
                 ':message'      =>  $e->getMessage(),
                 ':all_messages' =>  $messages,
                 ':data'         =>  $data,
-                ':additional'   => ($e->getPrevious() ? PHP_EOL . $this->generateExceptionHtmlSection($e->getPrevious(), tr('Previous exception:'), $indent + 4) : null)
+                ':additional'   => ($e->getPrevious() ? PHP_EOL . $this->generateExceptionSection($e->getPrevious(), tr('Previous exception:'), $indent + 4) : null)
         ], clean: false);
     }
 
@@ -486,7 +487,8 @@ FILES variables:
                                 ':role'         => $role,
                                 ':notification' => $this->getLogId(),
                             ]))
-                            ->save();
+                            ->setNotifyRoles(Role::exists(['seo_name' => 'developer']) ? 'developer' : null)
+                            ->save(true);
                 }
             }
 
@@ -545,47 +547,47 @@ FILES variables:
 
         switch ($this->getMode()) {
             case EnumDisplayMode::danger:
-                Log::write(Strings::size('Type', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write(Strings::size('Type', 10) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($this->getMode()->value, 'error', $log, echo_prefix: false);
-                Log::write(Strings::size('Title', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write(Strings::size('Title', 10) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($this->getTitle(), 'error', $log, echo_prefix: false);
-                Log::write(Strings::size('Message', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write(Strings::size('Message', 10) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($message, 'error', $log, clean: false, echo_prefix: false);
                 break;
 
             case EnumDisplayMode::warning:
-                Log::write(Strings::size('Type', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write(Strings::size('Type', 10) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($this->getMode()->value, 'warning', $log, echo_prefix: false);
-                Log::write(Strings::size('Title', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write(Strings::size('Title', 10) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($this->getTitle(), 'warning', $log, echo_prefix: false);
-                Log::write(Strings::size('Message', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write(Strings::size('Message', 10) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($message, 'warning', $log, clean: false, echo_prefix: false);
                 break;
 
             case EnumDisplayMode::success:
-                Log::write(Strings::size('Type', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write(Strings::size('Type', 10) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($this->getMode()->value, 'success', $log, echo_prefix: false);
-                Log::write(Strings::size('Title', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write(Strings::size('Title', 10) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($this->getTitle(), 'success', $log, echo_prefix: false);
-                Log::write(Strings::size('Message', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write(Strings::size('Message', 10) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($message, 'success', $log, clean: false, echo_prefix: false);
                 break;
 
             case EnumDisplayMode::info:
-                Log::write(Strings::size('Type', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write(Strings::size('Type', 10) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($this->getMode()->value, 'information', $log, echo_prefix: false);
-                Log::write(Strings::size('Title', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write(Strings::size('Title', 10) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($this->getTitle(), 'information', $log, echo_prefix: false);
-                Log::write(Strings::size('Message', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write(Strings::size('Message', 10) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($message, 'information', $log, clean: false, echo_prefix: false);
                 break;
 
             default:
-                Log::write(Strings::size('Type', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write(Strings::size('Type', 10) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write(get_null($this->getMode()->value) ?? tr('No mode'), 'notice', $log, echo_prefix: false);
-                Log::write(Strings::size('Title', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write(Strings::size('Title', 10) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($this->getTitle(), 'notice', $log, echo_prefix: false);
-                Log::write(Strings::size('Message', 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                Log::write(Strings::size('Message', 10) . ': ', 'debug', $log, clean: false, echo_newline: false);
                 Log::write($message, 'notice', $log, clean: false, echo_prefix: false);
                 break;
         }
@@ -593,24 +595,26 @@ FILES variables:
         $details = $this->getDetails();
 
         if ($details) {
-            Log::write(Strings::size('Details', 12) . ': ', 'debug', $log, clean: false);
+            Log::write(Strings::size('Details', 10) . ': ', 'debug', $log, clean: false);
 
             foreach (Arrays::force($details) as $key => $value) {
-                if (is_scalar($value)) {
-                    Log::write(Strings::size(Strings::capitalize((string) $key), 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
-                    Log::write(Strings::log($value), echo_prefix: false);
+                switch ($key) {
+                    case 'trace':
+                        Log::write(Strings::size(Strings::capitalize((string) $key), 10) . ': ', 'debug', $log, clean: false);
+                        Log::backtrace(backtrace: $value, threshold: $log);
+                        break;
 
-                } else {
-                    switch ($key) {
-                        case 'trace':
-                            Log::write(Strings::size(Strings::capitalize((string) $key), 12) . ': ', 'debug', $log, clean: false);
-                            Log::backtrace(backtrace: $value, threshold: $log);
-                            break;
+                    case 'exception':
+                        if (!$value instanceof Throwable) {
+                            $value = Poad::new($value)->getObject();
+                        }
 
-                        default:
-                            Log::write(Strings::size(Strings::capitalize((string) $key), 12) . ': ', 'debug', $log, clean: false, echo_newline: false);
-                            Log::printr($value, $log, echo_prefix: false, echo_header: false);
-                    }
+                        Log::exception($value);
+                        break;
+
+                    default:
+                        Log::write(Strings::size(Strings::capitalize((string) $key), 10) . ': ', 'debug', $log, clean: false, echo_newline: false);
+                        Log::printr($value, $log, echo_prefix: false, echo_header: false);
                 }
             }
         }
