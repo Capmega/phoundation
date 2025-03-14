@@ -17,12 +17,11 @@ declare(strict_types=1);
 use Phoundation\Accounts\Users\User;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Config\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Notifications\Exception\NotificationsException;
-use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use PHPMailer\PHPMailer\PHPMailer;
-
 
 
 CliDocumentation::setAutoComplete([

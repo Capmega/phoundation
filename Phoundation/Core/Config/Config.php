@@ -61,15 +61,23 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Utils
+ * @package   Phoundation\Core
  */
 
 
 declare(strict_types=1);
 
-namespace Phoundation\Utils;
+namespace Phoundation\Core\Config;
 
 use Exception;
+use Phoundation\Core\Config\Exception\ConfigEmptyException;
+use Phoundation\Core\Config\Exception\ConfigEnvironmentDoesNotExistException;
+use Phoundation\Core\Config\Exception\ConfigException;
+use Phoundation\Core\Config\Exception\ConfigFailedException;
+use Phoundation\Core\Config\Exception\ConfigFileDoesNotExistsException;
+use Phoundation\Core\Config\Exception\ConfigParseFailedException;
+use Phoundation\Core\Config\Exception\ConfigPathDoesNotExistsException;
+use Phoundation\Core\Config\Exception\ConfigReadFailedException;
 use Phoundation\Core\Core;
 use Phoundation\Core\Interfaces\ConfigInterface;
 use Phoundation\Core\Log\Log;
@@ -81,16 +89,8 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
-use Phoundation\Utils\Exception\ConfigEmptyException;
-use Phoundation\Utils\Exception\ConfigEnvironmentDoesNotExistException;
-use Phoundation\Utils\Exception\ConfigEnvironmentNotSetException;
-use Phoundation\Utils\Exception\ConfigException;
-use Phoundation\Utils\Exception\ConfigFailedException;
-use Phoundation\Utils\Exception\ConfigFileDoesNotExistsException;
-use Phoundation\Utils\Exception\ConfigParseFailedException;
-use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
-use Phoundation\Utils\Exception\ConfigReadFailedException;
-use Phoundation\Web\Html\Components\P;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 use Throwable;
 
 class Config implements ConfigInterface

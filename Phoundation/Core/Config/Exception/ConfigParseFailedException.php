@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class ConfigFailedException
+ * Class ConfigParseFailedException
  *
- * This exception is thrown when the Config object is in failed mode
+ * This exception is thrown when the specified configuration file could not be parsed (likely due to syntax error)
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -14,8 +14,8 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Utils\Exception;
+namespace Phoundation\Core\Config\Exception;
 
-class ConfigFailedException extends ConfigException
+class ConfigParseFailedException extends ConfigException
 {
 }

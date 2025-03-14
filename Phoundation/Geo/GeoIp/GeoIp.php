@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Geo\GeoIp;
 
+use Phoundation\Core\Config\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
@@ -23,7 +24,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Geo\GeoIp\Exception\GeoIpException;
 use Phoundation\Geo\GeoIp\Interfaces\GeoIpInterface;
-use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Throwable;
 
 

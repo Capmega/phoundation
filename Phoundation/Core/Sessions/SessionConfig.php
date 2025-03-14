@@ -16,9 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Sessions;
 
+use Phoundation\Core\Config\Config;
 use Phoundation\Core\Sessions\Interfaces\SessionConfigInterface;
-use Phoundation\Utils\Config;
-
 
 class SessionConfig extends Config implements SessionConfigInterface
 {

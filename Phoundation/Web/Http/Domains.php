@@ -17,12 +17,12 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http;
 
 use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Core\Config\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;

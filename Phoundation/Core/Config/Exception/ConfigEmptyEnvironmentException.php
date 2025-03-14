@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class ConfigurationInvalidException
+ * Class ConfigEmptyEnvironmentException
  *
- * This exception is thrown when the specified configuration path contains invalid information
+ * This exception is thrown when an empty environment is requested while this is not allowed with Config::$allow_empty_environment
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -14,8 +14,8 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Utils\Exception;
+namespace Phoundation\Core\Config\Exception;
 
-class ConfigurationInvalidException extends ConfigException
+class ConfigEmptyEnvironmentException extends ConfigException
 {
 }

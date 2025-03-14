@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http;
 
+use Phoundation\Core\Config\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -27,7 +28,6 @@ use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Http\Exception\UrlConfiguredUrlNotFoundException;
 use Phoundation\Web\Http\Interfaces\UrlInterface;

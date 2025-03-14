@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class ConfigEmptyEnvironmentException
+ * Class ConfigReadFailedException
  *
- * This exception is thrown when an empty environment is requested while this is not allowed with Config::$allow_empty_environment
+ * This exception is thrown when the specified configuration file could not be read
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -14,8 +14,8 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Utils\Exception;
+namespace Phoundation\Core\Config\Exception;
 
-class ConfigEmptyEnvironmentException extends ConfigException
+class ConfigReadFailedException extends ConfigException
 {
 }

@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class ConfigException
+ * Class ConfigFailedException
  *
- * This is the exception for the Phoundation/Utils/Config class
+ * This exception is thrown when the Config object is in failed mode
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -14,8 +14,8 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Utils\Exception;
+namespace Phoundation\Core\Config\Exception;
 
-class ConfigException extends UtilsException
+class ConfigFailedException extends ConfigException
 {
 }

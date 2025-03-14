@@ -16,15 +16,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Project;
 
+use Phoundation\Core\Config\Config;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\EnvironmentException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
-use Phoundation\Utils\Config;
 use Throwable;
-
 
 class Environment
 {
