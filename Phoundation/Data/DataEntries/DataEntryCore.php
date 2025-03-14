@@ -2995,10 +2995,10 @@ showdie($e);
         }
 
         return sql(static::getDefaultConnector())->getRow('SELECT `id`, `status`
-                                                        FROM   `' . static::getTable() . '`
-                                                        WHERE  ' . $where . '
-                                        ' . ($not_id ? '  AND  `id` != :id' : '') . '
-                                                        LIMIT  1', $execute);
+                                                           FROM   `' . static::getTable() . '`
+                                                           WHERE  ' . $where . '
+                                           ' . ($not_id ? '  AND  `id` != :id' : '') . '
+                                                           LIMIT  1', $execute);
     }
 
 

@@ -43,6 +43,7 @@ use Phoundation\Data\Exception\IteratorKeyNotExistsException;
 use Phoundation\Data\Interfaces\ArraySourceInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataCache;
+use Phoundation\Data\Traits\TraitDataCacheKey;
 use Phoundation\Data\Traits\TraitDataColumns;
 use Phoundation\Data\Traits\TraitDataFilterForm;
 use Phoundation\Data\Traits\TraitDataName;
@@ -72,6 +73,7 @@ use Throwable;
 class IteratorCore extends IteratorBase implements IteratorInterface
 {
     use TraitDataCache;
+    use TraitDataCacheKey;
     use TraitDataColumns {
         getColumns as protected __getColumns;
     }
