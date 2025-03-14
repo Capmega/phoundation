@@ -932,7 +932,6 @@ class Sql implements SqlInterface
                 // Try to set MySQL timezone
                 try {
                     $this->pdo->query('SET TIME_ZONE="' . $this->configuration['timezones_name'] . '";');
-                    $this->pdo->query('SET SESSION wait_timeout=' . $this->o_connector->getQueryTimeout() . ';');
 
                 } catch (Throwable $e) {
                     Log::warning(static::getConnectorLogPrefix() . tr('Failed to set timezone ":timezone" for database connector ":connector" with error ":e"', [

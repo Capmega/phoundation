@@ -452,7 +452,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getQueryTimeout(): ?int
     {
-        return $this->getTypesafe('int', 'query_timeout', config()->getInteger('databases.mysql.timeouts.query', 3));
+        return $this->getTypesafe('int', 'query_timeout', config()->getInteger('databases.mysql.timeouts.query', 0));
     }
 
 
@@ -691,7 +691,7 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getBuffered(): ?bool
     {
-        return $this->getTypesafe('bool', 'buffered');
+        return $this->getTypesafe('bool', 'buffered', config()->getBoolean('databases.mysql.buffered', true));
     }
 
 
@@ -825,13 +825,17 @@ class Connector extends DataEntry implements ConnectorInterface
                 if ($configuration['character_set']) {
                     // Set the default character set to use
                     $command .= 'SET NAMES ' . strtoupper($configuration['character_set'] . '; ');
+
+                    if ($this->getQueryTimeout()) {
+                        $command .= 'SET SESSION wait_timeout=' . $this->getQueryTimeout() . ';';
+                    }
                 }
 
                 // Ensure that all configured attributes are uppercase
                 $configuration['attributes'] = Arrays::convertKeysToUppercase(array_get_safe($configuration, 'attributes', []));
 
                 // Apply MySQL specific requirements that always apply
-                $configuration['attributes']['PDO::MYSQL_ATTR_USE_BUFFERED_QUERY'] = !$configuration['buffered'];
+                $configuration['attributes']['PDO::MYSQL_ATTR_USE_BUFFERED_QUERY'] = (bool) $this->getBuffered();
                 $configuration['attributes']['PDO::ATTR_PERSISTENT']               = (array_get_safe($configuration['attributes'], 'PDO::ATTR_PERSISTENT', false) or $configuration['persistent']);
                 $configuration['attributes']['PDO::MYSQL_ATTR_INIT_COMMAND']       = $command;
                 $configuration['attributes']['PDO::ATTR_ERRMODE']                  = PDO::ERRMODE_EXCEPTION;
@@ -860,6 +864,7 @@ class Connector extends DataEntry implements ConnectorInterface
      * Returns an SQL connect configuration template
      *
      * @return array
+     * @todo Get rid of this, the definitions should take care of all of this. SSH_TUNNEL should be an object
      */
     protected function getConfigurationTemplate(): array
     {
@@ -875,7 +880,7 @@ class Connector extends DataEntry implements ConnectorInterface
             'connect_timeout' => null,
             'query_timeout'   => null,
             'init'            => false,
-            'buffered'        => false,
+            'buffered'        => null,
             'persistent'      => false,
             'character_set'   => 'utf8mb4',
             'collate'         => 'utf8mb4_general_ci',
@@ -1101,7 +1106,7 @@ class Connector extends DataEntry implements ConnectorInterface
 
                     ->add(DefinitionFactory::newBoolean('buffered')
                                            ->setLabel(tr('Buffered'))
-                                           ->setOptional(true, false)
+                                           ->setOptional(true, true)
                                            ->setSize(1))
 
                     ->add(DefinitionFactory::newBoolean('statistics')
