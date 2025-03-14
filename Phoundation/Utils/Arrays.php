@@ -3814,4 +3814,44 @@ class Arrays extends Utils
 
         return array_sum($source);
     }
+
+
+    /**
+     * Ensures that specified keys exist in the provided source.
+     *
+     * If $require_value is true, it will also ensure that each key has a non-empty value.
+     *
+     * @param IteratorInterface|array        $source        The source to check for the existence of keys.
+     * @param IteratorInterface|array|string $keys          The keys to be verified in the source. Can be a single key,
+     *                                                      an array, or an iterable list.
+     * @param bool                           $require_value If true, ensures that the keys not only exist but also have
+     *                                                      non-empty values.
+     *
+     * @return void
+     */
+    public static function ensureKeys(IteratorInterface|array $source, IteratorInterface|array|string $keys, bool $require_value = false): void
+    {
+        $source = Arrays::force($source);
+        $keys   = Arrays::force($keys);
+
+        foreach ($keys as $key) {
+            if (array_key_exists($key, $source)) {
+                if ($require_value and $source[$key]) {
+                    continue;
+                }
+
+                throw OutOfBoundsException::new(tr('The specified key ":key" does exists in the source but is empty', [
+                    ':key' => $key,
+                ]))->addData([
+                    'key' => $key,
+                ]);
+            }
+
+            throw OutOfBoundsException::new(tr('The specified key ":key" does not exist in the source', [
+                ':key' => $key,
+            ]))->addData([
+                'key' => $key,
+            ]);
+        }
+    }
 }
