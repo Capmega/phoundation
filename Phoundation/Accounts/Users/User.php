@@ -1318,13 +1318,13 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     /**
      * Sets the remote_id for this user
      *
-     * @param int|null $remote_id
+     * @param string|int|null $remote_id
      *
      * @return static
      */
-    public function setRemoteId(?int $remote_id): static
+    public function setRemoteId(string|int|null $remote_id): static
     {
-        return $this->set($remote_id, 'remote_id');
+        return $this->set((int) $remote_id, 'remote_id');
     }
 
 
