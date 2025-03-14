@@ -1497,6 +1497,8 @@ class Request implements RequestInterface
         }
 
         if (PLATFORM_CLI) {
+            Log::action(ts('Executing program ":program"', [':program' => static::$target->getRootname()]));
+
             if (static::$stack_level > 0) {
                 // This is a CLI sub command, execute it directly with output buffering and return the output
                 ob_start();
@@ -1694,7 +1696,7 @@ class Request implements RequestInterface
                     Response::getFlashMessagesObject()->addSource(Session::getFlashMessagesObject());
                 }
 
-                Log::action(ts('Executing HTML page ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
+                Log::action(ts('Executing program ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
                     ':target'   => Strings::from(static::getTarget(), '/web/'),
                     ':template' => static::$template->getName(),
                     ':level'    => static::$stack_level,

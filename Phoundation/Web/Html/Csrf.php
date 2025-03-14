@@ -20,7 +20,7 @@ use DateTime;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Data\Validator\Exception\CsrfFailedException;
+use Phoundation\Data\Validator\Exception\CsrfValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
@@ -150,7 +150,7 @@ class Csrf
      * @param string|null $csrf
      *
      * @return bool
-     * @throws CsrfFailedException
+     * @throws CsrfValidationFailedException
      */
     public static function check(?string $csrf): bool
     {
@@ -162,7 +162,7 @@ class Csrf
 
             if (Request::isRequestType(EnumRequestTypes::ajax)) {
                 if (!str_starts_with($csrf, 'ajax_')) {
-                    throw CsrfFailedException::new(tr('Specified CSRF ":code" is invalid, should have started with "ajax_"', [
+                    throw CsrfValidationFailedException::new(tr('Specified CSRF ":code" is invalid, should have started with "ajax_"', [
                         ':code' => $csrf,
                     ]))->makeWarning();
                 }
@@ -177,7 +177,7 @@ class Csrf
             // Execute a static CSRF check
             return static::checkStatic($csrf);
 
-        } catch (CsrfFailedException $e) {
+        } catch (CsrfValidationFailedException $e) {
             // CSRF check failed, log $_POST data for analysis, drop $_POST data to ensure it won't be used
             $post = PostValidator::new();
 
@@ -205,7 +205,7 @@ class Csrf
     {
         // Do static CSRF checking
         if (!array_key_exists('csrf_static_test', $_SESSION)) {
-            throw CsrfFailedException::new(tr('Session has no static CSRF code available'))->makeWarning();
+            throw CsrfValidationFailedException::new(tr('Session has no static CSRF code available'))->makeWarning();
         }
 
         if (!is_string($_SESSION['csrf_static_test'])) {
@@ -213,7 +213,7 @@ class Csrf
             $code = $_SESSION['csrf_static_test'];
             unset($_SESSION['csrf_static_test']);
 
-            throw CsrfFailedException::new(tr('Session CSRF code ":code" is not valid because it must be a string, acting as if session has no CSRF code available', [
+            throw CsrfValidationFailedException::new(tr('Session CSRF code ":code" is not valid because it must be a string, acting as if session has no CSRF code available', [
                 ':code' => $code,
             ]))->makeWarning();
         }
@@ -223,8 +223,9 @@ class Csrf
             return true;
         }
 
-        throw CsrfFailedException::new(tr('Specified static CSRF ":code" does not exist', [
-            ':code' => $csrf,
+        throw CsrfValidationFailedException::new(tr('Specified static CSRF ":code" does not match the current session CSRF ":session"', [
+            ':code'    => $csrf,
+            ':session' => $_SESSION['csrf_static_test'],
         ]))->makeWarning();
     }
 
@@ -241,7 +242,7 @@ class Csrf
         static::validateBuffer();
 
         if (!array_key_exists($csrf, $_SESSION['csrf'])) {
-            throw CsrfFailedException::new(tr('Specified CSRF ":code" does not exist', [
+            throw CsrfValidationFailedException::new(tr('Specified CSRF ":code" does not exist', [
                 ':code' => $csrf,
             ]))->makeWarning();
         }
@@ -256,7 +257,7 @@ class Csrf
         // Code timed out?
         if (config()->get('security.web.csrf.timeout', 3600)) {
             if (($timestamp + config()->get('security.web.csrf.timeout')) < $now->getTimestamp()) {
-                throw CsrfFailedException::new(tr('Specified CSRF ":code" timed out, removed it from session buffer', [
+                throw CsrfValidationFailedException::new(tr('Specified CSRF ":code" timed out, removed it from session buffer', [
                     ':code' => $csrf,
                 ]))->makeWarning();
             }
@@ -295,13 +296,13 @@ class Csrf
         }
 
         if (!$csrf) {
-            throw CsrfFailedException::new(tr('No CSRF code specified'))
-                ->makeWarning();
+            throw CsrfValidationFailedException::new(tr('No CSRF code specified'))
+                                               ->makeWarning();
         }
 
         if (strlen($csrf) > 4096) {
-            throw CsrfFailedException::new(tr('Invalid CSRF code specified'))
-                ->makeWarning();
+            throw CsrfValidationFailedException::new(tr('Invalid CSRF code specified'))
+                                               ->makeWarning();
         }
 
         return true;
