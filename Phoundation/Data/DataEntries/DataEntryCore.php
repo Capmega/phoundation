@@ -874,8 +874,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function getTypesafe(string $type, string $column, mixed $default = null): mixed
     {
-        $this->checkProtected($column);
-
         return get_safe_typed($type, $this->source, $column, $default, false);
     }
 
