@@ -16,6 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator\Exception;
 
-class CsrfFailedException extends ValidationFailedException
+class CsrfValidationFailedException extends ValidationFailedException
 {
 }

@@ -20,8 +20,7 @@ namespace Phoundation\Data\Validator;
 
 use Phoundation\Data\Traits\TraitDataStaticArrayBackup;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
-use Phoundation\Data\Validator\Exception\CsrfFailedException;
-use Phoundation\Data\Validator\Exception\PostValidationFailedException;
+use Phoundation\Data\Validator\Exception\CsrfValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
@@ -29,6 +28,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Requests\Request;
 use Stringable;
+
 
 class PostValidator extends Validator
 {
@@ -477,8 +477,8 @@ class PostValidator extends Validator
             return parent::validate($require_clean_source);
 
         } catch (ValidationFailedException $e) {
-            if ($e instanceof CsrfFailedException) {
-                throw new PostValidationFailedException(tr('Post validation failed due to CSRF exception'), $e);
+            if ($e instanceof CsrfValidationFailedException) {
+                throw new CsrfValidationFailedException(tr('Post validation failed due to CSRF exception'), $e);
             }
 
             throw $e;
@@ -538,7 +538,7 @@ class PostValidator extends Validator
                     unset($this->source['__csrf']);
 
                     if (!is_string($csrf)) {
-                        throw new CsrfFailedException(tr('Specified CSRF code is a ":csrf" while it should be a string value', [
+                        throw new CsrfValidationFailedException(tr('Specified CSRF code is a ":csrf" while it should be a string value', [
                             ':csrf' => gettype($csrf),
                         ]));
                     }
