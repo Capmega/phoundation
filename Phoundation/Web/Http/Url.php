@@ -236,7 +236,7 @@ class Url implements UrlInterface
             'dashboard', 'index'   => config()->getString('web.pages.index'   , '/index'),
             'sign-in'  , 'signin'  => config()->getString('web.pages.sign-in' , '/sign-in'),
             'sign-up'  , 'signup'  => config()->getString('web.pages.sign-up' , '/sign-up'),
-            'sign-out' , 'signout' => config()->getString('web.pages.sign-out', '/sign-out') . (Session::isUser() ? '?redirect=' . urlencode(Url::newCurrent()->getSource()) : null),
+            'sign-out' , 'signout' => config()->getString('web.pages.sign-out', '/sign-out'),
             'sign-key' , 'signkey' => config()->getString('web.pages.sign-key', '/sign-key+:key'),
             'profile'              => config()->getString('web.pages.profile' , '/my/profile'),
             'settings'             => config()->getString('web.pages.settings', '/my/settings'),
@@ -399,7 +399,6 @@ class Url implements UrlInterface
     {
         if (!$this->source) {
             return Url::newCurrent();
-
         }
 
         if (is_numeric($this->source)) {

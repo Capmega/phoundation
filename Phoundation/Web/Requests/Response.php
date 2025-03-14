@@ -1255,6 +1255,9 @@ class Response implements ResponseInterface
      * For more information, see https://developers.google.com/speed/docs/insights/LeverageBrowserCaching
      * and https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching
      */
+    // ???????????????????????? Was there a function here or what?!
+
+
     /**
      * Returns true if redirecting for the specified URL should be skipped
      *

@@ -1139,7 +1139,7 @@ class Request implements RequestInterface
 
         // Is this a guest? Guests have no rights and can only see system pages and pages that require no rights
         if (Session::getUserObject()->isGuest()) {
-            // This user has no rights at all, send to sign-in page
+            // This user has no rights at all, send it to sign-in page
             if (!$guest_redirect) {
                 $guest_redirect = 'sign-in';
             }
@@ -1656,12 +1656,6 @@ class Request implements RequestInterface
     {
         switch (static::getRequestType()) {
             case EnumRequestTypes::api:
-                Log::action(ts('Executing API page ":target" on stack level ":level" with in language ":language" and sending output as API page', [
-                    ':target'   => Strings::from(static::getTarget(), '/web/'),
-                    ':level'    => static::$stack_level,
-                    ':language' => LANGUAGE,
-                ]), (static::$stack_level ? 5 : 7));
-
                 static::$page = new ApiPage();
                 break;
 
@@ -1672,12 +1666,6 @@ class Request implements RequestInterface
                     // Start session only for AJAX and HTML requests
                     Session::start();
                 }
-
-                Log::action(ts('Executing AJAX page ":target" on stack level ":level" with in language ":language" and sending output as AJAX API page', [
-                    ':target'   => Strings::from(static::getTarget(), '/web/'),
-                    ':level'    => static::$stack_level,
-                    ':language' => LANGUAGE,
-                ]), (static::$stack_level ? 5 : 7));
 
                 break;
 
@@ -1695,13 +1683,6 @@ class Request implements RequestInterface
                     Session::start();
                     Response::getFlashMessagesObject()->addSource(Session::getFlashMessagesObject());
                 }
-
-                Log::action(ts('Executing program ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
-                    ':target'   => Strings::from(static::getTarget(), '/web/'),
-                    ':template' => static::$template->getName(),
-                    ':level'    => static::$stack_level,
-                    ':language' => LANGUAGE,
-                ]), (static::$stack_level ? 5 : 7));
         }
     }
 
@@ -1717,6 +1698,32 @@ class Request implements RequestInterface
     {
         // Execute the specified target file
         try {
+            switch (static::getRequestType()) {
+                case EnumRequestTypes::api:
+                    Log::action(ts('Executing API page ":target" on stack level ":level" with in language ":language" and sending output as API page', [
+                        ':target'   => Strings::from(static::getTarget(), '/web/'),
+                        ':level'    => static::$stack_level,
+                        ':language' => LANGUAGE,
+                    ]), (static::$stack_level ? 5 : 7));
+                    break;
+
+                case EnumRequestTypes::ajax:
+                    Log::action(ts('Executing AJAX page ":target" on stack level ":level" with in language ":language" and sending output as AJAX API page', [
+                        ':target'   => Strings::from(static::getTarget(), '/web/'),
+                        ':level'    => static::$stack_level,
+                        ':language' => LANGUAGE,
+                    ]), (static::$stack_level ? 5 : 7));
+                    break;
+
+                default:
+                    Log::action(ts('Executing program ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
+                        ':target'   => Strings::from(static::getTarget(), '/web/'),
+                        ':template' => static::$template->getName(),
+                        ':level'    => static::$stack_level,
+                        ':language' => LANGUAGE,
+                    ]), (static::$stack_level ? 5 : 7));
+            }
+
             // Hide $_FILES data in case files were uploaded
             if (count($_FILES)) {
                 UploadHandlers::hideData();
