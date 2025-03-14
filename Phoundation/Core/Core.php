@@ -1092,6 +1092,7 @@ class Core implements CoreInterface
      */
     protected static function uncaughtExceptionHandlerAvoidEndlessLoop(Throwable $e): void
     {
+show_system($e);
         static $run_executed      = false; // Core::uncaughtExceptionHandler was executed during runtime
         static $shutdown_executed = false; // Core::uncaughtExceptionHandler was executed during runtime
 

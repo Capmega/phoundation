@@ -2095,12 +2095,12 @@ function datatype_is_class(string $datatype): bool
 /**
  * Returns a ConfigInterface object for the specified section and environment
  *
- * @param string      $section
+ * @param string|null $section
  * @param string|null $environment
  *
  * @return ConfigInterface
  */
-function config(string $section = 'default', ?string $environment = null): ConfigInterface
+function config(?string $section = null, ?string $environment = null): ConfigInterface
 {
     return Config::fromSection($section, $environment);
 }

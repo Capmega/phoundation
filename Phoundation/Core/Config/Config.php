@@ -126,9 +126,9 @@ class Config implements ConfigInterface
     /**
      * The configuration section used by this configuration object
      *
-     * @var string $section
+     * @var string|null $section
      */
-    protected string $section = 'default';
+    protected ?string $section = null;
 
     /**
      * The environment used by this specific configuration object
@@ -162,10 +162,10 @@ class Config implements ConfigInterface
     /**
      * Config class constructor
      *
-     * @param string      $section
+     * @param string|null $section
      * @param string|null $environment
      */
-    public function __construct(string $section = 'default', ?string $environment = null)
+    public function __construct(string $section = null, ?string $environment = null)
     {
         $this->setSection($section)
              ->setEnvironment($environment)
@@ -256,20 +256,20 @@ class Config implements ConfigInterface
      */
     protected function getSection(): string
     {
-        return $this->section;
+        return $this->section ?? ENVIRONMENT;
     }
 
 
     /**
      * Lets the Config object use the specified (or if not specified, the current global) environment
      *
-     * @param string $section
+     * @param string|null $section
      *
      * @return static
      */
-    protected function setSection(string $section): static
+    protected function setSection(?string $section): static
     {
-        $this->section = (get_null(strtolower(trim($section))) ?? 'default');
+        $this->section = get_null(strtolower(trim((string) $section)));
         return $this;
     }
 
@@ -280,12 +280,12 @@ class Config implements ConfigInterface
      * If $section is not defined, "default" will be used instead
      * If $environment is not defined, the value of the default_environment variable will be used instead
      *
-     * @param string      $section
+     * @param string|null $section
      * @param string|null $environment
      *
      * @return ConfigInterface
      */
-    public static function fromSection(string $section = 'default', ?string $environment = null): ConfigInterface
+    public static function fromSection(string $section = null, ?string $environment = null): ConfigInterface
     {
         if ($environment === null) {
             $environment = static::$default_environment;
@@ -1279,7 +1279,7 @@ class Config implements ConfigInterface
             // Read the section for each environment
             foreach ($environments as $environment) {
                 try {
-                    $file = DIRECTORY_ROOT . 'config/environments/' . $environment . '/' . $this->section . '.yaml';
+                    $file = DIRECTORY_ROOT . 'config/environments/' . $environment . '/' . ($this->section ?? $environment) . '.yaml';
 
                     if (Core::isReady()) {
                         // Only check restrictions if Core is ready to avoid endless loops
