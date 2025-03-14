@@ -49,7 +49,7 @@ abstract class Virtualhost implements VirtualhostInterface
      *
      * @param string|null $type
      *
-     * @return $this
+     * @return static
      */
     public function setType(?string $type): static {
         switch ($type) {

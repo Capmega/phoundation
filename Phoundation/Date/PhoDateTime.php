@@ -125,7 +125,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      * @param PhoDateTimeInterface|string|null $before
      * @param DateTimeZone|string|null         $timezone
      *
-     * @return $this
+     * @return static
      */
     public static function newRandom(PhoDateTimeInterface|string|null $after = '-1 day', PhoDateTimeInterface|string|null $before = 'now', DateTimeZone|string|null $timezone = null): static
     {

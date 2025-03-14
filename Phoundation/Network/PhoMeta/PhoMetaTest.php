@@ -82,7 +82,7 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
      *
      * @param string|null $component
      *
-     * @return $this
+     * @return static
      */
     public function setComponent(?string $component): static
     {
@@ -106,7 +106,7 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
      *
      * @param string|null $connector_name
      *
-     * @return $this
+     * @return static
      */
     public function setConnectorName(?string $connector_name): static
     {
@@ -130,7 +130,7 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
      *
      * @param string|int|null $database_name
      *
-     * @return $this
+     * @return static
      */
     public function setDatabaseName(string|int|null $database_name): static
     {
@@ -154,7 +154,7 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
      *
      * @param string|null $key
      *
-     * @return $this
+     * @return static
      */
     public function setKey(?string $key): static
     {
@@ -182,7 +182,7 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
      *
      * @param int|null $meta_id
      *
-     * @return $this
+     * @return static
      */
     public function setMetaId(?int $meta_id): static
     {
@@ -210,7 +210,7 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
      *
      * @param float|null $duration
      *
-     * @return $this
+     * @return static
      */
     public function setDuration(?float $duration): static
     {

@@ -42,7 +42,7 @@ trait TraitDataIntId
      * Sets the integer ID for this object
      *
      * @param int|null $id
-     * @return $this
+     * @return static
      */
     protected function setId(?int $id): static
     {

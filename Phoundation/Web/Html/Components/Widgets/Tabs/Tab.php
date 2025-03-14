@@ -71,7 +71,7 @@ class Tab extends ElementsBlock implements TabInterface
      * @param string|null $name
      * @param bool        $id_too
      *
-     * @return $this
+     * @return static
      */
     public function setName(?string $name, bool $id_too = false): static
     {

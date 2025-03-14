@@ -199,7 +199,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      *
      * @param bool $filter
      *
-     * @return $this
+     * @return static
      */
     public function setFilterSpecialUsers(bool $filter): static
     {

@@ -97,7 +97,7 @@ class PhoClient
      *
      * @param string $message
      *
-     * @return $this
+     * @return static
      */
     public function send(string $message): static
     {
@@ -120,7 +120,7 @@ class PhoClient
     /**
      * Closes the connection
      *
-     * @return $this
+     * @return static
      */
     public function close(): static
     {

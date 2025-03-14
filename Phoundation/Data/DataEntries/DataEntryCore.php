@@ -885,7 +885,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @param string $action
      *
-     * @return $this
+     * @return static
      */
     protected function checkNew(string $action): static
     {
@@ -1085,7 +1085,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @param DataIteratorInterface|array|string|int $identifier
      *
-     * @return $this
+     * @return static
      */
     protected function initializeSource(DataIteratorInterface|array|string|int $identifier): static
     {
@@ -2434,7 +2434,7 @@ showdie($e);
      *
      * @param array $source
      *
-     * @return $this
+     * @return static
      */
     public function setMultiple(array $source): static
     {
@@ -4328,7 +4328,7 @@ showdie($e);
      * @param mixed  $value
      * @param string $column
      *
-     * @return $this
+     * @return static
      */
     protected function setVirtualData(string $table, mixed $value, string $column): static
     {
@@ -4466,7 +4466,7 @@ showdie($e);
      *
      * @param array $configuration
      *
-     * @return $this
+     * @return static
      */
     protected function initializeVirtualConfiguration(array $configuration): static
     {
@@ -4485,7 +4485,7 @@ showdie($e);
      * @param string|null $class
      * @param array       $columns
      *
-     * @return $this
+     * @return static
      */
     protected function addVirtualConfiguration(string $table, ?string $class, array $columns): static
     {

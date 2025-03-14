@@ -292,7 +292,7 @@ class TableAlter extends SchemaAbstract
      * @param string $from_name
      * @param string $to_name
      *
-     * @return $this
+     * @return static
      */
     public function renameIndex(string $from_name, string $to_name): static
     {

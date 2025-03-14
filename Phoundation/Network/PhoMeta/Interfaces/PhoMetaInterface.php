@@ -66,7 +66,7 @@ interface PhoMetaInterface extends DataEntryInterface
      *
      * @param PhoMetaTestInterface $test
      *
-     * @return $this
+     * @return static
      */
     public function addTest(PhoMetaTestInterface $test): static;
 
@@ -80,7 +80,7 @@ interface PhoMetaInterface extends DataEntryInterface
      *                                      stored inside the key=>value[], otherwise it will be stored as the
      *                                      key=>value
      *
-     * @return $this
+     * @return static
      */
     public function addData(string $key, array $data, bool $data_is_sub_array = false): static;
 

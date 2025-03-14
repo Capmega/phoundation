@@ -2463,7 +2463,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      *
      * @param bool $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setNotificationsEnabled(bool $enabled): static
     {

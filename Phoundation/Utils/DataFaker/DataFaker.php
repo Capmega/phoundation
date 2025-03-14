@@ -82,7 +82,7 @@ class DataFaker
      *
      * @param string|null $locale
      *
-     * @return $this
+     * @return static
      */
     public function setLocale(?string $locale): static
     {

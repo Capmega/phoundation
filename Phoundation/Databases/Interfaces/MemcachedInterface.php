@@ -15,7 +15,7 @@ interface MemcachedInterface extends DatastoreInterface
      * @param ConnectorInterface|null $o_connector
      * @param string|null             $database
      *
-     * @return $this
+     * @return static
      */
     public function setConnectorObject(?ConnectorInterface $o_connector = null, ?string $database = null): static;
 

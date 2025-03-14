@@ -81,7 +81,7 @@ class HttpTester
      *
      * @param UrlInterface $o_url
      *
-     * @return $this
+     * @return static
      */
     public function setUrlObject(UrlInterface $o_url): static
     {
@@ -117,7 +117,7 @@ class HttpTester
     /**
      * Executes the tester
      *
-     * @return $this
+     * @return static
      */
     public function execute(): static
     {

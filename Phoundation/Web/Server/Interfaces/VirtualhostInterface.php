@@ -6,7 +6,7 @@ namespace Phoundation\Web\Server\Interfaces;
 interface VirtualhostInterface
 {
 /**
-     * @return $this
+     * @return static
      */
     public function installFile(): static;
 }

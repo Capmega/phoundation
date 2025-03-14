@@ -92,7 +92,7 @@ class Memcached implements MemcachedInterface
      * @param ConnectorInterface|null $o_connector
      * @param string|null             $database
      *
-     * @return $this
+     * @return static
      */
     public function setConnectorObject(?ConnectorInterface $o_connector = null, ?string $database = null): static {
         $this->__setConnectorObject($o_connector, $database)

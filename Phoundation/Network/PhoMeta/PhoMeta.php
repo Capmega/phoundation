@@ -278,7 +278,7 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
      *
      * @param PhoMetaTestInterface $test
      *
-     * @return $this
+     * @return static
      */
     public function addTest(PhoMetaTestInterface $test): static
     {
@@ -328,7 +328,7 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
      *                                        stored inside the key=>value[], otherwise it will be stored as the
      *                                        key=>value
      *
-     * @return $this
+     * @return static
      */
     public function addData(string $key, string|array $data, bool $data_is_sub_array = false): static
     {
@@ -350,7 +350,7 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
      *
      * @param array|string|null $data
      *
-     * @return $this
+     * @return static
      */
     public function setData(array|string|null $data): static
     {

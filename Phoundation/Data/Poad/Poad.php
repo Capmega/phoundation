@@ -174,7 +174,7 @@ class Poad
      * @param IteratorInterface|array|string|PDOStatement|null $source
      * @param array|null                                       $execute
      *
-     * @return $this
+     * @return static
      */
     public function setSource(IteratorInterface|array|string|PDOStatement|null $source = null, ?array $execute = null): static
     {
@@ -199,7 +199,7 @@ class Poad
      *
      * @param array|string|float|int|null $value
      *
-     * @return $this
+     * @return static
      */
     public function setValue(array|string|float|int|null $value): static
     {

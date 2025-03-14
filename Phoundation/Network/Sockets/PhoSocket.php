@@ -275,7 +275,7 @@ class PhoSocket implements Stringable, PhoSocketInterface
      *
      * @param string $action
      *
-     * @return $this
+     * @return static
      */
     protected function ensureClosed(string $action): static
     {

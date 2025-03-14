@@ -253,7 +253,7 @@ showdie($matches);
     /**
      * Get the specified URL using the HTTP GET method
      *
-     * @return $this
+     * @return static
      */
     public function execute(): static
     {

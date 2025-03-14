@@ -126,7 +126,7 @@ class Tabs extends ElementsBlock implements TabsInterface
      *
      * @param string $active_tab
      *
-     * @return $this
+     * @return static
      */
     public function setActiveTab(string $active_tab): static
     {

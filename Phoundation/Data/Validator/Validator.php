@@ -4677,7 +4677,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      *
      * @param bool $recursive
      *
-     * @return $this
+     * @return static
      */
     public function forceEmptyStringsToNull(bool $recursive = true): static
     {
@@ -4691,7 +4691,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      * @param array $source
      * @param bool  $recursive
      *
-     * @return $this
+     * @return static
      */
     protected function replaceEmptyStringsToNull(array &$source, bool $recursive): static
     {

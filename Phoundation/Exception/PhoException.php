@@ -1027,7 +1027,7 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
      *
      * @param string $fix
      *
-     * @return $this
+     * @return static
      */
     public function addFix(string $fix): static
     {

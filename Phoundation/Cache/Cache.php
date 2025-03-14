@@ -179,7 +179,7 @@ class Cache extends Database implements CacheInterface
      *
      * @param bool $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setGlobalEnabled(bool $enabled): static
     {

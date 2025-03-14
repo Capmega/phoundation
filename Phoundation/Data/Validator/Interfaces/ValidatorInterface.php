@@ -1334,7 +1334,7 @@ interface ValidatorInterface extends IteratorBaseInterface
      *
      * @param IteratorInterface|ArrayableInterface|array|string|null $fields
      *
-     * @return $this
+     * @return static
      */
     public function ignoreFields(IteratorInterface|ArrayableInterface|array|string|null $fields): static;
 

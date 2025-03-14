@@ -25,7 +25,7 @@ use Phoundation\Utils\Strings;
 class ApacheVirtualHost extends Virtualhost
 {
     /**
-     * @return $this
+     * @return static
      */
     public function installFile(): static
     {

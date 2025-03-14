@@ -42,7 +42,7 @@ trait TraitDataArrayOutput
      * Sets the output
      *
      * @param array|null $output
-     * @return $this
+     * @return static
      */
     protected function setOutput(?array $output): static
     {

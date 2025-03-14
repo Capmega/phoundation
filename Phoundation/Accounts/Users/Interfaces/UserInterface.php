@@ -837,7 +837,7 @@ interface UserInterface extends DataEntryInterface
      *
      * @param bool $enabled
      *
-     * @return $this
+     * @return static
      */
     public function setNotificationsEnabled(bool $enabled): static;
 }

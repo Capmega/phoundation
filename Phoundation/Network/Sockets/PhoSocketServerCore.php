@@ -241,7 +241,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     /**
      * Checks if the master socket is started,
      *
-     * @return $this
+     * @return static
      */
     protected function ensureMasterSocketStarted(): static
     {
@@ -443,7 +443,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     /**
      * Logs statistical information
      *
-     * @return $this
+     * @return static
      */
     protected function logStatistics(): static
     {
@@ -835,7 +835,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     /**
      * Closes the master socket for this PhoSocketServer object
      *
-     * @return $this
+     * @return static
      */
     protected function closeMasterSocket(): static
     {

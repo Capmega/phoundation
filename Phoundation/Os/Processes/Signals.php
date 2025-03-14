@@ -65,7 +65,7 @@ class Signals
     /**
      * Returns a list of all known process signals
      *
-     * @return string[]
+     * @return array
      */
     public static function get(): array
     {

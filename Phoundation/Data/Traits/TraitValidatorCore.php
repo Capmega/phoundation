@@ -245,7 +245,7 @@ trait TraitValidatorCore
      *
      * @param DataEntryInterface|null $data_entry
      *
-     * @return $this
+     * @return static
      */
     public function setDataEntryObject(?DataEntryInterface $data_entry): static {
         return $this->__setDataEntry($data_entry)
@@ -852,7 +852,7 @@ trait TraitValidatorCore
      *
      * @param IteratorInterface|ArrayableInterface|array|string|null $fields
      *
-     * @return $this
+     * @return static
      */
     public function ignoreFields(IteratorInterface|ArrayableInterface|array|string|null $fields): static
     {

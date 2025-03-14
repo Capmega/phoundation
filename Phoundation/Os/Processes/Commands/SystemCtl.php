@@ -237,7 +237,7 @@ class SystemCtl extends Command
     /**
      * Reloads the systemd daemon
      *
-     * @return $this
+     * @return static
      */
     public function daemonReload(): static
     {
