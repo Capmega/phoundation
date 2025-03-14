@@ -3,7 +3,7 @@
 /**
  * Command accounts users undelete
  *
- * This script can undelete users
+ * This command can undelete users
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

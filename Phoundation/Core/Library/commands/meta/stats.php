@@ -3,7 +3,7 @@
 /**
  * Command meta stats
  *
- * This script can be used to display meta data statistics
+ * This command can be used to display meta data statistics
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

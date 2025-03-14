@@ -3,7 +3,7 @@
 /**
  * Command accounts users show
  *
- * This script displays information about the specified user.
+ * This command displays information about the specified user.
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -32,7 +32,7 @@ CliDocumentation::setAutoComplete(User::getAutoComplete([
 
 CliDocumentation::setUsage('./pho accounts users show USER');
 
-CliDocumentation::setHelp(User::getHelpText('This script displays information about the specified user.  
+CliDocumentation::setHelp(User::getHelpText('This command displays information about the specified user.  
 
 
 ARGUMENTS

@@ -3,7 +3,7 @@
 /**
  * Command notifications test
  *
- * Notifications test script. This script will send test notifications to the specified users or roles
+ * Notifications test script. This command will send test notifications to the specified users or roles
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

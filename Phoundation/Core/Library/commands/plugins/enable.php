@@ -3,7 +3,7 @@
 /**
  * Command plugins enable
  *
- * This script allows you to enable registered plugins
+ * This command allows you to enable registered plugins
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

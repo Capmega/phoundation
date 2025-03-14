@@ -3,7 +3,7 @@
 /**
  * Command bom
  *
- * This script can check for - and remove Unicode Byte Order Marks from files
+ * This command can check for - and remove Unicode Byte Order Marks from files
  * ./pho dev bom
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>

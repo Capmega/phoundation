@@ -3,7 +3,7 @@
 /**
  * Command development tests unit
  *
- * This script will start phpunit tests
+ * This command will start phpunit tests
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -19,7 +19,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Tests\Tests;
 
 
-CliDocumentation::setHelp('This script will start running all PHPUnit tests in the project
+CliDocumentation::setHelp('This command will start running all PHPUnit tests in the project
 
 
 ARGUMENTS

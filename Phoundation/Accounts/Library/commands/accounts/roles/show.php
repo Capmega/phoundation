@@ -3,7 +3,7 @@
 /**
  * Command accounts roles show
  *
- * This script displays information about the specified role.
+ * This command displays information about the specified role.
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -36,7 +36,7 @@ CliDocumentation::setAutoComplete([
 
 CliDocumentation::setUsage('./pho accounts roles show USER');
 
-CliDocumentation::setHelp('This script displays information about the specified role.  
+CliDocumentation::setHelp('This command displays information about the specified role.  
 
 
 ARGUMENTS

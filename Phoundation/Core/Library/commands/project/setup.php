@@ -3,7 +3,7 @@
 /**
  * Command project setup
  *
- * This is the setup script for the project. This script will be the first script to be run to set up your system
+ * This is the setup script for the project. This command will be the first script to be run to set up your system
  *
  * To be able to set up, one conditions must be met: There is no configuration file available
  *

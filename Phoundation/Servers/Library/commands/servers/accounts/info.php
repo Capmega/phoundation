@@ -3,7 +3,7 @@
 /**
  * Command servers accounts info
  *
- * This script displays information about the specified account.
+ * This command displays information about the specified account.
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

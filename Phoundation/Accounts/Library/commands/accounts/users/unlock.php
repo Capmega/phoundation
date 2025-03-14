@@ -3,7 +3,7 @@
 /**
  * Command accounts users unlock
  *
- * This script can unlock users
+ * This command can unlock users
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

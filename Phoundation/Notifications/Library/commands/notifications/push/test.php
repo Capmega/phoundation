@@ -3,7 +3,7 @@
 /**
  * Command notifications push test
  *
- * Push notifications test script. This script will send push notifications to the specified user
+ * Push notifications test script. This command will send push notifications to the specified user
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

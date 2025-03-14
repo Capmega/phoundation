@@ -3,7 +3,7 @@
 /**
  * Command accounts users authenticate
  *
- * This script can be used to test the authentication for the specified user
+ * This command can be used to test the authentication for the specified user
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -44,7 +44,7 @@ CliDocumentation::setHelp('This command can be used to test the authentication f
 
 This command accepts the password through a command line pipe in which case it will run in non-interactive mode
 
-NOTE: This script is interactive as it asks the password for the user on the command line! 
+NOTE: This command is interactive as it asks the password for the user on the command line! 
 
 NOTE This can run into non-interactive mode and accept the password through a CLI pipe. See USAGE for an example of this 
 

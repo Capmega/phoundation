@@ -3,7 +3,7 @@
 /**
  * Command email send
  *
- * This script can send out emails
+ * This command can send out emails
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

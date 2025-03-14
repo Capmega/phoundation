@@ -3,7 +3,7 @@
 /**
  * Command accounts users delete
  *
- * This script can delete users
+ * This command can delete users
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -31,7 +31,7 @@ CliDocumentation::setAutoComplete(User::getAutoComplete([
 
 CliDocumentation::setUsage('./pho accounts users delete USER_EMAIL');
 
-CliDocumentation::setHelp('This script will delete the specified user. Note that deleted users will not be removed 
+CliDocumentation::setHelp('This command will delete the specified user. Note that deleted users will not be removed 
 from the database, the status for the user will be updated to "deleted"
 
 ARGUMENTS

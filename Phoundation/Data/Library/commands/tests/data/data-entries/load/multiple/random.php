@@ -3,7 +3,7 @@
 /**
  * Command tests data data-entries load multiple random
  *
- * This script runs manual tests with loading multiple DataEntry objects
+ * This command runs manual tests with loading multiple DataEntry objects
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -34,7 +34,7 @@ CliDocumentation::setAutoComplete(User::getAutoComplete([
 CliDocumentation::setUsage('./pho tests data data-entries load multiple random --class CLASS --count 50
 ./pho tests data data-entries load multiple random --class Phoundation\Accounts\Users\User --count 50 --caching');
 
-CliDocumentation::setHelp(User::getHelpText('This script runs manual tests with loading multiple DataEntry objects  
+CliDocumentation::setHelp(User::getHelpText('This command runs manual tests with loading multiple DataEntry objects  
 
 
 ARGUMENTS

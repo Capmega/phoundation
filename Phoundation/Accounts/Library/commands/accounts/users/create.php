@@ -32,7 +32,7 @@ CliDocumentation::setUsage(tr('./pho accounts users create -e EMAIL [OPTIONS]
 
 CliDocumentation::setHelp(User::getHelpText('This command allows you to create new users.
 
-NOTE: This script is interactive as it asks the password for the user on the command line! ') . '
+NOTE: This command is interactive as it asks the password for the user on the command line! ') . '
 
 
 EXTRA INFORMATION

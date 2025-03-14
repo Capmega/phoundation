@@ -3,7 +3,7 @@
 /**
  * Command plugins scan
  *
- * This script allows you to scan the plugins directory DIRECTORY_ROOT/Plugins/ for new plugins and update the
+ * This command allows you to scan the plugins directory DIRECTORY_ROOT/Plugins/ for new plugins and update the
  * core_plugins database table accordingly
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>

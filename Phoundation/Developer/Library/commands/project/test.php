@@ -5,7 +5,7 @@
  *
  * This is the test script for the project.
  *
- * This script can manage and start the PHP unit Tests and others
+ * This command can manage and start the PHP unit Tests and others
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -25,7 +25,7 @@ CliDocumentation::setUsage('./pho project test [OPTIONS]
 
 CliDocumentation::setHelp('This is the test script for the project.
 
-This script can manage and start the PHP unit Tests and others
+This command can manage and start the PHP unit Tests and others
 
 
 ARGUMENTS

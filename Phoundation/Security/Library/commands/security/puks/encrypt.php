@@ -23,7 +23,7 @@ CliDocumentation::setAutoComplete();
 
 CliDocumentation::setUsage('./pho puks encrypt DATA');
 
-CliDocumentation::setHelp(Puks::getHelp('This script will encrypt the specified data and print the result out on the command line
+CliDocumentation::setHelp(Puks::getHelp('This command will encrypt the specified data and print the result out on the command line
 
 
 ARGUMENTS'));

@@ -5,7 +5,7 @@
  *
  * This is the translation control script for the project.
  *
- * This script can manage your translated copies of your project, remove them, re-translate them, and much more.
+ * This command can manage your translated copies of your project, remove them, re-translate them, and much more.
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -30,7 +30,7 @@ CliDocumentation::setUsage('./pho project translate [OPTIONS]
 
 CliDocumentation::setHelp('This is the translation control script for the project.
 
-This script can manage your translated copies of your project, remove them, re-translate them, and much more.
+This command can manage your translated copies of your project, remove them, re-translate them, and much more.
 
 
 ARGUMENTS

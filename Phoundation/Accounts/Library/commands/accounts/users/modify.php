@@ -33,9 +33,9 @@ CliDocumentation::setAutoComplete(User::getAutoComplete([
 CliDocumentation::setUsage('./pho accounts users modify USER [OPTIONS]
 ./pho system users modify USER -l -i --to ENVIRONMENT');
 
-CliDocumentation::setHelp(User::getHelpText('This script allows you to modify users
+CliDocumentation::setHelp(User::getHelpText('This command allows you to modify users
 
-This script allows you to modify all user data, with the exception of the password or status. If you wish to change the 
+This command allows you to modify all user data, with the exception of the password or status. If you wish to change the 
 status, please use the "delete", "undelete" or "status" commands. To change the users password please use the "password" 
 command.') . '
 

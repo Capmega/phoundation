@@ -24,7 +24,7 @@ CliDocumentation::setAutoComplete(Server::getAutoComplete());
 CliDocumentation::setUsage('./pho servers create [OPTIONS]
 ./pho system servers create --name phoundation --hostname www.phoundation.org -d "This is a phoundation server" --port 22');
 
-CliDocumentation::setHelp(Server::getHelpText('This script allows you to create servers
+CliDocumentation::setHelp(Server::getHelpText('This command allows you to create servers
 
 
 ARGUMENTS'));

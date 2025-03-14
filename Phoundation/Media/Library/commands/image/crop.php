@@ -3,7 +3,7 @@
 /**
  * Command image convert
  *
- * This script can apply various conversions to the specified image
+ * This command can apply various conversions to the specified image
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

@@ -25,7 +25,7 @@ CliDocumentation::setUsage('./pho project fix');
 CliDocumentation::setHelp('This command will fix project issues. For the moment it can only fix filesystem mode and
 ownership issues.
 
-NOTE: This script requires root access to the "chown" command
+NOTE: This command requires root access to the "chown" command
 
 
 ARGUMENTS
