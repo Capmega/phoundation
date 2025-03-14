@@ -2109,12 +2109,12 @@ function config(?string $section = null, ?string $environment = null): ConfigInt
 /**
  * Returns a SessionConfig object for the specified section and environment
  *
- * @param string      $section
+ * @param string|null $section
  * @param string|null $environment
  *
  * @return ConfigInterface
  */
-function sessionconfig(string $section = 'default', ?string $environment = null): ConfigInterface
+function sessionconfig(string $section = null, ?string $environment = null): ConfigInterface
 {
     return SessionConfig::fromSection($section, $environment);
 }
