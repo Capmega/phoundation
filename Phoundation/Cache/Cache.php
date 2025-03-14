@@ -366,24 +366,25 @@ class Cache extends Database implements CacheInterface
         Cache::new(EnumCacheGroups::html)->clear();
         Cache::new('cache')->clear();
 
+        Log::action(ts('Clearing all file caches'), 3);
+
+        PhoPath::new(DIRECTORY_SYSTEM . 'cache/files/', PhoRestrictions::newWritableObject(DIRECTORY_SYSTEM . 'cache/files/'))
+               ->delete();
+
+        Log::success(ts('Cleared all caches'));
+
         if (static::$has_been_cleared and !$force) {
             return false;
         }
 
         // Clear web cache, but rebuild (clear & build) command cache as we will ALWAYS need commands available
+        Log::action(ts('Rebuilding system caches'), 3);
+
         Libraries::rebuildWebCache();
         Libraries::rebuildHooksCache();
         Libraries::rebuildCronCache();
         Libraries::rebuildTestsCache();
         Libraries::rebuildCommandsCache();
-
-        Log::action(ts('Clearing file caches'), 3);
-
-        PhoPath::new(DIRECTORY_SYSTEM . 'cache/files/', PhoRestrictions::newWritableObject(DIRECTORY_SYSTEM . 'cache/files/'))
-               ->delete();
-
-
-        Log::success(ts('Cleared all caches'));
 
         static::$has_been_cleared = true;
 
@@ -500,10 +501,9 @@ class Cache extends Database implements CacheInterface
                 return null;
             }
 
-            Log::success(ts('Found ":connector" cache entry for key ":key"', [
-                ':connector' => $this->connector,
-                ':key'       => $key,
-            ]), 3);
+            Log::success($this->log(ts('Found cache entry for key ":key"', [
+                ':key' => $key,
+            ])), 3);
 
             static::$cache_hits++;
             return Poad::new($return)->getObject($process_headers_footers);
@@ -578,7 +578,7 @@ class Cache extends Database implements CacheInterface
                     $this->getDriver()?->set($value, $key);
 
                 } catch (ConfigPathDoesNotExistsException $e) {
-                    Log::warning(ts('Cannot cache because the current driver is not properly configured, see exception information'));
+                    Log::warning($this->log(ts('Cannot cache because the current driver is not properly configured, see exception information')));
                     Log::warning($e);
                 }
             }
@@ -615,8 +615,21 @@ class Cache extends Database implements CacheInterface
                 $git->add($directory)
                     ->commit($message, config()->getBoolean('cache.system.commit.signed', false) or $signed);
 
-                Log::success(ts('Committed system cache update to git'));
+                Log::success($this->log(ts('Committed system cache update to git')));
             }
         }
+    }
+
+
+    /**
+     * Prepares and returns the specified log message
+     *
+     * @param string $message
+     *
+     * @return string
+     */
+    protected function log(string $message): string
+    {
+        return '[CACHE: ' . $this->connector . '] ' . $message;
     }
 }
