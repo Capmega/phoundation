@@ -27,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.1.0';
+        return '0.2.0';
     }
 
 
@@ -106,6 +106,21 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             if (!$table->columnExists('servers')) {
                 $table->alter()->addColumn('`servers` varchar(1020) NULL DEFAULT NULL', 'AFTER `hostname`');
+            }
+
+        })->addUpdate('0.2.0', function () {
+            $table = sql()->getSchemaObject()->getTableObject('databases_connectors');
+
+            if (!$table->columnExists('pdo_attributes')) {
+                $table->alter()->modifyColumn('`pdo_attributes`', '`attributes` varchar(2040) NULL DEFAULT NULL,');
+            }
+
+            if (!$table->columnExists('connect_timeout')) {
+                $table->alter()->addColumn('`connect_timeout` int NOT NULL DEFAULT 3', 'AFTER `database`');
+            }
+
+            if (!$table->columnExists('query_timeout')) {
+                $table->alter()->addColumn('`query_timeout` int NOT NULL DEFAULT 30', 'AFTER `connect_timeout`');
             }
         });
     }

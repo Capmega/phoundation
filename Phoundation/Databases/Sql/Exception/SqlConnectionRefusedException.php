@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class SqlServerNotAvailableException
+ * Class SqlConnectionRefusedException
  *
  * This exception is thrown when trying to connect to an SQL server that refuses connection
  *
@@ -19,6 +19,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\Exception;
 
-class SqlServerNotAvailableException extends SqlException
+class SqlConnectionRefusedException extends SqlException
 {
 }

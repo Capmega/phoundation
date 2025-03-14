@@ -133,7 +133,7 @@ if ($argv['import']) {
 //        if ($name == 'default') continue;
 //
 //        if (!empty($connector['init'])) {
-//            $connector['pdo_attributes'] = array(PDO::ATTR_EMULATE_PREPARES => true,
+//            $connector['attributes'] = array(PDO::ATTR_EMULATE_PREPARES => true,
 //                PDO::ATTR_STRINGIFY_FETCHES => true);
 //        }
 //    }

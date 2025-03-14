@@ -228,14 +228,17 @@ class Import extends \Phoundation\Developer\Project\Import
         ]));
         // Get the system SQL configuration, so we can use the user and password from there
         $config = sql()->readConfiguration('system');
+
         Sql::addConnector('geonames', [
-            'name'           => 'geonames',
-            'user'           => $config['user'],
-            'pass'           => $config['pass'],
-            'pdo_attributes' => [PDO::MYSQL_ATTR_LOCAL_INFILE => true],
+            'name'       => 'geonames',
+            'user'       => $config['user'],
+            'pass'       => $config['pass'],
+            'attributes' => [PDO::MYSQL_ATTR_LOCAL_INFILE => true],
         ]);
+
         // Create database
         Log::action(ts('Creating database "geonames"...'));
+
         sql('geonames', false)
             ->getSchemaObject(false)
             ->getDatabaseObject()

@@ -122,7 +122,7 @@ class Memcached implements MemcachedInterface
                 $this->servers[] = $server;
 
             } catch (Throwable $e) {
-                Log::warning($this->log(tr('Failed to connect to memcached server ":server" configured in path ":directory"', [
+                Log::warning($this->log(ts('Failed to connect to memcached server ":server" configured in path ":directory"', [
                     ':server'    => $server,
                     ':directory' => 'databases.connectors.' . $this->connector . '.servers.' . $weight,
                 ])));
@@ -134,7 +134,7 @@ class Memcached implements MemcachedInterface
 
         if (isset($e) or $failed) {
             // We haven't been able to connect to any memcached server at all!
-            Log::warning($this->log(tr('Failed to connect to any memcached server')), 10);
+            Log::warning($this->log(ts('Failed to connect to any memcached server')), 10);
 
             Incident::new()
                     ->setException(isset_get($e))
@@ -229,7 +229,7 @@ class Memcached implements MemcachedInterface
             return null;
         }
 
-        Log::success($this->log(tr('Found key ":key" through memcached connector ":connector"', [
+        Log::success($this->log(ts('Found key ":key" through memcached connector ":connector"', [
             ':connector' => $this->connector,
             ':key'       => $key,
         ])), 2);
@@ -281,7 +281,7 @@ class Memcached implements MemcachedInterface
         }
 
         if ($result) {
-            Log::success($this->log(tr('Set key ":key" through memcached connector ":connector"', [
+            Log::success($this->log(ts('Set key ":key" through memcached connector ":connector"', [
                 ':connector' => $this->connector,
                 ':key'       => $key,
             ])), 2);
@@ -289,11 +289,10 @@ class Memcached implements MemcachedInterface
             return $this;
         }
 
-        throw new MemcachedException($this->log(tr('Setting value for key ":key" through connector ":connector" failed with code ":code" and message ":message"', [
-            ':connector' => $this->connector,
-            ':key'       => $key,
-            ':code'      => $this->memcached->getResultCode(),
-            ':message'   => $this->memcached->getResultMessage()
+        throw new MemcachedException($this->log(ts('Setting value for key ":key" failed with code ":code" and message ":message"', [
+            ':key'     => $key,
+            ':code'    => $this->memcached->getResultCode(),
+            ':message' => $this->memcached->getResultMessage()
         ])));
     }
 
@@ -312,7 +311,7 @@ class Memcached implements MemcachedInterface
     public function add(mixed $value, string|float|int|null $key, ?int $expires = null): static
     {
         if (is_bool($value)) {
-            throw new MemcachedException($this->log(tr('Cannot add boolean values in memcached for key ":key"', [
+            throw new MemcachedException($this->log(ts('Cannot add boolean values in memcached for key ":key"', [
                 ':key' => $key,
             ])));
         }
@@ -320,7 +319,7 @@ class Memcached implements MemcachedInterface
         $result = $this->memcached->add($this->getSafeKey($key), $value, $expires ?? $this->configuration['expires']);
 
         if ($result) {
-            Log::success($this->log(tr('Wrote ":bytes" bytes to memcached for key ":key"', [
+            Log::success($this->log(ts('Wrote ":bytes" bytes to memcached for key ":key"', [
                 ':key'   => $key,
                 ':bytes' => (is_scalar($value) ? strlen((string) $value) : count($value)),
             ])), 2);
@@ -328,11 +327,10 @@ class Memcached implements MemcachedInterface
             return $value;
         }
 
-        throw new MemcachedException($this->log(tr('Adding value for key ":key" through connector ":connector" failed with code ":code" and message ":message"', [
-            ':key'       => $key,
-            ':connector' => $this->connector,
-            ':code'      => $this->memcached->getResultCode(),
-            ':message'   => $this->memcached->getResultMessage()
+        throw new MemcachedException($this->log(ts('Adding value for key ":key" failed with code ":code" and message ":message"', [
+            ':key'     => $key,
+            ':code'    => $this->memcached->getResultCode(),
+            ':message' => $this->memcached->getResultMessage()
         ])));
     }
 
@@ -351,7 +349,7 @@ class Memcached implements MemcachedInterface
     public function replace(mixed $value, string|float|int|null $key, ?int $expires = null): static
     {
         if (is_bool($value)) {
-            throw new MemcachedException($this->log(tr('Cannot replace keys with boolean values in memcached for key ":key"', [
+            throw new MemcachedException($this->log(ts('Cannot replace keys with boolean values in memcached for key ":key"', [
                 ':key' => $key,
             ])));
         }
@@ -359,7 +357,7 @@ class Memcached implements MemcachedInterface
         $result = $this->memcached->replace($this->getSafeKey($key), $value, $expires ?? $this->configuration['expires']);
 
         if ($result) {
-            Log::success($this->log(tr('Wrote ":bytes" bytes to memcached for key ":key"', [
+            Log::success($this->log(ts('Wrote ":bytes" bytes to memcached for key ":key"', [
                 ':key'   => $key,
                 ':bytes' => (is_scalar($value) ? strlen((string) $value) : count($value)),
             ])), 2);
@@ -367,11 +365,10 @@ class Memcached implements MemcachedInterface
             return $value;
         }
 
-        throw new MemcachedException($this->log(tr('Replacing value for key ":key" through connector ":connector" failed with code ":code" and message ":message"', [
-            ':key'       => $key,
-            ':connector' => $this->connector,
-            ':code'      => $this->memcached->getResultCode(),
-            ':message'   => $this->memcached->getResultMessage()
+        throw new MemcachedException($this->log(ts('Replacing value for key ":key" failed with code ":code" and message ":message"', [
+            ':key'     => $key,
+            ':code'    => $this->memcached->getResultCode(),
+            ':message' => $this->memcached->getResultMessage()
         ])));
     }
 
@@ -389,7 +386,7 @@ class Memcached implements MemcachedInterface
         $result = $this->memcached->delete($this->getSafeKey($key), $time);
 
         if ($result) {
-            Log::success($this->log(tr('Deleted key ":key"', [
+            Log::success($this->log(ts('Deleted key ":key"', [
                 ':key' => $key,
             ])), 2);
 
@@ -401,11 +398,10 @@ class Memcached implements MemcachedInterface
             return $this;
         }
 
-        throw new MemcachedException($this->log(tr('Deleting key ":key" through connector ":connector" failed with code ":code" and message ":message"', [
-            ':key'       => $key,
-            ':connector' => $this->connector,
-            ':code'      => $this->memcached->getResultCode(),
-            ':message'   => $this->memcached->getResultMessage()
+        throw new MemcachedException($this->log(ts('Deleting key ":key" failed with code ":code" and message ":message"', [
+            ':key'     => $key,
+            ':code'    => $this->memcached->getResultCode(),
+            ':message' => $this->memcached->getResultMessage()
         ])));
     }
 
@@ -422,17 +418,16 @@ class Memcached implements MemcachedInterface
         $result = $this->memcached->flush($delay);
 
         if ($result) {
-            Log::success($this->log(tr('Flushed all data with delay ":delay"', [
+            Log::success($this->log(ts('Flushed all data with delay ":delay"', [
                 ':delay' => $delay,
             ])), 2);
 
             return $this;
         }
 
-        throw new MemcachedException($this->log(tr('Flushing all data through connector ":connector" failed with code ":code" and message ":message"', [
-            ':connector' => $this->connector,
-            ':code'      => $this->memcached->getResultCode(),
-            ':message'   => $this->memcached->getResultMessage()
+        throw new MemcachedException($this->log(ts('Flushing all data failed with code ":code" and message ":message"', [
+            ':code'    => $this->memcached->getResultCode(),
+            ':message' => $this->memcached->getResultMessage()
         ])));
     }
 
@@ -452,7 +447,7 @@ class Memcached implements MemcachedInterface
         $result = $this->memcached->increment($this->getSafeKey($key), $offset, $initial_value, $expiry);
 
         if ($result) {
-            Log::success($this->log(tr('Incremented key ":key" by ":offset"', [
+            Log::success($this->log(ts('Incremented key ":key" by ":offset"', [
                 ':key'    => $key,
                 ':offset' => $offset,
             ])), 2);
@@ -460,7 +455,7 @@ class Memcached implements MemcachedInterface
             return $this;
         }
 
-        throw new MemcachedException($this->log(tr('Incrementing value for key ":key" failed with code ":code" and message ":message"', [
+        throw new MemcachedException($this->log(ts('Incrementing value for key ":key" failed with code ":code" and message ":message"', [
             ':code'    => $this->memcached->getResultCode(),
             ':message' => $this->memcached->getResultMessage()
         ])));
@@ -522,7 +517,7 @@ class Memcached implements MemcachedInterface
         $stats = $this->memcached->getStats();
 
         if ($stats === false) {
-            throw new MemcachedException($this->log(tr('Failed to return statistics with code ":code" and message ":message"', [
+            throw new MemcachedException($this->log(ts('Failed to return statistics with code ":code" and message ":message"', [
                 ':code'    => $this->memcached->getResultCode(),
                 ':message' => $this->memcached->getResultMessage()
             ])));
@@ -542,7 +537,7 @@ class Memcached implements MemcachedInterface
         $return = $this->memcached->getAllKeys();
 
         if ($return === false) {
-            throw new MemcachedException($this->log(tr('Failed to return all keys with code ":code" and message ":message"', [
+            throw new MemcachedException($this->log(ts('Failed to return all keys with code ":code" and message ":message"', [
                 ':code'    => $this->memcached->getResultCode(),
                 ':message' => $this->memcached->getResultMessage()
             ])));
@@ -626,6 +621,6 @@ class Memcached implements MemcachedInterface
      */
     protected function log(string $message): string
     {
-        return '[MC ' . $this->connector . ']' . $message;
+        return '[MC: ' . $this->connector . '] ' . $message;
     }
 }

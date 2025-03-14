@@ -80,12 +80,17 @@ class Databases
      */
     public static function getConnectorObject(ConnectorInterface|string $connector): ConnectorInterface
     {
-        if (!$connector) {
-            throw new NoConnectorSpecifiedException(tr('Cannot return Connector object, no connector specified.'));
+        if ($connector instanceof ConnectorInterface) {
+            if (static::getConnectorsObject()->valueExists($connector->getName())) {
+                static::getConnectorsObject()->add($connector);
+            }
+
+            // The specified connector is already an object, return it
+            return $connector;
         }
 
-        if ($connector instanceof ConnectorInterface) {
-            $connector = $connector->getName();
+        if (!$connector) {
+            throw new OutOfBoundsException(tr('Cannot return Connector object because no connector name is specified'));
         }
 
         // Connectors::get() will automatically load the required connector object if it isn't loaded yet

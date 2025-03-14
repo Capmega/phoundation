@@ -263,20 +263,20 @@ interface ConnectorInterface extends DataEntryInterface
     public function setDriver(?string $driver): static;
 
     /**
-     * Returns the pdo_attributes for this connector
+     * Returns the attributes for this connector
      *
      * @return array|null
      */
-    public function getPdoAttributes(): ?array;
+    public function getAttributes(): ?array;
 
     /**
-     * Sets the pdo_attributes for this connector
+     * Sets the attributes for this connector
      *
-     * @param array|string|null $pdo_attributes
+     * @param array|string|null $attributes
      *
      * @return static
      */
-    public function setPdoAttributes(array|string|null $pdo_attributes): static;
+    public function setAttributes(array|string|null $attributes): static;
 
     /**
      * Returns the mode for this connector

@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Connectors;
 
 use PDO;
+use Phoundation\Core\Config\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\Definition;
@@ -49,7 +50,9 @@ use Phoundation\Web\Html\Enums\EnumInputType;
 class Connector extends DataEntry implements ConnectorInterface
 {
     use TraitDataEntryNameDescription;
-    use TraitDataEntryHostnamePort;
+    use TraitDataEntryHostnamePort {
+        getHostname as protected __getHostname;
+    }
     use TraitDataEntryUsername;
     use TraitDataEntryPassword;
     use TraitDataEntryDatabase;
@@ -232,8 +235,28 @@ class Connector extends DataEntry implements ConnectorInterface
             return parent::loadIdentifier();
         }
 
-        // We don't have a database connection, so don't even try to use the normal database load!
+        // We don't have a database connect, so don't even try to use the normal database load!
         return $this->tryLoadFromConfiguration($this->identifier);
+    }
+
+
+    /**
+     * Returns the hostname for this object
+     *
+     * @return string|null
+     */
+    public function getHostname(): ?string
+    {
+        $hostname = $this->__getHostname();
+
+        if ($hostname === 'localhost') {
+            // PDO has a weird quirk where it will ignore port settings when the host is localhost. 127.0.0.1 doesn't
+            // seem to have this so force the use of that instead. This should also skip hostname lookups, as fast as
+            // that would be
+            $hostname = '127.0.0.1';
+        }
+
+        return $hostname;
     }
 
 
@@ -366,35 +389,83 @@ class Connector extends DataEntry implements ConnectorInterface
 
 
     /**
-     * Returns the pdo_attributes for this connector
+     * Returns the attributes for this connector
      *
      * @return array|null
      */
-    public function getPdoAttributes(): ?array
+    public function getAttributes(): ?array
     {
-        return $this->getTypesafe('array', 'pdo_attributes');
+        return $this->getTypesafe('array', 'attributes');
     }
 
 
     /**
-     * Sets the pdo_attributes for this connector
+     * Sets the attributes for this connector
      *
-     * @param array|string|null $pdo_attributes
+     * @param array|string|null $attributes
      *
      * @return static
      */
-    public function setPdoAttributes(array|string|null $pdo_attributes): static
+    public function setAttributes(array|string|null $attributes): static
     {
-        if (is_string($pdo_attributes)) {
-            if ($pdo_attributes) {
-                $pdo_attributes = Json::decode($pdo_attributes);
+        if (is_string($attributes)) {
+            if ($attributes) {
+                $attributes = Json::decode($attributes);
 
             } else {
-                $pdo_attributes = [];
+                $attributes = [];
             }
         }
 
-        return $this->set($pdo_attributes, 'pdo_attributes');
+        return $this->set($attributes, 'attributes');
+    }
+
+
+    /**
+     * Returns the connect timeout
+     *
+     * @return int|null
+     */
+    public function getConnectTimeout(): ?int
+    {
+        return $this->getTypesafe('int', 'connect_timeout', config()->getInteger('databases.mysql.timeouts.connect', 3));
+    }
+
+
+    /**
+     * Sets the connect timeout
+     *
+     * @param int|null $connect_timeout
+     *
+     * @return static
+     */
+    public function setConnectTimeout(?int $connect_timeout): static
+    {
+        return $this->set($connect_timeout, 'connect_timeout');
+    }
+
+
+    /**
+     * Returns the query timeout
+     *
+     * @return int|null
+     */
+    public function getQueryTimeout(): ?int
+    {
+        return $this->getTypesafe('int', 'query_timeout', config()->getInteger('databases.mysql.timeouts.query', 3));
+    }
+
+
+    /**
+     * Sets the query timeout
+     *
+     * @param int|null $query_timeout
+     *
+     * @return static
+     */
+    public function setQueryTimeout(?int $query_timeout): static
+    {
+        return $this->set($query_timeout, 'query_timeout');
     }
 
 
@@ -720,7 +791,7 @@ class Connector extends DataEntry implements ConnectorInterface
             'options'     => null,
             'database'    => $this->getDatabase(),
             'expires'     => 86400,
-            'servers'     => $this->getServers()
+            'servers'     => $this->getServers(),
         ];
     }
 
@@ -737,11 +808,12 @@ class Connector extends DataEntry implements ConnectorInterface
     protected function applyConfigurationTemplate(array $configuration): array
     {
         // Copy the configuration options over the template
-        $configuration = Arrays::mergeFull($this->getConfigurationTemplate(), $configuration);
+        $configuration             = Arrays::mergeFull($this->getConfigurationTemplate(), $configuration);
+        $configuration['hostname'] = $this->getHostname();
 
         switch ($configuration['driver']) {
             case 'mysql':
-                // Do we have a MySQL driver available?
+                // Is the MySQL driver available?
                 if (!defined('PDO::MYSQL_ATTR_USE_BUFFERED_QUERY')) {
                     // Whelp, MySQL library is not available
                     throw new PhpModuleNotAvailableException('Could not find the "MySQL" library for PDO. To install this on Ubuntu derivatives, please type "sudo apt install php-mysql');
@@ -756,22 +828,26 @@ class Connector extends DataEntry implements ConnectorInterface
                 }
 
                 // Ensure that all configured attributes are uppercase
-                $configuration['pdo_attributes'] = Arrays::convertKeysToUppercase(array_get_safe($configuration, 'pdo_attributes', []));
+                $configuration['attributes'] = Arrays::convertKeysToUppercase(array_get_safe($configuration, 'attributes', []));
 
                 // Apply MySQL specific requirements that always apply
-                $configuration['pdo_attributes']['PDO::MYSQL_ATTR_USE_BUFFERED_QUERY'] = !$configuration['buffered'];
-                $configuration['pdo_attributes']['PDO::ATTR_PERSISTENT']               = (array_get_safe($configuration['pdo_attributes'], 'PDO::ATTR_PERSISTENT', false) or $configuration['persistent']);
-                $configuration['pdo_attributes']['PDO::MYSQL_ATTR_INIT_COMMAND']       = $command;
-                $configuration['pdo_attributes']['PDO::ATTR_ERRMODE']                  = PDO::ERRMODE_EXCEPTION;
-                $configuration['pdo_attributes']['PDO::ATTR_CASE']                     = PDO::CASE_LOWER;
+                $configuration['attributes']['PDO::MYSQL_ATTR_USE_BUFFERED_QUERY'] = !$configuration['buffered'];
+                $configuration['attributes']['PDO::ATTR_PERSISTENT']               = (array_get_safe($configuration['attributes'], 'PDO::ATTR_PERSISTENT', false) or $configuration['persistent']);
+                $configuration['attributes']['PDO::MYSQL_ATTR_INIT_COMMAND']       = $command;
+                $configuration['attributes']['PDO::ATTR_ERRMODE']                  = PDO::ERRMODE_EXCEPTION;
+                $configuration['attributes']['PDO::ATTR_CASE']                     = PDO::CASE_LOWER;
+
+                if ($this->getConnectTimeout()) {
+                    $configuration['attributes']['PDO::ATTR_TIMEOUT'] = $this->getConnectTimeout();
+                }
 
                 // Translate PDO attributes to their constants
-                $configuration['pdo_attributes_translated'] = Arrays::convertKeysToConstants($configuration['pdo_attributes']);
+                $configuration['attributes_translated'] = Arrays::convertKeysToConstants($configuration['attributes']);
                 break;
 
             default:
                 // Here be dragons!
-                Log::warning(ts('Driver ":driver" is not supported', [
+                Log::warning(ts('Database driver ":driver" is not yet supported', [
                     ':driver' => $configuration['driver'],
                 ]));
         }
@@ -781,39 +857,41 @@ class Connector extends DataEntry implements ConnectorInterface
 
 
     /**
-     * Returns an SQL connection configuration template
+     * Returns an SQL connect configuration template
      *
      * @return array
      */
     protected function getConfigurationTemplate(): array
     {
         return [
-            'type'           => 'sql',
-            'driver'         => 'mysql',
-            'hostname'       => '127.0.0.1',
-            'port'           => null,
-            'database'       => '',
-            'username'       => '',
-            'password'       => '',
-            'auto_increment' => 1,
-            'init'           => false,
-            'buffered'       => false,
-            'persistent'     => false,
-            'character_set'  => 'utf8mb4',
-            'collate'        => 'utf8mb4_general_ci',
-            'limit_max'      => 10000,
-            'mode'           => 'PIPES_AS_CONCAT,IGNORE_SPACE',
-            'log'            => null,
-            'statistics'     => null,
-            'ssh_tunnel'     => [
+            'type'            => 'sql',
+            'driver'          => 'mysql',
+            'hostname'        => '127.0.0.1',
+            'port'            => null,
+            'database'        => '',
+            'username'        => '',
+            'password'        => '',
+            'auto_increment'  => 1,
+            'connect_timeout' => null,
+            'query_timeout'   => null,
+            'init'            => false,
+            'buffered'        => false,
+            'persistent'      => false,
+            'character_set'   => 'utf8mb4',
+            'collate'         => 'utf8mb4_general_ci',
+            'limit_max'       => 10000,
+            'mode'            => 'PIPES_AS_CONCAT,IGNORE_SPACE',
+            'log'             => null,
+            'statistics'      => null,
+            'ssh_tunnel'      => [
                 'required'    => false,
                 'source_port' => null,
                 'hostname'    => '',
                 'usleep'      => 1200000,
             ],
-            'pdo_attributes' => [],
-            'version'        => '0.0.0',
-            'timezones_name' => 'UTC',
+            'attributes'      => [],
+            'version'         => '0.0.0',
+            'timezones_name'  => 'UTC',
         ];
     }
 
@@ -912,6 +990,22 @@ class Connector extends DataEntry implements ConnectorInterface
                                                $validator->hasMaxCharacters(64);
                                            }))
 
+                    ->add(DefinitionFactory::newNumber('connect_timeout')
+                                           ->setInputType(EnumInputType::positiveInteger)
+                                           ->setSize(2)
+                                           ->setLabel(tr('Connect timeout'))
+                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+                                               $validator->isInteger()->isBetween(0, 120);
+                                           }))
+
+                    ->add(DefinitionFactory::newNumber('query_timeout')
+                                           ->setInputType(EnumInputType::positiveInteger)
+                                           ->setSize(2)
+                                           ->setLabel(tr('Query timeout'))
+                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+                                               $validator->isInteger()->isBetween(0, 3600);
+                                           }))
+
                     ->add(Definition::new('mode')
                                     ->setInputType(EnumInputType::text)
                                     ->setOptional(true, 'PIPES_AS_CONCAT,IGNORE_SPACE')
@@ -921,10 +1015,10 @@ class Connector extends DataEntry implements ConnectorInterface
                                         $validator->hasMaxCharacters(2048);
                                     }))
 
-                    ->add(Definition::new('pdo_attributes')
+                    ->add(Definition::new('attributes')
                                     ->setInputType(EnumInputType::text)
                                     ->setOptional(true)
-                                    ->setLabel(tr('PDO attributes'))
+                                    ->setLabel(tr('Attributes'))
                                     ->setSize(3)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->hasMaxCharacters(2048);
@@ -983,7 +1077,7 @@ class Connector extends DataEntry implements ConnectorInterface
 
                     ->add(DefinitionFactory::newBoolean('persistent')
                                            ->setLabel(tr('Persistent'))
-                                           ->setHelpText(tr('If enabled, Phoundation will use persistent connections. This may speed up database connections but may potentially cause your database to be overloaded with open connections'))
+                                           ->setHelpText(tr('If enabled, Phoundation will use persistent connects. This may speed up database connects but may potentially cause your database to be overloaded with open connects'))
                                            ->setOptional(true, false)
                                            ->setSize(1))
 

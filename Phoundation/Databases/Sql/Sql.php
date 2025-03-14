@@ -35,13 +35,14 @@ use Phoundation\Databases\Exception\DatabaseTestException;
 use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
 use Phoundation\Databases\Sql\Exception\SqlColumnDoesNotExistsException;
 use Phoundation\Databases\Sql\Exception\SqlConnectException;
+use Phoundation\Databases\Sql\Exception\SqlConnectionRefusedException;
 use Phoundation\Databases\Sql\Exception\SqlContstraintDuplicateEntryException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Exception\SqlInvalidConfigurationException;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\Exception\SqlNoDatabaseSelectedException;
 use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
-use Phoundation\Databases\Sql\Exception\SqlServerNotAvailableException;
+use Phoundation\Databases\Sql\Exception\SqlConnectionTimedOutException;
 use Phoundation\Databases\Sql\Exception\SqlSyntaxErrorException;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
@@ -186,7 +187,7 @@ class Sql implements SqlInterface
      */
     public function getConnectorLogPrefix(): string
     {
-        return '(' . $this->uniqueid . ' / ' . $this->getHostname() . ' / ' . ($this->getDatabase() ?? '*nodatabase*') . ' / ' . $this->counter . ') ';
+        return '[SQL ' . ($this->connector ?? 'N/A') . ' / ' . $this->uniqueid . ' / ' . $this->getHostname() . ' / ' . ($this->getDatabase() ?? 'N/A') . ' / ' . $this->counter . '] ';
     }
 
 
@@ -788,6 +789,14 @@ class Sql implements SqlInterface
                 $this->sshTunnel();
             }
 
+            try {
+                // Ensure the required fields are all available
+                Arrays::ensureKeys($this->configuration, 'driver,hostname,username,password', true);
+
+            } catch (OutOfBoundsException $e) {
+                throw SqlInvalidConfigurationException::new(static::getConnectorLogPrefix() . tr('Cannot connect to SQL database, the connector configuration is missing required fields. See data for more information'), $e);
+            }
+
             // Connect!
             $retries = 7;
             $start   = microtime(true);
@@ -795,12 +804,7 @@ class Sql implements SqlInterface
             while (--$retries >= 0) {
                 try {
                     $connect_string  = $this->configuration['driver'] . ':host=' . $this->configuration['hostname'] . (empty($this->configuration['port']) ? '' : ';port=' . $this->configuration['port']) . (($use_database and $this->configuration['database']) ? ';dbname=' . $this->configuration['database'] : '');
-                    $this->pdo       = new PDO($connect_string, $this->configuration['username'], $this->configuration['password'], Arrays::force($this->configuration['pdo_attributes_translated']));
-
-                    Log::success(static::getConnectorLogPrefix() . tr('Connected to instance ":connector" with PDO connect string ":string"', [
-                        ':connector' => $this->connector,
-                        ':string'    => $connect_string,
-                    ]), 3);
+                    $this->pdo       = new PDO($connect_string, $this->configuration['username'], $this->configuration['password'], Arrays::force($this->configuration['attributes_translated']));
 
                     // Add this database object to the connector so that it can always be accessed through the connector
                     $this->o_connector->setDatabaseObject($this);
@@ -818,7 +822,7 @@ class Sql implements SqlInterface
                     switch ($e->getCode()) {
                         case 1045:
                             // Access denied!
-                            throw SqlAccessDeniedException::new(static::getConnectorLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user", access was denied by the database server', [
+                            throw SqlAccessDeniedException::new(static::getConnectorLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user", access was denied by the database server. Please check server username and password', [
                                 ':connector' => $this->connector,
                                 ':string'    => isset_get($connect_string),
                                 ':user'      => $this->configuration['username'],
@@ -836,12 +840,26 @@ class Sql implements SqlInterface
                             ]))->addData(['database' => isset_get($matches[1][0])]);
 
                         case 2002:
+                            if (str_contains(strtolower($e->getMessage()), 'connection timed out')) {
+                                // Database service not available, connection refused!
+                                throw SqlConnectionTimedOutException::new(static::getConnectorLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user" because the connection timed out after ":time". The database server may be down, the port might be blocked by a firewall, or the port configuration may be incorrect', [
+                                                                              ':time'      => PhoTime::difference($start, microtime(true), 'auto', 5),
+                                                                              ':connector' => $this->connector,
+                                                                              ':string'    => isset_get($connect_string),
+                                                                              ':user'      => $this->configuration['username'],
+                                                                          ]))->addData([
+                                                                              'configuration' => $this->configuration
+                                                                          ]);
+                            }
+
                             // Database service not available, connection refused!
-                            throw SqlServerNotAvailableException::new(static::getConnectorLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user" because the connection was refused. The database server may be down, or the configuration may be incorrect', [
-                                ':connector' => $this->connector,
-                                ':string'    => isset_get($connect_string),
-                                ':user'      => $this->configuration['username'],
-                            ]));
+                            throw SqlConnectionRefusedException::new(static::getConnectorLogPrefix() . tr('Failed to connect to database connector ":connector" with connection string ":string" and user ":user" because the connection was refused. The database server may be down, or the configuration may be incorrect', [
+                                                                         ':connector' => $this->connector,
+                                                                         ':string'    => isset_get($connect_string),
+                                                                         ':user'      => $this->configuration['username'],
+                                                                     ]))->addData([
+                                                                         'configuration' => $this->configuration
+                                                                     ]);
                     }
 
                     if ($e->getMessage() == 'could not find driver') {
@@ -900,12 +918,12 @@ class Sql implements SqlInterface
                 }
             }
 
-            Log::success(ts('Connected to database ":connect" in ":time"', [
+            Log::success(static::getConnectorLogPrefix() . ts('Connected to database with PDO connect string ":connect" in ":time"', [
                 ':connect' => $connect_string,
                 ':time'    => PhoTime::difference($start, microtime(true), 'auto', 5),
             ]), 4);
 
-            Log::printr($this->configuration['pdo_attributes'], 2, echo_header: false);
+            Log::printr($this->configuration['attributes'], 2, echo_header: false);
 
             // Yay, we're using the database!
             $this->database = $this->configuration['database'];
@@ -914,6 +932,7 @@ class Sql implements SqlInterface
                 // Try to set MySQL timezone
                 try {
                     $this->pdo->query('SET TIME_ZONE="' . $this->configuration['timezones_name'] . '";');
+                    $this->pdo->query('SET SESSION wait_timeout=' . $this->o_connector->getQueryTimeout() . ';');
 
                 } catch (Throwable $e) {
                     Log::warning(static::getConnectorLogPrefix() . tr('Failed to set timezone ":timezone" for database connector ":connector" with error ":e"', [
