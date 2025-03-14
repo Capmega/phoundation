@@ -2131,7 +2131,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 $this->setColumnValueWithObjectSetter($key, $value, $directly, $definition);
 
             } catch (DataEntryException $e) {
-showdie($e);
                 throw DataEntryException::new(tr('Failed to copy new source into internal source for ":class" class', [
                     ':class' => get_class($this),
                 ]), $e)->setData([
