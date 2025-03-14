@@ -1214,6 +1214,11 @@ class PhoPathCore implements PhoPathInterface
      */
     public function attemptAutoMount(): bool
     {
+        if (!Core::isReady()) {
+            // Can't use auto mounter until core is ready
+            return false;
+        }
+
         if (config()->getBoolean('filesystem.automounts.enabled', false)) {
             return false;
         }

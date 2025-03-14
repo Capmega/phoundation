@@ -51,8 +51,8 @@ class PhoMount extends DataEntry implements PhoMountInterface
     /**
      * FsMount class constructor
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
-     * @param PhoRestrictionsInterface|null             $restrictions
+     * @param IdentifierInterface|array|string|int|false|null $identifier
+     * @param PhoRestrictionsInterface|null                   $restrictions
      */
     public function __construct(IdentifierInterface|array|string|int|false|null $identifier = null, ?PhoRestrictionsInterface $restrictions = null)
     {
@@ -112,8 +112,8 @@ class PhoMount extends DataEntry implements PhoMountInterface
     {
         if (sql()->getDatabase()) {
             $paths = sql()->query('SELECT   `id`, `target_path` 
-                                         FROM     `filesystem_mounts` 
-                                         ORDER BY LENGTH(`target_path`)');
+                                   FROM     `filesystem_mounts` 
+                                   ORDER BY LENGTH(`target_path`)');
 
             while ($mount_path = $paths->fetch()) {
                 $mount_path['target_path'] = PhoPath::absolutePath($mount_path['target_path'], must_exist: false);
