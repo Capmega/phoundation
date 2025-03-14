@@ -1110,7 +1110,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         } elseif ($identifier instanceof DataIteratorInterface) {
             // Get the source from the DataIteratorInterface and try again
-            return $this->initializeSource($identifier->getSource());
+            return $this->initializeSource($identifier->getSource(false, false));
         }
 
         return $this->ready();
@@ -1283,7 +1283,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             if (($identifier instanceof static) or is_subclass_of(static::class, get_class($identifier))) {
                 // The identifier is the same as this, or extended this. Copy its source inside this object
                 return $this->setIdentifier($identifier->getIdentifier())
-                            ->setSource($identifier->getSource())
+                            ->setSource($identifier->getSource(false, false))
                             ->ready(true);
             }
 
@@ -1387,11 +1387,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         if (!InstanceCache::exists('dataentries', $this->getCacheKey())) {
             $data_entry = cache('dataentries')->get($this->getCacheKey());
 
-            if ($data_entry) {
+           if ($data_entry) {
                 if ($data_entry instanceof DataEntryInterface) {
                     // Found it in external cache!
                     $this->is_loaded_from_cache = true;
-                    $this->source               = $data_entry->getSource();
+                    $this->source               = $data_entry->getSource(false, false);
                     return true;
                 }
 
@@ -1415,7 +1415,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         $this->is_loaded_from_cache = true;
-        $this->source               = $data_entry->getSource();
+        $this->source               = $data_entry->getSource(false, false);
         return true;
     }
 
@@ -1775,7 +1775,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         if ($source) {
             if (($source instanceof DataEntryInterface) or ($source instanceof IteratorInterface)) {
-                $source = $source->getSource();
+                $source = $source->getSource(false, false);
 
             } elseif ($source instanceof PDOStatement) {
                 $source = sql()->list($source, $execute);
@@ -2133,6 +2133,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 $this->setColumnValueWithObjectSetter($key, $value, $directly, $definition);
 
             } catch (DataEntryException $e) {
+showdie($e);
                 throw DataEntryException::new(tr('Failed to copy new source into internal source for ":class" class', [
                     ':class' => get_class($this),
                 ]), $e)->setData([
@@ -3183,7 +3184,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function appendDataEntry(DataEntryInterface $data_entry, bool $strip_meta = true): static
     {
         $data_entry   = clone $data_entry;
-        $this->source = array_merge($this->source, ($strip_meta ? Arrays::removeKeys($data_entry->getSource(), static::getDefaultMetaColumns()) : $data_entry->getSource()));
+        $this->source = array_merge($this->source, ($strip_meta ? Arrays::removeKeys($data_entry->getSource(false, false), static::getDefaultMetaColumns()) : $data_entry->getSource(false, false)));
 
         $this->definitions
              ->appendSource($data_entry->getDefinitionsObject()
@@ -3206,7 +3207,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function prependDataEntry(DataEntryInterface $data_entry, bool $strip_meta = true): static
     {
         $data_entry   = clone $data_entry;
-        $this->source = array_merge(($strip_meta ? Arrays::removeKeys($data_entry->getSource(), static::getDefaultMetaColumns()) : $data_entry->getSource()), $this->source);
+        $this->source = array_merge(($strip_meta ? Arrays::removeKeys($data_entry->getSource(false, false), static::getDefaultMetaColumns()) : $data_entry->getSource(false, false)), $this->source);
 
         $data_entry->getDefinitionsObject()->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null)
                                            ->appendSource($this->definitions)
@@ -3231,7 +3232,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function injectDataEntry(string $at_key, DataEntryInterface $data_entry, bool $after = true, bool $strip_meta = true): static
     {
         $data_entry   = clone $data_entry;
-        $this->source = array_merge($this->source, ($strip_meta ? Arrays::removeKeys($data_entry->getSource(), static::getDefaultMetaColumns()) : $data_entry->getSource()));
+        $this->source = array_merge($this->source, ($strip_meta ? Arrays::removeKeys($data_entry->getSource(false, false), static::getDefaultMetaColumns()) : $data_entry->getSource(false, false)));
 
         try {
             $this->definitions->spliceByKey($at_key, 0, $data_entry->getDefinitionsObject()
@@ -4008,7 +4009,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         // both are different pieces of data pointing to the same object, both have values. If one is NULL due to
         // $this->setVirtualData() resetting it, it will be resolved here. DataEntry->getSource() will resolve these
         // links automatically so just copy getSource() over the internal source.
-        $this->source = $this->getSource();
+        $this->source = $this->getSource(false, false);
 
         // Write the data and store the returned ID column
         $this->source = array_replace($this->source, SqlDataEntry::new(sql($this->o_connector), $this)

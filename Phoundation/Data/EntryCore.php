@@ -33,9 +33,9 @@ class EntryCore implements EntryInterface
     /**
      * Default protected keys, keys that may not leave this object
      *
-     * @var array|string[]
+     * @var array
      */
-    protected array $protected_columns = [];
+    protected array $protected_columns = ['password'];
 
 
     /**
