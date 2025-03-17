@@ -18,14 +18,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Memcached;
 
-use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\PoadInterface;
 use Phoundation\Data\Poad\Poad;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
-use Phoundation\Databases\Interfaces\MemcachedInterface;
 use Phoundation\Databases\Memcached\Exception\MemcachedException;
+use Phoundation\Databases\Memcached\Interfaces\MemcachedInterface;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Security\Incidents\EnumSeverity;
@@ -35,6 +34,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Http\Url;
 use Stringable;
 use Throwable;
+
 
 class Memcached implements MemcachedInterface
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace Phoundation\Databases\Interfaces;
+namespace Phoundation\Databases\Memcached\Interfaces;
 
-use Phoundation\Data\Interfaces\PoadInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
+use Phoundation\Databases\Interfaces\DatastoreInterface;
 use Phoundation\Databases\Memcached\Memcached;
 use Stringable;
 
@@ -158,4 +158,15 @@ interface MemcachedInterface extends DatastoreInterface
      * @return static
      */
     public function test(): static;
+
+    /**
+     * Returns true if the specified key exists or not
+     *
+     * @param string|float|int|null $key
+     * @param callable|null         $cache_callback
+     * @param int                   $flags
+     *
+     * @return bool
+     */
+    public function exists(string|float|int|null $key, ?callable $cache_callback = null, int $flags = 0): bool;
 }

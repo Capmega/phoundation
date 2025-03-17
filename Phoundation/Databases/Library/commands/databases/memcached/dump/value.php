@@ -20,10 +20,10 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Connectors\Exception\ConnectorNotExistsException;
 
-CliDocumentation::setUsage('./pho databases export -d mysql -b system -f system.sql');
+CliDocumentation::setUsage('./pho databases memcached dump value -c sessions KEY');
 
-CliDocumentation::setHelp('This command will dump the specified key from the memcached server for the specified 
-connector to STDOUT
+CliDocumentation::setHelp('This command will dump the value for the specified key from the memcached server for the  
+specified connector to STDOUT
 
 
 ARGUMENTS
@@ -31,7 +31,7 @@ ARGUMENTS
 
 -c, --connector CONNECTOR_NAME          The memcached connector to connect to
 
--k, --key KEY                           The memcached key for which the value should be dumped');
+KEY                                     The memcached key for which the value should be dumped');
 
 CliDocumentation::setAutoComplete([
     'arguments' => [

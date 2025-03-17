@@ -16,14 +16,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases;
 
-use Phoundation\Core\Libraries\Library;
 use Phoundation\Databases\Connectors\Connectors;
-use Phoundation\Databases\Connectors\Exception\NoConnectorSpecifiedException;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
 use Phoundation\Databases\FileDb\FileDb;
 use Phoundation\Databases\Interfaces\DatabaseInterface;
-use Phoundation\Databases\Interfaces\MemcachedInterface;
+use Phoundation\Databases\Memcached\Interfaces\MemcachedInterface;
 use Phoundation\Databases\Memcached\Memcached;
 use Phoundation\Databases\MongoDb\MongoDb;
 use Phoundation\Databases\NullDb\NullDb;
