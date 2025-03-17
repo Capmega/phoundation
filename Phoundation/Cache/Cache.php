@@ -51,6 +51,7 @@ use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataEnabled;
 use Phoundation\Databases\Connectors\Exception\ConnectorNotExistsException;
 use Phoundation\Databases\Database;
+use Phoundation\Databases\Memcached\Exception\MemcachedException;
 use Phoundation\Databases\Memcached\Memcached;
 use Phoundation\Databases\MongoDb\MongoDb;
 use Phoundation\Databases\NullDb\NullDb;
@@ -463,6 +464,36 @@ class Cache extends Database implements CacheInterface
     public function hasBeenCleared(): bool
     {
         return static::$has_been_cleared;
+    }
+
+
+    /**
+     * Return statistics for this memcached instance
+     *
+     * @return array
+     */
+    public function getAllKeys(): array
+    {
+        if ($this->enabled) {
+            return $this->getDriver()?->getAllKeys();
+        }
+
+        return [];
+    }
+
+
+    /**
+     * Returns true if the specified key exists or not
+     *
+     * @param string|float|int|null $key
+     * @param callable|null         $cache_callback
+     * @param int                   $flags
+     *
+     * @return bool
+     */
+    public function exists(string|float|int|null $key, ?callable $cache_callback = null, int $flags = 0): bool
+    {
+        return $this->getDriver()?->exists($key, $cache_callback, $flags);
     }
 
 
