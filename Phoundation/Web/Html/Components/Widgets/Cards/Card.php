@@ -80,6 +80,13 @@ class Card extends Widget
     protected ?string $header_content = null;
 
     /**
+     * Extra content for the card footer
+     *
+     * @var string|null $footer_content
+     */
+    protected ?string $footer_content = null;
+
+    /**
      * Tracks if the card is collapsed or not
      *
      * @var bool $collapsed
@@ -235,6 +242,32 @@ class Card extends Widget
     public function setHeaderContent(?string $header_content): static
     {
         $this->header_content = $header_content;
+
+        return $this;
+    }
+    
+
+    /**
+     * Returns extra footer content for the card
+     *
+     * @return string|null
+     */
+    public function getFooterContent(): ?string
+    {
+        return $this->footer_content;
+    }
+
+
+    /**
+     * Returns extra footer content for the card
+     *
+     * @param string|null $footer_content
+     *
+     * @return static
+     */
+    public function setFooterContent(?string $footer_content): static
+    {
+        $this->footer_content = $footer_content;
 
         return $this;
     }
