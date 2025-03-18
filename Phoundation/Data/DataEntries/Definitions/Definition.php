@@ -834,16 +834,19 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * @param ScriptInterface $script
+     * @param ScriptInterface|null $script
      *
      * @return static
      */
-    public function addScript(ScriptInterface $script): static
+    public function addScript(?ScriptInterface $script): static
     {
-        if (!isset($this->source['scripts'])) {
-            $this->source['scripts'] = [];
+        if ($script) {
+            if (!isset($this->source['scripts'])) {
+                $this->source['scripts'] = [];
+            }
+
+            $this->source['scripts'][] = $script;
         }
-        $this->source['scripts'][] = $script;
 
         return $this;
     }

@@ -1077,6 +1077,17 @@ class Url implements UrlInterface
 
 
     /**
+     * Adds the queries from this page to this URL
+     *
+     * @return static
+     */
+    public function addThisPageQueries(): static
+    {
+        return $this->addQueries(explode('&', array_get_safe($_SERVER, 'QUERY_STRING')));
+    }
+
+
+    /**
      * Add the specified query / queries to the specified URL and return
      *
      * @note Do NOT add queries like key=URL (where URL is not URL encoded) in here, as URL may contain "=" and "&"

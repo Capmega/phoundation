@@ -678,14 +678,13 @@ trait TraitElementAttributes
     /**
      * Adds more to the extra element attribute code
      *
-     * @param string|null $extra
+     * @param Stringable|string|null $extra
      *
      * @return static
      */
-    public function addExtra(?string $extra): static
+    public function addExtra(Stringable|string|null $extra): static
     {
         $this->extra .= $extra;
-
         return $this;
     }
 

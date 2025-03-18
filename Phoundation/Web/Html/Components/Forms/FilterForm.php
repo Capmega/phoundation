@@ -88,6 +88,13 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      */
     protected bool $filter_special_users = true;
 
+    /**
+     * Tracks whether by default this filter form requires a clean source
+     *
+     * @var bool $require_clean_source
+     */
+    protected bool $require_clean_source = false;
+
 
     /**
      * FilterForm class constructor
@@ -260,6 +267,31 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
     #[ReturnTypeWillChange] public function getForce(Stringable|string|float|int $key, bool $exception = false): mixed
     {
         return parent::get($key, $exception);
+    }
+
+
+    /**
+     * Returns whether by default this filter form requires a clean source
+     *
+     * @return bool|null
+     */
+    public function getRequireCleanSource(): ?bool
+    {
+        return $this->require_clean_source;
+    }
+
+
+    /**
+     * Sets whether by default this filter form requires a clean source
+     *
+     * @param bool|null $require_clean_source
+     *
+     * @return static
+     */
+    public function setRequireCleanSource(?bool $require_clean_source): static
+    {
+        $this->require_clean_source = $require_clean_source;
+        return $this;
     }
 
 
@@ -530,8 +562,10 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      *
      * @return static
      */
-    protected function applyValidator(string $class, bool $require_clean_source = true): static
+    protected function applyValidator(string $class, bool $require_clean_source = null): static
     {
+        $require_clean_source = $require_clean_source ?? $this->require_clean_source;
+
         // Auto apply
         if ($class === static::class) {
             $validator = $this->selectValidator()->setDefinitionsObject($this->definitions);
