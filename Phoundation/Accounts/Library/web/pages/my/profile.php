@@ -145,7 +145,8 @@ $relevant = Card::new()
                               <a href="' . Url::new('/my/settings.html')->makeWww() . '">' . tr('Manage my settings') . '</a><br>
                               <a href="' . Url::new('/my/api-access.html')->makeWww() . '">' . tr('Manage my API access') . '</a><br>
                               <a href="' . Url::new('/my/authentication-history.html')->makeWww() . '">' . tr('Review my authentication history') . '</a><br>
-                              <a href="' . Url::new('/profiles/profile+' . $user->getId() . '.html')->makeWww() . '">' . tr('View my public profile') . '</a><br>');
+                              <a href="' . Url::new('/profiles/profile+' . $user->getId() . '.html')->makeWww() . '">' . tr('View my public profile') . '</a><br>
+                              <a href="' . Url::new('/mfa/create.html')->makeWww()->addRedirect(Url::newCurrent()) . '">' . tr('Setup multi factor authentication') . '</a><br>');
 
 
 // Build documentation

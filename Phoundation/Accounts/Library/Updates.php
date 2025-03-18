@@ -32,7 +32,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.7.2';
+        return '0.8.0';
     }
 
 
@@ -1260,14 +1260,22 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 }
             }
 
-
-
-
         })->addUpdate('0.7.2', function () {
             $table = sql()->getSchemaObject()->getTableObject('accounts_sessions');
 
             if ($table->exists()) {
                 $table->rename('accounts_user_sessions');
+            }
+
+        })->addUpdate('0.8.0', function () {
+            $table = sql()->getSchemaObject()->getTableObject('accounts_users');
+
+            if (!$table->columnExists('mfa_code')) {
+                $table->alter()->addColumn('`mfa_code` VARCHAR(64) NULL DEFAULT NULL', 'AFTER `password`');
+            }
+
+            if (!$table->columnExists('mfa_timeslice')) {
+                $table->alter()->addColumn('`mfa_timeslice` bigint NULL DEFAULT NULL', 'AFTER `mfa_code`');
             }
         });
     }

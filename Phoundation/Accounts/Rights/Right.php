@@ -41,6 +41,7 @@ class Right extends DataEntry implements RightInterface
     use TraitDataEntryNameLowercaseDash;
     use TraitDataEntryDescription;
 
+
     /**
      * Right class constructor
      *

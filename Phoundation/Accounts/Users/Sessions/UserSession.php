@@ -17,6 +17,7 @@ namespace Phoundation\Accounts\Users\Sessions;
 
 use Phoundation\Accounts\Exception\SessionNotExistsException;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Accounts\Users\Sessions\Interfaces\UserSessionInterface;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Sessions\Exception\SessionDuplicateIdentifierException;
 use Phoundation\Data\Traits\TraitDataSourceArray;
@@ -32,7 +33,8 @@ use Phoundation\Utils\Strings;
 use ReturnTypeWillChange;
 use Stringable;
 
-class UserSession
+
+class UserSession implements UserSessionInterface
 {
     use TraitDataSourceArray{
         get as protected __Get;
@@ -292,20 +294,20 @@ class UserSession
 
 
     /**
-     * Returns the session data for the specified session, or NULL if it does not exist
+     * Returns the session data for the specified session, or NULL if it `doesn't exist
      *
-     * @param string      $session
+     * @param string      $identifier
      * @param string|null $handler
      *
      * @return string|null
      */
-    public static function load(string $session, ?string $handler = null): ?string
+    public static function load(string $identifier, ?string $handler = null): ?string
     {
         $handler = $handler ?? ini_get('session.save_handler');
 
         return match ($handler) {
-            'memcached' => mc('sessions')->get($session),
-            'files'     => PhoFile::new(Strings::slash(ini_get('session.save_path')) . 'sess_' . $session, PhoRestrictions::newWritableObject(dirname(ini_get('session.save_path'))))->getContentsAsString(),
+            'memcached' => mc('sessions')->get($identifier),
+            'files'     => PhoFile::new(Strings::slash(ini_get('session.save_path')) . 'sess_' . $identifier, PhoRestrictions::newWritableObject(dirname(ini_get('session.save_path'))))->getContentsAsString(),
             default     => throw new OutOfBoundsException(tr('Unknown or unsupported session save handler ":handler" encountered', [
                 ':handler' => $handler,
             ])),
@@ -323,7 +325,7 @@ class UserSession
         $data    = static::serialize($this->source['data']);
         $handler = $handler ?? ini_get('session.save_handler');
 
-        return match ($handler) {
+        match ($handler) {
             'memcached' => mc('sessions')->set($data, $this->getIdentifier()),
             'files'     => PhoFile::new(Strings::slash(ini_get('session.save_path')) . 'sess_' . $this->getIdentifier(), PhoRestrictions::newWritableObject(dirname(ini_get('session.save_path'))))->putContents($data),
             ''          => throw new OutOfBoundsException(tr('No session save handler ":handler" configured')),
@@ -332,6 +334,7 @@ class UserSession
             ])),
         };
 
+        return $this;
     }
 
 
@@ -491,5 +494,16 @@ class UserSession
             }
 
         return $return;
+     }
+
+
+    /**
+     * @param string $identifier
+     *
+     * @return bool
+     */
+     public static function isActive(string $identifier): bool
+     {
+        return (bool) mc('sessions')->get($identifier);
      }
 }

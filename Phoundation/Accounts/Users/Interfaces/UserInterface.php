@@ -9,10 +9,8 @@ use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
 use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImageInterface;
 use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImagesInterface;
-use Phoundation\Accounts\Users\ProfileImages\ProfileImage;
 use Phoundation\Core\Sessions\Interfaces\SessionInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
-use Phoundation\Date\PhoDateTime;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Stringable;
@@ -840,4 +838,39 @@ interface UserInterface extends DataEntryInterface
      * @return static
      */
     public function setNotificationsEnabled(bool $enabled): static;
+
+    /**
+     * Returns the email for this object
+     *
+     * @return string|null
+     */
+    public function getEmail(): ?string;
+
+    /**
+     * Sets the email for this object
+     *
+     * @param string|null $email
+     *
+     * @return static
+     */
+    public function setEmail(?string $email): static;
+
+    /**
+     * Update the MFA code (and optionally the timeslice) for this user
+     *
+     * @param string   $code
+     * @param int|null $timeslice
+     *
+     * @return static
+     */
+    public function updateMfaCode(string $code, ?int $timeslice): static;
+
+    /**
+     * Update only the MFA timeslice for this user
+     *
+     * @param int|null $timeslice
+     *
+     * @return static
+     */
+    public function updateMfaTimeslice(?int $timeslice): static;
 }

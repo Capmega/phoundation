@@ -71,6 +71,8 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryFirstNames;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryGeo;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryLanguage;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryLastNames;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryMfaCode;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryMfaTimeslice;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryPhone;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryProfilePictureFile;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryTimezone;
@@ -106,6 +108,8 @@ use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Json\Users;
+use Plugins\Phoundation\MultiFactorAuthentication\Interfaces\MultiFactorAuthenticationInterface;
+use Plugins\Phoundation\MultiFactorAuthentication\MultiFactorAuthentication;
 use Stringable;
 use Throwable;
 
@@ -132,6 +136,8 @@ class User extends DataEntry implements UserInterface
     use TraitDataEntryUrl;
     use TraitDataEntryVerificationCode;
     use TraitDataEntryVerifiedOn;
+    use TraitDataEntryMfaCode;
+    use TraitDataEntryMfaTimeslice;
 
 
     /**
@@ -743,6 +749,63 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
 
     /**
+     * Update the MFA code (and optionally the timeslice) for this user
+     *
+     * @param string   $code
+     * @param int|null $timeslice
+     *
+     * @return static
+     */
+    public function updateMfaCode(string $code, ?int $timeslice): static
+    {
+        Log::action(ts('Updating MFA for user ":user"', [':user' => $this->getDisplayName()]));
+
+        if ($this->readonly or $this->disabled) {
+            throw new DataEntryReadonlyException(tr('Cannot save this ":name" object, the object is readonly or disabled', [
+                ':name' => static::getEntryName(),
+            ]));
+        }
+
+
+        $this->setMfaCode($code)
+             ->setMfaTimeslice($timeslice);
+
+        parent::save();
+
+        $this->notify()?->setTitle(tr('The multi-factor authentication for your account has been updated'))
+                        ->setMessage(tr('The multi-factor authentication for your account :account on the website :site has been updated. If this was not you, please contact the administrator at :email.', [
+                            ':account' => Session::getUserObject()->getEmail(),
+                            ':website' => config()->getString('project.name' , 'Phoundation'),
+                            ':email'   => config()->getString('project.email', 'webmaster@' . Domains::getPrimaryWeb()),
+                        ]))
+                        ->save()
+                        ->send();
+
+        return $this;
+    }
+
+
+    /**
+     * Update only the MFA timeslice for this user
+     *
+     * @param int|null $timeslice
+     *
+     * @return static
+     */
+    public function updateMfaTimeslice(?int $timeslice): static
+    {
+        if ($this->readonly or $this->disabled) {
+            throw new DataEntryReadonlyException(tr('Cannot save this ":name" object, the object is readonly or disabled', [
+                ':name' => static::getEntryName(),
+            ]));
+        }
+
+        $this->setMfaTimeslice($timeslice);
+        return parent::save();
+    }
+
+
+    /**
      * Save the user to database
      *
      * @param bool        $force
@@ -937,16 +1000,16 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             $key = $this->getSigninKey()->generate(Url::new('/force-password-update.html')->makeWww());
 
             $this->notify()?->setTitle(tr('An account has been created for you on :project', [
-                                  ':project' => config()->getString('project.name', 'Phoundation')
-                              ]))
-                              ->setMessage(tr('An account has been created on :project by :user. To enter the system, you can click the link :link or copy/paste the :url in your browser. This will immediately take you to your account where you only have to enter your desired password', [
-                                  ':url'     => $key->getUrl(),
-                                  ':link'    => '<a href="' . $key->getUrl() . '">' . tr('here') . '</a>',
-                                  ':user'    => Session::getUserObject()->getDisplayName(),
-                                  ':project' => config()->getString('project.name', 'Phoundation'),
-                              ]))
-                              ->save()
-                              ->send();
+                                ':project' => config()->getString('project.name', 'Phoundation')
+                            ]))
+                            ->setMessage(tr('An account has been created on :project by :user. To enter the system, you can click the link :link or copy/paste the :url in your browser. This will immediately take you to your account where you only have to enter your desired password', [
+                                ':url'     => $key->getUrl(),
+                                ':link'    => '<a href="' . $key->getUrl() . '">' . tr('here') . '</a>',
+                                ':user'    => Session::getUserObject()->getDisplayName(),
+                                ':project' => config()->getString('project.name', 'Phoundation'),
+                            ]))
+                            ->save()
+                            ->send();
 
             return $this;
         }
@@ -2749,6 +2812,17 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
 
     /**
+     * Returns a MultiFactorAuthenticationInterface for this user
+     *
+     * @return MultiFactorAuthenticationInterface
+     */
+    public function getMultiFactorAuthenticationObject(): MultiFactorAuthenticationInterface
+    {
+        return MultiFactorAuthentication::new($this);
+    }
+
+
+    /**
      * Sets the available data keys for the User class
      *
      * @param DefinitionsInterface $definitions
@@ -3216,6 +3290,29 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setHelpText(tr('The password for this user'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isStrongPassword();
+                                    }))
+
+                    ->add(DefinitionFactory::newCode('mfa_code')
+                                    ->setRender(false)
+                                    ->setReadonly(true)
+                                    ->setOptional(true)
+                                    ->setCliAutoComplete(true)
+                                    ->setInputType(EnumInputType::password)
+                                    ->setMaxlength(64)
+                                    ->setHelpText(tr('The MFA code for this user'))
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->isCode(max_characters: 64);
+                                    }))
+
+                    ->add(DefinitionFactory::newNumber('mfa_timeslice')
+                                    ->setRender(false)
+                                    ->setReadonly(true)
+                                    ->setOptional(true)
+                                    ->setCliAutoComplete(true)
+                                    ->setInputType(EnumInputType::positiveInteger)
+                                    ->setHelpText(tr('The MFA timeslice for this user'))
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->isInteger()->isPositive();
                                     }))
 
                     ->add(DefinitionFactory::newId('profile_images_id')
