@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases;
 
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
@@ -34,6 +36,9 @@ use Phoundation\Exception\OutOfBoundsException;
 
 class Databases
 {
+    use TraitStaticMethodNew;
+
+
     /**
      * The register with all database connections
      *
@@ -79,8 +84,8 @@ class Databases
     public static function getConnectorObject(ConnectorInterface|string $connector): ConnectorInterface
     {
         if ($connector instanceof ConnectorInterface) {
-            if (static::getConnectorsObject()->valueExists($connector->getName())) {
-                static::getConnectorsObject()->add($connector);
+            if (!static::getConnectorsObject()->keyExists($connector->getDisplayName())) {
+                static::getConnectorsObject()->add($connector, $connector->getDisplayName());
             }
 
             // The specified connector is already an object, return it
@@ -148,12 +153,12 @@ class Databases
      */
     protected static function getDatabase(ConnectorInterface|string|null $connector, string $class, bool $connect = true, bool $use_database = true): SqlInterface|RedisInterface|MemcachedInterface|MongoDb|FileDb|NullDb
     {
-        $connector      = Databases::getConnectorObject($connector);
-        $connector_name = $connector->getDisplayName();
+        $o_connector    = Databases::getConnectorObject($connector);
+        $connector_name = $o_connector->getDisplayName();
 
         if (!array_key_exists($connector_name, static::$databases)) {
             // This connector isn't registered yet, so connect and add it to the "connectors" list
-            static::$databases[$connector_name] = new $class($connector, $connect, $use_database);
+            static::$databases[$connector_name] = new $class($o_connector, $connect, $use_database);
         }
 
         return static::$databases[$connector_name];

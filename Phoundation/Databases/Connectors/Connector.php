@@ -210,7 +210,7 @@ class Connector extends DataEntry implements ConnectorInterface
             parent::load($identifier);
 
             // TODO $this->identifier['name'] should always exist for a connector, but what if someone specified $identifier['id'] ???
-            Databases::getConnectorsObject()->add($this, $this->identifier['name'], exception: false);
+            Databases::getConnectorsObject()->add($this, $this->getUniqueColumnValue(), exception: false);
             return $this;
 
         } catch (DataEntryNotExistsException $e) {
@@ -298,13 +298,26 @@ class Connector extends DataEntry implements ConnectorInterface
 
 
     /**
+     * Returns the unique identifier for this database entry, which will be the ID column if it does not have any
+     *
+     * @param bool $exception
+     *
+     * @return string|float|int|null
+     */
+    public function getUniqueColumnValue(bool $exception = true): string|float|int|null
+    {
+        return $this->getDisplayName();
+    }
+
+
+    /**
      * Returns id for this database entry that can be used in logs
      *
      * @return string
      */
     public function getLogId(): string
     {
-        return $this->getType() . ':' . $this->getUsername() . '@' . $this->getHostname() . '/' . $this->getDatabase();
+        return $this->getName() . '[' . $this->getDriver() . ']:' . $this->getUsername() . '@' . $this->getHostname() . '/' . $this->getDatabase();
     }
 
     /**

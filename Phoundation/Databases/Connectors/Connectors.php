@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Connectors;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
@@ -140,10 +141,7 @@ class Connectors extends DataIterator implements ConnectorsInterface
      */
     public function getConnectorWithDatabase(string|int $connector, string $database): ConnectorInterface
     {
-        $connector = $this->get($connector);
-        $connector->setDatabase($database);
-
-        return $connector;
+        return $this->get($connector)->setDatabase($database);
     }
 
 
