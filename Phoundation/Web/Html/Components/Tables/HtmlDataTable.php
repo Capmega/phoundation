@@ -216,9 +216,9 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     /**
      * HtmlDataTable class constructor
      *
-     * @param IteratorInterface|null $source
+     * @param IteratorInterface|array|null $source
      */
-    public function __construct(?IteratorInterface $source = null)
+    public function __construct(IteratorInterface|array|null $source = null)
     {
         parent::__construct($source);
 
