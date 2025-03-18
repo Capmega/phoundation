@@ -3966,8 +3966,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function saveBecauseModified(bool $force): bool
     {
-        if ($this->isNew() or $this->is_modified or $force) {
-            // We're going to save, but check if system is not in readonly mode
+        if (($this->isNew() or $this->is_modified or $force) and !$this->readonly) {
+            // About to save, but first check if Phoundation is not in readonly mode
             $this->checkReadonly('save');
             return true;
         }

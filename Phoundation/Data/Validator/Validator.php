@@ -4709,7 +4709,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
 
     /**
-     * Requires this value to be a valid PHN
+     * Requires this value to be a valid Canadian PHN
      *
      * @returns static
      */
@@ -4724,6 +4724,50 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
                 } catch (InvalidPhnException | PhnRequiredException) {
                     $this->addFailure(tr('must be a valid PHN'));
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Requires that the specified value is empty
+     *
+     * @param mixed  $value
+     * @param string $failure
+     *
+     * @return $this
+     */
+    public function requiresValueEmpty(mixed $value, string $failure): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) use ($failure) {
+            if (!$this->checkIsOptional($value)) {
+                if ($value) {
+                    $this->addFailure($failure);
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Requires that the specified value is empty
+     *
+     * @param mixed  $value
+     * @param string $failure
+     *
+     * @return $this
+     */
+    public function requiresValueNotEmpty(mixed $value, string $failure): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) use ($failure) {
+            if (!$this->checkIsOptional($value)) {
+                if (empty($value)) {
+                    $this->addFailure($failure);
                 }
             }
         });

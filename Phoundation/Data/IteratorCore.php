@@ -114,6 +114,21 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
+     * Iterator class constructor
+     *
+     * @param IteratorInterface|PDOStatement|array|string|null $source
+     */
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null)
+    {
+        if ($source) {
+            $this->setSource($source);
+        }
+
+        $this->setAcceptedDataTypes(static::getDefaultContentDataType());
+    }
+
+
+    /**
      * Returns the name of the items in this Iterator class
      *
      * @return string
