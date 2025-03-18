@@ -3,8 +3,18 @@
 /**
  * Class Session
  *
+ * This class manages the session of a single user (The current user)
  *
+ * This Session class is static
  *
+ * @see       https://www.tonymarston.net/php-mysql/session-handler.html
+ * @see       https://shiflett.org/articles/storing-sessions-in-a-database
+ * @see       https://culttt.com/2013/02/04/how-to-save-php-sessions-to-a-database/
+ * @see       https://konrness.com/php5/how-to-prevent-blocking-php-requests/
+ * @see       https://www.php.net/manual/en/memcached.sessions.php
+ * @see       https://www.php.net/manual/en/function.session-set-save-handler.php
+ * @see       https://jennifersoft.com/en/blog/tech/2019-04-08/
+ * @see       https://stackoverflow.com/questions/3512507/proper-way-to-logout-from-a-session-in-php
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -23,6 +33,7 @@ use Phoundation\Accounts\Users\Authentication;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Accounts\Users\Sessions\Interfaces\UserSessionInterface;
 use Phoundation\Accounts\Users\Sessions\UserSession;
 use Phoundation\Accounts\Users\SignInKey;
 use Phoundation\Accounts\Users\User;
@@ -60,7 +71,9 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
+use Plugins\Phoundation\MultiFactorAuthentication\Interfaces\MultiFactorAuthenticationInterface;
 use Throwable;
+
 
 class Session implements SessionInterface
 {
@@ -144,6 +157,13 @@ class Session implements SessionInterface
      * @var bool $user_changed
      */
     protected static bool $user_changed = false;
+
+    /**
+     * Cache object for the UserSession object for this session
+     *
+     * @var UserSessionInterface|null
+     */
+    protected static ?userSessionInterface $o_user_session = null;
 
 
     /**
@@ -1917,5 +1937,31 @@ class Session implements SessionInterface
             session_write_close();
             static::$open = false;
         }
+    }
+
+
+    /**
+     * Returns a MultiFactorAuthenticationInterface for the user of this session
+     *
+     * @return MultiFactorAuthenticationInterface
+     */
+    public static function getMultiFactorAuthenticationObject(): MultiFactorAuthenticationInterface
+    {
+        return static::getUserObject()->getMultiFactorAuthenticationObject();
+    }
+
+
+    /**
+     * Returns the UserSession object for this session
+     *
+     * @return UserSessionInterface
+     */
+    public static function getUerSession(): UserSessionInterface
+    {
+        if (empty(static::$o_user_session)) {
+            static::$o_user_session = new UserSession(static::getId());
+        }
+
+        return static::$o_user_session;
     }
 }

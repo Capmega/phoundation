@@ -16,15 +16,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Sessions;
 
-use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\Sessions\UserSession;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Exception\SessionException;
-use Phoundation\Core\Sessions\Interfaces\SessionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Date\PhoDateTime;
-use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Os\Processes\Commands\Find;
 
@@ -203,9 +200,21 @@ class Sessions
      */
     public static function getActive(): IteratorInterface
     {
-        return Iterator::new(sql()->listKeyValues('SELECT COUNT(`id`) AS `count` 
+        return Iterator::new(sql()->listKeyValues('SELECT *
                                                    FROM   `accounts_user_sessions` 
                                                    WHERE  `stop` IS NULL'));
+    }
+
+
+    /**
+     * Returns an IteratorInterface with all currently active sessions
+     *
+     * @return IteratorInterface
+     */
+    public static function getAll(): IteratorInterface
+    {
+        return Iterator::new(sql()->listKeyValues('SELECT *  
+                                                   FROM   `accounts_user_sessions`'));
     }
 
 
@@ -300,17 +309,6 @@ class Sessions
     public static function getCount(): int
     {
         return sql()->getColumn('SELECT COUNT(`id`) as `count` FROM `accounts_user_sessions`');
-    }
-
-
-    /**
-     * Returns an Iterator object containing all active sessions
-     *
-     * @return IteratorInterface
-     */
-    public static function list(): IteratorInterface
-    {
-        return Iterator::new(sql()->listKeyValue('SELECT `session` FROM `accounts_user_sessions` WHERE `stop` IS NULL'));
     }
 
 
