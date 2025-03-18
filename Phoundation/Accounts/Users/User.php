@@ -1810,7 +1810,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function getLeadersEmail(): ?string
     {
-        return $this->getLeader()->getEmail();
+        return $this->getLeader()?->getEmail();
     }
 
 
