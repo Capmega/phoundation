@@ -397,37 +397,37 @@ class Definition implements DefinitionInterface
     /**
      * Sets the additional content for this component
      *
-     * @param RenderInterface|callable|string|null $prefix
+     * @param RenderInterface|callable|string|null $additional_content
      *
      * @return static
      */
-    public function setAdditionalContent(RenderInterface|callable|string|null $prefix): static
+    public function setAdditionalContent(RenderInterface|callable|string|null $additional_content): static
     {
-        return $this->setKey($prefix, 'additional_content');
+        return $this->setKey($additional_content, 'additional_content');
     }
 
 
     /**
-     * Returns the postfix automatically added to this value, after validation
+     * Returns the suffix automatically added to this value, after validation
      *
      * @return string|null
      */
-    public function getPostfix(): ?string
+    public function getSuffix(): ?string
     {
-        return get_safe_typed('string', $this->source, 'postfix');
+        return get_safe_typed('string', $this->source, 'suffix');
     }
 
 
     /**
-     * Sets the postfix automatically added to this value, after validation
+     * Sets the suffix automatically added to this value, after validation
      *
      * @param string|null $postfix
      *
      * @return static
      */
-    public function setPostfix(?string $postfix): static
+    public function setSuffix(?string $postfix): static
     {
-        return $this->setKey($postfix, 'postfix', false);
+        return $this->setKey($postfix, 'suffix', false);
     }
 
 
@@ -1256,6 +1256,7 @@ class Definition implements DefinitionInterface
         switch ($this->getInputType()?->value) {
             case 'array_json':
                 return false;
+
             default:
                 return true;
         }
