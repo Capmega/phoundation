@@ -32,7 +32,8 @@ use Phoundation\Web\Uploads\UploadHandler;
 
 // Get the user and alter the default user form
 $user = Session::getUserObject();
-$user->getDefinitionsObject()->setSize('last_sign_in'           , 4)
+$user->getDefinitionsObject()->setMetaVisible(false)
+                             ->setSize('last_sign_in'           , 4)
                              ->setSize('sign_in_count'          , 4)
                              ->setSize('authentication_failures', 4)
                              ->setSize('keywords'               , 3)
