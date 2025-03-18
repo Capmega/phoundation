@@ -46,6 +46,10 @@ trait TraitMethodBuildManualQuery
         $group   = [];
 
         foreach (Arrays::force($identifiers) as $column => $value) {
+            if ($column === '') {
+                continue;
+            }
+
             if (is_int($column)) {
                 $column = 'id';
             }

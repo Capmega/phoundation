@@ -1720,11 +1720,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                     continue;
                 }
 
-                if ($definition->getVirtual()) {
-                    // This is a virtual column, it would typically not contain data, leave empty
-                    continue;
-                }
-
                 // Get the value from the source, ensure to apply default or initial default values
                 $value = array_get_safe($this->source, $column, $this->isNew() ? ($definition->getInitialDefault() ?? $definition->getDefault()) : $definition->getDefault());
 
