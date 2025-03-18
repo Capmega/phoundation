@@ -726,6 +726,10 @@ class Response implements ResponseInterface
 
         $headers = Arrays::force($headers, null);
 
+        if ($prefix) {
+            $headers = array_reverse($headers);
+        }
+
         foreach ($headers as $key => $value) {
             Response::addPageHeader($type, $value, $key, $prefix);
         }
@@ -747,7 +751,7 @@ class Response implements ResponseInterface
         $type = static::getHeaderTypePrefix($type);
 
         if ($prefix) {
-            static::$page_headers = array_merge(static::$page_headers, [$type . $key => $value]);
+            static::$page_headers = array_merge([$type . $key => $value], static::$page_headers);
 
         } else {
             static::$page_headers[$type . $key] = $value;
@@ -772,6 +776,10 @@ class Response implements ResponseInterface
 
         $footers = Arrays::force($footers, null);
 
+        if ($prefix) {
+            $footers = array_reverse($footers);
+        }
+
         foreach ($footers as $key => $value) {
             Response::addPageFooter($type, $value, $key, $prefix);
         }
@@ -793,7 +801,7 @@ class Response implements ResponseInterface
         $type = static::getHeaderTypePrefix($type);
 
         if ($prefix) {
-            static::$page_footers = array_merge(static::$page_footers, [$type . $key => $value]);
+            static::$page_footers = array_merge([$type . $key => $value], static::$page_footers);
 
         } else {
             static::$page_footers[$type . $key] = $value;

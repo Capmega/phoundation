@@ -221,6 +221,7 @@ class InputAutoSuggest extends InputText
         }
 
         // This input element requires some javascript
+        // TODO This should load from the correct Template library!
         Response::loadJavascript('phoundation/adminlte/plugins/jquery-ui/jquery-ui');
 
         // Create JavaScript code for the component
