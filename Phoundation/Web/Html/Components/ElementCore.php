@@ -103,19 +103,19 @@ abstract class ElementCore implements ElementInterface
             throw new OutOfBoundsException(tr('Cannot render HTML element, no element type specified'));
         }
 
-        $postfix = null;
+        $suffix = null;
 
         if ($this->attributes->get('auto_submit', false)) {
             // Add JavaScript code to automatically submit on change
             $this->attributes->removeKeys('auto_submit');
 
-            $postfix .= Script::new()
+            $suffix .= Script::new()
                               ->setContent('$("[name=' . $this->name . ']").change(function (e){ $(e.target).closest("form").submit(); });')
                               ->setJavascriptWrapper(EnumJavascriptWrappers::window);
         }
 
         $renderer_class  = Request::getTemplate()->getRendererClass($this);
-        $render_function = function () use ($postfix) {
+        $render_function = function () use ($suffix) {
             $attributes = $this->renderAttributesArray();
             $attributes = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Utils::QUOTE_ALWAYS | Utils::HIDE_EMPTY_VALUES);
 
@@ -133,7 +133,7 @@ abstract class ElementCore implements ElementInterface
             $render       = $this->render . ' />';
             $this->render = null;
 
-            return $render . $postfix;
+            return $render . $suffix;
         };
 
         if ($renderer_class) {
@@ -141,15 +141,15 @@ abstract class ElementCore implements ElementInterface
 
             $render = $renderer_class::new($this)
                                      ->setParentRenderFunction($render_function)
-                                     ->render() . $postfix;
+                                     ->render() . $suffix;
 
         } else {
-            // The template component does not exist, return the basic Phoundation version
+            // The template component doesn't exist, return the basic Phoundation version
             Log::warning(ts('No template render class found for element component ":component", rendering basic HTML', [
                 ':component' => get_class($this),
             ]), 2);
 
-            $render = $render_function() . $postfix;
+            $render = $render_function() . $suffix;
         }
 
         if (isset($this->tooltip)) {
@@ -160,10 +160,10 @@ abstract class ElementCore implements ElementInterface
             // This element has an anchor. Render the anchor -which will render this element to be its contents- instead
             return $this->anchor->setContent($render)
                                 ->setChildElement(null)
-                                ->render() . $this->extra;
+                                ->render() . $this->extra . $this->additional_content;
         }
 
-        $this->render = $render . $this->extra;
+        $this->render = $render . $this->extra . $this->additional_content;
 
         return $this->render;
     }

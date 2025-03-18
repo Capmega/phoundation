@@ -197,66 +197,9 @@ class InputAutoSuggest extends InputText
      */
     public function render(): ?string
     {
-        // Auto suggest is only available when not readonly or not disabled
-        if ($this->readonly or $this->disabled) {
-            return parent::render();
-        }
-
-        if (empty($this->name)) {
-            throw new OutOfBoundsException(tr('No required HTML name attribute specified for auto suggest component'));
-        }
-
-        if (empty($this->source_url)) {
-            throw new OutOfBoundsException(tr('No source URL specified for auto suggest component ":name"', [
-                ':name' => $this->name,
-            ]));
-        }
-
-        if ($this->variables) {
-            $variables = $this->variables->getSource();
-            $variables = ',' . Arrays::implodeWithKeys($variables, ',' . PHP_EOL, ':');
-
-        } else {
-            $variables = null;
-        }
-
-        // This input element requires some javascript
-        // TODO This should load from the correct Template library!
-        Response::loadJavascript('phoundation/adminlte/plugins/jquery-ui/jquery-ui');
-
-        // Create JavaScript code for the component
-        $script = Script::new()
-                        ->setContent('$(\'[name="' . $this->name . '"]\').autocomplete({
-                                          source: function(request, response) {
-                                            let $selected = $(\'[name="' . $this->name . '"]\');
-                            
-                                            $.ajax({
-                                              url: "' . $this->source_url . '",
-                                              dataType: "jsonp",
-                                              data: {
-                                                term: request.term
-                                                ' . $variables . '
-                                              },
-                                              success: function(data) {
-                                                response(data.data);
-                                              }
-                                            });
-                                          },
-                     ' . ($this->width ? 'open: function(event, ui) {
-                                               $(this).autocomplete("widget").css({
-                                                   width: ' . $this->width . '
-                                               });
-                                          },' : '') . '
-                                          delay: ' . $this->min_suggest_length . ', 
-                                          minLength: ' . $this->min_suggest_length . ',
-                                          select: function(event, ui) {
-                                            console.log("Selected: " + ui.item.value + " aka " + ui.item.id);
-                                          }
-                                        });');
-
         $this->attributes = $this->renderInputAttributes()
                                  ->appendSource($this->attributes);
 
-        return $script->render() . parent::render();
+        return parent::render();
     }
 }

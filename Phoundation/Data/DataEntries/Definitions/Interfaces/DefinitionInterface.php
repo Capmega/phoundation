@@ -104,7 +104,7 @@ interface DefinitionInterface
      *
      * @return string|null
      */
-    public function getPostfix(): ?string;
+    public function getSuffix(): ?string;
 
 
     /**
@@ -114,7 +114,7 @@ interface DefinitionInterface
      *
      * @return static
      */
-    public function setPostfix(?string $postfix): static;
+    public function setSuffix(?string $postfix): static;
 
 
     /**
@@ -1273,11 +1273,11 @@ interface DefinitionInterface
     /**
      * Sets the additional content for this component
      *
-     * @param RenderInterface|callable|string|null $prefix
+     * @param RenderInterface|callable|string|null $additional_content
      *
      * @return static
      */
-    public function setAdditionalContent(RenderInterface|callable|string|null $prefix): static;
+    public function setAdditionalContent(RenderInterface|callable|string|null $additional_content): static;
 
     /**
      * Returns if this input element has after buttons

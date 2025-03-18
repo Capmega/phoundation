@@ -18,7 +18,6 @@ namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;

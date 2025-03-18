@@ -2117,8 +2117,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                     $value = Strings::from($value, $definition->getPrefix());
                 }
 
-                if ($definition->getPostfix()) {
-                    $value = Strings::untilReverse($value, $definition->getPostfix());
+                if ($definition->getSuffix()) {
+                    $value = Strings::untilReverse($value, $definition->getSuffix());
                 }
             }
 
@@ -4108,7 +4108,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
             // Apply definition prefix and postfix only if they are not empty
             $prefix  = $definition->getPrefix();
-            $postfix = $definition->getPostfix();
+            $postfix = $definition->getSuffix();
 
             if ($prefix) {
                 $return[$column] = $prefix . $return[$column];

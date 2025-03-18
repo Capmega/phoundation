@@ -773,7 +773,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         parent::save();
 
         $this->notify()?->setTitle(tr('The multi-factor authentication for your account has been updated'))
-                        ->setMessage(tr('The multi-factor authentication for your account :account on the website :site has been updated. If this was not you, please contact the administrator at :email.', [
+                        ->setMessage(tr('The multi-factor authentication for your account :account on the website :website has been updated. If this was not you, please contact the administrator at :email.', [
                             ':account' => Session::getUserObject()->getEmail(),
                             ':website' => config()->getString('project.name' , 'Phoundation'),
                             ':email'   => config()->getString('project.email', 'webmaster@' . Domains::getPrimaryWeb()),
