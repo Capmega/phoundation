@@ -439,7 +439,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                                                  ->setMaxLength($definition->getMaxLength())
                                                                                  ->setSourceUrl($definition->getDataSource())
                                                                                  ->setVariables($definition->getVariables())
-                                                                                 ->setName($field_name)
+                                                                                 ->setName($definition->getColumn())
                                                                                  ->setValue($source[$column])
                                                                                  ->setBeforeButtons($definition->getBeforeButtons())
                                                                                  ->setAfterButtons($definition->getAfterButtons()),
