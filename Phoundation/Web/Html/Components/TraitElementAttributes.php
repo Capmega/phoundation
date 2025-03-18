@@ -220,6 +220,13 @@ trait TraitElementAttributes
      */
     protected Stringable|string|float|int|null $null_display = null;
 
+    /**
+     * Additional content to be added when rendering the component
+     *
+     * @var string|null $additional_content
+     */
+    protected ?string $additional_content = null;
+
 
     /**
      * Class constructor
@@ -1109,6 +1116,7 @@ trait TraitElementAttributes
             // Apply the definition rules to this element
             $this->setName($definition->getColumn())
                  ->setDisplay($definition->getDisplay())
+                 ->setAdditionalContent($definition->getAdditionalContent())
                  ->setVisible($definition->getVisible())
                  ->setRequired($definition->getRequired())
                  ->addClasses($definition->getClasses())
@@ -1181,6 +1189,35 @@ trait TraitElementAttributes
             $this->classes->removeKeys($class);
         }
 
+        return $this;
+    }
+
+
+    /**
+     * Returns the additional content to be added to the rendered output
+     *
+     * @return string|null
+     */
+    public function getAdditionalContent(): ?string
+    {
+        return $this->additional_content;
+    }
+
+
+    /**
+     * Sets the additional content to be added to the rendered output
+     *
+     * @param RenderInterface|callable|string|null $additional_content
+     *
+     * @return static
+     */
+    public function setAdditionalContent(RenderInterface|callable|string|null $additional_content): static
+    {
+        if (is_callable($additional_content)) {
+            $additional_content = $additional_content();
+        }
+
+        $this->additional_content = get_null((string) $additional_content);
         return $this;
     }
 
