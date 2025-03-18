@@ -1399,7 +1399,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      *
      * @return UserInterface|null
      */
-    public function getRemoteUserObject(string $class, ?string $column = null): ?UserInterface
+    public function getRemoteUserObject(string $class, ?string $column = 'user_key'): ?UserInterface
     {
         // Validate
         if (!class_exists($class)) {
@@ -1429,9 +1429,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
         if ($this->getRemoteId()) {
             // There is a remote user, it's just not initialized yet. Instantiate the object and link it to this user
-            return $this->remote_user = $class::new()
-                                              ->load([$column => $this->getRemoteId()])
-                                              ->setRemoteUser($this);
+            $this->remote_user = $class::new()
+                                       ->load([$column => $this->getRemoteId()])
+                                       ->setRemoteUserObject($this);
+
+            return $this->remote_user;
         }
 
         // There is no remote user
