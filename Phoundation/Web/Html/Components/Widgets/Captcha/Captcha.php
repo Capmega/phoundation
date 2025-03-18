@@ -14,13 +14,13 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Components\Captcha;
+namespace Phoundation\Web\Html\Components\Widgets\Captcha;
 
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Html\Components\Captcha\Interfaces\CaptchaInterface;
 use Phoundation\Web\Html\Components\ElementsBlock;
+use Phoundation\Web\Html\Components\Widgets\Captcha\Interfaces\CaptchaInterface;
 
 
 abstract class Captcha extends ElementsBlock implements CaptchaInterface
@@ -37,8 +37,10 @@ abstract class Captcha extends ElementsBlock implements CaptchaInterface
         switch (config()->getString('security.web.captcha.provider', 'recaptcha')) {
             case 'recaptcha':
                 return new ReCaptcha2($source);
+
             case '':
                 throw new OutOfBoundsException(tr('No captcha provider specified'));
+
             default:
                 throw new OutOfBoundsException(tr('Unknown captcha provider ":provider" specified', [
                     ':provider' => config()->getString('', 'recaptcha'),

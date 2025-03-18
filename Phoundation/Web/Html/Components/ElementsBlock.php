@@ -33,35 +33,8 @@ use Phoundation\Web\Requests\Request;
 use Stringable;
 
 
-abstract class ElementsBlock extends Iterator implements ElementsBlockInterface
+abstract class ElementsBlock extends ElementsBlockCore implements ElementsBlockInterface
 {
-    use TraitElementAttributes {
-        __construct as ___construct;
-    }
-
-
-    /**
-     * If true, this element block will only render the contents
-     *
-     * @var bool $render_contents_only
-     */
-    protected bool $render_contents_only = false;
-
-    /**
-     * Indicates if flash messages were rendered (and then we can assume, sent to client too)
-     *
-     * @var bool
-     */
-    protected bool $has_rendered = false;
-
-    /**
-     * A form around this element block
-     *
-     * @var FormInterface|null
-     */
-    protected ?FormInterface $form = null;
-
-
     /**
      * ElementsBlock class constructor
      *
@@ -75,181 +48,14 @@ abstract class ElementsBlock extends Iterator implements ElementsBlockInterface
 
 
     /**
-     * Returns the rendered version of this element
+     * Returns a new static object
      *
-     * @return string
-     */
-    public function __toString(): string
-    {
-        return (string) $this->render();
-    }
-
-
-    /**
-     * Renders and returns the HTML for this object using the template renderer if available
-     *
-     * @note Templates work as follows: Any component that renders HTML must be in an HTML/ directory, either in a
-     *       Phoundation library, or in a Plugins library. The path of the component, starting from Html/ is the path
-     *       that this method will search for in the Template. If the same path section is found then that file will
-     *       render the HTML for the component. For example: Plugins\Example\Section\Html\Components\Input\InputText
-     *       with Template AdminLte will be rendered by Templates\AdminLte\Html\Components\Input\InputText
-     *
-     * @return string|null
-     * @see  ElementInterface::render()
-     */
-    public function render(): ?string
-    {
-        if ($this->render_contents_only) {
-            return $this->content;
-        }
-
-        $renderer_class  = Request::getTemplate()->getRendererClass($this);
-        $render_function = function (?string $render = null) {
-            if ($this->form) {
-                return $this->form
-                            ->setContent($render)
-                            ->render();
-            }
-
-            $this->render = null;
-
-            return $render;
-        };
-
-        if ($renderer_class) {
-            Log::write(ts('Using renderer class ":class" for ":this"', [
-                ':class' => $renderer_class,
-                ':this'  => get_class($this),
-            ]), 'debug', 2);
-
-            TemplateRenderer::ensureClass($renderer_class, $this);
-
-            return $renderer_class::new($this)
-                                  ->setParentRenderFunction($render_function)
-                                  ->render();
-        }
-
-        if (method_exists($this, 'defaultRender')) {
-            // Use the default render for this object
-            return $this->defaultRender();
-        }
-
-        // The template component does not exist, return the basic Phoundation version
-        Log::warning(ts('No template render class found for block component ":component", rendering basic HTML', [
-            ':component' => get_class($this),
-        ]), 2);
-
-        return $render_function($this->render);
-    }
-
-
-    /**
-     * Returns the contents of this object as an array
-     *
-     * @return array
-     */
-    public function __toArray(): array
-    {
-        return Poad::generateArray($this->getSource(), static::class, EnumPoadTypes::object);
-    }
-
-
-    /**
-     * Sets if this element block should render an HTML form around itself, or not
-     *
-     * @param bool $use_form
-     * @param bool $post
+     * @param IteratorInterface|PDOStatement|array|string|null $source
      *
      * @return static
      */
-    public function useForm(bool $use_form, bool $post = true): static
+    public static function new(IteratorInterface|PDOStatement|array|string|null $source = null): static
     {
-        if ($use_form) {
-            if (empty($this->form)) {
-                $this->form = Form::new()->setRequestMethod($post ? EnumHttpRequestMethod::post : EnumHttpRequestMethod::get);
-            }
-
-        } else {
-            $this->form = null;
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Shortcut to set the form action directly
-     *
-     * @param Stringable|string|null $action
-     *
-     * @return static
-     */
-    public function setFormAction(Stringable|string|null $action): static
-    {
-        $this->getForm()->setAction($action);
-        return $this;
-    }
-
-
-    /**
-     * Returns the form of this objects block
-     *
-     * @return FormInterface|null
-     */
-    public function getForm(): ?FormInterface
-    {
-        return $this->form;
-    }
-
-
-    /**
-     * Returns the form of this objects block
-     *
-     * @param FormInterface|null $form
-     *
-     * @return static
-     */
-    public function setForm(?FormInterface $form): static
-    {
-        $this->form = $form;
-
-        return $this;
-    }
-
-
-    /**
-     * Returns if this element renders it will only return the contents
-     *
-     * @return bool
-     */
-    public function getRenderContentsOnly(): bool
-    {
-        return $this->render_contents_only;
-    }
-
-
-    /**
-     * If set true, when this element renders it will only return the contents
-     *
-     * @param bool $enable
-     *
-     * @return static
-     */
-    public function setRenderContentsOnly(bool $enable): static
-    {
-        $this->render_contents_only = $enable;
-
-        return $this;
-    }
-
-
-    /**
-     * Returns if this FlashMessages object has rendered HTML or not
-     *
-     * @return bool
-     */
-    public function hasRendered(): bool
-    {
-        return $this->has_rendered;
+        return new static($source);
     }
 }

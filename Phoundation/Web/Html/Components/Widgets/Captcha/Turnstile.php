@@ -1,10 +1,11 @@
 <?php
 
 /**
- * Class ReCaptcha
+ * Class Turnstile
  *
+ * Captcha system based on Cloudflare Turnstile.
  *
- *
+ * @see       https://www.cloudflare.com/products/turnstile/
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -14,66 +15,30 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Components\Captcha;
+namespace Phoundation\Web\Html\Components\Widgets\Captcha;
 
-use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Data\Validator\Exception\CaptchaFailedException;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Network\Curl\Post;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Script;
 
 
-class ReCaptcha2 extends Captcha
+class Turnstile extends Captcha
 {
     /**
-     * Captcha size
-     *
-     * @var string $size
-     */
-    #[ExpectedValues('normal', 'compact')]
-    protected string $size = 'normal';
-
-    /**
-     * Script used for this ReCaptcha object
+     * Script used for this Turnstile object
      *
      * @var string $script
      */
-    protected string $script = 'https://www.google.com/recaptcha/api.js';
+    protected string $script = '';
 
 
     /**
-     * Returns the recaptcha size
-     *
-     * @return string
-     */
-    #[ExpectedValues('normal', 'compact')]
-    public function getSize(): string
-    {
-        return $this->size;
-    }
-
-
-    /**
-     * Sets the captcha size
-     *
-     * @param string $size
-     *
-     * @return ReCaptcha2
-     */
-    public function setSize(#[ExpectedValues('normal', 'compact')] string $size): static
-    {
-        $this->size = $size;
-
-        return $this;
-    }
-
-
-    /**
-     * Returns the script required for this ReCaptcha
+     * Returns the script required for this Turnstile
      *
      * @return string
      */
@@ -95,7 +60,7 @@ class ReCaptcha2 extends Captcha
     public function validateResponse(?string $response, string $remote_ip = null, string $secret = null): void
     {
         if (!$this->isValid($response, $remote_ip, $secret)) {
-            throw new CaptchaFailedException(tr('The ReCaptcha response is invalid for ":remote_ip"', [
+            throw new ValidationFailedException(tr('The Turnstile response is invalid for ":remote_ip"', [
                 ':remote_ip' => $remote_ip ?? Session::getIpAddress(),
             ]));
         }
@@ -123,10 +88,11 @@ class ReCaptcha2 extends Captcha
         if (!$secret) {
             // Use configured secret key
             if (Core::isProductionEnvironment()) {
-                $secret = config()->getString('security.web.captcha.recaptcha.secret');
+                $secret = config()->getString('security.web.captcha.turnstile.secret');
 
             } else {
-                $secret = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
+                // This is a test key, should only be used in non production environments
+                $secret = '';
             }
         }
 
@@ -137,7 +103,7 @@ class ReCaptcha2 extends Captcha
         }
 
         // Check with Google if captcha passed or not
-        $post = Post::new('https://www.google.com/recaptcha/api/siteverify')
+        $post = Post::new('')
                     ->setPostUrlEncoded(true)
                     ->addPostValues([
                         'secret'    => $secret,
@@ -151,10 +117,10 @@ class ReCaptcha2 extends Captcha
         $response = Strings::toBoolean($response['success']);
 
         if ($response) {
-            Log::success(ts('Passed ReCaptcha test'));
+            Log::success(ts('Passed Turnstile CAPTCHA test'));
 
         } else {
-            Log::warning(ts('Failed ReCaptcha test'));
+            Log::warning(ts('Failed Turnstile CAPTCHA test'));
         }
 
         return $response;
@@ -171,15 +137,16 @@ class ReCaptcha2 extends Captcha
         // Get captcha public key
         // TODO: Change this to some testing mode, taken from Core
         if (Core::isProductionEnvironment()) {
-            $key = config()->getString('security.web.captcha.recaptcha.key');
+            $key = config()->getString('security.web.captcha.turnstile.key');
         } else {
-            $key = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
+            // This is a test key, should only be used in non production environments
+            $key = '';
         }
 
         return Script::new()
                      ->setAsync(true)
                      ->setDefer(true)
                      ->setSrc($this->script)
-                     ->render() . '<div class="g-recaptcha" data-size="' . $this->size . '" data-sitekey="' . $key . '"></div>';
+                     ->render() . '<div class="" data-sitekey="' . $key . '"></div>';
     }
 }

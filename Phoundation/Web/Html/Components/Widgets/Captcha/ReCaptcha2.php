@@ -14,26 +14,61 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Components\Captcha;
+namespace Phoundation\Web\Html\Components\Widgets\Captcha;
 
+use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Exception\CaptchaFailedException;
 use Phoundation\Network\Curl\Post;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Script;
 
-
-class ReCaptcha extends Captcha
+class ReCaptcha2 extends Captcha
 {
+    /**
+     * Captcha size
+     *
+     * @var string $size
+     */
+    #[ExpectedValues('normal', 'compact')]
+    protected string $size = 'normal';
+
     /**
      * Script used for this ReCaptcha object
      *
      * @var string $script
      */
     protected string $script = 'https://www.google.com/recaptcha/api.js';
+
+
+    /**
+     * Returns the recaptcha size
+     *
+     * @return string
+     */
+    #[ExpectedValues('normal', 'compact')]
+    public function getSize(): string
+    {
+        return $this->size;
+    }
+
+
+    /**
+     * Sets the captcha size
+     *
+     * @param string $size
+     *
+     * @return ReCaptcha2
+     */
+    public function setSize(#[ExpectedValues('normal', 'compact')] string $size): static
+    {
+        $this->size = $size;
+
+        return $this;
+    }
 
 
     /**
@@ -59,7 +94,7 @@ class ReCaptcha extends Captcha
     public function validateResponse(?string $response, string $remote_ip = null, string $secret = null): void
     {
         if (!$this->isValid($response, $remote_ip, $secret)) {
-            throw new ValidationFailedException(tr('The ReCaptcha response is invalid for ":remote_ip"', [
+            throw new CaptchaFailedException(tr('The ReCaptcha response is invalid for ":remote_ip"', [
                 ':remote_ip' => $remote_ip ?? Session::getIpAddress(),
             ]));
         }
@@ -80,7 +115,6 @@ class ReCaptcha extends Captcha
         if (!$response) {
             // There is no response, this is failed before we even begin
             Log::warning(ts('No captcha client response received'));
-
             return false;
         }
 
@@ -91,7 +125,6 @@ class ReCaptcha extends Captcha
                 $secret = config()->getString('security.web.captcha.recaptcha.secret');
 
             } else {
-                // This is a test key, should only be used in non production environments
                 $secret = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
             }
         }
@@ -138,9 +171,7 @@ class ReCaptcha extends Captcha
         // TODO: Change this to some testing mode, taken from Core
         if (Core::isProductionEnvironment()) {
             $key = config()->getString('security.web.captcha.recaptcha.key');
-
         } else {
-            // This is a test key, should only be used in non production environments
             $key = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
         }
 
@@ -148,6 +179,6 @@ class ReCaptcha extends Captcha
                      ->setAsync(true)
                      ->setDefer(true)
                      ->setSrc($this->script)
-                     ->render() . '<div class="g-recaptcha" data-sitekey="' . $key . '"></div>';
+                     ->render() . '<div class="g-recaptcha" data-size="' . $this->size . '" data-sitekey="' . $key . '"></div>';
     }
 }

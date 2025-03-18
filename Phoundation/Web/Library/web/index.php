@@ -144,7 +144,7 @@ Route::getParametersObject()
      ->add(RoutingParameters::new('/^\w{2}\//') // Routing parameters for most pages
                             ->setTemplate(Mdb::class)
                             ->setRootUrl(':PROTOCOL://:DOMAIN/:LANGUAGE/')
-                            ->setRightsExceptions('sign-in.php,sign-out.php,mfa-create.php,mfa-test.php,,mfa-verify.php')
+                            ->setRightsExceptions('sign-in.php,sign-out.php')
                             ->setRights('mmb'))
      ->add(RoutingParameters::new() // Routing parameters for default english system pages
                             ->setSystemPagesOnly(true)

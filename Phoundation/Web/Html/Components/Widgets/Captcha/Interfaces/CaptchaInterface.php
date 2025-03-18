@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Components\Captcha\Interfaces;
+namespace Phoundation\Web\Html\Components\Widgets\Captcha\Interfaces;
 
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 

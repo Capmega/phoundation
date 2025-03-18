@@ -1,11 +1,10 @@
 <?php
 
 /**
- * Class Turnstile
+ * Class ReCaptcha
  *
- * Captcha system based on Cloudflare Turnstile.
  *
- * @see       https://www.cloudflare.com/products/turnstile/
+ *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -15,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Components\Captcha;
+namespace Phoundation\Web\Html\Components\Widgets\Captcha;
 
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
@@ -27,18 +26,18 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Script;
 
 
-class Turnstile extends Captcha
+class ReCaptcha extends Captcha
 {
     /**
-     * Script used for this Turnstile object
+     * Script used for this ReCaptcha object
      *
      * @var string $script
      */
-    protected string $script = '';
+    protected string $script = 'https://www.google.com/recaptcha/api.js';
 
 
     /**
-     * Returns the script required for this Turnstile
+     * Returns the script required for this ReCaptcha
      *
      * @return string
      */
@@ -60,7 +59,7 @@ class Turnstile extends Captcha
     public function validateResponse(?string $response, string $remote_ip = null, string $secret = null): void
     {
         if (!$this->isValid($response, $remote_ip, $secret)) {
-            throw new ValidationFailedException(tr('The Turnstile response is invalid for ":remote_ip"', [
+            throw new ValidationFailedException(tr('The ReCaptcha response is invalid for ":remote_ip"', [
                 ':remote_ip' => $remote_ip ?? Session::getIpAddress(),
             ]));
         }
@@ -81,6 +80,7 @@ class Turnstile extends Captcha
         if (!$response) {
             // There is no response, this is failed before we even begin
             Log::warning(ts('No captcha client response received'));
+
             return false;
         }
 
@@ -88,11 +88,11 @@ class Turnstile extends Captcha
         if (!$secret) {
             // Use configured secret key
             if (Core::isProductionEnvironment()) {
-                $secret = config()->getString('security.web.captcha.turnstile.secret');
+                $secret = config()->getString('security.web.captcha.recaptcha.secret');
 
             } else {
                 // This is a test key, should only be used in non production environments
-                $secret = '';
+                $secret = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
             }
         }
 
@@ -103,7 +103,7 @@ class Turnstile extends Captcha
         }
 
         // Check with Google if captcha passed or not
-        $post = Post::new('')
+        $post = Post::new('https://www.google.com/recaptcha/api/siteverify')
                     ->setPostUrlEncoded(true)
                     ->addPostValues([
                         'secret'    => $secret,
@@ -117,10 +117,10 @@ class Turnstile extends Captcha
         $response = Strings::toBoolean($response['success']);
 
         if ($response) {
-            Log::success(ts('Passed Turnstile CAPTCHA test'));
+            Log::success(ts('Passed ReCaptcha test'));
 
         } else {
-            Log::warning(ts('Failed Turnstile CAPTCHA test'));
+            Log::warning(ts('Failed ReCaptcha test'));
         }
 
         return $response;
@@ -137,16 +137,17 @@ class Turnstile extends Captcha
         // Get captcha public key
         // TODO: Change this to some testing mode, taken from Core
         if (Core::isProductionEnvironment()) {
-            $key = config()->getString('security.web.captcha.turnstile.key');
+            $key = config()->getString('security.web.captcha.recaptcha.key');
+
         } else {
             // This is a test key, should only be used in non production environments
-            $key = '';
+            $key = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
         }
 
         return Script::new()
                      ->setAsync(true)
                      ->setDefer(true)
                      ->setSrc($this->script)
-                     ->render() . '<div class="" data-sitekey="' . $key . '"></div>';
+                     ->render() . '<div class="g-recaptcha" data-sitekey="' . $key . '"></div>';
     }
 }
