@@ -36,9 +36,8 @@ $user = Session::getUserObject();
 $form = $user->getConfigurationsObject()->getHtmlDataEntryFormObject();
 
 
-
 $settings_card = Card::new()
-                     ->setTitle(tr('Edit data for right :name', [':name' => $user->getName()]))
+                     ->setTitle(tr('Edit your account settings'))
                      ->setContent($form)
                      ->setButtons(Buttons::new()
                                          ->addButton(tr('Save'))
