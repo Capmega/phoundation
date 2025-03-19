@@ -131,7 +131,7 @@ Response::setPageTitle(tr('Request a new password'));
 ?>
 <?= Response::getFlashMessagesObject()->render() ?>
     <body class="hold-transition login-page"
-          style="background: url(<?= Url::new('img/backgrounds/' . Core::getProjectSeoName() . '/lost-password.jpg')->makeImg() ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
+          style="background: url(<?= Url::new('backgrounds/lost-password.jpg')->makeImg() ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
     <div class="login-box">
         <!-- /.login-logo -->
         <div class="card card-outline card-info">
