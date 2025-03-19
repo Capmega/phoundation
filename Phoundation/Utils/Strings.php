@@ -1797,20 +1797,22 @@ class Strings extends Utils
     /**
      * Return the specified value as a boolean name, "false" for null, zero, "", false, "true" otherwise.
      *
-     * @param mixed $value
+     * @param mixed  $value
+     * @param string $true
+     * @param string $false
      *
      * @return string
      */
-    public static function fromBoolean(mixed $value): string
+    public static function fromBoolean(mixed $value, string $true = 'true', string $false = 'false'): string
     {
         $return = match ($value) {
-            'false', 'off', 'no' , '0', '0.0' => function ($value) { return 'false'; },
-            default                           => function ($value) {
+            'false', 'off', 'no' , '0', '0.0' => function () { return false; },
+            default                           => function ($value) use ($true, $false) {
                 if ($value) {
-                    return 'true';
+                    return $true;
                 }
 
-                return 'false';
+                return $false;
             }
         };
 
