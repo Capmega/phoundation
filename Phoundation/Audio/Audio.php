@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Audio;
 
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataSignal;
 use Phoundation\Data\Traits\TraitDataTimeout;
@@ -69,8 +70,15 @@ class Audio extends PhoFile
     {
         if (config()->getBoolean('audio.local.enabled', true)) {
             if (!defined('NOAUDIO') or !NOAUDIO) {
+                $directory = new PhoDirectory(DIRECTORY_CDN . LANGUAGE . '/' . Core::getProjectSeoName() . '/audio', PhoRestrictions::newDataObject());
+
+                if (!$directory->exists()) {
+                    // No language / project specific audio directory found, fall back to english / phoundation
+                    $directory = new PhoDirectory(DIRECTORY_CDN . 'en/phoundation/audio', PhoRestrictions::newDataObject());
+                }
+
                 try {
-                    Mpg123::new(new PhoDirectory(DIRECTORY_DATA . 'audio', PhoRestrictions::newDataObject()))
+                    Mpg123::new($directory)
                           ->setTimeout($this->timeout)
                           ->setSignal($this->signal)
                           ->setFileObject($this->makeAbsolute(DIRECTORY_DATA . 'audio'))
