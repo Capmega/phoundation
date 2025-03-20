@@ -31,7 +31,7 @@ class Logo extends Img
     {
         parent::__construct(null);
 
-        $this->src = Url::new('img/logos/' . Core::getProjectSeoName() . '/large.webp')->makeCdn();
+        $this->src = Url::new('logos/large.webp')->makeImg();
 
         $this->getAnchor()->setHref(Url::new('index')->makeWww());
     }

@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http;
 
 use Phoundation\Core\Config\Exception\ConfigPathDoesNotExistsException;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -29,6 +30,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Http\Exception\UrlConfiguredUrlNotFoundException;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
@@ -533,6 +535,7 @@ class Url implements UrlInterface
 //            return $directory;
 //        }
 
+        $this->source = Strings::ensureStartsNotWith($this->source, 'data/content/cdn/');
         $this->source = Strings::ensureStartsWith($this->source, 'img/');
 
         return $this->renderCdn();
@@ -774,9 +777,15 @@ class Url implements UrlInterface
         // Apply predefined / configured URL words
         // Apply special variables
         // Form the CDN URL
+        if (!$extension) {
+            $url  = Strings::ensureStartsWith($url, Core::getProjectSeoName() . '/');
+
+        } else {
+            $url  = Strings::ensureStartsWith($url, 'phoundation' . '/');
+        }
+
         $url  = static::applyPredefined($url);
         $url  = static::applyVariables($url);
-        $url  = Strings::from($url, 'data/content/cdn/');
         $base = Domains::getConfigurationKey(Domains::getCurrent(), 'cdn', $_SERVER['REQUEST_SCHEME'] . '://cdn.' . Domains::getCurrent() . '/:LANGUAGE/', false);
         $base = Strings::ensureEndsWith($base, '/');
         $base = str_replace(':LANGUAGE', Session::getLanguage(), $base);

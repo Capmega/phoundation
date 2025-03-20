@@ -31,7 +31,7 @@ Response::setRenderMainWrapper(false);
 
 ?>
 <body class="hold-transition lockscreen"
-      style="background: url(<?= Url::new('img/backgrounds/' . Core::getProjectSeoName() . '/lock-screen.jpg')->makeImg() ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
+      style="background: url(<?= Url::new('backgrounds/lock-screen.jpg')->makeImg() ?>); background-position: center; background-repeat: no-repeat; background-size: cover;">
 <!-- Automatic element centering -->
 <div class="lockscreen-wrapper card card-outline card-info">
     <div class="card-header text-center">
