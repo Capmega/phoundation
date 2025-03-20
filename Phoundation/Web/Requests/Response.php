@@ -535,7 +535,7 @@ class Response implements ResponseInterface
     {
         try {
             if (empty($url)) {
-                $url  = 'img/favicons/' . Core::getProjectSeoName() . '/project.png';
+                $url  = Core::getProjectSeoName() . 'img/favicons/project.png';
                 $url  = static::versionFile($url, 'img');
                 $file = PhoPath::absolutePath(LANGUAGE . '/' . $url, DIRECTORY_CDN);
 

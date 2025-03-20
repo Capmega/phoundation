@@ -43,7 +43,7 @@ switch (Request::getRequestType()) {
 echo Template::new('system/http-error')->setSource([
     ':h2'     => '409',
     ':h3'     => tr('Conflict'),
-    ':img'    => Url::new('backgrounds/' . Core::getProjectSeoName() . '/404/large.jpg')->makeImg(),
+    ':img'    => Url::new('backgrounds/404/large.jpg')->makeImg(),
     ':p'      => tr('The specified could not be completed due to a conflict with the current state of the target resource.', [
                                                            ':url' => Request::getReferer(true),
                                                        ]),

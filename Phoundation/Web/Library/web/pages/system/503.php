@@ -41,7 +41,7 @@ switch (Request::getRequestType()) {
 echo Template::new('system/http-error')->setSource([
     ':h2'     => '503',
     ':h3'     => tr('Service Unavailable'),
-    ':img'    => Url::new('backgrounds/' . Core::getProjectSeoName() . '/404/large.jpg')->makeImg(),
+    ':img'    => Url::new('backgrounds/404/large.jpg')->makeImg(),
     ':p'      => tr('The server is under maintenance and will return momentarily. Please contact the system administrator for more information'),
     ':type'   => 'warning',
     ':search' => tr('Search'),

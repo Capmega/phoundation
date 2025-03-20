@@ -51,7 +51,7 @@ Response::setBreadCrumbs();
 return Template::new('system/http-error')->setSource([
     ':h2'     => '403',
     ':h3'     => tr('Forbidden'),
-    ':img'    => Url::new('backgrounds/' . Core::getProjectSeoName() . '/404/large.jpg')->makeImg(),
+    ':img'    => Url::new('backgrounds/404/large.jpg')->makeImg(),
     ':p'      => tr('You do not have access to this page. Please contact the system administrator if you think this was in error'),
     ':type'   => 'warning',
     ':search' => tr('Search'),

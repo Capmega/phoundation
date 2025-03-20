@@ -252,7 +252,7 @@ class Notifications extends DataIterator implements NotificationsInterface
      */
     public function autoUpdate(): static
     {
-        Audio::new(DIRECTORY_CDN . '/audio/ping.mp3')
+        Audio::new('/audio/ping.mp3')
              ->playRemote('notification');
         Script::new()
               ->setJavascriptWrapper(EnumJavascriptWrappers::none)
