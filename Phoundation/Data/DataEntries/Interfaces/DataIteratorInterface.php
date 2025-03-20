@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries\Interfaces;
 
+use Phoundation\Data\DataEntries\Exception\DataEntryDisabledException;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
@@ -371,4 +373,30 @@ interface DataIteratorInterface extends IteratorInterface
      * @return InputSelectInterface
      */
     public function getHtmlSelectObject(?string $value_column = 'name', ?string $key_column = 'id', string $class = InputSelect::class): InputSelectInterface;
+
+    /**
+     * Throws an exception for the given action if the object is disabled
+     *
+     * @param string $action
+     *
+     * @return static
+     * @throws DataEntryDisabledException
+     */
+    public function checkDisabled(string $action): static;
+
+    /**
+     * Returns if this object is disabled or not
+     *
+     * @return bool
+     */
+    public function getDisabled(): bool;
+
+    /**
+     * Sets if this object is disabled or not
+     *
+     * @param bool $disabled
+     *
+     * @return static
+     */
+    public function setDisabled(bool $disabled): static;
 }

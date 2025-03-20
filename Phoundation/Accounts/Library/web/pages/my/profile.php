@@ -144,9 +144,7 @@ $relevant = Card::new()
                 ->setTitle(tr('Relevant links'))
                 ->setContent('<a href="' . Url::new('/my/password.html')->makeWww() . '">' . tr('Change my password') . '</a><br>
                               <a href="' . Url::new('/my/settings.html')->makeWww() . '">' . tr('Manage my settings') . '</a><br>
-                              <a href="' . Url::new('/my/api-access.html')->makeWww() . '">' . tr('Manage my API access') . '</a><br>
                               <a href="' . Url::new('/my/authentication-history.html')->makeWww() . '">' . tr('Review my authentication history') . '</a><br>
-                              <a href="' . Url::new('/profiles/profile+' . $user->getId() . '.html')->makeWww() . '">' . tr('View my public profile') . '</a><br>
                               <a href="' . Url::new('/mfa/create.html')->makeWww()->addRedirect(Url::newCurrent()) . '">' . tr('Setup multi factor authentication') . '</a><br>');
 
 
@@ -154,9 +152,8 @@ $relevant = Card::new()
 $documentation = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Documentation'))
-                     ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
-                                   <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
-                                   <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
+                     ->setContent('<p>On this page you can review and modify your profile information.</p>
+                                   <p>Please ensure your information is up to date.</p>');
 
 
 // Set page meta data

@@ -34,6 +34,7 @@ use Phoundation\Data\IteratorCore;
 use Phoundation\Data\Traits\TraitDataCacheKey;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
+use Phoundation\Data\Traits\TraitDataDisabled;
 use Phoundation\Data\Traits\TraitDataFilterForm;
 use Phoundation\Data\Traits\TraitDataMetaEnabled;
 use Phoundation\Data\Traits\TraitDataReadonly;
@@ -68,6 +69,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     use TraitDataFilterForm;
     use TraitDataStatusFilter;
     use TraitDataReadonly;
+    use TraitDataDisabled;
     use TraitDataMetaEnabled;
     use TraitMethodBuildManualQuery;
     use TraitMethodsTableState;

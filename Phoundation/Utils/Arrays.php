@@ -3854,4 +3854,60 @@ class Arrays extends Utils
             ]);
         }
     }
+
+
+    /**
+     * Replaces all boolean values with their string counterparts
+     *
+     * Boolean true will be replaced with "true"
+     * Boolean false will be replaced with "false"
+     *
+     * @param array  $source
+     * @param bool   $force
+     * @param string $true
+     * @param string $false
+     *
+     * @return array
+     */
+    public static function toStringFromBoolean(array $source, bool $force = false, string $true = 'true', string $false = 'false'): array
+    {
+        foreach ($source as &$value) {
+            if (is_bool($value) or $force) {
+                $value = Strings::fromBoolean($value, $true, $false);
+            }
+        }
+
+        unset($value);
+        return $source;
+    }
+
+
+    /**
+     * Replaces all string values with their boolean counterparts
+     *
+     * "true", "on", "yes" "1", 1, etc. will become true
+     * "false", "off", "no", 0, etc. will become false
+     *
+     * @param array $source
+     * @param bool  $force
+     *
+     * @return array
+     */
+    public static function toBooleanFromString(array $source, bool $force = false): array
+    {
+        foreach ($source as &$value) {
+            $test = Strings::toBoolean($value, false);
+
+            if ($test === null) {
+                if (!$force) {
+                    continue;
+                }
+            }
+
+            $value = $test;
+        }
+
+        unset($value);
+        return $source;
+    }
 }
