@@ -2172,9 +2172,9 @@ class Definition implements DefinitionInterface
      *
      * The transform source may be specified as a query string or a key => value array
      *
-     * @return array|PDOStatement|Stringable|string|null
+     * @return PDOStatement|Stringable|array|string|null
      */
-    public function getTransform(): array|PDOStatement|Stringable|string|null
+    public function getTransform(): PDOStatement|Stringable|array|string|null
     {
         return get_safe_typed('array|PDOStatement|Stringable|string|null', $this->source, 'transform');
     }
@@ -2185,11 +2185,11 @@ class Definition implements DefinitionInterface
      *
      * The transform source may be specified as a query string or a key => value array
      *
-     * @param array|PDOStatement|Stringable|string|null $source
+     * @param PDOStatement|Stringable|array|string|null $source
      *
      * @return static
      */
-    public function setTransform(array|PDOStatement|Stringable|string|null $source): static
+    public function setTransform(PDOStatement|Stringable|array|string|null $source): static
     {
         $this->setKey($source, 'transform');
 
