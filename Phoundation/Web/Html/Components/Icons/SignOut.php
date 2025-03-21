@@ -28,7 +28,7 @@ class SignOut extends Icon
      */
     public function __construct(?string $content = null)
     {
-        parent::__construct('fas fa-sign-out-alt');
+        parent::__construct('fas', 'fa-sign-out-alt');
         $this->getAnchor()
              ->setHref(Url::new('sign-out')->makeWww());
     }

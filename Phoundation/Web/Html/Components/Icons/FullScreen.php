@@ -25,7 +25,7 @@ class FullScreen extends Icon
      */
     public function __construct(?string $content = null)
     {
-        parent::__construct('fas fa-expand-arrows-alt');
+        parent::__construct('fas', 'fa-expand-arrows-alt');
         $this->addData('fullscreen', 'widget');
     }
 }
