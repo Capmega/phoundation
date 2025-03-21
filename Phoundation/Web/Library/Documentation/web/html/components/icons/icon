@@ -1,0 +1,113 @@
+
+@see https://duncanlock.net/blog/2021/11/09/styleable-inline-svg-icon-sprite-system-with-caching-fallback/
+
+All icons for a page will be in a single SVG sprite file (sprite.svg)
+
+Once the sprite is loaded, you can reference individual icons within the sprite using the <use> tag:
+
+<svg class="icon">
+  <use xlink:href="https://cdn.example.com/icons/sprite.svg#icon-home"></use>
+</svg>
+
+Why This Is Efficient
+
+    Caching: The single sprite file can be cached by the browser or CDN, so subsequent page loads will use the cached version, further reducing load times.
+    Reduced HTTP Overhead: Fewer requests mean less HTTP overhead, which improves page performance, especially on slower networks or devices.
+    Scalability: Even if you add more icons to the sprite, the number of requests remains the same (just one for the sprite file).
+
+    Styling Flexibility: Since the icons are inline SVGs, you can easily style them with CSS (e.g., change color, size, or add hover effects) using the fill, stroke, or width/height properties.
+    Fallback Support: If the CDN fails, you can provide a local fallback sprite file, ensuring the icons still load.
+
+
+Example of a combined SVG sprite:
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="icon-home" viewBox="0 0 24 24">
+    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+  </symbol>
+  <symbol id="icon-user" viewBox="0 0 24 24">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+    <circle cx="12" cy="7" r="4"></circle>
+  </symbol>
+  <!-- Add more icons here -->
+</svg>
+
+CSS for the icons:
+.icon {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+
+
+PHP code to render an icon would be something like this:
+public function render(): ?string
+{
+    switch ($this->getVendor()) {
+        case 'lucide':
+            return '<svg class="lucide icon"><use xlink:href="https://yourcdn.com/icons.svg#icon-' . $this->getLabel() . '"></use></svg>';
+        default:
+            return '<i class="' . $this->getVendor() . ' ' . $this->getLabel() . '"></i>';
+    }
+}
+
+Step 2: dynamically generating the sprite file based on which icons are used.
+
+For each SVG file, as e.g.
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+
+Iterate through the icon directory:
+            // Loop through the requested icons
+            foreach ($icon_names as $icon_name) {
+                $icon_file = "$icons_dir/$icon_name.svg";
+                if (file_exists($icon_file)) {
+                    // Read the icon content
+                    $icon_content = file_get_contents($icon_file);
+                    // Extract the SVG content (remove the <svg> tag)
+                    $icon_content = preg_replace('/<svg[^>]*>/', '', $icon_content);
+                    $icon_content = preg_replace('/<\/svg>/', '', $icon_content);
+                    // Add the icon as a <symbol> in the sprite
+                    $sprite .= "<symbol id=\"icon-$icon_name\">$icon_content</symbol>";
+                }
+            }
+
+            // Close the SVG sprite
+            $sprite .= '</svg>';
+
+            // output / render the sprite
+
+
+Then, in the html, preload the sprite sheet:
+
+    <link rel="preload" href="/images/icons/icon_sheet.svg" as="image" type="image/svg+xml" />
+
+Finally, load this script in the head:
+
+    const convertSVG = (image, callback) => {
+      // Get the SVG file from the cache
+      fetch(image.src, { cache: 'force-cache' })
+        .then((res) => res.text())
+        .then((data) => {
+          // Parse the SVG text and turn it into DOM nodes
+          const parser = new DOMParser()
+          const svg = parser
+            .parseFromString(data, 'image/svg+xml')
+            .querySelector('svg')
+
+          // Pass along any class or IDs from the parent <img> element
+          if (image.id) svg.id = image.id
+          if (image.className) svg.classList = image.classList
+
+          // Replace the parent <img> with our inline SVG
+          image.parentNode.replaceChild(svg, image)
+        })
+        .then(callback)
+        .catch((error) => console.error(error))
+    }
+
+
+
+

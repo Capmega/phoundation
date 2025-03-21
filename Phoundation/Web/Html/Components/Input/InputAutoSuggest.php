@@ -197,8 +197,6 @@ class InputAutoSuggest extends InputText
      */
     public function render(): ?string
     {
-        show($this->attributes);
-
         $this->attributes = $this->renderInputAttributes()
                                  ->appendSource($this->attributes);
 
