@@ -20,11 +20,11 @@ use Phoundation\Web\Requests\Response;
 
 
 // Load required CSS
-Response::loadCss('phoundation/adminlte/plugins/fullcalendar/main');
+Response::loadCss('templates/adminlte/plugins/fullcalendar/main');
 
 // Load required Javascript
-Response::loadJavascript('phoundation/adminlte/plugins/moment/moment');
-Response::loadJavascript('phoundation/adminlte/plugins/fullcalendar/main');
+Response::loadJavascript('templates/adminlte/plugins/moment/moment');
+Response::loadJavascript('templates/adminlte/plugins/fullcalendar/main');
 
 Script::new()
       ->setJavascriptWrapper(EnumJavascriptWrappers::window)
