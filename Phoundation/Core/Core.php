@@ -652,6 +652,9 @@ class Core implements CoreInterface
             case 'cli':
                 break;
         }
+
+        define('DIRECTORY_PROJECT_CDN'   , DIRECTORY_DATA . 'content/cdn/' . LANGUAGE . '/' . Core::getProjectSeoName() . '/');
+        define('DIRECTORY_PROJECT_PUBTMP', DIRECTORY_CDN  . 'tmp/');
     }
 
 
