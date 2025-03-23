@@ -288,13 +288,13 @@ class SqlDataEntry implements SqlDataEntryInterface
         $insert_row = static::initializeInsertRow($insert_row, $comments, $diff, array_get_safe($update_row, 'meta_state'));
 
         // Build variables for the insert part of the query
-        $insert_columns = SqlQueries::getPrefixedColumns($insert_row, $this->o_data_entry->getColumnPrefix());
-        $insert_values  = SqlQueries::getBoundValues($insert_row, $this->o_data_entry->getColumnPrefix(), true);
+        $insert_columns = SqlQueries::getPrefixedColumns($insert_row, $this->o_data_entry->getPrefix());
+        $insert_values  = SqlQueries::getBoundValues($insert_row, $this->o_data_entry->getPrefix(), true);
         $keys           = SqlQueries::getBoundKeys($insert_row);
 
         // Build variables for the update part of the query
-        $updates       = SqlQueries::getUpdateKeyValues($update_row, 'update_' . $this->o_data_entry->getColumnPrefix(), $this->id_column);
-        $update_values = SqlQueries::getBoundValues($update_row, 'update_' . $this->o_data_entry->getColumnPrefix(), false, [$this->id_column]);
+        $updates       = SqlQueries::getUpdateKeyValues($update_row, 'update_' . $this->o_data_entry->getPrefix(), $this->id_column);
+        $update_values = SqlQueries::getBoundValues($update_row, 'update_' . $this->o_data_entry->getPrefix(), false, [$this->id_column]);
         $execute       = array_merge($insert_values, $update_values);
 
         $this->sql->setDebug($this->debug)
@@ -413,8 +413,8 @@ class SqlDataEntry implements SqlDataEntryInterface
 
         // Build bound variables for the query
         $columns = SqlQueries::getPrefixedColumns($row);
-        $values  = SqlQueries::getBoundValues($row, $this->o_data_entry->getColumnPrefix(), true);
-        $keys    = SqlQueries::getBoundKeys($row, $this->o_data_entry->getColumnPrefix());
+        $values  = SqlQueries::getBoundValues($row, $this->o_data_entry->getPrefix(), true);
+        $keys    = SqlQueries::getBoundKeys($row, $this->o_data_entry->getPrefix());
 
         $this->sql->setDebug($this->debug)
                   ->query('INSERT INTO `' . $this->table . '` (' . $columns . ')

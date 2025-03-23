@@ -35,8 +35,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
     use TraitDataDataEntry;
     use TraitDataTable;
     use TraitDataPrefix {
-        getPrefix as getColumnPrefix;
-        setPrefix as setColumnPrefix;
+        setPrefix as protected __setPrefix;
     }
 
 
@@ -55,8 +54,19 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function __construct(?DataEntryInterface $data_entry = null)
     {
-        $this->setAcceptedDataTypes(DefinitionInterface::class)
-             ->setDataEntryObject($data_entry);
+        parent::__construct();
+        $this->setDataEntryObject($data_entry);
+    }
+
+
+    /**
+     * Returns the data types that are allowed and accepted for this data iterator
+     *
+     * @return string|null
+     */
+    public static function getDefaultContentDataType(): ?string
+    {
+        return DefinitionInterface::class;
     }
 
 
@@ -70,6 +80,24 @@ class Definitions extends IteratorCore implements DefinitionsInterface
     public static function new(?DataEntryInterface $data_entry = null): static
     {
         return new static($data_entry);
+    }
+
+
+    /**
+     * Sets the column prefix for this Definition object
+     *
+     * @param string|null $prefix
+     *
+     * @return $this
+     */
+    public function setPrefix(?string $prefix): static
+    {
+        // Apply the new prefix to all definitions
+        foreach ($this->source as $value) {
+            $value->setPrefix($prefix);
+        }
+
+        return $this->__setPrefix($prefix);
     }
 
 
@@ -101,14 +129,10 @@ class Definitions extends IteratorCore implements DefinitionsInterface
             ]));
         }
 
-        // Ensure the added Definition has DataEntry set
-        $value->setDataEntryObject($this->o_data_entry);
+        // Ensure the added Definition has DataEntry and prefix set
+        $value->setDataEntryObject($this->o_data_entry)
+              ->setPrefix($this->getPrefix());
 
-        if ($this->prefix) {
-            $value->setColumn($this->prefix . $value->getColumn());
-        }
-
-        // TODO Should this not add $this->prefix as well??
         return $key;
     }
 
@@ -391,7 +415,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
         return $this;
     }
 
-    
+
     /**
      * Direct method to render or not display entries
      *

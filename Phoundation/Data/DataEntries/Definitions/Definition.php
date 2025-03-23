@@ -40,7 +40,7 @@ use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Html;
-use Phoundation\Web\Html\Traits\TraitBeforeAfterButtons;
+use Phoundation\Web\Html\Traits\TraitBeforeAfterContent;
 use ReturnTypeWillChange;
 use Stringable;
 use Throwable;
@@ -49,7 +49,7 @@ use ValueError;
 
 class Definition implements DefinitionInterface
 {
-    use TraitBeforeAfterButtons;
+    use TraitBeforeAfterContent;
     use TraitDataRestrictions;
     use TraitDataDataEntry {
         setDataEntryObject as protected __setDataEntry;
@@ -300,19 +300,81 @@ class Definition implements DefinitionInterface
      *
      * @note Will immediately apply QueryBuilder modifications on the DataEntry
      *
-     * @param DataEntryInterface|null $data_entry
+     * @param DataEntryInterface|null $o_data_entry
      *
      * @return static
      */
-    public function setDataEntryObject(?DataEntryInterface $data_entry): static
+    public function setDataEntryObject(?DataEntryInterface $o_data_entry): static
     {
-        $this->__setDataEntry($data_entry);
+        $this->__setDataEntry($o_data_entry);
         return $this->applyQueryBuilderModifications();
     }
 
 
     /**
-     * Returns the prefix automatically added to this value, after validation
+     * Returns the properties for this definition
+     *
+     * @return array|null
+     */
+    public function getProperties(): ?array
+    {
+        return get_safe_typed('array', $this->source, 'properties');
+    }
+
+
+    /**
+     * Returns the value for the requested property key, or NULL if it does not exist
+     *
+     * @param string|float|int $key
+     *
+     * @return mixed
+     */
+    public function getProperty(string|float|int $key): mixed
+    {
+        if (array_key_exists('properties', $this->source)) {
+            if (array_key_exists($key, $this->source['properties'])) {
+                return $this->source['properties'][$key];
+            }
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Sets the value for the requested property key
+     *
+     * @param mixed            $value
+     * @param string|float|int $key
+     *
+     * @return mixed
+     */
+    public function addProperty(mixed $value, string|float|int $key): static
+    {
+        if (!array_key_exists('properties', $this->source)) {
+            $this->source['properties'] = [];
+        }
+
+        $this->source['properties'][$key] = $value;
+        return $this;
+    }
+
+
+    /**
+     * Sets the properties for this definition
+     *
+     * @param array|null $properties
+     *
+     * @return static
+     */
+    public function setProperties(?array $properties): static
+    {
+        return $this->setKey($properties, 'properties', false);
+    }
+
+
+    /**
+     * Returns the prefix automatically added to this column name
      *
      * @return string|null
      */
@@ -323,7 +385,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets the prefix automatically added to this value, after validation
+     * Sets the prefix automatically added to this column name
      *
      * @param string|null $prefix
      *
@@ -332,6 +394,30 @@ class Definition implements DefinitionInterface
     public function setPrefix(?string $prefix): static
     {
         return $this->setKey($prefix, 'prefix', false);
+    }
+
+
+    /**
+     * Returns the suffix automatically added to this column name
+     *
+     * @return string|null
+     */
+    public function getSuffix(): ?string
+    {
+        return get_safe_typed('string', $this->source, 'suffix');
+    }
+
+
+    /**
+     * Sets the suffix automatically added to this column name
+     *
+     * @param string|null $suffix
+     *
+     * @return static
+     */
+    public function setSuffix(?string $suffix): static
+    {
+        return $this->setKey($suffix, 'suffix', false);
     }
 
 
@@ -384,50 +470,106 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns the additional content for this component
+     * Returns true if this component has content before this component
      *
-     * @return RenderInterface|callable|string|null
+     * @return bool
      */
-    public function getAdditionalContent(): RenderInterface|callable|string|null
+    public function hasBeforeContent(): bool
     {
-        return get_safe_typed(RenderInterface::class . '|callable|string|null', $this->source, 'additional_content');
+        return (bool) $this->getBeforeContent();
     }
 
 
     /**
-     * Sets the additional content for this component
+     * Returns the content before this component, if any
      *
-     * @param RenderInterface|callable|string|null $additional_content
+     * @return array
+     */
+    public function getBeforeContent(): array
+    {
+        return get_safe_typed('array', $this->source, 'before_content', []);
+    }
+
+
+    /**
+     * Sets the content before this component
+     *
+     * @param IteratorInterface|RenderInterface|array|callable|string|null $before_content
      *
      * @return static
      */
-    public function setAdditionalContent(RenderInterface|callable|string|null $additional_content): static
+    public function setBeforeContent(IteratorInterface|RenderInterface|array|callable|string|null $before_content): static
     {
-        return $this->setKey($additional_content, 'additional_content');
+        return $this->setKey([], 'before_content', false)
+                    ->addBeforeContent($before_content);
     }
 
 
     /**
-     * Returns the suffix automatically added to this value, after validation
+     * Adds the content before this component
      *
-     * @return string|null
-     */
-    public function getSuffix(): ?string
-    {
-        return get_safe_typed('string', $this->source, 'suffix');
-    }
-
-
-    /**
-     * Sets the suffix automatically added to this value, after validation
-     *
-     * @param string|null $postfix
+     * @param IteratorInterface|RenderInterface|array|callable|string|null $before_content
      *
      * @return static
      */
-    public function setSuffix(?string $postfix): static
+    public function addBeforeContent(IteratorInterface|RenderInterface|array|callable|string|null $before_content): static
     {
-        return $this->setKey($postfix, 'suffix', false);
+        $before_current   = $this->getBeforeContent();
+        $before_current[] = $before_content;
+
+        return $this->setKey($before_current, 'before_content', false);
+    }
+
+
+    /**
+     * Returns true if this component has content after this component
+     *
+     * @return bool
+     */
+    public function hasAfterContent(): bool
+    {
+        return (bool) $this->getAfterContent();
+    }
+
+
+    /**
+     * Returns the content after this component, if any
+     *
+     * @return array
+     */
+    public function getAfterContent(): array
+    {
+        return get_safe_typed('array', $this->source, 'after_content', []);
+    }
+
+
+    /**
+     * Sets the content after this component
+     *
+     * @param IteratorInterface|RenderInterface|array|callable|string|null $after_content
+     *
+     * @return static
+     */
+    public function setAfterContent(IteratorInterface|RenderInterface|array|callable|string|null $after_content): static
+    {
+        return $this->setKey([], 'after_content', false)
+                    ->addAfterContent($after_content);
+    }
+
+
+    /**
+     * Adds the content after this component
+     *
+     * @param IteratorInterface|RenderInterface|array|callable|string|null $after_content
+     *
+     * @return static
+     */
+    public function addAfterContent(IteratorInterface|RenderInterface|array|callable|string|null $after_content): static
+    {
+        $after_current   = $this->getAfterContent();
+        $after_current[] = $after_content;
+
+        return $this->setKey($after_current, 'after_content', false);
     }
 
 
@@ -3003,7 +3145,7 @@ class Definition implements DefinitionInterface
             }
 
             // Column name prefix is an HTML form array prefix? Then close the array
-            if (str_ends_with((string) $validator->getColumnPrefix(), '[')) {
+            if (str_ends_with((string) $validator->getPrefix(), '[')) {
                 $column .= ']';
             }
 
@@ -3180,7 +3322,7 @@ class Definition implements DefinitionInterface
 
             // This column has a static value, force the value
             $value  = $this->getValue();
-            $prefix = $validator->getColumnPrefix();
+            $prefix = $validator->getPrefix();
 
             if (is_callable($value)) {
                 $value = $value($validator->getSource(), $prefix);

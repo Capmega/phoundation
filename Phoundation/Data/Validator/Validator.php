@@ -4519,7 +4519,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      *
      * @return string|null
      */
-    public function getColumnPrefix(): ?string
+    public function getPrefix(): ?string
     {
         return $this->field_prefix;
     }
@@ -4532,7 +4532,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      *
      * @return static
      */
-    public function setColumnPrefix(?string $field_prefix): static
+    public function setPrefix(?string $field_prefix): static
     {
         $this->field_prefix = $field_prefix;
 
@@ -4736,7 +4736,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      * @param mixed  $value
      * @param string $failure
      *
-     * @return $this
+     * @return static
      */
     public function requiresValueEmpty(mixed $value, string $failure): static
     {
@@ -4758,7 +4758,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      * @param mixed  $value
      * @param string $failure
      *
-     * @return $this
+     * @return static
      */
     public function requiresValueNotEmpty(mixed $value, string $failure): static
     {

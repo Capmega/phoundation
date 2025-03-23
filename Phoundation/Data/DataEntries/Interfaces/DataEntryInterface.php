@@ -263,7 +263,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      *
      * @return ?string
      */
-    public function getColumnPrefix(): ?string;
+    public function getPrefix(): ?string;
 
     /**
      * Sets the column prefix string
@@ -272,7 +272,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      *
      * @return static
      */
-    public function setColumnPrefix(?string $prefix): static;
+    public function setPrefix(?string $prefix): static;
 
     /**
      * Returns the object that created this data entry

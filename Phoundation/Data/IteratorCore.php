@@ -2183,6 +2183,30 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
+     * Limit the number of source entries to the specified count
+     *
+     * @param int $count
+     *
+     * @return $this
+     */
+    public function limit(int $count): static
+    {
+        if ($count >= 0) {
+            $this->source = Arrays::limit($this->source, $count);
+        }
+
+        if ($count < 0) {
+            throw new OutOfBoundsException(tr('Cannot limit :class to ":count" entries, the number must be a positive integer value', [
+                ':class' => static::class,
+                ':count' => $count
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Ensure the entry we're going to return is from DataEntryInterface interface
      *
      * @param string|float|int $key

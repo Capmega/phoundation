@@ -20,7 +20,7 @@ namespace Phoundation\Data\Traits;
 trait TraitDataPrefix
 {
     /**
-     * Sets the prefix string
+     * Tracks the column prefix for this object
      *
      * @var string|null $prefix
      */
@@ -28,7 +28,7 @@ trait TraitDataPrefix
 
 
     /**
-     * Returns the prefix string
+     * Returns the column prefix for this object
      *
      * @return string|null
      */
@@ -39,7 +39,7 @@ trait TraitDataPrefix
 
 
     /**
-     * Sets the source
+     * Sets the column prefix for this object
      *
      * @param string|null $prefix
      *

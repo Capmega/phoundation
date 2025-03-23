@@ -1186,7 +1186,7 @@ interface ValidatorInterface extends IteratorBaseInterface
      *
      * @return string|null
      */
-    public function getColumnPrefix(): ?string;
+    public function getPrefix(): ?string;
 
     /**
      * Sets the field prefix value
@@ -1195,7 +1195,7 @@ interface ValidatorInterface extends IteratorBaseInterface
      *
      * @return static
      */
-    public function setColumnPrefix(?string $field_prefix): static;
+    public function setPrefix(?string $field_prefix): static;
 
     /**
      * Returns the table value

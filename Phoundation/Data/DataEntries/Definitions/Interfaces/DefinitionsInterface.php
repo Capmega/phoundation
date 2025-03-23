@@ -18,7 +18,7 @@ interface DefinitionsInterface extends IteratorInterface
      *
      * @return string|null
      */
-    public function getColumnPrefix(): ?string;
+    public function getPrefix(): ?string;
 
 
     /**
@@ -28,7 +28,7 @@ interface DefinitionsInterface extends IteratorInterface
      *
      * @return static
      */
-    public function setColumnPrefix(?string $prefix): static;
+    public function setPrefix(?string $prefix): static;
 
 
     /**

@@ -26,6 +26,7 @@ use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
+use Phoundation\Web\Html\Components\Input\Interfaces\BeforeAfterContentInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
@@ -33,7 +34,7 @@ use Phoundation\Web\Html\Enums\EnumElement;
 use ReturnTypeWillChange;
 use Stringable;
 
-interface DefinitionInterface
+interface DefinitionInterface extends BeforeAfterContentInterface
 {
     /**
      * Sets if this column should ignore validation
@@ -82,7 +83,7 @@ interface DefinitionInterface
 
 
     /**
-     * Returns the prefix automatically added to this value, after validation
+     * Returns the prefix automatically added to this column name
      *
      * @return string|null
      */
@@ -90,7 +91,7 @@ interface DefinitionInterface
 
 
     /**
-     * Sets the prefix automatically added to this value, after validation
+     * Sets the prefix automatically added to this column name
      *
      * @param string|null $prefix
      *
@@ -100,7 +101,7 @@ interface DefinitionInterface
 
 
     /**
-     * Returns the postfix automatically added to this value, after validation
+     * Returns the suffix automatically added to this column name
      *
      * @return string|null
      */
@@ -108,13 +109,13 @@ interface DefinitionInterface
 
 
     /**
-     * Sets the postfix automatically added to this value, after validation
+     * Sets the suffix automatically added to this column name
      *
-     * @param string|null $postfix
+     * @param string|null $suffix
      *
      * @return static
      */
-    public function setSuffix(?string $postfix): static;
+    public function setSuffix(?string $suffix): static;
 
 
     /**
@@ -1260,88 +1261,6 @@ interface DefinitionInterface
      * @return static
      */
     public function setNullElement(EnumElement|null $value): static;
-
-
-    /**
-     * Returns the additional content for this component
-     *
-     * @return RenderInterface|callable|string|null
-     */
-    public function getAdditionalContent(): RenderInterface|callable|string|null;
-
-
-    /**
-     * Sets the additional content for this component
-     *
-     * @param RenderInterface|callable|string|null $additional_content
-     *
-     * @return static
-     */
-    public function setAdditionalContent(RenderInterface|callable|string|null $additional_content): static;
-
-    /**
-     * Returns if this input element has after buttons
-     *
-     * @return bool
-     */
-    public function hasAfterButtons(): bool;
-
-    /**
-     * Returns the modal after_buttons
-     *
-     * @return ButtonsInterface|null
-     */
-    public function getAfterButtons(): ?ButtonsInterface;
-
-    /**
-     * Sets the modal after_buttons
-     *
-     * @param ButtonsInterface|null $after_buttons
-     *
-     * @return static
-     */
-    public function setAfterButtons(?ButtonsInterface $after_buttons): static;
-
-    /**
-     * Sets the modal after_buttons
-     *
-     * @param ButtonInterface|null $button
-     *
-     * @return static
-     */
-    public function addAfterButton(?ButtonInterface $button): static;
-
-    /**
-     * Returns if this input element has before buttons
-     *
-     * @return bool
-     */
-    public function hasBeforeButtons(): bool;
-
-    /**
-     * Returns the modal before_buttons
-     *
-     * @return ButtonsInterface|null
-     */
-    public function getBeforeButtons(): ?ButtonsInterface;
-
-    /**
-     * Sets the modal before_buttons
-     *
-     * @param ButtonsInterface|null $before_buttons
-     *
-     * @return static
-     */
-    public function setBeforeButtons(?ButtonsInterface $before_buttons): static;
-
-    /**
-     * Sets the modal before_buttons
-     *
-     * @param ButtonInterface|null $button
-     *
-     * @return static
-     */
-    public function addBeforeButton(?ButtonInterface $button): static;
 
     /**
      * Returns the in_directories restrictions for this definition

@@ -2257,8 +2257,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         // Convert underscore to camelcase
         // Remove the prefix from the column
-        if ($this->definitions->getColumnPrefix()) {
-            $column = Strings::from($column, $this->definitions->getColumnPrefix());
+        if ($this->definitions->getPrefix()) {
+            $column = Strings::from($column, $this->definitions->getPrefix());
         }
 
         $return = explode('_', $column);
@@ -2266,17 +2266,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $return = implode('', $return);
 
         return $type . ucfirst($return);
-    }
-
-
-    /**
-     * Returns the column prefix string
-     *
-     * @return ?string
-     */
-    public function getColumnPrefix(): ?string
-    {
-        return $this->definitions->getColumnPrefix();
     }
 
 
@@ -2555,7 +2544,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         $return = [];
         $source = $validator->getSource();
-        $prefix = $this->definitions->getColumnPrefix();
+        $prefix = $this->definitions->getPrefix();
 
         foreach ($source as $key => $value) {
             $return[Strings::from($key, $prefix)] = $value;
@@ -2587,14 +2576,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             return $validator->getSource();
         }
 
-        $prefix = $this->definitions->getColumnPrefix();
+        $prefix = $this->definitions->getPrefix();
 
         // Set ID so that the array validator can do unique lookups, etc.
         // Tell the validator what table this DataEntry is using and get the column prefix so that the validator knows
         // what columns to select
         $validator->setDataEntryObject($this)
                   ->setDefinitionsObject($this->definitions)
-                  ->setColumnPrefix($prefix)
+                  ->setPrefix($prefix)
                   ->setMetaColumns($this->getMetaColumns())
                   ->setTable(static::getTable());
 
@@ -3740,16 +3729,26 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Sets the column prefix string
+     * Returns the prefix to use for all DataEntry key names
+     *
+     * @return string|null
+     */
+    public function getPrefix(): ?string
+    {
+        return $this->checkInitialized('DataEntry::getPrefix()')->definitions->getPrefix();
+    }
+
+
+    /**
+     * Sets the prefix to use for all DataEntry key names
      *
      * @param string|null $prefix
      *
      * @return static
      */
-    public function setColumnPrefix(?string $prefix): static
+    public function setPrefix(?string $prefix): static
     {
-        $this->definitions->setColumnPrefix($prefix);
-
+        $this->checkInitialized('DataEntry::setPrefix()')->definitions->setPrefix($prefix);
         return $this;
     }
 
@@ -4107,15 +4106,15 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
             // Apply definition prefix and postfix only if they are not empty
-            $prefix  = $definition->getPrefix();
-            $postfix = $definition->getSuffix();
+            $prefix = $definition->getPrefix();
+            $suffix = $definition->getSuffix();
 
             if ($prefix) {
                 $return[$column] = $prefix . $return[$column];
             }
 
-            if ($postfix) {
-                $return[$column] .= $postfix;
+            if ($suffix) {
+                $return[$column] .= $suffix;
             }
         }
 
@@ -4570,31 +4569,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function isLoadedFromCache(): bool
     {
         return $this->is_loaded_from_cache;
-    }
-
-
-    /**
-     * Returns the prefix to use for all DataEntry key names
-     *
-     * @return string|null
-     */
-    public function getPrefix(): ?string
-    {
-        return $this->checkInitialized('DataEntry::getPrefix()')->definitions->getPrefix();
-    }
-
-
-    /**
-     * Sets the prefix to use for all DataEntry key names
-     *
-     * @param string|null $prefix
-     *
-     * @return static
-     */
-    public function setPrefix(?string $prefix): static
-    {
-        $this->checkInitialized('DataEntry::setPrefix()')->definitions->setPrefix($prefix);
-        return $this;
     }
 
 
