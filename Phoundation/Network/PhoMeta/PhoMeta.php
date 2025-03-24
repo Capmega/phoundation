@@ -170,8 +170,9 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
         $method  = 'parsePhoMessageV' . $version;
 
         if (!method_exists($this, $method)) {
-            throw PhoMetaVersionNotSupportedException::new(tr('Pho Header Message version ":version" is not supported', [
-                ':version' => $version
+            throw PhoMetaVersionNotSupportedException::new(tr('Pho header message version ":version" contains unsupported method ":method"', [
+                ':version' => $version,
+                ':method'  => $method
             ]));
         }
 
