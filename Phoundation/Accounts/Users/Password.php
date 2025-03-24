@@ -4,7 +4,11 @@
  * Class Passwords
  *
  *
- *
+ * @see       https://www.the-art-of-web.com/php/password-strength/
+ * @see       https://www.comparitech.com/net-admin/passwords-in-organizations-guide/
+ * @see       https://catswhocode.com/password-strength-checker/
+ * @see       https://www.openwall.com/john/
+ * @todo      Implement support for CrackLib and libpwquality,commands "cracklib-check" and "pwscore"
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -477,6 +481,120 @@ class Password extends DataEntry implements PasswordInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isEqualTo('password');
                                     }));
+
+        return $this;
+    }
+
+
+    /**
+     * Test the password with cracklib
+     *
+     * @note sudo apt install cracklib-runtime
+     *
+     * @return static
+     */
+    protected function testCrackLib(): static
+    {
+        //            $CRACKLIB = '/path/to/cracklib-check';
+        //            $PWSCORE = '/path/to/pwscore';
+        //
+        //            // prevent UTF-8 characters being stripped by escapeshellarg
+        //            setlocale(LC_ALL, 'en_US.utf-8');
+        //
+        //            $out = [];
+        //            $ret = null;
+        //
+        //            $command = 'echo ' . escapeshellarg($pw) . " | {$CRACKLIB}";
+        //
+        //            exec($command, $out, $ret);
+        //
+        //            if ((0 == $ret) && preg_match('/: ([^:]+)$/', $out[0], $regs)) {
+        //
+        //                [, $msg] = $regs;
+        //
+        //                switch ($msg) {
+        //                    case 'OK':
+        //                        if ($score) {
+        //                            $command = 'echo ' . escapeshellarg($pw) . " | {$PWSCORE}";
+        //                            exec($command, $out, $ret);
+        //                            if ((0 == $ret) && is_numeric($out[1])) {
+        //                                return (int)$out[1]; // return score
+        //                            }
+        //                            else {
+        //                                return false; // probably OK, but may be too short, or a palindrome
+        //                            }
+        //                        }
+        //                        else {
+        //                            return false; // OK
+        //                        }
+        //                        break;
+        //
+        //                    default:
+        //                        $msg = str_replace('dictionary word', 'common word, name or pattern', $msg);
+        //                        return $msg; // not OK - return cracklib message
+        //
+        //                }
+        //
+        //            }
+        //
+        //            return false; // possibly OK
+
+        return $this;
+    }
+
+
+    /**
+     * Test the password with pwscore
+     *
+     * @note sudo apt install libpwquality-tools
+     *
+     * @return static
+     */
+    protected function testPwScore(): static
+    {
+        //            $CRACKLIB = '/path/to/cracklib-check';
+        //            $PWSCORE = '/path/to/pwscore';
+        //
+        //            // prevent UTF-8 characters being stripped by escapeshellarg
+        //            setlocale(LC_ALL, 'en_US.utf-8');
+        //
+        //            $out = [];
+        //            $ret = null;
+        //
+        //            $command = 'echo ' . escapeshellarg($pw) . " | {$CRACKLIB}";
+        //
+        //            exec($command, $out, $ret);
+        //
+        //            if ((0 == $ret) && preg_match('/: ([^:]+)$/', $out[0], $regs)) {
+        //
+        //                [, $msg] = $regs;
+        //
+        //                switch ($msg) {
+        //                    case 'OK':
+        //                        if ($score) {
+        //                            $command = 'echo ' . escapeshellarg($pw) . " | {$PWSCORE}";
+        //                            exec($command, $out, $ret);
+        //                            if ((0 == $ret) && is_numeric($out[1])) {
+        //                                return (int)$out[1]; // return score
+        //                            }
+        //                            else {
+        //                                return false; // probably OK, but may be too short, or a palindrome
+        //                            }
+        //                        }
+        //                        else {
+        //                            return false; // OK
+        //                        }
+        //                        break;
+        //
+        //                    default:
+        //                        $msg = str_replace('dictionary word', 'common word, name or pattern', $msg);
+        //                        return $msg; // not OK - return cracklib message
+        //
+        //                }
+        //
+        //            }
+        //
+        //            return false; // possibly OK
 
         return $this;
     }

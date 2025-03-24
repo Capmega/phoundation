@@ -139,7 +139,7 @@ class Emails extends DataIterator implements EmailsInterface
     {
         // Add extra entry with nothing selected
         $email       = Email::new()
-                            ->setColumnPrefix($name)
+                            ->setPrefix($name)
                             ->getHtmlDataEntryFormObject()
                             ->setMetaVisible($meta_visible);
 
@@ -152,7 +152,7 @@ class Emails extends DataIterator implements EmailsInterface
         $content[] = $email->render();
 
         foreach ($this->ensureDataEntries() as $email) {
-            $content[] = $email->setColumnPrefix($name)
+            $content[] = $email->setPrefix($name)
                                ->getHtmlDataEntryFormObject()
                                ->setMetaVisible($meta_visible)
                                ->render();

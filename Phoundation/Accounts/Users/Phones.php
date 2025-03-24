@@ -140,7 +140,7 @@ class Phones extends DataIterator implements PhonesInterface
     {
         // Add extra entry with nothing selected
         $phone       = Phone::new()
-                            ->setColumnPrefix($name)
+                            ->setPrefix($name)
                             ->getHtmlDataEntryFormObject()
                             ->setMetaVisible($meta_visible);
 
@@ -153,7 +153,7 @@ class Phones extends DataIterator implements PhonesInterface
         $content[] = $phone->render();
 
         foreach ($this->ensureDataEntries() as $phone) {
-            $content[] = $phone->setColumnPrefix($name)
+            $content[] = $phone->setPrefix($name)
                                ->getHtmlDataEntryFormObject()
                                ->setMetaVisible($meta_visible)
                                ->render();
