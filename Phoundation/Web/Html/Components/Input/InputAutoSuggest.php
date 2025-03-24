@@ -18,6 +18,7 @@ namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Traits\TraitDataSelector;
 use Phoundation\Data\Traits\TraitDataWidth;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
@@ -29,6 +30,10 @@ use Stringable;
 class InputAutoSuggest extends InputText
 {
     use TraitDataWidth;
+    use TraitDataSelector {
+        getSelector as __getSelector;
+    }
+
 
     /**
      * The URL where the auto-suggest will retrieve the displayed data
@@ -96,8 +101,38 @@ class InputAutoSuggest extends InputText
     public function setSourceUrl(Stringable|string|null $source_url): static
     {
         $this->source_url = (string) $source_url;
-
         return $this;
+    }
+
+
+    /**
+     * Returns the selector
+     *
+     * @return string|null
+     */
+    public function getSelector(): ?string
+    {
+        $selector = $this->__getSelector();
+
+        if ($selector === null) {
+            $selector = $this->getProperty('selector');
+
+            if ($selector) {
+                return $selector;
+            }
+
+            if ($this->getId()) {
+                return '#' . $this->getId();
+            }
+
+            if ($this->getName()) {
+                return '[name="' . $this->getName() . '"]';
+            }
+
+            throw new OutOfBoundsException(tr('Cannot return selector for InputAutosuggest object. No selector was specified and the object has no id or name specified either'));
+        }
+
+        return $selector;
     }
 
 
@@ -159,7 +194,6 @@ class InputAutoSuggest extends InputText
     public function setMinSuggestLength(int $min_suggest_length): static
     {
         $this->min_suggest_length = $min_suggest_length;
-
         return $this;
     }
 
@@ -185,7 +219,6 @@ class InputAutoSuggest extends InputText
     public function setDelay(int $delay): static
     {
         $this->delay = $delay;
-
         return $this;
     }
 

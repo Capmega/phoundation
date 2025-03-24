@@ -28,6 +28,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\P;
@@ -103,6 +104,23 @@ class Url implements UrlInterface
      */
     public static function new(Stringable|string|int|null $source = null): static
     {
+        return new static($source);
+    }
+
+
+    /**
+     * Returns a new Url object
+     *
+     * @param PhoPathInterface|null $source
+     *
+     * @return static
+     */
+    public static function newFromPath(PhoPathInterface $source = null): static
+    {
+        $source = Strings::from($source, DIRECTORY_PROJECT_CDN);
+        $source = Strings::from($source, DIRECTORY_CDN);
+        $source = Strings::from($source, DIRECTORY_ROOT);
+
         return new static($source);
     }
 
@@ -781,7 +799,7 @@ class Url implements UrlInterface
             $url  = Strings::ensureStartsWith($url, Core::getProjectSeoName() . '/');
 
         } else {
-            $url  = Strings::ensureStartsWith($url, 'phoundation' . '/');
+            $url  = Strings::ensureStartsWith($url, 'templates' . '/');
         }
 
         $url  = static::applyPredefined($url);

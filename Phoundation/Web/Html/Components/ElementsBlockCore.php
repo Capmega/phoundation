@@ -28,9 +28,9 @@ use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Template\TemplateRenderer;
+use Phoundation\Web\Html\Traits\TraitElementAttributes;
 use Phoundation\Web\Requests\Request;
 use Stringable;
-
 
 abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockInterface
 {
@@ -156,16 +156,19 @@ abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockIn
     /**
      * Sets if this element block should render an HTML form around itself, or not
      *
-     * @param bool $use_form
-     * @param bool $post
+     * @param bool        $use_form
+     * @param bool        $post
+     * @param string|null $id
      *
      * @return static
      */
-    public function useForm(bool $use_form, bool $post = true): static
+    public function useForm(bool $use_form, bool $post = true, ?string $id = null): static
     {
         if ($use_form) {
             if (empty($this->form)) {
-                $this->form = Form::new()->setRequestMethod($post ? EnumHttpRequestMethod::post : EnumHttpRequestMethod::get);
+                $this->form = Form::new()
+                                  ->setRequestMethod($post ? EnumHttpRequestMethod::post : EnumHttpRequestMethod::get)
+                                  ->setId($id);
             }
 
         } else {

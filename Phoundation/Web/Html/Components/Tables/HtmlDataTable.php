@@ -216,9 +216,9 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     /**
      * HtmlDataTable class constructor
      *
-     * @param IteratorInterface|array|null $source
+     * @param IteratorInterface|null $source
      */
-    public function __construct(IteratorInterface|array|null $source = null)
+    public function __construct(?IteratorInterface $source = null)
     {
         parent::__construct($source);
 
@@ -1218,23 +1218,23 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
 
             // TODO Load many of these javascripts conditionally and only if their functions are enabled (button is there, functionality is required, etc)
             Response::loadJavascript([
-                'phoundation/adminlte/plugins/datatables/jquery.dataTables',
-                'phoundation/adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4',
-                'phoundation/adminlte/plugins/datatables-responsive/js/dataTables.responsive',
-                'phoundation/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4',
-                'phoundation/adminlte/plugins/datatables-buttons/js/dataTables.buttons',
-                'phoundation/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4',
-                'phoundation/adminlte/plugins/jszip/jszip',
-                'phoundation/adminlte/plugins/pdfmake/pdfmake',
-                'phoundation/adminlte/plugins/pdfmake/vfs_fonts',
-                'phoundation/adminlte/plugins/datatables-buttons/js/buttons.html5',
-                'phoundation/adminlte/plugins/datatables-buttons/js/buttons.print',
-                'phoundation/adminlte/plugins/datatables-buttons/js/buttons.colVis',
+                'templates/adminlte/plugins/datatables/jquery.dataTables',
+                'templates/adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4',
+                'templates/adminlte/plugins/datatables-responsive/js/dataTables.responsive',
+                'templates/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4',
+                'templates/adminlte/plugins/datatables-buttons/js/dataTables.buttons',
+                'templates/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4',
+                'templates/adminlte/plugins/jszip/jszip',
+                'templates/adminlte/plugins/pdfmake/pdfmake',
+                'templates/adminlte/plugins/pdfmake/vfs_fonts',
+                'templates/adminlte/plugins/datatables-buttons/js/buttons.html5',
+                'templates/adminlte/plugins/datatables-buttons/js/buttons.print',
+                'templates/adminlte/plugins/datatables-buttons/js/buttons.colVis',
             ]);
 
-            Response::loadCss('phoundation/adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4');
-            Response::loadCss('phoundation/adminlte/plugins/datatables-responsive/css/responsive.bootstrap4');
-            Response::loadCss('phoundation/adminlte/plugins/datatables-buttons/css/buttons.bootstrap4');
+            Response::loadCss('templates/adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4');
+            Response::loadCss('templates/adminlte/plugins/datatables-responsive/css/responsive.bootstrap4');
+            Response::loadCss('templates/adminlte/plugins/datatables-buttons/css/buttons.bootstrap4');
 
             // Build options
             $options = [];
@@ -1334,9 +1334,9 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
 
             if ($this->js_date_format) {
                 Response::loadJavascript([
-                    'phoundation/adminlte/plugins/moment/moment',
-                    'phoundation/adminlte/plugins/datatables-DateTime-1.5.1/js/dataTables.dateTime',
-                    'phoundation/adminlte/plugins/datatables-sorting/datetime-moment',
+                    'templates/adminlte/plugins/moment/moment',
+                    'templates/adminlte/plugins/datatables-DateTime-1.5.1/js/dataTables.dateTime',
+                    'templates/adminlte/plugins/datatables-sorting/datetime-moment',
                 ]);
                 $content .= 'DataTable.moment("' . $this->js_date_format . '");' . PHP_EOL;
             }

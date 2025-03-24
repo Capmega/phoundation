@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Interfaces;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Web\Html\Components\TraitElementAttributes;
 use Stringable;
 
 interface ElementAttributesInterface

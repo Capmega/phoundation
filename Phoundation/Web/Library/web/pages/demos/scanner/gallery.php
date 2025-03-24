@@ -20,9 +20,9 @@ use Phoundation\Web\Requests\Response;
 
 
 // Load required JavaScript & CSS libraries
-Response::loadJavascript('phoundation/adminlte/plugins/ekko-lightbox/ekko-lightbox');
-Response::loadJavascript('phoundation/adminlte/plugins/filterizr/jquery.filterizr');
-Response::loadCss('phoundation/adminlte/plugins/ekko-lightbox/ekko-lightbox');
+Response::loadJavascript('templates/adminlte/plugins/ekko-lightbox/ekko-lightbox');
+Response::loadJavascript('templates/adminlte/plugins/filterizr/jquery.filterizr');
+Response::loadCss('templates/adminlte/plugins/ekko-lightbox/ekko-lightbox');
 
 Response::setHeaderTitle(tr('Scanner gallery'));
 Response::setHeaderSubTitle(tr('Demo'));

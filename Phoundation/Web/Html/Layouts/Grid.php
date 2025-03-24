@@ -125,14 +125,13 @@ class Grid extends Container
 
         if (is_object($column) and !($column instanceof GridColumn)) {
             // This is not a GridColumn object, try to render the object to HTML string
-            static::canRenderHtml($column);
 
             if ($size === null) {
                 throw new OutOfBoundsException(tr('No column size specified'));
             }
 
             // Render the HTML string
-            $column = $column->render();
+            $column = (string) $column;
         }
 
         if (is_string($column)) {

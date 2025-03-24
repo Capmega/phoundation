@@ -28,6 +28,7 @@ use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Html\Template\TemplateRenderer;
+use Phoundation\Web\Html\Traits\TraitElementAttributes;
 use Phoundation\Web\Requests\Request;
 
 
@@ -97,25 +98,25 @@ abstract class ElementCore implements ElementInterface
         if (!$this->element) {
             if ($this->element === null) {
                 // This is a NULL element, only return the contents
-                return $this->content . $this->extra;
+                return $this->content;
             }
 
             throw new OutOfBoundsException(tr('Cannot render HTML element, no element type specified'));
         }
 
-        $suffix = null;
+        $javascript_autosubmit = null;
 
         if ($this->attributes->get('auto_submit', false)) {
             // Add JavaScript code to automatically submit on change
             $this->attributes->removeKeys('auto_submit');
 
-            $suffix .= Script::new()
+            $javascript_autosubmit .= Script::new()
                               ->setContent('$("[name=' . $this->name . ']").change(function (e){ $(e.target).closest("form").submit(); });')
                               ->setJavascriptWrapper(EnumJavascriptWrappers::window);
         }
 
         $renderer_class  = Request::getTemplate()->getRendererClass($this);
-        $render_function = function () use ($suffix) {
+        $render_function = function () use ($javascript_autosubmit) {
             $attributes = $this->renderAttributesArray();
             $attributes = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Utils::QUOTE_ALWAYS | Utils::HIDE_EMPTY_VALUES);
 
@@ -133,7 +134,7 @@ abstract class ElementCore implements ElementInterface
             $render       = $this->render . ' />';
             $this->render = null;
 
-            return $render . $suffix;
+            return $render . $javascript_autosubmit;
         };
 
         if ($renderer_class) {
@@ -141,7 +142,7 @@ abstract class ElementCore implements ElementInterface
 
             $render = $renderer_class::new($this)
                                      ->setParentRenderFunction($render_function)
-                                     ->render() . $suffix;
+                                     ->render() . $javascript_autosubmit;
 
         } else {
             // The template component doesn't exist, return the basic Phoundation version
@@ -149,7 +150,10 @@ abstract class ElementCore implements ElementInterface
                 ':component' => get_class($this),
             ]), 2);
 
-            $render = $render_function() . $suffix;
+            $render = $this->renderBeforeContent() .
+                      $render_function() .
+                      $this->renderAfterContent() .
+                      $javascript_autosubmit;
         }
 
         if (isset($this->tooltip)) {
@@ -158,13 +162,12 @@ abstract class ElementCore implements ElementInterface
 
         if ($this->anchor) {
             // This element has an anchor. Render the anchor -which will render this element to be its contents- instead
-            return $this->anchor->setContent($render)
-                                ->setChildElement(null)
-                                ->render() . $this->extra . $this->additional_content;
+            return $this->renderBeforeContent() . $this->anchor->setContent($render)
+                                                               ->setChildElement(null)
+                                                               ->render() . $this->renderAfterContent();
         }
 
-        $this->render = $render . $this->extra . $this->additional_content;
-
+        $this->render = $render;
         return $this->render;
     }
 

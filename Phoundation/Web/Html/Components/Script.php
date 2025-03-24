@@ -17,6 +17,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Iterator;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataMinify;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
@@ -78,6 +81,27 @@ class Script extends Element implements ScriptInterface
      * @var bool $attached
      */
     protected bool $attached = false;
+
+    /**
+     * Tracks if the script in this object should be loaded to the client multiple times
+     *
+     * @var bool $load_multiple
+     */
+    protected bool $load_multiple = false;
+
+    /**
+     * The hash of the current script content
+     *
+     * @var string|null $hash
+     */
+    protected ?string $hash = null;
+
+    /**
+     * Tracks hashes of all scripts that were added when instructed so
+     *
+     * @var array $hashes
+     */
+    protected static array $hashes = [];
 
 
     /**
@@ -264,6 +288,84 @@ class Script extends Element implements ScriptInterface
 
 
     /**
+     * Returns a list of all hashes
+     *
+     * @return IteratorInterface
+     */
+    public function getHashList(): IteratorInterface
+    {
+        return new Iterator(static::$hashes);
+    }
+
+
+    /**
+     * Adds the hash of this script to the hash list.
+     *
+     * @return static
+     */
+    protected function addHash(): static
+    {
+        static::$hashes[] = $this->hash;
+        return $this;
+    }
+
+
+    /**
+     * Returns the hash for the script in this object, or NULL if its empty
+     *
+     * @return string|null
+     */
+    public function getHash(): ?string
+    {
+        if (empty($this->hash)) {
+            $content = trim($this->content);
+
+            if ($content) {
+                $this->hash = sha1($content);
+            }
+        }
+
+        return $this->hash;
+    }
+
+
+    /**
+     * Returns true if the current script already has been loaded
+     *
+     * @return bool
+     */
+    public function isLoaded(): bool
+    {
+        return in_array($this->getHash(), static::$hashes);
+    }
+
+
+    /**
+     * Returns if the script in this object should be loaded multiple times
+     *
+     * @return bool
+     */
+    public function getLoadMultiple(): bool
+    {
+        return $this->load_multiple;
+    }
+
+
+    /**
+     * Sets if the script in this object should be loaded multiple times
+     *
+     * @param bool $load_multiple
+     *
+     * @return $this
+     */
+    public function setLoadMultiple(bool $load_multiple): static
+    {
+        $this->load_multiple = $load_multiple;
+        return $this;
+    }
+
+
+    /**
      * Attached this JavaScript object to the page
      *
      * @return static
@@ -274,6 +376,14 @@ class Script extends Element implements ScriptInterface
             throw new OutOfBoundsException(tr('Cannot attach Script object with code ":code" to the web page, it has already been attached', [
                 ':code' => $this->getContent()
             ]));
+        }
+
+        if (!$this->load_multiple) {
+            if ($this->isLoaded()) {
+                // The script in this object has already been loaded, render nothing.
+                Log::warning(tr('Not loading script to client because it has already beena loaded'));
+                return $this;
+            }
         }
 
         // Where should this script attach itself to?
@@ -297,6 +407,7 @@ class Script extends Element implements ScriptInterface
                 ]));
         }
 
+        $this->addHash();
         $this->attached = true;
         return $this;
     }
@@ -312,11 +423,11 @@ class Script extends Element implements ScriptInterface
      */
     public function render(): ?string
     {
-        $render = '';
-
         if (empty($this->content)) {
             return null;
         }
+
+        $render = '';
 
         // Apply event wrapper
         switch ($this->javascript_wrapper) {

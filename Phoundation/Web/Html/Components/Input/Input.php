@@ -20,14 +20,14 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Components\Element;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\ValueInterface;
-use Phoundation\Web\Html\Traits\TraitBeforeAfterButtons;
+use Phoundation\Web\Html\Traits\TraitBeforeAfterContent;
 use Phoundation\Web\Html\Traits\TraitInputElement;
 
 
 abstract class Input extends Element implements InputInterface, ValueInterface
 {
     use TraitInputElement;
-    use TraitBeforeAfterButtons;
+    use TraitBeforeAfterContent;
 
 
     /**
@@ -54,7 +54,6 @@ abstract class Input extends Element implements InputInterface, ValueInterface
     protected function renderAttributesArray(): IteratorInterface
     {
         $this->attributes = $this->renderInputAttributes()->appendSource($this->attributes);
-
         return parent::renderAttributesArray();
     }
 }

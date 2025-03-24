@@ -16,15 +16,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets;
 
-use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataRenderMethod;
 use Phoundation\Data\Traits\TraitDataUrl;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Seo\Seo;
-use Phoundation\Utils\Numbers;
+use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\Interfaces\AccordionInterface;
-use Phoundation\Web\Html\Html;
 use Stringable;
 
 
@@ -48,6 +47,13 @@ class Accordion extends Widget implements AccordionInterface
      */
     protected bool $selectors = false;
 
+    /**
+     * Tracks optional headers for this accordion
+     *
+     * @var array $headers
+     */
+    protected array $headers = [];
+
 
     /**
      * Accordion class constructor
@@ -61,6 +67,68 @@ class Accordion extends Widget implements AccordionInterface
         if ($source) {
             $this->setSource($source);
         }
+    }
+
+
+    /**
+     * Returns if this input element has before content
+     *
+     * @return bool
+     */
+    public function hasHeaders(): bool
+    {
+        return (bool) count($this->headers);
+    }
+
+
+    /**
+     * Returns the modal headers
+     *
+     * @return array
+     */
+    public function getHeaders(): array
+    {
+        return $this->headers;
+    }
+
+
+    /**
+     * Sets the modal headers
+     *
+     * @param IteratorInterface|RenderInterface|array|callable|string|null $headers
+     *
+     * @return static
+     */
+    public function setHeaders(IteratorInterface|RenderInterface|array|callable|string|null $headers): static
+    {
+        $this->headers = [];
+        return $this->addHeaders($headers);
+    }
+
+
+    /**
+     * Sets the modal headers
+     *
+     * @param IteratorInterface|RenderInterface|array|callable|string|null $headers
+     *
+     * @return static
+     */
+    public function addHeaders(IteratorInterface|RenderInterface|array|callable|string|null $headers): static
+    {
+        if ($headers instanceof IteratorInterface) {
+            $headers = $headers->getSource();
+        }
+
+        if (is_array($headers)) {
+            foreach ($headers as $content) {
+                $this->addHeaders($content);
+            }
+
+            return $this;
+        }
+
+        $this->headers[] = $headers;
+        return $this;
     }
 
 
@@ -122,7 +190,7 @@ class Accordion extends Widget implements AccordionInterface
             throw new OutOfBoundsException(tr('Cannot render accordion, no HTML id specified'));
         }
 
-        $return   =  '        <div class="accordion" id="' . $this->getId() . '">';
+        $return   =  '      <div class="accordion" id="' . $this->getId() . '">' . $this->renderHeaders();
 
         foreach ($this->source as $key => $value) {
             $seo_key = Seo::string($key);
@@ -151,6 +219,29 @@ class Accordion extends Widget implements AccordionInterface
         }
 
         return $return . '  </div>';
+    }
+
+
+    /**
+     * Renders and returns the content for an optional header
+     *
+     * @return string|null
+     */
+    protected function renderHeaders(): ?string
+    {
+        $return = null;
+
+        if ($this->headers) {
+            foreach ($this->headers as $header) {
+                $return .= '    <div class="accordion-item">
+                                    ' . $header . '
+                                </div>';
+            }
+
+            return $return;
+        }
+
+        return null;
     }
 
 

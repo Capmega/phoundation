@@ -403,6 +403,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                     default                       => str_replace(' ', '', Strings::camelCase(str_replace([' ', '-', '_',], ' ', $definition->getInputType()->value))),
                                 };
 
+                                // TODO Replace $field_name with the name and prefix from the Definition object
                                 // Get the class for this element and ensure the library file is loaded
                                 // Build the component, depending on the input type
                                 $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\Input' . $type);
@@ -415,9 +416,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                                                  ->setMax($definition->getMax())
                                                                                  ->setStep($definition->getStep())
                                                                                  ->setName($field_name)
-                                                                                 ->setValue($source[$column])
-                                                                                 ->setBeforeButtons($definition->getBeforeButtons())
-                                                                                 ->setAfterButtons($definition->getAfterButtons()),
+                                                                                 ->setValue($source[$column]),
 
                                     EnumInputType::date         => $element_class::new()
                                                                                  ->setDefinition($definition)
@@ -426,9 +425,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                                                  ->setMin($definition->getMin())
                                                                                  ->setMax($definition->getMax())
                                                                                  ->setName($field_name)
-                                                                                 ->setValue($source[$column])
-                                                                                 ->setBeforeButtons($definition->getBeforeButtons())
-                                                                                 ->setAfterButtons($definition->getAfterButtons()),
+                                                                                 ->setValue($source[$column]),
 
                                     EnumInputType::auto_suggest => $element_class::new()
                                                                                  ->setDefinition($definition)
@@ -439,19 +436,15 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                                                  ->setMaxLength($definition->getMaxLength())
                                                                                  ->setSourceUrl($definition->getDataSource())
                                                                                  ->setVariables($definition->getVariables())
-                                                                                 ->setName($definition->getColumn())
-                                                                                 ->setValue($source[$column])
-                                                                                 ->setBeforeButtons($definition->getBeforeButtons())
-                                                                                 ->setAfterButtons($definition->getAfterButtons()),
+                                                                                 ->setName($field_name)
+                                                                                 ->setValue($source[$column]),
 
                                     EnumInputType::select       => $element_class::new()
                                                                                  ->setDefinition($definition)
                                                                                  ->setHidden($definition->getHidden())
                                                                                  ->setRequired($definition->getRequired())
                                                                                  ->setName($field_name)
-                                                                                 ->setValue($source[$column])
-                                                                                 ->setBeforeButtons($definition->getBeforeButtons())
-                                                                                 ->setAfterButtons($definition->getAfterButtons()),
+                                                                                 ->setValue($source[$column]),
 
                                     EnumInputType::checkbox     => $element_class::new()
                                                                                  ->setDefinition($definition)
@@ -482,8 +475,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                                                  ->setAutoSubmit($definition->getAutoSubmit())
                                                                                  ->setName($field_name)
                                                                                  ->setValue($source[$column])
-                                                                                 ->setBeforeButtons($definition->getBeforeButtons())
-                                                                                 ->setAfterButtons($definition->getAfterButtons())
                                 };
 
                                 $this->rows->add($definition, $component);
@@ -505,9 +496,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                            ->setMaxLength($definition->getMaxLength())
                                                            ->setRows($definition->getRows())
                                                            ->setName($field_name)
-                                                           ->setContent(isset_get($source[$column]))
-                                                           ->setBeforeButtons($definition->getBeforeButtons())
-                                                           ->setAfterButtons($definition->getAfterButtons());
+                                                           ->setContent(isset_get($source[$column]));
 
                                 $this->rows->add($definition, $component);
                                 break;
@@ -556,9 +545,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                            ->setAutoComplete($definition->getAutoComplete())
                                                            ->setAutoSubmit($definition->getAutoSubmit())
                                                            ->setSelected(isset_get($source[$column]))
-                                                           ->setAutoFocus($definition->getAutoFocus())
-                                                           ->setBeforeButtons($definition->getBeforeButtons())
-                                                           ->setAfterButtons($definition->getAfterButtons());
+                                                           ->setAutoFocus($definition->getAutoFocus());
 
                                 $this->rows->add($definition, $component);
                                 break;

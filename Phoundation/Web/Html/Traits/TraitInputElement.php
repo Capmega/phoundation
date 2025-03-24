@@ -109,7 +109,6 @@ trait TraitInputElement
     public function setClearButton(bool $clear_button): static
     {
         $this->clear_button = $clear_button;
-
         return $this;
     }
 
@@ -135,7 +134,6 @@ trait TraitInputElement
     public function setInputType(EnumInputType|null $input_type): static
     {
         $this->input_type = $input_type;
-
         return $this;
     }
 
@@ -161,7 +159,6 @@ trait TraitInputElement
     public function setHidden(bool $hidden): static
     {
         $this->hidden = $hidden;
-
         return $this;
     }
 

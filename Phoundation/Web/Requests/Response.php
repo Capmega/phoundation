@@ -535,14 +535,13 @@ class Response implements ResponseInterface
     {
         try {
             if (empty($url)) {
-                $url  = Core::getProjectSeoName() . 'img/favicons/project.png';
-                $url  = static::versionFile($url, 'img');
-                $file = PhoPath::absolutePath(LANGUAGE . '/' . $url, DIRECTORY_CDN);
+                $file = PhoPath::new('img/favicons/project.png', PhoRestrictions::newReadonlyObject(DIRECTORY_PROJECT_CDN), DIRECTORY_PROJECT_CDN);
+                $url  = Url::newFromPath($file)->makeImg();
 
                 Response::addLinkToPageHeaders([
                     'rel'  => 'icon',
-                    'href' => Url::new($url)->makeImg(),
-                    'type' => PhoFile::new($file, PhoRestrictions::newCdn())->getMimetype(),
+                    'href' => $url,
+                    'type' => $file->getMimetype(),
                 ], $url);
 
             } else {
@@ -571,6 +570,7 @@ class Response implements ResponseInterface
      *
      * @see http://particletree.com/notebook/automatically-version-your-css-and-javascript-files/
      *
+     * @todo Move this to the URL class, and be probably used somewhere in the ->makeCdn() call?
      * @param string $url
      * @param string $type
      *
@@ -583,7 +583,8 @@ class Response implements ResponseInterface
         // Ensure the extension is stripped
         $url = Strings::until($url, '.' . $url);
 
-        // Should we load the minified version? This is optional as long as the file itself does not have .min specified
+        // Should we load the minified version? This is optional as long as the file itself doesn't have .min specified
+        // TODO move this to Url class into its own method "makeMinified()" or something that will attach .min to it.
         if (str_ends_with($url, '.min')) {
             if (!isset($minified)) {
                 // All files are minified or none are
@@ -595,7 +596,7 @@ class Response implements ResponseInterface
             // Determine the absolute file path
             // then get timestamp and inject it into the given file
             $file = DIRECTORY_DATA . 'content/cdn/' . LANGUAGE . '/' . $type . '/' . $url . $minified . $type;
-            $url  = Strings::untilReverse($url, '.') . '.' . filectime($file) . '.' . Strings::fromReverse($url, '.');
+            $url  = Strings::untilReverse($url, '.') . '.v' . filectime($file) . '.' . Strings::fromReverse($url, '.');
         }
 
         return $url;
@@ -845,14 +846,14 @@ class Response implements ResponseInterface
      * Add meta page header
      *
      * @param IteratorInterface|array|string|int|float|null $value
-     * @param string                                        $key
+     * @param Stringable|string                             $key
      * @param bool                                          $prefix
      *
      * @return void
      */
-    public static function addMetaToPageHeaders(IteratorInterface|array|string|int|float|null $value, string $key, bool $prefix = false): void
+    public static function addMetaToPageHeaders(IteratorInterface|array|string|int|float|null $value, Stringable|string $key, bool $prefix = false): void
     {
-        Response::addPageHeader(EnumHeaderFooterType::meta, $value, $key, $prefix);
+        Response::addPageHeader(EnumHeaderFooterType::meta, $value, (string) $key, $prefix);
     }
 
 
@@ -860,14 +861,14 @@ class Response implements ResponseInterface
      * Add link page header
      *
      * @param IteratorInterface|array|string|int|float|null $value
-     * @param string                                        $key
+     * @param Stringable|string                             $key
      * @param bool                                          $prefix
      *
      * @return void
      */
-    public static function addLinkToPageHeaders(IteratorInterface|array|string|int|float|null $value, string $key, bool $prefix = false): void
+    public static function addLinkToPageHeaders(IteratorInterface|array|string|int|float|null $value, Stringable|string $key, bool $prefix = false): void
     {
-        Response::addPageHeader(EnumHeaderFooterType::link, $value, $key, $prefix);
+        Response::addPageHeader(EnumHeaderFooterType::link, $value, (string) $key, $prefix);
     }
 
 

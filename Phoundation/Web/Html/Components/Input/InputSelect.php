@@ -26,14 +26,14 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\SelectedInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\ResourceElement;
-use Phoundation\Web\Html\Traits\TraitBeforeAfterButtons;
+use Phoundation\Web\Html\Traits\TraitBeforeAfterContent;
 use Stringable;
 use Throwable;
 
 
 class InputSelect extends ResourceElement implements InputSelectInterface, InputInterface, SelectedInterface
 {
-    use TraitBeforeAfterButtons;
+    use TraitBeforeAfterContent;
 
 
     /**
@@ -605,8 +605,8 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
 
                 foreach ($this->source as $key => $value) {
                     $render .= InputCheckbox::new()
-                                            ->setName($this->name . '[' . $key . ']')
-                                            ->setId($this->name . '[' . $key . ']')
+                                            ->setName($this->name)
+                                            ->setId($this->name . '_' . strtolower((string) $key))
                                             ->setValue($key)
                                             ->setLabel($value)
                                             ->setInline(false)

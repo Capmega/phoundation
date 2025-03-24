@@ -18,6 +18,7 @@ namespace Phoundation\Web\Html\Layouts;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
+use Stringable;
 
 
 class GridRow extends Layout
@@ -68,21 +69,18 @@ class GridRow extends Layout
     /**
      * Add the specified column to this row
      *
-     * @param object|string|null       $column
+     * @param \Stringable|string|null  $column
      * @param EnumDisplaySize|int|null $size
      * @param bool                     $use_form
      *
      * @return static
      */
-    public function addGridColumn(object|string|null $column, EnumDisplaySize|int|null $size = null, bool $use_form = false): static
+    public function addGridColumn(Stringable|string|null $column, EnumDisplaySize|int|null $size = null, bool $use_form = false): static
     {
         if ($column) {
             if (is_object($column) and !($column instanceof GridColumn)) {
-                // This is not a GridColumn object, try to render the object to HTML string
-                static::canRenderHtml($column);
-
-                // Render the HTML string
-                $column = $column->render();
+                // This is not a GridColumn object, try to render the object to HTML string.
+                $column = (string) $column;
             }
 
             if (is_string($column)) {

@@ -14,31 +14,37 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Components;
+namespace Phoundation\Web\Html\Traits;
 
 use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataDefinition;
+use Phoundation\Data\Traits\TraitDataProperties;
 use Phoundation\Data\Traits\TraitMethodHasRendered;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
+use Phoundation\Web\Html\Components\A;
+use Phoundation\Web\Html\Components\Div;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\AInterface;
 use Phoundation\Web\Html\Components\Interfaces\DivInterface;
+use Phoundation\Web\Html\Components\Span;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Interfaces\TooltipInterface;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Tooltip;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
 
-
 trait TraitElementAttributes
 {
     use TraitMethodHasRendered;
+    use TraitDataProperties;
+    use TraitBeforeAfterContent;
     use TraitDataDefinition {
         setDefinition as protected __setDefinition;
         getDefinition as protected __getDefinition;
@@ -160,9 +166,9 @@ trait TraitElementAttributes
     /**
      * Extra attributes or element content can be added through the "extra" variable
      *
-     * @var string $extra
+     * @var string $extra_attributes
      */
-    protected string $extra = '';
+    protected string $extra_attributes = '';
 
     /**
      * The element content
@@ -631,7 +637,6 @@ trait TraitElementAttributes
     public function setTabIndex(?int $tabindex): static
     {
         $this->tabindex = $tabindex;
-
         return $this;
     }
 
@@ -641,10 +646,9 @@ trait TraitElementAttributes
      *
      * @return static
      */
-    public function clearExtra(): static
+    public function clearExtraAttributes(): static
     {
-        $this->extra = '';
-
+        $this->extra_attributes = '';
         return $this;
     }
 
@@ -654,9 +658,9 @@ trait TraitElementAttributes
      *
      * @return string
      */
-    public function getExtra(): string
+    public function getExtraAttributes(): string
     {
-        return $this->extra;
+        return $this->extra_attributes;
     }
 
 
@@ -667,25 +671,23 @@ trait TraitElementAttributes
      *
      * @return static
      */
-    public function setExtra(?string $extra): static
+    public function setExtraAttributes(?string $extra): static
     {
-        $this->extra = '';
-
-        return $this->addExtra($extra);
+        $this->extra_attributes = '';
+        return $this->addExtraAttributes($extra);
     }
 
 
     /**
      * Adds more to the extra element attribute code
      *
-     * @param string|null $extra
+     * @param Stringable|string|null $extra
      *
      * @return static
      */
-    public function addExtra(?string $extra): static
+    public function addExtraAttributes(Stringable|string|null $extra): static
     {
-        $this->extra .= $extra;
-
+        $this->extra_attributes .= $extra;
         return $this;
     }
 
@@ -701,10 +703,9 @@ trait TraitElementAttributes
     public function appendContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
     {
         if (is_object($content)) {
-            // This object must be able to render HTML. Check this and then render.
-            static::canRenderHtml($content);
-
-            $content   = $content->render();
+            // This object is Stringable so it can be converted to string.
+            // If it is a RenderableInterface, it will automatically render
+            $content   = (string) $content;
             $make_safe = false;
         }
 
@@ -719,32 +720,6 @@ trait TraitElementAttributes
 
 
     /**
-     * Ensures that the specified object has ElementAttributes
-     *
-     * @param object|string $class
-     * @param bool          $exception
-     *`
-     * @return bool
-     */
-    protected static function canRenderHtml(object|string $class, bool $exception = true): bool
-    {
-        if ($class instanceof RenderInterface) {
-            return true;
-        }
-
-        // The specified variable cannot be rendered
-        if ($exception) {
-            throw new OutOfBoundsException(tr('Specified variable with datatype ":class" is not a class that implements :interface', [
-                ':class'     =>  get_datatype_or_class($class),
-                ':interface' => RenderInterface::class,
-            ]));
-        }
-
-        return false;
-    }
-
-
-    /**
      * Prepends the specified content to the content of the element
      *
      * @param Stringable|string|float|int|null $content
@@ -755,10 +730,9 @@ trait TraitElementAttributes
     public function prependContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
     {
         if (is_object($content)) {
-            // This object must be able to render HTML. Check this and then render.
-            static::canRenderHtml($content);
-
-            $content   = $content->render();
+            // This object is Stringable so it can be converted to string.
+            // If it is a RenderableInterface, it will automatically render
+            $content   = (string) $content;
             $make_safe = false;
         }
 
@@ -1110,6 +1084,8 @@ trait TraitElementAttributes
             // Apply the definition rules to this element
             $this->setName($definition->getColumn())
                  ->setDisplay($definition->getDisplay())
+                 ->setAfterContent($definition->getAfterContent())
+                 ->setBeforeContent($definition->getBeforeContent())
                  ->setVisible($definition->getVisible())
                  ->setRequired($definition->getRequired())
                  ->addClasses($definition->getClasses())
@@ -1118,7 +1094,8 @@ trait TraitElementAttributes
                  ->setDisabled($definition->getDisabled())
                  ->setReadOnly($definition->getReadonly())
                  ->setAutoFocus($definition->getAutoFocus())
-                 ->setNullDisplay($definition->getNullDisplay());
+                 ->setNullDisplay($definition->getNullDisplay())
+                 ->setProperties($definition->getProperties());
         }
 
         return $this->__setDefinition($definition);
@@ -1183,6 +1160,74 @@ trait TraitElementAttributes
         }
 
         return $this;
+    }
+
+
+    /**
+     * Renders and returns the content that come before this element
+     *
+     * @return string|null
+     */
+    public function renderBeforeContent(): ?string
+    {
+        if ($this->hasBeforeContent()) {
+            return $this->renderContent($this->getBeforeContent());
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Renders and returns the content that come after this element
+     *
+     * @return string|null
+     */
+    public function renderAfterContent(): ?string
+    {
+        if ($this->hasAfterContent()) {
+            return $this->renderContent($this->getAfterContent());
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Renders and returns the specified content
+     *
+     * @param IteratorInterface|RenderInterface|array|callable|string|null $content
+     *
+     * @return string|null
+     */
+    protected function renderContent(IteratorInterface|RenderInterface|array|callable|string|null $content): ?string
+    {
+        $return = null;
+
+        if ($content instanceof IteratorInterface) {
+            // This is an Iterator list of content items. Get the source to process as an array below
+            $content = $content->getSource();
+        }
+
+        if (is_array($content)) {
+            // This is a list of content items. Render them one by one, and return them all together
+            foreach ($content as $item) {
+                $return .= $this->renderContent($item);
+            }
+
+            return $return;
+        }
+
+        if ($content instanceof RenderInterface) {
+            if ($content instanceof ButtonInterface) {
+                // When rendering added buttons, add this aria
+                $content->addAria($this->getId() ?? $this->getName(), 'described-by');
+            }
+
+            return $content->render();
+        }
+
+         return (string) $content;
     }
 
 
