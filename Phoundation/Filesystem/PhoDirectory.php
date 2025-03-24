@@ -79,7 +79,7 @@ class PhoDirectory extends PhoDirectoryCore
 
 
     /**
-     * Returns the data/content/cdn directory
+     * Returns the data/content/cdn/LANGUAGE/PROJECT/ directory
      *
      * @param bool        $writable
      * @param string|null $sub_directory
@@ -89,8 +89,8 @@ class PhoDirectory extends PhoDirectoryCore
     public static function newCdnObject(bool $writable = false, ?string $sub_directory = null): PhoDirectoryInterface
     {
         return static::new(
-            DIRECTORY_CDN . LANGUAGE . $sub_directory,
-            PhoRestrictions::new(DIRECTORY_CDN . LANGUAGE . $sub_directory, $writable)
+            DIRECTORY_PROJECT_CDN . $sub_directory,
+            PhoRestrictions::new(DIRECTORY_PROJECT_CDN . $sub_directory, $writable)
         )->ensure();
     }
 

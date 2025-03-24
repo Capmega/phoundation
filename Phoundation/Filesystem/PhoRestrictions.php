@@ -334,7 +334,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
 
 
     /**
-     * Returns a restrictions object for DIRECTORY_CDN
+     * Returns a restrictions object for DIRECTORY_PROJECT_CDN
      *
      * @param bool        $write
      * @param string|null $sub_directory
@@ -343,7 +343,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      */
     public static function newCdn(bool $write = false, ?string $sub_directory = null): static
     {
-        return new static(DIRECTORY_CDN . $sub_directory, $write);
+        return new static(DIRECTORY_PROJECT_CDN . $sub_directory, $write);
     }
 
 

@@ -31,7 +31,7 @@ trait TraitPathNew
      *
      * @return static
      */
-    public static function new(Stringable|string $source, PhoRestrictionsInterface|bool|null $restrictions = null, bool $absolute_prefix = false): static
+    public static function new(Stringable|string $source, PhoRestrictionsInterface|bool|null $restrictions = null, Stringable|string|bool|null $absolute_prefix = false): static
     {
         return new static($source, $restrictions, $absolute_prefix);
     }
