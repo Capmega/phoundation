@@ -107,6 +107,13 @@ class Card extends Widget
      */
     protected TabsInterface $tabs;
 
+    /**
+     * Tracks what header title tag to use
+     *
+     * @var string|null $header_title_tag
+     */
+    protected ?string $header_title_tag = null;
+
 
     /**
      * Returns the buttons for this card
@@ -141,6 +148,31 @@ class Card extends Widget
             $this->buttons = $buttons;
         }
 
+        return $this;
+    }
+
+
+    /**
+     * Returns the header title tag
+     *
+     * @return string
+     */
+    public function getHeaderTitleTag(): string
+    {
+        return $this->header_title_tag ?? 'h3';
+    }
+
+
+    /**
+     * Sets the header title tag
+     *
+     * @param string $tag
+     *
+     * @return static
+     */
+    public function setHeaderTitleTag(string $tag): static
+    {
+        $this->header_title_tag = get_null(trim($tag));
         return $this;
     }
 
