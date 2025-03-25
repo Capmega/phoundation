@@ -100,20 +100,20 @@ class SqlDataEntry implements SqlDataEntryInterface
     /**
      * Sets the data entry
      *
-     * @param DataEntryInterface $data_entry
+     * @param DataEntryInterface $o_data_entry
      *
      * @return static
      */
-    public function setDataEntryObject(DataEntryInterface $data_entry): static
+    public function setDataEntryObject(DataEntryInterface $o_data_entry): static
     {
-        $this->setTable($data_entry->getTable())
-             ->setIdColumn($data_entry->getIdColumn())
-             ->setRandomId($data_entry->getRandomId())
-             ->setMetaEnabled($data_entry->getMetaEnabled())
-             ->setInsertUpdate($data_entry->getInsertUpdate())
-             ->setMaxIdRetries($data_entry->getMaxIdRetries());
+        $this->setTable($o_data_entry->getTable())
+             ->setIdColumn($o_data_entry->getIdColumn())
+             ->setRandomId($o_data_entry->getRandomId())
+             ->setMetaEnabled($o_data_entry->getMetaEnabled())
+             ->setInsertUpdate($o_data_entry->getInsertUpdate())
+             ->setMaxIdRetries($o_data_entry->getMaxIdRetries());
 
-        return $this->__setDataEntry($data_entry);
+        return $this->__setDataEntry($o_data_entry);
     }
 
 

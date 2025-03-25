@@ -30,13 +30,13 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
     {
         parent::__construct();
 
-        $this->definitions = Definitions::new()
-                                        ->add(Definition::new('type[]')
+        $this->o_definitions = Definitions::new()
+                                          ->add(Definition::new('type[]')
                                                         ->setLabel(tr('Type'))
                                                         ->setSize(6)
                                                         ->setElement(EnumElement::select)
                                                         ->setDataSource([]))
-                                        ->add(Definition::new('filter[]')
+                                          ->add(Definition::new('filter[]')
                                                         ->setLabel(tr('Filter'))
                                                         ->setSize(6));
 

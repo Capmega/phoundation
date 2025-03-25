@@ -32,17 +32,17 @@ class AuthenticationsFilterForm extends \Phoundation\Web\Html\Components\Forms\F
 
         parent::__construct($source);
 
-        $this->definitions->get('date_range')->setSize(3);
-        $this->definitions->get('users_id')->setSize(3);
-        $this->definitions->get('status')->setSize(3);
+        $this->o_definitions->get('date_range')->setSize(3);
+        $this->o_definitions->get('users_id')->setSize(3);
+        $this->o_definitions->get('status')->setSize(3);
 
-        $this->definitions->add(Definition::new('action')
-                                          ->setLabel(tr('Action'))
-                                          ->setSize(3)
-                                          ->setOptional(true)
-                                          ->setElement(EnumElement::select)
-                                          ->setKey(true, 'auto_submit')
-                                          ->setDataSource(Authentication::getFilterActions()));
+        $this->o_definitions->add(Definition::new('action')
+                                            ->setLabel(tr('Action'))
+                                            ->setSize(3)
+                                            ->setOptional(true)
+                                            ->setElement(EnumElement::select)
+                                            ->setKey(true, 'auto_submit')
+                                            ->setDataSource(Authentication::getFilterActions()));
 
         // Auto apply
         $this->applyValidator(self::class);
@@ -69,7 +69,7 @@ class AuthenticationsFilterForm extends \Phoundation\Web\Html\Components\Forms\F
      */
     public function applyFiltersToQueryBuilder(QueryBuilderInterface $builder): static
     {
-        if ($this->apply_filters->keyExists('action') and $this->definitions->isRendered('action', false)) {
+        if ($this->apply_filters->keyExists('action') and $this->o_definitions->isRendered('action', false)) {
             if ($this->getAction()) {
                 $builder->addWhere(
                     '`' . $builder->getFromTable() . '`.`action` = :action', [':action' => $this->getAction()]

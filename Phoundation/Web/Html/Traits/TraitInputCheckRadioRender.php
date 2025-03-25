@@ -41,7 +41,7 @@ trait TraitInputCheckRadioRender
                             ->setClass($this->label_class)
                             ->setContent($this->label);
 
-            $element->getAttributes()
+            $element->getAttributesObject()
                     ->add($this->id, 'for');
 
             return parent::render() . $element->render();

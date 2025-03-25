@@ -53,13 +53,13 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
 
         parent::__construct();
 
-        $this->definitions->add(Definition::new('roles_id')
-                                          ->setLabel(tr('Role'))
-                                          ->setSize(4)
-                                          ->setOptional(true)
-                                          ->setElement(EnumElement::select)
-                                          ->setInputType(EnumInputType::dbid)
-                                          ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+        $this->o_definitions->add(Definition::new('roles_id')
+                                            ->setLabel(tr('Role'))
+                                            ->setSize(4)
+                                            ->setOptional(true)
+                                            ->setElement(EnumElement::select)
+                                            ->setInputType(EnumInputType::dbid)
+                                            ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                                               return Roles::new()
                                                           ->getHtmlSelectOld()
                                                           ->setAutoSubmit(true)
@@ -83,9 +83,9 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                                                            ->setSelected(isset_get($this->source[$key]));
                                           }));
 
-        $this->definitions->get('date_range')->setRender(false);
-        $this->definitions->get('users_id')->setRender(false);
-        $this->definitions->get('status')->setSize(4);
+        $this->o_definitions->get('date_range')->setRender(false);
+        $this->o_definitions->get('users_id')->setRender(false);
+        $this->o_definitions->get('status')->setSize(4);
 
         // Auto apply
         $this->applyValidator(self::class);
@@ -145,7 +145,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
      */
     public function applyFiltersToQueryBuilder(QueryBuilderInterface $builder): static
     {
-        if ($this->apply_filters->keyExists('roles_id') and $this->definitions->isRendered('roles_id', false)) {
+        if ($this->apply_filters->keyExists('roles_id') and $this->o_definitions->isRendered('roles_id', false)) {
             if ($this->getRolesId()) {
                 $builder->addJoin('JOIN  `accounts_users_roles` AS `accounts_users_roles_filter`
                                    ON    `accounts_users_roles_filter`.`roles_id` = :roles_id
@@ -154,7 +154,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
             }
         }
 
-        if ($this->apply_filters->keyExists('rights_id') and $this->definitions->isRendered('rights_id', false)) {
+        if ($this->apply_filters->keyExists('rights_id') and $this->o_definitions->isRendered('rights_id', false)) {
             if ($this->getRightsId()) {
                 $builder->addJoin('JOIN  `accounts_users_rights` AS `accounts_users_rights_filter`
                                    ON    `accounts_users_rights_filter`.`rights_id` = :rights_id

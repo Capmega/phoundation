@@ -42,11 +42,11 @@ interface DefinitionsInterface extends IteratorInterface
     /**
      * Sets the data entry
      *
-     * @param DataEntryInterface $data_entry
+     * @param DataEntryInterface $o_data_entry
      *
      * @return static
      */
-    public function setDataEntryObject(DataEntryInterface $data_entry): static;
+    public function setDataEntryObject(DataEntryInterface $o_data_entry): static;
 
 
     /**

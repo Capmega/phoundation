@@ -75,17 +75,17 @@ interface ElementInterface extends ComponentInterface
      *
      * @return AInterface
      */
-    public function getAnchor(): AInterface;
+    public function getAnchorObject(): AInterface;
 
 
     /**
      * Sets the anchor for this element
      *
-     * @param AInterface|null $anchor
+     * @param AInterface|null $o_anchor
      *
      * @return Span
      */
-    public function setAnchor(?AInterface $anchor): static;
+    public function setAnchorObject(?AInterface $o_anchor): static;
 
 
     /**

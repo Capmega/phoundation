@@ -99,17 +99,17 @@ interface ElementsBlockInterface extends ComponentInterface, IteratorInterface
      *
      * @return AInterface
      */
-    public function getAnchor(): AInterface;
+    public function getAnchorObject(): AInterface;
 
 
     /**
      * Sets the anchor for this element
      *
-     * @param AInterface|null $anchor
+     * @param AInterface|null $o_anchor
      *
      * @return static
      */
-    public function setAnchor(?AInterface $anchor): static;
+    public function setAnchorObject(?AInterface $o_anchor): static;
 
 
     /**

@@ -245,7 +245,7 @@ class Card extends Widget
 
         return $this;
     }
-    
+
 
     /**
      * Returns extra footer content for the card
@@ -322,10 +322,10 @@ class Card extends Widget
         $this->collapsed = $collapsed;
 
         if ($this->collapsed) {
-            $this->classes->add(true, 'collapsed-card');
+            $this->o_classes->add(true, 'collapsed-card');
 
         } else {
-            $this->classes->removeKeys('collapsed-card');
+            $this->o_classes->removeKeys('collapsed-card');
         }
 
         return $this;

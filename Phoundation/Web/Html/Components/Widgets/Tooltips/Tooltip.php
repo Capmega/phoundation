@@ -526,7 +526,7 @@ class Tooltip extends Element implements TooltipInterface
                 throw new OutOfBoundsException(tr('Cannot render tooltip, neither "use icon" nor a source element were specified, where one of either is required'));
             }
 
-            $this->source_element->getData()->addSource($this->data);
+            $this->source_element->getDataObject()->addSource($this->data);
         }
 
         if ($this->render_before) {

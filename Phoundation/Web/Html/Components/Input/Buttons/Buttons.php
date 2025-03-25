@@ -101,7 +101,7 @@ class Buttons extends ElementsBlock implements ButtonsInterface
                             ->setWrapping($this->wrapping)
                             ->setOutlined($this->outlined)
                             ->setRounded($this->rounded)
-                            ->addClasses($this->classes)
+                            ->addClasses($this->o_classes)
                             ->setOutlined($outline)
                             ->setContent($button)
                             ->setValue($button)

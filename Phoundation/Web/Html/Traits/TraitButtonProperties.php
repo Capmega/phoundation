@@ -309,16 +309,16 @@ trait TraitButtonProperties
     {
         $this->resetButtonClasses();
 
-        $this->attributes->set($this->button_type?->value, 'type');
+        $this->o_attributes->set($this->button_type?->value, 'type');
 
         if ($this->anchor_url) {
             // Use an <a> anchor button
-            $this->attributes->removeKeys('type');
-            $this->attributes->set($this->anchor_url, 'href');
+            $this->o_attributes->removeKeys('type');
+            $this->o_attributes->set($this->anchor_url, 'href');
 
             // Adds support for target="" attribute
             if ($this->target) {
-                $this->attributes->set($this->target, 'target');
+                $this->o_attributes->set($this->target, 'target');
             }
         }
 
@@ -334,9 +334,9 @@ trait TraitButtonProperties
     protected function resetButtonClasses(): void
     {
         // Remove the current button mode
-        foreach ($this->classes as $class => $value) {
+        foreach ($this->o_classes as $class => $value) {
             if (str_starts_with($class, 'btn-')) {
-                $this->classes->removeKeys($class);
+                $this->o_classes->removeKeys($class);
             }
         }
 

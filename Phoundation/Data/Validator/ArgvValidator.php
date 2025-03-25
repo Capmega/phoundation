@@ -977,7 +977,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                                                    'failures' => $this->failures,
                                                    'values'   => $values
                                                ])
-                                               ->setDataEntryObject($this->definitions?->getDataEntryObject())
+                                               ->setDataEntryObject($this->o_definitions?->getDataEntryObject())
                                                ->makeWarning();
             }
 

@@ -76,9 +76,9 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     /**
      * The DataEntryForm rows renderer
      *
-     * @var DataEntryFormRowsInterface $rows
+     * @var DataEntryFormRowsInterface $o_rows
      */
-    protected DataEntryFormRowsInterface $rows;
+    protected DataEntryFormRowsInterface $o_rows;
 
 
     /**
@@ -90,7 +90,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     {
         parent::__construct($source);
 
-        $this->rows = new DataEntryFormRows($this);
+        $this->o_rows = new DataEntryFormRows($this);
     }
 
 
@@ -103,7 +103,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
      */
     public function setMetaVisible(bool $meta_visible): static
     {
-        $this->definitions->setMetaVisible($meta_visible);
+        $this->o_definitions->setMetaVisible($meta_visible);
         return $this;
     }
 
@@ -165,7 +165,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
             }
 
             $source        = $this->getSource();
-            $definitions   = $this->getDefinitionsObject();
+            $o_definitions   = $this->getDefinitionsObject();
             $prefix        = $this->getDefinitionsObject()->getPrefix();
             $auto_focus_id = $this->getAutofocusId();
 
@@ -180,7 +180,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                     $prefix = str_replace('[]', '[' . static::$list_count . ']', $prefix);
                 }
 
-                $is_array = str_ends_with((string)$prefix, '[');
+                $is_array = str_ends_with((string) $prefix, '[');
 
             }
             else {
@@ -230,14 +230,14 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
              */
             // If form key definitions are available, reorder the keys as in the form key definitions
             // Go over each key and add it to the form
-            foreach ($definitions as $column => $definition) {
+            foreach ($o_definitions as $column => $o_definition) {
                 try {
                     // Add column name prefix
                     $field_name = $prefix . $column;
 
                     if ($field_name === $auto_focus_id) {
                         // This column has autofocus
-                        $definition->setAutoFocus(true);
+                        $o_definition->setAutoFocus(true);
                     }
 
                     if ($is_array) {
@@ -245,19 +245,19 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                         $field_name .= ']';
                     }
 
-                    if (!is_object($definition) or !($definition instanceof DefinitionInterface)) {
+                    if (!is_object($o_definition) or !($o_definition instanceof DefinitionInterface)) {
                         throw new OutOfBoundsException(tr('Data key definition for column ":column / :field_name" is invalid. Iit should be an array or Definition type  but contains ":data"', [
                             ':column'     => $column,
                             ':field_name' => $field_name,
-                            ':data'       => gettype($definition) . ': ' . $definition,
+                            ':data'       => gettype($o_definition) . ': ' . $o_definition,
                         ]));
                     }
 
-                    if ($definition->getPreRenderFunctions()) {
-                        $source[$column] = $this->executePreRenderFunctions($definition, $source, isset_get($source[$column]));
+                    if ($o_definition->getPreRenderFunctions()) {
+                        $source[$column] = $this->executePreRenderFunctions($o_definition, $source, isset_get($source[$column]));
                     }
 
-                    if ($definition->isMeta()) {
+                    if ($o_definition->isMeta()) {
                         // This is an immutable meta-column, virtual column, or readonly column.
                         // In creation mode we're not even going to show this, in edit mode don't put a column name because
                         // users aren't even supposed to be able to submit this
@@ -265,28 +265,28 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                             continue;
                         }
 
-                        if (!$definitions->getMetaVisible()) {
+                        if (!$o_definitions->getMetaVisible()) {
                             continue;
                         }
 
                         $field_name = '';
                     }
 
-                    if (is_callable($definition->getRender())) {
+                    if (is_callable($o_definition->getRender())) {
                         // Rendering depends on the return of the callback
-                        $definition->setRender($definition->getRender()());
+                        $o_definition->setRender($o_definition->getRender()());
                     }
 
-                    if (!$definition->getRender()) {
+                    if (!$o_definition->getRender()) {
                         // This element shouldn't be shown, continue
                         continue;
                     }
 
                     // Either this component or the entire form being readonly or disabled will make the component the same
-                    $definition->setReadonly($definition->getReadonly() or $this->getReadonly());
-                    $definition->setDisabled($definition->getDisabled() or $this->getDisabled());
+                    $o_definition->setReadonly($o_definition->getReadonly() or $this->getReadonly());
+                    $o_definition->setDisabled($o_definition->getDisabled() or $this->getDisabled());
 
-                    if ($definition->getDisabled() or $definition->getReadonly()) {
+                    if ($o_definition->getDisabled() or $o_definition->getReadonly()) {
                         // This is an immutable column. Don't add a column names as users aren't supposed to submit this.
                         $field_name = '';
                     }
@@ -297,7 +297,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                             $source[$column] = '';
                     }
 
-                    $execute = $definition->getExecute();
+                    $execute = $o_definition->getExecute();
 
                     if (is_string($execute)) {
                         // Build the source execute array from the specified column
@@ -310,48 +310,48 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                     }
 
                     // Select default element
-                    if (!$definition->getElement()) {
-                        if ($definition->getDataSource()) {
+                    if (!$o_definition->getElement()) {
+                        if ($o_definition->getDataSource()) {
                             // Default element for form items with a source is "select"
                             // TODO CHECK THIS! WHAT IF SOURCE IS A SINGLE STRING?
-                            $definition->setElement(EnumElement::select);
+                            $o_definition->setElement(EnumElement::select);
 
                         }
                         else {
                             // Default element for form items "text input"
-                            $definition->setElement(EnumElement::input);
+                            $o_definition->setElement(EnumElement::input);
                         }
                     }
 
-                    if ($definition->getDisplayCallback()) {
+                    if ($o_definition->getDisplayCallback()) {
                         // Execute the specified callback on the data before displaying it
-                        $source[$column] = $definition->getDisplayCallback()(isset_get($source[$column]), $source);
+                        $source[$column] = $o_definition->getDisplayCallback()(isset_get($source[$column]), $source);
                     }
 
                     // Set default value and override key entry values if value is null
                     if (isset_get($source[$column]) === null) {
-                        if ($definition->getNullElement()) {
-                            $definition->setElement($definition->getNullElement());
+                        if ($o_definition->getNullElement()) {
+                            $o_definition->setElement($o_definition->getNullElement());
                         }
 
-                        if ($definition->getNullInputType()) {
-                            $definition->setInputType($definition->getNullInputType());
+                        if ($o_definition->getNullInputType()) {
+                            $o_definition->setInputType($o_definition->getNullInputType());
                         }
 
-                        if ($definition->getNullDisabled()) {
-                            $definition->setDisabled($definition->getNullDisabled());
+                        if ($o_definition->getNullDisabled()) {
+                            $o_definition->setDisabled($o_definition->getNullDisabled());
                         }
 
-                        if ($definition->getNullReadonly()) {
-                            $definition->setReadonly($definition->getNullReadonly());
+                        if ($o_definition->getNullReadonly()) {
+                            $o_definition->setReadonly($o_definition->getNullReadonly());
                         }
 
-                        $source[$column] = $definition->getNullDefault();
+                        $source[$column] = $o_definition->getNullDefault();
                     }
 
                     // Set value to value specified in $data
-                    if ($definition->getValue()) {
-                        $source[$column] = $definition->getValue();
+                    if ($o_definition->getValue()) {
+                        $source[$column] = $o_definition->getValue();
 
                         // The specified value is an anonymous function, execute it to get the value out of it
                         if (is_callable($source[$column])) {
@@ -360,7 +360,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                         // Apply variables
                         foreach ($source as $source_key => $source_value) {
-                            if ($definitions->keyExists($source_key)) {
+                            if ($o_definitions->keyExists($source_key)) {
                                 if (str_contains((string)$source[$column], ':' . $source_key)) {
                                     $source[$column] = str_replace(':' . $source_key, (string)$source_value, (string)$source[$column]);
                                 }
@@ -369,10 +369,10 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                     }
 
                     // Build the form elements unless a component or content was specified manually
-                    if (!$definition->getContent() and !$definition->getContent()) {
-                        switch ($definition->getElement()) {
+                    if (!$o_definition->getContent() and !$o_definition->getContent()) {
+                        switch ($o_definition->getElement()) {
                             case EnumElement::input:
-                                if (!$definition->getInputType()) {
+                                if (!$o_definition->getInputType()) {
                                     throw new OutOfBoundsException(tr('No input type specified for column ":column / :field_name"', [
                                         ':field_name' => $field_name,
                                         ':column'     => $column,
@@ -380,197 +380,197 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 }
 
                                 // If we have a source query specified, then get the actual value from the query
-                                if ($definition->getDataSource()) {
-                                    if (!is_array($definition->getDataSource())) {
-                                        if (!is_string($definition->getDataSource())) {
-                                            if ($definition->getDataSource() instanceof Stringable) {
+                                if ($o_definition->getDataSource()) {
+                                    if (!is_array($o_definition->getDataSource())) {
+                                        if (!is_string($o_definition->getDataSource())) {
+                                            if ($o_definition->getDataSource() instanceof Stringable) {
                                                 // This is a Stringable object
-                                                $definition->setDataSource((string)$definition->getDataSource());
+                                                $o_definition->setDataSource((string)$o_definition->getDataSource());
 
                                             }
                                             else {
                                                 // The Only possibility left is instanceof PDOStatement
-                                                $definition->setDataSource(sql()->getColumn($definition->getDataSource(), $execute));
+                                                $o_definition->setDataSource(sql()->getColumn($o_definition->getDataSource(), $execute));
                                             }
                                         }
                                     }
                                 }
 
                                 // Build the element class path and load the required class file
-                                $type = match ($definition->getInputType()) {
+                                $type = match ($o_definition->getInputType()) {
                                     EnumInputType::datetime_local => 'DateTimeLocal',
                                     EnumInputType::auto_suggest   => 'AutoSuggest',
-                                    default                       => str_replace(' ', '', Strings::camelCase(str_replace([' ', '-', '_',], ' ', $definition->getInputType()->value))),
+                                    default                       => str_replace(' ', '', Strings::camelCase(str_replace([' ', '-', '_',], ' ', $o_definition->getInputType()->value))),
                                 };
 
                                 // TODO Replace $field_name with the name and prefix from the Definition object
                                 // Get the class for this element and ensure the library file is loaded
                                 // Build the component, depending on the input type
                                 $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\Input' . $type);
-                                $component     = match ($definition->getInputType()) {
+                                $o_component     = match ($o_definition->getInputType()) {
                                     EnumInputType::number       => $element_class::new()
-                                                                                 ->setDefinition($definition)
-                                                                                 ->setRequired($definition->getRequired())
-                                                                                 ->setMin($definition->getMin())
-                                                                                 ->setMax($definition->getMax())
-                                                                                 ->setStep($definition->getStep())
+                                                                                 ->setDefinitionObject($o_definition)
+                                                                                 ->setRequired($o_definition->getRequired())
+                                                                                 ->setMin($o_definition->getMin())
+                                                                                 ->setMax($o_definition->getMax())
+                                                                                 ->setStep($o_definition->getStep())
                                                                                  ->setName($field_name)
                                                                                  ->setValue($source[$column]),
 
                                     EnumInputType::date         => $element_class::new()
-                                                                                 ->setDefinition($definition)
-                                                                                 ->setRequired($definition->getRequired())
-                                                                                 ->setMin($definition->getMin())
-                                                                                 ->setMax($definition->getMax())
+                                                                                 ->setDefinitionObject($o_definition)
+                                                                                 ->setRequired($o_definition->getRequired())
+                                                                                 ->setMin($o_definition->getMin())
+                                                                                 ->setMax($o_definition->getMax())
                                                                                  ->setName($field_name)
                                                                                  ->setValue($source[$column]),
 
                                     EnumInputType::auto_suggest => $element_class::new()
-                                                                                 ->setDefinition($definition)
-                                                                                 ->setRequired($definition->getRequired())
+                                                                                 ->setDefinitionObject($o_definition)
+                                                                                 ->setRequired($o_definition->getRequired())
                                                                                  ->setAutoComplete(false)
-                                                                                 ->setMinLength($definition->getMinLength())
-                                                                                 ->setMaxLength($definition->getMaxLength())
-                                                                                 ->setSourceUrl($definition->getDataSource())
-                                                                                 ->setVariables($definition->getVariables())
+                                                                                 ->setMinLength($o_definition->getMinLength())
+                                                                                 ->setMaxLength($o_definition->getMaxLength())
+                                                                                 ->setSourceUrl($o_definition->getDataSource())
+                                                                                 ->setVariables($o_definition->getVariables())
                                                                                  ->setName($field_name)
                                                                                  ->setValue($source[$column]),
 
                                     EnumInputType::select       => $element_class::new()
-                                                                                 ->setDefinition($definition)
-                                                                                 ->setRequired($definition->getRequired())
+                                                                                 ->setDefinitionObject($o_definition)
+                                                                                 ->setRequired($o_definition->getRequired())
                                                                                  ->setName($field_name)
                                                                                  ->setValue($source[$column]),
 
                                     EnumInputType::checkbox     => $element_class::new()
-                                                                                 ->setDefinition($definition)
-                                                                                 ->setRequired($definition->getRequired())
+                                                                                 ->setDefinitionObject($o_definition)
+                                                                                 ->setRequired($o_definition->getRequired())
                                                                                  ->setName($field_name)
                                                                                  ->setValue('1')
                                                                                  ->setChecked((bool)$source[$column]),
 
                                     EnumInputType::button,
                                     EnumInputType::submit       => Button::new()
-                                                                         ->setDefinitionObject($definition)
-                                                                         ->setHidden($definition->getHidden())
-                                                                         ->setValue($definition->getValue()),
+                                                                         ->setDefinitionObject($o_definition)
+                                                                         ->setHidden($o_definition->getHidden())
+                                                                         ->setValue($o_definition->getValue()),
 
                                     EnumInputType::hidden       => $element_class::new()
-                                                                                 ->setRequired($definition->getRequired())
+                                                                                 ->setRequired($o_definition->getRequired())
                                                                                  ->setName($field_name)
                                                                                  ->setValue($source[$column]),
 
                                     default                     => $element_class::new()
-                                                                                 ->setDefinition($definition)
-                                                                                 ->setRequired($definition->getRequired())
-                                                                                 ->setMinLength($definition->getMinLength())
-                                                                                 ->setMaxLength($definition->getMaxLength())
-                                                                                 ->setAutoComplete($definition->getAutoComplete())
-                                                                                 ->setAutoSubmit($definition->getAutoSubmit())
+                                                                                 ->setDefinitionObject($o_definition)
+                                                                                 ->setRequired($o_definition->getRequired())
+                                                                                 ->setMinLength($o_definition->getMinLength())
+                                                                                 ->setMaxLength($o_definition->getMaxLength())
+                                                                                 ->setAutoComplete($o_definition->getAutoComplete())
+                                                                                 ->setAutoSubmit($o_definition->getAutoSubmit())
                                                                                  ->setName($field_name)
                                                                                  ->setValue($source[$column])
                                 };
 
-                                $this->rows->add($definition, $component);
+                                $this->o_rows->add($o_definition, $o_component);
                                 break;
 
                             case EnumElement::textarea:
                                 // If we have a source query specified, then get the actual value from the query
-                                if ($definition->getDataSource()) {
-                                    $source[$column] = sql()->getColumn($definition->getDataSource(), $execute);
+                                if ($o_definition->getDataSource()) {
+                                    $source[$column] = sql()->getColumn($o_definition->getDataSource(), $execute);
                                 }
 
                                 // Get the class for this element and ensure the library file is loaded
                                 $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\InputTextArea');
-                                $component = $element_class::new()
-                                                           ->setDefinition($definition)
-                                                           ->setAutoComplete($definition->getAutoComplete())
-                                                           ->setAutoSubmit($definition->getAutoSubmit())
-                                                           ->setHidden($definition->getHidden())
-                                                           ->setMaxLength($definition->getMaxLength())
-                                                           ->setRows($definition->getRows())
-                                                           ->setName($field_name)
-                                                           ->setContent(isset_get($source[$column]));
+                                $o_component   = $element_class::new()
+                                                               ->setDefinitionObject($o_definition)
+                                                               ->setAutoComplete($o_definition->getAutoComplete())
+                                                               ->setAutoSubmit($o_definition->getAutoSubmit())
+                                                               ->setHidden($o_definition->getHidden())
+                                                               ->setMaxLength($o_definition->getMaxLength())
+                                                               ->setRows($o_definition->getRows())
+                                                               ->setName($field_name)
+                                                               ->setContent(isset_get($source[$column]));
 
-                                $this->rows->add($definition, $component);
+                                $this->o_rows->add($o_definition, $o_component);
                                 break;
 
                             case EnumElement::div:
                                 // no break;
 
                             case EnumElement::span:
-                                $element_class = Strings::capitalize($definition->getElement()->value);
+                                $element_class = Strings::capitalize($o_definition->getElement()->value);
 
                                 // If we have a source query specified, then get the actual value from the query
-                                if ($definition->getDataSource()) {
-                                    $source[$column] = sql()->getColumn($definition->getDataSource(), $execute);
+                                if ($o_definition->getDataSource()) {
+                                    $source[$column] = sql()->getColumn($o_definition->getDataSource(), $execute);
                                 }
 
                                 // Get the class for this element and ensure the library file is loaded
                                 $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\' . $element_class);
-                                $component = $element_class::new()
-                                                           ->setDefinition($definition)
-                                                           ->setName($field_name)
-                                                           ->setContent(isset_get($source[$column]));
+                                $o_component   = $element_class::new()
+                                                               ->setDefinitionObject($o_definition)
+                                                               ->setName($field_name)
+                                                               ->setContent(isset_get($source[$column]));
 
-                                $this->rows->add($definition, $component);
+                                $this->o_rows->add($o_definition, $o_component);
                                 break;
 
                             case EnumElement::button:
-                                $element_class = Strings::capitalize($definition->getElement()->value);
+                                $element_class = Strings::capitalize($o_definition->getElement()->value);
                                 $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\Buttons\\' . $element_class);
-                                $component = $element_class::new()
-                                                           ->setDefinition($definition)
-                                                           ->setName($field_name)
-                                                           ->setContent($source[$column]);
-                                $this->rows->add($definition, $component);
+                                $o_component   = $element_class::new()
+                                                               ->setDefinitionObject($o_definition)
+                                                               ->setName($field_name)
+                                                               ->setContent($source[$column]);
+                                $this->o_rows->add($o_definition, $o_component);
                                 break;
 
                             case EnumElement::select:
                                 // Get the class for this element and ensure the library file is loaded
                                 $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\InputSelect');
-                                $component = $element_class::new()
-                                                           ->setDefinition($definition)
-                                                           ->setSource($definition->getDataSource(), $execute)
-                                                           ->setDisabled($definition->getDisabled() or $definition->getReadonly())
-                                                           ->setReadOnly((bool)$definition->getReadonly())
-                                                           ->setHidden($definition->getHidden())
-                                                           ->setName($field_name)
-                                                           ->setAutoComplete($definition->getAutoComplete())
-                                                           ->setAutoSubmit($definition->getAutoSubmit())
-                                                           ->setSelected(isset_get($source[$column]))
-                                                           ->setAutoFocus($definition->getAutoFocus());
+                                $o_component   = $element_class::new()
+                                                               ->setDefinitionObject($o_definition)
+                                                               ->setSource($o_definition->getDataSource(), $execute)
+                                                               ->setDisabled($o_definition->getDisabled() or $o_definition->getReadonly())
+                                                               ->setReadOnly((bool)$o_definition->getReadonly())
+                                                               ->setHidden($o_definition->getHidden())
+                                                               ->setName($field_name)
+                                                               ->setAutoComplete($o_definition->getAutoComplete())
+                                                               ->setAutoSubmit($o_definition->getAutoSubmit())
+                                                               ->setSelected(isset_get($source[$column]))
+                                                               ->setAutoFocus($o_definition->getAutoFocus());
 
-                                $this->rows->add($definition, $component);
+                                $this->o_rows->add($o_definition, $o_component);
                                 break;
 
                             case EnumElement::inputmultibuttontext:
                                 // Get the class for this element and ensure the library file is loaded
                                 $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\InputMultiButtonText');
                                 $input = $element_class::new()
-                                                       ->setSource($definition->getDataSource());
+                                                       ->setSource($o_definition->getDataSource());
 
                                 $input->getButton()
-                                      ->setMode(EnumDisplayMode::from($definition->getMode()))
-                                      ->setContent($definition->getLabel());
+                                      ->setMode(EnumDisplayMode::from($o_definition->getMode()))
+                                      ->setContent($o_definition->getLabel());
 
-                                $component = $input->getInput()
-                                                   ->setDefinition($definition)
-                                                   ->setHidden($definition->getHidden())
-                                                   ->setName($field_name)
-                                                   ->setValue($source[$column])
-                                                   ->setContent(isset_get($source[$column]))
-                                                   ->setAutoFocus($definition->getAutoFocus());
+                                $o_component = $input->getInput()
+                                                     ->setDefinitionObject($o_definition)
+                                                     ->setHidden($o_definition->getHidden())
+                                                     ->setName($field_name)
+                                                     ->setValue($source[$column])
+                                                     ->setContent(isset_get($source[$column]))
+                                                     ->setAutoFocus($o_definition->getAutoFocus());
 
-                                $this->rows->add($definition, $component);
+                                $this->o_rows->add($o_definition, $o_component);
                                 break;
 
                             case EnumElement::hr:
                                 // Get the class for this element and ensure the library file is loaded
                                 $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\Hr');
-                                $component = $element_class::new();
+                                $o_component   = $element_class::new();
 
-                                $this->rows->add($definition, $component);
+                                $this->o_rows->add($o_definition, $o_component);
                                 break;
 
                             case null:
@@ -579,81 +579,81 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 ]));
 
                             default:
-                                if (!$definition->getElement()) {
+                                if (!$o_definition->getElement()) {
                                     throw new OutOfBoundsException(tr('No element specified for key ":key"', [
                                         ':key' => $column,
                                     ]));
                                 }
 
                                 throw new OutOfBoundsException(tr('Unknown or unsupported element ":element" specified for key ":key"', [
-                                    ':element' => $definition->getElement()->value,
+                                    ':element' => $o_definition->getElement()->value,
                                     ':key'     => $column,
                                 ]));
                         }
 
                     }
-                    elseif ($definition->getContent()) {
-                        if (is_callable($definition->getContent())) {
+                    elseif ($o_definition->getContent()) {
+                        if (is_callable($o_definition->getContent())) {
                             // Component will be generated in a callback
-                            if ($definition->getHidden()) {
-                                $this->rows->add($definition, InputHidden::new()
-                                                                         ->setName($field_name)
-                                                                         ->setValue(Strings::force($source[$column], ' - ')));
+                            if ($o_definition->getHidden()) {
+                                $this->o_rows->add($o_definition, InputHidden::new()
+                                                                             ->setName($field_name)
+                                                                             ->setValue(Strings::force($source[$column], ' - ')));
                             }
                             else {
-                                $component = $definition->getContent()($definition, $column, $field_name, $source);
+                                $o_component = $o_definition->getContent()($o_definition, $column, $field_name, $source);
 
-                                if ($component) {
-                                    if (!is_string($component)) {
-                                        if (!$component instanceof RenderInterface) {
+                                if ($o_component) {
+                                    if (!is_string($o_component)) {
+                                        if (!$o_component instanceof RenderInterface) {
                                             // The content function did NOT return a render object
                                             throw new WebRenderException(tr('Failed to render DataEntryForm ":class", the column ":column" setContent method should return a RenderInterface object but returns a ":type" instead', [
                                                 ':class'  => get_class($this->o_data_entry),
                                                 ':column' => $column,
-                                                ':type'   => get_datatype_or_class($component),
+                                                ':type'   => get_datatype_or_class($o_component),
                                             ]));
                                         }
                                     }
 
-                                    $this->rows->add($definition, $component);
+                                    $this->o_rows->add($o_definition, $o_component);
                                 }
                             }
 
                         }
                         else {
                             // Component has been defined directly
-                            $this->rows->add($definition, $definition->getContent());
+                            $this->o_rows->add($o_definition, $o_definition->getContent());
                         }
 
                     }
-                    elseif (is_callable($definition->getContent())) {
+                    elseif (is_callable($o_definition->getContent())) {
                         // Content has been specified with a callback
-                        if ($definition->getHidden()) {
-                            $this->rows->add($definition, InputHidden::new()
-                                                                     ->setName($field_name)
-                                                                     ->setValue(Strings::force($source[$column], ' - ')));
+                        if ($o_definition->getHidden()) {
+                            $this->o_rows->add($o_definition, InputHidden::new()
+                                                                         ->setName($field_name)
+                                                                         ->setValue(Strings::force($source[$column], ' - ')));
                         }
                         else {
-                            $component = $definition->getContent()($definition, $column, $field_name, $source);
+                            $o_component = $o_definition->getContent()($o_definition, $column, $field_name, $source);
 
-                            if ($component) {
-                                if (!$component instanceof RenderInterface) {
+                            if ($o_component) {
+                                if (!$o_component instanceof RenderInterface) {
                                     // The content function did NOT return a render object
                                     throw new WebRenderException(tr('Failed to render DataEntryForm ":class", the column ":column" setContent method should return a RenderInterface object but returns a ":type" instead', [
                                         ':class'  => get_class($this->o_data_entry),
                                         ':column' => $column,
-                                        ':type'   => get_datatype_or_class($component),
+                                        ':type'   => get_datatype_or_class($o_component),
                                     ]));
                                 }
 
-                                $this->rows->add($definition, $component);
+                                $this->o_rows->add($o_definition, $o_component);
                             }
                         }
 
                     }
                     else {
                         // Content has already been rendered, display it
-                        $this->rows->add($definition, $definition->getContent());
+                        $this->o_rows->add($o_definition, $o_definition->getContent());
                     }
 
                 } catch (Throwable $e) {
@@ -677,12 +677,12 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
             // Add the data entry object name in the ID field
             // TODO Should we always do this?
             if (empty($this->o_data_entry)) {
-                $return = '<div>' . $this->rows->render() . '</div>';
+                $return = '<div>' . $this->o_rows->render() . '</div>';
 
             }
             else {
                 $return = '<div id="' . $this->o_data_entry->getObjectName() . ($this->o_data_entry->getId(false) ? '_' . $this->o_data_entry->getId(false) : null) . '" class="' . $this->o_data_entry->getObjectName() . '">' .
-                    $this->rows->render() .
+                    $this->o_rows->render() .
                     '</div>';
             }
 
@@ -751,6 +751,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
      */
     public function getMetaVisible(): bool
     {
-        return $this->definitions->getMetaVisible();
+        return $this->o_definitions->getMetaVisible();
     }
 }

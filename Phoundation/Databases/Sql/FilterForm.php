@@ -43,19 +43,19 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
         parent::__construct($source);
 
         // Set basic definitions
-        $this->definitions->setRender('date_range', false)
+        $this->o_definitions->setRender('date_range', false)
                           ->setRender('users_id'  , false)
                           ->setRender('status'    , false);
 
-        $this->definitions->add(Definition::new('query')
-                                          ->setLabel(tr('Query'))
-                                          ->setSize(12)
-                                          ->setOptional(true)
-                                          ->setAutoSubmit(true)
-                                          ->setElement(EnumElement::textarea)
-                                          ->setRows(10));
+        $this->o_definitions->add(Definition::new('query')
+                                            ->setLabel(tr('Query'))
+                                            ->setSize(12)
+                                            ->setOptional(true)
+                                            ->setAutoSubmit(true)
+                                            ->setElement(EnumElement::textarea)
+                                            ->setRows(10));
 
-        $this->definitions->addButtons(Buttons::new()->addButton(tr('Execute')));
+        $this->o_definitions->addButtons(Buttons::new()->addButton(tr('Execute')));
 
         // Auto apply
         $this->applyValidator(self::class);

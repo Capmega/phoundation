@@ -922,11 +922,11 @@ interface ValidatorInterface extends IteratorBaseInterface
      * @note This requires Validator::setTable() to be set with a valid, existing table
      *
      * @param string|null             $failure
-     * @param ConnectorInterface|null $connector
+     * @param ConnectorInterface|null $o_connector
      *
      * @return static
      */
-    public function isUnique(?string $failure = null, ?ConnectorInterface $connector = null): static;
+    public function isUnique(?string $failure = null, ?ConnectorInterface $o_connector = null): static;
 
     /**
      * Sanitize the selected value by applying htmlentities()

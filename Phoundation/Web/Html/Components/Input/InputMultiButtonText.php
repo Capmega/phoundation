@@ -79,8 +79,8 @@ class InputMultiButtonText extends ElementsBlock
             'dropdown-toggle',
         ]);
 
-        $button->getData()->add('toggle', 'dropdown');
-        $button->getAria()->add('false', 'expanded');
+        $button->getDataObject()->add('toggle', 'dropdown');
+        $button->getAriaObject()->add('false', 'expanded');
 
         $this->button = $button;
 

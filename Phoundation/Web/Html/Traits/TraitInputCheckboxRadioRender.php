@@ -33,7 +33,7 @@ trait TraitInputCheckboxRadioRender
             $this->setId($this->getName());
         }
 
-        $this->getAria()->add($this->label, 'label');
+        $this->getAriaObject()->add($this->label, 'label');
 
         if ($this->label_hidden) {
             // Hide the label, apply it to aria only

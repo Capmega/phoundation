@@ -83,13 +83,13 @@ abstract class ElementCore implements ElementInterface
             return $this->render;
         }
 
-        if (isset($this->tooltip)) {
-            if ($this->tooltip->getUseIcon()) {
-                if ($this->tooltip->getRenderBefore()) {
-                    $this->classes->add(true, 'has-tooltip-icon-left');
+        if (isset($this->o_tooltip)) {
+            if ($this->o_tooltip->getUseIcon()) {
+                if ($this->o_tooltip->getRenderBefore()) {
+                    $this->o_classes->add(true, 'has-tooltip-icon-left');
 
                 } else {
-                    $this->classes->add(true, 'has-tooltip-icon-right');
+                    $this->o_classes->add(true, 'has-tooltip-icon-right');
                 }
             }
         }
@@ -105,9 +105,9 @@ abstract class ElementCore implements ElementInterface
 
         $javascript_autosubmit = null;
 
-        if ($this->attributes->get('auto_submit', false)) {
+        if ($this->o_attributes->get('auto_submit', false)) {
             // Add JavaScript code to automatically submit on change
-            $this->attributes->removeKeys('auto_submit');
+            $this->o_attributes->removeKeys('auto_submit');
             $javascript_autosubmit .= Script::new('$(\'[name="' . $this->name . '"]\').on("change", function (e) {
                                                        $(e.target).closest("form").trigger("submit"); 
                                                    });');
@@ -154,15 +154,15 @@ abstract class ElementCore implements ElementInterface
                       $javascript_autosubmit;
         }
 
-        if (isset($this->tooltip)) {
-            $render = $this->tooltip->render($render);
+        if (isset($this->o_tooltip)) {
+            $render = $this->o_tooltip->render($render);
         }
 
-        if ($this->anchor) {
+        if ($this->o_anchor) {
             // This element has an anchor. Render the anchor -which will render this element to be its contents- instead
-            return $this->renderBeforeContent() . $this->anchor->setContent($render)
-                                                               ->setChildElement(null)
-                                                               ->render() . $this->renderAfterContent();
+            return $this->renderBeforeContent() . $this->o_anchor->setContent($render)
+                                                                 ->setChildElement(null)
+                                                                 ->render() . $this->renderAfterContent();
         }
 
         $this->render = $render;
@@ -198,8 +198,8 @@ abstract class ElementCore implements ElementInterface
         }
 
         // Add data-* entries
-        if (isset($this->data)) {
-            foreach ($this->data as $key => $value) {
+        if (isset($this->o_data)) {
+            foreach ($this->o_data as $key => $value) {
                 if ($value === null) {
                     $return['data-' . $key] = null;
 
@@ -210,14 +210,14 @@ abstract class ElementCore implements ElementInterface
         }
 
         // Add aria-* entries
-        if (isset($this->aria)) {
-            foreach ($this->aria as $key => $value) {
+        if (isset($this->o_aria)) {
+            foreach ($this->o_aria as $key => $value) {
                 $return['aria-' . $key] = $value;
             }
         }
 
         // Merge the system values over the set attributes
-        return $this->attributes->appendSource($return);
+        return $this->o_attributes->appendSource($return);
     }
 
 

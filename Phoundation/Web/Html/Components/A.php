@@ -44,7 +44,7 @@ class A extends Span implements AInterface
      */
     public function getHref(): ?string
     {
-        return $this->attributes->get('href', false);
+        return $this->o_attributes->get('href', false);
     }
 
 
@@ -58,7 +58,7 @@ class A extends Span implements AInterface
     public function setHref(UrlInterface|string|null $href): static
     {
         // Run the href through Url to ensure that preconfigured URL's like "sign-out" are converted to full URLs
-        $this->attributes->set((string) Url::new($href)->makeWww(), 'href');
+        $this->o_attributes->set((string) Url::new($href)->makeWww(), 'href');
 
         return $this;
     }
@@ -71,7 +71,7 @@ class A extends Span implements AInterface
      */
     public function getTarget(): ?EnumAnchorTarget
     {
-        return $this->attributes->get('target', false);
+        return $this->o_attributes->get('target', false);
     }
 
 
@@ -84,7 +84,7 @@ class A extends Span implements AInterface
      */
     public function setTarget(?EnumAnchorTarget $target): static
     {
-        $this->attributes->set($target, 'target');
+        $this->o_attributes->set($target, 'target');
 
         return $this;
     }
@@ -104,7 +104,7 @@ class A extends Span implements AInterface
                     ':content' => $this->content,
                 ]));
             }
-            $this->child_element->setAnchor(null);
+            $this->child_element->setAnchorObject(null);
             $this->content = $this->child_element->render();
         }
 

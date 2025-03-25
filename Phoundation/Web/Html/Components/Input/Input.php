@@ -54,7 +54,7 @@ abstract class Input extends Element implements InputInterface, ValueInterface
      */
     protected function renderAttributesArray(): IteratorInterface
     {
-        $this->attributes = $this->renderInputAttributes()->appendSource($this->attributes);
+        $this->o_attributes = $this->renderInputAttributes()->appendSource($this->o_attributes);
         return parent::renderAttributesArray();
     }
 

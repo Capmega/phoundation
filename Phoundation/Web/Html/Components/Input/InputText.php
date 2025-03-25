@@ -41,7 +41,7 @@ class InputText extends Input implements InputTextInterface
      */
     public function getMinLength(): ?int
     {
-        return $this->attributes->get('minlength', false);
+        return $this->o_attributes->get('minlength', false);
     }
 
 
@@ -65,7 +65,7 @@ class InputText extends Input implements InputTextInterface
      */
     public function getMaxLength(): ?int
     {
-        return $this->attributes->get('maxlength', false);
+        return $this->o_attributes->get('maxlength', false);
     }
 
 
@@ -89,7 +89,7 @@ class InputText extends Input implements InputTextInterface
      */
     public function getAutoComplete(): bool
     {
-        return Strings::toBoolean($this->attributes->get('autocomplete', false));
+        return Strings::toBoolean($this->o_attributes->get('autocomplete', false));
     }
 
 
@@ -113,7 +113,7 @@ class InputText extends Input implements InputTextInterface
      */
     public function getPlaceholder(): ?string
     {
-        return $this->attributes->get('placeholder', false);
+        return $this->o_attributes->get('placeholder', false);
     }
 
 

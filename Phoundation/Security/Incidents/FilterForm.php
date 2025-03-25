@@ -29,10 +29,10 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
     {
         parent::__construct($source);
 
-        $this->definitions->get('status')->setRender(false);
+        $this->o_definitions->get('status')->setRender(false);
 
         // Set basic definitions
-        $this->definitions
+        $this->o_definitions
              ->add(Definition::new('severity')
                  ->setLabel(tr('Severity'))
                  ->setSize(4)
@@ -59,7 +59,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
      */
     public function applyFiltersToQueryBuilder(QueryBuilderInterface $builder): static
     {
-        if ($this->apply_filters->keyExists('severity') and $this->definitions->isRendered('severity', false)) {
+        if ($this->apply_filters->keyExists('severity') and $this->o_definitions->isRendered('severity', false)) {
             if ($this->getSeverities()) {
                 $values = SqlQueries::in($this->getSeverities());
                 $builder->addWhere('`security_incidents`.`severity` IN (' . SqlQueries::inColumns($values) . ')', $values);

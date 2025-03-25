@@ -126,8 +126,8 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                 ->setAction(Url::newCurrent());
 
         // Set basic definitions
-        $this->definitions = Definitions::new()
-                                        ->add(Definition::new('date_range')
+        $this->o_definitions = Definitions::new()
+                                          ->add(Definition::new('date_range')
                                                         ->setLabel(tr('Date range'))
                                                         ->setSize(4)
                                                         ->setOptional(true)
@@ -245,7 +245,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      */
     #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = false): mixed
     {
-        $definition = $this->definitions->get($key, false);
+        $definition = $this->o_definitions->get($key, false);
 
         if (!$definition?->getRender()) {
             // NOTE: Non-rendered elements will always return null
@@ -568,17 +568,17 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
         // Auto apply
         if ($class === static::class) {
-            $validator = $this->selectValidator()->setDefinitionsObject($this->definitions);
+            $validator = $this->selectValidator()->setDefinitionsObject($this->o_definitions);
 
             // Go over each field and let the field definition do the validation since it knows the specs
-            foreach ($this->definitions as $column => $definition) {
+            foreach ($this->o_definitions as $column => $definition) {
 //if ($column !== 'action') continue;
                 $definition->validate($validator, null);
             }
 
             // Validate buttons too
-            if ($this->definitions->hasButtons()) {
-                foreach ($this->definitions->getButtons() as $button) {
+            if ($this->o_definitions->hasButtons()) {
+                foreach ($this->o_definitions->getButtons() as $button) {
                     $validator->select($button->getName())->isOptional()->hasValue($button->getValue());
                 }
             }
@@ -593,7 +593,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
             }
 
             // Generate a list of all available filters so that we can tick them off one by one when we apply them later
-            $this->apply_filters = new Iterator($this->definitions->getKeyIndices());
+            $this->apply_filters = new Iterator($this->o_definitions->getKeyIndices());
         }
 
         return $this;
@@ -609,7 +609,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      */
     public function applyFiltersToQueryBuilder(QueryBuilderInterface $builder): static
     {
-        if ($this->apply_filters->keyExists('status') and $this->definitions->isRendered('status', false)) {
+        if ($this->apply_filters->keyExists('status') and $this->o_definitions->isRendered('status', false)) {
             // Is the status filter rendered and available?
             if ($this->getStatus() !== false) {
                 // Is the status filter not set to "All"?
@@ -621,7 +621,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
             }
         }
 
-        if ($this->apply_filters->keyExists('date_range') and $this->definitions->isRendered('date_range', false)) {
+        if ($this->apply_filters->keyExists('date_range') and $this->o_definitions->isRendered('date_range', false)) {
             if ($this->getStartDate()) {
                 $builder->addWhere(
                     '`' . $builder->getFromTable() . '`.`created_on` >= :start', [':start' => $this->getStartDate()->format('mysql')]
@@ -635,7 +635,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
             }
         }
 
-        if ($this->apply_filters->keyExists('users_id') and $this->definitions->isRendered('users_id', false)) {
+        if ($this->apply_filters->keyExists('users_id') and $this->o_definitions->isRendered('users_id', false)) {
             if ($this->getUsersId()) {
                 $builder->addWhere(
                     '`' . $builder->getFromTable() . '`.`created_by` = :created_by', [':created_by' => $this->getUsersId()]

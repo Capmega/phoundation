@@ -177,7 +177,7 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
         $render       = '';
 
         foreach ($this->columns as $column) {
-            $definition = $column->getDefinition();
+            $definition = $column->getDefinitionObject();
 
             if ($definition === null) {
                 // No row is open right now?

@@ -1342,7 +1342,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             $this->source[$this->field_prefix . $column] = $result;
 
             // Mark the column entry for forced processing, in case it was marked as not rendering to avoid validation issues
-            $this->definitions?->get($column)->setForcedProcessing(true);
+            $this->o_definitions?->get($column)->setForcedProcessing(true);
         });
     }
 
@@ -1384,7 +1384,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             $this->source[$this->field_prefix . $column] = $result;
 
             // Mark the column entry for forced processing, in case it was marked as not rendering to avoid validation issues
-            $this->definitions?->get($column)->setForcedProcessing(true);
+            $this->o_definitions?->get($column)->setForcedProcessing(true);
         });
     }
 
@@ -3631,32 +3631,32 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      * @note This requires Validator::setTable() to be set with a valid, existing table
      *
      * @param string|null             $failure
-     * @param ConnectorInterface|null $connector
+     * @param ConnectorInterface|null $o_connector
      *
      * @return static
      */
-    public function isUnique(?string $failure = null, ?ConnectorInterface $connector = null): static
+    public function isUnique(?string $failure = null, ?ConnectorInterface $o_connector = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($failure, $connector) {
+        return $this->validateValues(function (&$value) use ($failure, $o_connector) {
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
                 return;
             }
 
-            $data_entry = $this->definitions?->getDataEntryObject();
-            $field      = Strings::from($this->selected_field, $this->field_prefix);
+            $o_data_entry = $this->o_definitions?->getDataEntryObject();
+            $field        = Strings::from($this->selected_field, $this->field_prefix);
 
-            if ($data_entry) {
+            if ($o_data_entry) {
                 // TODO Add support for connector passing here
-                if (($data_entry::class)::exists([$field => $value], $this->id)) {
+                if (($o_data_entry::class)::exists([$field => $value], $this->id)) {
                     $this->addFailure($failure ?? tr('already exists'));
                 }
 
             } else {
                 // Not a DataEntry object, use manual query
-                if (sql($connector)->setDebug($this->debug)->exists($this->table, $field, $value, $this->id)) {
+                if (sql($o_connector)->setDebug($this->debug)->exists($this->table, $field, $value, $this->id)) {
                     $this->addFailure($failure ?? tr('already exists'));
                 }
             }
@@ -4606,7 +4606,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
         if ($this->selected_field and !$this->test_count) {
             throw new ValidatorException(tr('Cannot select field ":field" for object ":object", the previously selected field ":previous" has no validations performed yet', [
-                ':object'   => ($this->definitions?->getDataEntryObject() ? get_class($this->definitions->getDataEntryObject()) : '-'),
+                ':object'   => ($this->o_definitions?->getDataEntryObject() ? get_class($this->o_definitions->getDataEntryObject()) : '-'),
                 ':field'    => $field,
                 ':previous' => $this->selected_field,
             ]));
@@ -4664,9 +4664,9 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     protected function construct(?ValidatorInterface $parent = null, array &$source = []): void
     {
         $this->source = &$source;
-        $this->parent = $parent;
+        $this->o_parent = $parent;
 
-        $this->reflection_selected_optional = new ReflectionProperty($this, 'selected_optional');
+        $this->o_reflection_selected_optional = new ReflectionProperty($this, 'selected_optional');
         $this->reflection_process_value     = new ReflectionProperty($this, 'process_value');
     }
 

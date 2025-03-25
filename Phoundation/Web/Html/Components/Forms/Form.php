@@ -307,7 +307,7 @@ class Form extends Element implements FormInterface
 
         // Merge the system values over the set attributes
         return parent::renderAttributesArray()
-                     ->appendSource($this->attributes, $return);
+                     ->appendSource($this->o_attributes, $return);
     }
 
 

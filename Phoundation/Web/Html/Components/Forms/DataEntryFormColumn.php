@@ -99,7 +99,7 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
 
             if ($this->column_component->hasOuterDiv()) {
                 // Get attributes and properties for the outer div
-                $outer      = $this->column_component->getOuterDiv();
+                $outer      = $this->column_component->getOuterDivObject();
                 $class      = $outer->getClass();
                 $attributes = $outer->getAttributes();
             }

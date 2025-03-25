@@ -263,7 +263,7 @@ class TableAlter extends SchemaAbstract
      *
      * @return string
      */
-    public function getDefinition(string $column, ?string $filter_extra = null): string
+    public function getDefinitionObject(string $column, ?string $filter_extra = null): string
     {
         foreach($this->getDefinitions() as $line) {
             if (str_contains($line, $column)) {
@@ -296,7 +296,7 @@ class TableAlter extends SchemaAbstract
      */
     public function renameIndex(string $from_name, string $to_name): static
     {
-        $definition = $this->getDefinition($from_name, 'KEY');
+        $definition = $this->getDefinitionObject($from_name, 'KEY');
         $definition = str_replace($from_name, $to_name, $definition);
 
         $this->sql->query('ALTER TABLE ' . $this->name . ' DROP KEY `' . $from_name . '`');

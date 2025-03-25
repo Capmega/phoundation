@@ -55,13 +55,13 @@ class ValidationFailedException extends ValidatorException implements Validation
     /**
      * Sets the source data entry object used to translate validation failed fields to human-readable labels
      *
-     * @param DataEntryInterface|null $data_entry
+     * @param DataEntryInterface|null $o_data_entry
      *
      * @return static
      */
-    public function setDataEntryObject(?DataEntryInterface $data_entry): static
+    public function setDataEntryObject(?DataEntryInterface $o_data_entry): static
     {
-        $this->__setDataEntry($data_entry);
+        $this->__setDataEntry($o_data_entry);
         $this->applyLabels();
 
         return $this;

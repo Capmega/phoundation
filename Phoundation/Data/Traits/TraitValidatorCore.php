@@ -169,7 +169,7 @@ trait TraitValidatorCore
      *
      * @var ValidatorInterface|null
      */
-    protected ?ValidatorInterface $parent = null;
+    protected ?ValidatorInterface $o_parent = null;
 
     /**
      * If set, all field failure keys will show the parent field as well
@@ -190,9 +190,9 @@ trait TraitValidatorCore
      * Required to test if selected_optional property is initialized or not
      *
      * @todo Check if we can get rid of this reflectionproperty stuff, its very hacky
-     * @var ReflectionProperty $reflection_selected_optional
+     * @var ReflectionProperty $o_reflection_selected_optional
      */
-    protected ReflectionProperty $reflection_selected_optional;
+    protected ReflectionProperty $o_reflection_selected_optional;
 
     /**
      * Required to test if process_value property is initialized or not
@@ -243,13 +243,13 @@ trait TraitValidatorCore
     /**
      * Link the specified DataEntry to this validator
      *
-     * @param DataEntryInterface|null $data_entry
+     * @param DataEntryInterface|null $o_data_entry
      *
      * @return static
      */
-    public function setDataEntryObject(?DataEntryInterface $data_entry): static {
-        return $this->__setDataEntry($data_entry)
-                    ->setId($data_entry?->getId(false));
+    public function setDataEntryObject(?DataEntryInterface $o_data_entry): static {
+        return $this->__setDataEntry($o_data_entry)
+                    ->setId($o_data_entry?->getId(false));
     }
 
 
@@ -502,9 +502,9 @@ trait TraitValidatorCore
         $failure = trim($failure);
 
         if (Debug::isEnabled()) {
-            if ($this->definitions?->getDataEntryObject()) {
+            if ($this->o_definitions?->getDataEntryObject()) {
                 Log::write(ts('Validation failed for ":class" DataEntry field ":field" with value ":value" because :failure', [
-                    ':class'   => get_class($this->definitions->getDataEntryObject()),
+                    ':class'   => get_class($this->o_definitions->getDataEntryObject()),
                     ':field'   => ($this->parent_field ?? '-') . ' / ' . $selected_field . ' / ' . ($this->process_key ?? '-'),
                     ':failure' => $failure,
                     ':value'   => $this->source[$selected_field],
@@ -943,17 +943,17 @@ trait TraitValidatorCore
             }
         }
 
-        if ($this->parent) {
+        if ($this->o_parent) {
             // Copy failures from the child to the parent and return the parent to continue
             foreach ($this->failures as $field => $failure) {
-                $this->parent->addFailure($failure, $field);
+                $this->o_parent->addFailure($failure, $field);
             }
 
             // Clear the contents of this object to avoid stuck references
             $this->clear();
 
             // TODO Fix parent support
-            return $this->parent;
+            return $this->o_parent;
         }
 
         if ($this->failures) {
@@ -966,7 +966,7 @@ trait TraitValidatorCore
                                                    'failures' => $this->failures,
                                                    'values'   => $values
                                                ])
-                                               ->setDataEntryObject($this->definitions?->getDataEntryObject())
+                                               ->setDataEntryObject($this->o_definitions?->getDataEntryObject())
                                                ->makeWarning();
             }
 

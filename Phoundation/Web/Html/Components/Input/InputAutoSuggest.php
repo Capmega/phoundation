@@ -230,8 +230,8 @@ class InputAutoSuggest extends InputText
      */
     public function render(): ?string
     {
-        $this->attributes = $this->renderInputAttributes()
-                                 ->appendSource($this->attributes);
+        $this->o_attributes = $this->renderInputAttributes()
+                                   ->appendSource($this->o_attributes);
 
         return parent::render();
     }

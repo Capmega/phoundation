@@ -215,7 +215,7 @@ trait TraitInputElement
      */
     public function getAutoSubmit(): bool
     {
-        return $this->attributes->get('auto_submit', false);
+        return $this->o_attributes->get('auto_submit', false);
     }
 
 
@@ -226,7 +226,7 @@ trait TraitInputElement
      */
     public function getOnChange(): ?string
     {
-        return $this->attributes->get('on_change', false);
+        return $this->o_attributes->get('on_change', false);
     }
 
 

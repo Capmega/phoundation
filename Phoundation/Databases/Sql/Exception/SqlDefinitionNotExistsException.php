@@ -3,7 +3,7 @@
 /**
  * Class SqlDefinitionNotExistsException
  *
- * This exception is thrown by TableAlter::getDefinition() if the requested table definition was not found
+ * This exception is thrown by TableAlter::getDefinitionObject() if the requested table definition was not found
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
