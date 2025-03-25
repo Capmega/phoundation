@@ -35,8 +35,6 @@ class Icon extends ElementCore implements IconInterface
     use TraitMode;
     use TraitDataWidth;
     use TraitDataHeight;
-    use TraitDataBackgroundColor;
-    use TraitDataForegroundColor;
     use TraitDataLabel;
 
     /**
@@ -201,6 +199,20 @@ class Icon extends ElementCore implements IconInterface
 throw new UnderConstructionException(tr('Subset is not yet supported for icons'));
         $this->subset = $subset;
         return $this;
+    }
+
+
+    /**
+     * Sets the color of this icon by adding the relevant color classes
+     *
+     * @param string|null $color
+     *
+     * @return $this
+     */
+    public function setColor(?string $color): static
+    {
+        throw new UnderConstructionException();
+        return $this->addClass($color);
     }
 
     

@@ -1102,7 +1102,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @return static
      */
-    public function setColumnsOrderable(?array $columns): static
+    public function setOrderColumns(?array $columns): static
     {
         // Validate content
         foreach ($columns as $key => $value) {

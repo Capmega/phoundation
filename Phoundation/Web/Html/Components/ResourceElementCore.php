@@ -123,6 +123,17 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
 
 
     /**
+     * Returns the contents of this iterator object as a JSON string
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return (string) $this->render();
+    }
+
+
+    /**
      * Returns the HTML none element attribute
      *
      * @return string|null

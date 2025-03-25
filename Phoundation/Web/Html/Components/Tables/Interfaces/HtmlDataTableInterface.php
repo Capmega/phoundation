@@ -385,7 +385,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @return static
      */
-    public function setColumnsOrderable(?array $columns): static;
+    public function setOrderColumns(?array $columns): static;
 
 
     /**
