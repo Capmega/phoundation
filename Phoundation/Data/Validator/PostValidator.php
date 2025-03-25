@@ -178,7 +178,7 @@ class PostValidator extends Validator
      *
      * @return string|true|null
      */
-    public function getSubmitButton(string $post_key = 'submit', bool $prefix = false, bool $return_key = false): string|true|null
+    public function getSubmitButton(string $post_key = 'submit-button', bool $prefix = false, bool $return_key = false): string|true|null
     {
         if (!Request::isPostRequestMethod()) {
             return null;
@@ -210,7 +210,7 @@ class PostValidator extends Validator
                 if ((strlen($key) > 255) or !ctype_print($key)) {
                     throw ValidationFailedException::new(tr('Invalid submit button specified'))
                                                    ->addData([
-                                                       'submit' => tr('The specified submit button is invalid'),
+                                                       'submit-button' => tr('The specified submit button is invalid'),
                                                    ]);
                 }
             }
@@ -219,7 +219,7 @@ class PostValidator extends Validator
                 if ((strlen($value) > 255) or !ctype_print($value)) {
                     throw ValidationFailedException::new(tr('Invalid submit button specified'))
                                                    ->addData([
-                                                       'submit' => tr('The specified submit button is invalid'),
+                                                       'submit-button' => tr('The specified submit button is invalid'),
                                                    ]);
                 }
             }

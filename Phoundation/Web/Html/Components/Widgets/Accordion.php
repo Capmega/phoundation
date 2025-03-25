@@ -234,7 +234,9 @@ class Accordion extends Widget implements AccordionInterface
         if ($this->headers) {
             foreach ($this->headers as $header) {
                 $return .= '    <div class="accordion-item">
-                                    ' . $header . '
+                                    <div class="accordion-headers">    
+                                        ' . $header . '
+                                    </div>
                                 </div>';
             }
 

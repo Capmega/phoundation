@@ -40,7 +40,7 @@ class Button extends Input implements ButtonInterface
     {
         parent::__construct($content);
 
-        $this->setName('submit')
+        $this->setName('submit-button')
              ->setValue($content)
              ->setClasses('btn')
              ->setElement('button')

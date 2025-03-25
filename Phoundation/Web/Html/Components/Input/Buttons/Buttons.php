@@ -107,7 +107,7 @@ class Buttons extends ElementsBlock implements ButtonsInterface
                             ->setValue($button)
                             ->setFloatRight($right)
                             ->setMode($mode)
-                            ->setName('submit');
+                            ->setName('submit-button');
 
             switch ($type_or_url) {
                 case EnumButtonType::submit:

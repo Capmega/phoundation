@@ -1641,7 +1641,7 @@ class Request implements RequestInterface
      *
      * @return string|true|null
      */
-    public static function getSubmitButton(string $post_key = 'submit', bool $prefix = false, bool $return_key = false): string|true|null
+    public static function getSubmitButton(string $post_key = 'submit-button', bool $prefix = false, bool $return_key = false): string|true|null
     {
         return PostValidator::new()->getSubmitButton($post_key, $prefix, $return_key);
     }

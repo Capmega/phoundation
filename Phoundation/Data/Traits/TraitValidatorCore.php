@@ -913,7 +913,7 @@ trait TraitValidatorCore
                     case '__csrf':
                         // no break
 
-                    case 'submit':
+                    case 'submit-button':
                         // These fields are always ignored
                         break;
 

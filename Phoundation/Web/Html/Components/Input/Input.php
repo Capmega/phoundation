@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
+use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Components\Element;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputInterface;
@@ -55,5 +56,22 @@ abstract class Input extends Element implements InputInterface, ValueInterface
     {
         $this->attributes = $this->renderInputAttributes()->appendSource($this->attributes);
         return parent::renderAttributesArray();
+    }
+
+
+    /**
+     * Set the DataEntry Definition on this element
+     *
+     * @param DefinitionInterface|null $definition
+     *
+     * @return static
+     */
+    public function setDefinition(?DefinitionInterface $definition): static
+    {
+        // Copy data used for input controls
+        $this->setHidden($definition->getHidden())
+             ->setAutoSubmit($definition->getAutoSubmit());
+
+        return parent::setDefinition($definition);
     }
 }

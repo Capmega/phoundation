@@ -44,13 +44,13 @@ if (Request::isPostRequestMethod()) {
     // Validate POST
     $post = PostValidator::new()
                          ->select('databases_connectors_length')->isOptional()->isNumeric()    // This is paging length, ignore
-                         ->select('submit')->isOptional()->isVariable()
+                         ->select('submit-button')->isOptional()->isVariable()
                          ->select('id')->isOptional()->isArray()->eachField()->isDbId()
                          ->validate();
 
     try {
         // Process buttons
-        switch ($post['submit']) {
+        switch ($post['submit-button']) {
             case tr('Delete'):
                 // Delete selected connectors
                 $count = Connectors::directOperations()->deleteKeys($post['id']);

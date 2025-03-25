@@ -109,10 +109,9 @@ abstract class ElementCore implements ElementInterface
         if ($this->attributes->get('auto_submit', false)) {
             // Add JavaScript code to automatically submit on change
             $this->attributes->removeKeys('auto_submit');
-
-            $javascript_autosubmit .= Script::new()
-                              ->setContent('$("[name=' . $this->name . ']").change(function (e){ $(e.target).closest("form").submit(); });')
-                              ->setJavascriptWrapper(EnumJavascriptWrappers::window);
+            $javascript_autosubmit .= Script::new('$(\'[name="' . $this->name . '"]\').on("change", function (e) {
+                                                       $(e.target).closest("form").trigger("submit"); 
+                                                   });');
         }
 
         $renderer_class  = Request::getTemplate()->getRendererClass($this);

@@ -30,6 +30,7 @@ use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\A;
 use Phoundation\Web\Html\Components\Div;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\AInterface;
 use Phoundation\Web\Html\Components\Interfaces\DivInterface;
@@ -904,7 +905,7 @@ trait TraitElementAttributes
     public function getDefinition(): ?DefinitionInterface
     {
         if (!$this->definition) {
-            $this->__setDefinition(Definition::new(null, $this->getName())
+            $this->__setDefinition(Definition::new($this->getName())
                                              ->setClasses($this->getClasses())
                                              ->setDisabled($this->getDisabled())
                                              ->setReadOnly($this->getReadonly())

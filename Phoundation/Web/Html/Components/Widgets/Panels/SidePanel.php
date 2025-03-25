@@ -32,8 +32,10 @@ class SidePanel extends Panel
     public function __construct(?string $source = null)
     {
         parent::__construct($source);
-        $this->getModals()
-             ->addModal('sign-in', new SignInModal());
+
+// TODO Re-add support for signinmodal for AJAX sign-in
+//        $this->getModals()
+//             ->addModal('sign-in', new SignInModal());
     }
 
 

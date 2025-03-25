@@ -44,22 +44,4 @@ interface DataEntryFormInterface extends ElementsBlockInterface
      * @return static
      */
     public function setInputClass(string $input_class): static;
-
-
-    /**
-     * Returns the data fields for this DataEntryForm
-     *
-     * @return DefinitionsInterface|null
-     */
-    public function getDefinitionsObject(): ?DefinitionsInterface;
-
-
-    /**
-     * Set the data source for this DataEntryForm
-     *
-     * @param Definitions $definitions
-     *
-     * @return static
-     */
-    public function setDefinitionsObject(Definitions $definitions): static;
 }
