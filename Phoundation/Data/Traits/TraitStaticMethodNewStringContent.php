@@ -17,16 +17,18 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 
+use Stringable;
+
 trait TraitStaticMethodNewStringContent
 {
     /**
      * Returns a new class
      *
-     * @param string|null $content
+     * @param Stringable|string|null $content
      *
      * @return static
      */
-    public static function new(?string $content = null): static
+    public static function new(Stringable|string|null $content = null): static
     {
         return new static($content);
     }

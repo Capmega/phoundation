@@ -27,6 +27,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpConfigurationException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Numbers;
+use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
@@ -729,9 +730,7 @@ class Dropzone implements DropzoneInterface
 //            'renameFile'            => $this->rename_file,
 //            'forceFallback'         => $this->force_fallback,
 
-        Response::addScript('var myFileUploadDropZone = new Dropzone("' . $this->selector . '", ' . $options . ')');
-
-        return null;
+        return Script::new('var myFileUploadDropZone = new Dropzone("' . $this->selector . '", ' . $options . ')')->render();
     }
 
 

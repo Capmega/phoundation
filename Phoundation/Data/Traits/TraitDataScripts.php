@@ -18,7 +18,10 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
+use Phoundation\Web\Html\Components\Interfaces\ScriptsInterface;
 use Phoundation\Web\Html\Components\Script;
+use Phoundation\Web\Html\Components\Scripts;
 
 
 trait TraitDataScripts
@@ -26,21 +29,21 @@ trait TraitDataScripts
     /**
      * The scripts to use
      *
-     * @var IteratorInterface|null $o_scripts
+     * @var ScriptsInterface|null $o_scripts
      */
-    protected ?IteratorInterface $o_scripts = null;
+    protected ?ScriptsInterface $o_scripts = null;
 
 
     /**
      * Returns the scripts
      *
-     * @return IteratorInterface|null
+     * @return ScriptsInterface|null
      */
-    public function getScriptsObject(): ?IteratorInterface
+    public function getScriptsObject(): ?ScriptsInterface
     {
         if ($this->o_scripts === null) {
             // Auto initialize
-            $this->o_scripts = new Iterator();
+            $this->o_scripts = new Scripts();
         }
 
         return $this->o_scripts;
@@ -50,17 +53,13 @@ trait TraitDataScripts
     /**
      * Returns the scripts
      *
-     * @param Script|IteratorInterface $o_scripts
+     * @param ScriptInterface|ScriptsInterface $o_scripts
      *
      * @return static
      */
-    public function addScriptObject(Script|IteratorInterface $o_scripts): static
+    public function addScriptObject(ScriptInterface|ScriptsInterface $o_scripts): static
     {
-        if ($o_scripts instanceof IteratorInterface) {
-            $o_scripts = $o_scripts->getSource();
-        }
-
-        if (is_array($o_scripts)) {
+        if ($o_scripts instanceof ScriptsInterface) {
             foreach ($o_scripts as $o_script) {
                 $this->addScriptObject($o_script);
             }
@@ -76,11 +75,11 @@ trait TraitDataScripts
     /**
      * Sets the scripts
      *
-     * @param IteratorInterface|null $o_scripts
+     * @param ScriptsInterface|null $o_scripts
      *
      * @return static
      */
-    public function setScriptsObject(IteratorInterface|null $o_scripts): static
+    public function setScriptsObject(ScriptsInterface|null $o_scripts): static
     {
         $this->o_scripts = $o_scripts;
         return $this;

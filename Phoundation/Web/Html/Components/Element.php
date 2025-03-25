@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components;
 
 use Phoundation\Data\Traits\TraitStaticMethodNewStringContent;
+use Stringable;
 
 
 abstract class Element extends ElementCore
@@ -34,9 +35,9 @@ abstract class Element extends ElementCore
     /**
      * Element class constructor
      *
-     * @param string|null $content
+     * @param Stringable|string|null $content
      */
-    public function __construct(?string $content = null)
+    public function __construct(Stringable|string|null $content = null)
     {
         parent::___construct();
         $this->setContent($content);
