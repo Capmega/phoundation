@@ -27,7 +27,6 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
-use Phoundation\Web\Http\Url;
 
 
 class Configurations extends DataIteratorCore implements ConfigurationsInterface
@@ -88,7 +87,7 @@ class Configurations extends DataIteratorCore implements ConfigurationsInterface
         ];
 
         $source      = Arrays::toStringFromBoolean($source);
-        $definitions = Definitions::new()->add(DefinitionFactory::newTimezonesName()
+        $definitions = Definitions::new()->add(DefinitionFactory::newTimezonesId()
                                                                 ->setSize(6)
                                                                 ->setHelpGroup(tr('Location information'))
                                                                 ->setHelpText(tr('The timezone name where this user resides')))
@@ -124,8 +123,10 @@ class Configurations extends DataIteratorCore implements ConfigurationsInterface
                                                              'off'  => tr('Off'),
                                                          ]))
 
+                                        ->add(DefinitionFactory::newDivider())
+
                                         ->add(DefinitionFactory::newUrl('default_page')
-                                                        ->setSize(6)
+                                                        ->setSize(12)
                                                         ->setLabel(tr('Default page'))
                                                         ->setHelpText(tr('Here you can specify the default page you wish to see when you sign in')));
 

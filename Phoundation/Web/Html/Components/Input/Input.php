@@ -68,13 +68,10 @@ abstract class Input extends Element implements InputInterface, ValueInterface
      */
     public function getDefinitionObject(): ?DefinitionInterface
     {
-        $definition = parent::getDefinitionObject();
-
         // Copy data used for input controls
-        $definition->setHidden($this->getHidden())
-                   ->setAutoSubmit($this->getAutoSubmit());
-
-        return $definition;
+        return parent::getDefinitionObject()->setHidden($this->getHidden())
+                                            ->setPlaceholder($this->getPlaceholder())
+                                            ->setAutoSubmit($this->getAutoSubmit());
     }
 
 
@@ -88,9 +85,8 @@ abstract class Input extends Element implements InputInterface, ValueInterface
     public function setDefinitionObject(?DefinitionInterface $definition): static
     {
         // Copy data used for input controls
-        $this->setHidden($definition->getHidden())
-             ->setAutoSubmit($definition->getAutoSubmit());
-
-        return parent::setDefinitionObject($definition);
+        return parent::setDefinitionObject($definition)->setHidden($definition->getHidden())
+                                                       ->setPlaceholder($definition->getPlaceholder())
+                                                       ->setAutoSubmit($definition->getAutoSubmit());
     }
 }

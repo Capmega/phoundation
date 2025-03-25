@@ -29,6 +29,7 @@ use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\BeforeAfterContentInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
+use Phoundation\Web\Html\Components\Interfaces\ScriptsInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Enums\EnumElement;
 use ReturnTypeWillChange;
@@ -296,9 +297,9 @@ interface DefinitionInterface extends BeforeAfterContentInterface
     /**
      * Returns the extra HTML data for this DataEntryForm object
      *
-     * @return array
+     * @return ScriptsInterface|null
      */
-    public function getScripts(): array;
+    public function getScriptsObject(): ?ScriptsInterface;
 
 
     /**
@@ -306,7 +307,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return static
      */
-    public function addScript(ScriptInterface $script): static;
+    public function addScriptObject(ScriptInterface $script): static;
 
 
     /**

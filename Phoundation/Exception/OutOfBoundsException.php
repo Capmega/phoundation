@@ -17,9 +17,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Exception;
 
-use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 
-
-class OutOfBoundsException extends PhoException implements OutOfBoundsExceptionInterface
+class OutOfBoundsException extends PhoException
 {
 }

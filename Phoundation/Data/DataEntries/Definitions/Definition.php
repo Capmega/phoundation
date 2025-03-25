@@ -37,6 +37,8 @@ use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
+use Phoundation\Web\Html\Components\Interfaces\ScriptsInterface;
+use Phoundation\Web\Html\Components\Scripts;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Html;
@@ -965,29 +967,52 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns the extra HTML data for this DataEntryForm object
+     * Returns the Scripts object for this DataEntry Definition
      *
-     * @return array
+     * @param bool $auto_initialize
+     *
+     * @return ScriptsInterface|null
      */
-    public function getScripts(): array
+    public function getScriptsObject(bool $auto_initialize = false): ?ScriptsInterface
     {
-        return get_safe_typed('array', $this->source, 'scripts', []);
+        $return = get_safe_typed(ScriptsInterface::class, $this->source, 'scripts');
+
+        if ($return === null) {
+            if ($auto_initialize) {
+                // Initialize the scripts object
+                return $this->setScriptsObject(new Scripts())
+                            ->getScriptsObject();
+            }
+        }
+
+        return $return;
     }
 
 
     /**
+     * Sets the Scripts object for this DataEntry Definition
+     *
+     * @param ScriptsInterface|null $scripts
+     *
+     * @return static
+     */
+    public function setScriptsObject(?ScriptsInterface $scripts): static
+    {
+        return $this->setKey($scripts, 'scripts');
+    }
+
+
+    /**
+     * Adds the specified Script object to this DataEntry Definition
+     *
      * @param ScriptInterface|null $script
      *
      * @return static
      */
-    public function addScript(?ScriptInterface $script): static
+    public function addScriptObject(?ScriptInterface $script): static
     {
         if ($script) {
-            if (!isset($this->source['scripts'])) {
-                $this->source['scripts'] = [];
-            }
-
-            $this->source['scripts'][] = $script;
+            $this->getScriptsObject(true)->add($script);
         }
 
         return $this;
@@ -2183,11 +2208,22 @@ class Definition implements DefinitionInterface
     /**
      * The label to be shown on HTML clients
      *
-     * @return string|null $value
+     * @return string|null
      */
     public function getLabel(): ?string
     {
         return get_safe_typed('string', $this->source, 'label');
+    }
+
+
+    /**
+     * Returns true if this Definition has a label specified
+     *
+     * @return bool $value
+     */
+    public function hasLabel(): bool
+    {
+        return (bool) get_safe_typed('string', $this->source, 'label');
     }
 
 

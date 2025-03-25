@@ -103,18 +103,17 @@ abstract class ElementCore implements ElementInterface
             throw new OutOfBoundsException(tr('Cannot render HTML element, no element type specified'));
         }
 
-        $javascript_autosubmit = null;
-
         if ($this->o_attributes->get('auto_submit', false)) {
             // Add JavaScript code to automatically submit on change
-            $this->o_attributes->removeKeys('auto_submit');
-            $javascript_autosubmit .= Script::new('$(\'[name="' . $this->name . '"]\').on("change", function (e) {
-                                                       $(e.target).closest("form").trigger("submit"); 
-                                                   });');
+            $this->addScriptObject(Script::new('$(\'[name="' . $this->name . '"]\').on("change", function (e) {
+                                                    $(e.target).closest("form").trigger("submit"); 
+                                                });'));
         }
 
+        $this->o_attributes->removeKeys('auto_submit');
+
         $renderer_class  = Request::getTemplate()->getRendererClass($this);
-        $render_function = function () use ($javascript_autosubmit) {
+        $render_function = function () {
             $attributes = $this->renderAttributesArray();
             $attributes = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Utils::QUOTE_ALWAYS | Utils::HIDE_EMPTY_VALUES);
 
@@ -132,15 +131,17 @@ abstract class ElementCore implements ElementInterface
             $render       = $this->render . ' />';
             $this->render = null;
 
-            return $render . $javascript_autosubmit;
+            return $render;
         };
 
         if ($renderer_class) {
             TemplateRenderer::ensureClass($renderer_class, $this);
 
+            // NOTE: Class methods are rendered by the Template libraries rendering for the correct template and these
+            // already add the "before content" and "after content". Do NOT add before and after content here!
             $render = $renderer_class::new($this)
                                      ->setParentRenderFunction($render_function)
-                                     ->render() . $javascript_autosubmit;
+                                     ->render() . $this->o_scripts?->render();
 
         } else {
             // The template component doesn't exist, return the basic Phoundation version
@@ -148,10 +149,11 @@ abstract class ElementCore implements ElementInterface
                 ':component' => get_class($this),
             ]), 2);
 
+            // The render function does NOT add before and after content, add it manually here.
             $render = $this->renderBeforeContent() .
                       $render_function() .
                       $this->renderAfterContent() .
-                      $javascript_autosubmit;
+                      $this->o_scripts?->render();
         }
 
         if (isset($this->o_tooltip)) {
@@ -165,8 +167,7 @@ abstract class ElementCore implements ElementInterface
                                                                  ->render() . $this->renderAfterContent();
         }
 
-        $this->render = $render;
-        return $this->render;
+        return $this->render = $render;
     }
 
 

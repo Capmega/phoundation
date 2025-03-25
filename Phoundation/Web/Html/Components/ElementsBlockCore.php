@@ -115,6 +115,8 @@ abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockIn
             return $render;
         };
 
+        $render = $this->o_scripts?->render();
+
         if ($renderer_class) {
             Log::write(ts('Using renderer class ":class" for ":this"', [
                 ':class' => $renderer_class,
@@ -123,14 +125,14 @@ abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockIn
 
             TemplateRenderer::ensureClass($renderer_class, $this);
 
-            return $renderer_class::new($this)
-                                  ->setParentRenderFunction($render_function)
-                                  ->render();
+            return $render . $renderer_class::new($this)
+                                            ->setParentRenderFunction($render_function)
+                                            ->render();
         }
 
         if (method_exists($this, 'defaultRender')) {
             // Use the default render for this object
-            return $this->defaultRender();
+            return $render . $this->defaultRender();
         }
 
         // The template component does not exist, return the basic Phoundation version
@@ -138,7 +140,7 @@ abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockIn
             ':component' => get_class($this),
         ]), 2);
 
-        return $render_function($this->render);
+        return $render . $render_function($this->render);
     }
 
 

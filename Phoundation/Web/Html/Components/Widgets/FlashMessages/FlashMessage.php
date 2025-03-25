@@ -378,9 +378,8 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      */
     public function renderScript(EnumAttachJavascript $attach_javascript = EnumAttachJavascript::footer): ?string
     {
-        $this->render = Script::new()
+        $this->render = Script::new($this)
                               ->setAttach($attach_javascript)
-                              ->setContent($this->render())
                               ->render();
 
         return parent::render();

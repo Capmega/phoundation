@@ -773,7 +773,7 @@ trait TraitElementAttributes
      */
     public function prependContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
     {
-        if (is_object($content)) {
+        if ($content instanceof Stringable) {
             // This object is Stringable so it can be converted to string.
             // If it is a RenderableInterface, it will automatically render
             $content   = (string) $content;
@@ -1103,7 +1103,7 @@ trait TraitElementAttributes
      */
     public function getDefinitionObject(): ?DefinitionInterface
     {
-        if (!$this->definition) {
+        if (empty($this->definition)) {
             $this->__setDefinitionObject(Definition::new($this->getName())
                                                    ->setDisplay($this->getDisplay())
                                                    ->setAfterContent($this->getAfterContent())
@@ -1117,7 +1117,8 @@ trait TraitElementAttributes
                                                    ->setReadOnly($this->getReadonly())
                                                    ->setAutoFocus($this->getAutoFocus())
                                                    ->setNullDisplay($this->getNullDisplay())
-                                                   ->setProperties($this->getProperties()));
+                                                   ->setProperties($this->getProperties())
+                                                   ->setScriptsObject($this->getScriptsObject()));
         }
 
         return $this->__getDefinitionObject();
@@ -1148,7 +1149,8 @@ trait TraitElementAttributes
                  ->setReadOnly($definition->getReadonly())
                  ->setAutoFocus($definition->getAutoFocus())
                  ->setNullDisplay($definition->getNullDisplay())
-                 ->setProperties($definition->getProperties());
+                 ->setProperties($definition->getProperties())
+                 ->setScriptsObject($definition->getScriptsObject());
         }
 
         return $this->__setDefinitionObject($definition);

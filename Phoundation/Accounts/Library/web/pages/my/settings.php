@@ -40,7 +40,7 @@ $settings_card = Card::new()
                      ->setTitle(tr('Edit your account settings'))
                      ->setContent($form)
                      ->setButtons(Buttons::new()
-                                         ->addButton(tr('Save'))
+                                         ->addButton(tr('Save'), right: true)
                                          ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/my/settings.html'), true)
                                          ->addButton(isset_get($delete))
                                          ->addButton(isset_get($audit)));

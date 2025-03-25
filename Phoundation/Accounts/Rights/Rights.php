@@ -27,7 +27,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\SqlQueries;
-use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\EnumSeverity;
@@ -268,7 +267,7 @@ class Rights extends DataIterator implements RightsInterface
      * @param bool                             $exception
      *
      * @return static
-     * @throws OutOfBoundsExceptionInterface
+     * @throws OutOfBoundsException
      * @todo Move saving part to ->save(). ->add() should NOT immediately save to database!
      */
     public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static

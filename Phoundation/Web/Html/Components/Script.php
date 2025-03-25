@@ -21,6 +21,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataMinify;
+use Phoundation\Data\Traits\TraitMethodHasRendered;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Enums\EnumAttachJavascript;
@@ -31,6 +32,7 @@ use Phoundation\Web\Requests\Response;
 class Script extends Element implements ScriptInterface
 {
     use TraitDataMinify;
+    use TraitMethodHasRendered;
 
 
     /**
@@ -48,7 +50,7 @@ class Script extends Element implements ScriptInterface
     protected bool $async = false;
 
     /**
-     * If true will move this javascript to an external file which then will be loaded for this page
+     * If true will move this JavaS cript to an external file which then will be loaded for this page
      *
      * @var bool $to_file
      */
@@ -219,7 +221,7 @@ class Script extends Element implements ScriptInterface
      *
      * @return bool
      */
-    public function iusAttached(): bool
+    public function isAttached(): bool
     {
         return $this->attached;
     }
@@ -366,11 +368,38 @@ class Script extends Element implements ScriptInterface
 
 
     /**
+     * Checks and returns if this Script has already been loaded to the client.
+     *
+     * This method will log a warning if the script has already been loaded
+     *
+     * @return bool
+     */
+    protected function loadAgain(): bool
+    {
+        if (!$this->load_multiple) {
+            if ($this->isLoaded()) {
+                // The script in this object has already been loaded, render nothing.
+                Log::warning(tr('Not loading script ":hash" to client because it has already beena loaded', [
+                    ':hash' => $this->getHash()
+                ]), 9);
+
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
      * Attached this JavaScript object to the page
      *
-     * @return static
+     * @param string|null $render
+     *
+     * @return string|null
+     * @throws OutOfBoundsException
      */
-    public function attach(): static
+    protected function attach(?string $render): ?string
     {
         if ($this->attached) {
             throw new OutOfBoundsException(tr('Cannot attach Script object with code ":code" to the web page, it has already been attached', [
@@ -378,43 +407,56 @@ class Script extends Element implements ScriptInterface
             ]));
         }
 
-        if (!$this->load_multiple) {
-            if ($this->isLoaded()) {
-                // The script in this object has already been loaded, render nothing.
-                Log::warning(tr('Not loading script to client because it has already beena loaded'));
-                return $this;
-            }
-        }
+        $this->render   = $render;
+        $this->attached = true;
+        $this->addHash();
 
         // Where should this script attach itself to?
         switch ($this->attach) {
             case EnumAttachJavascript::header:
-                Response::addHtmlToPageHeaders($this->hasRendered() ? $this->render() : $this);
-                break;
+                Response::addHtmlToPageHeaders($this->renderScriptTags($render));
+                return null;
 
             case EnumAttachJavascript::footer:
-                Response::addHtmlToPageFooters($this->hasRendered() ? $this->render() : $this);
-                break;
+                Response::addHtmlToPageFooters($this->renderScriptTags($render));
+                return null;
 
             case EnumAttachJavascript::here:
-                throw new OutOfBoundsException(tr('Cannot attach Script object with code ":code" to the web page, it is set to return bare code', [
-                    ':code' => $this->getContent()
-                ]));
+                // Don't attach the script anywhere, wrap the rendered script in <script> tags and return it
+                return $this->renderScriptTags($render);
 
             case EnumAttachJavascript::bare:
-                throw new OutOfBoundsException(tr('Cannot attach Script object with code ":code" to the web page, it is set to return the code in <script> tags', [
-                    ':code' => $this->getContent()
-                ]));
+                // Do nothing, just return the bare contents
+                return $this->content;
         }
 
-        $this->addHash();
-        $this->attached = true;
-        return $this;
+        throw new OutOfBoundsException(tr('Cannot attach Script, unknown attach method ":method" specified', [
+            ':method' => $this->getAttach()
+        ]));
     }
 
 
     /**
-     * Generates and returns the HTML string for a <script> element
+     * Renders and returns the JavaScript content with <script> tags
+     *
+     * @param string|null $render
+     *
+     * @return string|null
+     */
+    protected function renderScriptTags(?string $render): ?string
+    {
+        return '<script type="text/javascript"' .
+                   ($this->async ? ' async' : '') .
+                   ($this->defer ? ' defer' : '') .
+                   ($this->src   ? ' src="' . $this->src . '"' : '') . '>' .
+                    $render . '
+                </script>' . PHP_EOL;
+
+    }
+
+
+    /**
+     * Generates and returns the HTML string for a <script> Element
      *
      * @note: If web.javascript.delay is configured true, it will return an empty string and add the string to the
      *        footer script tags list instead so that it will be loaded at the end of the page for speed
@@ -424,6 +466,11 @@ class Script extends Element implements ScriptInterface
     public function render(): ?string
     {
         if (empty($this->content)) {
+            // Script objects without content render nothing
+            return null;
+        }
+
+        if (!$this->loadAgain()) {
             return null;
         }
 
@@ -465,28 +512,8 @@ class Script extends Element implements ScriptInterface
                 break;
         }
 
-        // If this Script object is already attached then don't attach it again, return it directly instead
-        if ($this->attached) {
-            $this->attach = EnumAttachJavascript::here;
-        }
-
-        switch ($this->attach) {
-            case EnumAttachJavascript::bare:
-                // Don't attach the script anywhere, return the rendered script as-is
-                return $render;
-
-            case EnumAttachJavascript::here:
-                // Don't attach the script anywhere, wrap the rendered script in <script> tags and return it
-                return '<script type="text/javascript"' . ($this->async ? ' async' : '') .
-                            ($this->defer ? ' defer' : '') .
-                            ($this->src   ? ' src="' . $this->src . '"' : '') . '>' .
-                            $render . '
-                        </script>' . PHP_EOL;
-        }
-
         // Attach the script to the header or footer
-        $this->attach();
-        return null;
+        return $this->attach($render);
 
 //        // TODO GARBAGE BELOW, CLEAN UP
 //        /*

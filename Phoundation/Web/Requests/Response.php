@@ -2130,27 +2130,6 @@ class Response implements ResponseInterface
 
 
     /**
-     * Adds the specified script to the rendered output
-     *
-     * @param ScriptInterface|string $script
-     * @param EnumJavascriptWrappers $wrapper
-     * @param EnumAttachJavascript   $attach
-     *
-     * @return ScriptInterface
-     */
-    public static function addScript(ScriptInterface|string $script, EnumJavascriptWrappers $wrapper = EnumJavascriptWrappers::dom_content, EnumAttachJavascript $attach = EnumAttachJavascript::footer): ScriptInterface
-    {
-        if (is_string($script)) {
-            $script = new Script($script);
-        }
-
-        return $script->setJavascriptWrapper($wrapper)
-                      ->setAttach($attach)
-                      ->attach();
-    }
-
-
-    /**
      * Returns the upload handlers object for this response
      *
      * @return UploadHandlersInterface

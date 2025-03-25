@@ -19,6 +19,8 @@ namespace Phoundation\Geo\Timezones;
 
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Geo\Timezones\Interfaces\TimezonesInterface;
+use Phoundation\Web\Html\Components\Input\InputSelect;
+use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 
@@ -84,5 +86,22 @@ class Timezones extends DataIterator implements TimezonesInterface
         $table->setCheckboxSelectors(EnumTableIdColumn::checkbox);
 
         return $table;
+    }
+
+
+    /**
+     * Returns an HTML <select> for the available timezones
+     *
+     * @param string|null $value_column
+     * @param string|null $key_column
+     * @param string      $class
+     *
+     * @return InputSelectInterface
+     */
+    public function getHtmlSelectObject(?string $value_column = 'name', ?string $key_column = 'id', string $class = InputSelect::class): InputSelectInterface
+    {
+        return parent::getHtmlSelectObject($value_column, $key_column, $class)
+                     ->setComponentEmptyLabel(tr('No timezones available'))
+                     ->setNotSelectedLabel(tr('Please select a timezone'));
     }
 }

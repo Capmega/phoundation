@@ -26,7 +26,6 @@ use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
@@ -184,7 +183,7 @@ class Roles extends DataIterator implements RolesInterface
      *
      * @return static
      *
-     * @throws OutOfBoundsExceptionInterface
+     * @throws OutOfBoundsException
      * @todo Move saving part to ->save(). ->add() should NOT immediately save to database!
      */
     public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static

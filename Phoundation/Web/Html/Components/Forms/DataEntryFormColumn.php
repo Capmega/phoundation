@@ -80,8 +80,8 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
         $definition = $this->definition;
 
         // Add scripts?
-        if ($definition->getScripts()) {
-            foreach ($definition->getScripts() as $script) {
+        if ($definition->getScriptsObject()) {
+            foreach ($definition->getScriptsObject() as $script) {
                 $scripts .= $script->render();
             }
         }
