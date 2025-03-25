@@ -3250,7 +3250,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function injectElement(string $at_key, ElementInterface|ElementsBlockInterface $value, DefinitionInterface|array|null $definition = null, bool $after = true): static
     {
         // Render the specified element directly into the definition. Remove the specified column from this source (overwrite, basically)
-        $element_definition                             = $value->getDefinition()->setContent($value);
+        $element_definition                             = $value->getDefinitionObject()->setContent($value);
         $this->source[$element_definition->getColumn()] = null;
 
         try {

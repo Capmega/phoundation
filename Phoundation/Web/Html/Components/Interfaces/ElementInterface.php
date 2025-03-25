@@ -57,7 +57,7 @@ interface ElementInterface extends ComponentInterface
      *
      * @return DefinitionInterface|null
      */
-    public function getDefinition(): ?DefinitionInterface;
+    public function getDefinitionObject(): ?DefinitionInterface;
 
 
     /**
@@ -67,7 +67,7 @@ interface ElementInterface extends ComponentInterface
      *
      * @return static
      */
-    public function setDefinition(DefinitionInterface|null $definition): static;
+    public function setDefinitionObject(DefinitionInterface|null $definition): static;
 
 
     /**

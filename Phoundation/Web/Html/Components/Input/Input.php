@@ -60,18 +60,37 @@ abstract class Input extends Element implements InputInterface, ValueInterface
 
 
     /**
+     * Returns the DataEntry Definition on this element
+     *
+     * If no Definition object was set, one will be created using the data in this object
+     *
+     * @return DefinitionInterface|null
+     */
+    public function getDefinitionObject(): ?DefinitionInterface
+    {
+        $definition = parent::getDefinitionObject();
+
+        // Copy data used for input controls
+        $definition->setHidden($this->getHidden())
+                   ->setAutoSubmit($this->getAutoSubmit());
+
+        return $definition;
+    }
+
+
+    /**
      * Set the DataEntry Definition on this element
      *
      * @param DefinitionInterface|null $definition
      *
      * @return static
      */
-    public function setDefinition(?DefinitionInterface $definition): static
+    public function setDefinitionObject(?DefinitionInterface $definition): static
     {
         // Copy data used for input controls
         $this->setHidden($definition->getHidden())
              ->setAutoSubmit($definition->getAutoSubmit());
 
-        return parent::setDefinition($definition);
+        return parent::setDefinitionObject($definition);
     }
 }

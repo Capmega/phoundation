@@ -81,7 +81,7 @@ interface ElementsBlockInterface extends ComponentInterface, IteratorInterface
      *
      * @return DefinitionInterface|null
      */
-    public function getDefinition(): ?DefinitionInterface;
+    public function getDefinitionObject(): ?DefinitionInterface;
 
 
     /**
@@ -91,7 +91,7 @@ interface ElementsBlockInterface extends ComponentInterface, IteratorInterface
      *
      * @return static
      */
-    public function setDefinition(DefinitionInterface|null $definition): static;
+    public function setDefinitionObject(DefinitionInterface|null $definition): static;
 
 
     /**

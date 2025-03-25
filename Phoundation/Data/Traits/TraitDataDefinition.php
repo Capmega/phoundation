@@ -34,7 +34,7 @@ trait TraitDataDefinition
      *
      * @return DefinitionInterface|null
      */
-    public function getDefinition(): ?DefinitionInterface
+    public function getDefinitionObject(): ?DefinitionInterface
     {
         return $this->definition;
     }
@@ -47,7 +47,7 @@ trait TraitDataDefinition
      *
      * @return static
      */
-    public function setDefinition(DefinitionInterface|null $definition): static
+    public function setDefinitionObject(DefinitionInterface|null $definition): static
     {
         $this->definition = $definition;
         return $this;

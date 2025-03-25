@@ -451,7 +451,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                                     EnumInputType::button,
                                     EnumInputType::submit       => Button::new()
-                                                                         ->setDefinition($definition)
+                                                                         ->setDefinitionObject($definition)
                                                                          ->setHidden($definition->getHidden())
                                                                          ->setValue($definition->getValue()),
 

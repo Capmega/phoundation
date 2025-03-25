@@ -48,8 +48,8 @@ trait TraitElementAttributes
     use TraitDataProperties;
     use TraitBeforeAfterContent;
     use TraitDataDefinition {
-        setDefinition as protected __setDefinition;
-        getDefinition as protected __getDefinition;
+        setDefinitionObject as protected __setDefinition;
+        getDefinitionObject as protected __getDefinition;
     }
 
 
@@ -937,27 +937,6 @@ trait TraitElementAttributes
 
 
     /**
-     * Returns the DataEntry Definition on this element
-     *
-     * If no Definition object was set, one will be created using the data in this object
-     *
-     * @return DefinitionInterface|null
-     */
-    public function getDefinition(): ?DefinitionInterface
-    {
-        if (!$this->definition) {
-            $this->__setDefinition(Definition::new($this->getName())
-                                             ->setClasses($this->getClasses())
-                                             ->setDisabled($this->getDisabled())
-                                             ->setReadOnly($this->getReadonly())
-                                             ->setAutoFocus($this->getAutoFocus()));
-        }
-
-        return $this->__getDefinition();
-    }
-
-
-    /**
      * Sets the HTML class element attribute
      *
      * @param bool $auto_focus
@@ -1114,13 +1093,43 @@ trait TraitElementAttributes
 
 
     /**
+     * Returns the DataEntry Definition on this element
+     *
+     * If no Definition object was set, one will be created using the data in this object
+     *
+     * @return DefinitionInterface|null
+     */
+    public function getDefinitionObject(): ?DefinitionInterface
+    {
+        if (!$this->definition) {
+            $this->__setDefinition(Definition::new($this->getName())
+                                             ->setDisplay($this->getDisplay())
+                                             ->setAfterContent($this->getAfterContent())
+                                             ->setBeforeContent($this->getBeforeContent())
+                                             ->setVisible($this->getVisible())
+                                             ->setOptional(!$this->getRequired())
+                                             ->addClasses($this->getClasses())
+                                             ->setData($this->getData())
+                                             ->setAria($this->getAria())
+                                             ->setDisabled($this->getDisabled())
+                                             ->setReadOnly($this->getReadonly())
+                                             ->setAutoFocus($this->getAutoFocus())
+                                             ->setNullDisplay($this->getNullDisplay())
+                                             ->setProperties($this->getProperties()));
+        }
+
+        return $this->__getDefinition();
+    }
+
+
+    /**
      * Set the DataEntry Definition on this element
      *
      * @param DefinitionInterface|null $definition
      *
      * @return static
      */
-    public function setDefinition(?DefinitionInterface $definition): static
+    public function setDefinitionObject(?DefinitionInterface $definition): static
     {
         if ($definition) {
             // Apply the definition rules to this element
