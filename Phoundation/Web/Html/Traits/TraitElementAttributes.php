@@ -1105,19 +1105,19 @@ trait TraitElementAttributes
     {
         if (!$this->definition) {
             $this->__setDefinitionObject(Definition::new($this->getName())
-                                             ->setDisplay($this->getDisplay())
-                                             ->setAfterContent($this->getAfterContent())
-                                             ->setBeforeContent($this->getBeforeContent())
-                                             ->setVisible($this->getVisible())
-                                             ->setOptional(!$this->getRequired())
-                                             ->addClasses($this->getClassesObject())
-                                             ->setData($this->getDataObject())
-                                             ->setAria($this->getAriaObject())
-                                             ->setDisabled($this->getDisabled())
-                                             ->setReadOnly($this->getReadonly())
-                                             ->setAutoFocus($this->getAutoFocus())
-                                             ->setNullDisplay($this->getNullDisplay())
-                                             ->setProperties($this->getProperties()));
+                                                   ->setDisplay($this->getDisplay())
+                                                   ->setAfterContent($this->getAfterContent())
+                                                   ->setBeforeContent($this->getBeforeContent())
+                                                   ->setVisible($this->getVisible())
+                                                   ->setOptional(!$this->getRequired())
+                                                   ->addClasses($this->getClassesObject()->getSource())
+                                                   ->setData($this->getDataObject())
+                                                   ->setAria($this->getAriaObject())
+                                                   ->setDisabled($this->getDisabled())
+                                                   ->setReadOnly($this->getReadonly())
+                                                   ->setAutoFocus($this->getAutoFocus())
+                                                   ->setNullDisplay($this->getNullDisplay())
+                                                   ->setProperties($this->getProperties()));
         }
 
         return $this->__getDefinitionObject();
