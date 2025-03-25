@@ -2208,11 +2208,22 @@ class Definition implements DefinitionInterface
     /**
      * The label to be shown on HTML clients
      *
-     * @return string|null $value
+     * @return string|null
      */
     public function getLabel(): ?string
     {
         return get_safe_typed('string', $this->source, 'label');
+    }
+
+
+    /**
+     * Returns true if this Definition has a label specified
+     *
+     * @return bool $value
+     */
+    public function hasLabel(): bool
+    {
+        return (bool) get_safe_typed('string', $this->source, 'label');
     }
 
 
