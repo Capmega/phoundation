@@ -24,6 +24,7 @@ use Phoundation\Data\Traits\TraitDataDefinition;
 use Phoundation\Data\Traits\TraitDataProperties;
 use Phoundation\Data\Traits\TraitMethodHasRendered;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Seo\Seo;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
@@ -403,16 +404,56 @@ trait TraitElementAttributes
     /**
      * Adds a data-KEY(=VALUE) attribute
      *
-     * @param string|float|int|null $value
-     * @param string                $key
+     * @param array|string|float|int|null $value
+     * @param string                      $key
      *
      * @return static
      */
-    public function addData(string|float|int|null $value, string $key): static
+    public function addData(array|string|float|int|null $value, string $key): static
     {
         $this->getData()->add($value, $key, skip_null_values: false);
 
         return $this;
+    }
+
+
+    /**
+     * Returns the data attributers for the specified key
+     *
+     * @param string $key
+     *
+     * @return array|string|float|int|null
+     */
+    public function getDataKey(string $key): array|string|float|int|null
+    {
+        return $this->getData()->get($key, false);
+    }
+
+
+    /**
+     * Renders the data attributes for the specified key
+     *
+     * @param             $key
+     * @param string|null $prefix
+     *
+     * @return string|null
+     */
+    public function renderDataKey($key, ?string $prefix = ' '): ?string
+    {
+        $return = [];
+        $data   = $this->getDataKey($key);
+
+        if ($data) {
+            $data = Arrays::force($data, null);
+
+            foreach ($data as $key => $value) {
+                $return[] = 'data-' . Seo::string($key) . '="' . $value . '"';
+            }
+
+            return $prefix . implode(' ', $return);
+        }
+
+        return null;
     }
 
 
