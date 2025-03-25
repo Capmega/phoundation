@@ -70,7 +70,7 @@ class Button extends Input implements ButtonInterface
             return $this;
         }
 
-        parent::setValue($value, $make_safe);
+        parent::setValue(null);
 
         return parent::setContent($value, $make_safe);
     }
