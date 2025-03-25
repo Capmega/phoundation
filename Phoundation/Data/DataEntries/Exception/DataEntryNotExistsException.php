@@ -16,9 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries\Exception;
 
-use Phoundation\Data\DataEntries\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
 
-
-class DataEntryNotExistsException extends DataEntryException implements DataEntryNotExistsExceptionInterface
+class DataEntryNotExistsException extends DataEntryException
 {
 }

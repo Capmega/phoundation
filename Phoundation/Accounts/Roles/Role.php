@@ -21,7 +21,6 @@ use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Rights\RightsBySeoName;
-use Phoundation\Accounts\Roles\Exception\Interfaces\RoleNotExistsExceptionInterface;
 use Phoundation\Accounts\Roles\Exception\RoleNotExistsException;
 use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
 use Phoundation\Accounts\Users\Interfaces\UsersInterface;
@@ -30,13 +29,12 @@ use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryDeletedException;
-use Phoundation\Data\DataEntries\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
+use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDescription;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryNameLowercaseDash;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
-use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
@@ -166,7 +164,7 @@ class Role extends DataEntry implements RoleInterface
      * @param RoleInterface|string|int|null $from_identifier
      *
      * @return static
-     * @throws OutOfBoundsExceptionInterface|RoleNotExistsExceptionInterface
+     * @throws OutOfBoundsException|RoleNotExistsException
      */
     public function mergeFrom(RoleInterface|string|int|null $from_identifier = null): static
     {
@@ -213,7 +211,7 @@ class Role extends DataEntry implements RoleInterface
         try {
             return parent::load($identifier);
 
-        } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
+        } catch (DataEntryNotExistsException|DataEntryDeletedException $e) {
             throw new RoleNotExistsException($e);
         }
     }

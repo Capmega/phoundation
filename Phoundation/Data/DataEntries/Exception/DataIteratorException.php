@@ -16,9 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries\Exception;
 
-use Phoundation\Data\DataEntries\Exception\Interfaces\DataEntryExceptionInterface;
 use Phoundation\Data\Exception\DataException;
 
-class DataIteratorException extends DataException implements DataEntryExceptionInterface
+
+class DataIteratorException extends DataException
 {
 }

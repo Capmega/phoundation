@@ -54,7 +54,6 @@ use Phoundation\Data\Interfaces\PoadInterface;
 use Phoundation\Data\Poad\Poad;
 use Phoundation\Data\Traits\TraitMethodsPoad;
 use Phoundation\Developer\Debug\Debug;
-use Phoundation\Exception\Interfaces\PhoExceptionInterface;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\EnumSeverity;
@@ -67,7 +66,7 @@ use RuntimeException;
 use Throwable;
 
 
-class PhoException extends RuntimeException implements Interfaces\PhoExceptionInterface, PoadInterface
+class PhoException extends RuntimeException implements PoadInterface
 {
     use TraitMethodsPoad;
 
@@ -144,7 +143,7 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
             // The message actually is an Exception! Extract data and make this exception the previous
             $previous = $messages;
 
-            if ($messages instanceof PhoExceptionInterface) {
+            if ($messages instanceof PhoException) {
                 // This is a Phoundation exception, get more information
                 $message = $messages->getMessage();
 
@@ -203,7 +202,7 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
 
                     $this->has_been_logged = false;
 
-                    if ($previous instanceof PhoExceptionInterface) {
+                    if ($previous instanceof PhoException) {
                         $previous->hasBeenLogged(false);
                     }
                 }
@@ -211,7 +210,7 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
         }
 
         // Pass the warning flag and data along to this exception
-        if ($previous instanceof PhoExceptionInterface) {
+        if ($previous instanceof PhoException) {
             $this->setWarning($this->getWarning() or $previous->getWarning());
             $this->addData($previous->getData());
         }
@@ -537,7 +536,7 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
         $previous = $this->getPrevious();
 
         if ($previous) {
-            if ($previous instanceof PhoExceptionInterface) {
+            if ($previous instanceof PhoException) {
                 $return['previous'] = $previous->__toArray();
 
             } else {
@@ -740,7 +739,7 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
         // Make all previous exceptions warnings too, if possible
         $e = $this->getPrevious();
 
-        if ($e instanceof PhoExceptionInterface) {
+        if ($e instanceof PhoException) {
             $e->makeWarning();
         }
 
@@ -908,19 +907,19 @@ class PhoException extends RuntimeException implements Interfaces\PhoExceptionIn
      *
      * @return static
      */
-    public static function ensurePhoundationException(Throwable $e, string $exception_class = PhpException::class): PhoExceptionInterface
+    public static function ensurePhoundationException(Throwable $e, string $exception_class = PhpException::class): PhoException
     {
-        if ($e instanceof PhoExceptionInterface) {
+        if ($e instanceof PhoException) {
             return $e;
         }
 
         $e = new $exception_class($e);
 
-        if ($e instanceof PhoExceptionInterface) {
+        if ($e instanceof PhoException) {
             return $e;
         }
 
-        throw new OutOfBoundsException(tr('Cannot ensure exception is specified Phoundation exception class ":class" because the specified class should have the ExceptionInterface', [
+        throw new OutOfBoundsException(tr('Cannot ensure exception is specified Phoundation exception class ":class" because the specified class should have the PhoException', [
             ':class' => $exception_class,
         ]), $e);
     }

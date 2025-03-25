@@ -28,7 +28,6 @@ use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Developer\Debug\Debug;
-use Phoundation\Exception\Interfaces\PhoExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhoException;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
@@ -45,6 +44,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Requests\Request;
 use Stringable;
 use Throwable;
+
 
 class Log implements LogInterface
 {
@@ -1056,7 +1056,7 @@ class Log implements LogInterface
             // This is an exception object, log the warning or error  message data. PHP exceptions have
             // $e->getMessage() and Phoundation exceptions can have multiple messages using $e->getMessages()
             // Redetermine the log class
-            if ($exception instanceof PhoExceptionInterface) {
+            if ($exception instanceof PhoException) {
                 if ($exception->hasBeenLogged()) {
                     // This exception has already been logged, don't log again
                     return false;
@@ -1093,7 +1093,7 @@ class Log implements LogInterface
             static::logExceptionData($exception, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
             static::logPreviousException($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
 
-            if ($exception instanceof PhoExceptionInterface) {
+            if ($exception instanceof PhoException) {
                 $exception->hasBeenLogged($has_logged);
             }
 
@@ -1280,7 +1280,7 @@ class Log implements LogInterface
         $previous = $exception->getPrevious();
 
         if ($previous) {
-            if ($previous instanceof PhoExceptionInterface) {
+            if ($previous instanceof PhoException) {
                 // Previous exceptions are always shown
                 $previous->hasBeenLogged(false);
             }

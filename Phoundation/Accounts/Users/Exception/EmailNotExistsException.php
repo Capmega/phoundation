@@ -15,10 +15,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users\Exception;
 
-use Phoundation\Accounts\Users\Exception\Interfaces\EmailNotExistsExceptionInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 
 
-class EmailNotExistsException extends DataEntryNotExistsException implements EmailNotExistsExceptionInterface
+class EmailNotExistsException extends DataEntryNotExistsException
 {
 }

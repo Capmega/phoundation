@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Exception;
 
+
 class NoDatabaseException extends CoreException
 {
 }

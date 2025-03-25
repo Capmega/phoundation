@@ -28,7 +28,7 @@ use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryDeletedException;
-use Phoundation\Data\DataEntries\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
+use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDescription;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryNameLowercaseDash;
@@ -102,7 +102,7 @@ class Right extends DataEntry implements RightInterface
         try {
             return parent::load($identifier);
 
-        } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
+        } catch (DataEntryNotExistsException|DataEntryDeletedException $e) {
             throw new RightNotExistsException($e);
         }
     }

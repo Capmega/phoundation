@@ -28,7 +28,6 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Developer\Debug\Debug;
-use Phoundation\Exception\Interfaces\OutOfBoundsExceptionInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -41,6 +40,7 @@ use Phoundation\Web\Html\Components\Widgets\Badge;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Html;
 use Stringable;
+
 
 class Users extends DataIterator implements UsersInterface
 {
@@ -84,7 +84,7 @@ class Users extends DataIterator implements UsersInterface
      * @param string|null $column
      *
      * @return static
-     * @throws OutOfBoundsExceptionInterface
+     * @throws OutOfBoundsException
      */
     public function setUsers(?array $list, ?string $column = null): static
     {

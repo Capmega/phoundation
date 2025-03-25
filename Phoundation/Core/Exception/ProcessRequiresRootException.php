@@ -16,9 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Exception;
 
-use Phoundation\Core\Exception\Interfaces\CoreReadonlyExceptionInterface;
 
-
-class ProcessRequiresRootException extends CoreException implements CoreReadonlyExceptionInterface
+class ProcessRequiresRootException extends CoreException
 {
 }

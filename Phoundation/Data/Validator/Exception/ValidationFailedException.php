@@ -20,12 +20,10 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\Traits\TraitDataDataEntry;
-use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
-use Phoundation\Web\Html\Components\P;
 use Throwable;
 
 
-class ValidationFailedException extends ValidatorException implements ValidationFailedExceptionInterface
+class ValidationFailedException extends ValidatorException
 {
     use TraitDataDataEntry {
         setDataEntryObject as protected __setDataEntry;

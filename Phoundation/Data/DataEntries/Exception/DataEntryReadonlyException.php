@@ -16,11 +16,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries\Exception;
 
-use Phoundation\Data\DataEntries\Exception\Interfaces\DataEntryReadonlyExceptionInterface;
 use Phoundation\Utils\Arrays;
 
 
-class DataEntryReadonlyException extends DataEntryException implements DataEntryReadonlyExceptionInterface
+class DataEntryReadonlyException extends DataEntryException
 {
     /**
      * @var array|string[] $allow
@@ -49,5 +48,6 @@ class DataEntryReadonlyException extends DataEntryException implements DataEntry
     public function setAllow(string|array $allow): static
     {
         $this->allow = Arrays::force($allow);
+        return $this;
     }
 }

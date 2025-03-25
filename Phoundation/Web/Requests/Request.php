@@ -19,23 +19,20 @@ namespace Phoundation\Web\Requests;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
-use Phoundation\Accounts\Users\Exception\Interfaces\AuthenticationExceptionInterface;
-use Phoundation\Cache\Cache;
-use Phoundation\Core\Core;
-use Phoundation\Core\Exception\Interfaces\CoreReadonlyExceptionInterface;
+use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Exception\InvalidRequestTypeException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntries\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryDeletedException;
-use Phoundation\Data\DataEntries\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
-use Phoundation\Data\DataEntries\Exception\Interfaces\DataEntryReadonlyExceptionInterface;
+use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataStaticContentType;
 use Phoundation\Data\Traits\TraitDataStaticExecuted;
 use Phoundation\Data\Traits\TraitGetInstance;
-use Phoundation\Data\Validator\Exception\Interfaces\ValidationFailedExceptionInterface;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\AccessDeniedException;
@@ -46,10 +43,9 @@ use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\Traits\TraitDataStaticRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\EnumSeverity;
-use Phoundation\Security\Incidents\Exception\Interfaces\IncidentsExceptionInterface;
+use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenusInterface;
 use Phoundation\Web\Html\Components\Widgets\Menus\Menus;
@@ -80,6 +76,7 @@ use Phoundation\Web\Uploads\UploadHandlers;
 use Stringable;
 use Templates\Phoundation\AdminLte\AdminLte;
 use Throwable;
+
 
 class Request implements RequestInterface
 {
@@ -1745,17 +1742,17 @@ class Request implements RequestInterface
 
             return $results;
 
-        } catch (ValidationFailedExceptionInterface | RequestMethodRestrictionsException $e) {
+        } catch (ValidationFailedException | RequestMethodRestrictionsException $e) {
             static::executeSystem(400, $e, tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
 
-        } catch (AuthenticationExceptionInterface $e) {
+        } catch (AuthenticationException $e) {
             static::executeSystem(401, $e, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
 
-        } catch (IncidentsExceptionInterface $e) {
+        } catch (IncidentsException $e) {
             $new_target = $e->getNewTarget();
 
             if (!$new_target) {
-                static::executeSystem(403, $e, tr('Page did not catch the following "IncidentsExceptionInterface or AccessDeniedExceptionInterface" warning. Executing "system/403" instead'));
+                static::executeSystem(403, $e, tr('Page did not catch the following "IncidentsException or AccessDeniedException" warning. Executing "system/403" instead'));
             }
 
             Log::warning(ts('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
@@ -1767,16 +1764,16 @@ class Request implements RequestInterface
             // Execute the new system page target instead
             static::executeSystem($new_target, $e, $e->getMessage());
 
-        } catch (Http404Exception | DataEntryNotExistsExceptionInterface | DataEntryDeletedException $e) {
+        } catch (Http404Exception | DataEntryNotExistsException | DataEntryDeletedException $e) {
             static::executeSystem(404, $e, tr('Page did not catch the following "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
 
-        } catch (Http405Exception | DataEntryReadonlyExceptionInterface $e) {
-            static::executeSystem(405, $e, tr('Page did not catch the following "Http405Exception or DataEntryReadonlyExceptionInterface or CoreReadonlyExceptionInterface" warning. Executing "system/405" instead'));
+        } catch (Http405Exception | DataEntryReadonlyException $e) {
+            static::executeSystem(405, $e, tr('Page did not catch the following "Http405Exception or DataEntryReadonlyException or CoreReadonlyException" warning. Executing "system/405" instead'));
 
         } catch (Http409Exception | DataEntryAlreadyExistsException $e) {
             static::executeSystem(409, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
 
-        } catch (Http503Exception | CoreReadonlyExceptionInterface $e) {
+        } catch (Http503Exception | CoreReadonlyException $e) {
             static::executeSystem(503, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
         }
     }

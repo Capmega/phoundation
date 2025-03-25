@@ -24,7 +24,7 @@ use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryDeletedException;
-use Phoundation\Data\DataEntries\Exception\Interfaces\DataEntryNotExistsExceptionInterface;
+use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryAccountType;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDescription;
@@ -148,7 +148,7 @@ class Email extends DataEntry implements EmailInterface
         try {
             return parent::load($identifier);
 
-        } catch (DataEntryNotExistsExceptionInterface|DataEntryDeletedException $e) {
+        } catch (DataEntryNotExistsException|DataEntryDeletedException $e) {
             throw new EmailNotExistsException($e);
         }
     }
