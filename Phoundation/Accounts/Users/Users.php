@@ -626,7 +626,7 @@ class Users extends DataIterator implements UsersInterface
     public function getHtmlDataTableObject(array|string|null $columns = null): HtmlDataTableInterface
     {
         return parent::getHtmlDataTableObject($columns)->addCellCallback($this->getCellCallback())
-                                                       ->setColumnsOrderable([
+                                                       ->setOrderColumns([
                                                            1 => false,
                                                            2 => true,
                                                            3 => true,

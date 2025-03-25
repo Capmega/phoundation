@@ -261,7 +261,7 @@ if (!$user->isNew()) {
                                              ->setPagingEnabled(false)
                                              ->setButtons('copy,csv,excel,pdf,print')
                                              ->setOrder([0 => 'asc'])
-                                             ->setColumnsOrderable([
+                                             ->setOrderColumns([
                                                  0 => true,
                                                  1 => false,
                                              ])
