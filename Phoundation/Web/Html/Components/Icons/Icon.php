@@ -25,6 +25,7 @@ use Phoundation\Data\Traits\TraitDataLabel;
 use Phoundation\Data\Traits\TraitDataWidth;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\ElementCore;
 use Phoundation\Web\Html\Components\Icons\Interfaces\IconInterface;
 use Phoundation\Web\Html\Traits\TraitMode;
@@ -211,7 +212,7 @@ throw new UnderConstructionException(tr('Subset is not yet supported for icons')
      */
     public function setColor(?string $color): static
     {
-        throw new UnderConstructionException();
+        $color = Strings::ensureStartsWith($color, 'color-');
         return $this->addClass($color);
     }
 
