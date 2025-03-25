@@ -27,6 +27,7 @@ abstract class Widget extends ElementsBlock implements WidgetInterface
     use TraitMode;
     use TraitBackground;
 
+
     /**
      * Show the type color as gradient or not
      *
