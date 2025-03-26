@@ -42,6 +42,7 @@ use Phoundation\Data\Exception\IteratorKeyExistsException;
 use Phoundation\Data\Exception\IteratorKeyNotExistsException;
 use Phoundation\Data\Interfaces\ArraySourceInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Interfaces\TreeInterface;
 use Phoundation\Data\Traits\TraitDataCache;
 use Phoundation\Data\Traits\TraitDataCacheKey;
 use Phoundation\Data\Traits\TraitDataColumns;
@@ -63,6 +64,10 @@ use Phoundation\Web\Html\Components\Tables\HtmlDataTable;
 use Phoundation\Web\Html\Components\Tables\HtmlTable;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Html\Components\Widgets\Accordion;
+use Phoundation\Web\Html\Components\Widgets\Interfaces\AccordionInterface;
+use Phoundation\Web\Html\Components\Widgets\Interfaces\TreeViewerInterface;
+use Phoundation\Web\Html\Components\Widgets\TreeViewer;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use Phoundation\Web\Requests\Request;
 use ReturnTypeWillChange;
@@ -1979,7 +1984,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
-     * Creates and returns an HTML table for the data in this list
+     * Returns a Table object containing the entries from this Iterator object
      *
      * @param array|string|null $columns
      *
@@ -1999,7 +2004,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
-     * Creates and returns a fancy HTML data table for the data in this list
+     * Returns a DataTable object containing the entries from this Iterator object
      *
      * @param array|string|null $columns
      *
@@ -2019,7 +2024,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
-     * Returns an HTML <select> for the available object entries
+     * Returns a Select object containing the entries from this Iterator object
      *
      * @param string|null $value_column
      * @param string|null $key_column
@@ -2042,6 +2047,39 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
+     * Returns an Accordion object containing the entries from this Iterator object
+     *
+     * @return AccordionInterface
+     */
+    public function getHtmlAccordionObject(): AccordionInterface
+    {
+        return Accordion::new($this);
+    }
+
+
+    /**
+     * Returns a TreeViewer object containing the entries from this Iterator object
+     *
+     * @return TreeViewerInterface
+     */
+    public function getHtmlTreeViewerObject(): TreeViewerInterface
+    {
+        return TreeViewer::new($this);
+    }
+
+
+    /**
+     * Returns an HTML <select> for the entries in this list
+     *
+     * @return InputSelectInterface
+     */
+    public function getHtmlSelectOld(): InputSelectInterface
+    {
+        return $this->input_select_class::new()->setSource($this->source);
+    }
+
+
+    /**
      * Ensures that the specified class is an InputSelect type class
      *
      * @param string $class
@@ -2058,17 +2096,6 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             ':invalid' => $class,
             ':class'   => InputSelect::class,
         ]));
-    }
-
-
-    /**
-     * Returns an HTML <select> for the entries in this list
-     *
-     * @return InputSelectInterface
-     */
-    public function getHtmlSelectOld(): InputSelectInterface
-    {
-        return $this->input_select_class::new()->setSource($this->source);
     }
 
 
