@@ -22,7 +22,7 @@ use Phoundation\Web\Html\Traits\TraitBackground;
 use Phoundation\Web\Html\Traits\TraitMode;
 
 
-abstract class Widget extends ElementsBlock implements WidgetInterface
+class Widget extends ElementsBlock implements WidgetInterface
 {
     use TraitMode;
     use TraitBackground;
