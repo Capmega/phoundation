@@ -96,7 +96,6 @@ class TemplateRenderer implements TemplateRendererInterface
     public function setParentRenderFunction(callable $render_function): static
     {
         $this->render_function = $render_function;
-
         return $this;
     }
 
@@ -119,8 +118,7 @@ class TemplateRenderer implements TemplateRendererInterface
      */
     public function render(): ?string
     {
-        $function = $this->render_function;
-
-        return $function($this->render);
+        // Use the supplied render function
+        return ($this->render_function)($this->render);
     }
 }

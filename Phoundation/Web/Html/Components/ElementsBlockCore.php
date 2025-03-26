@@ -102,6 +102,7 @@ abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockIn
             return $this->content;
         }
 
+        $scripts         = $this->renderScripts();
         $renderer_class  = Request::getTemplate()->getRendererClass($this);
         $render_function = function (?string $render = null) {
             if ($this->form) {
@@ -110,12 +111,12 @@ abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockIn
                             ->render();
             }
 
-            $this->render = null;
+            if (empty($render)) {
+                $render = $this->render;
+            }
 
             return $render;
         };
-
-        $render = $this->o_scripts?->render();
 
         if ($renderer_class) {
             Log::write(ts('Using renderer class ":class" for ":this"', [
@@ -125,22 +126,33 @@ abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockIn
 
             TemplateRenderer::ensureClass($renderer_class, $this);
 
-            return $render . $renderer_class::new($this)
-                                            ->setParentRenderFunction($render_function)
-                                            ->render();
+            return $renderer_class::new($this)
+                                  ->setParentRenderFunction($render_function)
+                                  ->render() . $scripts;
         }
 
         if (method_exists($this, 'defaultRender')) {
             // Use the default render for this object
-            return $render . $this->defaultRender();
+            return $this->defaultRender() . $scripts;
         }
 
-        // The template component does not exist, return the basic Phoundation version
+        // The template component doesn't exist, return the basic Phoundation version
         Log::warning(ts('No template render class found for block component ":component", rendering basic HTML', [
             ':component' => get_class($this),
         ]), 2);
 
-        return $render . $render_function($this->render);
+        return $render_function($this->render) . $scripts;
+    }
+
+
+    /**
+     * Renders and returns the linked Scripts object, if any
+     *
+     * @return string|null
+     */
+    public function renderScripts(): ?string
+    {
+        return $this->o_scripts?->render();
     }
 
 

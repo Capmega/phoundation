@@ -190,7 +190,7 @@ class Accordion extends Widget implements AccordionInterface
             throw new OutOfBoundsException(tr('Cannot render accordion, no HTML id specified'));
         }
 
-        $return =    '      <div class="accordion" id="' . $this->getId() . '">' . $this->renderHeaders();
+        $return = '         <div class="accordion" id="' . $this->getId() . '">' . $this->renderHeaders();
 
         foreach ($this->source as $key => $value) {
             $seo_key = Seo::string($key);
@@ -198,11 +198,11 @@ class Accordion extends Widget implements AccordionInterface
             $return .= '        <div class="accordion-item"' . $data . '>
                                     <h2 class="accordion-header' . ($this->selectors ? ' accordion-header-selectors' : null) . '" id="accordion-heading-' . $seo_key . '">
                                         ' . $this->getSelector($seo_key) . '
-                                        <button data-mdb-collapse-init class="accordion-button text-dark' . ($key === $this->open ? ' collapsed' : '') . '" type="button" data-mdb-toggle="collapse" data-mdb-target="#accordion-collapse-' . $seo_key . '" aria-expanded="' . ($key === $this->open ? 'true' : 'false') . '" aria-controls="accordion-collapse-' . $seo_key . '">
+                                        <button data-mdb-collapse-init class="accordion-button text-dark' . (($key === $this->open) ? ' collapsed' : '') . '" type="button" data-mdb-toggle="collapse" data-mdb-target="#accordion-collapse-' . $seo_key . '" aria-expanded="' . (($key === $this->open) ? 'true' : 'false') . '" aria-controls="accordion-collapse-' . $seo_key . '">
                                             ' . $key . '
                                         </button>
                                     </h2>
-                                    <div id="accordion-collapse-' . $seo_key . '" class="accordion-collapse collapse' . ($key === $this->open ? ' show' : '') . '" aria-labelledby="accordion-heading' . $seo_key . '" data-mdb-parent="#' . $this->getId() . '">
+                                    <div id="accordion-collapse-' . $seo_key . '" class="accordion-collapse collapse' . (($key === $this->open) ? ' show' : '') . '" aria-labelledby="accordion-heading' . $seo_key . '" data-mdb-parent="#' . $this->getId() . '">
                                         <div class="accordion-body">
                                             ' . $value . '
                                         </div>
@@ -210,16 +210,17 @@ class Accordion extends Widget implements AccordionInterface
                                 </div>';
         }
 
+        $this->render .= $return . '  </div>';
+
         if ($this->selectors) {
-            return $return . '  </div>' . Script::new('
+            $this->render .= Script::new('
                 $("div.accordion-selector").on("click", function() {
                     $(this).siblings("button").toggleClass("accordion-selected bg-primary")
                                               .toggleClass("text-dark text-light");
-                });
-            ')->render();
+                });');
         }
 
-        return $return . '  </div>';
+        return parent::render();
     }
 
 
