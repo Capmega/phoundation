@@ -2185,11 +2185,11 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Limit the number of source entries to the specified count
      *
-     * @param int $count
+     * @param int|bool $count
      *
      * @return $this
      */
-    public function limit(int $count): static
+    public function limit(int|bool $count): static
     {
         if ($count >= 0) {
             $this->source = Arrays::limit($this->source, $count);
