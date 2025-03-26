@@ -274,7 +274,6 @@ class Card extends Widget
     public function setHeaderContent(?string $header_content): static
     {
         $this->header_content = $header_content;
-
         return $this;
     }
 
