@@ -18,8 +18,6 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Icons;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\TraitDataBackgroundColor;
-use Phoundation\Data\Traits\TraitDataForegroundColor;
 use Phoundation\Data\Traits\TraitDataHeight;
 use Phoundation\Data\Traits\TraitDataLabel;
 use Phoundation\Data\Traits\TraitDataWidth;
