@@ -30,7 +30,6 @@ class Badge extends Widget
     use TraitDataBackgroundColor;
     use TraitDataLabel;
 
-
     /**
      * ProgressBar class constructor
      */
@@ -47,6 +46,6 @@ class Badge extends Widget
      */
     public function render(): ?string
     {
-        return  '<span class="badge badge-' . $this->mode->value . '">' . $this->label . '</span>';
+        return  '<span class="badge badge-' . $this->mode->value . ' ' . $this->getClass() . '">' . $this->label . '</span>';
     }
 }

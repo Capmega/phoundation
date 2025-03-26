@@ -764,17 +764,25 @@ class Arrays extends Utils
     /**
      * Limit the specified array to the specified number of entries
      *
-     * @param array $source
-     * @param int   $count
-     * @param bool  $return_source
+     * @param array     $source
+     * @param int|false $count
+     * @param bool      $return_source
      *
      * @return array
      * @todo This is cringy slow at large arrays (also at smaller ones, but eh...), find a more efficient way to do this
      */
-    public static function limit(array $source, int $count, bool $return_source = true): array
+    public static function limit(array $source, int|false $count, bool $return_source = true): array
     {
+        if ($count === false) {
+            // Don't filter anything
+            return $source;
+        }
+
         if (!is_numeric($count) or ($count < 0)) {
-            throw new OutOfBoundsException(tr('Specified count is not valid'));
+            throw new OutOfBoundsException(tr('Cannot limit :class to ":count" entries, the number must be a positive integer value', [
+                ':class' => static::class,
+                ':count' => $count
+            ]));
         }
 
         $return = [];
