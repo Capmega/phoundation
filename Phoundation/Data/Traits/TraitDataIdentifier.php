@@ -82,6 +82,7 @@ trait TraitDataIdentifier
         }
 
         // Set the identifier
+        $this->cache_key  = null;
         $this->identifier = $identifier;
         return $this;
     }

@@ -353,6 +353,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function initialize(IdentifierInterface|array|string|int|false|null $identifier = null): static
     {
+        if ($this->debug) {
+            Log::debug('INITIALIZING CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($identifier) . '"', 10, echo_header: false);
+        }
+
         // Set the identifier
         $this->setIdentifier($identifier)
              ->is_initializing_source = true;
@@ -1129,7 +1133,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             return $this->load($identifier);
 
         } catch (DataEntryNotExistsException) {
-            // This entry does not yet exist! Ignore, and just presume we want to make THIS particular entry.
+            // This entry doesn't yet exist! Ignore, and just presume we want to make THIS particular entry.
             return $this->initializeSource($identifier);
         }
     }
@@ -1255,6 +1259,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function load(IdentifierInterface|array|string|int|null $identifier = null): static
     {
+        if ($this->debug) {
+            Log::debug('TRY LOADING CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($identifier) . '"', 10, echo_header: false);
+        }
+
         if ($this->is_loaded) {
             throw DataEntryException::new(tr('Cannot load identifier ":identifier" for ":class" class, the object already has data loaded', [
                 ':identifier' => $identifier,
@@ -1301,7 +1309,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         if ($this->loadFromCache()) {
-            // We found this DataEntry in cache, we're done!
+            // This DataEntry was found in the cache, all is done!
             return $this->ready(true);
         }
 
@@ -1310,6 +1318,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         // This entry exists in the database, yay! Is it not deleted, though?
         if ($this->isDeleted()) {
+            if ($this->debug) {
+                Log::debug('CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($identifier) . '" IS DELETED', 10, echo_header: false);
+            }
+
             $this->processDeleted();
         }
 
@@ -1338,7 +1350,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         unset($column);
 
-        $this->columns = $columns;
+        $this->cache_key = null;
+        $this->columns   = $columns;
         return $this->load($identifier);
     }
 
@@ -1352,10 +1365,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function getCacheKeySeed(?String $append_string = null): ?string
     {
-        if (PLATFORM_WEB) {
-            return 'DataEntry-' . static::class . '-' . Json::encode($this->identifier, JSON_BIGINT_AS_STRING) . '-' . Json::encode($this->columns, JSON_BIGINT_AS_STRING) . '-' . $this->getQueryHash() . ($append_string ? '-' . $append_string : null);
-        }
-
         return 'DataEntry-' . static::class . '-' . Json::encode($this->identifier, JSON_BIGINT_AS_STRING) . '-' . Json::encode($this->columns, JSON_BIGINT_AS_STRING) . '-' . $this->getQueryHash() . ($append_string ? '-' . $append_string : null);
     }
 
@@ -1386,6 +1395,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             $data_entry = cache('dataentries')->get($this->getCacheKey());
 
            if ($data_entry) {
+               if ($this->debug) {
+                   Log::debug('FOUND CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($this->identifier) . '" IN GLOBAL CACHE WITH KEY "' . $this->getCacheKey() . '"', 10, echo_header: false);
+                   Log::printr($data_entry->getSource(as_is: true), 10, echo_header: false);
+               }
+
                 if ($data_entry instanceof DataEntryInterface) {
                     // Found it in external cache!
                     $this->is_loaded_from_cache = true;
@@ -1410,6 +1424,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         // Only use cached entries that are NOT modified!
         if ($data_entry->isModified()) {
             return false;
+        }
+
+        if ($this->debug) {
+            Log::debug('FOUND CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($this->identifier) . '" IN INSTANCE CACHE WITH KEY "' . $this->getCacheKey() . '"', 10, echo_header: false);
+            Log::debug($this->getCacheKeySeed());
+            Log::printr($data_entry->getSource(as_is: true), 10, echo_header: false);
         }
 
         $this->is_loaded_from_cache = true;
@@ -1683,11 +1703,16 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * @param bool $filter_meta              If true, will filter out the DataEntry meta-columns
      * @param bool $filter_protected_columns If true, will filter out the DataEntry protected columns (typically
      *                                       passwords, etc)
+     * @param bool $as_is
      *
      * @return array
      */
-    public function getSource(bool $filter_meta = false, bool $filter_protected_columns = true): array
+    public function getSource(bool $filter_meta = false, bool $filter_protected_columns = true, bool $as_is = false): array
     {
+        if ($as_is) {
+            return $this->source;
+        }
+
         $source = $this->getSourceWithResolvedVirtualColumns();
 
         if ($filter_meta) {
@@ -1813,6 +1838,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         // Can only load from configuration if the configuration path is available
         if ($path) {
+            if ($this->debug) {
+                Log::debug('TRY LOADING CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($identifier) . '" FROM CONFIGURATION', 10, echo_header: false);
+            }
+
             // This DataEntry supports loading from configuration. Identifier arrays may ONLY contain one column!
             $column = static::determineColumn($identifier);
 
@@ -1833,6 +1862,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 $source = $this->loadFromConfiguration($path, $identifier);
 
                 if ($source) {
+                    if ($this->debug) {
+                        Log::debug('FOUND CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($identifier) . '" IN CONFIGURATION', 10, echo_header: false);
+                    }
+
                     if ($this->columns) {
                         $source = Arrays::keepKeys($source, $this->columns);
                     }
@@ -1898,7 +1931,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function loadFromDatabase(): static
     {
+        if ($this->debug) {
+            Log::debug('TRY LOADING CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($this->identifier) . '" FROM DATABASE', 10, echo_header: false);
+        }
+
         $this->is_loading = true;
+        $this->cache_key  = null;
+
 
         // TODO This may no longer be necessary with the upgraded setIdentifier() which already ensures identifier internally is an array!
         if (is_array($this->identifier)) {
@@ -1973,6 +2012,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             $source = $query->get();
 
             if ($source) {
+                if ($this->debug) {
+                    Log::debug('FOUND CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($this->identifier) . '" IN DATABASE', 10, echo_header: false);
+                }
+
                 // If data was found, store all data in the object
                 $this->setMetaData($source)
                      ->copyValuesToSource($source, false);
@@ -2063,6 +2106,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $validated = $this->is_validated;
 
         foreach ($this->definitions as $key => $definition) {
+            if ($this->debug) {
+                Log::debug(ts('TRY COPYING VALUE FOR ":key" TO SOURCE', [
+                    ':key' => $key,
+                ]), echo_header: false);
+            }
+
             // Meta-keys cannot be set through DataEntry::setData()
             if ($definition->isMeta()) {
                 continue;
