@@ -548,11 +548,11 @@ class Definition implements DefinitionInterface
     /**
      * Sets the content after this component
      *
-     * @param IteratorInterface|RenderInterface|array|callable|string|null $after_content
+     * @param RenderInterface|array|callable|string|null $after_content
      *
      * @return static
      */
-    public function setAfterContent(IteratorInterface|RenderInterface|array|callable|string|null $after_content): static
+    public function setAfterContent(RenderInterface|array|callable|string|null $after_content): static
     {
         return $this->setKey([], 'after_content', false)
                     ->addAfterContent($after_content);
@@ -562,11 +562,11 @@ class Definition implements DefinitionInterface
     /**
      * Adds the content after this component
      *
-     * @param IteratorInterface|RenderInterface|array|callable|string|null $after_content
+     * @param RenderInterface|array|callable|string|null $after_content
      *
      * @return static
      */
-    public function addAfterContent(IteratorInterface|RenderInterface|array|callable|string|null $after_content): static
+    public function addAfterContent(RenderInterface|array|callable|string|null $after_content): static
     {
         $after_current   = $this->getAfterContent();
         $after_current[] = $after_content;

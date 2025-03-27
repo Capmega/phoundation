@@ -68,7 +68,7 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
      */
     protected function defaultRender(): ?string
     {
-        if (!$this->definition) {
+        if (!$this->o_definition) {
             throw new OutOfBoundsException(tr('Cannot render form component, no definition specified'));
         }
 
@@ -77,7 +77,7 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
         }
 
         $scripts    = '';
-        $definition = $this->definition;
+        $definition = $this->o_definition;
 
         // Add scripts?
         if ($definition->getScriptsObject()) {

@@ -26,20 +26,20 @@ interface BeforeAfterContentInterface
     /**
      * Sets the modal after_content
      *
-     * @param IteratorInterface|RenderInterface|array|callable|string|null $after_content
+     * @param RenderInterface|array|callable|string|null $after_content
      *
      * @return static
      */
-    public function setAfterContent(IteratorInterface|RenderInterface|array|callable|string|null $after_content): static;
+    public function setAfterContent(RenderInterface|array|callable|string|null $after_content): static;
 
     /**
      * Sets the modal after_content
      *
-     * @param IteratorInterface|RenderInterface|array|callable|string|null $after_content
+     * @param RenderInterface|array|callable|string|null $after_content
      *
      * @return static
      */
-    public function addAfterContent(IteratorInterface|RenderInterface|array|callable|string|null $after_content): static;
+    public function addAfterContent(RenderInterface|array|callable|string|null $after_content): static;
 
     /**
      * Returns if this input element has before content
@@ -58,18 +58,18 @@ interface BeforeAfterContentInterface
     /**
      * Sets the modal before_content
      *
-     * @param IteratorInterface|RenderInterface|array|callable|string|null $before_content
+     * @param RenderInterface|array|callable|string|null $before_content
      *
      * @return static
      */
-    public function setBeforeContent(IteratorInterface|RenderInterface|array|callable|string|null $before_content): static;
+    public function setBeforeContent(RenderInterface|array|callable|string|null $before_content): static;
 
     /**
      * Sets the modal before_content
      *
-     * @param IteratorInterface|RenderInterface|array|callable|string|null $before_content
+     * @param RenderInterface|array|callable|string|null $before_content
      *
      * @return static
      */
-    public function addBeforeContent(IteratorInterface|RenderInterface|array|callable|string|null $before_content): static;
+    public function addBeforeContent(RenderInterface|array|callable|string|null $before_content): static;
 }

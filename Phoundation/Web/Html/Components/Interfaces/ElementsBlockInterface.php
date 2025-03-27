@@ -87,11 +87,11 @@ interface ElementsBlockInterface extends ComponentInterface, IteratorInterface
     /**
      * Sets the definition
      *
-     * @param DefinitionInterface|null $definition
+     * @param DefinitionInterface|null $o_definition
      *
      * @return static
      */
-    public function setDefinitionObject(DefinitionInterface|null $definition): static;
+    public function setDefinitionObject(DefinitionInterface|null $o_definition): static;
 
 
     /**

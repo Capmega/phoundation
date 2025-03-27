@@ -24,9 +24,9 @@ trait TraitDataDefinition
     /**
      * The definition to use
      *
-     * @var DefinitionInterface|null $definition
+     * @var DefinitionInterface|null $o_definition
      */
-    protected ?DefinitionInterface $definition = null;
+    protected ?DefinitionInterface $o_definition = null;
 
 
     /**
@@ -36,20 +36,20 @@ trait TraitDataDefinition
      */
     public function getDefinitionObject(): ?DefinitionInterface
     {
-        return $this->definition;
+        return $this->o_definition;
     }
 
 
     /**
      * Sets the definition
      *
-     * @param DefinitionInterface|null $definition
+     * @param DefinitionInterface|null $o_definition
      *
      * @return static
      */
-    public function setDefinitionObject(DefinitionInterface|null $definition): static
+    public function setDefinitionObject(DefinitionInterface|null $o_definition): static
     {
-        $this->definition = $definition;
+        $this->o_definition = $o_definition;
         return $this;
     }
 }

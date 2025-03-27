@@ -62,11 +62,11 @@ trait TraitBeforeAfterContent
     /**
      * Sets the modal after_content
      *
-     * @param IteratorInterface|RenderInterface|array|callable|string|null $after_content
+     * @param RenderInterface|array|callable|string|null $after_content
      *
      * @return static
      */
-    public function setAfterContent(IteratorInterface|RenderInterface|array|callable|string|null $after_content): static
+    public function setAfterContent(RenderInterface|array|callable|string|null $after_content): static
     {
         $this->after_content = [];
         return $this->addAfterContent($after_content);
@@ -76,16 +76,12 @@ trait TraitBeforeAfterContent
     /**
      * Sets the modal after_content
      *
-     * @param IteratorInterface|RenderInterface|array|callable|string|null $after_content
+     * @param RenderInterface|array|callable|string|null $after_content
      *
      * @return static
      */
-    public function addAfterContent(IteratorInterface|RenderInterface|array|callable|string|null $after_content): static
+    public function addAfterContent(RenderInterface|array|callable|string|null $after_content): static
     {
-        if ($after_content instanceof IteratorInterface) {
-            $after_content = $after_content->getSource();
-        }
-
         if (is_array($after_content)) {
             foreach ($after_content as $content) {
                 $this->addAfterContent($content);
@@ -124,11 +120,11 @@ trait TraitBeforeAfterContent
     /**
      * Sets the modal before_content
      *
-     * @param IteratorInterface|RenderInterface|array|callable|string|null $before_content
+     * @param RenderInterface|array|callable|string|null $before_content
      *
      * @return static
      */
-    public function setBeforeContent(IteratorInterface|RenderInterface|array|callable|string|null $before_content): static
+    public function setBeforeContent(RenderInterface|array|callable|string|null $before_content): static
     {
         $this->before_content = [];
         return $this->addBeforeContent($before_content);
@@ -138,16 +134,12 @@ trait TraitBeforeAfterContent
     /**
      * Sets the modal before_content
      *
-     * @param IteratorInterface|RenderInterface|array|callable|string|null $before_content
+     * @param RenderInterface|array|callable|string|null $before_content
      *
      * @return static
      */
-    public function addBeforeContent(IteratorInterface|RenderInterface|array|callable|string|null $before_content): static
+    public function addBeforeContent(RenderInterface|array|callable|string|null $before_content): static
     {
-        if ($before_content instanceof IteratorInterface) {
-            $before_content = $before_content->getSource();
-        }
-
         if (is_array($before_content)) {
             foreach ($before_content as $content) {
                 $this->addBeforeContent($content);

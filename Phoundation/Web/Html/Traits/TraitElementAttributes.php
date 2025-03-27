@@ -1103,7 +1103,7 @@ trait TraitElementAttributes
      */
     public function getDefinitionObject(): ?DefinitionInterface
     {
-        if (empty($this->definition)) {
+        if (empty($this->o_definition)) {
             $this->__setDefinitionObject(Definition::new($this->getName())
                                                    ->setDisplay($this->getDisplay())
                                                    ->setAfterContent($this->getAfterContent())
@@ -1128,32 +1128,32 @@ trait TraitElementAttributes
     /**
      * Set the DataEntry Definition on this element
      *
-     * @param DefinitionInterface|null $definition
+     * @param DefinitionInterface|null $o_definition
      *
      * @return static
      */
-    public function setDefinitionObject(?DefinitionInterface $definition): static
+    public function setDefinitionObject(?DefinitionInterface $o_definition): static
     {
-        if ($definition) {
+        if ($o_definition) {
             // Apply the definition rules to this element
-            $this->setName($definition->getColumn())
-                 ->setDisplay($definition->getDisplay())
-                 ->setAfterContent($definition->getAfterContent())
-                 ->setBeforeContent($definition->getBeforeContent())
-                 ->setVisible($definition->getVisible())
-                 ->setRequired($definition->getRequired())
-                 ->addClasses($definition->getClasses())
-                 ->setDataObject($definition->getData())
-                 ->setAriaObject($definition->getAria())
-                 ->setDisabled($definition->getDisabled())
-                 ->setReadOnly($definition->getReadonly())
-                 ->setAutoFocus($definition->getAutoFocus())
-                 ->setNullDisplay($definition->getNullDisplay())
-                 ->setProperties($definition->getProperties())
-                 ->setScriptsObject($definition->getScriptsObject());
+            $this->setName($o_definition->getColumn())
+                 ->setDisplay($o_definition->getDisplay())
+                 ->setAfterContent($o_definition->getAfterContent())
+                 ->setBeforeContent($o_definition->getBeforeContent())
+                 ->setVisible($o_definition->getVisible())
+                 ->setRequired($o_definition->getRequired())
+                 ->addClasses($o_definition->getClasses())
+                 ->setDataObject($o_definition->getData())
+                 ->setAriaObject($o_definition->getAria())
+                 ->setDisabled($o_definition->getDisabled())
+                 ->setReadOnly($o_definition->getReadonly())
+                 ->setAutoFocus($o_definition->getAutoFocus())
+                 ->setNullDisplay($o_definition->getNullDisplay())
+                 ->setProperties($o_definition->getProperties())
+                 ->setScriptsObject($o_definition->getScriptsObject());
         }
 
-        return $this->__setDefinitionObject($definition);
+        return $this->__setDefinitionObject($o_definition);
     }
 
 
@@ -1252,18 +1252,13 @@ trait TraitElementAttributes
     /**
      * Renders and returns the specified content
      *
-     * @param IteratorInterface|RenderInterface|array|callable|string|null $content
+     * @param RenderInterface|array|callable|string|null $content
      *
      * @return string|null
      */
-    protected function renderContent(IteratorInterface|RenderInterface|array|callable|string|null $content): ?string
+    protected function renderContent(RenderInterface|array|callable|string|null $content): ?string
     {
         $return = null;
-
-        if ($content instanceof IteratorInterface) {
-            // This is an Iterator list of content items. Get the source to process as an array below
-            $content = $content->getSource();
-        }
 
         if (is_array($content)) {
             // This is a list of content items. Render them one by one, and return them all together
