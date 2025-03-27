@@ -122,11 +122,11 @@ class InputAutoSuggest extends InputText
             }
 
             if ($this->getId()) {
-                return '#' . $this->getId();
+                return '#' . $this->getId() . '_autosuggest_div';
             }
 
             if ($this->getName()) {
-                return '[name="' . $this->getName() . '"]';
+                return '[name="' . $this->getName() . '_autosuggest_div"]';
             }
 
             throw new OutOfBoundsException(tr('Cannot return selector for InputAutosuggest object. No selector was specified and the object has no id or name specified either'));
