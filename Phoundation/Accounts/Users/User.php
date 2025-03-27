@@ -1092,7 +1092,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      *
      * @return string|null
      */
-    public function getDisplayName(bool $official = false, bool $clean = false): ?string
+    public function getDisplayName(bool $official = false, bool $clean = false, bool $reverse = false): ?string
     {
         if ($clean) {
             $postfix = null;
@@ -1107,7 +1107,16 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
         if (!($name = $this->getNickname()) or $official) {
             // Nickname is NOT allowed for official information
-            if (!($name = trim($this->getFirstNames() . ' ' . $this->getLastNames()))) {
+
+            if ($reverse) {
+                $name = $this->getLastNames() . ', ' . $this->getFirstNames();
+
+            } else {
+                $name = $this->getFirstNames() . ' ' . $this->getLastNames();
+            }
+
+            $name = trim($name);
+            if (!($name)) {
                 if (!($name = $this->getUsername())) {
                     if (!($name = $this->getEmail())) {
                         if (!($name = $this->getId(false))) {

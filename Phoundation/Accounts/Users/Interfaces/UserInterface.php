@@ -554,10 +554,11 @@ interface UserInterface extends DataEntryInterface
      *
      * @param bool $official
      * @param bool $clean
+     * @param bool $reverse
      *
      * @return string|null
      */
-    function getDisplayName(bool $official = false, bool $clean = false): ?string;
+    function getDisplayName(bool $official = false, bool $clean = false, bool $reverse = false): ?string;
 
 
     /**
