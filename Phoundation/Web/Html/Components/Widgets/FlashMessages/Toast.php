@@ -16,34 +16,31 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\FlashMessages;
 
+use Phoundation\Data\Traits\TraitDataFlashMessageObject;
 use Phoundation\Data\Traits\TraitMethodHasRendered;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
-use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessageInterface;
+use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\ToastInterface;
+use Phoundation\Web\Html\Components\Widgets\WidgetCore;
 use Phoundation\Web\Html\Html;
 
 
-class Toast implements RenderInterface
+class Toast extends WidgetCore implements ToastInterface
 {
     use TraitMethodHasRendered;
-
-
-    /**
-     * Tracks the flash message data
-     *
-     * @var FlashMessage $message
-     */
-    protected FlashMessage $message;
+    use TraitDataFlashMessageObject;
 
 
     /**
      * Toast class constructor
      *
-     * @param FlashMessage $message
+     * @param FlashMessageInterface $o_message
      */
-    public function __construct(FlashMessage $message)
+    public function __construct(FlashMessageInterface $o_message)
     {
-        $this->message = $message;
+        parent::__construct();
+        $this->o_message = $o_message;
     }
 
 
@@ -61,13 +58,13 @@ class Toast implements RenderInterface
     /**
      * Returns a new Toast object
      *
-     * @param FlashMessage $message
+     * @param FlashMessageInterface $o_message
      *
      * @return static
      */
-    public static function new(FlashMessage $message): static
+    public static function new(FlashMessageInterface $o_message): static
     {
-        return new static($message);
+        return new static($o_message);
     }
 
 
@@ -78,8 +75,7 @@ class Toast implements RenderInterface
      */
     public function render(): ?string
     {
-        return '
-            $(document).Toasts("create", ' . $this->renderJson() . ');';
+        return parent::render();
     }
 
 
@@ -90,11 +86,15 @@ class Toast implements RenderInterface
      */
     public function renderArray(): array
     {
-        $message = $this->message;
-        $image   = $message->getImage()?->getImgObject();
+        if (empty($this->o_message)) {
+            throw new OutOfBoundsException(tr('Cannot render Toast object, no FlashMessage object specified'));
+        }
 
-        if ($message->getTop()) {
-            if ($message->getLeft()) {
+        $o_message = $this->o_message;
+        $image     = $o_message->getImage()?->getImgObject();
+
+        if ($o_message->getTop()) {
+            if ($o_message->getLeft()) {
                 $position = 'topLeft';
 
             } else {
@@ -102,7 +102,7 @@ class Toast implements RenderInterface
             }
 
         } else {
-            if ($message->getLeft()) {
+            if ($o_message->getLeft()) {
                 $position = 'bottomLeft';
 
             } else {
@@ -111,11 +111,11 @@ class Toast implements RenderInterface
         }
 
         $return = [
-            'class'    => 'bg-' . $message->getMode()->value,
-            'title'    => Html::safe($message->getTitle()),
-            'subtitle' => Html::safe($message->getSubTitle()),
+            'class'    => 'bg-' . $o_message->getMode()->value,
+            'title'    => Html::safe($o_message->getTitle()),
+            'subtitle' => Html::safe($o_message->getSubTitle()),
             'position' => $position,
-            'body'     => Html::safe($message->getContent())
+            'body'     => Html::safe($o_message->getContent())
         ];
 
         if ($image) {
@@ -123,13 +123,13 @@ class Toast implements RenderInterface
             $return['image-alt'] = Html::safe($image->getAlt());
         }
 
-        if ($message->getIcon()) {
-            $return['icon'] = 'fas fa-' . Html::safe($message->getIcon()) . ' fa-lg';
+        if ($o_message->getIcon()) {
+            $return['icon'] = 'fas fa-' . Html::safe($o_message->getIcon()) . ' fa-lg';
         }
 
-        if ($message->getAutoClose()) {
+        if ($o_message->getAutoClose()) {
             $return['autohide'] = true;
-            $return['delay']    = $message->getAutoClose();
+            $return['delay']    = $o_message->getAutoClose();
         }
 
         return $return;

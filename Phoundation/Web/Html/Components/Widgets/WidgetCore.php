@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Widget class
+ * Class WidgetCore
  *
  *
  *
@@ -16,14 +16,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets;
 
-use Phoundation\Web\Html\Components\ElementsBlock;
+use Phoundation\Web\Html\Components\ElementsBlockCore;
 use Phoundation\Web\Html\Components\Widgets\Interfaces\WidgetInterface;
 use Phoundation\Web\Html\Traits\TraitBackground;
 use Phoundation\Web\Html\Traits\TraitGradient;
 use Phoundation\Web\Html\Traits\TraitMode;
 
 
-class Widget extends ElementsBlock implements WidgetInterface
+class WidgetCore extends ElementsBlockCore implements WidgetInterface
 {
     use TraitMode;
     use TraitBackground;

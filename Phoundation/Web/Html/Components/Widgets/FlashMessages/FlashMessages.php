@@ -36,6 +36,38 @@ use Throwable;
 class FlashMessages extends ElementsBlock implements FlashMessagesInterface
 {
     /**
+     * Tracks where the JavaScript for these flash messages should be attached to
+     *
+     * @var EnumAttachJavascript
+     */
+    protected EnumAttachJavascript $attach_javascript = EnumAttachJavascript::footer;
+
+    /**
+     * Return where the JavaScript for these flash messages should be attached to
+     *
+     * @return EnumAttachJavascript
+     */
+    public function getAttachJavaScript(): EnumAttachJavascript
+    {
+        return $this->attach_javascript;
+    }
+
+
+    /**
+     * Sets where the JavaScript for these flash messages should be attached to
+     *
+     * @param EnumAttachJavascript $attach_javascript
+     *
+     * @return static
+     */
+    public function setAttachJavaScript(EnumAttachJavascript $attach_javascript): static
+    {
+        $this->attach_javascript = $attach_javascript;
+        return $this;
+    }
+
+
+    /**
      * Adds the specified source(s) to the internal source
      *
      * @param IteratorInterface|array|string|null $source
@@ -170,7 +202,8 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
                                    ->setMode($mode)
                                    ->setIcon($icon);
         }
-        $this->source[] = $message;
+
+        $this->source[] = $message->setAttachJavaScript($this->attach_javascript);
 
         return $this;
     }
@@ -245,23 +278,13 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
      */
     public function render(EnumAttachJavascript $attach_javascript = EnumAttachJavascript::footer): ?string
     {
-        $this->render = '';
-
-        foreach ($this->source as $message) {
-            $this->render .= $message->render();
-        }
-
-        // Add script tags around all the flash calls
-        $this->render = Script::new()
-                              ->setAttach($attach_javascript)
-                              ->setContent($this->render)
-                              ->render();
-
-        // Remove all flash messages from this object
+        $return = parent::render();
+//showbacktrace();
+//showdie($return);
+        // Clear the flash messages object content so that it won't ever render again
         $this->clear();
-        $this->has_rendered = true;
 
-        return parent::render();
+        return $return;
     }
 
 

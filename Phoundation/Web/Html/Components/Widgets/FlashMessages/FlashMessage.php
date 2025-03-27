@@ -92,6 +92,13 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      */
     protected string $flash_handler = 'toast';
 
+    /**
+     * Tracks where the JavaScript for these flash messages should be attached to
+     *
+     * @var EnumAttachJavascript
+     */
+    protected EnumAttachJavascript $attach_javascript = EnumAttachJavascript::footer;
+
 
     /**
      * FlashMessage class constructor
@@ -104,6 +111,31 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
 
         // Set default auto close for flash messages
         $this->setAutoClose(get_null(sessionconfig()->getInteger('web.feedback.messages.auto-close', 15000)));
+    }
+
+
+    /**
+     * Return where the JavaScript for these flash messages should be attached to
+     *
+     * @return EnumAttachJavascript
+     */
+    public function getAttachJavaScript(): EnumAttachJavascript
+    {
+        return $this->attach_javascript;
+    }
+
+
+    /**
+     * Sets where the JavaScript for these flash messages should be attached to
+     *
+     * @param EnumAttachJavascript $attach_javascript
+     *
+     * @return static
+     */
+    public function setAttachJavaScript(EnumAttachJavascript $attach_javascript): static
+    {
+        $this->attach_javascript = $attach_javascript;
+        return $this;
     }
 
 
@@ -128,7 +160,6 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
     public function setFlashHandler(string $flash_handler): static
     {
         $this->flash_handler = $flash_handler;
-
         return $this;
     }
 
@@ -396,10 +427,6 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      */
     public function render(EnumAttachJavascript $attach_javascript = EnumAttachJavascript::footer): ?string
     {
-        $this->render = match ($this->flash_handler) {
-            'toast' => Toast::new($this)->render(),
-        };
-
         return parent::render();
     }
 
