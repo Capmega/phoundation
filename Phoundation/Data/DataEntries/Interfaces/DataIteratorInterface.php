@@ -399,4 +399,18 @@ interface DataIteratorInterface extends IteratorInterface
      * @return static
      */
     public function setDisabled(bool $disabled): static;
+
+    /**
+     * Returns the number of entries that have been modified
+     *
+     * @return int
+     */
+    public function getModifiedEntries(): int;
+
+    /**
+     * Returns the number of entries that have been saved
+     *
+     * @return int
+     */
+    public function getSavedEntries(): int;
 }

@@ -149,9 +149,16 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     /**
      * Tracks the entries in this iterator that were modified
      *
-     * @var int|null $modified_entries
+     * @var int $modified_entries
      */
-    protected ?int $modified_entries = null;
+    protected int $modified_entries = 0;
+
+    /**
+     * Tracks the entries in this iterator that were saved
+     *
+     * @var int $saved_entries
+     */
+    protected int $saved_entries = 0;
 
 
     /**
@@ -1436,18 +1443,18 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
 
 
     /**
-     * Returns the amount of entries that have been modified
+     * Returns the number of entries that have been modified
      *
-     * @return int|null
+     * @return int
      */
-    protected function getModifiedEntries(): ?int
+    public function getModifiedEntries(): int
     {
         return $this->modified_entries;
     }
 
 
     /**
-     * Sets the amount of entries that have been modified
+     * Sets the number of entries that have been modified
      *
      * @param int $count
      *
@@ -1456,6 +1463,31 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     protected function setModifiedEntries(int $count): static
     {
         $this->modified_entries = $count;
+        return $this;
+    }
+
+
+    /**
+     * Returns the number of entries that have been saved
+     *
+     * @return int
+     */
+    public function getSavedEntries(): int
+    {
+        return $this->saved_entries;
+    }
+
+
+    /**
+     * Sets the number of entries that have been saved
+     *
+     * @param int $count
+     *
+     * @return static
+     */
+    protected function setSavedEntries(int $count): static
+    {
+        $this->saved_entries = $count;
         return $this;
     }
 
@@ -1501,9 +1533,15 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      */
     public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
+        $this->saved_entries = 0;
+
         foreach ($this as $entry) {
             if ($entry) {
                 $entry->save($force, $skip_validation, $comments);
+
+                if ($entry->isSaved()) {
+                    $this->saved_entries++;
+                }
             }
         }
 
