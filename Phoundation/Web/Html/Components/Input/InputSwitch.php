@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class InputRadio
+ * Class InputSwitch
  *
  *
  *
@@ -16,19 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Web\Html\Enums\EnumInputType;
 
-
-class InputRadio extends InputCheckbox
+class InputSwitch extends InputCheckbox
 {
-    /**
-     * InputRadio class constructor
-     *
-     * @param string|null $content
-     */
-    public function __construct(?string $content = null)
-    {
-        parent::__construct($content);
-        $this->setInputType(EnumInputType::radio);
-    }
 }

@@ -28,6 +28,15 @@ class InputCheckbox extends Input
     use TraitInputChecked;
     use TraitInputCheckboxRadioRender;
 
+
+    /**
+     * Tracks if labels are rendered before or after the control
+     *
+     * @var bool $before
+     */
+    protected bool $before = false;
+
+
     /**
      * CheckBox class constructor
      *
@@ -68,5 +77,54 @@ class InputCheckbox extends Input
     {
                parent::setDisabled($disabled);
         return parent::setReadonly($disabled);
+    }
+
+
+    /**
+     * Returns if labels are rendered before the control
+     *
+     * @return bool
+     */
+    public function getLabelBefore(): bool
+    {
+        return $this->before;
+    }
+
+
+    /**
+     * Sets if labels are rendered before the control
+     *
+     * @param bool $before
+     *
+     * @return $this
+     */
+    public function setLabelBefore(bool $before): static
+    {
+        $this->before = $before;
+        return $this;
+    }
+
+
+    /**
+     * Returns if labels are rendered after the control
+     *
+     * @return bool
+     */
+    public function getLabelAfter(): bool
+    {
+        return !$this->getLabelBefore();
+    }
+
+
+    /**
+     * Sets if labels are rendered after the control
+     *
+     * @param bool $after
+     *
+     * @return static
+     */
+    public function setLabelAfter(bool $after): static
+    {
+        return $this->setLabelBefore(!$after);
     }
 }
