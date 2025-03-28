@@ -26,6 +26,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
+use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Html\Template\TemplateRenderer;
 use Phoundation\Web\Html\Traits\TraitElementAttributes;
 use Phoundation\Web\Requests\Request;
@@ -105,9 +106,12 @@ abstract class ElementCore implements ElementInterface
 
         if ($this->o_attributes->get('auto_submit', false)) {
             // Add JavaScript code to automatically submit on change
+            // NOTE: This method uses the WINDOW JavaScript wrapper because it fires AFTER the event
+            // document.addEventListener('DOMContentLoaded') which could cause accidental change events right on load
             $this->addScriptObject(Script::new('$(\'[name="' . $this->name . '"]\').on("change", function (e) {
+                                                    console.log("Auto submitting form from target \"" + $(e.target).attr("name") + "\"");            
                                                     $(e.target).closest("form").trigger("submit"); 
-                                                });'));
+                                                });')->setJavascriptWrapper(EnumJavascriptWrappers::window));
         }
 
         $this->o_attributes->removeKeys('auto_submit');

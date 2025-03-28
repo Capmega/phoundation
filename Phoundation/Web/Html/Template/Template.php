@@ -191,7 +191,7 @@ abstract class Template implements TemplateInterface
                 // Find the template class path and the template file to include
                 $class_path   = Strings::untilReverse($class_path, '\\') . '\\Template' . Strings::fromReverse($class_path, '\\');
                 $include_file = str_replace('\\', '/', $class_path);
-                $include_file = $this->getDirectory() . 'Html/' . $include_file . '.php';
+                $include_file = $this->getDirectoryObject() . 'Html/' . $include_file . '.php';
 
                 // Find the class path in the file, we will return this as the class that should be used for
                 // rendering
@@ -231,7 +231,7 @@ abstract class Template implements TemplateInterface
      *
      * @return PhoDirectoryInterface
      */
-    abstract public function getDirectory(): PhoDirectoryInterface;
+    abstract public function getDirectoryObject(): PhoDirectoryInterface;
 
 
     /**

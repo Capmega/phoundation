@@ -191,7 +191,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
 
     /**
-     * Returns if special users will be filtered
+     * Returns if special users are filtered
      *
      * @return bool
      */
@@ -202,7 +202,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
 
     /**
-     * Sets if special users should be filtered
+     * Sets if special users are filtered
      *
      * @param bool $filter
      *

@@ -1037,8 +1037,7 @@ class Response implements ResponseInterface
      */
     public static function renderHtmlHeaders(): ?string
     {
-        $return = '<!DOCTYPE ' . static::$doctype . '>
-                   <html lang="' . Session::getLanguage() . '">' . PHP_EOL . '<head>';
+        $return = Request::getPageObject()->renderHtmlHeaders(static::$doctype);
 
         if (static::getPageTitle()) {
             $return .= '<title>' . (Core::isProductionEnvironment() ? null : '(' . ENVIRONMENT . ') ') . static::$page_title . '</title>' . PHP_EOL;

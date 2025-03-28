@@ -732,7 +732,7 @@ class Url implements UrlInterface
 
         } elseif (PLATFORM_WEB) {
             try {
-                $base = Request::getRoutingParameters()->getRootUrl();
+                $base = Request::getRoutingParametersObject()->getRootUrl();
 
             } catch (OutOfBoundsException $e) {
                 // Routing parameters are not yet available, assume /

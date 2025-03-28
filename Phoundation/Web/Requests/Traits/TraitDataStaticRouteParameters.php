@@ -25,9 +25,9 @@ trait TraitDataStaticRouteParameters
     /**
      * Server object where the image conversion commands will be executed
      *
-     * @var RoutingParametersInterface $parameters
+     * @var RoutingParametersInterface $o_parameters
      */
-    protected static RoutingParametersInterface $parameters;
+    protected static RoutingParametersInterface $o_parameters;
 
 
     /**
@@ -36,10 +36,10 @@ trait TraitDataStaticRouteParameters
      * @return RoutingParametersInterface
      * @throws OutOfBoundsException Thrown when routing parameters have not yet been set
      */
-    public static function getParameters(): RoutingParametersInterface
+    public static function getParametersObject(): RoutingParametersInterface
     {
-        if (static::$parameters) {
-            return static::$parameters;
+        if (static::$o_parameters) {
+            return static::$o_parameters;
         }
         throw new OutOfBoundsException(tr('Cannot return routing parameters, parameters have not yet been set'));
     }
@@ -48,12 +48,12 @@ trait TraitDataStaticRouteParameters
     /**
      * Sets the routing parameters
      *
-     * @param RoutingParametersInterface $parameters
+     * @param RoutingParametersInterface $o_parameters
      *
      * @return void
      */
-    public static function setParameters(RoutingParametersInterface $parameters): void
+    public static function setParametersObject(RoutingParametersInterface $o_parameters): void
     {
-        static::$parameters = $parameters;
+        static::$o_parameters = $o_parameters;
     }
 }

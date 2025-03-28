@@ -189,16 +189,16 @@ class Request implements RequestInterface
     /**
      * The menus for this page
      *
-     * @var MenusInterface $menus
+     * @var MenusInterface $o_menus
      */
-    protected static MenusInterface $menus;
+    protected static MenusInterface $o_menus;
 
     /**
      * The panels for this page
      *
-     * @var PanelsInterface $panels
+     * @var PanelsInterface $o_panels
      */
-    protected static PanelsInterface $panels;
+    protected static PanelsInterface $o_panels;
 
     /**
      * The upload handler for this request
@@ -225,28 +225,28 @@ class Request implements RequestInterface
     /**
      * Sets the routing parameters for this request
      *
-     * @param RoutingParametersInterface $parameters
+     * @param RoutingParametersInterface $o_parameters
      * @param bool                       $force
      *
      * @return void
      */
-    public static function setRoutingParameters(RoutingParametersInterface $parameters, bool $force = false): void
+    public static function setRoutingParameters(RoutingParametersInterface $o_parameters, bool $force = false): void
     {
-        if (isset(static::$parameters)) {
+        if (isset(static::$o_parameters)) {
             if (!$force) {
                 throw new OutOfBoundsException(tr('Cannot set routing parameters for this request, routing parameters have already been set'));
             }
         }
 
-        if (!$parameters->getTemplate()) {
+        if (!$o_parameters->getTemplate()) {
             throw new OutOfBoundsException(tr('Cannot use routing parameters ":pattern", it has no template set', [
-                ':pattern' => static::getRoutingParameters()
+                ':pattern' => static::getRoutingParametersObject()
                                     ->getPattern(),
             ]));
         }
 
-        static::$parameters = $parameters;
-        static::setTemplate($parameters->getTemplateObject());
+        static::$o_parameters = $o_parameters;
+        static::setTemplateObject($o_parameters->getTemplateObject());
     }
 
 
@@ -269,14 +269,14 @@ class Request implements RequestInterface
     /**
      * Sets the template to the specified template name
      *
-     * @param TemplateInterface $template
+     * @param TemplateInterface $o_template
      *
      * @return void
      */
-    public static function setTemplate(TemplateInterface $template): void
+    public static function setTemplateObject(TemplateInterface $o_template): void
     {
-        static::$template = $template;
-        static::$page     = $template->getPage();
+        static::$template = $o_template;
+        static::$page     = $o_template->getPage();
     }
 
 
@@ -285,13 +285,13 @@ class Request implements RequestInterface
      *
      * @return RoutingParametersInterface
      */
-    public static function getRoutingParameters(): RoutingParametersInterface
+    public static function getRoutingParametersObject(): RoutingParametersInterface
     {
-        if (empty(static::$parameters)) {
+        if (empty(static::$o_parameters)) {
             throw new OutOfBoundsException(tr('Cannot return routing parameters from this request, no routing parameters have been set'));
         }
 
-        return static::$parameters;
+        return static::$o_parameters;
     }
 
 
@@ -302,7 +302,7 @@ class Request implements RequestInterface
      */
     public static function hasRoutingParameters(): bool
     {
-        return isset(static::$parameters);
+        return isset(static::$o_parameters);
     }
 
 
@@ -313,25 +313,25 @@ class Request implements RequestInterface
      */
     public static function getMenusObject(): MenusInterface
     {
-        if (!isset(static::$menus)) {
+        if (!isset(static::$o_menus)) {
             // Menus have not yet been initialized, do so now.
-            static::$menus = new Menus();
+            static::$o_menus = new Menus();
         }
 
-        return static::$menus;
+        return static::$o_menus;
     }
 
 
     /**
      * Sets the current tab index and automatically increments it
      *
-     * @param MenusInterface $menus
+     * @param MenusInterface $o_menus
      *
      * @return void
      */
-    public static function setMenusObject(MenusInterface $menus): void
+    public static function setMenusObject(MenusInterface $o_menus): void
     {
-        static::$menus = $menus;
+        static::$o_menus = $o_menus;
     }
 
 
@@ -342,25 +342,25 @@ class Request implements RequestInterface
      */
     public static function getPanelsObject(): PanelsInterface
     {
-        if (!isset(static::$panels)) {
+        if (!isset(static::$o_panels)) {
             // Menus have not yet been initialized, do so now.
-            static::$panels = new Panels();
+            static::$o_panels = new Panels();
         }
 
-        return static::$panels;
+        return static::$o_panels;
     }
 
 
     /**
      * Sets the current panels configured for this page
      *
-     * @param PanelsInterface $panels
+     * @param PanelsInterface $o_panels
      *
      * @return void
      */
-    public static function setPanelsObject(PanelsInterface $panels): void
+    public static function setPanelsObject(PanelsInterface $o_panels): void
     {
-        static::$panels = $panels;
+        static::$o_panels = $o_panels;
     }
 
 
@@ -393,7 +393,7 @@ class Request implements RequestInterface
      *
      * @return TemplatePageInterface|JsonPageInterface
      */
-    public static function getPage(): TemplatePageInterface|JsonPageInterface
+    public static function getPageObject(): TemplatePageInterface|JsonPageInterface
     {
         return static::$page;
     }
@@ -714,7 +714,7 @@ class Request implements RequestInterface
      */
     public static function getRootUrl(string $type = 'web'): string
     {
-        return static::$parameters->getRootUrl($type);
+        return static::$o_parameters->getRootUrl($type);
     }
 
 
@@ -1518,7 +1518,7 @@ class Request implements RequestInterface
                 case EnumRequestTypes::ajax:
                     if (!static::getSystem()) {
                         // Check if the user has access to the requested page, then check if the user should be force redirected
-                        static::hasRightsOrRedirect(static::$parameters->getRequiredRights((string) static::$target));
+                        static::hasRightsOrRedirect(static::$o_parameters->getRequiredRights((string) static::$target));
                         Response::checkForceRedirect();
                     }
 

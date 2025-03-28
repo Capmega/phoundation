@@ -72,5 +72,5 @@ interface TemplateInterface
      *
      * @return PhoDirectoryInterface
      */
-    public function getDirectory(): PhoDirectoryInterface;
+    public function getDirectoryObject(): PhoDirectoryInterface;
 }
