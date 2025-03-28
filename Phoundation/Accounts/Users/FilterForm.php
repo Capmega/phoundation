@@ -110,7 +110,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
      */
     public function getRole(): ?RoleInterface
     {
-        return Role::new($this->getRolesId())->loadOrNull();
+        return Role::new()->loadOrNull($this->getRolesId());
     }
 
 
@@ -132,7 +132,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
      */
     public function getRight(): ?RightInterface
     {
-        return Right::new($this->getRolesId())->loadOrNull();
+        return Right::new()->loadOrNull($this->getRolesId());
     }
 
 
