@@ -149,16 +149,16 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     /**
      * Tracks the entries in this iterator that were modified
      *
-     * @var int $modified_entries
+     * @var int $modified_count
      */
-    protected int $modified_entries = 0;
+    protected int $modified_count = 0;
 
     /**
      * Tracks the entries in this iterator that were saved
      *
-     * @var int $saved_entries
+     * @var int $saved_count
      */
-    protected int $saved_entries = 0;
+    protected int $saved_count = 0;
 
 
     /**
@@ -871,7 +871,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
             $entry->setStatus($status, $comments, $auto_save);
         }
 
-        return $this->setModifiedEntries(count($this->source));
+        return $this->setModifiedCount(count($this->source));
     }
 
 
@@ -1447,9 +1447,9 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      *
      * @return int
      */
-    public function getModifiedEntries(): int
+    public function getModifiedCount(): int
     {
-        return $this->modified_entries;
+        return $this->modified_count;
     }
 
 
@@ -1460,9 +1460,9 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      *
      * @return static
      */
-    protected function setModifiedEntries(int $count): static
+    protected function setModifiedCount(int $count): static
     {
-        $this->modified_entries = $count;
+        $this->modified_count = $count;
         return $this;
     }
 
@@ -1472,9 +1472,9 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      *
      * @return int
      */
-    public function getSavedEntries(): int
+    public function getSavedCount(): int
     {
-        return $this->saved_entries;
+        return $this->saved_count;
     }
 
 
@@ -1485,9 +1485,9 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      *
      * @return static
      */
-    protected function setSavedEntries(int $count): static
+    protected function setSavedCount(int $count): static
     {
-        $this->saved_entries = $count;
+        $this->saved_count = $count;
         return $this;
     }
 
@@ -1533,14 +1533,14 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      */
     public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
-        $this->saved_entries = 0;
+        $this->saved_count = 0;
 
         foreach ($this as $entry) {
             if ($entry) {
                 $entry->save($force, $skip_validation, $comments);
 
                 if ($entry->isSaved()) {
-                    $this->saved_entries++;
+                    $this->saved_count++;
                 }
             }
         }

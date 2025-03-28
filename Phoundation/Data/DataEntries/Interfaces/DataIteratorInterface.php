@@ -405,12 +405,12 @@ interface DataIteratorInterface extends IteratorInterface
      *
      * @return int
      */
-    public function getModifiedEntries(): int;
+    public function getModifiedCount(): int;
 
     /**
      * Returns the number of entries that have been saved
      *
      * @return int
      */
-    public function getSavedEntries(): int;
+    public function getSavedCount(): int;
 }

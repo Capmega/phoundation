@@ -140,7 +140,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      */
     public static function getIteratorName(): string
     {
-        return tr('iterator');
+        return tr('data');
     }
 
 
