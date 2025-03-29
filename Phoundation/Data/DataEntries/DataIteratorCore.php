@@ -21,6 +21,7 @@ use Phoundation\Cache\Cache;
 use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntries\Exception\DataIteratorNotCleanException;
@@ -48,6 +49,7 @@ use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputSelect;
@@ -907,6 +909,40 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
         }
 
         return $this;
+    }
+
+
+    /**
+     * Deletes ALL entries in this table!
+     *
+     * This method reads in $size entries at the time, erases them, and continues onto the next until all are erased
+     *
+     * @param int $size
+     *
+     * @return void
+     */
+    public static function truncate(int $size = 10): void
+    {
+        Log::action(tr('Truncating table ":table"', [':table' => static::getTable()]), echo_newline: false);
+
+        do {
+            $iterator = static::new()->setQuery('SELECT * FROM `' . static::getTable() . '` LIMIT ' . $size);
+            $iterator->erase();
+            Log::dot(1);
+
+        } while ($iterator->getCount());
+
+        Log::success(tr('Done!'));
+
+        Incident::new()
+                ->setType('sysop')
+                ->setTitle(ts('Mobile Billing Reset'))
+                ->setBody(ts('User ":user" performed a truncate on table ":table"', [
+                    'user' => Session::get('user'),
+                    'table' => static::getTable()
+                ]))
+                ->setNotifyRoles('developer')
+                ->save();
     }
 
 
