@@ -450,7 +450,7 @@ class Authentication extends DataEntry implements AuthenticationInterface
      *
      * @param DefinitionsInterface $definitions
      *
-     * @return Authentication
+     * @return static
      */
     protected function setDefinitions(DefinitionsInterface $definitions): static
     {

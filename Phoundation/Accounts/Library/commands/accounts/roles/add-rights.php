@@ -34,29 +34,28 @@ ARGUMENTS
 NAME                                    The identifier name of the role to which the rights shoudl be added
 
 RIGHT[,RIGHT,RIGHT,...]                 The rights linked with the role. Each user that gets this role assigned will 
-                                        also get these rights assigned');
+                                        also get these rights assigned
+
+                                        
+OPTIONAL ARGUMENTS                      
+
+
+-a, --auto-create                       If specified will create the specified right automatically if it does not exist
+                                        yet.');
 
 
 // Validate arguments
 $argv = ArgvValidator::new()
                      ->select('role', true)->isName()
                      ->select('rights', true)->isOptional(null)->sanitizeForceArray()->eachField()->isName()
+                     ->select('-a,--auto-create')->isOptional(false)->isBoolean()
                      ->validate();
 
 
 try {
-    // Ensure that specified $rights exist
-    if ($argv['rights']) {
-        foreach ($argv['rights'] as &$right) {
-            $right = Right::new()->load($right);
-        }
-
-        unset($right);
-    }
-
-    // Check role exists, get role, and add rights
+    // Check role exists, get a role, and add rights
     $role = Role::new()->load($argv['role']);
-    $role->getRightsObject()->add($argv['rights']);
+    $role->getRightsObject()->setAutoCreate($argv['auto_create'])->add($argv['rights']);
 
 } catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();

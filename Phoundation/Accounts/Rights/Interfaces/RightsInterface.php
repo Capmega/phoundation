@@ -63,4 +63,20 @@ interface RightsInterface extends DataIteratorInterface
      * @return InputSelect
      */
     public function getHtmlSelectOld(string $value_column = 'CONCAT(UPPER(LEFT(`name`, 1)), SUBSTRING(`name`, 2)) AS `name`', ?string $key_column = 'seo_name', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface;
+
+    /**
+     * Returns the auto_create flag
+     *
+     * @return bool
+     */
+    public function getAutoCreate(): bool;
+
+    /**
+     * Sets the auto_create flag
+     *
+     * @param bool $auto_create
+     *
+     * @return static
+     */
+    public function setAutoCreate(bool $auto_create): static;
 }

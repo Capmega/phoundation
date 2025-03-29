@@ -25,7 +25,9 @@ use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIterator;
+use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Traits\TraitDataAutoCreate;
 use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Security\Incidents\Incident;
@@ -38,6 +40,9 @@ use Stringable;
 
 class Rights extends DataIterator implements RightsInterface
 {
+    use TraitDataAutoCreate;
+
+
     /**
      * Roles class constructor
      */
@@ -109,17 +114,23 @@ class Rights extends DataIterator implements RightsInterface
     /**
      * Ensure that the specified rights exist
      *
-     * @param array $rights
+     * @param array|string $rights
      *
      * @todo Make this more efficient by storing up all the rights that failed, and then with one query checking which exists and which don't
-     * @return void
+     * @return bool
      */
-    public static function ensure(array $rights): void
+    public function ensureRightsExist(array|string $rights): bool
     {
+        if (!$this->auto_create) {
+            return false;
+        }
+
+        $rights = Arrays::force($rights, null);
+
         // Save each right in this list if it doesn't exist
         foreach ($rights as $right) {
             if (is_numeric($right)) {
-                // This is an ID, not a name. Right names can NOT be numeric
+                // This is an ID, not a name. Right names can't be numeric
                 throw new OutOfBoundsException(tr('Cannot add right ":right", it is numeric. Right names must not be numeric', [
                     ':right' => $right,
                 ]));
@@ -149,6 +160,8 @@ class Rights extends DataIterator implements RightsInterface
                         ->save();
             }
         }
+
+        return true;
     }
 
 
@@ -157,9 +170,9 @@ class Rights extends DataIterator implements RightsInterface
      *
      * @param bool        $force
      * @param bool        $skip_validation
-     * @param string|null $comments *
+     * @param string|null $comments
      *
-* @return static
+     * @return static
      * @todo Implement this. ->add(), ->removeKeys(), ->clear() should NOT immediately save to database!
      */
     public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
@@ -277,6 +290,12 @@ class Rights extends DataIterator implements RightsInterface
         ]));
 
         if ($value and $this->parent) {
+            // A right with commas is actually a list of multiple rights
+            if (is_string($value) and str_contains($value, ',')) {
+                $value = Arrays::force($value);
+            }
+
+            // Add multiple rights in one go
             if (is_array($value)) {
                 // Add multiple rights
                 foreach ($value as $entry) {
@@ -284,48 +303,58 @@ class Rights extends DataIterator implements RightsInterface
                 }
 
                 return $this;
+            }
 
-            } else {
-                // Add single right. Since this is a Right object, the entry already exists in the database
+            // Add single right. Since this is a Right object, the entry already exists in the database
+            try {
                 $value = Right::new()->load($value);
 
-                // Right already exists for this parent?
-                if ($this->hasRight($value)) {
-                    // Ignore and continue
-                    return $this;
+            } catch (DataEntryNotExistsException $e) {
+                if (!$this->ensureRightsExist($value)) {
+                    // The specified right doesn't exist
+                    throw $e;
                 }
 
-                // Add entry to parent, User or Role
-                if ($this->parent instanceof UserInterface) {
-                    Log::action(ts('Adding right ":right" to user ":user"', [
-                        ':user'  => $this->parent->getLogId(),
-                        ':right' => $value->getLogId(),
-                    ]), 3);
+                // The specified right didn't exist, but was automatically created
+                $value = Right::new()->load($value);
+            }
 
-                    sql()->insert('accounts_users_rights', [
-                        'users_id'  => $this->parent->getId(),
-                        'rights_id' => $value->getId(),
-                        'name'      => $value->getName(),
-                        'seo_name'  => $value->getSeoName(),
-                    ]);
+            // Right already exists for this parent?
+            if ($this->hasRight($value)) {
+                // Ignore and continue
+                return $this;
+            }
 
-                } elseif ($this->parent instanceof RoleInterface) {
-                    Log::action(ts('Adding right ":right" to role ":role"', [
-                        ':role'  => $this->parent->getLogId(),
-                        ':right' => $value->getLogId(),
-                    ]), 3);
+            // Add entry to parent, User or Role
+            if ($this->parent instanceof UserInterface) {
+                Log::action(ts('Adding right ":right" to user ":user"', [
+                    ':user'  => $this->parent->getLogId(),
+                    ':right' => $value->getLogId(),
+                ]), 3);
 
-                    sql()->insert('accounts_roles_rights', [
-                        'roles_id'  => $this->parent->getId(),
-                        'rights_id' => $value->getId(),
-                    ]);
+                sql()->insert('accounts_users_rights', [
+                    'users_id'  => $this->parent->getId(),
+                    'rights_id' => $value->getId(),
+                    'name'      => $value->getName(),
+                    'seo_name'  => $value->getSeoName(),
+                ]);
 
-                    // Update all roles with this right to get the new right as well!
-                    foreach ($this->parent->getUsersObject() as $user) {
-                        User::new()->load($user)
-                            ->getRightsObject()
-                            ->add($value);
-                    }
+            } elseif ($this->parent instanceof RoleInterface) {
+                Log::action(ts('Adding right ":right" to role ":role"', [
+                    ':role'  => $this->parent->getLogId(),
+                    ':right' => $value->getLogId(),
+                ]), 3);
+
+                sql()->insert('accounts_roles_rights', [
+                    'roles_id'  => $this->parent->getId(),
+                    'rights_id' => $value->getId(),
+                ]);
+
+                // Update all roles with this right to get the new right as well!
+                foreach ($this->parent->getUsersObject() as $user) {
+                    User::new()->load($user)
+                        ->getRightsObject()
+                        ->add($value);
                 }
             }
         }

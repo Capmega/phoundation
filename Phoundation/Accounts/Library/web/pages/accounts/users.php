@@ -115,11 +115,6 @@ $builder = $users->getQueryBuilder()
 
 
 // Build "users" table
-$buttons = Buttons::new()
-                  ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html')
-                  ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true)
-                  ->addButton(tr('Lock')  , EnumDisplayMode::warning, EnumButtonType::submit, true, true);
-
 // TODO Automatically re-select items if possible
 //    ->select($post['id']);
 $users_card = Card::new()
@@ -137,7 +132,10 @@ $users_card = Card::new()
                                          'created_on'    => tr('Created on'),
                                      ])->setRowUrl('/accounts/user+:ROW.html'))
                   ->useForm(true)
-                  ->setButtons($buttons);
+                  ->setButtons(Buttons::new()
+                                      ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html')
+                                      ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true)
+                                      ->addButton(tr('Lock')  , EnumDisplayMode::warning, EnumButtonType::submit, true, true));
 
 
 $users_card->getForm()

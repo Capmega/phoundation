@@ -1184,7 +1184,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
         if (!$contains) {
             if ($this->getRightsObject()->getCount()) {
-                Rights::ensure($this->getMissingRights($rights));
+                $this->getRightsObject()->ensureRightsExist($this->getMissingRights($rights));
 
             } else {
                 if ($this->isSystem()) {
@@ -1219,7 +1219,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
         if (!$contains) {
             if ($this->getRightsObject()->getCount()) {
-                Rights::ensure($this->getMissingRights($rights));
+                $this->getRightsObject()->ensureRightsExist($this->getMissingRights($rights));
 
             } else {
                 if (PLATFORM_CLI and $this->isSystem()) {
