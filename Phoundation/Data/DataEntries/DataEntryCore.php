@@ -740,7 +740,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $this->definitions = $definitions->add(DefinitionFactory::newDivider('new-divider')
                                                                 ->addPreRenderFunctions(function(DefinitionInterface $definition, array $source, mixed $value) {
                                                                     // Only render this when displaying meta-elements
-                                                                    $definition->setRender(!$this->isNew() and $this->getDefinitionsObject()->getMetaVisible());
+                                                                    $definition->setRender(!$this->isNew() and $this->getDefinitionsObject()->getRenderMeta());
                                                                 }));
 
         return $this;

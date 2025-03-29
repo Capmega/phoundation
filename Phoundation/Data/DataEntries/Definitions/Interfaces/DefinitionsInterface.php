@@ -111,7 +111,7 @@ interface DefinitionsInterface extends IteratorInterface
      *
      * @return bool
      */
-    public function getMetaVisible(): bool;
+    public function getRenderMeta(): bool;
 
     /**
      * Returns if any buttons have been defined
@@ -179,11 +179,11 @@ interface DefinitionsInterface extends IteratorInterface
     /**
      * Sets if meta-information is visible at all, or not
      *
-     * @param bool $meta_visible
+     * @param bool $render_meta
      *
      * @return static
      */
-    public function setMetaVisible(bool $meta_visible): static;
+    public function setRenderMeta(bool $render_meta): static;
 
     /**
      * Modify the specified definition directly

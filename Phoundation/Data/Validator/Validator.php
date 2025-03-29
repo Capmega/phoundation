@@ -777,15 +777,16 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      * This method ensures that the specified array key is a valid database id (integer, 1 and above)
      *
      * @param string|null $failure_message
+     * @param string      $column
      * @param string|null $table
      *
      * @return static
      */
-    public function dbIdExists(?string $failure_message = null, ?string $table = null): static
+    public function columnExists(?string $failure_message = null, string $column = 'id', ?string $table = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($table, $failure_message) {
+        return $this->validateValues(function (&$value) use ($table, $column, $failure_message) {
             $this->isDbId();
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -799,8 +800,8 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                 throw new ValidatorException(tr('Cannot validate if database id exists, no table configured for this validator, and no table specified'));
             }
 
-            $exists = sql()->getColumn('SELECT `id` FROM `' . $table . '` WHERE `id` = :id', [
-                ':id' => $value,
+            $exists = sql()->getColumn('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column, [
+                ':' . $column => $value,
             ]);
 
             if (!$exists) {

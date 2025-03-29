@@ -44,7 +44,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      *
      * @var bool
      */
-    protected bool $meta_visible = true;
+    protected bool $render_meta = true;
 
 
     /**
@@ -409,9 +409,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function setRender(Stringable|string|float|int $key, bool $render, bool $exception = true): static
     {
-        $this->get($key, $exception)
-             ->setRender($render);
-
+        $this->get($key, $exception)->setRender($render);
         return $this;
     }
 
@@ -427,9 +425,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function setDisplay(Stringable|string|float|int $key, bool $render, bool $exception = true): static
     {
-        $this->get($key, $exception)
-             ->setDisplay($render);
-
+        $this->get($key, $exception)->setDisplay($render);
         return $this;
     }
 
@@ -445,9 +441,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function setSize(Stringable|string|float|int $key, int $size, bool $exception = true): static
     {
-        $this->get($key, $exception)
-             ->setSize($size);
-
+        $this->get($key, $exception)->setSize($size);
         return $this;
     }
 
@@ -463,9 +457,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function setLabel(Stringable|string|float|int $key, ?string $value, bool $exception = true): static
     {
-        $this->get($key, $exception)
-             ->setLabel($value);
-
+        $this->get($key, $exception)->setLabel($value);
         return $this;
     }
 
@@ -481,9 +473,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function setReadonly(Stringable|string|float|int $key, bool $render, bool $exception = true): static
     {
-        $this->get($key, $exception)
-             ->setReadonly($render);
-
+        $this->get($key, $exception)->setReadonly($render);
         return $this;
     }
 
@@ -499,9 +489,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function setDisabled(Stringable|string|float|int $key, bool $render, bool $exception = true): static
     {
-        $this->get($key, $exception)
-            ->setDisabled($render);
-
+        $this->get($key, $exception)->setDisabled($render);
         return $this;
     }
 
@@ -511,23 +499,22 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      *
      * @return bool
      */
-    public function getMetaVisible(): bool
+    public function getRenderMeta(): bool
     {
-        return $this->meta_visible;
+        return $this->render_meta;
     }
 
 
     /**
      * Sets if meta-information is visible at all, or not
      *
-     * @param bool $meta_visible
+     * @param bool $render_meta
      *
      * @return static
      */
-    public function setMetaVisible(bool $meta_visible): static
+    public function setRenderMeta(bool $render_meta): static
     {
-        $this->meta_visible = $meta_visible;
-
+        $this->render_meta = $render_meta;
         return $this;
     }
 

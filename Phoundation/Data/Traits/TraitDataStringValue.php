@@ -19,7 +19,7 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Web\Html\Html;
 
 
-trait TraitDataValue
+trait TraitDataStringValue
 {
     /**
      * The value for this object

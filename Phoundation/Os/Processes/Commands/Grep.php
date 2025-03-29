@@ -18,7 +18,7 @@ namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Data\Traits\TraitDataDirectory;
 use Phoundation\Data\Traits\TraitDataFile;
-use Phoundation\Data\Traits\TraitDataValue;
+use Phoundation\Data\Traits\TraitDataStringValue;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 
@@ -27,7 +27,7 @@ class Grep extends Command
 {
     use TraitDataFile;
     use TraitDataDirectory;
-    use TraitDataValue;
+    use TraitDataStringValue;
 
     /**
      * Execute the rsync operation and return the PID (background) or -1
