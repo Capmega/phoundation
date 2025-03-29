@@ -1552,10 +1552,12 @@ function execute(): ?string
         return get_null((string) ob_get_clean());
 
     } catch (Throwable $e) {
-        Log::error(tr('Program ":program" failed with exception: :exception', [
-            ':program'   => Request::getTarget(),
-            ':exception' => $e->getMessage(),
-        ]));
+        if (!($e instanceof PhoException) or !$e->isWarning()) {
+            Log::error(tr('Program ":program" failed with exception: :exception', [
+                ':program'   => Request::getTarget(),
+                ':exception' => $e->getMessage(),
+            ]));
+        }
 
         throw $e;
     }
