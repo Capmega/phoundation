@@ -40,7 +40,13 @@ status, please use the "delete", "undelete" or "status" commands. To change the 
 command.') . '
 
 
-EXTRA INFORMATION
+ARGUMENTS
+
+
+USER                                                        The unique username, email, id or code of the user to modify                                    
+
+
+OPTIONAL ARGUMENTS
 
 
 [--roles / --role / -r ROLE[,ROLE,ROLE]]                    A comma separated list of the roles that this user has on 
@@ -57,30 +63,42 @@ EXTRA INFORMATION
 
 // Validate user
 $argv = ArgvValidator::new()
-                     ->select('user', true)->hasMaxCharacters(128)->isEmail()
-                     ->select('roles', true)->isOptional()->sanitizeForceArray()->eachField()->isName()
-                     ->select('emails', true)->isOptional()->sanitizeForceArray()->eachField()->matchesRegex('/^.+?\/(?:personal|business|other/.+?)$/i')
-                     ->select('phones', true)->isOptional()->sanitizeForceArray()->eachField()->matchesRegex('/^.+?\/(?:personal|business|other/.+?)$/i')
+                     ->select('user', true)->hasMaxCharacters(128)->isDbId()->or()->isEmail()
+                     ->select('-r,--role,--roles', true)->isOptional()->sanitizeForceArray()->eachField()->isName()
+                     ->select('--email', true)->isOptional()->isEmail()
+                     ->select('--emails', true)->isOptional()->sanitizeForceArray()->eachField()->matchesRegex('/^.+?\/(?:personal|business|other\/.+?)$/i')
+                     ->select('--phones', true)->isOptional()->sanitizeForceArray()->eachField()->matchesRegex('/^.+?\/(?:personal|business|other\/.+?)$/i')
                      ->validate();
+
+
+// Get the user
+$user = User::new()->find([
+    'id'       => $argv['user'],
+    'username' => $argv['user'],
+    'email'    => $argv['user'],
+    'code'     => $argv['user'],
+], filter: 'OR')->save();
+
+
+// Update User fields
+if ($argv['email']) {
+    $user->setEmail($argv['email']);
+}
+
+$user->save();
 
 
 // Ensure that the specified roles exist
 if ($argv['roles']) {
     foreach ($argv['roles'] as &$role) {
-        $role = Role::new()->load($role);
+        $role = Role::new($role);
     }
 
     unset($role);
 }
 
 
-// Get the user and modify, then update roles
-$user = User::new()->find([
-    'username' => $argv['user'],
-    'email'    => $argv['user'],
-    'code'     => $argv['user'],
-], filter: 'OR')->apply()->save();
-
+// Apply roles, phones, emails
 $user->getRolesObject()->setRoles($argv['roles']);
 $user->getEmailsObject()->apply()->save();
 $user->getPhonesObject()->apply()->save();

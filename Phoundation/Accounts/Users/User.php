@@ -205,7 +205,7 @@ class User extends DataEntry implements UserInterface
      *
      * @param IdentifierInterface|array|string|int|false|null $identifier
      */
-    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = null)
+    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false)
     {
         $this->initializeVirtualConfiguration([
             'countries' => ['id', 'code', 'name'],
@@ -1219,7 +1219,9 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
         if (!$contains) {
             if ($this->getRightsObject()->getCount()) {
-                $this->getRightsObject()->ensureRightsExist($this->getMissingRights($rights));
+                $this->getRightsObject()
+                     ->setAutoCreate(true)
+                     ->ensureRightsExist($this->getMissingRights($rights));
 
             } else {
                 if (PLATFORM_CLI and $this->isSystem()) {
@@ -2775,7 +2777,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         }
 
         // No profile image was set, return the default
-        return ProfileImage::new()
+        return ProfileImage::new(null)
                            ->setReadonly(true)
                            ->setUserObject($this)
                            ->setFile(DIRECTORY_CDN . LANGUAGE . '/img/profiles/default.png');

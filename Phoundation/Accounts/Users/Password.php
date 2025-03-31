@@ -46,7 +46,7 @@ class Password extends DataEntry implements PasswordInterface
      *
      * @param IdentifierInterface|array|string|int|false|null $identifier
      */
-    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = null)
+    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false)
     {
         if (!$identifier) {
             throw new OutOfBoundsException(tr('Cannot instantiate Password object, a valid user ID is required'));

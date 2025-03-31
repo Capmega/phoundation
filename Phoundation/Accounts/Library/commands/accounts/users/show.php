@@ -17,6 +17,7 @@ declare(strict_types=1);
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Limit;
 
@@ -49,41 +50,48 @@ $argv = ArgvValidator::new()
 
 
 // Display user data
-$user = User::new()->load($argv['user']);
-$user->displayCliForm();
+try {
+    $user = User::new()->load($argv['user']);
+    $user->displayCliForm();
 
 
-// Display extra email addresses
-Log::cli();
-Log::information('Extra email addresses:', echo_prefix: false);
+    // Display extra email addresses
+    Log::cli();
+    Log::information('Extra email addresses:', echo_prefix: false);
 
-Log::cli();
-$user->getEmailsObject()->displayCliTable([
-    'email'        => tr('Email address'),
-    'account_type' => tr('Email address type'),
-]);
-
-
-// Display extra phone numbers
-Log::cli();
-Log::information('Extra phone numbers:', echo_prefix: false);
-
-Log::cli();
-$user->getPhonesObject()->displayCliTable([
-    'phone'        => tr('Phone number'),
-    'account_type' => tr('Phone number type'),
-]);
+    Log::cli();
+    $user->getEmailsObject()->displayCliTable([
+        'email'        => tr('Email address'),
+        'account_type' => tr('Email address type'),
+    ]);
 
 
-// Display roles
-Log::cli();
-$user->getRolesObject()->displayCliTable([
-    'role' => tr('Roles assigned to this user:'),
-]);
+    // Display extra phone numbers
+    Log::cli();
+    Log::information('Extra phone numbers:', echo_prefix: false);
+
+    Log::cli();
+    $user->getPhonesObject()->displayCliTable([
+        'phone'        => tr('Phone number'),
+        'account_type' => tr('Phone number type'),
+    ]);
 
 
-// Display rights
-Log::cli();
-$user->getRightsObject()->displayCliTable([
-    'right' => tr('Rights assigned to this user through its roles:'),
-]);
+    // Display roles
+    Log::cli();
+    $user->getRolesObject()->displayCliTable([
+        'role' => tr('Roles assigned to this user:'),
+    ]);
+
+
+    // Display rights
+    Log::cli();
+    $user->getRightsObject()->displayCliTable([
+        'right' => tr('Rights assigned to this user through its roles:'),
+    ]);
+
+} catch (DataEntryNotExistsException) {
+    Log::warning(tr('Specified user ":user" does not exist', [
+        ':user' => $argv['user']
+    ]));
+}

@@ -54,7 +54,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
      *
      * @param IdentifierInterface|array|string|int|false|null $identifier
      */
-    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = null)
+    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false)
     {
         $this->initializeVirtualConfiguration([
             'users' => ['id'],

@@ -64,7 +64,7 @@ class Authentication extends DataEntry implements AuthenticationInterface
      *
      * @param array|int|string|DataEntryInterface|null $identifier
      */
-    public function __construct(array|int|string|DataEntryInterface|null $identifier = null)
+    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false)
     {
         $this->initializeVirtualConfiguration([
             'timezones' => ['id'],

@@ -49,7 +49,9 @@ $argv = ArgvValidator::new()
 
 $user  = Users::new();
 $query = $user->getQueryBuilder()
-              ->addSelect('`accounts_users`.`id`, 
+              ->addSelect(' 
+                 `accounts_users`.`id`,
+                 `accounts_users`.`id` AS `key`,
                  `accounts_users`.`email`, 
                  IFNULL(`accounts_users`.`status`, "' . tr('Ok') . '") AS `status`, 
                  GROUP_CONCAT(CONCAT(UPPER(LEFT(`roles`.`name`, 1)), SUBSTRING(`roles`.`name`, 2)) SEPARATOR ", ") AS `roles` ')
@@ -83,4 +85,12 @@ if ($argv['status']) {
     $query->addWhere('`accounts_users`.`status` IS NULL');
 }
 
-$user->displayCliTable();
+$user->displayCliTable([
+   'key'         => tr('Id'),
+   'status'      => tr('Status'),
+   'email'       => tr('Email'),
+   'last_names'  => tr('Last names'),
+   'first_names' => tr('First names'),
+   'remote_id'   => tr('Remote user'),
+//   'roles'       => tr('Roles'),
+]);

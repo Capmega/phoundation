@@ -37,7 +37,7 @@ use Phoundation\Web\Requests\Response;
 // Get current user and password objects
 $user     = Session::getUserObject();
 $password = $user->getPasswordObject();
-$password->getDefinitionsObject()->setMetaVisible(false);
+$password->getDefinitionsObject()->setRenderMeta(false);
 
 
 // Validate POST and submit

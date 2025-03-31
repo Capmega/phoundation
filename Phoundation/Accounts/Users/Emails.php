@@ -139,7 +139,7 @@ class Emails extends DataIterator implements EmailsInterface
         $email       = Email::new()
                             ->setPrefix($name)
                             ->getHtmlDataEntryFormObject()
-                            ->setMetaVisible($meta_visible);
+                            ->setRenderMeta($meta_visible);
 
         $definitions = $email->getDefinitionsObject();
         $definitions->get('email')->setSize(6);
@@ -152,7 +152,7 @@ class Emails extends DataIterator implements EmailsInterface
         foreach ($this->ensureDataEntries() as $email) {
             $content[] = $email->setPrefix($name)
                                ->getHtmlDataEntryFormObject()
-                               ->setMetaVisible($meta_visible)
+                               ->setRenderMeta($meta_visible)
                                ->render();
         }
 

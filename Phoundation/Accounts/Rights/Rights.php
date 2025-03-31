@@ -144,13 +144,13 @@ class Rights extends DataIterator implements RightsInterface
             }
 
             if (Right::notExists(['name' => $right])) {
-                Right::new()
+                Right::new(null)
                      ->setName($right)
                      ->save();
 
                 Incident::new()
                         ->setSeverity(EnumSeverity::medium)
-                        ->setType('Right created automatically')
+                        ->setType('security')
                         ->setTitle(tr('Automatically created right'))
                         ->setBody(tr('The system encountered a request for the right ":right" and created it automatically', [
                             ':right' => $right

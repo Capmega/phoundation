@@ -142,7 +142,7 @@ class Phones extends DataIterator implements PhonesInterface
         $phone       = Phone::new()
                             ->setPrefix($name)
                             ->getHtmlDataEntryFormObject()
-                            ->setMetaVisible($meta_visible);
+                            ->setRenderMeta($meta_visible);
 
         $definitions = $phone->getDefinitionsObject();
         $definitions->get('phone')->setSize(6);
@@ -155,7 +155,7 @@ class Phones extends DataIterator implements PhonesInterface
         foreach ($this->ensureDataEntries() as $phone) {
             $content[] = $phone->setPrefix($name)
                                ->getHtmlDataEntryFormObject()
-                               ->setMetaVisible($meta_visible)
+                               ->setRenderMeta($meta_visible)
                                ->render();
         }
 
