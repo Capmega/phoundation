@@ -62,7 +62,7 @@ use Phoundation\Data\DataEntries\Exception\DataEntryStateMismatchException;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
-use Phoundation\Data\DataEntries\Traits\TraitDataEntryDefinitions;
+use Phoundation\Data\DataEntries\Traits\TraitDataDefinitions;
 use Phoundation\Data\EntryCore;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataCacheKey;
@@ -117,7 +117,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     use TraitDataConnector;
     use TraitDataDebug;
     use TraitDataDisabled;
-    use TraitDataEntryDefinitions;
+    use TraitDataDefinitions;
     use TraitDataIdentifier;
     use TraitDataIgnoreDeleted;
     use TraitDataInsertUpdate;
@@ -327,7 +327,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *                                                                    DataEntry::initialize() method must be called
      *                                                                    separately.
      */
-    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = null)
+    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false)
     {
         $this->cache = Cache::isEnabled();
 
@@ -924,23 +924,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Checks if this DataEntry class has any definitions at all available
-     *
-     * @return static
-     */
-    protected function checkDefinitions(): static
-    {
-        if (empty($this->definitions) or $this->definitions->isEmpty()) {
-            throw new OutOfBoundsException(tr('This ":class" class has no definitions', [
-                ':class' => get_class($this),
-            ]));
-        }
-
-        return $this;
-    }
-
-
-    /**
      * Sets the value for the specified data key
      *
      * @param mixed                       $value
@@ -963,9 +946,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 ]));
             }
 
-            throw new DataEntryException(tr('The ":class" class has not yet been initialized', [
-                ':class' => get_class($this),
-            ]));
+            $this->initialize(false);
         }
 
         // Only save values that are defined for this object
@@ -1133,6 +1114,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             return $this->load($identifier);
 
         } catch (DataEntryNotExistsException) {
+show($identifier);
             // This entry doesn't yet exist! Ignore, and just presume we want to make THIS particular entry.
             return $this->initializeSource($identifier);
         }
@@ -1281,7 +1263,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         if (!$this->is_initialized) {
-            $this->initialize();
+            $this->initialize(false);
         }
 
         if (is_object($identifier)) {
@@ -2100,7 +2082,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function copyValuesToSource(array $source, bool $modify, bool $directly = false, bool $force = false): static
     {
-        $this->checkDefinitions();
+        $this->checkDefinitionsObject();
 
         // Setting columns will make $this->is_validated false, so store the current value;
         $validated = $this->is_validated;
@@ -2328,7 +2310,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function setMetaData(?array $data = null): static
     {
-        $this->checkDefinitions();
+        $this->checkDefinitionsObject();
 
         if ($data === null) {
             // No data specified, all columns should be null
@@ -3784,7 +3766,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function getPrefix(): ?string
     {
-        return $this->checkInitialized('DataEntry::getPrefix()')->definitions->getPrefix();
+        return $this->getDefinitionsObject()->getPrefix();
     }
 
 
@@ -3797,7 +3779,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function setPrefix(?string $prefix): static
     {
-        $this->checkInitialized('DataEntry::setPrefix()')->definitions->setPrefix($prefix);
+        $this->getDefinitionsObject()->setPrefix($prefix);
         return $this;
     }
 
@@ -4618,26 +4600,5 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function isLoadedFromCache(): bool
     {
         return $this->is_loaded_from_cache;
-    }
-
-
-    /**
-     * Checks if the DataEntry has been initialized, throws an DataEntryNotInitializedException if not
-     *
-     * @param string $action
-     *
-     * @return static
-     * @throws DataEntryNotInitializedException
-     */
-    protected function checkInitialized(string $action): static
-    {
-        if ($this->is_initialized) {
-            return $this;
-        }
-
-        throw new DataEntryNotInitializedException(tr('Cannot ":action" on ":class" class DataEntry, the object has not yet been initialized', [
-            ':action' => $action,
-            ':class'  => static::class,
-        ]));
     }
 }

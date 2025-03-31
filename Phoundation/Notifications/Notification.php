@@ -131,7 +131,7 @@ class Notification extends DataEntry implements NotificationInterface
      *
      * @param IdentifierInterface|array|string|int|false|null $identifier
      */
-    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = null)
+    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false)
     {
         $this->initializeVirtualConfiguration([
             'users' => ['id'],
@@ -167,6 +167,19 @@ class Notification extends DataEntry implements NotificationInterface
                      ->ready();
             }
         }
+    }
+
+
+    /**
+     * Returns a new Notification object
+     *
+     * @param IdentifierInterface|array|string|int|false|null $identifier
+     *
+     * @return static
+     */
+    public static function new(IdentifierInterface|array|string|int|false|null $identifier = null): static
+    {
+        return new static($identifier);
     }
 
 

@@ -728,6 +728,28 @@ trait TraitValidatorCore
 
 
     /**
+     * Allows the currently selected column to validate against a different set of rules if the first set failed
+     *
+     * @return static
+     */
+    public function or(): static
+    {
+        if ($this->process_value_failed) {
+            // This field failed. Remove the failure data so that we can perform the next set of tests
+            $this->process_value_failed = false;
+            unset($this->failures[$this->selected_field]);
+
+        } else {
+            // This field has not failed so far, so the OR does not have to check the rest. To do this, mark this field
+            // as having a default value, even though it (possibly) doesn't, this way any future checks will be skipped
+            $this->selected_is_default = true;
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Will validate that the specified argument was not specified
      *
      * @param string $argument

@@ -27,7 +27,7 @@ class SlowPage extends Incident
      *
      * @param IdentifierInterface|array|string|int|false|null $identifier
      */
-    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = null)
+    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false)
     {
         $this->setType('slow_page');
         parent::__construct($identifier);

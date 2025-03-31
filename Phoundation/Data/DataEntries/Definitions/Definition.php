@@ -335,7 +335,13 @@ class Definition implements DefinitionInterface
     {
         if (array_key_exists('properties', $this->source)) {
             if (array_key_exists($key, $this->source['properties'])) {
-                return $this->source['properties'][$key];
+                $return = $this->source['properties'][$key];
+
+                if (is_callable($return)) {
+                    return $return();
+                }
+
+                return $return;
             }
         }
 

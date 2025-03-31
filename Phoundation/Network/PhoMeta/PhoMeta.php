@@ -49,7 +49,7 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
      *
      * @param IdentifierInterface|array|string|int|false|null $identifier
      */
-    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = null)
+    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false)
     {
         parent::__construct($identifier);
         $this->setGlobalId(Core::getGlobalId());
@@ -63,7 +63,7 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
      *
      * @return static
      */
-    public static function new(IdentifierInterface|array|string|int|false|null $identifier = null): static
+    public static function new(IdentifierInterface|array|string|int|false|null $identifier = false): static
     {
         return parent::new($identifier)->setGlobalId(Core::getGlobalId());
     }

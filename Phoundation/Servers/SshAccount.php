@@ -51,7 +51,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
      *
      * @param IdentifierInterface|array|string|int|false|null $identifier
      */
-    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = null)
+    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false)
     {
         $this->restrictions = PhoRestrictions::newFilesystemRootObject();
         parent::__construct($identifier);

@@ -901,7 +901,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      * @see Validator::isOptional()
      * @see Validator::xorColumn()
      */
-    public function or(string $field): static
+    public function orColumn(string $field): static
     {
         if (!str_starts_with($field, (string) $this->field_prefix)) {
             $field = $this->field_prefix . $field;

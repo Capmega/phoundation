@@ -31,6 +31,7 @@ use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryBody;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryData;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDetails;
@@ -91,9 +92,9 @@ class Incident extends DataEntry implements IncidentInterface
     /**
      * Incident class constructor
      *
-     * @param array|int|string|DataEntryInterface|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      */
-    public function __construct(array|int|string|DataEntryInterface|null $identifier = null)
+    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false)
     {
         if (!isset($this->meta_columns)) {
             // By default, the Notification object has created_by NOT meta so that it can set it manually

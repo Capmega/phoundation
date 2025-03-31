@@ -44,7 +44,7 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
      *
      * @param array|int|string|DataEntryInterface|null $identifier
      */
-    public function __construct(array|int|string|DataEntryInterface|null $identifier = null)
+    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false)
     {
         $this->min_priority = 0;
         $this->max_priority = 5;

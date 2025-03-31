@@ -53,7 +53,13 @@ trait TraitDataProperties
     {
         if (is_array($this->properties)) {
             if (array_key_exists($key, $this->properties)) {
-                return $this->properties[$key];
+                $return = $this->properties[$key];
+
+                if (is_callable($return)) {
+                    return $return();
+                }
+
+                return $return;
             }
         }
 

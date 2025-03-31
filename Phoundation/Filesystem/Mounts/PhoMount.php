@@ -54,7 +54,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
      * @param IdentifierInterface|array|string|int|false|null $identifier
      * @param PhoRestrictionsInterface|null                   $restrictions
      */
-    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = null, ?PhoRestrictionsInterface $restrictions = null)
+    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false, ?PhoRestrictionsInterface $restrictions = null)
     {
         parent::__construct($identifier);
 

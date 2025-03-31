@@ -137,7 +137,7 @@ class DataEntry extends DataEntryCore
      *
      * @return static
      */
-    public static function new(IdentifierInterface|array|string|int|false|null $identifier = null): static
+    public static function new(IdentifierInterface|array|string|int|false|null $identifier = false): static
     {
         return new static($identifier);
     }
