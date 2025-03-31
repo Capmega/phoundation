@@ -3768,13 +3768,13 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      * The object MUST exist.
      *
      * @param string                                    $class
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      * @param string                                    $method
      *
      * @return static
      * @todo replace method datatype string with an Enum containing only all the possible DataEntry load methods
      */
-    public function sanitizeMakeDataEntry(string $class, IdentifierInterface|array|string|int|null $identifier, string $method = 'load'): static
+    public function sanitizeMakeDataEntry(string $class, IdentifierInterface|array|string|int|false|null $identifier, string $method = 'load'): static
     {
         $this->test_count++;
 

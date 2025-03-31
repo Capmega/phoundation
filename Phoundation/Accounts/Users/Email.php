@@ -139,11 +139,11 @@ class Email extends DataEntry implements EmailInterface
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      *
      * @return static
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier = null): static
+    public function load(IdentifierInterface|array|string|int|false|null $identifier): static
     {
         try {
             return parent::load($identifier);

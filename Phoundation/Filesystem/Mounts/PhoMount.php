@@ -131,7 +131,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
     /**
      * @inheritDoc
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier = null): static
+    public function load(IdentifierInterface|array|string|int|false|null $identifier): static
     {
         $column = static::determineColumn($identifier);
 

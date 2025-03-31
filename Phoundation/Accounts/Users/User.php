@@ -339,11 +339,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     /**
      * Returns a single user object for a single user that has the specified alternate email address.
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      *
      * @return static
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier = null): static
+    public function load(IdentifierInterface|array|string|int|false|null $identifier): static
     {
         try {
             $user = parent::load($identifier);

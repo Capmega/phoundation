@@ -177,7 +177,7 @@ class Notification extends DataEntry implements NotificationInterface
      *
      * @return static
      */
-    public static function new(IdentifierInterface|array|string|int|false|null $identifier = null): static
+    public static function new(IdentifierInterface|array|string|int|false|null $identifier = false): static
     {
         return new static($identifier);
     }

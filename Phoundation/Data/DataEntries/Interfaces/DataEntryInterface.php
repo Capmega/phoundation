@@ -61,11 +61,11 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      *
      * @return static
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier = null): static;
+    public function load(IdentifierInterface|array|string|int|false|null $identifier): static;
 
     /**
      * Returns if this DataEntry validates data before saving
@@ -688,9 +688,9 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
     /**
      * Returns if the meta-system is enabled or disabled for this (type of) DataEntry
      *
-     * @return IdentifierInterface|array|string|int|null
+     * @return IdentifierInterface|array|string|int|false|null
      */
-    public function getIdentifier(): IdentifierInterface|array|string|int|null;
+    public function getIdentifier(): IdentifierInterface|array|string|int|false|null;
 
 
     /**
