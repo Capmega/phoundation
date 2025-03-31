@@ -65,6 +65,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Client;
+use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
@@ -1134,6 +1135,25 @@ class Session implements SessionInterface
     public static function signIn(string $user, string $password, string $user_class = User::class): UserInterface
     {
         try {
+            if (!Csrf::isEnabled()) {
+                // CSRF generally should be turned on, its a bad idea to have it off!
+                if (Core::isProductionEnvironment()) {
+                    // CSRF is off on production environment, this is a really bad idea!
+                    Incident::new()
+                            ->setSeverity(EnumSeverity::high)
+                            ->setType('security')
+                            ->setTitle(ts('CSRF is disabled on production'))
+                            ->setBody(ts('The CSRF protection is disabled on production. This is a security risk and should be enabled immediately'))
+                            ->setNotifyRoles('security')
+                            ->setLog(9)
+                            ->save();
+
+                } else {
+                    // All other environments just get a log warning
+                    Log::warning(ts('CSRF is disabled on production environment, this is generally considered a bad bad idea'));
+                }
+            }
+
             return static::signInWithUserObject(
                 $user_class::authenticate(['email' => $user], $password, EnumAuthenticationAction::signin)
             );
