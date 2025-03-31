@@ -77,6 +77,7 @@ use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Uploads\UploadHandlers;
 use Throwable;
 
+
 class Core implements CoreInterface
 {
     use TraitGetInstance;
