@@ -71,17 +71,6 @@ class Toast extends WidgetCore implements ToastInterface
     /**
      * Renders and returns the HTML and JavaScript to display a toast
      *
-     * @return string|null
-     */
-    public function render(): ?string
-    {
-        return parent::render();
-    }
-
-
-    /**
-     * Renders and returns the HTML and JavaScript to display a toast
-     *
      * @return array
      */
     public function renderArray(): array

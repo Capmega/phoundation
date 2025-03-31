@@ -101,7 +101,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
      *
      * @return static
      */
-    public function setMetaVisible(bool $meta_visible): static
+    public function setRenderMeta(bool $meta_visible): static
     {
         $this->o_definitions->setRenderMeta($meta_visible);
         return $this;
@@ -749,7 +749,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
      *
      * @return bool
      */
-    public function getMetaVisible(): bool
+    public function getRenderMeta(): bool
     {
         return $this->o_definitions->getRenderMeta();
     }

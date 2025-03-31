@@ -17,17 +17,13 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html;
 
 use DateTime;
-use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\CsrfValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
-use Throwable;
 
 
 class Csrf
@@ -46,6 +42,17 @@ class Csrf
 
 
     /**
+     * Returns true if CSRF is enabled
+     *
+     * @return bool
+     */
+    public static function isEnabled(): bool
+    {
+        return config()->getBoolean('security.web.csrf.enabled', true);
+    }
+
+
+    /**
      * Returns a CSRF hidden input HTML element if CSRF is enabled
      *
      * @note Will only return the hidden __csrf variable if the specified method is POST (default)
@@ -57,7 +64,7 @@ class Csrf
     public static function getHiddenElement(string $method = 'post'): ?string
     {
         if ($method === 'post') {
-            if (config()->getBoolean('security.web.csrf.enabled', true)) {
+            if (Csrf::isEnabled()) {
                 return '<input type="hidden" name="__csrf" value="' . Csrf::get() . '">';
             }
         }
