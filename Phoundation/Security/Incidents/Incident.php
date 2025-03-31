@@ -40,8 +40,10 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryCreatedBy;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryTitle;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryType;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUrl;
+use Phoundation\Data\Enums\EnumPoadTypes;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Poad\Poad;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\PhoException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -214,11 +216,8 @@ class Incident extends DataEntry implements IncidentInterface
                      ->setSeverity(EnumSeverity::severe)
                      ->setBody($e->getMessage())
                      ->setDetails([
-                         'exception' => [
-                             'message'   => $e->getMessage(),
-                             'backtrace' => $e->getTrace(),
-                         ],
-                         'details' => Core::getProcessDetails()
+                         'exception' => Poad::generateString(['message'   => $e->getMessage(), 'backtrace' => $e->getTrace()], PhoException::class, EnumPoadTypes::object, null, true),
+                         'details'   => Core::getProcessDetails()
                      ]);
             }
         }
