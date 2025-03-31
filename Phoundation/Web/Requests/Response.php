@@ -2114,7 +2114,7 @@ class Response implements ResponseInterface
      * @return void
      * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-         * @package   http
+     * @package   http
      * @see       Http::cache()
      * @version   2.5.92: Added function and documentation
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -2136,5 +2136,29 @@ class Response implements ResponseInterface
     public static function getFileUploadHandlersObject(): UploadHandlersInterface
     {
         return Request::getFileUploadHandlersObject();
+    }
+
+
+    /**
+     * Adds JavaScript object to the "window.onbeforeunload" event that will be executed upon leaving the page
+     *
+     * @param Script $script
+     *
+     * @return void
+     */
+    public static function addBeforeUnloadScriptObject(Script $script): void
+    {
+        $script->setJavascriptWrapper(EnumJavascriptWrappers::onbeforeunload);
+
+        switch ($script->getAttach()) {
+            case EnumAttachJavascript::header:
+            case EnumAttachJavascript::footer:
+                break;
+
+            default:
+                $script->setAttach(EnumAttachJavascript::footer);
+        }
+
+        $script->render();
     }
 }

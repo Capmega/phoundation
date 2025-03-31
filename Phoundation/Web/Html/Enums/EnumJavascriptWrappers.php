@@ -18,10 +18,11 @@ namespace Phoundation\Web\Html\Enums;
 
 enum EnumJavascriptWrappers: string
 {
-    case dom_content = 'dom_content'; // Wrap it within the window DOMContentLoaded event
-    case function    = 'function';    // Wrap it within a self-executing function
-    case window      = 'window';      // Wrap it within the window load event
-    case ready       = 'ready';       // Wrap it with a jQuery document.ready
-    case none        = 'none';        // No wrapping
+    case dom_content    = 'dom_content';    // Wrap it within the window DOMContentLoaded event
+    case function       = 'function';       // Wrap it within a self-executing function
+    case window         = 'window';         // Wrap it within the window load event
+    case ready          = 'ready';          // Wrap it with a jQuery document.ready
+    case onbeforeunload = 'onbeforeunload'; // Wrap it with a window.onbeforeunload event
+    case none           = 'none';           // No wrapping
 }
 

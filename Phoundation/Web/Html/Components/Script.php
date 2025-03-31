@@ -506,6 +506,13 @@ class Script extends Element implements ScriptInterface
                            });' . PHP_EOL;
                 break;
 
+            case EnumJavascriptWrappers::onbeforeunload:
+                // Wrap it within the window "onbeforeupload" event
+                $render = 'window.onbeforeunload = function (e) {
+                              ' . $this->content . '
+                           };' . PHP_EOL;
+                break;
+
             case EnumJavascriptWrappers::none:
                 // No wrapping
                 $render = $this->content . PHP_EOL;

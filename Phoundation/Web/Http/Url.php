@@ -1513,4 +1513,17 @@ class Url implements UrlInterface
 
         return $this;
     }
+
+
+    /**
+     * Returns true if the current URL has the specified domain
+     *
+     * @param string|null $domain
+     *
+     * @return bool
+     */
+    public function hasDomain(?string $domain = null): bool
+    {
+        return $domain === parse_url($this->source, PHP_URL_HOST);
+    }
 }
