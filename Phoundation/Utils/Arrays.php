@@ -3662,7 +3662,7 @@ class Arrays extends Utils
     /**
      * Separates an array of keys that contain a prefix into sub-arrays where the prefix is the key
      *
-     * @param array  $source
+     * @param array|null  $source
      * @param string $separator
      * @param int $non_prefix_action        How to handle keys that do not contain the specified separator and whose
      *                                      prefix cannot be determined. Must be one of:
@@ -3673,9 +3673,13 @@ class Arrays extends Utils
      *
      * @return array
      */
-    public static function groupByPrefix(array $source, string $separator = '_', #[ExpectedValues(values: [self::GROUP_BY_NULL, self::GROUP_BY_DROP, self::GROUP_BY_EXCEPTION, self::NO_GROUP_BY])] int $non_prefix_action = self::NO_GROUP_BY): array
+    public static function groupByPrefix(?array $source = null, string $separator = '_', #[ExpectedValues(values: [self::GROUP_BY_NULL, self::GROUP_BY_DROP, self::GROUP_BY_EXCEPTION, self::NO_GROUP_BY])] int $non_prefix_action = self::NO_GROUP_BY): array
     {
         $return = [];
+
+        if (empty($source)) {
+            return $return;
+        }
 
         foreach ($source as $key => $value) {
             if (str_contains((string) $key, $separator) and (!str_starts_with($key, $separator))) {
