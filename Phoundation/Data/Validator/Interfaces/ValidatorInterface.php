@@ -811,11 +811,12 @@ interface ValidatorInterface extends IteratorBaseInterface
     /**
      * Validates if the selected field is a valid email address
      *
-     * @param int|null $max_characters
+     * @param string|null $domain
+     * @param int|null    $max_characters
      *
      * @return static
      */
-    public function isUrl(?int $max_characters = 2048): static;
+    public function isUrl(?string $domain = null, ?int $max_characters = 2048): static;
 
     /**
      * Validates if the selected field is a valid domain name

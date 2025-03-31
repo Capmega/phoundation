@@ -3590,11 +3590,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Returns true if this object has the specified status
      *
-     * @param string $status
+     * @param string|null $status
      *
      * @return bool
      */
-    public function hasStatus(string $status): bool
+    public function hasStatus(?string $status): bool
     {
         return $status === $this->getTypesafe('string', 'status');
     }

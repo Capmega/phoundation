@@ -3246,15 +3246,16 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * Validates if the selected field is a valid email address
      *
-     * @param int|null $max_characters
+     * @param string|null $domain
+     * @param int|null    $max_characters
      *
      * @return static
      */
-    public function isUrl(?int $max_characters = 2048): static
+    public function isUrl(?string $domain = null, ?int $max_characters = 2048): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($max_characters) {
+        return $this->validateValues(function (&$value) use ($max_characters, $domain) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($max_characters);
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -3266,10 +3267,13 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                 if (str_contains($value, ' ')) {
                     // Spaces in URL's are common but will make the URL fail, auto replace with + and retry
                     $value = str_replace(' ', '+', $value);
+                    $url   = Url::new($value);
 
-                    if (Url::new($value)->isValid()) {
-                        // Now we're good!
-                        return;
+                    if ($url->isValid()) {
+                        if ($url->hasDomain($domain)) {
+                            // Now we're good!
+                            return;
+                        }
                     }
                 }
 
