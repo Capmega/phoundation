@@ -1179,11 +1179,11 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     /**
      * Creates a new DataEntry object and returns it
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      *
      * @return DataEntryInterface
      */
-    protected function loadObject(IdentifierInterface|array|string|int|null $identifier = null): DataEntryInterface
+    protected function loadObject(IdentifierInterface|array|string|int|false|null $identifier = false): DataEntryInterface
     {
         return $this->getAcceptedDataType()::new()
                                            ->setDebug($this->debug)

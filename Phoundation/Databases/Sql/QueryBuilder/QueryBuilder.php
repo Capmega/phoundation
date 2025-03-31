@@ -270,11 +270,11 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      *
      * @note Will cause an exception if the parent has not been set
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      *
      * @return static
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier = null): static
+    public function load(IdentifierInterface|array|string|int|false|null $identifier): static
     {
         if (empty($this->parent)) {
             throw new OutOfBoundsException(tr('Cannot load parent data from query, no parent has been specified'));

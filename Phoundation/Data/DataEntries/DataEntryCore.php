@@ -351,7 +351,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return static
      */
-    public function initialize(IdentifierInterface|array|string|int|false|null $identifier = null): static
+    public function initialize(IdentifierInterface|array|string|int|false|null $identifier = false): static
     {
         if ($this->debug) {
             Log::debug('INITIALIZING CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($identifier) . '"', 10, echo_header: false);
@@ -562,11 +562,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Returns either the specified valid column, or if empty, a default column
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      *
      * @return string|null
      */
-    protected static function determineColumn(IdentifierInterface|array|string|int|null $identifier): ?string
+    protected static function determineColumn(IdentifierInterface|array|string|int|false|null $identifier): ?string
     {
         if (!$identifier) {
             // No identifier specified, this is just an empty DataEntry object
@@ -1104,17 +1104,16 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or NULL if NULL
      * identifier was specified
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      *
      * @return static|null
      */
-    public function loadOrInitialize(IdentifierInterface|array|string|int|null $identifier = null): ?static
+    public function loadOrInitialize(IdentifierInterface|array|string|int|false|null $identifier = false): ?static
     {
         try {
             return $this->load($identifier);
 
         } catch (DataEntryNotExistsException) {
-show($identifier);
             // This entry doesn't yet exist! Ignore, and just presume we want to make THIS particular entry.
             return $this->initializeSource($identifier);
         }
@@ -1125,11 +1124,11 @@ show($identifier);
      * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or NULL if NULL
      * identifier was specified
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      *
      * @return static|null
      */
-    public function loadOrNull(IdentifierInterface|array|string|int|null $identifier = null): ?static
+    public function loadOrNull(IdentifierInterface|array|string|int|false|null $identifier = false): ?static
     {
         if ($this->identifiersAreNull($identifier)) {
             return null;
@@ -1143,11 +1142,11 @@ show($identifier);
      * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or the current
      * object
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      *
      * @return static
      */
-    public function loadOrThis(IdentifierInterface|array|string|int|null $identifier = null): static
+    public function loadOrThis(IdentifierInterface|array|string|int|false|null $identifier = false): static
     {
         if ($this->identifiersAreNull($identifier)) {
             return $this;
@@ -1161,11 +1160,11 @@ show($identifier);
      * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or the current
      * object
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      *
      * @return static
      */
-    public function loadOrThisInitialize(IdentifierInterface|array|string|int|null $identifier = null): static
+    public function loadOrThisInitialize(IdentifierInterface|array|string|int|false|null $identifier = false): static
     {
         try {
             return $this->loadOrThis($identifier);
@@ -1181,11 +1180,11 @@ show($identifier);
      * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or the current
      * object
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      *
      * @return static|null
      */
-    public function loadOrNullInitialize(IdentifierInterface|array|string|int|null $identifier = null): ?static
+    public function loadOrNullInitialize(IdentifierInterface|array|string|int|false|null $identifier = false): ?static
     {
         try {
             return $this->loadOrNull($identifier);
@@ -1235,11 +1234,11 @@ show($identifier);
      * @note The test to see if a DataEntry object exists in the database can be either DataEntry::isNew() or
      *       DataEntry::getId(), which should return a valid database id
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      *
      * @return static
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier = null): static
+    public function load(IdentifierInterface|array|string|int|false|null $identifier): static
     {
         if ($this->debug) {
             Log::debug('TRY LOADING CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($identifier) . '"', 10, echo_header: false);
@@ -1315,12 +1314,12 @@ show($identifier);
      * Returns the specified columns from the DataEntry object matching the specified identifier
      * (MUST exist in the database)
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      * @param array|string                              $columns
      *
      * @return static
      */
-    public function loadColumns(IdentifierInterface|array|string|int|null $identifier = null, array|string $columns = 'id'): static
+    public function loadColumns(IdentifierInterface|array|string|int|false|null $identifier = false, array|string $columns = 'id'): static
     {
         $columns = Arrays::force($columns);
 
@@ -2869,11 +2868,11 @@ show($identifier);
     /**
      * Returns if either $identifiers is NULL, or $identifiers contains an array with only NULL values
      *
-     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param IdentifierInterface|array|string|int|false|null $identifiers
      *
      * @return bool
      */
-    protected static function identifiersAreNull(IdentifierInterface|array|string|int|null $identifiers): bool
+    protected static function identifiersAreNull(IdentifierInterface|array|string|int|false|null $identifiers): bool
     {
         if ($identifiers === null) {
             return true;

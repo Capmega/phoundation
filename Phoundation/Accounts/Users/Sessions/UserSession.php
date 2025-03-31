@@ -48,7 +48,7 @@ class UserSession implements UserSessionInterface
      * @param string|null $identifier
      * @param bool        $exception
      */
-    public function __construct(?string $identifier = null, bool $exception = true)
+    public function __construct(?string $identifier = false, bool $exception = true)
     {
         if (empty($identifier)) {
             // Don't load any session data at all

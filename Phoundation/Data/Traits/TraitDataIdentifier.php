@@ -25,26 +25,26 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 trait TraitDataIdentifier
 {
     /**
-     * Tracks if the meta-system is enabled or disabled for this (type of) DataEntry
+     * Tracks a DataEntry type identifier
      *
-     * @var array|null $identifier
+     * @var IdentifierInterface|array|string|int|false|null $identifier
      */
-    protected array|null $identifier = null;
+    protected IdentifierInterface|array|string|int|false|null $identifier = false;
 
 
     /**
-     * Returns if the meta-system is enabled or disabled for this (type of) DataEntry
+     * Returns a DataEntry type identifier
      *
-     * @return array|null
+     * @return IdentifierInterface|array|string|int|false|null
      */
-    public function getIdentifier(): array|null
+    public function getIdentifier(): IdentifierInterface|array|string|int|false|null
     {
         return $this->identifier;
     }
 
 
     /**
-     * Sets if the meta-system is enabled or disabled for this (type of) DataEntry
+     * Sets a DataEntry type identifier
      *
      * @param IdentifierInterface|array|string|int|false|null $identifier
      *

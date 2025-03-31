@@ -51,7 +51,7 @@ class Plugin extends DataEntry implements PluginInterface
     }
 
 
-    public function __construct(IdentifierInterface|false|array|int|string|null $identifier = null)
+    public function __construct(IdentifierInterface|false|array|int|string|null $identifier = false)
     {
         $this->setRestrictions(PhoRestrictions::newReadonlyObject(DIRECTORY_ROOT . 'Plugins'));
 
@@ -122,12 +122,12 @@ class Plugin extends DataEntry implements PluginInterface
      *       returned class will be Plugins\Phoundation\Phoundation\Library\Plugin, instead of
      *       Phoundation\Core\Plugins\Plugin
      *
-     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      * @param bool                                      $load_plugin_file
      *
      * @return static
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier = null, bool $load_plugin_file = true): static
+    public function load(IdentifierInterface|array|string|int|false|null $identifier = false, bool $load_plugin_file = true): static
     {
         $plugin = parent::load($identifier);
         $file   = DIRECTORY_ROOT . $plugin->getDirectoryObject() . 'Library/Plugin.php';
