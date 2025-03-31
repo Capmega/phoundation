@@ -1546,8 +1546,8 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
 
         // Place source in a validator
         $validator = Validator::pick($source);
-        $source    = Arrays::groupByPrefix($source, non_prefix_action: Arrays::GROUP_BY_DROP);
-
+        $source    = Arrays::groupByPrefix($validator->getSource(), non_prefix_action: Arrays::GROUP_BY_DROP);
+        
         // Apply will first validate, so we know ALL has been validated before we're saving
         foreach ($source as $data_entry_id => $data_entry_source) {
             $this->get($data_entry_id)->apply(true, $data_entry_source);
