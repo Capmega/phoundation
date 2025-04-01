@@ -936,7 +936,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         if (in_array($key, $this->meta_columns)) {
             if ($this->debug) {
                 Log::debug('NOT SETTING "' . Strings::fromReverse(static::class, '\\') . '::$' . $key . ', IT IS META', 10, echo_header: false);
-                Log::printr($this->definitions->getSourceKeys());
+                Log::printr($this->getDefinitionsObject()->getSourceKeys());
             }
 
             return $this;
@@ -944,7 +944,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         // If the key is defined as readonly or disabled, it cannot be updated unless it's a new object or a
         // static value.
-        $definition = $this->definitions->get($key);
+        $definition = $this->getDefinitionsObject()->get($key);
 
         // If a column is ignored, we won't update anything
         if ($definition->getIgnored()) {
@@ -1054,7 +1054,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // Initialize all columns that are NOT the ID column for this DataEntry object
             foreach($identifier as $column => $value) {
                 if ($column !== static::getIdColumn()) {
-                    $this->setColumnValueWithObjectSetter($column, $value, false, $this->definitions->get($column));
+                    $this->setColumnValueWithObjectSetter($column, $value, false, $this->getDefinitionsObject()->get($column));
                 }
             }
 
@@ -2128,7 +2128,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 ]), $e)->setData([
                     'source'      => $this->source,
                     'new_source'  => $source,
-                    'definitions' => $this->definitions->getSourceKeys()
+                    'definitions' => $this->getDefinitionsObject()->getSourceKeys()
                 ]);
             }
         }
@@ -2163,7 +2163,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
          * 2) This method was called with the $directly flag
          * 3) If this specific column has no direct methods defined and updates directly
          */
-        if (!static::requireDefinitionsMethods() or $directly or $this->definitions->get($column)?->getDirectUpdate()) {
+        if (!static::requireDefinitionsMethods() or $directly or $this->getDefinitionsObject()->get($column)?->getDirectUpdate()) {
             // Store data directly, bypassing the set method for this key
             $this->set($value, $column);
 
@@ -2177,7 +2177,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
             try {
-                if ($this->definitions->get($column)->getContainsData()) {
+                if ($this->getDefinitionsObject()->get($column)->getContainsData()) {
                     if ($this->debug) {
                         Log::debug('SET "' . Strings::fromReverse(static::class, '\\') . '::$' . $column . '" using ' . Strings::fromReverse(static::class, '\\') . '::' . $method . '() ' . (method_exists($this, $method) ? '(exists)' : '(NOT exists)') . ' TO "' . Strings::log($value) . ' [' . gettype($value) . ']"', 10, echo_header: false);
                     }
@@ -2254,8 +2254,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         // Convert underscore to camelcase
         // Remove the prefix from the column
-        if ($this->definitions->getPrefix()) {
-            $column = Strings::from($column, $this->definitions->getPrefix());
+        if ($this->getDefinitionsObject()->getPrefix()) {
+            $column = Strings::from($column, $this->getDefinitionsObject()->getPrefix());
         }
 
         $return = explode('_', $column);
@@ -2541,7 +2541,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         $return = [];
         $source = $validator->getSource();
-        $prefix = $this->definitions->getPrefix();
+        $prefix = $this->getDefinitionsObject()->getPrefix();
 
         foreach ($source as $key => $value) {
             $return[Strings::from($key, $prefix)] = $value;
@@ -2573,7 +2573,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             return $validator->getSource();
         }
 
-        $prefix = $this->definitions->getPrefix();
+        $prefix = $this->getDefinitionsObject()->getPrefix();
 
         // Set ID so that the array validator can do unique lookups, etc.
         // Tell the validator what table this DataEntry is using and get the column prefix so that the validator knows
@@ -2666,7 +2666,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function get(Stringable|string|float|int $key, bool $exception = true): mixed
     {
-        if (!$this->getDefinitionsObject()->keyExists($key)) {
+        if (!$this->definitions->keyExists($key)) {
             if ($exception) {
                 throw new OutOfBoundsException(tr('Specified key ":key" is not defined for the ":class" class DataEntry object', [
                     ':class' => get_class($this),
@@ -3261,15 +3261,15 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // Apply specified definitions as well
             if ($definition instanceof DefinitionInterface) {
                 $definition->setColumn($element_definition->getColumn());
-                $this->definitions->get($element_definition->getColumn())->setSource($definition->getSource());
+                $this->getDefinitionsObject()->get($element_definition->getColumn())->setSource($definition->getSource());
 
             } else {
                 // Merge the specified definitions over the existing one
                 $definition = Arrays::removeKeys($definition, 'column');
-                $rules      = $this->definitions->get($element_definition->getColumn())->getSource();
+                $rules      = $this->getDefinitionsObject()->get($element_definition->getColumn())->getSource();
                 $rules      = array_merge($rules, $definition);
 
-                $this->definitions->get($element_definition->getColumn())->setSource($rules);
+                $this->getDefinitionsObject()->get($element_definition->getColumn())->setSource($rules);
             }
         }
 
@@ -4185,7 +4185,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                             ->setSource($this->source)
                             ->setReadonly($this->readonly)
                             ->setDisabled($this->disabled)
-                            ->setDefinitionsObject($this->getDefinitionsObject());
+                            ->setDefinitionsObject($this->definitions);
     }
 
 
@@ -4246,7 +4246,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             ]));
         }
 
-        $alt = $this->definitions->get($column)->getCliColumn();
+        $alt = $this->getDefinitionsObject()->get($column)->getCliColumn();
         $alt = Strings::until($alt, ' ');
         $alt = trim($alt);
 

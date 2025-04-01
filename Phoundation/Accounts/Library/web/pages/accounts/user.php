@@ -42,16 +42,16 @@ $get = GetValidator::new()
 
 // Get the requested user and modify form design
 $user = User::new()->loadOrThis($get['id']);
-$user->getDefinitionsObject()->setRender('latitude'        , false)
-                             ->setRender('longitude'       , false)
-                             ->setRender('offset_latitude' , false)
-                             ->setRender('offset_longitude', false)
-                             ->setRender('accuracy'        , false)
-                             ->setRender('type'            , false)
-                             ->setRender('keywords'        , false)
-                             ->setRender('is_leader'       , false)
-                             ->setRender('priority'        , false)
-                             ->setRender('data'            , false);
+$user->getDefinitionsObject()->setDefinitionRender('latitude'        , false)
+                             ->setDefinitionRender('longitude'       , false)
+                             ->setDefinitionRender('offset_latitude' , false)
+                             ->setDefinitionRender('offset_longitude', false)
+                             ->setDefinitionRender('accuracy'        , false)
+                             ->setDefinitionRender('type'            , false)
+                             ->setDefinitionRender('keywords'        , false)
+                             ->setDefinitionRender('is_leader'       , false)
+                             ->setDefinitionRender('priority'        , false)
+                             ->setDefinitionRender('data'            , false);
 
 
 if ($user->isNotNew()) {

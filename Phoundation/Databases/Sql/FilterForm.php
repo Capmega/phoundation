@@ -43,9 +43,9 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
         parent::__construct($source);
 
         // Set basic definitions
-        $this->o_definitions->setRender('date_range', false)
-                          ->setRender('users_id'  , false)
-                          ->setRender('status'    , false);
+        $this->o_definitions->setDefinitionRender('date_range', false)
+                            ->setDefinitionRender('users_id'  , false)
+                            ->setDefinitionRender('status'    , false);
 
         $this->o_definitions->add(Definition::new('query')
                                             ->setLabel(tr('Query'))

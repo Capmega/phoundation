@@ -91,7 +91,7 @@ trait TraitDataEntryHostname
         try {
             if ($hostname) {
                 $seo_hostname = Seo::unique(
-                    substr($hostname, 0, $this->definitions->get('hostname')->getMaxlength()),
+                    substr($hostname, 0, $this->getDefinitionsObject()->get('hostname')->getMaxlength()),
                     static::getTable(),
                     $this->getId(false),
                     'seo_hostname'

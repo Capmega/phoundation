@@ -92,7 +92,7 @@ interface DefinitionsInterface extends IteratorInterface
      *
      * @return static
      */
-    public function hide(Stringable|string|float|int $key, bool $exception = true): static;
+    public function hideDefinition(Stringable|string|float|int $key, bool $exception = true): static;
 
 
     /**
@@ -103,7 +103,7 @@ interface DefinitionsInterface extends IteratorInterface
      *
      * @return static
      */
-    public function show(Stringable|string|float|int $key, bool $exception = true): static;
+    public function showDefinition(Stringable|string|float|int $key, bool $exception = true): static;
 
 
     /**
@@ -163,7 +163,7 @@ interface DefinitionsInterface extends IteratorInterface
      *
      * @return static
      */
-    public function setRender(Stringable|string|float|int $key, bool $render, bool $exception = true): static;
+    public function setDefinitionRender(Stringable|string|float|int $key, bool $render, bool $exception = true): static;
 
     /**
      * Direct method to set size for entries
@@ -174,7 +174,7 @@ interface DefinitionsInterface extends IteratorInterface
      *
      * @return static
      */
-    public function setSize(Stringable|string|float|int $key, int $size, bool $exception = true): static;
+    public function setDefinitionSize(Stringable|string|float|int $key, int $size, bool $exception = true): static;
 
     /**
      * Sets if meta-information is visible at all, or not
@@ -194,7 +194,7 @@ interface DefinitionsInterface extends IteratorInterface
      *
      * @return static
      */
-    public function modify(Stringable|string|float|int $key, array $key_values, bool $exception = true): static;
+    public function modifyDefinition(Stringable|string|float|int $key, array $key_values, bool $exception = true): static;
 
     /**
      * Direct method to return weather the specified column renders or not
@@ -224,5 +224,5 @@ interface DefinitionsInterface extends IteratorInterface
      *
      * @return static
      */
-    public function setDisplay(Stringable|string|float|int $key, bool $render, bool $exception = true): static;
+    public function setDefinitionDisplay(Stringable|string|float|int $key, bool $render, bool $exception = true): static;
 }

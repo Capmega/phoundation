@@ -98,7 +98,7 @@ trait TraitDataEntryAlias
                 }
 
                 $seo_alias = Seo::unique(
-                    substr($alias, 0, $this->definitions->get('alias')->getMaxlength()),
+                    substr($alias, 0, $this->getDefinitionsObject()->get('alias')->getMaxlength()),
                     static::getTable(),
                     $this->getId(false),
                     'seo_alias'

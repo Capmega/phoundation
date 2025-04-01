@@ -32,10 +32,10 @@ use Phoundation\Web\Requests\Response;
 
 // Build users filter card
 $filters = AuthenticationsFilterForm::new();
-$filters->getDefinitionsObject()->setRender('users_id', false)
-                                ->setSize('date_range', 4)
-                                ->setSize('status'    , 4)
-                                ->setSize('action'    , 4);
+$filters->getDefinitionsObject()->setDefinitionRender('users_id', false)
+                                ->setDefinitionSize('date_range', 4)
+                                ->setDefinitionSize('status'    , 4)
+                                ->setDefinitionSize('action'    , 4);
 
 $filters_card = Card::new()
                     ->setCollapseSwitch(true)

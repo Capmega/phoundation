@@ -62,7 +62,7 @@ trait TraitDataEntryNameLowercase
             // the entry if it does!
             $name     = strtolower($name);
             $seo_name = Seo::unique(
-                substr($name, 0, $this->definitions->get('name')->getMaxlength()),
+                substr($name, 0, $this->getDefinitionsObject()->get('name')->getMaxlength()),
                 static::getTable(),
                 $this->getId(false),
                 'seo_name'

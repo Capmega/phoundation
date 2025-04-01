@@ -27,9 +27,9 @@ use Phoundation\Web\Requests\Response;
 
 // Build the "filters" card
 $filters = FilterForm::new()->setFilterSpecialUsers(false);
-$filters->getDefinitionsObject()->setRender('date_range', false)
-                                ->setRender('status'    , false)
-                                ->setSize('users_id'    , 12);
+$filters->getDefinitionsObject()->setDefinitionRender('date_range', false)
+                                ->setDefinitionRender('status'    , false)
+                                ->setDefinitionSize('users_id'    , 12);
 
 $user     = $filters->getUserObject();
 $sessions = $user?->getActiveSessions() ?? Iterator::new();

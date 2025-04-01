@@ -35,9 +35,9 @@ use Phoundation\Web\Requests\Response;
 
 // Build filter card
 $filters = FilterForm::new();
-$filters->getDefinitionsObject()->setRender('roles_id', false)
-                                ->setSize('rights_id' , 6)
-                                ->setSize('status'    , 6);
+$filters->getDefinitionsObject()->setDefinitionRender('roles_id', false)
+                                ->setDefinitionSize('rights_id' , 6)
+                                ->setDefinitionSize('status'    , 6);
 
 $filters_card = Card::new()
                ->setCollapseSwitch(true)
