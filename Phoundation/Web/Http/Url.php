@@ -1524,6 +1524,10 @@ class Url implements UrlInterface
      */
     public function hasDomain(?string $domain = null): bool
     {
+        if ($domain === null) {
+            return true;
+        }
+
         return $domain === parse_url($this->source, PHP_URL_HOST);
     }
 }
