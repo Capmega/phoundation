@@ -1513,13 +1513,17 @@ class Request implements RequestInterface
 
             switch (static::getRequestType()) {
                 case EnumRequestTypes::html:
-                    // no break
-
-                case EnumRequestTypes::ajax:
                     if (!static::getSystem()) {
                         // Check if the user has access to the requested page, then check if the user should be force redirected
                         static::hasRightsOrRedirect(static::$o_parameters->getRequiredRights((string) static::$target));
                         Response::checkForceRedirect();
+                    }
+                    break;
+
+                case EnumRequestTypes::ajax:
+                    if (!static::getSystem()) {
+                        // Check if the user has access to the requested page
+                        static::hasRightsOrRedirect(static::$o_parameters->getRequiredRights((string) static::$target));
                     }
 
                     break;
