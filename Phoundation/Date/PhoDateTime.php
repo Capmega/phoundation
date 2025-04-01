@@ -180,6 +180,20 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
+     * Increase this PhoDateTime object by a specified number of days
+     *
+     * @param int $days
+     *
+     * @return static
+     */
+    public function increaseByDays(int $days = 1): static
+    {
+        $this->modify('+' . $days . ' day');
+        return $this;
+    }
+
+
+    /**
      * Returns a new DateTime object for tomorrow
      *
      * @return static
@@ -187,6 +201,20 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
     public function decreaseDay(): static
     {
         $this->modify('-1 day');
+        return $this;
+    }
+
+
+    /**
+     * Decrease this PhoDateTime object by a specified number of days
+     *
+     * @param int $days
+     *
+     * @return static
+     */
+    public function decreaseByDays(int $days = 1): static
+    {
+        $this->modify('-' . $days . ' day');
         return $this;
     }
 
