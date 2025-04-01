@@ -26,6 +26,8 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataDateFormat;
 use Phoundation\Data\Traits\TraitDataRequestMethod;
+use Phoundation\Data\Traits\TraitMethodsGetTypesafe;
+use Phoundation\Data\Traits\TraitMethodsVirtualColumns;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
@@ -51,6 +53,8 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 {
     use TraitDataRequestMethod;
     use TraitDataDateFormat;
+    use TraitMethodsGetTypesafe;
+    use TraitMethodsVirtualColumns;
 
 
     /**
