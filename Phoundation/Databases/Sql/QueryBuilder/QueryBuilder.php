@@ -26,12 +26,15 @@ use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryDefinitionsInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Forms\Interfaces\FilterFormInterface;
 
 
 class QueryBuilder extends QueryObject implements QueryBuilderInterface
 {
     use TraitDataMetaEnabled;
-    use TraitDataFilterForm;
+    use TraitDataFilterForm {
+        setFilterFormObject as protected ___setFilterFormObject;
+    }
     use TraitDataConnector;
 
 
@@ -48,6 +51,21 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      * @var string|null $query
      */
     protected ?string $query = null;
+
+
+    /**
+     * Attaches the filter form object to this query builder for automatic filtering
+     *
+     * @param FilterFormInterface|null $filter_form
+     *
+     * @return static
+     */
+    public function setFilterFormObject(?FilterFormInterface $filter_form): static
+    {
+        $this->___setFilterFormObject($filter_form);
+        $this->filter_form?->applyFiltersToQueryBuilder($this);
+        return $this;
+    }
 
 
     /**
