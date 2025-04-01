@@ -2666,7 +2666,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function get(Stringable|string|float|int $key, bool $exception = true): mixed
     {
-        if (!$this->definitions->keyExists($key)) {
+        if (!$this->getDefinitionsObject()->keyExists($key)) {
             if ($exception) {
                 throw new OutOfBoundsException(tr('Specified key ":key" is not defined for the ":class" class DataEntry object', [
                     ':class' => get_class($this),
@@ -4185,7 +4185,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                             ->setSource($this->source)
                             ->setReadonly($this->readonly)
                             ->setDisabled($this->disabled)
-                            ->setDefinitionsObject($this->definitions);
+                            ->setDefinitionsObject($this->getDefinitionsObject());
     }
 
 

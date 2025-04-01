@@ -1518,6 +1518,7 @@ class Request implements RequestInterface
                         static::hasRightsOrRedirect(static::$o_parameters->getRequiredRights((string) static::$target));
                         Response::checkForceRedirect();
                     }
+
                     break;
 
                 case EnumRequestTypes::ajax:
