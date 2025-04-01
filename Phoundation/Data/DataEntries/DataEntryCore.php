@@ -4208,7 +4208,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                             ->setSource($this->source)
                             ->setReadonly($this->readonly)
                             ->setDisabled($this->disabled)
-                            ->setDefinitionsObject($this->definitions);
+                            ->setDefinitionsObject($this->getDefinitionsObject());
     }
 
 
