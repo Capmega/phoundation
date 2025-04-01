@@ -938,8 +938,8 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
                 ->setType('sysop')
                 ->setTitle(ts('Mobile Billing Reset'))
                 ->setBody(ts('User ":user" performed a truncate on table ":table"', [
-                    'user' => Session::get('user'),
-                    'table' => static::getTable()
+                    ':user'  => Session::getUserObject()->getDisplayName(),
+                    ':table' => static::getTable()
                 ]))
                 ->setNotifyRoles('developer')
                 ->save();
@@ -1547,7 +1547,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
         // Place source in a validator
         $validator = Validator::pick($source);
         $source    = Arrays::groupByPrefix($validator->getSource(), non_prefix_action: Arrays::GROUP_BY_DROP);
-        
+
         // Apply will first validate, so we know ALL has been validated before we're saving
         foreach ($source as $data_entry_id => $data_entry_source) {
             $this->get($data_entry_id)->apply(true, $data_entry_source);
