@@ -1325,7 +1325,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     {
         // Log::debug(static::getTable() . ' > ' . $this->getConnectorObject()?->getDisplayName());
         $this->setIsLoading(true)
-            ->selectQuery($identifiers);
+             ->selectQuery($identifiers);
 
         cache('dataentries')->get($this->getCacheKey(), function ()  use ($identifiers, $only_if_empty) {
             if (empty($this->source)) {

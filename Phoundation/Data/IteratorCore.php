@@ -2037,9 +2037,10 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         $class = $this->ensureInputSelectClass($class);
 
         // Create and return the input select
+        // TODO Change the hard coded "iterator" id and name to something programmable
         return $class::new($this)
-                     ->setId(static::getTable())
-                     ->setName(static::getTable())
+                     ->setId('iterator')
+                     ->setName('iterator')
                      ->setSource($this->source)
                      ->setKeyColumn($key_column)
                      ->setValueColumn($value_column);
