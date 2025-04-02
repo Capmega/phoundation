@@ -126,68 +126,70 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
         $this->setId('filters')
              ->useForm(true)
              ->getForm()
-                ->setRequestMethod($this->request_method)
-                ->setAction(Url::newCurrent());
+                 ->setRequestMethod($this->request_method)
+                 ->setAction(Url::newCurrent());
 
         // Set basic definitions
         $this->o_definitions = Definitions::new()
+                                          ->setReadonly($this->getReadonly())
+                                          ->setDisabled($this->getDisabled())
                                           ->add(Definition::new('date_range')
-                                                        ->setLabel(tr('Date range'))
-                                                        ->setSize(4)
-                                                        ->setOptional(true)
-                                                        ->setElement(EnumElement::select)
-                                                        ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
-                                                            if (empty($this->source[$key])) {
-                                                                if (empty($this->source['date_range'])) {
-                                                                    $source = $this->getDateRangeDefault();
-                                                                    $this->source[$key] = $source[0] . ' - ' . $source[1];
-                                                                }
-                                                            }
+                                                          ->setLabel(tr('Date range'))
+                                                          ->setSize(4)
+                                                          ->setOptional(true)
+                                                          ->setElement(EnumElement::select)
+                                                          ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                                                              if (empty($this->source[$key])) {
+                                                                  if (empty($this->source['date_range'])) {
+                                                                      $source = $this->getDateRangeDefault();
+                                                                      $this->source[$key] = $source[0] . ' - ' . $source[1];
+                                                                  }
+                                                              }
 
-                                                            return InputDateRange::new()
-                                                                                 ->setName($field_name)
-                                                                                 ->useRanges('default')
+                                                              return InputDateRange::new()
+                                                                                   ->setName($field_name)
+                                                                                   ->useRanges('default')
+                                                                                   ->setAutoSubmit(true)
+                                                                                   ->setParentSelector($this->date_range_selector)
+                                                                                   ->setValue($this->source[$key]);
+                                                          })
+                                                          ->addValidationFunction(function (ValidatorInterface $validator) {
+                                                              $validator->isOptional()->isDateRange()->copyToKey('date_range_split');
+                                                          }))
+
+                                          ->add(Definition::new('date_range_split')
+                                                          ->setRender(false)
+                                                          ->addValidationFunction(function (ValidatorInterface $validator) {
+                                                              $validator->isOptional($this->getDateRangeDefault())->sanitizeForceArray(' - ')->eachField()->isDate();
+                                                          }))
+
+                                          ->add(Definition::new('users_id')
+                                                          ->setLabel(tr('User'))
+                                                          ->setSize(4)
+                                                          ->setOptional(true)
+                                                          ->setInputType(EnumInputType::dbid)
+                                                          ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                                                              return Users::new()->getHtmlSelectOld()
+                                                                                 ->setSourceQuery('SELECT    `accounts_users`.`id`, COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `accounts_users`.`first_names`, `accounts_users`.`last_names`)), ""), `accounts_users`.`nickname`, `accounts_users`.`username`, `accounts_users`.`email`, "' . tr('System') . '") AS `name` 
+                                                                                                   FROM      `accounts_users`
+                                                                                                   JOIN      `accounts_users_rights` ON `accounts_users_rights`.`users_id` = `accounts_users`.`id` AND `accounts_users_rights`.`name` = "biller"                                        
+                                                                                                   ' . ($this->filter_special_users ? ' LEFT JOIN `accounts_users_rights` AS `exclude` ON `exclude`.`users_id` = `accounts_users`.`id` AND `exclude`.`name` IN (' . implode(',', Arrays::quote(config()->getArray('accounts.rights.test', ['developer', 'test', 'demo']))) . ') ' : null) . '
+                                                                                                   WHERE     `accounts_users`.`status` IS NULL
+                                                                                                   ' . ($this->filter_special_users ? '  AND     `exclude`.`id` IS NULL' : null) . '
+                                                                                                   ORDER BY  `name`')
                                                                                  ->setAutoSubmit(true)
-                                                                                 ->setParentSelector($this->date_range_selector)
-                                                                                 ->setValue($this->source[$key]);
-                                                        })
-                                                        ->addValidationFunction(function (ValidatorInterface $validator) {
-                                                            $validator->isOptional()->isDateRange()->copyToKey('date_range_split');
-                                                        }))
+                                                                                 ->setName($field_name)
+                                                                                 ->setNotSelectedLabel(tr('All'))
+                                                                                 ->setSelected(isset_get($this->source[$key]));
+                                                          }))
 
-                                        ->add(Definition::new('date_range_split')
-                                                        ->setRender(false)
-                                                        ->addValidationFunction(function (ValidatorInterface $validator) {
-                                                            $validator->isOptional($this->getDateRangeDefault())->sanitizeForceArray(' - ')->eachField()->isDate();
-                                                        }))
-
-                                        ->add(Definition::new('users_id')
-                                                        ->setLabel(tr('User'))
-                                                        ->setSize(4)
-                                                        ->setOptional(true)
-                                                        ->setInputType(EnumInputType::dbid)
-                                                        ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
-                                                            return Users::new()->getHtmlSelectOld()
-                                                                               ->setSourceQuery('SELECT    `accounts_users`.`id`, COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `accounts_users`.`first_names`, `accounts_users`.`last_names`)), ""), `accounts_users`.`nickname`, `accounts_users`.`username`, `accounts_users`.`email`, "' . tr('System') . '") AS `name` 
-                                                                                                 FROM      `accounts_users`
-                                                                                                 JOIN      `accounts_users_rights` ON `accounts_users_rights`.`users_id` = `accounts_users`.`id` AND `accounts_users_rights`.`name` = "biller"                                        
-                                                                                                 ' . ($this->filter_special_users ? ' LEFT JOIN `accounts_users_rights` AS `exclude` ON `exclude`.`users_id` = `accounts_users`.`id` AND `exclude`.`name` IN (' . implode(',', Arrays::quote(config()->getArray('accounts.rights.test', ['developer', 'test', 'demo']))) . ') ' : null) . '
-                                                                                                 WHERE     `accounts_users`.`status` IS NULL
-                                                                                                 ' . ($this->filter_special_users ? '  AND     `exclude`.`id` IS NULL' : null) . '
-                                                                                                 ORDER BY  `name`')
-                                                                               ->setAutoSubmit(true)
-                                                                               ->setName($field_name)
-                                                                               ->setNotSelectedLabel(tr('All'))
-                                                                               ->setSelected(isset_get($this->source[$key]));
-                                                        }))
-
-                                        ->add(Definition::new('status')
-                                                        ->setLabel(tr('Status'))
-                                                        ->setSize(4)
-                                                        ->setOptional(true)
-                                                        ->setElement(EnumElement::select)
-                                                        ->setKey(true, 'auto_submit')
-                                                        ->setDataSource($this->states));
+                                          ->add(Definition::new('status')
+                                                          ->setLabel(tr('Status'))
+                                                          ->setSize(4)
+                                                          ->setOptional(true)
+                                                          ->setElement(EnumElement::select)
+                                                          ->setKey(true, 'auto_submit')
+                                                          ->setDataSource($this->states));
 
         // Auto apply
         $this->applyValidator(self::class);
