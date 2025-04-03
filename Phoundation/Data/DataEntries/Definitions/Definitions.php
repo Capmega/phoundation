@@ -92,7 +92,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      *
      * @param string|null $prefix
      *
-     * @return $this
+     * @return static
      */
     public function setPrefix(?string $prefix): static
     {
@@ -135,15 +135,9 @@ class Definitions extends IteratorCore implements DefinitionsInterface
 
         // Ensure the added Definition has DataEntry and prefix set
         $value->setDataEntryObject($this->o_data_entry)
+              ->setReadonly($value->getReadonly() or $this->getReadonly())
+              ->setDisabled($value->getDisabled() or $this->getDisabled())
               ->setPrefix($this->getPrefix());
-
-        if ($this->readonly) {
-            $value->setReadonly($this->readonly);
-        }
-
-        if ($this->disabled) {
-            $value->setDisabled($this->disabled);
-        }
 
         return $key;
     }

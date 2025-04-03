@@ -63,6 +63,17 @@ trait TraitDataDisabled
 
 
     /**
+     * Returns if this object is disabled or not
+     *
+     * @return bool
+     */
+    public function isDisabled(): bool
+    {
+        return $this->disabled;
+    }
+
+
+    /**
      * Sets if this object is disabled or not
      *
      * @param bool $disabled
