@@ -387,8 +387,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                 // This is a Stringable object
                                                 $o_definition->setDataSource((string)$o_definition->getDataSource());
 
-                                            }
-                                            else {
+                                            } else {
                                                 // The Only possibility left is instanceof PDOStatement
                                                 $o_definition->setDataSource(sql()->getColumn($o_definition->getDataSource(), $execute));
                                             }
@@ -591,16 +590,14 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 ]));
                         }
 
-                    }
-                    elseif ($o_definition->getContent()) {
+                    } elseif ($o_definition->getContent()) {
                         if (is_callable($o_definition->getContent())) {
                             // Component will be generated in a callback
                             if ($o_definition->getHidden()) {
                                 $this->o_rows->add($o_definition, InputHidden::new()
                                                                              ->setName($field_name)
                                                                              ->setValue(Strings::force($source[$column], ' - ')));
-                            }
-                            else {
+                            } else {
                                 $o_component = $o_definition->getContent()($o_definition, $column, $field_name, $source);
 
                                 if ($o_component) {
@@ -619,21 +616,19 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 }
                             }
 
-                        }
-                        else {
+                        } else {
                             // Component has been defined directly
                             $this->o_rows->add($o_definition, $o_definition->getContent());
                         }
 
-                    }
-                    elseif (is_callable($o_definition->getContent())) {
+                    } elseif (is_callable($o_definition->getContent())) {
                         // Content has been specified with a callback
                         if ($o_definition->getHidden()) {
                             $this->o_rows->add($o_definition, InputHidden::new()
                                                                          ->setName($field_name)
                                                                          ->setValue(Strings::force($source[$column], ' - ')));
-                        }
-                        else {
+
+                        } else {
                             $o_component = $o_definition->getContent()($o_definition, $column, $field_name, $source);
 
                             if ($o_component) {
@@ -650,8 +645,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                             }
                         }
 
-                    }
-                    else {
+                    } else {
                         // Content has already been rendered, display it
                         $this->o_rows->add($o_definition, $o_definition->getContent());
                     }
@@ -661,13 +655,13 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                     if (empty($this->o_data_entry)) {
                         throw new FormsException(tr('Failed to render DataEntryForm column ":column"', [
                             ':column' => $column,
-                        ]),                      $e);
+                        ]), $e);
                     }
 
                     throw new FormsException(tr('Failed to render DataEntryForm column ":column" for class ":class"', [
                         ':column' => $column,
                         ':class'  => get_class($this->o_data_entry),
-                    ]),                      $e);
+                    ]), $e);
                 }
             }
 
@@ -679,18 +673,15 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
             if (empty($this->o_data_entry)) {
                 $return = '<div>' . $this->o_rows->render() . '</div>';
 
-            }
-            else {
-                $return = '<div id="' . $this->o_data_entry->getObjectName() . ($this->o_data_entry->getId(false) ? '_' . $this->o_data_entry->getId(false) : null) . '" class="' . $this->o_data_entry->getObjectName() . '">' .
-                    $this->o_rows->render() .
-                    '</div>';
+            } else {
+                $return = '<div id="' . $this->o_data_entry->getObjectName() . ($this->o_data_entry->getId(false) ? '_' . $this->o_data_entry->getId(false) : null) . '" class="' . $this->o_data_entry->getObjectName() . '">
+                              ' .$this->o_rows->render() . '
+                           </div>';
             }
 
             // Add an optional HTML form
             if ($this->form) {
-                $return = $this->form
-                    ->setContent($return)
-                    ->render();
+                $return = $this->form->setContent($return)->render();
             }
 
             return $return;

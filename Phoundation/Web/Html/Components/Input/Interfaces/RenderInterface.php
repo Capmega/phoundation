@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input\Interfaces;
 
+use Phoundation\Data\DataEntries\Exception\DataEntryDisabledException;
+use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Utils\Strings;
 use Stringable;
 
 
@@ -30,4 +34,70 @@ interface RenderInterface extends Stringable
      * @return bool
      */
     public function hasRendered(): bool;
+
+    /**
+     * Throws an exception for the given action if the object is readonly
+     *
+     * @param string $action
+     *
+     * @return static
+     * @throws DataEntryReadonlyException
+     */
+    public function checkReadonly(string $action): static;
+
+    /**
+     * Returns if this object is readonly or not
+     *
+     * @return bool
+     */
+    public function isReadonly(): bool;
+
+    /**
+     * Returns if this object is readonly or not
+     *
+     * @return bool
+     */
+    public function getReadonly(): bool;
+
+    /**
+     * Sets if this object is readonly or not
+     *
+     * @param bool $readonly
+     *
+     * @return static
+     */
+    public function setReadonly(bool $readonly): static;
+
+    /**
+     * Throws an exception for the given action if the object is disabled
+     *
+     * @param string $action
+     *
+     * @return static
+     * @throws DataEntryDisabledException
+     */
+    public function checkDisabled(string $action): static;
+
+    /**
+     * Returns if this object is disabled or not
+     *
+     * @return bool
+     */
+    public function getDisabled(): bool;
+
+    /**
+     * Returns if this object is disabled or not
+     *
+     * @return bool
+     */
+    public function isDisabled(): bool;
+
+    /**
+     * Sets if this object is disabled or not
+     *
+     * @param bool $disabled
+     *
+     * @return static
+     */
+    public function setDisabled(bool $disabled): static;
 }

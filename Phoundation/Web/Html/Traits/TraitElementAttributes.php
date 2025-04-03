@@ -21,7 +21,9 @@ use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataDefinition;
+use Phoundation\Data\Traits\TraitDataDisabled;
 use Phoundation\Data\Traits\TraitDataProperties;
+use Phoundation\Data\Traits\TraitDataReadonly;
 use Phoundation\Data\Traits\TraitDataScripts;
 use Phoundation\Data\Traits\TraitMethodHasRendered;
 use Phoundation\Exception\OutOfBoundsException;
@@ -53,6 +55,8 @@ trait TraitElementAttributes
         getDefinitionObject as protected __getDefinitionObject;
     }
     use TraitDataScripts;
+    use TraitDataReadonly;
+    use TraitDataDisabled;
 
 
     /**
@@ -1037,7 +1041,7 @@ trait TraitElementAttributes
     public function setDisabled(bool $disabled): static
     {
         if ($disabled) {
-            $this->o_classes->add(true, 'disabled');
+            $this->o_classes->add(true, 'disabled', exception: false);
 
         } else {
             $this->o_classes->removeKeys('disabled');
@@ -1070,7 +1074,7 @@ trait TraitElementAttributes
     public function setReadonly(bool $readonly): static
     {
         if ($readonly) {
-            $this->o_classes->add(true, 'readonly');
+            $this->o_classes->add(true, 'readonly', exception: false);
 
         } else {
             $this->o_classes->removeKeys('readonly');
@@ -1275,7 +1279,9 @@ trait TraitElementAttributes
                 $content->addAria($this->getId() ?? $this->getName(), 'described-by');
             }
 
-            return $content->render();
+            return $content->setReadonly($content->getReadonly() or $this->getReadonly())
+                           ->setDisabled($content->getDisabled() or $this->getDisabled())
+                           ->render();
         }
 
          return (string) $content;
@@ -1308,7 +1314,7 @@ trait TraitElementAttributes
                 $this->o_classes->removeKeys('invisible');
 
             } else {
-                $this->o_classes->add(true, 'invisible');
+                $this->o_classes->add(true, 'invisible', exception: false);
             }
         }
 
@@ -1344,7 +1350,7 @@ trait TraitElementAttributes
                 $this->o_classes->removeKeys('d-none');
 
             } else {
-                $this->o_classes->add(true, 'd-none');
+                $this->o_classes->add(true, 'd-none', exception: false);
             }
         }
 

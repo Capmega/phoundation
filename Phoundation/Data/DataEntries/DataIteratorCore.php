@@ -54,6 +54,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Tables\HtmlDataTable;
 use Phoundation\Web\Html\Components\Tables\HtmlTable;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
@@ -70,8 +71,6 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     use TraitDataDebug;
     use TraitDataFilterForm;
     use TraitDataStatusFilter;
-    use TraitDataReadonly;
-    use TraitDataDisabled;
     use TraitDataMetaEnabled;
     use TraitMethodBuildManualQuery;
     use TraitMethodsTableState;

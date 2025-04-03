@@ -54,7 +54,7 @@ interface ButtonsInterface extends ElementsBlockInterface
      *
      * @return array
      */
-    public function getButtons(): array;
+    public function getSource(): array;
 
 
     /**

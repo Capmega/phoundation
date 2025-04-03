@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Audio;
 
-use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataSignal;
 use Phoundation\Data\Traits\TraitDataTimeout;
@@ -120,9 +119,9 @@ class Audio extends PhoFile
 
                 case EnumRequestTypes::admin:
                     Response::addHtmlToPageFooters(\Phoundation\Web\Html\Components\Audio::new()
-                                                                                ->addClasses($class)
-                                                                                ->setFile($this)
-                                                                                ->render());
+                                                                                         ->addClasses($class)
+                                                                                         ->setFile($this)
+                                                                                         ->render());
                     break;
 
                 default:

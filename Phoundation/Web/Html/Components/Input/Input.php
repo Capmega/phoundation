@@ -85,7 +85,8 @@ abstract class Input extends Element implements InputInterface, ValueInterface
     public function setDefinitionObject(?DefinitionInterface $o_definition): static
     {
         // Copy data used for input controls
-        return parent::setDefinitionObject($o_definition)->setHidden($o_definition->getHidden())
+        return parent::setDefinitionObject($o_definition)
+                     ->setHidden($o_definition->getHidden())
                      ->setPlaceholder($o_definition->getPlaceholder())
                      ->setAutoSubmit($o_definition->getAutoSubmit());
     }

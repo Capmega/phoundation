@@ -610,6 +610,8 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
                                             ->setValue($key)
                                             ->setLabel($value)
                                             ->setInline(false)
+                                            ->setReadonly($this->getReadonly())
+                                            ->setDisabled($this->getDisabled())
                                             ->render();
                 }
 
@@ -625,6 +627,8 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
                                              ->setId($this->name . '_' . strtolower((string) $key))
                                              ->setValue($key)
                                              ->setLabel($value)
+                                             ->setReadonly($this->getReadonly())
+                                             ->setDisabled($this->getDisabled())
                                              ->setInline(false);
 
                     if (in_array($key, array_keys($this->selected))) {

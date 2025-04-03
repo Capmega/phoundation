@@ -19,7 +19,9 @@ namespace Phoundation\Web\Html\Pages;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Traits\TraitDataDisabled;
 use Phoundation\Data\Traits\TraitDataIteratorSource;
+use Phoundation\Data\Traits\TraitDataReadonly;
 use Phoundation\Data\Traits\TraitMethodHasRendered;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Csrf;
@@ -33,6 +35,8 @@ class Template implements TemplateInterface
 {
     use TraitDataIteratorSource;
     use TraitMethodHasRendered;
+    use TraitDataReadonly;
+    use TraitDataDisabled;
 
 
     /**

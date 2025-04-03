@@ -50,7 +50,6 @@ use Phoundation\Data\DataEntries\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryException;
 use Phoundation\Data\DataEntries\Exception\DataEntryInvalidCacheException;
 use Phoundation\Data\DataEntries\Exception\DataEntryInvalidIdentifierException;
-use Phoundation\Data\DataEntries\Exception\DataEntryInvalidVirtualConfigurationException;
 use Phoundation\Data\DataEntries\Exception\DataEntryIsNewException;
 use Phoundation\Data\DataEntries\Exception\DataEntryMetaException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNoIdentifierSpecifiedException;
@@ -787,6 +786,19 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
+     * Sets the id field for this DataEntry object
+     *
+     * @param int|null $id
+     *
+     * @return static
+     */
+    protected function setId(?int $id): static
+    {
+        return $this->set($id, 'id');
+    }
+
+
+    /**
      * Returns a database id that can be displayed for users
      *
      * @return string|null
@@ -821,7 +833,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         if ($key) {
             // Test if this key was defined to begin with! If not, throw an exception to clearly explain what's wrong
-            if ($this->definitions->keyExists($key)) {
+            if ($this->getDefinitionsObject()->keyExists($key)) {
                 return $this->getTypesafe('string|float|int|null', static::getUniqueColumn());
             }
 
@@ -917,8 +929,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         // Only save values that are defined for this object
-        if (!$this->definitions->keyExists($key)) {
-            if ($this->definitions->isEmpty()) {
+        if (!$this->getDefinitionsObject()->keyExists($key)) {
+            if ($this->getDefinitionsObject()->isEmpty()) {
                 throw new DataEntryException(tr('The ":class" class has no columns defined yet', [
                     ':class' => get_class($this),
                 ]));
@@ -930,16 +942,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             ]))->setData([
                 'column' => $key
             ]);
-        }
-
-        // Skip all meta-columns like id, created_on, meta_id, etc., etc., etc...
-        if (in_array($key, $this->meta_columns)) {
-            if ($this->debug) {
-                Log::debug('NOT SETTING "' . Strings::fromReverse(static::class, '\\') . '::$' . $key . ', IT IS META', 10, echo_header: false);
-                Log::printr($this->getDefinitionsObject()->getSourceKeys());
-            }
-
-            return $this;
         }
 
         // If the key is defined as readonly or disabled, it cannot be updated unless it's a new object or a
@@ -1566,7 +1568,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 //    public function injectDataEntryValue(string $at_key, string|float|int|null $value, DefinitionInterface $definition, bool $after = true): static
 //    {
 //        $this->source[$definition->getColumn()] = $value;
-//        $this->definitions->spliceByKey($at_key, 0, [$definition->getColumn() => $definition], $after);
+//        $this->getDefinitionsObject()->spliceByKey($at_key, 0, [$definition->getColumn() => $definition], $after);
 //        return $this;
 //    }
 
@@ -2297,7 +2299,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * @return static
      * @throws OutOfBoundsException
      */
-    protected function setMetaData(?array $data = null): static
+    protected function setMetaData(?array $data = null, bool $directly = false): static
     {
         $this->checkDefinitionsObject();
 
@@ -2308,7 +2310,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         } else {
             // Reset meta columns
             foreach ($this->meta_columns as $column) {
-                $this->source[$column] = array_get_safe($data, $column);
+                $this->setColumnValueWithObjectSetter($column, array_get_safe($data, $column), $directly, $this->getDefinitionsObject()->get($column));
             }
         }
 
@@ -2689,7 +2691,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function get(Stringable|string|float|int $key, bool $exception = true): mixed
     {
-        if (!$this->getDefinitionsObject()?->keyExists($key)) {
+        if (!$this->getDefinitionsObject()->keyExists($key)) {
             if ($exception) {
                 throw new OutOfBoundsException(tr('Specified key ":key" is not defined for the ":class" class DataEntry object', [
                     ':class' => get_class($this),
@@ -3234,7 +3236,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $this->source = array_merge($this->source, ($strip_meta ? Arrays::removeKeys($data_entry->getSource(false, false), static::getDefaultMetaColumns()) : $data_entry->getSource(false, false)));
 
         try {
-            $this->definitions->spliceByKey($at_key, 0, $data_entry->getDefinitionsObject()
+            $this->getDefinitionsObject()->spliceByKey($at_key, 0, $data_entry->getDefinitionsObject()
                                                                    ->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null), $after);
         } catch (OutOfBoundsException $e) {
             throw new OutOfBoundsException(tr('Failed to inject DataEntry object at key ":key", the key does not exist', [
@@ -3272,7 +3274,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $this->source[$element_definition->getColumn()] = null;
 
         try {
-            $this->definitions->spliceByKey($at_key, 0, [$element_definition->getColumn() => $element_definition], $after);
+            $this->getDefinitionsObject()->spliceByKey($at_key, 0, [$element_definition->getColumn() => $element_definition], $after);
 
         } catch (OutOfBoundsException $e) {
             throw new OutOfBoundsException(tr('Failed to inject element at key ":key", the key does not exist', [
@@ -3631,28 +3633,30 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function setStatus(?string $status, ?string $comments = null, bool $auto_save = true): static
     {
-        if ($this->hasMetaColumn('status')) {
-            if ($status and (strlen($status) > 32)) {
-                throw new OutOfBoundsException(tr('Cannot set DataEntry ":class" status to ":status", status length cannot be more than 32 characters', [
-                    ':status' => $status,
-                    ':class'  => static::class,
-                ]));
-            }
+        if (!$this->is_loading) {
+            if ($this->hasMetaColumn('status')) {
+                if ($status and (strlen($status) > 32)) {
+                    throw new OutOfBoundsException(tr('Cannot set DataEntry ":class" status to ":status", status length cannot be more than 32 characters', [
+                        ':status' => $status,
+                        ':class'  => static::class,
+                    ]));
+                }
 
-            $this->checkReadonly('set-status "' . $status . '"')
-                 ->saveToCache()
-                 ->source['status'] = $status;
+                $this->checkReadonly('set-status "' . $status . '"')
+                     ->saveToCache()
+                     ->source['status'] = $status;
 
-            $this->setTableState();
+                $this->setTableState();
 
-            if ($auto_save and $this->isNotNew()) {
-                SqlDataEntry::new(sql($this->o_connector), $this)
-                            ->setDebug($this->debug)
-                            ->setStatus($status, $comments);
+                if ($auto_save and $this->isNotNew()) {
+                    SqlDataEntry::new(sql($this->o_connector), $this)
+                                ->setDebug($this->debug)
+                                ->setStatus($status, $comments);
+                }
             }
         }
 
-        return $this;
+        return $this->set($status, 'status');
     }
 
 
@@ -3804,15 +3808,28 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
+     * Sets the created_by field for this DataEntry object
+     *
+     * @param int|null $created_by
+     *
+     * @return static
+     */
+    protected function setCreatedBy(?int $created_by): static
+    {
+        return $this->set($created_by, 'created_by');
+    }
+
+
+    /**
      * Returns the created on value in integer format
      *
      * @note Returns NULL if this class has no support for created_on information or has not been written to disk yet
      *
-     * @return int|null
+     * @return string|int|null
      */
-    public function getCreatedOn(): ?int
+    public function getCreatedOn(): string|int|null
     {
-        return $this->getTypesafe('int', 'created_on');
+        return $this->getTypesafe('string|int', 'created_on');
     }
 
 
@@ -3831,6 +3848,23 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         return new PhoDateTime($created_on);
+    }
+
+
+    /**
+     * Sets the created_on field for this DataEntry object
+     *
+     * @param string|int|null $created_on
+     *
+     * @return static
+     */
+    protected function setCreatedOn(string|int|null $created_on): static
+    {
+        if (is_int($created_on)) {
+            $created_on = PhoDateTime::new($created_on)->format('mysql');
+        }
+
+        return $this->set($created_on, 'created_by');
     }
 
 
@@ -3882,6 +3916,19 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function getMetaId(): ?int
     {
         return $this->getTypesafe('int', 'meta_id');
+    }
+
+
+    /**
+     * Sets the meta_id field for this DataEntry object
+     *
+     * @param int|null $id
+     *
+     * @return static
+     */
+    protected function setMetaId(?int $id): static
+    {
+        return $this->set($id, 'meta_id');
     }
 
 
@@ -4208,7 +4255,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                             ->setSource($this->source)
                             ->setReadonly($this->readonly)
                             ->setDisabled($this->disabled)
-                            ->setDefinitionsObject($this->definitions);
+                            ->setDefinitionsObject($this->getDefinitionsObject());
     }
 
 
@@ -4263,7 +4310,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function getAlternateValidationColumn(string $column): string
     {
-        if (!$this->definitions->keyExists($column)) {
+        if (!$this->getDefinitionsObject()->keyExists($column)) {
             throw new OutOfBoundsException(tr('Specified column name ":column" does not exist', [
                 ':column' => $column,
             ]));

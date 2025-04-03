@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Traits;
 
+use Phoundation\Data\Traits\TraitDataDisabled;
+use Phoundation\Data\Traits\TraitDataReadonly;
 use Phoundation\Data\Traits\TraitDataTarget;
 use Phoundation\Web\Html\Components\Icons\Icons;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
@@ -29,6 +31,8 @@ trait TraitButtonProperties
     use TraitMode;
     use TraitUsesSize;
     use TraitDataTarget;
+    use TraitDataReadonly;
+    use TraitDataDisabled;
 
 
     /**
@@ -136,7 +140,6 @@ trait TraitButtonProperties
     public function setFloating(bool $floating): static
     {
         $this->floating = $floating;
-
         return $this;
     }
 
@@ -162,7 +165,6 @@ trait TraitButtonProperties
     public function setAnchorUrl(Stringable|string|null $anchor_url): static
     {
         $this->setElement('a');
-
         $this->anchor_url  = (string) Url::new($anchor_url)->makeWww();
         $this->button_type = null;
 
@@ -191,7 +193,6 @@ trait TraitButtonProperties
     public function setOutlined(bool $outlined): static
     {
         $this->outlined = $outlined;
-
         return $this;
     }
 
@@ -217,7 +218,6 @@ trait TraitButtonProperties
     public function setBlock(bool $block): static
     {
         $this->block = $block;
-
         return $this;
     }
 
@@ -243,7 +243,6 @@ trait TraitButtonProperties
     public function setFlat(bool $flat): static
     {
         $this->flat = $flat;
-
         return $this;
     }
 
@@ -269,7 +268,6 @@ trait TraitButtonProperties
     public function setRounded(bool $rounded): static
     {
         $this->rounded = $rounded;
-
         return $this;
     }
 
@@ -295,7 +293,6 @@ trait TraitButtonProperties
     public function setWrapping(bool $wrapping): static
     {
         $this->wrapping = $wrapping;
-
         return $this;
     }
 
@@ -307,9 +304,8 @@ trait TraitButtonProperties
      */
     public function render(): ?string
     {
-        $this->resetButtonClasses();
-
-        $this->o_attributes->set($this->button_type?->value, 'type');
+        $this->resetButtonClasses()
+             ->o_attributes->set($this->button_type?->value, 'type');
 
         if ($this->anchor_url) {
             // Use an <a> anchor button
@@ -329,9 +325,9 @@ trait TraitButtonProperties
     /**
      * Set the classes for this button
      *
-     * @return void
+     * @return static
      */
-    protected function resetButtonClasses(): void
+    protected function resetButtonClasses(): static
     {
         // Remove the current button mode
         foreach ($this->o_classes as $class => $value) {
@@ -373,5 +369,7 @@ trait TraitButtonProperties
             $this->addClasses('btn-floating');
             $this->setContent(Icons::new()->setContent($this->content));
         }
+
+        return $this;
     }
 }

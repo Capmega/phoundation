@@ -20,6 +20,7 @@ use Iterator;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\ElementsBlock;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -32,6 +33,8 @@ use Stringable;
 class Buttons extends ElementsBlock implements ButtonsInterface
 {
     use TraitButtonProperties;
+
+
 
     /**
      * If true, the buttons will be grouped in one larger button
@@ -76,15 +79,15 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     /**
      * Adds a single button to button list
      *
-     * @param Button|string|null              $button
-     * @param EnumDisplayMode                 $mode
-     * @param EnumInputType|Stringable|string $type_or_url
-     * @param bool                            $outline
-     * @param bool                            $right
+     * @param ButtonInterface|string|null      $button
+     * @param EnumDisplayMode                  $mode
+     * @param EnumButtonType|Stringable|string $type_or_url
+     * @param bool                             $outline
+     * @param bool                             $right
      *
      * @return static
      */
-    public function addButton(Button|string|null $button, EnumDisplayMode $mode = EnumDisplayMode::primary, EnumButtonType|Stringable|string $type_or_url = EnumButtonType::submit, bool $outline = false, bool $right = false): static
+    public function addButton(ButtonInterface|string|null $button, EnumDisplayMode $mode = EnumDisplayMode::primary, EnumButtonType|Stringable|string $type_or_url = EnumButtonType::submit, bool $outline = false, bool $right = false): static
     {
         if (!$button) {
             // Don't add anything
@@ -92,10 +95,6 @@ class Buttons extends ElementsBlock implements ButtonsInterface
         }
 
         if (is_string($button)) {
-            if ($button === tr('Save')) {
-                $type_or_url = EnumButtonType::submit;
-            }
-
             // Button was specified as string, create a button first
             $button = Button::new()
                             ->setWrapping($this->wrapping)
@@ -112,17 +111,23 @@ class Buttons extends ElementsBlock implements ButtonsInterface
             switch ($type_or_url) {
                 case EnumButtonType::submit:
                     // no break
+
                 case EnumButtonType::button:
                     // no break
+
                 case EnumButtonType::reset:
                     // One of the submit, reset, or button buttons
                     $button->setButtonType($type_or_url);
                     break;
+
                 default:
                     // This is a URL button, place an anchor with href instead
                     $button->setAnchorUrl($type_or_url);
             }
         }
+
+        $button->setReadonly($button->getReadonly() or $this->getReadonly())
+               ->setDisabled($button->getDisabled() or $this->getDisabled());
 
         if (empty($button->getValue())) {
             if (empty($button->getContent())) {
@@ -138,17 +143,6 @@ class Buttons extends ElementsBlock implements ButtonsInterface
         }
 
         return $this;
-    }
-
-
-    /**
-     * Returns the buttons list
-     *
-     * @return array
-     */
-    public function getButtons(): array
-    {
-        return $this->source;
     }
 
 

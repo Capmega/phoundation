@@ -46,8 +46,10 @@ use Phoundation\Data\Interfaces\TreeInterface;
 use Phoundation\Data\Traits\TraitDataCache;
 use Phoundation\Data\Traits\TraitDataCacheKey;
 use Phoundation\Data\Traits\TraitDataColumns;
+use Phoundation\Data\Traits\TraitDataDisabled;
 use Phoundation\Data\Traits\TraitDataFilterForm;
 use Phoundation\Data\Traits\TraitDataName;
+use Phoundation\Data\Traits\TraitDataReadonly;
 use Phoundation\Data\Traits\TraitDataRowCallbacks;
 use Phoundation\Data\Traits\TraitDataParent;
 use Phoundation\Data\Traits\TraitDataRestrictions;
@@ -60,6 +62,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Tables\HtmlDataTable;
 use Phoundation\Web\Html\Components\Tables\HtmlTable;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
@@ -93,6 +96,12 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     }
     use TraitDataName {
         getName as protected __getName;
+    }
+    use TraitDataReadonly {
+        setReadonly as protected __setReadonly;
+    }
+    use TraitDataDisabled {
+        setDisabled as protected __setDisabled;
     }
 
 
@@ -242,10 +251,53 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      */
     public function setParentObject(DataEntryInterface $parent): static
     {
-        // Clear the source to avoid having a parent with the wrong children
-        $this->source = [];
+        if ($this->getReadonly() !== $parent->getReadonly()) {
+            $this->setReadonly($this->getReadonly() or $parent->getReadonly());
+        }
+
+        if ($this->getDisabled() !== $parent->getDisabled()) {
+            $this->setDisabled($this->getDisabled() or $parent->getDisabled());
+        }
 
         return $this->__setParent($parent);
+    }
+
+
+    /**
+     * Sets if this DataIterator (and its entries in its source!) is readonly or not
+     *
+     * @param bool $readonly
+     *
+     * @return static
+     */
+    public function setReadonly(bool $readonly): static
+    {
+        foreach ($this as $entry) {
+            if ($entry instanceof RenderInterface) {
+                $entry->setReadonly($readonly);
+            }
+        }
+
+        return $this->__setReadonly($readonly);
+    }
+
+
+    /**
+     * Sets if this DataIterator (and its entries in its source!) is disabled or not
+     *
+     * @param bool $disabled
+     *
+     * @return static
+     */
+    public function setDisabled(bool $disabled): static
+    {
+        foreach ($this as $entry) {
+            if ($entry instanceof RenderInterface) {
+                $entry->setDisabled($disabled);
+            }
+        }
+
+        return $this->__setDisabled($disabled);
     }
 
 
@@ -2215,7 +2267,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @param int|bool $count
      *
-     * @return $this
+     * @return static
      */
     public function limit(int|bool $count): static
     {
