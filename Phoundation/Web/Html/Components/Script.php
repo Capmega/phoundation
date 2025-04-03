@@ -358,7 +358,7 @@ class Script extends Element implements ScriptInterface
      *
      * @param bool $load_multiple
      *
-     * @return $this
+     * @return static
      */
     public function setLoadMultiple(bool $load_multiple): static
     {

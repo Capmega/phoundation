@@ -206,7 +206,7 @@ throw new UnderConstructionException(tr('Subset is not yet supported for icons')
      *
      * @param string|null $color
      *
-     * @return $this
+     * @return static
      */
     public function setColor(?string $color): static
     {

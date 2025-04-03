@@ -61,8 +61,8 @@ class InputCheckbox extends Input
      */
     public function setReadonly(bool $readonly): static
     {
-               parent::setReadonly($readonly);
-        return parent::setDisabled($readonly);
+        parent::setReadonly($readonly)->disabled = $readonly;
+        return $this;
     }
 
 
@@ -75,8 +75,8 @@ class InputCheckbox extends Input
      */
     public function setDisabled(bool $disabled): static
     {
-               parent::setDisabled($disabled);
-        return parent::setReadonly($disabled);
+        parent::setDisabled($disabled)->readonly = $disabled;
+        return $this;
     }
 
 
@@ -96,7 +96,7 @@ class InputCheckbox extends Input
      *
      * @param bool $before
      *
-     * @return $this
+     * @return static
      */
     public function setLabelBefore(bool $before): static
     {

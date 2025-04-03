@@ -24,6 +24,7 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
+use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabsInterface;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Tabs;
@@ -145,7 +146,8 @@ class Card extends Widget
                 $buttons = Buttons::new()->addButton($buttons);
             }
 
-            $this->buttons = $buttons;
+            $this->buttons = $buttons->setReadonly($this->getReadonly() or $buttons->getReadonly())
+                                     ->setDisabled($this->getDisabled() or $buttons->getDisabled());
         }
 
         return $this;
@@ -292,14 +294,19 @@ class Card extends Widget
     /**
      * Returns extra footer content for the card
      *
-     * @param string|null $footer_content
+     * @param Stringable|string|null $footer_content
      *
      * @return static
      */
-    public function setFooterContent(?string $footer_content): static
+    public function setFooterContent(Stringable|string|null $footer_content): static
     {
-        $this->footer_content = $footer_content;
+        if ($footer_content instanceof ElementInterface) {
+            // Pass readonly / disabled flags
+            $footer_content->setReadonly($this->getReadonly() or $footer_content->getReadonly())
+                           ->setDisabled($this->getDisabled() or $footer_content->getDisabled());
+        }
 
+        $this->footer_content = $footer_content;
         return $this;
     }
 
