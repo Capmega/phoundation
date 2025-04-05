@@ -110,7 +110,7 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
         parent::__construct($source);
 
         // Set default auto close for flash messages
-        $this->setAutoClose(get_null(sessionconfig()->getInteger('web.feedback.messages.auto-close', 15000)));
+        $this->setAutoClose(get_null(config()->getInteger('web.feedback.messages.auto-close', 15000, true)));
     }
 
 

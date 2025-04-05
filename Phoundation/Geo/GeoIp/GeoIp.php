@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Geo\GeoIp;
 
-use Phoundation\Core\Config\Exception\ConfigPathDoesNotExistsException;
+use Phoundation\Accounts\Config\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
@@ -25,7 +25,6 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Geo\GeoIp\Exception\GeoIpException;
 use Phoundation\Geo\GeoIp\Interfaces\GeoIpInterface;
 use Throwable;
-
 
 class GeoIp implements GeoIpInterface
 {
@@ -71,8 +70,8 @@ class GeoIp implements GeoIpInterface
     {
         try {
             $provider = null;
-            $enabled  = config()->get('geo.ip.enabled', true);
-            $provider = config()->get('geo.ip.provider', '', $provider);
+            $enabled  = config()->get('geo.ip.enabled' , true);
+            $provider = config()->get('geo.ip.provider', $provider ?? '');
 
             if (!$enabled) {
                 // GeoIP detection has been disabled

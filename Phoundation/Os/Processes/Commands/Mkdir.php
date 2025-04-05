@@ -34,7 +34,7 @@ class Mkdir extends Command
     public function mkdir(string $file, string|int|null $mode = null): void
     {
         try {
-            $mode = config()->get('filesystem.mode.default.directory', 0750, $mode);
+            $mode = config()->get('filesystem.mode.default.directory', $mode ?? 0750);
             $mode = Strings::fromOctal($mode);
             $this->setCommand('mkdir')
                  ->addArguments([$file, '-p', '-m', $mode])

@@ -18,9 +18,9 @@ namespace Phoundation\Web\Routing;
 
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
-use Phoundation\Core\Config\Config;
-use Phoundation\Core\Config\Exception\ConfigFileDoesNotExistsException;
-use Phoundation\Core\Config\Exception\ConfigParseFailedException;
+use Phoundation\Accounts\Config\Config;
+use Phoundation\Accounts\Config\Exception\ConfigFileDoesNotExistsException;
+use Phoundation\Accounts\Config\Exception\ConfigParseFailedException;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreStartupFailedException;
 use Phoundation\Core\Log\Log;

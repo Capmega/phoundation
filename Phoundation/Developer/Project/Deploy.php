@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Project;
 
-use Phoundation\Core\Config\Config;
+use Phoundation\Accounts\Config\Config;
 use Phoundation\Core\Hooks\Hook;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;

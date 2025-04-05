@@ -18,7 +18,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Date;
 
-use Phoundation\Core\Config\Exception\ConfigurationInvalidException;
+use Phoundation\Accounts\Config\Exception\ConfigurationInvalidException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Date\Exception\UnsupportedDateFormatException;
@@ -26,7 +26,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnsupportedException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
-
 
 class PhoDateFormats
 {
@@ -98,7 +97,7 @@ class PhoDateFormats
      */
     public static function getSupportedPhp(): IteratorInterface
     {
-        return sessionconfig()->getIteratorObject('locale.formats.date', static::$defaults);
+        return config()->getIteratorObject('locale.formats.date', static::$defaults, true);
     }
 
 
@@ -483,7 +482,7 @@ class PhoDateFormats
      */
     public static function getUser1224(): int
     {
-        $format = sessionconfig()->getInteger('formats.date.force1224', 24);
+        $format = config()->getInteger('formats.date.force1224', 24, true);
 
         switch ($format) {
             case '12':

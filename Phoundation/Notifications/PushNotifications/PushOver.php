@@ -29,7 +29,7 @@ class PushOver extends Application implements PushNotificationInterface
      * @param string|null $token
      */
     public function __construct(?string $token = null) {
-        $token = $token ?? sessionconfig()->getString('notifications.push.keys.application', '');
+        $token = $token ?? config()->getString('notifications.push.keys.application', '', true);
 
         if (empty($token)) {
             throw new NotificationsException(tr('Cannot instantiate PushOver object, no aplication key specified or configured in "notifications.push.keys.application"'));

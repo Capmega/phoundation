@@ -302,7 +302,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public static function newFirstDayOfWeek(DateTimeZone|string|null $timezone = null): static
     {
-        return new static(sessionconfig()->getString('datetime.week.start', 'monday') . ' this week', PhoDateTimeZone::new($timezone));
+        return new static(config()->getString('datetime.week.start', 'monday', true) . ' this week', PhoDateTimeZone::new($timezone));
     }
 
 
@@ -315,7 +315,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public static function newLastDayOfWeek(DateTimeZone|string|null $timezone = null): static
     {
-        return new static(sessionconfig()->getString('datetime.week.stop', 'sunday') . ' this week', PhoDateTimeZone::new($timezone));
+        return new static(config()->getString('datetime.week.stop', 'sunday', true) . ' this week', PhoDateTimeZone::new($timezone));
     }
 
 
@@ -406,16 +406,16 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
     {
         switch (strtolower($format)) {
             case 'human_time':
-                return sessionconfig()->getString('locale.dates.formats.human.time', 'H:i:s');
+                return config()->getString('locale.dates.formats.human.time', 'H:i:s', true);
 
             case 'human_date':
-                return sessionconfig()->getString('locale.dates.formats.human.date', PhoDateFormats::getDefaultPhp());
+                return config()->getString('locale.dates.formats.human.date', PhoDateFormats::getDefaultPhp(), true);
 
             case 'human_datetime':
                 // no break
 
             case 'human_date_time':
-                return sessionconfig()->getString('locale.dates.formats.human.datetime', PhoDateTimeFormats::getDefaultPhp());
+                return config()->getString('locale.dates.formats.human.datetime', PhoDateTimeFormats::getDefaultPhp(), true);
 
             case 'iso_date':
                 return 'd-m-Y';

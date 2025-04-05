@@ -18,14 +18,14 @@ namespace Phoundation\Core;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Accounts\Config\Config;
+use Phoundation\Accounts\Config\Exception\ConfigException;
+use Phoundation\Accounts\Config\Exception\ConfigurationInvalidException;
 use Phoundation\Audio\Audio;
 use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\Exception\CliCommandNotFoundException;
 use Phoundation\Cli\Exception\CliNoCommandSpecifiedException;
-use Phoundation\Core\Config\Config;
-use Phoundation\Core\Config\Exception\ConfigException;
-use Phoundation\Core\Config\Exception\ConfigurationInvalidException;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Exception\CoreStartupFailedException;
@@ -40,7 +40,6 @@ use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Modes\Interfaces\ModeInterface;
 use Phoundation\Core\Modes\Mode;
 use Phoundation\Core\Sessions\Session;
-use Phoundation\Core\Sessions\SessionConfig;
 use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
 use Phoundation\Data\Traits\TraitDataStaticIsExecutedPath;
 use Phoundation\Data\Traits\TraitDataStaticReadonly;
@@ -76,7 +75,6 @@ use Phoundation\Web\Requests\Response;
 use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Uploads\UploadHandlers;
 use Throwable;
-
 
 class Core implements CoreInterface
 {
@@ -310,7 +308,6 @@ class Core implements CoreInterface
     {
         define('ENVIRONMENT', $environment);
         Config::setDefaultEnvironment(ENVIRONMENT);
-        SessionConfig::setDefaultEnvironment(ENVIRONMENT);
     }
 
 

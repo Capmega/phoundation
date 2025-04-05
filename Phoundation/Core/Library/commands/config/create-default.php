@@ -15,8 +15,8 @@
 
 declare(strict_types=1);
 
+use Phoundation\Accounts\Config\Config;
 use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Config\Config;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 

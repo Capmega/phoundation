@@ -1,21 +1,23 @@
 <?php
 
 /**
- * Class ConfigReadFailedException
+ * Class ConfigException
  *
- * This exception is thrown when the specified configuration file could not be read
+ * This is the exception for the Phoundation/Core/Config class
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Core
+ * @package   Phoundation\Accounts
  */
 
 
 declare(strict_types=1);
 
-namespace Phoundation\Core\Config\Exception;
+namespace Phoundation\Accounts\Config\Exception;
 
-class ConfigReadFailedException extends ConfigException
+use Phoundation\Core\Exception\CoreException;
+
+class ConfigException extends CoreException
 {
 }

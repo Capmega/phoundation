@@ -25,6 +25,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\Definition;
+use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -459,6 +460,8 @@ class Password extends DataEntry implements PasswordInterface
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isStrongPassword();
                                     }))
+
+                    ->add(DefinitionFactory::newDivider())
 
                     ->add(Definition::new('password')
                                     ->setRender(true)

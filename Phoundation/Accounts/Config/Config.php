@@ -61,26 +61,28 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Core
+ * @package   Phoundation\Accounts
  */
 
 
 declare(strict_types=1);
 
-namespace Phoundation\Core\Config;
+namespace Phoundation\Accounts\Config;
 
 use Exception;
-use Phoundation\Core\Config\Exception\ConfigEmptyException;
-use Phoundation\Core\Config\Exception\ConfigEnvironmentDoesNotExistException;
-use Phoundation\Core\Config\Exception\ConfigException;
-use Phoundation\Core\Config\Exception\ConfigFailedException;
-use Phoundation\Core\Config\Exception\ConfigFileDoesNotExistsException;
-use Phoundation\Core\Config\Exception\ConfigParseFailedException;
-use Phoundation\Core\Config\Exception\ConfigPathDoesNotExistsException;
-use Phoundation\Core\Config\Exception\ConfigReadFailedException;
+use Phoundation\Accounts\Config\Exception\ConfigDataTypeException;
+use Phoundation\Accounts\Config\Exception\ConfigEmptyException;
+use Phoundation\Accounts\Config\Exception\ConfigEnvironmentDoesNotExistException;
+use Phoundation\Accounts\Config\Exception\ConfigException;
+use Phoundation\Accounts\Config\Exception\ConfigFailedException;
+use Phoundation\Accounts\Config\Exception\ConfigFileDoesNotExistsException;
+use Phoundation\Accounts\Config\Exception\ConfigParseFailedException;
+use Phoundation\Accounts\Config\Exception\ConfigPathDoesNotExistsException;
+use Phoundation\Accounts\Config\Exception\ConfigReadFailedException;
+use Phoundation\Accounts\Config\Interfaces\ConfigInterface;
 use Phoundation\Core\Core;
-use Phoundation\Core\Interfaces\ConfigInterface;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Developer\Debug\Debug;
@@ -89,9 +91,11 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Throwable;
+
 
 class Config implements ConfigInterface
 {
@@ -309,14 +313,20 @@ class Config implements ConfigInterface
      * @note If no environment is available (usually during early startup) and static::$allow_no_environment is true,
      *       this method will not throw an exception but will always return the default value instead
      *
-     * @param string|array $path    The key path to search for. This should be specified either as an array with key
-     *                              names or a "." separated string
-     * @param mixed|null   $default The default value to return if no value was found in the configuration files
+     * @param string|array $path                     The key path to search for. This should be specified either as an
+     *                                               array with key names or a "." separated string
+     * @param mixed|null   $default                  The default value to return if the configuration path doesn't
+     *                                               exist. If not specified, or NULL, an exception will be thrown when
+     *                                               the path doesn't exist
+     * @param bool         $allow_user_configuration If true will allow user configuration to override system
+     *                                               configuration
+     * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
+     *                                               cache
      *
      * @return mixed
-     * @throws ConfigPathDoesNotExistsException | ConfigException
+     *
      */
-    public function get(string|array $path = '', mixed $default = null): mixed
+    public function get(string|array $path = '', mixed $default = null, bool $allow_user_configuration = false, bool $use_cache = true): mixed
     {
         if (empty($this->environment)) {
             // We don't really have an environment, don't check configuration
@@ -340,16 +350,52 @@ class Config implements ConfigInterface
             return $default;
         }
 
-        // Do we have cached configuration information?
+        // Is there a cached configuration available?
         $path = Strings::force($path, '.');
 
-        if (array_key_exists($path, $this->cache)) {
+        if ($use_cache and array_key_exists($path, $this->cache)) {
             return $this->cache[$path];
         }
 
         if (!$path) {
             // No path specified, return everything
             return $this->fixKeys($this->data);
+        }
+
+        // Allow user configuration to override system configuration?
+        if ($allow_user_configuration) {
+            if (Core::isReady()) {
+                $data = sql()->getColumn('SELECT `value` FROM `accounts_configurations` WHERE `users_id` = :users_id AND `path` = :path', [
+                    ':users_id' => Session::getUserObject()->getId(),
+                    ':path'     => $path,
+                ]);
+
+                if ($data !== null) {
+                    if ($data !== '') {
+                        // Cache result and return
+                        return $this->cache[$path] = $data;
+                    }
+
+                    config()->deleteUserPath($path);
+
+                    Incident::new()
+                            ->setType('invalid-data')
+                            ->setTitle(tr('Invalid user configuration data'))
+                            ->setBody(tr('Configuration path ":path" for user ":user" contains invalid value ":value". The configuration value will be ignored and has been removed from the database', [
+                                ':path'  => $path,
+                                ':user'  => Session::getUserObject()->getLogId(),
+                                ':value' => $data,
+                            ]))
+                            ->setData([
+                                'path'  => $path,
+                                'value' => $data,
+                                'user'  => Session::getUserObject()->getLogId(),
+                            ])
+                            ->setLog(9)
+                            ->setNotifyRoles('developer')
+                            ->save();
+                    }
+            }
         }
 
         // Replace escaped "." in the path
@@ -410,15 +456,22 @@ class Config implements ConfigInterface
      *
      * @note Will throw a ConfigException if a non-boolean value is returned
      *
-     * @param string|array $path    The configuration path for which the value should be returned
-     * @param bool|null    $default The default value to return if the configuration path does not exist. If not specified, or NULL, a
+     * @param string|array $path                     The configuration path for which the value should be returned
+     * @param bool|null    $default                  The default value to return if the configuration path doesn't
+     *                                               exist. If not specified, or NULL, an exception will be thrown when
+     *                                               the path doesn't exist
+     * @param bool         $allow_user_configuration If true will allow user configuration to override system
+     *                                               configuration
+     * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
+     *                                               cache
      *
-     * @return bool                 The value for the requested path
-     * @throws ConfigPathDoesNotExistsException | ConfigException
+     * @return bool                                  The value for the requested path
+     *
+     * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getBoolean(string|array $path, ?bool $default = null): bool
+    public function getBoolean(string|array $path, ?bool $default = null, bool $allow_user_configuration = false, bool $use_cache = true): bool
     {
-        $return = $this->get($path, $default);
+        $return = $this->get($path, $default, $allow_user_configuration, $use_cache);
 
         try {
             if (is_bool($return)) {
@@ -433,7 +486,7 @@ class Config implements ConfigInterface
                 $this->throwEmptyException($path, 'boolean');
             }
 
-            throw ConfigException::new(tr('The configuration path ":path" should hold a boolean value (Accepted are true, "true", "yes", "y", "1", false, "false", "no", "n", or 1), but has ":value" instead', [
+            throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a boolean value (Accepted are true, "true", "yes", "y", "1", false, "false", "no", "n", or 1), but has ":value" instead', [
                 ':path'  => $path,
                 ':value' => $return,
             ]), $e)->addData([
@@ -448,15 +501,22 @@ class Config implements ConfigInterface
      *
      * @note Will throw a ConfigException if a non-integer value is returned
      *
-     * @param string|array $path
-     * @param int|null     $default
+     * @param string|array $path                     The configuration path for which the value should be returned
+     * @param int|null     $default                  The default value to return if the configuration path doesn't
+     *                                               exist. If not specified, or NULL, an exception will be thrown when
+     *                                               the path doesn't exist
+     * @param bool         $allow_user_configuration If true will allow user configuration to override system
+     *                                               configuration
+     * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
+     *                                               cache
      *
-     * @return int
-     * @throws ConfigPathDoesNotExistsException | ConfigException
+     * @return int                                   The value for the requested path
+     *
+     * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getInteger(string|array $path, ?int $default = null): int
+    public function getInteger(string|array $path, ?int $default = null, bool $allow_user_configuration = false, bool $use_cache = true): int
     {
-        $return = $this->get($path, $default);
+        $return = $this->get($path, $default, $allow_user_configuration, $use_cache);
 
         if (is_numeric_integer($return)) {
             return (int) $return;
@@ -466,7 +526,7 @@ class Config implements ConfigInterface
             $this->throwEmptyException($path, 'integer');
         }
 
-        throw ConfigException::new(tr('The configuration path ":path" should hold an integer value but has ":value" instead', [
+        throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold an integer value but has ":value" instead', [
             ':path'  => $path,
             ':value' => $return,
         ]))->addData([
@@ -481,13 +541,20 @@ class Config implements ConfigInterface
      * @note Will throw an OutOfBoundsException if a non-positive integer default is specified
      * @note Will throw a ConfigException if a non-positive integer value is returned
      *
-     * @param string|array $path
-     * @param int|null     $default
+     * @param string|array $path                     The configuration path for which the value should be returned
+     * @param int|null     $default                  The default value to return if the configuration path doesn't
+     *                                               exist. If not specified, or NULL, an exception will be thrown when
+     *                                               the path doesn't exist
+     * @param bool         $allow_user_configuration If true will allow user configuration to override system
+     *                                               configuration
+     * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
+     *                                               cache
      *
-     * @return int
-     * @throws ConfigPathDoesNotExistsException | ConfigException| OutOfBoundsException
+     * @return int                                   The value for the requested path
+     *
+     * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException | OutOfBoundsException
      */
-    public function getPositiveInteger(string|array $path, ?int $default = null): int
+    public function getPositiveInteger(string|array $path, ?int $default = null, bool $allow_user_configuration = false, bool $use_cache = true): int
     {
         if ($default < 0) {
             throw new OutOfBoundsException(tr('The specified default ":default" for configuration path ":path" should hold a positive integer number but is negative', [
@@ -496,7 +563,7 @@ class Config implements ConfigInterface
             ]));
         }
 
-        $return = static::getInteger($path, $default);
+        $return = static::getInteger($path, $default, $allow_user_configuration, $use_cache);
 
         if ($return >= 0) {
             return $return;
@@ -506,7 +573,7 @@ class Config implements ConfigInterface
             $this->throwEmptyException($path, 'positive integer');
         }
 
-        throw ConfigException::new(tr('The configuration path ":path" should hold a positive integer number but has value ":value"', [
+        throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a positive integer number but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]))->addData([
@@ -521,13 +588,20 @@ class Config implements ConfigInterface
      * @note Will throw an OutOfBoundsException if a non-negative integer default is specified
      * @note Will throw a ConfigException if a non-negative integer value is returned
      *
-     * @param string|array $path
-     * @param int|null     $default
+     * @param string|array $path                     The configuration path for which the value should be returned
+     * @param int|null     $default                  The default value to return if the configuration path doesn't
+     *                                               exist. If not specified, or NULL, an exception will be thrown when
+     *                                               the path doesn't exist
+     * @param bool         $allow_user_configuration If true will allow user configuration to override system
+     *                                               configuration
+     * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
+     *                                               cache
      *
-     * @return int
-     * @throws ConfigPathDoesNotExistsException | ConfigException| OutOfBoundsException
+     * @return int                                   The value for the requested path
+     *
+     * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException | OutOfBoundsException
      */
-    public function getNegativeInteger(string|array $path, ?int $default = null): int
+    public function getNegativeInteger(string|array $path, ?int $default = null, bool $allow_user_configuration = false, bool $use_cache = true): int
     {
         if ($default < 0) {
             throw new OutOfBoundsException(tr('The specified default ":default" for configuration path ":path" should hold a positive integer number but is negative', [
@@ -536,7 +610,7 @@ class Config implements ConfigInterface
             ]));
         }
 
-        $return = static::getInteger($path, $default);
+        $return = static::getInteger($path, $default, $allow_user_configuration, $use_cache);
 
         if ($return <= 0) {
             return $return;
@@ -546,7 +620,7 @@ class Config implements ConfigInterface
             $this->throwEmptyException($path, 'negative integer');
         }
 
-        throw ConfigException::new(tr('The configuration path ":path" should hold a negative integer number but has value ":value"', [
+        throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a negative integer number but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]))->addData([
@@ -561,19 +635,26 @@ class Config implements ConfigInterface
      * @note Will throw an OutOfBoundsException if a non-positive integer default is specified
      * @note Will throw a ConfigException if a non-positive integer value is returned
      *
-     * @param string|array   $path
-     * @param int|float|null $default
+     * @param string|array $path                     The configuration path for which the value should be returned
+     * @param int|null     $default                  The default value to return if the configuration path doesn't
+     *                                               exist. If not specified, or NULL, an exception will be thrown
+     *                                               when the path doesn't exist
+     * @param bool         $allow_user_configuration If true will allow user configuration to override system
+     *                                               configuration
+     * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
+     *                                               cache
      *
-     * @return int
-     * @throws ConfigPathDoesNotExistsException | ConfigException| OutOfBoundsException
+     * @return int                                   The value for the requested path
+     *
+     * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getNatural(string|array $path, int|float|null $default = null): int
+    public function getNatural(string|array $path, int|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): int
     {
         try {
-            return static::getPositiveInteger($path, $default);
+            return static::getPositiveInteger($path, $default, $allow_user_configuration, $use_cache);
 
-        } catch (ConfigException $e) {
-            throw ConfigException::new(tr('The configuration path ":path" should return a natural number', [
+        } catch (ConfigDataTypeException $e) {
+            throw ConfigDataTypeException::new(tr('The configuration path ":path" should return a natural number', [
                 ':path'  => $path,
             ]), $e);
         }
@@ -586,19 +667,26 @@ class Config implements ConfigInterface
      * @note Will throw an OutOfBoundsException if a non-positive integer default is specified
      * @note Will throw a ConfigException if a non-positive integer value is returned
      *
-     * @param string|array   $path
-     * @param int|float|null $default
+     * @param string|array $path                     The configuration path for which the value should be returned
+     * @param int|null     $default                  The default value to return if the configuration path doesn't
+     *                                               exist. If not specified, or NULL, an exception will be thrown
+     *                                               when the path doesn't exist
+     * @param bool         $allow_user_configuration If true will allow user configuration to override system
+     *                                               configuration
+     * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
+     *                                               cache
      *
-     * @return int
-     * @throws ConfigPathDoesNotExistsException | ConfigException| OutOfBoundsException
+     * @return int                                   The value for the requested path
+     *
+     * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getDbId(string|array $path, int|float|null $default = null): int
+    public function getDbId(string|array $path, int|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): int
     {
         try {
-            return static::getPositiveInteger($path, $default);
+            return static::getPositiveInteger($path, $default, $allow_user_configuration, $use_cache);
 
-        } catch (ConfigException $e) {
-            throw ConfigException::new(tr('The configuration path ":path" should return a database id', [
+        } catch (ConfigDataTypeException $e) {
+            throw ConfigDataTypeException::new(tr('The configuration path ":path" should return a database id', [
                 ':path'  => $path,
             ]), $e);
         }
@@ -610,15 +698,22 @@ class Config implements ConfigInterface
      *
      * @note Will throw a ConfigException if a non-float value is returned
      *
-     * @param string|array   $path
-     * @param int|float|null $default
+     * @param string|array   $path                     The configuration path for which the value should be returned
+     * @param int|float|null $default                  The default value to return if the configuration path doesn't
+     *                                                 exist. If not specified, or NULL, an exception will be thrown
+     *                                                 when the path doesn't exist
+     * @param bool           $allow_user_configuration If true will allow user configuration to override system
+     *                                                 configuration
+     * @param bool           $use_cache                If true will allow user configuration to be stored in and read
+     *                                                 from cache
      *
-     * @return int|float
-     * @throws ConfigPathDoesNotExistsException | ConfigException
+     * @return int|float                               The value for the requested path
+     *
+     * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getFloat(string|array $path, int|float|null $default = null): int|float
+    public function getFloat(string|array $path, int|float|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): int|float
     {
-        $return = $this->get($path, $default);
+        $return = $this->get($path, $default, $allow_user_configuration, $use_cache);
 
         if (is_numeric_integer($return)) {
             return (int) $return;
@@ -632,7 +727,7 @@ class Config implements ConfigInterface
             $this->throwEmptyException($path, 'float');
         }
 
-        throw ConfigException::new(tr('The configuration path ":path" should hold a float but has value ":value"', [
+        throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a float but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]))->addData([
@@ -646,22 +741,253 @@ class Config implements ConfigInterface
      *
      * @note Will throw a ConfigException if a non-IteratorInterface value is returned
      *
-     * @param string|array                 $path
-     * @param IteratorInterface|array|null $default
+     * @param string|array                 $path                     The configuration path for which the value should
+     *                                                               be returned
+     * @param IteratorInterface|array|null $default                  The default value to return if the configuration
+     *                                                               path doesn't exist. If not specified, or NULL, an
+     *                                                               exception will be thrown when the path doesn't
+     *                                                               exist
+     * @param bool                         $allow_user_configuration If true will allow user configuration to override
+     *                                                               system configuration
+     * @param bool                         $use_cache                If true will allow user configuration to be stored
+     *                                                               in and read from cache
      *
-     * @return IteratorInterface
-     * @throws ConfigPathDoesNotExistsException | ConfigException
+     * @return IteratorInterface                                     The value for the requested path
+     *
+     * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getIteratorObject(string|array $path, IteratorInterface|array|null $default = null): IteratorInterface
+    public function getIteratorObject(string|array $path, IteratorInterface|array|null $default = null, array|string|null $require_keys = null, bool $allow_user_configuration = false, bool $use_cache = true): IteratorInterface
     {
         try {
-            return new Iterator(static::getArray($path, $default));
+            return new Iterator(static::getArray($path, $default, $require_keys, $allow_user_configuration, $use_cache));
 
-        } catch (ConfigException $e) {
-            throw ConfigException::new(tr('The configuration path ":path" should return an IteratorInterface object', [
+        } catch (ConfigDataTypeException $e) {
+            throw ConfigDataTypeException::new(tr('The configuration path ":path" should return an IteratorInterface object', [
                 ':path'  => $path,
             ]), $e);
         }
+    }
+
+
+    /**
+     * Return configuration ARRAY for the specified key path
+     *
+     * @note Will throw a ConfigException if a non-array value is returned
+     *
+     * @param string|array $path                     The configuration path for which the value should be returned
+     * @param array|null   $default                  The default value to return if the configuration path doesn't
+     *                                               exist. If not specified, or NULL, an exception will be thrown when
+     *                                               the path doesn't exist
+     * @param bool         $allow_user_configuration If true will allow user configuration to override system
+     *                                               configuration
+     * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
+     *                                               cache
+     *
+     * @return array                                 The value for the requested path
+     *
+     * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
+     */
+    public function getArray(string|array $path, array|null $default = null, array|string|null $require_keys = null, bool $allow_user_configuration = false, bool $use_cache = true): array
+    {
+        $return = $this->get($path, $default, $allow_user_configuration, $use_cache);
+
+        if (is_array($return)) {
+            $return = $this->fixKeys($return);
+            $return = $this->checkKeys($path, $return, $require_keys);
+
+            return $return;
+        }
+
+        if (empty($return)) {
+            $this->throwEmptyException($path, 'array');
+        }
+
+        throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold an "array" value but has ":value"', [
+            ':path'  => $path,
+            ':value' => $return,
+        ]))->addData([
+            'value' => $return
+        ]);
+    }
+
+
+    /**
+     * Return configuration STRING for the specified key path
+     *
+     * @note Will throw an exception if a non-string value is returned!
+     *
+     * @param string|array $path                     The configuration path for which the value should be returned
+     * @param string|null  $default                  The default value to return if the configuration path doesn't
+     *                                               exist. If not specified, or NULL, an exception will be thrown when
+     *                                               the path doesn't exist
+     * @param bool         $allow_user_configuration If true will allow user configuration to override system
+     *                                               configuration
+     * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
+     *                                               cache
+     *
+     * @return string                                The value for the requested path
+     *
+     * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
+     */
+    public function getString(string|array $path, string|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): string
+    {
+        $return = $this->get($path, $default, $allow_user_configuration, $use_cache);
+
+        if (is_string($return)) {
+            return $return;
+        }
+
+        if (empty($return)) {
+            $this->throwEmptyException($path, 'string');
+        }
+
+        throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a string but has value ":value"', [
+            ':path'  => $path,
+            ':value' => $return,
+        ]))->addData([
+            'value' => $return
+        ]);
+    }
+
+
+    /**
+     * Return configuration ARRAY or STRING for the specified key path
+     *
+     * @note Will throw an exception if a non-string non-array value is returned!
+     *
+     * @param string|array $path                     The configuration path for which the value should be returned
+     * @param string|null  $default                  The default value to return if the configuration path doesn't
+     *                                               exist. If not specified, or NULL, an exception will be thrown when
+     *                                               the path doesn't exist
+     * @param bool         $allow_user_configuration If true will allow user configuration to override system
+     *                                               configuration
+     * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
+     *                                               cache
+     *
+     * @return array|string                          The value for the requested path
+     *
+     * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
+     */
+    public function getArrayString(string|array $path, string|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): array|string
+    {
+        $return = $this->get($path, $default, $allow_user_configuration, $use_cache);
+
+        if (is_string($return)) {
+            return $return;
+        }
+
+        if (is_array($return)) {
+            return $return;
+        }
+
+        if (empty($return)) {
+            $this->throwEmptyException($path, 'array or string');
+        }
+
+        throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold an array or a string but has value ":value"', [
+            ':path'  => $path,
+            ':value' => $return,
+        ]))->addData([
+            'value' => $return
+        ]);
+    }
+
+
+    /**
+     * Return configuration STRING or BOOLEAN for the specified key path
+     *
+     * @note Will throw an exception if a non-string and non-bool value is returned!
+     *
+     * @note Will automatically convert a variety of values that can be interpreted as boolean, as boolean.
+     *       Converted values: FALSE: FALSE, "false", "no" , "n", "off", "0", 0
+     *                         TRUE : TRUE , "true" , "yes", "y", "on" , "1", 1
+     *
+     * @param string|array     $path                     The configuration path for which the value should be returned
+     * @param string|bool|null $default                  The default value to return if the configuration path doesn't
+     *                                                   exist. If not specified, or NULL, an exception will be thrown
+     *                                                   when the path doesn't exist
+     * @param bool             $allow_user_configuration If true will allow user configuration to override system
+     *                                                   configuration
+     * @param bool             $use_cache                If true will allow user configuration to be stored in and read
+     *                                                   from cache
+     *
+     * @return string|bool                               The value for the requested path
+     *
+     * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
+     */
+    public function getBooleanString(string|array $path, string|bool|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): string|bool
+    {
+        $return = $this->get($path, $default, $allow_user_configuration, $use_cache);
+
+        try {
+            // First try to return boolean. If that fails, we'll try to return a string
+            return Strings::toBoolean($return);
+
+        } catch (OutOfBoundsException $e) {
+            if (is_string($return)) {
+                return $return;
+            }
+
+            // fall through
+        }
+
+        if (empty($return)) {
+            $this->throwEmptyException($path, 'string or boolean');
+        }
+
+        throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a string or a boolean value but has value ":value"', [
+            ':path'  => $path,
+            ':value' => $return,
+        ]), $e)->addData([
+            'value' => $return
+        ]);
+    }
+
+
+    /**
+     * Return configuration STRING or BOOLEAN for the specified key path
+     *
+     * @note Will throw an exception if a non-string and non-bool value is returned!
+     *
+     * @note Will automatically convert a variety of values that can be interpreted as boolean, as boolean.
+     *       Converted values: FALSE: FALSE, "false", "no" , "n", "off", "0", 0
+     *                         TRUE : TRUE , "true" , "yes", "y", "on" , "1", 1
+     *
+     * @param string|array     $path                      The configuration path for which the value should be returned
+     * @param string|bool|null $default                   The default value to return if the configuration path doesn't
+     *                                                    exist. If not specified, or NULL, an exception will be thrown
+     *                                                    when the path doesn't exist
+     * @param bool             $allow_user_configuration  If true will allow user configuration to override system
+     *                                                    configuration
+     * @param bool             $use_cache                 If true will allow user configuration to be stored in and read
+     *                                                    from cache
+     *
+     * @return integer|bool                               The value for the requested path
+     *
+     * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
+     */
+    public function getBooleanInteger(string|array $path, string|bool|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): int|bool
+    {
+        $return = $this->get($path, $default, $allow_user_configuration, $use_cache);
+
+        if (is_bool($return)) {
+            return $return;
+        }
+
+        if (is_int($return)) {
+            return $return;
+        }
+
+        if (empty($return)) {
+            $this->throwEmptyException($path, 'integer or boolean');
+        }
+
+        throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a integer or a boolean value but has value ":value"', [
+            ':path'  => $path,
+            ':value' => $return,
+        ]))->addData([
+            'value' => $return
+        ]);
     }
 
 
@@ -680,150 +1006,6 @@ class Config implements ConfigInterface
             ':path'  => $path,
             ':type'  => $type,
         ]));
-    }
-
-
-    /**
-     * Return configuration ARRAY for the specified key path
-     *
-     * @note Will throw a ConfigException if a non-array value is returned
-     *
-     * @param string|array      $path
-     * @param array|null        $default
-     * @param array|string|null $require_keys
-     *
-     * @return array
-     */
-    public function getArray(string|array $path, array|null $default = null, array|string|null $require_keys = null): array
-    {
-        $return = $this->get($path, $default);
-
-        if (is_array($return)) {
-            $return = $this->fixKeys($return);
-            $return = $this->checkKeys($path, $return, $require_keys);
-
-            return $return;
-        }
-
-        if (empty($return)) {
-            $this->throwEmptyException($path, 'array');
-        }
-
-        throw ConfigException::new(tr('The configuration path ":path" should hold an "array" value but has ":value"', [
-            ':path'  => $path,
-            ':value' => $return,
-        ]))->addData([
-            'value' => $return
-        ]);
-    }
-
-
-    /**
-     * Return configuration STRING for the specified key path
-     *
-     * @note Will throw an exception if a non string value is returned!
-     *
-     * @param string|array $path
-     * @param string|null  $default
-     *
-     * @return string
-     */
-    public function getString(string|array $path, string|null $default = null): string
-    {
-        $return = $this->get($path, $default);
-
-        if (is_string($return)) {
-            return $return;
-        }
-
-        if (empty($return)) {
-            $this->throwEmptyException($path, 'string');
-        }
-
-        throw ConfigException::new(tr('The configuration path ":path" should hold a string but has value ":value"', [
-            ':path'  => $path,
-            ':value' => $return,
-        ]))->addData([
-            'value' => $return
-        ]);
-    }
-
-
-    /**
-     * Return configuration STRING for the specified key path
-     *
-     * @note Will throw an exception if a non string value is returned!
-     *
-     * @param string|array $path
-     * @param string|null  $default
-     *
-     * @return array|string
-     */
-    public function getArrayString(string|array $path, string|null $default = null): array|string
-    {
-        $return = $this->get($path, $default);
-
-        if (is_string($return)) {
-            return $return;
-        }
-
-        if (is_array($return)) {
-            return $return;
-        }
-
-        if (empty($return)) {
-            $this->throwEmptyException($path, 'array or string');
-        }
-
-        throw ConfigException::new(tr('The configuration path ":path" should hold an array or a string but has value ":value"', [
-            ':path'  => $path,
-            ':value' => $return,
-        ]))->addData([
-            'value' => $return
-        ]);
-    }
-
-
-    /**
-     * Return configuration STRING or BOOLEAN for the specified key path
-     *
-     * @note Will throw an exception if a non-string and non-bool value is returned!
-     *
-     * @note Will automatically convert a variety of values that can be interpreted as boolean, as boolean.
-     *       Converted values: FALSE: FALSE, "false", "no" , "n", "off", "0", 0
-     *                         TRUE : TRUE , "true" , "yes", "y", "on" , "1", 1
-     *
-     * @param string|array     $path
-     * @param string|bool|null $default
-     *
-     * @return string|bool
-     */
-    public function getBoolString(string|array $path, string|bool|null $default = null): string|bool
-    {
-        $return = $this->get($path, $default);
-
-        try {
-            // First try to return boolean. If that fails, we'll try to return a string
-            return Strings::toBoolean($return);
-
-        } catch (OutOfBoundsException $e) {
-            if (is_string($return)) {
-                return $return;
-            }
-
-            // fall through
-        }
-
-        if (empty($return)) {
-            $this->throwEmptyException($path, 'string or boolean');
-        }
-
-        throw ConfigException::new(tr('The configuration path ":path" should hold a string or a boolean value but has value ":value"', [
-            ':path'  => $path,
-            ':value' => $return,
-        ]), $e)->addData([
-            'value' => $return
-        ]);
     }
 
 
@@ -1081,6 +1263,56 @@ class Config implements ConfigInterface
         static::save();
 
         return $count;
+    }
+
+
+    /**
+     * Deletes the specified configuration path for the specified user
+     *
+     * @note If no users_id was specified, the current session users id will be used
+     *
+     * @param string   $path
+     * @param int|null $users_id
+     *
+     * @return static
+     */
+    public function deleteUserPath(string $path, ?int $users_id = null): static
+    {
+        sql()->delete('accounts_configurations', [
+            'users_id' => $users_id ?? Session::getUserObject()->getid(),
+            'path'     => $path
+        ]);
+
+        return $this;
+    }
+
+
+    /**
+     * Updates the specified user configuration path to the specified value
+     *
+     * @note If no users_id was specified, the current session users id will be used
+     *
+     * @param mixed    $value
+     * @param string   $path
+     * @param int|null $users_id
+     *
+     * @return static
+     */
+    public function updateUserPath(mixed $value, string $path, ?int $users_id = null): static
+    {
+        if (is_bool($value)) {
+            $value = $value ? 1 : 0;
+        }
+
+        sql()->insert('accounts_configurations', [
+            'users_id'    => $users_id ?? Session::getUserObject()->getid(),
+            'value'       => $value,
+            'path'        => $path,
+        ], [
+            'value'       => $value,
+        ]);
+
+        return $this;
     }
 
 

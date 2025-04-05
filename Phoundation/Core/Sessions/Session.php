@@ -28,6 +28,7 @@ namespace Phoundation\Core\Sessions;
 
 use DateTimeZone;
 use Exception;
+use Phoundation\Accounts\Config\Exception\ConfigException;
 use Phoundation\Accounts\Enums\EnumAuthenticationAction;
 use Phoundation\Accounts\Users\Authentication;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
@@ -37,12 +38,10 @@ use Phoundation\Accounts\Users\Sessions\Interfaces\UserSessionInterface;
 use Phoundation\Accounts\Users\Sessions\UserSession;
 use Phoundation\Accounts\Users\SignInKey;
 use Phoundation\Accounts\Users\User;
-use Phoundation\Core\Config\Exception\ConfigException;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Sessions\Exception\SessionException;
 use Phoundation\Core\Sessions\Exception\SessionStartFailedException;
-use Phoundation\Core\Sessions\Interfaces\SessionConfigInterface;
 use Phoundation\Core\Sessions\Interfaces\SessionInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryStatusException;
@@ -74,7 +73,6 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Plugins\Phoundation\MultiFactorAuthentication\Interfaces\MultiFactorAuthenticationInterface;
 use Throwable;
-
 
 class Session implements SessionInterface
 {
@@ -137,13 +135,6 @@ class Session implements SessionInterface
      * @var string|null $domain
      */
     protected static ?string $domain = null;
-
-    /**
-     * The user session configuration object
-     *
-     * @var SessionConfigInterface $config
-     */
-    protected static SessionConfigInterface $config;
 
     /**
      * Stores the sign-in key, if available
@@ -486,7 +477,7 @@ class Session implements SessionInterface
 
         // Check the cookie domain configuration to see if it's valid.
         // NOTE: In case whitelabel domains are used, $_CONFIG[cookie][domain] must be one of "auto" or ".auto"
-        switch (config()->getBoolString('web.sessions.cookies.domain', '.auto')) {
+        switch (config()->getBooleanString('web.sessions.cookies.domain', '.auto')) {
             case false:
                 // This domain has no cookies
                 break;
@@ -507,11 +498,11 @@ class Session implements SessionInterface
                 // If the configured cookie domain is different from the current domain then all cookie will
                 // inexplicably fail without warning, so this must be detected to avoid lots of hair pulling and
                 // throwing arturo off the balcony incidents :)
-                if (config()->getBoolString('web.sessions.cookies.domain')[0] == '.') {
+                if (config()->getBooleanString('web.sessions.cookies.domain')[0] == '.') {
                     $test = substr(config()->get('web.sessions.cookies.domain'), 1);
 
                 } else {
-                    $test = config()->getBoolString('web.sessions.cookies.domain');
+                    $test = config()->getBooleanString('web.sessions.cookies.domain');
                 }
 
                 if (!str_contains(static::$domain, $test)) {
@@ -522,15 +513,15 @@ class Session implements SessionInterface
                                 ->setRoles('developer')
                                 ->setTitle(tr('Invalid cookie domain'))
                                 ->setMessage(tr('Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', [
-                                    ':domain'         => Strings::ensureStartsNotWith(config()->getBoolString('web.sessions.cookies.domain'), '.'),
-                                    ':cookie_domain'  => config()->getBoolString('web.sessions.cookies.domain'),
+                                    ':domain'         => Strings::ensureStartsNotWith(config()->getBooleanString('web.sessions.cookies.domain'), '.'),
+                                    ':cookie_domain'  => config()->getBooleanString('web.sessions.cookies.domain'),
                                     ':current_domain' => static::$domain,
                                 ]))
                                 ->send();
-                    Response::redirect(PROTOCOL . Strings::ensureStartsNotWith(config()->getBoolString('web.sessions.cookies.domain'), '.'));
+                    Response::redirect(PROTOCOL . Strings::ensureStartsNotWith(config()->getBooleanString('web.sessions.cookies.domain'), '.'));
                 }
 
-                ini_set('session.cookie_domain', config()->getBoolString('web.sessions.cookies.domain'));
+                ini_set('session.cookie_domain', config()->getBooleanString('web.sessions.cookies.domain'));
 
                 unset($test);
                 unset($length);
@@ -565,7 +556,7 @@ class Session implements SessionInterface
      *
      * @return void
      */
-    public static function setIni(): void
+    protected static function setIni(): void
     {
         $handler = config()->getString('web.sessions.handler', 'files');
 
@@ -651,7 +642,7 @@ class Session implements SessionInterface
      *
      * @return bool
      */
-    public static function resume(): bool
+    protected static function resume(): bool
     {
         if (!config()->get('web.sessions.enabled', true)) {
             return false;
@@ -748,10 +739,13 @@ class Session implements SessionInterface
             ]));
         }
 
-        // check and set last activity
-        if (config()->getInteger('web.sessions.cookies.lifetime', 0)) {
+        // Check cookie signout and auto sign out
+        $cookie_signout = config()->getPositiveInteger('web.sessions.cookies.lifetime'      , 0, true);
+        $auto_signout   = config()->getPositiveInteger('web.security.sessions.auto.sign-out', 0, true);
+
+        if ($cookie_signout) {
             // Session cookie timed out?
-            if (isset($_SESSION['last_activity']) and (time() - $_SESSION['last_activity'] > config()->getInteger('web.sessions.cookies.lifetime', 0))) {
+            if (isset($_SESSION['last_activity']) and (($_SESSION['last_activity'] + $cookie_signout) < time())) {
                 // Session expired!
                 session_unset();
                 session_destroy();
@@ -763,6 +757,21 @@ class Session implements SessionInterface
             }
         }
 
+        if ($auto_signout) {
+            if (isset($_SESSION['last_activity']) and (($_SESSION['last_activity'] + $auto_signout) < time())) {
+                $_SESSION['last_activity'] = microtime(true);
+
+                Log::warning(tr('Automatically signing out user ":user" because their session surpassed the auto sign-out time of ":time" seconds', [
+                    ':user' => static::getUserObject()->getLogId(),
+                    ':time' => $auto_signout,
+                ]));
+
+                Response::getFlashMessagesObject()->addWarning(tr('You were signed out automatically because your session timed out'));
+                Response::redirect('signout');
+            }
+        }
+
+        // Update last activity
         $_SESSION['last_activity'] = microtime(true);
 
         // Euro cookie check, can we do cookies at all?
@@ -1418,21 +1427,6 @@ class Session implements SessionInterface
 
 
     /**
-     * Returns the user session configuration object
-     *
-     * @return SessionConfigInterface
-     */
-    public static function getConfig(): SessionConfigInterface
-    {
-        if (empty(static::$config)) {
-            static::$config = new sessionconfig();
-        }
-
-        return static::$config;
-    }
-
-
-    /**
      * Returns true if the specified sign in method is supported
      *
      * @param string $method
@@ -1719,7 +1713,7 @@ class Session implements SessionInterface
 
                 } catch (DataEntryNotExistsException) {
                     // This session key doesn't exist, WTF? If it exists in session, it should exist in the DB. Since it
-                    // does not exist, assume the session contains invalid data. Drop the session
+                    // doesn't exist, assume the session contains invalid data. Drop the session
                     Incident::new()
                             ->setType(tr('Invalid session data'))
                             ->setSeverity(EnumSeverity::medium)
@@ -1824,7 +1818,7 @@ class Session implements SessionInterface
                     Authentication::new()
                                   ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                                   ->setAction(EnumAuthenticationAction::stopimpersonation)
-                                  ->setCreatedBy($_SESSION['user']['id'])
+                                  ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user'), 'id'))
                                   ->setStatus('failed')
                                   ->save();
 
@@ -1832,12 +1826,12 @@ class Session implements SessionInterface
                             ->setType('User impersonation')
                             ->setSeverity(EnumSeverity::low)
                             ->setTitle(tr('User impersonation failure', [
-                                ':id'             => isset_get($_SESSION['user']['id']),
-                                ':impersonate_id' => isset_get($_SESSION['user']['impersonate_id']),
+                                ':id'             => array_get_safe(array_get_safe($_SESSION, 'user'), 'id'),
+                                ':impersonate_id' => array_get_safe(array_get_safe($_SESSION, 'user'), 'impersonate_id'),
                             ]))
                             ->setBody(tr('User impersonation sign out failed users id ":id", impersonate id ":impersonate_id", closing sessions', [
-                                ':id'             => isset_get($_SESSION['user']['id']),
-                                ':impersonate_id' => isset_get($_SESSION['user']['impersonate_id']),
+                                ':id'             => array_get_safe(array_get_safe($_SESSION, 'user'), 'id'),
+                                ':impersonate_id' => array_get_safe(array_get_safe($_SESSION, 'user'), 'impersonate_id'),
                             ]))
                             ->save();
                 }
@@ -1846,7 +1840,7 @@ class Session implements SessionInterface
             Authentication::new()
                           ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                           ->setAction(EnumAuthenticationAction::signout)
-                          ->setCreatedBy($_SESSION['user']['id'])
+                          ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user'), 'id'))
                           ->save();
 
             Incident::new()
@@ -1866,7 +1860,7 @@ class Session implements SessionInterface
 
             Authentication::new()
                           ->setAction(EnumAuthenticationAction::signout)
-                          ->setCreatedBy(isset_get($_SESSION['user']['id']))
+                          ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user'), 'id'))
                           ->setStatus('failed')
                           ->save();
 

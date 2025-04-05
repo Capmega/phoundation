@@ -16,8 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Libraries;
 
+use Phoundation\Accounts\Config\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Cache\Cache;
-use Phoundation\Core\Config\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Core\Core;
 use Phoundation\Core\Libraries\Exception\LibraryMultipleVendorsException;
 use Phoundation\Core\Libraries\Exception\LibraryNotFoundException;

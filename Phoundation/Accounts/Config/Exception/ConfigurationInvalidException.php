@@ -1,21 +1,21 @@
 <?php
 
 /**
- * Class ConfigFileDoesNotExistsException
+ * Class ConfigurationInvalidException
  *
- * This exception is thrown when the specified configuration file does not exist
+ * This exception is thrown when the specified configuration path contains invalid information
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Core
+ * @package   Phoundation\Accounts
  */
 
 
 declare(strict_types=1);
 
-namespace Phoundation\Core\Config\Exception;
+namespace Phoundation\Accounts\Config\Exception;
 
-class ConfigFileDoesNotExistsException extends ConfigException
+class ConfigurationInvalidException extends ConfigException
 {
 }

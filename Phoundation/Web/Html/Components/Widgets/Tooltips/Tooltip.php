@@ -91,11 +91,11 @@ class Tooltip extends Element implements TooltipInterface
         $this->data    = new Iterator();
         $this->element = 'tooltip';
         // Set default values
-        $this->setRenderBefore(sessionconfig()->getBoolean('web.html.tooltips.icon.before', false))
+        $this->setRenderBefore(config()->getBoolean('web.html.tooltips.icon.before', false, true))
              ->setPlacement(EnumTooltipPlacement::right)
-             ->setTriggers(EnumTooltipTrigger::from(sessionconfig()->getString('web.html.tooltips.trigger', 'click')))
-             ->setUseIcon(sessionconfig()->getBoolean('web.html.tooltips.icon.use', false))
-             ->setHtml(sessionconfig()->getBoolean('web.html.tooltips.html', false));
+             ->setTriggers(EnumTooltipTrigger::from(config()->getString('web.html.tooltips.trigger', 'click', true)))
+             ->setUseIcon(config()->getBoolean('web.html.tooltips.icon.use', false, true))
+             ->setHtml(config()->getBoolean('web.html.tooltips.html', false, true));
     }
 
 

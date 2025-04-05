@@ -2885,6 +2885,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setSize(3)
                                     ->setLabel(tr('Locked until')))
 
+                    ->add(DefinitionFactory::newDivider())
+
                     ->add(DefinitionFactory::newEmail()
                                            ->setOptional(true)
                                            ->setSize(3)
@@ -3226,6 +3228,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                         $validator->isPrintable();
                                         //$validator->sanitizeForceArray(' ')->eachField()->isWord()->sanitizeForceString()
                                     }))
+
+                    ->add(DefinitionFactory::newDivider())
 
                     ->add(DefinitionFactory::newUrl('redirect')
                                            // Normal users always start with "/force-password-update.html" URL because they lack a password, but remote users should already have a password.

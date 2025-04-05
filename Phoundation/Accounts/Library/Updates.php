@@ -32,7 +32,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.8.0';
+        return '0.8.1';
     }
 
 
@@ -1276,6 +1276,14 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             if (!$table->columnExists('mfa_timeslice')) {
                 $table->alter()->addColumn('`mfa_timeslice` bigint NULL DEFAULT NULL', 'AFTER `mfa_code`');
+            }
+
+        })->addUpdate('0.8.1', function () {
+            // Add unique index to user/path
+            $table = sql()->getSchemaObject()->getTableObject('accounts_configurations');
+
+            if (!$table->indexExists('users_id_path')) {
+                $table->alter()->addIndex('UNIQUE `users_id_path` (`users_id`, `path`)');
             }
         });
     }

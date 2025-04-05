@@ -981,7 +981,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
     public function ensureWritable(?int $mode = null): static
     {
         // Get configuration. We need file and directory default modes
-        $mode = config()->get('filesystem.mode.default.directory', 0750, $mode);
+        $mode = config()->get('filesystem.mode.default.directory', $mode ?? 0750);
 
         if (!$this->ensureFileWritable($mode)) {
             Log::action(ts('Creating non existing directory ":file" with file mode ":mode"', [

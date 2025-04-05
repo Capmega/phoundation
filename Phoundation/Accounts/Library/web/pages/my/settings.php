@@ -15,6 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Core\Sessions\Session;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
@@ -23,22 +24,36 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 
-// Validate
-$get = GetValidator::new()
-                   ->validate();
+// No get parameters allowed
+$user = Session::getUserObject();
+$get  = GetValidator::new()
+                    ->validate();
+
+
+// Apply and save the changes
+if (Request::isPostRequestMethod()) {
+    switch (Request::getSubmitButton()) {
+        case tr('Save'):
+            $user->getConfigurationsObject()->apply()->save();
+            Response::getFlashMessagesObject()->addSuccess(tr('Your settings have been saved'));
+            Response::redirect();
+
+        default:
+            throw new ValidationFailedException(tr('Unknown button ":button" specified', [
+                ':button' => Request::getSubmitButton()
+            ]));
+    }
+}
 
 
 // Build the "settings" card
-$user = Session::getUserObject();
-$form = $user->getConfigurationsObject()->getHtmlDataEntryFormObject();
-
-
 $settings_card = Card::new()
                      ->setTitle(tr('Edit your account settings'))
-                     ->setContent($form)
+                     ->setContent($user->getConfigurationsObject()->getHtmlDataEntryFormObject())
                      ->setButtons(Buttons::new()
                                          ->addButton(tr('Save'), right: true)
                                          ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/my/settings.html'), true)
@@ -50,7 +65,10 @@ $settings_card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::new('/my/profile.html')->makeWww() . '">' . tr('My profile page') . '</a>');
+                     ->setContent('<a href="' . Url::new('/my/profile.html')->makeWww() . '">' . tr('Manage my profile') . '</a><br>
+                                   <a href="' . Url::new('/my/password.html')->makeWww() . '">' . tr('Change my password') . '</a><br>                                 
+                                   <a href="' . Url::new('/my/authentication-history.html')->makeWww() . '">' . tr('Review my authentication history') . '</a><br>
+                                   <a href="' . Url::new('/mfa/create.html')->makeWww()->addRedirect(Url::newCurrent()) . '">' . tr('Setup multi factor authentication') . '</a><br>');
 
 
 // Build documentation

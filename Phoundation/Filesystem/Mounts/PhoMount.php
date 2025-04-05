@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Mounts;
 
-use Phoundation\Core\Config\Exception\ConfigPathDoesNotExistsException;
+use Phoundation\Accounts\Config\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Core\Core;
 use Phoundation\Core\Hooks\Hook;
 use Phoundation\Core\Log\Log;

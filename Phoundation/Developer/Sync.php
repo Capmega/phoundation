@@ -17,9 +17,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer;
 
-use Phoundation\Core\Config\Config;
-use Phoundation\Core\Config\Exception\ConfigFileDoesNotExistsException;
-use Phoundation\Core\Config\Exception\ConfigPathDoesNotExistsException;
+use Phoundation\Accounts\Config\Config;
+use Phoundation\Accounts\Config\Exception\ConfigFileDoesNotExistsException;
+use Phoundation\Accounts\Config\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Core\Core;
 use Phoundation\Core\Hooks\Hook;
 use Phoundation\Core\Log\Log;
@@ -42,7 +42,6 @@ use Phoundation\Servers\Server;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
-
 
 class Sync
 {

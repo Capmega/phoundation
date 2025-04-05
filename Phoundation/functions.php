@@ -18,17 +18,16 @@ declare(strict_types=1);
 
 use CNZ\Helpers\Yml;
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Accounts\Config\Config;
+use Phoundation\Accounts\Config\Interfaces\ConfigInterface;
 use Phoundation\Cache\Cache;
 use Phoundation\Cache\Interfaces\CacheInterface;
-use Phoundation\Core\Config\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Hooks\Interfaces\HookInterface;
-use Phoundation\Core\Interfaces\ConfigInterface;
 use Phoundation\Core\Interfaces\FloatableInterface;
 use Phoundation\Core\Interfaces\IntegerableInterface;
 use Phoundation\Core\Log\Interfaces\LogInterface;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\SessionConfig;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Databases;
 use Phoundation\Databases\FileDb\FileDb;
@@ -2105,20 +2104,6 @@ function datatype_is_class(string $datatype): bool
 function config(?string $section = null, ?string $environment = null): ConfigInterface
 {
     return Config::fromSection($section, $environment);
-}
-
-
-/**
- * Returns a SessionConfig object for the specified section and environment
- *
- * @param string|null $section
- * @param string|null $environment
- *
- * @return ConfigInterface
- */
-function sessionconfig(string $section = null, ?string $environment = null): ConfigInterface
-{
-    return SessionConfig::fromSection($section, $environment);
 }
 
 

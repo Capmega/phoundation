@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace Phoundation\Cli;
 
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Accounts\Config\Config;
 use Phoundation\Audio\Audio;
 use Phoundation\Cache\Cache;
 use Phoundation\Cache\InstanceCache;
@@ -33,7 +34,6 @@ use Phoundation\Cli\Exception\CliCommandNotExistsException;
 use Phoundation\Cli\Exception\CliCommandNotFoundException;
 use Phoundation\Cli\Exception\CliException;
 use Phoundation\Cli\Exception\CliNoCommandSpecifiedException;
-use Phoundation\Core\Config\Config;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Exception\ProjectException;
