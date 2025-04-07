@@ -189,6 +189,23 @@ class Accordion extends Widget implements AccordionInterface
 
 
     /**
+     * Sets the first key of the accordion to open
+     *
+     * @param bool $do
+     *
+     * @return static
+     */
+    public function setOpenFirst(bool $do = true): static
+    {
+        if ($do) {
+            $this->open = $this->getFirstKey();
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Sets whether a key should be displayed or not
      *
      * @param string $key
