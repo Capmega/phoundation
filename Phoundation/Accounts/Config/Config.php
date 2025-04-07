@@ -851,6 +851,49 @@ class Config implements ConfigInterface
 
 
     /**
+     * Return configuration STRING for the specified key path
+     *
+     * @note Will throw an exception if a non-string value is returned!
+     *
+     * @param string|array $path                     The configuration path for which the value should be returned
+     * @param string|int|null  $default              The default value to return if the configuration path doesn't
+     *                                               exist. If not specified, or NULL, an exception will be thrown when
+     *                                               the path doesn't exist
+     * @param bool         $allow_user_configuration If true will allow user configuration to override system
+     *                                               configuration
+     * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
+     *                                               cache
+     *
+     * @return string|int                            The value for the requested path
+     *
+     * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
+     */
+    public function getStringInteger(string|array $path, string|int|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): string|int
+    {
+        $return = $this->get($path, $default, $allow_user_configuration, $use_cache);
+
+        if (is_int($return)) {
+            return $return;
+        }
+
+        if (is_string($return)) {
+            return $return;
+        }
+
+        if (empty($return)) {
+            $this->throwEmptyException($path, 'string or integer');
+        }
+
+        throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a string but has value ":value"', [
+            ':path'  => $path,
+            ':value' => $return,
+        ]))->addData([
+            'value' => $return
+        ]);
+    }
+
+
+    /**
      * Return configuration ARRAY or STRING for the specified key path
      *
      * @note Will throw an exception if a non-string non-array value is returned!
@@ -915,7 +958,7 @@ class Config implements ConfigInterface
      *
      * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getBooleanString(string|array $path, string|bool|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): string|bool
+    public function getStringBoolean(string|array $path, string|bool|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): string|bool
     {
         $return = $this->get($path, $default, $allow_user_configuration, $use_cache);
 
@@ -966,7 +1009,7 @@ class Config implements ConfigInterface
      *
      * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getBooleanInteger(string|array $path, string|bool|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): int|bool
+    public function getIntegerBoolean(string|array $path, string|bool|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): int|bool
     {
         $return = $this->get($path, $default, $allow_user_configuration, $use_cache);
 

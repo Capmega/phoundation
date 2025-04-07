@@ -280,7 +280,7 @@ interface ConfigInterface
      *
      * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getBooleanString(string|array $path, string|bool|null $default = null, bool $allow_user_configuration = false): string|bool;
+    public function getStringBoolean(string|array $path, string|bool|null $default = null, bool $allow_user_configuration = false): string|bool;
 
 
     /**
@@ -303,7 +303,7 @@ interface ConfigInterface
      *
      * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getBooleanInteger(string|array $path, string|bool|null $default = null, bool $allow_user_configuration = false): int|bool;
+    public function getIntegerBoolean(string|array $path, string|bool|null $default = null, bool $allow_user_configuration = false): int|bool;
 
 
     /**

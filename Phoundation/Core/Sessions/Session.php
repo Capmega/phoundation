@@ -477,7 +477,7 @@ class Session implements SessionInterface
 
         // Check the cookie domain configuration to see if it's valid.
         // NOTE: In case whitelabel domains are used, $_CONFIG[cookie][domain] must be one of "auto" or ".auto"
-        switch (config()->getBooleanString('web.sessions.cookies.domain', '.auto')) {
+        switch (config()->getStringBoolean('web.sessions.cookies.domain', '.auto')) {
             case false:
                 // This domain has no cookies
                 break;
@@ -498,11 +498,11 @@ class Session implements SessionInterface
                 // If the configured cookie domain is different from the current domain then all cookie will
                 // inexplicably fail without warning, so this must be detected to avoid lots of hair pulling and
                 // throwing arturo off the balcony incidents :)
-                if (config()->getBooleanString('web.sessions.cookies.domain')[0] == '.') {
+                if (config()->getStringBoolean('web.sessions.cookies.domain')[0] == '.') {
                     $test = substr(config()->get('web.sessions.cookies.domain'), 1);
 
                 } else {
-                    $test = config()->getBooleanString('web.sessions.cookies.domain');
+                    $test = config()->getStringBoolean('web.sessions.cookies.domain');
                 }
 
                 if (!str_contains(static::$domain, $test)) {
@@ -513,15 +513,15 @@ class Session implements SessionInterface
                                 ->setRoles('developer')
                                 ->setTitle(tr('Invalid cookie domain'))
                                 ->setMessage(tr('Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', [
-                                    ':domain'         => Strings::ensureStartsNotWith(config()->getBooleanString('web.sessions.cookies.domain'), '.'),
-                                    ':cookie_domain'  => config()->getBooleanString('web.sessions.cookies.domain'),
+                                    ':domain'         => Strings::ensureStartsNotWith(config()->getStringBoolean('web.sessions.cookies.domain'), '.'),
+                                    ':cookie_domain'  => config()->getStringBoolean('web.sessions.cookies.domain'),
                                     ':current_domain' => static::$domain,
                                 ]))
                                 ->send();
-                    Response::redirect(PROTOCOL . Strings::ensureStartsNotWith(config()->getBooleanString('web.sessions.cookies.domain'), '.'));
+                    Response::redirect(PROTOCOL . Strings::ensureStartsNotWith(config()->getStringBoolean('web.sessions.cookies.domain'), '.'));
                 }
 
-                ini_set('session.cookie_domain', config()->getBooleanString('web.sessions.cookies.domain'));
+                ini_set('session.cookie_domain', config()->getStringBoolean('web.sessions.cookies.domain'));
 
                 unset($test);
                 unset($length);

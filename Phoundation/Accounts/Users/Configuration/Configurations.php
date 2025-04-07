@@ -229,7 +229,7 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->setOptional(true, false)
                                                  ->setInputType(EnumInputType::select)
                                                  ->setSize(6)
-                                                 ->addProperty('getBoolean'                   , 'configuration_method')
+                                                 ->addProperty('getBoolean'            , 'configuration_method')
                                                  ->addProperty('web.display.modes.dark', 'configuration_path')
                                                  ->setLabel(tr('Dark mode'))
                                                  ->setHelpText(tr('Here you can specify if you wish the user interface to be in dark mode, light mode, or use whatever your system uses'))

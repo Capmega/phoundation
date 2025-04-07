@@ -90,5 +90,5 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 
 // Render and return the page grid
 return Grid::new()
-            ->addGridColumn($settings_card                      , EnumDisplaySize::nine, true)
-            ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+            ->addGridColumn($settings_card                               , EnumDisplaySize::nine, true)
+            ->addGridColumn($relevant_card . '<br>' . $documentation_card, EnumDisplaySize::three);
