@@ -263,16 +263,31 @@ interface IteratorInterface extends IteratorBaseInterface
      */
     public function getKeyIndices(): array;
 
+
     /**
      * Returns value for the specified key, defaults that key to the specified value if it does not yet exist
      *
-     * @param Stringable|string|int $key
-     * @param mixed                 $value
+     * @param Stringable|string|float|int $key
+     * @param mixed                       $value
      *
      * @return mixed
      */
-    public function getValueOrDefault(Stringable|string|int $key, mixed $value): mixed;
+    public function getValueOrDefault(Stringable|string|float|int $key, mixed $value): mixed;
 
+
+    /**
+     * Returns the first key contained in this object without changing the internal pointer
+     *
+     * @return Stringable|string|float|int|null
+     */
+    public function getFirstKey(): Stringable|string|float|int|null;
+
+    /**
+     * Returns the last key contained in this object without changing the internal pointer
+     *
+     * @return Stringable|string|float|int|null
+     */
+    public function getLastKey(): Stringable|string|float|int|null;
 
     /**
      * Returns the first element contained in this object without changing the internal pointer

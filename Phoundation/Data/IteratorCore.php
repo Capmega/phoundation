@@ -1039,18 +1039,48 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Returns value for the specified key, defaults that key to the specified value if it does not yet exist
      *
-     * @param Stringable|string|int $key
-     * @param mixed                 $value
+     * @param Stringable|string|float|int $key
+     * @param mixed                       $value
      *
      * @return mixed
      */
-    #[ReturnTypeWillChange] public function getValueOrDefault(Stringable|string|int $key, mixed $value): mixed
+    #[ReturnTypeWillChange] public function getValueOrDefault(Stringable|string|float|int $key, mixed $value): mixed
     {
         if (!array_key_exists($key, $this->source)) {
             $this->source[$key] = $value;
         }
 
         return $this->source[$key];
+    }
+
+
+    /**
+     * Returns the first key contained in this object without changing the internal pointer
+     *
+     * @return Stringable|string|float|int|null
+     */
+    public function getFirstKey(): Stringable|string|float|int|null
+    {
+        if (empty($this->source)) {
+            return null;
+        }
+
+        return array_key_first($this->source);
+    }
+
+
+    /**
+     * Returns the last key contained in this object without changing the internal pointer
+     *
+     * @return Stringable|string|float|int|null
+     */
+    public function getLastKey(): Stringable|string|float|int|null
+    {
+        if (empty($this->source)) {
+            return null;
+        }
+
+        return array_key_last($this->source);
     }
 
 
