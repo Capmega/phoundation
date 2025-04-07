@@ -815,16 +815,7 @@ class Session implements SessionInterface
             }
         }
 
-        // Is this first visit?
-        // TODO Fix this crap. We should be able to redirect on first visit, or show modal or flash messages. Do much more!
-        if (isset($_SESSION['first_visit'])) {
-            if ($_SESSION['first_visit']) {
-                $_SESSION['first_visit']--;
-            }
-
-        } else {
-            $_SESSION['first_visit'] = 1;
-        }
+        static::updatePagesLoaded();
 
         if ($_SESSION['domain'] !== static::$domain) {
             // Domain mismatch? Okay if this is sub domain, but what if its a different domain? Check whitelist domains?
@@ -1217,7 +1208,8 @@ class Session implements SessionInterface
                     ->setLog(8)
                     ->save();
 
-            $_SESSION['user']['id'] = static::$user->getId();
+            $_SESSION['first_visit'] = 1;
+            $_SESSION['user']['id']  = static::$user->getId();
             return static::$user;
 
         } catch (DataEntryNotExistsException $e) {
@@ -1977,5 +1969,54 @@ class Session implements SessionInterface
         }
 
         return static::$o_user_session;
+    }
+
+
+    /**
+     * Updated the pages_loaded_this_session variable for this Session
+     *
+     * @return void
+     */
+    protected static function updatePagesLoaded(): void
+    {
+        if (empty($_SESSION['pages_loaded_this_session'])) {
+            $_SESSION['pages_loaded_this_session'] = 1;
+
+        } else {
+            $_SESSION['pages_loaded_this_session']++;
+        }
+    }
+
+
+    /**
+     * Returns the number of pages loaded for this session (including this page)
+     *
+     * @return int
+     */
+    public static function pageloadForSession(): int
+    {
+        return $_SESSION['pages_loaded_this_session'];
+    }
+
+
+    /**
+     * Returns true if this page load is the first for this session after signing in
+     *
+     * @return bool
+     */
+    public static function isFirstPage(): bool
+    {
+        return $_SESSION['pages_loaded_this_session'] === 1;
+    }
+
+
+    /**
+     * Returns true if this page load is the first for this session after signing in
+     *
+     * @return bool
+     */
+    public static function autoShowMenu(): bool
+    {
+        return config()->getBoolean('web.interface.user.menu.open', false, true) and Session::isFirstPage();
     }
 }
