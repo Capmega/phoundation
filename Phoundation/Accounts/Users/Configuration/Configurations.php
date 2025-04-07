@@ -258,7 +258,7 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->setSize(6)
                                                  ->addProperty('getBoolean'                  , 'configuration_method')
                                                  ->addProperty('web.interface.user.menu.open', 'configuration_path')
-                                                 ->setLabel(tr('Open menu'))
+                                                 ->setLabel(tr('Open menu after sign-in'))
                                                  ->setHelpText(tr('Here you can specify if you wish the user menu to be open or not when you sign in'))
                                                  ->setDataSource([
                                                      'on'   => tr('On'),
