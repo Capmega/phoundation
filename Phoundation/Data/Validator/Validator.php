@@ -3284,6 +3284,31 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
 
     /**
+     * Validates if the selected field is a valid email address
+     *
+     * @param string|null $domain
+     * @param int|null    $max_characters
+     *
+     * @return static
+     */
+    public function sanitizeMakeUrlObject(?string $domain = null, ?int $max_characters = 2048): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) use ($max_characters, $domain) {
+            $this->isUrl($domain, $max_characters);
+
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
+            }
+
+            $value = Url::new($value);
+        });
+    }
+
+
+    /**
      * Validates if the selected field is a valid domain name
      *
      * @return static
