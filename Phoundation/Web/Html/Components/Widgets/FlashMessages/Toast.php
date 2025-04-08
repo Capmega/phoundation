@@ -16,14 +16,17 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\FlashMessages;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataFlashMessageObject;
 use Phoundation\Data\Traits\TraitMethodHasRendered;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessageInterface;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\ToastInterface;
 use Phoundation\Web\Html\Components\Widgets\WidgetCore;
 use Phoundation\Web\Html\Html;
+use Phoundation\Web\Requests\Request;
 
 
 class Toast extends WidgetCore implements ToastInterface
@@ -71,6 +74,7 @@ class Toast extends WidgetCore implements ToastInterface
     /**
      * Renders and returns the HTML and JavaScript to display a toast
      *
+     * @todo renderArray functions should also be handled by Template libraries as they, well, render the object for use in a Template! There are template specific items in this method already!
      * @return array
      */
     public function renderArray(): array
@@ -99,13 +103,37 @@ class Toast extends WidgetCore implements ToastInterface
             }
         }
 
-        $return = [
-            'class'    => 'bg-' . $o_message->getMode()->value,
-            'title'    => Html::safe($o_message->getTitle()),
-            'subtitle' => Html::safe($o_message->getSubTitle()),
-            'position' => $position,
-            'body'     => Html::safe($o_message->getContent())
-        ];
+        // This is template-specific handling, should be in a Template library
+        switch (Request::getTemplateObject()->getSeoName()) {
+            case 'mdb':
+                $return = [
+                    'class'    => $o_message->getMode()->value,
+                    'title'    => Html::safe($o_message->getTitle()),
+                    'subtitle' => Html::safe($o_message->getSubTitle()),
+                    'position' => Strings::fromCamelcaseToCharacterSeparated($position, '-'),
+                    'body'     => Html::safe($o_message->getContent()),
+                    'template' => Request::getTemplateObject()->getSeoName(),
+                ];
+
+                break;
+
+            case 'adminlte':
+                $return = [
+                    'class'    => 'bg-' . $o_message->getMode()->value,
+                    'title'    => Html::safe($o_message->getTitle()),
+                    'subtitle' => Html::safe($o_message->getSubTitle()),
+                    'position' => $position,
+                    'body'     => Html::safe($o_message->getContent()),
+                    'template' => Request::getTemplateObject()->getSeoName(),
+                ];
+
+                break;
+
+            default:
+                throw new OutOfBoundsException(tr('Cannot render Toast object, unsupported template ":template"', [
+                    ':template' => Request::getTemplateObject()->getSeoName()
+                ]));
+    }
 
         if ($image) {
             $return['image']     = Html::safe($image->getSrc());

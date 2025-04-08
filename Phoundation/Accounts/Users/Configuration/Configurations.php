@@ -19,6 +19,7 @@ namespace Phoundation\Accounts\Users\Configuration;
 
 use Phoundation\Accounts\Users\Configuration\Interfaces\ConfigurationsInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Definitions;
@@ -170,6 +171,16 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
      */
     protected function saveColumn(mixed $value, string $column, DefinitionInterface $o_definition): static
     {
+        // Store display data in the SESSION object
+        switch ($column) {
+            case 'dark_mode':
+                // no break
+
+            case 'compact_mode':
+                Session::set($value, 'display', $column);
+                break;
+        }
+
         if ($value == $this->getConfiguredValue($o_definition, false)) {
             config()->deleteUserPath($o_definition->getProperty('configuration_path'));
 
@@ -243,8 +254,8 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->setOptional(true, false)
                                                  ->setInputType(EnumInputType::select)
                                                  ->setSize(6)
-                                                 ->addProperty('getBoolean'                      , 'configuration_method')
-                                                 ->addProperty('web.interface.user.modes.compact', 'configuration_path')
+                                                 ->addProperty('getBoolean'         , 'configuration_method')
+                                                 ->addProperty('web.display.compact', 'configuration_path')
                                                  ->setLabel(tr('Compact mode'))
                                                  ->setHelpText(tr('Here you can specify if you wish the user interface to be more compact, or not. If the user interface is more compact, you will scroll less, but it may be harder to click correctly'))
                                                  ->setDataSource([

@@ -7,6 +7,7 @@ namespace Phoundation\Accounts\Users\Interfaces;
 use DateTimeInterface;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
+use Phoundation\Accounts\Users\Configuration\Interfaces\ConfigurationsInterface;
 use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImageInterface;
 use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImagesInterface;
 use Phoundation\Core\Sessions\Interfaces\SessionInterface;
@@ -874,4 +875,11 @@ interface UserInterface extends DataEntryInterface
      * @return static
      */
     public function updateMfaTimeslice(?int $timeslice): static;
+
+    /**
+     * Returns the "configurations" object for this user
+     *
+     * @return ConfigurationsInterface
+     */
+    public function getConfigurationsObject(): ConfigurationsInterface;
 }

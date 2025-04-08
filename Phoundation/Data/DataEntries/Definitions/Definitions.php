@@ -507,7 +507,14 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function getRenderMeta(): bool
     {
-        return $this->render_meta;
+        $render  = false;
+        $columns = $this->getDataEntryObject()?->getMetaColumns();
+
+        foreach ($columns as $column) {
+            $render = ($render or $this->get($column, false)?->getRender());
+        }
+
+        return $this->render_meta and $render;
     }
 
 

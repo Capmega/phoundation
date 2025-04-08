@@ -103,7 +103,7 @@ abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockIn
         }
 
         $scripts         = $this->renderScripts();
-        $renderer_class  = Request::getTemplate()->getRendererClass($this);
+        $renderer_class  = Request::getTemplateObject()->getRendererClass($this);
         $render_function = function (?string $render = null) {
             if ($this->form) {
                 return $this->form

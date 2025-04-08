@@ -464,6 +464,38 @@ class Session implements SessionInterface
 
 
     /**
+     * Returns the value for the given key
+     *
+     * @param string                $value
+     * @param string|float|int      $key
+     * @param string|float|int|null $sub_key
+     *
+     * @return void
+     */
+    public static function set(mixed $value, string|float|int $key, string|float|int|null $sub_key = null): void
+    {
+        if ($sub_key) {
+            if (!array_key_exists($key, $_SESSION)) {
+                $_SESSION[$key] = [];
+            }
+
+            if (!is_array($_SESSION[$key])) {
+                throw new OutOfBoundsException(tr('Cannot write session key ":key" sub key ":sub-key" because session key is not an array', [
+                    ':key'     => $key,
+                    ':sub-key' => $sub_key,
+                ]));
+            }
+
+            $_SESSION[$key][$sub_key] = $value;
+
+            return;
+        }
+
+        $_SESSION[$key] = $value;
+    }
+
+
+    /**
      * Configure cookies
      *
      * @return void
@@ -602,38 +634,6 @@ class Session implements SessionInterface
                 ini_set('session.cache_expire', config()->getBoolean('cache.http.php-cache-php-cache-expire', true));
             }
         }
-    }
-
-
-    /**
-     * Returns the value for the given key
-     *
-     * @param string                $value
-     * @param string|float|int      $key
-     * @param string|float|int|null $sub_key
-     *
-     * @return void
-     */
-    public static function set(mixed $value, string|float|int $key, string|float|int|null $sub_key = null): void
-    {
-        if ($sub_key) {
-            if (array_key_exists($key, $_SESSION)) {
-                $_SESSION[$key] = [];
-            }
-
-            if (!is_array($_SESSION[$key])) {
-                throw new OutOfBoundsException(tr('Cannot write session key ":key" sub key ":sub-key" because session key is not an array', [
-                    ':key'     => $key,
-                    ':sub-key' => $sub_key,
-                ]));
-            }
-
-            $_SESSION[$key][$sub_key] = $value;
-
-            return;
-        }
-
-        $_SESSION[$key] = $value;
     }
 
 
@@ -1170,7 +1170,11 @@ class Session implements SessionInterface
                                 ->setTitle(tr('Cannot sign in user ":user", the user does not exist', [
                                     ':user' => $user
                                 ]))
-                                ->setDetails(['user' => $user])
+                                ->setDetails([
+                                    'user'               => $user,
+                                    'remote_ip'          => Session::getIpAddress(),
+                                    'original_remote_ip' => Session::getOriginalIpAddress()
+                                ])
                                 ->setNotifyRoles('security')
                                 ->save()
                                 ->throw(AuthenticationException::class);
@@ -1224,7 +1228,11 @@ class Session implements SessionInterface
                                 ->setTitle(tr('Cannot sign in user ":user", the user does not exist', [
                                     ':user' => $user
                                 ]))
-                                ->setDetails(['user' => $user])
+                                ->setDetails([
+                                    'user'               => $user,
+                                    'remote_ip'          => Session::getIpAddress(),
+                                    'original_remote_ip' => Session::getOriginalIpAddress()
+                                ])
                                 ->setNotifyRoles('security')
                                 ->save()
                                 ->throw(AuthenticationException::class);
@@ -1250,6 +1258,7 @@ class Session implements SessionInterface
         if (isset($_SESSION['init'])) {
             // Conserve init data and flash messages
             $messages = isset_get($_SESSION['flash_messages']);
+            $display  = isset_get($_SESSION['display']);
 
             $_SESSION = [
                 'init'         => $_SESSION['init'],
@@ -1260,6 +1269,10 @@ class Session implements SessionInterface
 
             if ($messages) {
                 $_SESSION['flash_messages'] = $messages;
+            }
+
+            if ($display) {
+                $_SESSION['display'] = $display;
             }
 
         } else {
@@ -2018,5 +2031,24 @@ class Session implements SessionInterface
     public static function autoShowMenu(): bool
     {
         return config()->getBoolean('web.interface.user.menu.open', false, true) and Session::isFirstPage();
+    }
+
+
+    /**
+     * Returns a default page if this is the first page after signing in
+     *
+     * @return ?string
+     */
+    public static function getDefaultPage(): ?string
+    {
+        if (Session::isFirstPage()) {
+            $page = config()->getString('web.pages.default', '', true);
+
+            if ($page) {
+                return $page;
+            }
+        }
+
+        return null;
     }
 }

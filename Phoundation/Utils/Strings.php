@@ -2708,7 +2708,7 @@ class Strings extends Utils
 
 
     /**
-     * Strips all control characters (ASCII characters under 32) unless they are specified to keep
+     * Strips all control characters (ASCII characters under 32) unless they're specified to be kept
      *
      * @param string            $source  The string to strip the characters from
      * @param string            $replace The string to replace the control characters with
@@ -2728,5 +2728,40 @@ class Strings extends Utils
         }
 
         return str_replace($search, $replace, $source);
+    }
+
+
+    /**
+     * Converts the given camelcase string to an underscore string
+     *
+     * @param string $source
+     * @param string $character
+     *
+     * @return string
+     */
+    public static function fromCamelcaseToCharacterSeparated(string $source, string $character = '_'): string
+    {
+        return strtolower(preg_replace('/(?<!^)([A-Z])/', $character . '$1', $source));
+    }
+
+
+    /**
+     * Converts the given camelcase string to an underscore string
+     *
+     * @param string $source
+     * @param string $character
+     * @param bool   $capitalize_first
+     *
+     * @return string
+     */
+    public static function fromCharacterSeparatedToCamelcase(string $source, string $character = '_', bool $capitalize_first = false): string
+    {
+        $source = str_replace($character, '', ucwords($source, $character));
+
+        if (!$capitalize_first) {
+            $source = lcfirst($source);
+        }
+
+        return $source;
     }
 }
