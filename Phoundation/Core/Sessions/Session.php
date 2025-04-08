@@ -1170,7 +1170,11 @@ class Session implements SessionInterface
                                 ->setTitle(tr('Cannot sign in user ":user", the user does not exist', [
                                     ':user' => $user
                                 ]))
-                                ->setDetails(['user' => $user])
+                                ->setDetails([
+                                    'user'               => $user,
+                                    'remote_ip'          => Session::getIpAddress(),
+                                    'original_remote_ip' => Session::getOriginalIpAddress()
+                                ])
                                 ->setNotifyRoles('security')
                                 ->save()
                                 ->throw(AuthenticationException::class);
@@ -1224,7 +1228,11 @@ class Session implements SessionInterface
                                 ->setTitle(tr('Cannot sign in user ":user", the user does not exist', [
                                     ':user' => $user
                                 ]))
-                                ->setDetails(['user' => $user])
+                                ->setDetails([
+                                    'user'               => $user,
+                                    'remote_ip'          => Session::getIpAddress(),
+                                    'original_remote_ip' => Session::getOriginalIpAddress()
+                                ])
                                 ->setNotifyRoles('security')
                                 ->save()
                                 ->throw(AuthenticationException::class);
