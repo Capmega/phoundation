@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Cards;
 
+use Phoundation\Data\Traits\TraitDataCenter;
 use Phoundation\Data\Traits\TraitDataDescription;
 use Phoundation\Data\Traits\TraitDataTitle;
 use Phoundation\Exception\OutOfBoundsException;
@@ -34,6 +35,7 @@ use Stringable;
 
 class Card extends Widget
 {
+    use TraitDataCenter;
     use TraitDataTitle;
     use TraitDataDescription;
 
