@@ -556,7 +556,7 @@ class Session implements SessionInterface
      *
      * @return void
      */
-    protected static function setIni(): void
+    public static function setIni(): void
     {
         $handler = config()->getString('web.sessions.handler', 'files');
 
@@ -2018,5 +2018,24 @@ class Session implements SessionInterface
     public static function autoShowMenu(): bool
     {
         return config()->getBoolean('web.interface.user.menu.open', false, true) and Session::isFirstPage();
+    }
+
+
+    /**
+     * Returns a default page if this is the first page after signing in
+     *
+     * @return ?string
+     */
+    public static function getDefaultPage(): ?string
+    {
+        if (Session::isFirstPage()) {
+            $page = config()->getString('web.pages.default', '', true);
+
+            if ($page) {
+                return $page;
+            }
+        }
+
+        return null;
     }
 }
