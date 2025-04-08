@@ -129,7 +129,7 @@ abstract class ElementCore implements ElementInterface
 
         $this->o_attributes->removeKeys('auto_submit');
 
-        $renderer_class  = Request::getTemplate()->getRendererClass($this);
+        $renderer_class  = Request::getTemplateObject()->getRendererClass($this);
         $render_function = function () {
             $attributes = $this->renderAttributesArray();
             $attributes = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Utils::QUOTE_ALWAYS | Utils::HIDE_EMPTY_VALUES);

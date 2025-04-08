@@ -255,7 +255,7 @@ class Request implements RequestInterface
      *
      * @return TemplateInterface
      */
-    public static function getTemplate(): TemplateInterface
+    public static function getTemplateObject(): TemplateInterface
     {
         if (empty(static::$template)) {
             // Default template is AdminLte
@@ -964,6 +964,28 @@ class Request implements RequestInterface
 
 
     /**
+     * Redirects to the default page for this user if the user has configured one and this is the first page after
+     * signing in
+     *
+     * @return void
+     */
+    protected static function redirectToDefaultPage(): void
+    {
+        $page = Session::getDefaultPage();
+
+        if ($page) {
+            if (array_get_safe($_SERVER, 'SCRIPT_URI') === $page) {
+                // The current location is the default page, we're good
+                return;
+            }
+
+            // Redirect to the default page instead
+            Response::redirect($page);
+        }
+    }
+
+
+    /**
      * Sets the target for this request
      *
      * @param PhoFileInterface|string|int $target
@@ -1513,6 +1535,9 @@ class Request implements RequestInterface
 
             switch (static::getRequestType()) {
                 case EnumRequestTypes::html:
+                    // Does the user have a default page configured? If so, ensure we're going there
+                    static::redirectToDefaultPage();
+
                     if (!static::getSystem()) {
                         // Check if the user has access to the requested page, then check if the user should be force redirected
                         static::hasRightsOrRedirect(static::$o_parameters->getRequiredRights((string) static::$target));

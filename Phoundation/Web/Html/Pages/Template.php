@@ -162,7 +162,7 @@ class Template implements TemplateInterface
     public function setPage(?string $page): static
     {
         $this->page = $page;
-        $renderer_class = Request::getTemplate()->getRendererClass($this);
+        $renderer_class = Request::getTemplateObject()->getRendererClass($this);
 
         if ($renderer_class) {
             $this->text = $renderer_class::new($this)->render();
