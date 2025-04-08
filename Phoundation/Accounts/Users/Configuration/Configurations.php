@@ -243,8 +243,8 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->setOptional(true, false)
                                                  ->setInputType(EnumInputType::select)
                                                  ->setSize(6)
-                                                 ->addProperty('getBoolean'                      , 'configuration_method')
-                                                 ->addProperty('web.interface.user.modes.compact', 'configuration_path')
+                                                 ->addProperty('getBoolean'         , 'configuration_method')
+                                                 ->addProperty('web.display.compact', 'configuration_path')
                                                  ->setLabel(tr('Compact mode'))
                                                  ->setHelpText(tr('Here you can specify if you wish the user interface to be more compact, or not. If the user interface is more compact, you will scroll less, but it may be harder to click correctly'))
                                                  ->setDataSource([
