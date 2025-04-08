@@ -32,7 +32,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.8.1';
+        return '0.9.0';
     }
 
 
@@ -53,56 +53,56 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Create default rights and roles
             $god = Right::new()
-                ->loadOrThisInitialize(['name' => 'God'])
-                ->setName('God')
-                ->setDescription('This right will give the user access to everything, everywhere')
-                ->save();
+                        ->loadOrThisInitialize(['name' => 'God'])
+                        ->setName('God')
+                        ->setDescription('This right will give the user access to everything, everywhere')
+                        ->save();
 
             $admin = Right::new()
-                ->loadOrThisInitialize(['name' => 'Admin'])
-                ->setName('Admin')
-                ->setDescription('This right will give the user access to the administrative area of the site, but no specific pages yet')
-                ->save();
+                          ->loadOrThisInitialize(['name' => 'Admin'])
+                          ->setName('Admin')
+                          ->setDescription('This right will give the user access to the administrative area of the site, but no specific pages yet')
+                          ->save();
 
             $developer = Right::new()
-                ->loadOrThisInitialize(['name' => 'Developer'])
-                ->setName('Developer')
-                ->setDescription('This right will give the user access to the developer area of the site')
-                ->save();
+                              ->loadOrThisInitialize(['name' => 'Developer'])
+                              ->setName('Developer')
+                              ->setDescription('This right will give the user access to the developer area of the site')
+                              ->save();
 
             $accounts = Right::new()
-                ->loadOrThisInitialize(['name' => 'Accounts'])
-                ->setName('Accounts')
-                ->setDescription('This right will give the user access to the administrative user accounts management section of the site')
-                ->save();
+                             ->loadOrThisInitialize(['name' => 'Accounts'])
+                             ->setName('Accounts')
+                             ->setDescription('This right will give the user access to the administrative user accounts management section of the site')
+                             ->save();
 
             $security = Right::new()
-                ->loadOrThisInitialize(['name' => 'Security'])
-                ->setName('Security')
-                ->setDescription('This right will give the user access to the administrative security pages of the site')
-                ->save();
+                             ->loadOrThisInitialize(['name' => 'Security'])
+                             ->setName('Security')
+                             ->setDescription('This right will give the user access to the administrative security pages of the site')
+                             ->save();
 
             $phoundation = Right::new()
-                ->loadOrThisInitialize(['name' => 'Phoundation'])
-                ->setName('Phoundation')
-                ->setDescription('This right will give the user access to the administrative phoundation system management section of the site')
-                ->save();
+                                ->loadOrThisInitialize(['name' => 'Phoundation'])
+                                ->setName('Phoundation')
+                                ->setDescription('This right will give the user access to the administrative phoundation system management section of the site')
+                                ->save();
 
             $audit = Right::new()
-                ->loadOrThisInitialize(['name' => 'Audit'])
-                ->setName('Audit')
-                ->setDescription('This right will give the user access to the audit information system of the site')
-                ->save();
+                          ->loadOrThisInitialize(['name' => 'Audit'])
+                          ->setName('Audit')
+                          ->setDescription('This right will give the user access to the audit information system of the site')
+                          ->save();
 
             $test = Right::new()
-                ->loadOrThisInitialize(['name' => 'Test'])
-                ->setDescription('This right will make certain pages run in test mode. Information from this user may, for example, not show up in reports as it is a test user, generating test data')
-                ->save();
+                         ->loadOrThisInitialize(['name' => 'Test'])
+                         ->setDescription('This right will make certain pages run in test mode. Information from this user may, for example, not show up in reports as it is a test user, generating test data')
+                         ->save();
 
             $demo = Right::new()
-                ->loadOrThisInitialize(['name' => 'Demo'])
-                ->setDescription('This right will make certain pages run in demo mode. Information from this user may, for example, not show up in reports as it is a demonstration user, generating demo data')
-                ->save();
+                         ->loadOrThisInitialize(['name' => 'Demo'])
+                         ->setDescription('This right will make certain pages run in demo mode. Information from this user may, for example, not show up in reports as it is a demonstration user, generating demo data')
+                         ->save();
 
             Role::new()
                 ->loadOrThisInitialize(['name' => 'Test'])
@@ -1284,6 +1284,14 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             if (!$table->indexExists('users_id_path')) {
                 $table->alter()->addIndex('UNIQUE `users_id_path` (`users_id`, `path`)');
+            }
+
+        })->addUpdate('0.9.0', function () {
+            // Remove default_page from user table as its now resolved with accounts_configurations
+            $table = sql()->getSchemaObject()->getTableObject('accounts_users');
+
+            if ($table->columnExists('default_page')) {
+                $table->alter()->dropColumn('default_page');
             }
         });
     }

@@ -3233,7 +3233,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                         //$validator->sanitizeForceArray(' ')->eachField()->isWord()->sanitizeForceString()
                                     }))
 
-                    ->add(DefinitionFactory::newDivider())
+                    ->add(DefinitionFactory::newDivider('redirect-divider'))
 
                     ->add(DefinitionFactory::newUrl('redirect')
                                            // Normal users always start with "/force-password-update.html" URL because they lack a password, but remote users should already have a password.
@@ -3244,14 +3244,6 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setLabel(tr('Redirect URL'))
                                            ->setHelpGroup(tr('Account information'))
                                            ->setHelpText(tr('The URL where this user will be forcibly redirected to upon sign in')))
-
-                    ->add(DefinitionFactory::newUrl('default_page')
-                                           ->setSize(2)
-                                           ->setDataSource(Url::new('system/accounts/users/redirect/autosuggest.json')->makeAjax())
-                                           ->setInputType(EnumInputType::auto_suggest)
-                                           ->setLabel(tr('Default page'))
-                                           ->setHelpGroup(tr('Preferences'))
-                                           ->setHelpText(tr('The user configurable default page where this user will be redirected to upon sign in')))
 
                     ->add(Definition::new('url')
                                     ->setSize(4)

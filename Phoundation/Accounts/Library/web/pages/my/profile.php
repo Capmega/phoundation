@@ -38,7 +38,6 @@ $user->getDefinitionsObject()->setRenderMeta(false)
                              ->setDefinitionSize('authentication_failures', 4)
                              ->setDefinitionSize('keywords'               , 3)
                              ->setDefinitionSize('url'                    , 6)
-                             ->setDefinitionSize('default_page'           , 12)
                              ->setDefinitionRender('locked_until'         , false)
                              ->setDefinitionRender('username'             , false)
                              ->setDefinitionRender('nickname'             , false)
@@ -60,6 +59,7 @@ $user->getDefinitionsObject()->setRenderMeta(false)
                              ->setDefinitionRender('offset_longitude'     , false)
                              ->setDefinitionRender('domain'               , false)
                              ->setDefinitionRender('redirect'             , false)
+                             ->setDefinitionRender('redirect-divider'     , false)
                              ->setDefinitionReadonly('email'              , true)
                              ->setDefinitionReadonly('comments'           , true)
                              ->setDefinitionReadonly('domain'             , true)
@@ -86,29 +86,31 @@ Request::getFileUploadHandlersObject()
 
 // Validate POST and submit
 if (Request::isPostRequestMethod()) {
-    if (PostValidator::new()->getSubmitButton() === tr('Submit')) {
-        try {
-            // Update user
-            $user->apply()->save();
+    switch (PostValidator::new()->getSubmitButton()) {
+        case tr('Save'):
+            try {
+                // Update user
+                $user->apply()->save();
 
-            // Go back to where we came from
-// TODO Implement timers
-//showdie(Timers::get('query'));
+                Response::getFlashMessagesObject()->addSuccess(tr('Your profile has been updated'));
+                Response::redirect();
 
-            Response::getFlashMessagesObject()->addSuccess(tr('Your profile has been updated'));
-            Response::redirect('referer');
+            } catch (ValidationFailedException $e) {
+                // Oops! Show validation errors and remain on page
+                Response::getFlashMessagesObject()->addMessage($e);
+                $user->forceApply();
+            }
 
-        } catch (ValidationFailedException $e) {
-            // Oops! Show validation errors and remain on page
-            Response::getFlashMessagesObject()->addMessage($e);
-            $user->forceApply();
-        }
+        default:
+            throw new ValidationFailedException(tr('Unknown submit button ":button" specified', [
+                ':button' => PostValidator::new()->getSubmitButton()
+            ]));
     }
 }
 
 
 // Build the buttons
-$buttons = Buttons::new()->addButton('Submit');
+$buttons = Buttons::new()->addButton('Save', right: true);
 
 
 // Build the "user" form

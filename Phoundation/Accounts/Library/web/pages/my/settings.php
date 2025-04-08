@@ -56,7 +56,6 @@ $settings_card = Card::new()
                      ->setContent($user->getConfigurationsObject()->getHtmlDataEntryFormObject())
                      ->setButtons(Buttons::new()
                                          ->addButton(tr('Save'), right: true)
-                                         ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/my/settings.html'), true)
                                          ->addButton(isset_get($delete))
                                          ->addButton(isset_get($audit)));
 
