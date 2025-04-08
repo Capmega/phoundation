@@ -132,6 +132,7 @@ $column = GridColumn::new()
 $picture = Card::new()
                ->setTitle(tr('My profile picture'))
                ->setId('profile-picture-card')
+               ->setCenter(true)
                ->setContent(Session::getUserObject()
                                    ->getProfileImageObject()
                                        ->getHtmlImgObject()
@@ -146,8 +147,8 @@ $relevant = Card::new()
                 ->setTitle(tr('Relevant links'))
                 ->setContent('<a href="' . Url::new('/my/settings.html')->makeWww() . '">' . tr('Manage my settings') . '</a><br>
                               <a href="' . Url::new('/my/password.html')->makeWww() . '">' . tr('Change my password') . '</a><br>
-                              <a href="' . Url::new('/my/authentication-history.html')->makeWww() . '">' . tr('Review my authentication history') . '</a><br>
                               <a href="' . Url::new('/mfa/create.html')->makeWww()->addRedirect(Url::newCurrent()) . '">' . tr('Setup multi factor authentication') . '</a><br>');
+//<a href="' . Url::new('/my/authentication-history.html')->makeWww() . '">' . tr('Review my authentication history') . '</a><br>
 
 
 // Build documentation
@@ -170,6 +171,4 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 // Render and return the page grid
 return Grid::new()
            ->addGridColumn($column)
-           ->addGridColumn($picture . '<br>' .
-                           $relevant . '<br>' .
-                           $documentation, EnumDisplaySize::three);
+           ->addGridColumn($picture . '<br>' . $relevant . '<br>' . $documentation, EnumDisplaySize::three);

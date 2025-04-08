@@ -66,8 +66,8 @@ $relevant_card = Card::new()
                      ->setTitle(tr('Relevant links'))
                      ->setContent('<a href="' . Url::new('/my/profile.html')->makeWww() . '">' . tr('Manage my profile') . '</a><br>
                                    <a href="' . Url::new('/my/password.html')->makeWww() . '">' . tr('Change my password') . '</a><br>                                 
-                                   <a href="' . Url::new('/my/authentication-history.html')->makeWww() . '">' . tr('Review my authentication history') . '</a><br>
                                    <a href="' . Url::new('/mfa/create.html')->makeWww()->addRedirect(Url::newCurrent()) . '">' . tr('Setup multi factor authentication') . '</a><br>');
+//<a href="' . Url::new('/my/authentication-history.html')->makeWww() . '">' . tr('Review my authentication history') . '</a><br>
 
 
 // Build documentation

@@ -59,7 +59,6 @@ $authentications->getQueryBuilder()->addJoin('LEFT JOIN `accounts_users` ON `acc
 
 // Build the "authentications" card
 $authentications_card = Card::new()
-                            ->setTitle('Authentications')
                             ->setContent($authentications->getHtmlDataTableObject([
                                 'id'         => tr('ID'),
                                 'created_on' => tr('Date'),
