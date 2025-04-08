@@ -638,7 +638,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                         ':action' => $authentication->getAction(),
                         ':user'   => Json::encode($identifier, JSON_OBJECT_AS_ARRAY),
                     ]))
-                    ->setDetails(['user' => $identifier])
+                    ->setDetails([
+                        'user'               => $identifier,
+                        'remote_ip'          => Session::getIpAddress(),
+                        'original_remote_ip' => Session::getOriginalIpAddress()
+                    ])
                     ->setNotifyRoles('accounts')
                     ->save()
                     ->throw(AuthenticationException::class);
