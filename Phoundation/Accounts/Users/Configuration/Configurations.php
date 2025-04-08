@@ -19,6 +19,7 @@ namespace Phoundation\Accounts\Users\Configuration;
 
 use Phoundation\Accounts\Users\Configuration\Interfaces\ConfigurationsInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Definitions;
@@ -170,6 +171,16 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
      */
     protected function saveColumn(mixed $value, string $column, DefinitionInterface $o_definition): static
     {
+        // Store display data in the SESSION object
+        switch ($column) {
+            case 'dark_mode':
+                // no break
+
+            case 'compact_mode':
+                Session::set($value, 'display', $column);
+                break;
+        }
+
         if ($value == $this->getConfiguredValue($o_definition, false)) {
             config()->deleteUserPath($o_definition->getProperty('configuration_path'));
 
