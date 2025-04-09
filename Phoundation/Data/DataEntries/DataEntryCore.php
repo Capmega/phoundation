@@ -3188,7 +3188,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         $this->definitions
              ->appendSource($data_entry->getDefinitionsObject()
-                                           ->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null));
+                                       ->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null));
 
         return $this;
     }
@@ -3316,7 +3316,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function extractDataEntryObject(array|string $columns, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): DataEntryInterface
     {
         // Clone this object, then filter the definitions object, then clean the source
-        $entry = clone $this;
+        $entry = static::new($this);
 
         $entry->getDefinitionsObject()
               ->keepMatchingKeys($columns, $flags);

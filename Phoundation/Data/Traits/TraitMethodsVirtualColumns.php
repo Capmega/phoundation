@@ -126,7 +126,7 @@ trait TraitMethodsVirtualColumns {
      *
      * @return DataEntryInterface|null
      */
-    public function getVirtualObject(string $table): ?DataEntryInterface
+    protected function getVirtualObject(string $table): ?DataEntryInterface
     {
         if (empty($this->virtual_objects[$table])) {
             $this->setVirtualObject($table);
@@ -150,7 +150,7 @@ trait TraitMethodsVirtualColumns {
 
         if (empty($o_object)) {
             try {
-                $identifier = $this->getVirtualLoadIdentifier($configuration['columns']);
+                $identifier = $this->getVirtualLoadIdentifier($configuration['columns'], array_get_safe($configuration, 'additional_filters'));
                 $o_object   = $configuration['class']::new()->loadOrNull($identifier);
 
             } catch (DataEntryInvalidVirtualConfigurationException $e) {
@@ -181,11 +181,12 @@ trait TraitMethodsVirtualColumns {
     /**
      * Returns a DataEntry identifier array with virtual column values from this DataEntry to load the virtual object
      *
-     * @param array $columns
+     * @param array      $columns
+     * @param array|null $additional_filters
      *
      * @return array
      */
-    protected function getVirtualLoadIdentifier(array $columns): array
+    protected function getVirtualLoadIdentifier(array $columns, ?array $additional_filters = null): array
     {
         $return = [];
 
@@ -216,6 +217,11 @@ trait TraitMethodsVirtualColumns {
             $return[$column] = $value;
         }
 
+        if ($return and $additional_filters) {
+            // Additional identifier filters were specified, add those too
+            $return = array_merge($additional_filters, $return);
+        }
+
         return $return;
     }
 
@@ -243,10 +249,11 @@ trait TraitMethodsVirtualColumns {
      * @param string      $table
      * @param string|null $class
      * @param array       $columns
+     * @param array|null  $additional_filters
      *
      * @return static
      */
-    protected function addVirtualConfiguration(string $table, ?string $class, array $columns): static
+    protected function addVirtualConfiguration(string $table, ?string $class, array $columns, ?array $additional_filters = null): static
     {
         $table_columns = [];
 
@@ -260,6 +267,10 @@ trait TraitMethodsVirtualColumns {
 
         if ($class) {
             $this->virtual_configuration[$table]['class'] = $class;
+        }
+
+        if ($additional_filters) {
+            $this->virtual_configuration[$table]['additional_filters'] = $additional_filters;
         }
 
         return $this;
