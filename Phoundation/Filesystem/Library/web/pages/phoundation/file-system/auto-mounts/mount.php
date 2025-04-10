@@ -89,7 +89,7 @@ if (Request::isPostRequestMethod()) {
 // Save button
 if (!$mount->getReadonly()) {
     $save = Button::new()
-                  ->setValue(tr('Save'))
+                  ->setContent(tr('Save'))
                   ->setContent(tr('Save'));
 }
 
@@ -101,7 +101,7 @@ if (!$mount->isNew()) {
                         ->setFloatRight(true)
                         ->setMode(EnumDisplayMode::warning)
                         ->setOutlined(true)
-                        ->setValue(tr('Undelete'))
+                        ->setContent(tr('Undelete'))
                         ->setContent(tr('Undelete'));
 
     } else {
@@ -109,7 +109,7 @@ if (!$mount->isNew()) {
                         ->setFloatRight(true)
                         ->setMode(EnumDisplayMode::warning)
                         ->setOutlined(true)
-                        ->setValue(tr('Delete'))
+                        ->setContent(tr('Delete'))
                         ->setContent(tr('Delete'));
 
         // Audit button.
@@ -118,7 +118,7 @@ if (!$mount->isNew()) {
                        ->setMode(EnumDisplayMode::information)
                        ->setAnchorUrl('/audit/meta+' . $mount->getMetaId() . '.html')
                        ->setFloatRight(true)
-                       ->setValue(tr('Audit'))
+                       ->setContent(tr('Audit'))
                        ->setContent(tr('Audit'));
     }
 }

@@ -158,7 +158,7 @@ if (Request::isPostRequestMethod()) {
 // Save button
 if (!$user->getReadonly()) {
     $save = Button::new()
-                  ->setValue(tr('Save'))
+                  ->setContent(tr('Save'))
                   ->setContent(tr('Save'))
                   ->setFloatRight(true);
 }
@@ -170,7 +170,7 @@ if ($user->canBeImpersonated()) {
     $impersonate = Button::new()
                          ->setFloatRight(true)
                          ->setMode(EnumDisplayMode::danger)
-                         ->setValue(tr('Impersonate'))
+                         ->setContent(tr('Impersonate'))
                          ->setContent(tr('Impersonate'))
                          ->setFloatRight(true);
 }
@@ -183,7 +183,7 @@ if ($user->canBeStatusChanged()) {
                         ->setFloatRight(true)
                         ->setMode(EnumDisplayMode::warning)
                         ->setOutlined(true)
-                        ->setValue(tr('Undelete'))
+                        ->setContent(tr('Undelete'))
                         ->setContent(tr('Undelete'))
                         ->setFloatRight(true);
 
@@ -192,7 +192,7 @@ if ($user->canBeStatusChanged()) {
                         ->setFloatRight(true)
                         ->setMode(EnumDisplayMode::warning)
                         ->setOutlined(true)
-                        ->setValue(tr('Delete'))
+                        ->setContent(tr('Delete'))
                         ->setContent(tr('Delete'))
                         ->setFloatRight(true);
 
@@ -200,7 +200,7 @@ if ($user->canBeStatusChanged()) {
             $lock = Button::new()
                           ->setFloatRight(true)
                           ->setMode(EnumDisplayMode::warning)
-                          ->setValue(tr('Unlock'))
+                          ->setContent(tr('Unlock'))
                           ->setContent(tr('Unlock'))
                           ->setFloatRight(true);
 
@@ -208,7 +208,7 @@ if ($user->canBeStatusChanged()) {
             $lock = Button::new()
                           ->setFloatRight(true)
                           ->setMode(EnumDisplayMode::warning)
-                          ->setValue(tr('Lock'))
+                          ->setContent(tr('Lock'))
                           ->setContent(tr('Lock'))
                           ->setFloatRight(true);
         }
@@ -223,7 +223,7 @@ if (!$user->isNew()) {
                    ->setMode(EnumDisplayMode::information)
                    ->setAnchorUrl('/audit/meta+' . $user->getMetaId() . '.html')
                    ->setFloatRight(true)
-                   ->setValue(tr('Audit'))
+                   ->setContent(tr('Audit'))
                    ->setContent(tr('Audit'))
                    ->setFloatRight(true);
 }

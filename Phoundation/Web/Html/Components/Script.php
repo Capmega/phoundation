@@ -379,7 +379,7 @@ class Script extends Element implements ScriptInterface
         if (!$this->load_multiple) {
             if ($this->isLoaded()) {
                 // The script in this object has already been loaded, render nothing.
-                Log::warning(tr('Not loading script ":hash" to client because it has already beena loaded', [
+                Log::warning(tr('Not loading script ":hash" to client because it has already been loaded', [
                     ':hash' => $this->getHash()
                 ]), 9);
 

@@ -1285,7 +1285,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * (MUST exist in the database)
      *
      * @param IdentifierInterface|array|string|int|false|null $identifier
-     * @param array|string                              $columns
+     * @param array|string                                    $columns
      *
      * @return static
      */
@@ -1303,6 +1303,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         $this->cache_key = null;
         $this->columns   = $columns;
+
         return $this->load($identifier);
     }
 

@@ -1891,7 +1891,7 @@ class DefinitionFactory
                                      return InputText::new()
                                                      ->setDisabled(true)
                                                      ->addClasses('text-center')
-                                                     ->setValue(tr('System'));
+                                                     ->setContent(tr('System'));
                                  }
                              }
                          });
@@ -2014,7 +2014,7 @@ class DefinitionFactory
                                      return InputText::new()
                                                      ->setDisabled(true)
                                                      ->addClasses('text-center')
-                                                     ->setValue(tr('System'));
+                                                     ->setContent(tr('System'));
                                  }
                              }
                          });

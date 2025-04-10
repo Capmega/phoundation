@@ -93,7 +93,7 @@ if (Session::getUserObject()->hasAllRights(['accounts'])) {
     $edit = Button::new()
                   ->setMode(EnumDisplayMode::secondary)
                   ->setBlock(true)
-                  ->setValue(tr('Edit'))
+                  ->setContent(tr('Edit'))
                   ->setContent(tr('Edit'))
                   ->setAnchorUrl('/accounts/user+' . $user->getId() . '.html');
 
@@ -101,7 +101,7 @@ if (Session::getUserObject()->hasAllRights(['accounts'])) {
         $impersonate = Button::new()
                              ->setBlock(true)
                              ->setMode(EnumDisplayMode::danger)
-                             ->setValue(tr('Impersonate'))
+                             ->setContent(tr('Impersonate'))
                              ->setContent(tr('Impersonate'));
     }
 
@@ -110,13 +110,13 @@ if (Session::getUserObject()->hasAllRights(['accounts'])) {
             $lock = Button::new()
                           ->setBlock(true)
                           ->setMode(EnumDisplayMode::warning)
-                          ->setValue(tr('Unlock'))
+                          ->setContent(tr('Unlock'))
                           ->setContent(tr('Unlock'));
         } else {
             $lock = Button::new()
                           ->setBlock(true)
                           ->setMode(EnumDisplayMode::warning)
-                          ->setValue(tr('Lock'))
+                          ->setContent(tr('Lock'))
                           ->setContent(tr('Lock'));
         }
     }

@@ -77,14 +77,14 @@ if (!$authentication->isNew()) {
                    ->setFloatRight(true)
                    ->setMode(EnumDisplayMode::information)
                    ->setAnchorUrl('/audit/meta+' . $authentication->getMetaId() . '.html')
-                   ->setValue(tr('Audit'))
+                   ->setContent(tr('Audit'))
                    ->setContent(tr('Audit'));
 
     $delete = Button::new()
                     ->setFloatRight(true)
                     ->setMode(EnumDisplayMode::warning)
                     ->setOutlined(true)
-                    ->setValue(tr('Delete'))
+                    ->setContent(tr('Delete'))
                     ->setContent(tr('Delete'));
 }
 

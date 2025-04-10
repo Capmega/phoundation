@@ -89,7 +89,7 @@ if (Request::isPostRequestMethod()) {
 // Save button
 if (!$requirement->getReadonly()) {
     $save = Button::new()
-                  ->setValue(tr('Save'))
+                  ->setContent(tr('Save'))
                   ->setContent(tr('Save'));
 }
 
@@ -101,7 +101,7 @@ if (!$requirement->isNew()) {
                         ->setFloatRight(true)
                         ->setMode(EnumDisplayMode::warning)
                         ->setOutlined(true)
-                        ->setValue(tr('Undelete'))
+                        ->setContent(tr('Undelete'))
                         ->setContent(tr('Undelete'));
 
     } else {
@@ -109,21 +109,21 @@ if (!$requirement->isNew()) {
                         ->setFloatRight(true)
                         ->setMode(EnumDisplayMode::warning)
                         ->setOutlined(true)
-                        ->setValue(tr('Delete'))
+                        ->setContent(tr('Delete'))
                         ->setContent(tr('Delete'));
 
         if ($requirement->isLocked()) {
             $lock = Button::new()
                           ->setFloatRight(true)
                           ->setMode(EnumDisplayMode::warning)
-                          ->setValue(tr('Unlock'))
+                          ->setContent(tr('Unlock'))
                           ->setContent(tr('Unlock'));
 
         } else {
             $lock = Button::new()
                           ->setFloatRight(true)
                           ->setMode(EnumDisplayMode::warning)
-                          ->setValue(tr('Lock'))
+                          ->setContent(tr('Lock'))
                           ->setContent(tr('Lock'));
         }
 
@@ -133,7 +133,7 @@ if (!$requirement->isNew()) {
                        ->setMode(EnumDisplayMode::information)
                        ->setAnchorUrl('/audit/meta+' . $requirement->getMetaId() . '.html')
                        ->setFloatRight(true)
-                       ->setValue(tr('Audit'))
+                       ->setContent(tr('Audit'))
                        ->setContent(tr('Audit'));
     }
 }
