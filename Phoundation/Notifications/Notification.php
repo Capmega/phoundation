@@ -129,9 +129,9 @@ class Notification extends DataEntry implements NotificationInterface
     /**
      * Notification class constructor
      *
-     * @param IdentifierInterface|array|string|int|false|null $identifier
+     * @param Throwable|IdentifierInterface|array|string|int|false|null $identifier
      */
-    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false)
+    public function __construct(Throwable|IdentifierInterface|array|string|int|false|null $identifier = false)
     {
         $this->initializeVirtualConfiguration([
             'users' => ['id'],
@@ -158,7 +158,14 @@ class Notification extends DataEntry implements NotificationInterface
             ];
         }
 
-        parent::__construct($identifier);
+        if ($identifier instanceof Throwable) {
+            parent::__construct();
+            $this->setException($identifier);
+
+        } else {
+            parent::__construct($identifier);
+        }
+
 
         if ($this->isNew()) {
             if (Session::isInitialized()) {
@@ -173,11 +180,11 @@ class Notification extends DataEntry implements NotificationInterface
     /**
      * Returns a new Notification object
      *
-     * @param IdentifierInterface|array|string|int|false|null $identifier
+     * @param Throwable|IdentifierInterface|array|string|int|false|null $identifier
      *
      * @return static
      */
-    public static function new(IdentifierInterface|array|string|int|false|null $identifier = false): static
+    public static function new(Throwable|IdentifierInterface|array|string|int|false|null $identifier = false): static
     {
         return new static($identifier);
     }
