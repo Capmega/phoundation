@@ -22,8 +22,8 @@ use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\SignInKeyStatusException;
 use Phoundation\Accounts\Users\Exception\SignInKeyUsedException;
 use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
@@ -39,7 +39,6 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Phoundation\Web\Routing\Route;
 use Stringable;
-
 
 class SignInKey extends DataEntry implements SignInKeyInterface
 {

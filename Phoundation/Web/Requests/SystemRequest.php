@@ -17,9 +17,9 @@ declare(strict_types=1);
 namespace Phoundation\Web\Requests;
 
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -37,7 +37,6 @@ use Phoundation\Web\Requests\Interfaces\SystemRequestInterface;
 use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Web;
 use Throwable;
-
 
 class SystemRequest implements SystemRequestInterface
 {

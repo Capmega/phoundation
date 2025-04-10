@@ -14,17 +14,15 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Core\Sessions;
+namespace Phoundation\Accounts\Users\Sessions;
 
-use Phoundation\Accounts\Users\Sessions\UserSession;
+use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Exception\SessionException;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Os\Processes\Commands\Find;
-
 
 class Sessions
 {

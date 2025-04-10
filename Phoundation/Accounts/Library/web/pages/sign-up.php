@@ -15,13 +15,14 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
-use Phoundation\Core\Sessions\Session;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Html\Pages\SignUpPage;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
+
 Request::executeSystem('404');
 
 // Only show sign-up page if we're a guest user

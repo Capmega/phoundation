@@ -17,7 +17,7 @@ declare(strict_types=1);
 use Phoundation\Accounts\Users\Authentication;
 use Phoundation\Accounts\Users\Authentications;
 use Phoundation\Accounts\Users\AuthenticationsFilterForm;
-use Phoundation\Core\Sessions\Session;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
@@ -28,7 +28,6 @@ use Phoundation\Web\Html\Enums\EnumTableRowType;
 use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
-
 
 // Build users filter card
 $filters = AuthenticationsFilterForm::new();

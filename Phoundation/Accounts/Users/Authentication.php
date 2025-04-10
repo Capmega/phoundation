@@ -19,23 +19,22 @@ namespace Phoundation\Accounts\Users;
 
 use Phoundation\Accounts\Enums\EnumAuthenticationAction;
 use Phoundation\Accounts\Users\Interfaces\AuthenticationInterface;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
-use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryAlreadySavedException;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryCity;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryCountry;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryCreatedBy;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryIpAddress;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryLongLat;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryMethod;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryPlatform;
-use Phoundation\Data\DataEntries\Traits\TraitDataEntryCreatedBy;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryState;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryTimezone;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUserAgent;
@@ -43,7 +42,6 @@ use Phoundation\Geo\GeoIp\Exception\GeoIpException;
 use Phoundation\Geo\GeoIp\GeoIp;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
-
 
 class Authentication extends DataEntry implements AuthenticationInterface
 {

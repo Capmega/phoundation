@@ -78,12 +78,6 @@ interface PhoMimetypeInterface extends DataEntryInterface
      */
     public function setSecondaryPart(?string $secondary): static;
 
-
-    /**
-     * @inheritDoc
-     */
-    public function write(?string $comments = null): static;
-
     /**
      * Returns if this mimetype has the specified extension
      *

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class SessionDuplicateIdentifierException
+ * Class SessionException
  *
  *
  *
@@ -14,9 +14,10 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Core\Sessions\Exception;
+namespace Phoundation\Accounts\Users\Sessions\Exception;
 
+use Phoundation\Core\Exception\CoreException;
 
-class SessionDuplicateIdentifierException extends SessionException
+class SessionException extends CoreException
 {
 }

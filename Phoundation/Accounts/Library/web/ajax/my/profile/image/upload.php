@@ -17,8 +17,8 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\ProfileImages\ProfileImage;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Content\Images\ImageFile;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\FileValidatorInterface;
 use Phoundation\Filesystem\Interfaces\PhoUploadedFileInterface;
@@ -31,7 +31,6 @@ use Phoundation\Web\Html\Json\JsonHtmlSection;
 use Phoundation\Web\Requests\JsonPage;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Uploads\UploadHandler;
-
 
 try {
     Request::getMethodRestrictionsObject()->require(EnumHttpRequestMethod::upload);

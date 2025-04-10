@@ -16,12 +16,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Templates;
 
-use Phoundation\Core\Sessions\Session;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Storage\Page;
 use Phoundation\Templates\Interfaces\TemplateInterface;
 use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Http\Url;
-
 
 class Template extends Page implements TemplateInterface
 {

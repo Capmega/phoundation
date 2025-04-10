@@ -16,12 +16,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets;
 
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Content\Images\Interfaces\ImageFileInterface;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenuInterface;
 use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
 use Phoundation\Web\Requests\Request;
-
 
 class ProfileImage extends ImageMenu
 {

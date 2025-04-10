@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Core\Sessions\Session;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
@@ -28,7 +28,6 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Phoundation\Web\Uploads\UploadHandler;
-
 
 // Get the user and alter the default user form
 $user = Session::getUserObject();

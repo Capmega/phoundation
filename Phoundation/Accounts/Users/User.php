@@ -41,14 +41,14 @@ use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImageInterface;
 use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImagesInterface;
 use Phoundation\Accounts\Users\ProfileImages\ProfileImage;
 use Phoundation\Accounts\Users\ProfileImages\ProfileImages;
+use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
+use Phoundation\Accounts\Users\Sessions\Interfaces\SessionInterface;
+use Phoundation\Accounts\Users\Sessions\Session;
+use Phoundation\Accounts\Users\Sessions\Sessions;
 use Phoundation\Core\Core;
 use Phoundation\Core\Hooks\Hook;
 use Phoundation\Core\Hooks\Interfaces\HookInterface;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Exception\SessionException;
-use Phoundation\Core\Sessions\Interfaces\SessionInterface;
-use Phoundation\Core\Sessions\Session;
-use Phoundation\Core\Sessions\Sessions;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
@@ -110,7 +110,6 @@ use Plugins\Phoundation\MultiFactorAuthentication\Interfaces\MultiFactorAuthenti
 use Plugins\Phoundation\MultiFactorAuthentication\MultiFactorAuthentication;
 use Stringable;
 use Throwable;
-
 
 class User extends DataEntry implements UserInterface
 {

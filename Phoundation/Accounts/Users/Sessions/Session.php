@@ -24,7 +24,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Core\Sessions;
+namespace Phoundation\Accounts\Users\Sessions;
 
 use DateTimeZone;
 use Exception;
@@ -34,15 +34,14 @@ use Phoundation\Accounts\Users\Authentication;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
+use Phoundation\Accounts\Users\Sessions\Exception\SessionStartFailedException;
+use Phoundation\Accounts\Users\Sessions\Interfaces\SessionInterface;
 use Phoundation\Accounts\Users\Sessions\Interfaces\UserSessionInterface;
-use Phoundation\Accounts\Users\Sessions\UserSession;
 use Phoundation\Accounts\Users\SignInKey;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Exception\SessionException;
-use Phoundation\Core\Sessions\Exception\SessionStartFailedException;
-use Phoundation\Core\Sessions\Interfaces\SessionInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryStatusException;
 use Phoundation\Data\Traits\TraitDataStaticFlashMessages;
@@ -73,6 +72,7 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Plugins\Phoundation\MultiFactorAuthentication\Interfaces\MultiFactorAuthenticationInterface;
 use Throwable;
+use function Phoundation\Core\Sessions\sql_get;
 
 class Session implements SessionInterface
 {

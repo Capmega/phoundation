@@ -17,13 +17,14 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Sql;
 
 use Exception;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\Traits\TraitDataDataEntry;
 use Phoundation\Data\Traits\TraitDataDebug;
+use Phoundation\Data\Traits\TraitDataForce;
 use Phoundation\Data\Traits\TraitDataIdColumn;
 use Phoundation\Data\Traits\TraitDataInsertUpdate;
 use Phoundation\Data\Traits\TraitDataMaxIdRetries;
@@ -40,7 +41,6 @@ use Phoundation\Utils\Json;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 
-
 class SqlDataEntry implements SqlDataEntryInterface
 {
     use TraitDataDataEntry {
@@ -53,6 +53,7 @@ class SqlDataEntry implements SqlDataEntryInterface
     use TraitDataMetaEnabled;
     use TraitDataRandomId;
     use TraitDataTable;
+    use TraitDataForce;
 
 
     /**
@@ -325,7 +326,9 @@ class SqlDataEntry implements SqlDataEntryInterface
     protected function initializeInsertRow(array $row, ?string $comments, ?string $diff, ?string $meta_state = null): array
     {
         // Filter out non modified rows
-        $row = Arrays::keepKeys($row, array_merge($this->o_data_entry->getChanges(), $this->o_data_entry->getMetaColumns()));
+        if ($this->force) {
+            $row = Arrays::keepKeys($row, array_merge($this->o_data_entry->getChanges(), $this->o_data_entry->getMetaColumns()));
+        }
 
         // Set meta fields
         if ($this->o_data_entry->isMetaColumn('meta_id')) {
@@ -360,7 +363,10 @@ class SqlDataEntry implements SqlDataEntryInterface
     protected function initializeUpdateRow(array $row, ?string $comments, ?string $diff, string $meta_action): array
     {
         // Filter out non modified rows
-        $row = Arrays::keepKeys($row, array_merge($this->o_data_entry->getChanges(), $this->o_data_entry->getMetaColumns()));
+        if (!$this->force) {
+            // Only update changed entries
+            $row = Arrays::keepKeys($row, array_merge($this->o_data_entry->getChanges(), $this->o_data_entry->getMetaColumns()));
+        }
 
         // Log meta_id action
         if ($this->o_data_entry->isMetaColumn('meta_id')) {
@@ -377,6 +383,11 @@ class SqlDataEntry implements SqlDataEntryInterface
         // Never update the other meta-information
         foreach ($this->o_data_entry->getMetaColumns() as $column) {
             if ($column === $this->id_column) {
+                // We DO need the ID column for update, though!
+                continue;
+            }
+
+            if ($column === 'status') {
                 // We DO need the ID column for update, though!
                 continue;
             }

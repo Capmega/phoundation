@@ -17,12 +17,11 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Widgets\Menus;
 
 use PDOStatement;
-use Phoundation\Core\Sessions\Session;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenuInterface;
 use Phoundation\Web\Http\Url;
-
 
 class Menu extends ElementsBlock implements MenuInterface
 {

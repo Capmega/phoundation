@@ -17,9 +17,9 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Widgets\Captcha;
 
 use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\CaptchaFailedException;
 use Phoundation\Network\Curl\Post;
 use Phoundation\Utils\Json;
