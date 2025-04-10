@@ -52,13 +52,13 @@ if (Request::isPostRequestMethod()) {
             // If the signed-in user has the same email as the GET specified email, try to execute the specified redirect.
             if (empty($get['email']) or ($user->getEmail() === $get['email'])) {
                 $get['redirect'] = Url::filter($get['redirect'], ['sign-out', 'sign-in']);
-                $get['redirect'] = Url::newRedirect($get['redirect'], $user->getDefaultPage());
+                $get['redirect'] = Url::newRedirect($get['redirect']);
 
                 Response::redirect($get['redirect']);
             }
 
             // GET email didn't match, redirect the default page for this user
-            Response::redirect($user->getDefaultPage() ?? Url::new('index')->makeWww());
+            Response::redirect(Url::new('index')->makeWww());
 
         } catch (AuthenticationException | PasswordTooShortException | NoPasswordSpecifiedException | ValidationFailedException $e) {
             Response::getFlashMessagesObject()->addWarning(tr('The specified email and/or password were incorrect'));

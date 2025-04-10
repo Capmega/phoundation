@@ -31,6 +31,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryFile;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUser;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Strings;
@@ -42,10 +43,10 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
 {
     use TraitDataEntryDescription;
     use TraitDataEntryFile {
-        setFile as protected __setFile;
+        setFileObject as protected __setFileObject;
     }
     use TraitDataEntryUser {
-        setUsersId as protected __setUsersId;
+        setUserObject as protected __setUserObject;
     }
 
 
@@ -188,7 +189,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
      */
     public function getHtmlImgObject(): ImgInterface
     {
-        return Img::new($this->getFileObject()->getSource())->setAlt($this->getDescription());
+        return Img::new('img/files/profile/' . $this->getFileObject()->getSource())->setAlt($this->getDescription());
     }
 
 
@@ -207,55 +208,45 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
 
 
     /**
-     * Sets the users_id for this object and will assign the profile image to the user
+     * Returns the users_id for this user
      *
-     * @param int|null           $id
      * @param UserInterface|null $o_user
      *
      * @return static
      */
-    public function setUsersId(?int $id, ?UserInterface $o_user = null): static
+    public function setUserObject(?UserInterface $o_user): static
     {
         $o_file = $this->getFileObject();
 
         if ($o_file) {
             // This profile image object has a file set, process it
-
-            if ($id) {
-                // Assign the profile image to the specified user
-                if (empty($o_user)) {
-                    // We need a user object
-                    $o_user = User::new()->load($id);
-                }
-
-                $cdn_directory = PhoDirectory::newCdnObject(true, '/img/files/profile/' . $id)
+            if ($o_user) {
+                $cdn_directory = PhoDirectory::newCdnObject(true, 'img/files/profile/' . $o_user->getId())
                                              ->ensure();
 
                 Log::action(ts('Adding image ":file" to profile images for user ":user"', [
-                    ':file' => $this->getFileObject()->getRootname(),
+                    ':file' => $o_file->getRootname(),
                     ':user' => $o_user->getLogId()
                 ]), 4);
 
-                if ($o_file) {
-                    // If the profile image file is NOT in location CDN/img/files/profile/USERS_ID, move it there first
-                    if (!$o_file->isInDirectory($cdn_directory)) {
-                        Log::action(ts('Moving file ":file" to users profile image directory ":directory"', [
-                            ':file'      => $o_file->getRootname(),
-                            ':directory' => $cdn_directory->getRootname()
-                        ]));
+                // If the profile image file is NOT in location CDN/img/files/profile/USERS_ID, move it there first
+                if (!$o_file->isInDirectory($cdn_directory)) {
+                    Log::action(ts('Moving file ":file" to users profile image directory ":directory"', [
+                        ':file'      => $o_file->getRootname(),
+                        ':directory' => $cdn_directory->getRootname()
+                    ]));
 
-                        $this->setFileObject($o_file->move($cdn_directory));
-                    }
+                    $this->setFileObject($o_file->move($cdn_directory));
                 }
 
             } else {
                 // Assign the profile image to no user
-                $o_user = $this->getUserObject();
+                $o_current = $this->getUserObject();
 
-                if ($o_user) {
+                if ($o_current) {
                     // This profile image is currently assigned to a user and, as such, in its user directory. Move the file
                     // to a generic profile image directory
-                    $cdn_directory = PhoDirectory::newCdnObject(true, '/img/files/profile/' . $this->getUsersId())
+                    $cdn_directory = PhoDirectory::newCdnObject(true, '/img/files/profile/' . $o_current->getId())
                                                  ->ensure();
 
                     if (!$o_file->isInDirectory($cdn_directory)) {
@@ -277,33 +268,32 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                     $this->setFileObject($o_file->move($cdn_directory));
                 }
 
-                $id = null;
+                $o_user = null;
             }
         }
 
-        return $this->__setUsersId($id);
+        return $this->__setUserObject($o_user);
     }
 
 
     /**
-     * Sets the file for this profile image
+     * Sets the file for this object
      *
-     * @param string|null $file
+     * @param PhoFileInterface|null $file
      *
      * @return static
      */
-    public function setFile(string|null $file): static
+    public function setFileObject(PhoFileInterface|null $file): static
     {
         if ($file) {
-            if (str_starts_with($file, '/')) {
-                if (str_starts_with($file, DIRECTORY_CDN)) {
-                    $file = Strings::from($file, DIRECTORY_CDN . LANGUAGE, needle_required: true);
-                    $file = Strings::ensureStartsNotWith($file, '/');
-                }
+            $o_directory = PhoDirectory::newCdnObject(false, 'img/files/profile/');
+
+            if ($file->isInDirectory($o_directory)) {
+                $file = $file->getFrom($o_directory);
             }
         }
 
-        return $this->__setFile(get_null($file));
+        return $this->__setFileObject($file);
     }
 
 
@@ -348,12 +338,10 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                                            ->setMaxlength(2048)
                                            ->setRender(false)
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isFile(
-                                                   [
-                                                       PhoDirectory::newDataTmpObject(),
-                                                       ($this->getUserObject() ? PhoDirectory::newCdnObject(true, '/img/files/profile/' . $this->getUserObject()?->getId() . '/') : null)
-                                                   ],
-                                                   prefix: PhoDirectory::newCdnObject());
+                                               $validator->isFile([
+                                                   PhoDirectory::newDataTmpObject(),
+                                                   ($this->getUserObject() ? PhoDirectory::newCdnObject(true, 'img/files/profile/' . $this->getUserObject()?->getId() . '/') : null)
+                                               ]);
                                            }))
 
                     ->add(DefinitionFactory::newDescription());

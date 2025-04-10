@@ -37,12 +37,13 @@ interface ConfigInterface
      *                                               the path doesn't exist
      * @param bool         $allow_user_configuration If true will allow user configuration to override system
      *                                               configuration
+     * @param bool         $use_cache                If true will attempt to use cached configuration paths
      *
      * @return mixed
      *
      * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException
      */
-    public function get(string|array $path = '', mixed $default = null, bool $allow_user_configuration = false): mixed;
+    public function get(string|array $path = '', mixed $default = null, bool $allow_user_configuration = false, bool $use_cache = true): mixed;
 
 
     /**
@@ -56,12 +57,13 @@ interface ConfigInterface
      *                                               the path doesn't exist
      * @param bool         $allow_user_configuration If true will allow user configuration to override system
      *                                               configuration
+     * @param bool         $use_cache                If true will attempt to use cached configuration paths
      *
      * @return bool                                  The value for the requested path
      *
      * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getBoolean(string|array $path, ?bool $default = null, bool $allow_user_configuration = false): bool;
+    public function getBoolean(string|array $path, ?bool $default = null, bool $allow_user_configuration = false, bool $use_cache = true): bool;
 
 
     /**
@@ -75,12 +77,13 @@ interface ConfigInterface
      *                                               the path doesn't exist
      * @param bool         $allow_user_configuration If true will allow user configuration to override system
      *                                               configuration
+     * @param bool         $use_cache                If true will attempt to use cached configuration paths
      *
      * @return int                                   The value for the requested path
      *
      * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getInteger(string|array $path, ?int $default = null, bool $allow_user_configuration = false): int;
+    public function getInteger(string|array $path, ?int $default = null, bool $allow_user_configuration = false, bool $use_cache = true): int;
 
 
     /**
@@ -95,12 +98,13 @@ interface ConfigInterface
      *                                               the path doesn't exist
      * @param bool         $allow_user_configuration If true will allow user configuration to override system
      *                                               configuration
+     * @param bool         $use_cache                If true will attempt to use cached configuration paths
      *
      * @return int                                   The value for the requested path
      *
      * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException | OutOfBoundsException
      */
-    public function getPositiveInteger(string|array $path, ?int $default = null, bool $allow_user_configuration = false): int;
+    public function getPositiveInteger(string|array $path, ?int $default = null, bool $allow_user_configuration = false, bool $use_cache = true): int;
 
 
     /**
@@ -115,12 +119,13 @@ interface ConfigInterface
      *                                               the path doesn't exist
      * @param bool         $allow_user_configuration If true will allow user configuration to override system
      *                                               configuration
+     * @param bool         $use_cache                If true will attempt to use cached configuration paths
      *
      * @return int                                   The value for the requested path
      *
      * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException | OutOfBoundsException
      */
-    public function getNegativeInteger(string|array $path, ?int $default = null, bool $allow_user_configuration = false): int;
+    public function getNegativeInteger(string|array $path, ?int $default = null, bool $allow_user_configuration = false, bool $use_cache = true): int;
 
 
     /**
@@ -135,12 +140,13 @@ interface ConfigInterface
      *                                               when the path doesn't exist
      * @param bool         $allow_user_configuration If true will allow user configuration to override system
      *                                               configuration
+     * @param bool         $use_cache                If true will attempt to use cached configuration paths
      *
      * @return int                                   The value for the requested path
      *
      * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getNatural(string|array $path, int|null $default = null, bool $allow_user_configuration = false): int;
+    public function getNatural(string|array $path, int|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): int;
 
 
     /**
@@ -155,12 +161,13 @@ interface ConfigInterface
      *                                               when the path doesn't exist
      * @param bool         $allow_user_configuration If true will allow user configuration to override system
      *                                               configuration
+     * @param bool         $use_cache                If true will attempt to use cached configuration paths
      *
      * @return int                                   The value for the requested path
      *
      * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getDbId(string|array $path, int|null $default = null, bool $allow_user_configuration = false): int;
+    public function getDbId(string|array $path, int|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): int;
 
 
     /**
@@ -174,12 +181,13 @@ interface ConfigInterface
      *                                                 when the path doesn't exist
      * @param bool           $allow_user_configuration If true will allow user configuration to override system
      *                                                 configuration
+     * @param bool           $use_cache                If true will attempt to use cached configuration paths
      *
      * @return int|float                               The value for the requested path
      *
      * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getFloat(string|array $path, int|float|null $default = null, bool $allow_user_configuration = false): int|float;
+    public function getFloat(string|array $path, int|float|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): int|float;
 
 
     /**
@@ -195,12 +203,14 @@ interface ConfigInterface
      *                                                               exist
      * @param bool                         $allow_user_configuration If true will allow user configuration to override
      *                                                               system configuration
+     * @param bool $use_cache                                        If true will attempt to use cached configuration
+     *                                                               paths
      *
      * @return IteratorInterface                                     The value for the requested path
      *
      * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getIteratorObject(string|array $path, IteratorInterface|array|null $default = null, array|string|null $require_keys = null, bool $allow_user_configuration = false): IteratorInterface;
+    public function getIteratorObject(string|array $path, IteratorInterface|array|null $default = null, array|string|null $require_keys = null, bool $allow_user_configuration = false, bool $use_cache = true): IteratorInterface;
 
 
     /**
@@ -214,12 +224,13 @@ interface ConfigInterface
      *                                               the path doesn't exist
      * @param bool         $allow_user_configuration If true will allow user configuration to override system
      *                                               configuration
+     * @param bool         $use_cache                If true will attempt to use cached configuration paths
      *
      * @return array                                 The value for the requested path
      *
      * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getArray(string|array $path, array|null $default = null, array|string|null $require_keys = null, bool $allow_user_configuration = false): array;
+    public function getArray(string|array $path, array|null $default = null, array|string|null $require_keys = null, bool $allow_user_configuration = false, bool $use_cache = true): array;
 
 
     /**
@@ -233,12 +244,13 @@ interface ConfigInterface
      *                                               the path doesn't exist
      * @param bool         $allow_user_configuration If true will allow user configuration to override system
      *                                               configuration
+     * @param bool         $use_cache                If true will attempt to use cached configuration paths
      *
      * @return string                                The value for the requested path
      *
      * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getString(string|array $path, string|null $default = null, bool $allow_user_configuration = false): string;
+    public function getString(string|array $path, string|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): string;
 
 
     /**
@@ -252,12 +264,13 @@ interface ConfigInterface
      *                                               the path doesn't exist
      * @param bool         $allow_user_configuration If true will allow user configuration to override system
      *                                               configuration
+     * @param bool         $use_cache                If true will attempt to use cached configuration paths
      *
      * @return array|string                          The value for the requested path
      *
      * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getArrayString(string|array $path, string|null $default = null, bool $allow_user_configuration = false): array|string;
+    public function getArrayString(string|array $path, string|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): array|string;
 
 
     /**
@@ -275,12 +288,13 @@ interface ConfigInterface
      *                                                   when the path doesn't exist
      * @param bool             $allow_user_configuration If true will allow user configuration to override system
      *                                                   configuration
+     * @param bool             $use_cache                If true will attempt to use cached configuration paths
      *
      * @return string|bool                               The value for the requested path
      *
      * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getStringBoolean(string|array $path, string|bool|null $default = null, bool $allow_user_configuration = false): string|bool;
+    public function getStringBoolean(string|array $path, string|bool|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): string|bool;
 
 
     /**
@@ -298,12 +312,13 @@ interface ConfigInterface
      *                                                    when the path doesn't exist
      * @param bool             $allow_user_configuration  If true will allow user configuration to override system
      *                                                    configuration
+     * @param bool             $use_cache                 If true will attempt to use cached configuration paths
      *
      * @return integer|bool                               The value for the requested path
      *
      * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getIntegerBoolean(string|array $path, string|bool|null $default = null, bool $allow_user_configuration = false): int|bool;
+    public function getIntegerBoolean(string|array $path, string|bool|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): int|bool;
 
 
     /**

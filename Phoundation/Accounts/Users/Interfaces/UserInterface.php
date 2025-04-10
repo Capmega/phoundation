@@ -606,10 +606,11 @@ interface UserInterface extends DataEntryInterface
      * Returns true if the user has ALL the specified rights
      *
      * @param array|string $rights
+     * @param string|null  $always_match
      *
      * @return bool
      */
-    public function hasAllRights(array|string $rights): bool;
+    public function hasAllRights(array|string $rights, ?string $always_match = null): bool;
 
 
     /**

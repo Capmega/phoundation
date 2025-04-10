@@ -20,8 +20,7 @@ namespace Phoundation\Accounts\Library;
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Core\Log\Log;
-use Phoundation\Seo\Seo;
-
+use Phoundation\Utils\Seo;
 
 class Updates extends \Phoundation\Core\Libraries\Updates
 {

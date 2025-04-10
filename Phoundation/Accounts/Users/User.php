@@ -21,7 +21,6 @@ use DateTimeInterface;
 use Phoundation\Accounts\Enums\EnumAuthenticationAction;
 use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
-use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Rights\RightsBySeoName;
 use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
@@ -63,7 +62,6 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryAddress;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryCode;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryComments;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryData;
-use Phoundation\Data\DataEntries\Traits\TraitDataEntryDefaultPage;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDescription;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDomain;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryEmail;
@@ -97,9 +95,9 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
-use Phoundation\Seo\Seo;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
+use Phoundation\Utils\Seo;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
@@ -120,7 +118,6 @@ class User extends DataEntry implements UserInterface
     use TraitDataEntryCode;
     use TraitDataEntryComments;
     use TraitDataEntryData;
-    use TraitDataEntryDefaultPage;
     use TraitDataEntryDescription;
     use TraitDataEntryDomain;
     use TraitDataEntryEmail;
@@ -1206,10 +1203,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      * Returns true if the user has ALL the specified rights
      *
      * @param array|string $rights
+     * @param string|null  $always_match
      *
      * @return bool
      */
-    public function hasAllRights(array|string $rights): bool
+    public function hasAllRights(array|string $rights, ?string $always_match = null): bool
     {
         if (!$rights) {
             return true;
@@ -1219,7 +1217,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             return false;
         }
 
-        $contains = $this->getRightsObject()->containsKeys($rights, true, 'god');
+        $contains = $this->getRightsObject()->containsKeys($rights, true, $always_match);
 
         if (!$contains) {
             if ($this->getRightsObject()->getCount()) {
@@ -3337,20 +3335,19 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                                }
                                             }))
 
-                    ->add(DefinitionFactory::newFile(null, null, 'profile_image')
+                    ->add(DefinitionFactory::newFile(null, 'profile_image')
                                            ->setLabel('Profile image')
                                            ->setOptional(true)
                                            ->setRender(false)
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                if ($validator->getSelectedValue()) {
                                                    if ($this->isNew()) {
-                                                       // Cannot save a profile image with a user that does not yet exist in the database
+                                                       // Can't save a profile image with a user that does not yet exist in the database
                                                        $validator->addFailure(tr('requires that the user is saved first'));
 
                                                    } else {
                                                        $validator->isFile(
                                                            PhoDirectory::newCdnObject(true, '/img/files/profile/' . $this->getId() . '/'),
-                                                           prefix: PhoDirectory::newCdnObject()
                                                        );
                                                    }
                                                }

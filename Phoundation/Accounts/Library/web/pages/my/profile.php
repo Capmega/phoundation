@@ -75,13 +75,13 @@ $user->getDefinitionsObject()->setRenderMeta(false)
 
 // Define the drag/drop upload selector
 Request::getFileUploadHandlersObject()
-    ->add(UploadHandler::new('image')
-        ->getDropZoneObject()
-        ->setUrl(Url::new('my/profile/image/upload')->makeAjax())
-        ->setSelector('#profile-picture-card')
-        ->setMaxFiles(0)
-        ->getHandler()
-    )->process();
+       ->add(UploadHandler::new('image')
+                          ->getDropZoneObject()
+                              ->setUrl(Url::new('my/profile/image/upload')->makeAjax())
+                              ->setSelector('#profile-picture-card')
+                              ->setMaxFiles(0)
+                              ->getHandlerObject()
+       )->process();
 
 
 // Validate POST and submit
@@ -116,7 +116,7 @@ $buttons = Buttons::new()->addButton('Save', right: true);
 // Build the "user" form
 $card = Card::new()
             ->setCollapseSwitch(true)
-            ->setTitle(tr('Manage your profile information here'))
+            ->setTitle(tr('My profile information'))
             ->setContent($user->getHtmlDataEntryFormObject())
             ->setButtons($buttons);
 

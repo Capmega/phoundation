@@ -42,7 +42,8 @@ $get = GetValidator::new()
 
 // Get the requested user and modify form design
 $user = User::new()->loadOrThis($get['id']);
-$user->getDefinitionsObject()->setDefinitionRender('latitude'        , false)
+$user->getDefinitionsObject()->setRenderMeta(!$user->isNew())
+                             ->setDefinitionRender('latitude'        , false)
                              ->setDefinitionRender('longitude'       , false)
                              ->setDefinitionRender('offset_latitude' , false)
                              ->setDefinitionRender('offset_longitude', false)
@@ -62,7 +63,7 @@ if ($user->isNotNew()) {
                               ->setUrl(Url::new('accounts/user/image/upload+' . $user->getId())->makeAjax())
                               ->setSelector('#profile-picture-card')
                               ->setMaxFiles(0)
-                              ->getHandler()
+                              ->getHandlerObject()
            )->process();
 }
 
@@ -158,7 +159,8 @@ if (Request::isPostRequestMethod()) {
 if (!$user->getReadonly()) {
     $save = Button::new()
                   ->setValue(tr('Save'))
-                  ->setContent(tr('Save'));
+                  ->setContent(tr('Save'))
+                  ->setFloatRight(true);
 }
 
 
@@ -169,7 +171,8 @@ if ($user->canBeImpersonated()) {
                          ->setFloatRight(true)
                          ->setMode(EnumDisplayMode::danger)
                          ->setValue(tr('Impersonate'))
-                         ->setContent(tr('Impersonate'));
+                         ->setContent(tr('Impersonate'))
+                         ->setFloatRight(true);
 }
 
 
@@ -181,7 +184,8 @@ if ($user->canBeStatusChanged()) {
                         ->setMode(EnumDisplayMode::warning)
                         ->setOutlined(true)
                         ->setValue(tr('Undelete'))
-                        ->setContent(tr('Undelete'));
+                        ->setContent(tr('Undelete'))
+                        ->setFloatRight(true);
 
     } else {
         $delete = Button::new()
@@ -189,21 +193,24 @@ if ($user->canBeStatusChanged()) {
                         ->setMode(EnumDisplayMode::warning)
                         ->setOutlined(true)
                         ->setValue(tr('Delete'))
-                        ->setContent(tr('Delete'));
+                        ->setContent(tr('Delete'))
+                        ->setFloatRight(true);
 
         if ($user->isLocked()) {
             $lock = Button::new()
                           ->setFloatRight(true)
                           ->setMode(EnumDisplayMode::warning)
                           ->setValue(tr('Unlock'))
-                          ->setContent(tr('Unlock'));
+                          ->setContent(tr('Unlock'))
+                          ->setFloatRight(true);
 
         } else {
             $lock = Button::new()
                           ->setFloatRight(true)
                           ->setMode(EnumDisplayMode::warning)
                           ->setValue(tr('Lock'))
-                          ->setContent(tr('Lock'));
+                          ->setContent(tr('Lock'))
+                          ->setFloatRight(true);
         }
     }
 }
@@ -217,7 +224,8 @@ if (!$user->isNew()) {
                    ->setAnchorUrl('/audit/meta+' . $user->getMetaId() . '.html')
                    ->setFloatRight(true)
                    ->setValue(tr('Audit'))
-                   ->setContent(tr('Audit'));
+                   ->setContent(tr('Audit'))
+                   ->setFloatRight(true);
 }
 
 
@@ -307,8 +315,7 @@ $relevant_card = Card::new()
                                                           <a href="' . Url::new('/accounts/password+' . $user->getId() . '.html')->makeWww() . '">' . tr('Change password for this user') . '</a><br>
                                                           <a href="' . Url::new('/security/authentications.html')->makeWww()->addQueries('users_id=' . $user->getId()) . '">' . tr('Authentications for this user') . '</a><br>
                                                           <a href="' . Url::new('/security/incidents.html')->makeWww()->addQueries('users_id=' . $user->getId()) . '">' . tr('Security incidents for this user') . '</a><br>
-                                                          <a href="' . Url::new('/accounts/sessions.html')->makeWww()->addQueries('users_id=' . $user->getId()) . '">' . tr('Sessions for this user') . '</a>
-                                                          <hr>') . '
+                                                          <a href="' . Url::new('/accounts/sessions.html')->makeWww()->addQueries('users_id=' . $user->getId()) . '">' . tr('Sessions for this user') . '</a><hr>') . '
                                                           <a href="' . Url::new('/accounts/roles.html')->makeWww() . '">' . tr('Roles management') . '</a><br>
                                                           <a href="' . Url::new('/accounts/rights.html')->makeWww() . '">' . tr('Rights management') . '</a>' );
 
@@ -337,11 +344,11 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 return Grid::new()
             ->addGridColumn(GridColumn::new()
                             // The user card and all additional cards
-                                  ->addContent($user_card .
-                                               isset_get($roles_card)?->render() .
-                                               isset_get($rights_card)?->render() .
-                                               isset_get($emails_card)?->render() .
+                                  ->addContent($user_card . '<br>' .
+                                               isset_get($roles_card)?->render() . '<br>' .
+                                               isset_get($rights_card)?->render() . '<br>' .
+                                               isset_get($emails_card)?->render() . '<br>' .
                                                isset_get($phones_card)?->render())
                                   ->setSize(9)
                                   ->useForm(true))
-            ->addGridColumn($picture_card . $relevant_card . $documentation_card, EnumDisplaySize::three);
+            ->addGridColumn($picture_card . '<br>' . $relevant_card . '<br>' . $documentation_card, EnumDisplaySize::three);
