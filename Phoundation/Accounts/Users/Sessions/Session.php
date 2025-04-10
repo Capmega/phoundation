@@ -72,7 +72,7 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Plugins\Phoundation\MultiFactorAuthentication\Interfaces\MultiFactorAuthenticationInterface;
 use Throwable;
-use function Phoundation\Core\Sessions\sql_get;
+
 
 class Session implements SessionInterface
 {
@@ -1076,51 +1076,51 @@ class Session implements SessionInterface
     }
 
 
-    /**
-     * Checks if an extended session is available for this user
-     *
-     * @return bool
-     */
-    protected static function checkExtended(): bool
-    {
-        if (empty($_CONFIG['sessions']['extended']['enabled'])) {
-            return false;
-        }
-        if (isset($_COOKIE['extsession']) and !isset($_SESSION['user'])) {
-            // Pull  extsession data
-            $ext = sql_get('SELECT `users_id` 
-                            FROM   `extended_sessions` 
-                            WHERE  `session_key` = ":session_key" 
-                              AND  DATE(`addedon`) < DATE(NOW());', [
-                                  ':session_key' => cfm($_COOKIE['extsession'])
-                   ]);
-
-            if ($ext['users_id']) {
-                $user = sql_get('SELECT * 
-                                 FROM   `accounts_users` 
-                                 WHERE  `accounts_users`.`id` = :id', [
-                                     ':id' => cfi($ext['users_id'])
-                        ]);
-
-                if ($user['id']) {
-                    // Auto sign in user
-                    static::$user = User::signin($user, true);
-
-                    return true;
-
-                } else {
-                    // Remove cookie
-                    setcookie('extsession', 'stub', 1);
-                }
-
-            } else {
-                // Remove cookie
-                setcookie('extsession', 'stub', 1);
-            }
-        }
-
-        return false;
-    }
+//    /**
+//     * Checks if an extended session is available for this user
+//     *
+//     * @return bool
+//     */
+//    protected static function checkExtended(): bool
+//    {
+//        if (empty($_CONFIG['sessions']['extended']['enabled'])) {
+//            return false;
+//        }
+//        if (isset($_COOKIE['extsession']) and !isset($_SESSION['user'])) {
+//            // Pull  extsession data
+//            $ext = sql_get('SELECT `users_id`
+//                            FROM   `extended_sessions`
+//                            WHERE  `session_key` = ":session_key"
+//                              AND  DATE(`addedon`) < DATE(NOW());', [
+//                                  ':session_key' => cfm($_COOKIE['extsession'])
+//                   ]);
+//
+//            if ($ext['users_id']) {
+//                $user = sql_get('SELECT *
+//                                 FROM   `accounts_users`
+//                                 WHERE  `accounts_users`.`id` = :id', [
+//                                     ':id' => cfi($ext['users_id'])
+//                        ]);
+//
+//                if ($user['id']) {
+//                    // Auto sign in user
+//                    static::$user = User::signin($user, true);
+//
+//                    return true;
+//
+//                } else {
+//                    // Remove cookie
+//                    setcookie('extsession', 'stub', 1);
+//                }
+//
+//            } else {
+//                // Remove cookie
+//                setcookie('extsession', 'stub', 1);
+//            }
+//        }
+//
+//        return false;
+//    }
 
 
     /**
