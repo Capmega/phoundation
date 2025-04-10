@@ -396,7 +396,9 @@ class Request implements RequestInterface
     public static function getPageObject(): TemplatePageInterface|JsonPageInterface|null
     {
         if (PLATFORM_WEB) {
-            return static::$page;
+            if (static::isRequestType(EnumRequestTypes::html)) {
+                return static::$page;
+            }
         }
 
         return null;
