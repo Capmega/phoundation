@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Enums;
+namespace Phoundation\Web\Html\Enums;
 
 enum EnumOrientation: string
 {

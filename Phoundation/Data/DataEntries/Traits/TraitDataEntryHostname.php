@@ -18,8 +18,7 @@ namespace Phoundation\Data\DataEntries\Traits;
 
 use Phoundation\Core\Core;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
-use Phoundation\Seo\Seo;
-
+use Phoundation\Utils\Seo;
 
 trait TraitDataEntryHostname
 {

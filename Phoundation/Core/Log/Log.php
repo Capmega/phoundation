@@ -1514,7 +1514,7 @@ class Log implements LogInterface
                 break;
 
             default:
-                // For all other types size does not matter
+                // For all other types size doesn't matter
                 $size = '-';
         }
 
@@ -1547,7 +1547,7 @@ class Log implements LogInterface
             static::logDebugHeader('DEBUG', 1, $threshold, echo_screen: $echo_screen);
         }
 
-        if (empty($messages)) {
+        if (empty($messages) and (!is_numeric($messages))) {
             $messages = '-';
         }
 

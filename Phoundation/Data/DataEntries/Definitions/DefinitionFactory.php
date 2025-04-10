@@ -1463,26 +1463,25 @@ class DefinitionFactory
      * Returns a Definition object for column file
      *
      * @param PhoDirectoryInterface|null $exists_in_directory
-     * @param PhoDirectoryInterface|null $prefix
      * @param string|null                $column
      *
      * @return DefinitionInterface
      */
-    public static function newFile(?PhoDirectoryInterface $exists_in_directory = null, ?PhoDirectoryInterface $prefix = null, ?string $column = 'file'): DefinitionInterface
+    public static function newFile(?PhoDirectoryInterface $exists_in_directory = null, ?string $column = 'file'): DefinitionInterface
     {
         return Definition::new($column)
-            ->setMaxLength(2048)
-            ->setOptional(true)
-            ->setSize(3)
-            ->setLabel(tr('File'))
-            ->setCliColumn(tr('-f,--file PATH'))
-            ->setInputType(EnumInputType::text)
-            ->setCliAutoComplete(true)
-            ->addValidationFunction(function (ValidatorInterface $validator) use ($exists_in_directory, $prefix) {
-                if ($exists_in_directory) {
-                    $validator->isFile($exists_in_directory, prefix: $prefix);
-                }
-            });
+                         ->setMaxLength(2048)
+                         ->setOptional(true)
+                         ->setSize(3)
+                         ->setLabel(tr('File'))
+                         ->setCliColumn(tr('-f,--file PATH'))
+                         ->setInputType(EnumInputType::text)
+                         ->setCliAutoComplete(true)
+                         ->addValidationFunction(function (ValidatorInterface $validator) use ($exists_in_directory) {
+                             if ($exists_in_directory) {
+                                 $validator->isFile($exists_in_directory);
+                             }
+                         });
     }
 
 
@@ -1496,16 +1495,16 @@ class DefinitionFactory
     public static function newFilename(?string $column = 'filename'): DefinitionInterface
     {
         return Definition::new($column)
-            ->setMaxLength(2048)
-            ->setOptional(true)
-            ->setSize(3)
-            ->setLabel(tr('Filename'))
-            ->setCliColumn(tr('-f,--filename NAME'))
-            ->setInputType(EnumInputType::text)
-            ->setCliAutoComplete(true)
-            ->addValidationFunction(function (ValidatorInterface $validator) {
-                $validator->matchesNotRegex('/\//');
-            });
+                         ->setMaxLength(2048)
+                         ->setOptional(true)
+                         ->setSize(3)
+                         ->setLabel(tr('Filename'))
+                         ->setCliColumn(tr('-f,--filename NAME'))
+                         ->setInputType(EnumInputType::text)
+                         ->setCliAutoComplete(true)
+                         ->addValidationFunction(function (ValidatorInterface $validator) {
+                             $validator->matchesNotRegex('/\//');
+                         });
     }
 
 
@@ -1848,14 +1847,14 @@ class DefinitionFactory
     public static function newSubmit(?string $column): DefinitionInterface
     {
         return Definition::new($column)
-            ->setOptional(true)
-            ->addClasses('btn-primary')
-            ->setRender(true)
-            ->setVirtual(true)
-            ->setElement(EnumElement::input)
-            ->setInputType(EnumInputType::submit)
-            ->setLabel(tr(' '))
-            ->setSize(1);
+                         ->setOptional(true)
+                         ->addClasses('btn-primary')
+                         ->setRender(true)
+                         ->setVirtual(true)
+                         ->setElement(EnumElement::input)
+                         ->setInputType(EnumInputType::submit)
+                         ->setLabel(tr(' '))
+                         ->setSize(1);
     }
 
 

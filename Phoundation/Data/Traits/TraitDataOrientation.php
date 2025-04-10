@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Enums\EnumOrientation;
+use Phoundation\Web\Html\Enums\EnumOrientation;
 
 
 trait TraitDataOrientation

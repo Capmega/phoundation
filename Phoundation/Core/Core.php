@@ -386,7 +386,7 @@ class Core implements CoreInterface
 
         define('DIRECTORY_DATA'       , $data . '/');
         define('DIRECTORY_SYSTEM'     , DIRECTORY_DATA   . 'system/');
-        define('DIRECTORY_CDN'        , DIRECTORY_DATA   . 'content/cdn/');
+        define('DIRECTORY_CDN'        , realpath(DIRECTORY_DATA . 'content/cdn/'));
         define('DIRECTORY_PUBTMP'     , DIRECTORY_CDN    . 'tmp/');
         define('DIRECTORY_TMP'        , DIRECTORY_SYSTEM . 'tmp/');
         define('DIRECTORY_COMMANDS'   , DIRECTORY_SYSTEM . 'cache/system/commands/');
@@ -651,8 +651,8 @@ class Core implements CoreInterface
                 break;
         }
 
-        define('DIRECTORY_PROJECT_CDN'   , DIRECTORY_DATA . 'content/cdn/' . LANGUAGE . '/' . Core::getProjectSeoName() . '/');
-        define('DIRECTORY_PROJECT_PUBTMP', DIRECTORY_CDN  . 'tmp/');
+        define('DIRECTORY_PROJECT_CDN'   , DIRECTORY_CDN . '/' . LANGUAGE . '/' . Core::getProjectSeoName() . '/');
+        define('DIRECTORY_PROJECT_PUBTMP', DIRECTORY_CDN . 'tmp/');
     }
 
 

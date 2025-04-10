@@ -16,16 +16,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Connectors;
 
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
 use Phoundation\Databases\Sql\Exception\DatabasesConnectorException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Seo\Seo;
+use Phoundation\Utils\Seo;
 use Stringable;
-
 
 class Connectors extends DataIterator implements ConnectorsInterface
 {

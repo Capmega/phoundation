@@ -11,16 +11,14 @@
  * @author    Harrison Macey <harrison@medinet.ca>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Utils
+ * @package   Phoundation\Data
  */
 
 
 declare(strict_types=1);
 
-namespace Phoundation\Utils\DataFaker;
+namespace Phoundation\Data\DataFaker;
 
-use Faker\Factory;
-use Faker\Generator;
 use Phoundation\Utils\Numbers;
 
 
@@ -53,7 +51,7 @@ class DataFakerPerson extends DataFaker
      * @var string|null
      */
     protected ?string $middle_names;
-    
+
     /**
      * The address of this person
      *
@@ -102,20 +100,20 @@ class DataFakerPerson extends DataFaker
         // Settings gender will automatically set the first name
         $this->setGender($this->faker->randomElement(['male', 'female']));
 
-        $this->middle_names = Numbers::getRandomInt(0,1) ? substr($this->faker->firstName, 0, 1) : null;
+        $this->middle_names = Numbers::getRandomInt(0, 1) ? substr($this->faker->firstName, 0, 1) : null;
         $this->last_name    = $this->faker->lastName;
-        $this->ssn         = '0' . Numbers::getRandomInt(10000000, 99999999);
-        $street_number     = Numbers::getRandomInt(0, 99999);
-        $street_name       = $this->faker->streetName;
-        $city              = $this->faker->city;
-        $province          = $this->faker->randomElement(['BC', 'AB', 'SK', 'MB', 'ON', 'QC', 'NB', 'NF', 'PE']);
-        $postal_code       = chr(Numbers::getRandomInt(65,90)) . Numbers::getRandomInt(0,9) .
-                             chr(Numbers::getRandomInt(65,90)) . Numbers::getRandomInt(0,9) .
-                             chr(Numbers::getRandomInt(65,90)) . Numbers::getRandomInt(0,9);
-        $this->address     = $street_number . ' ' . $street_name . ', ' . $city . ', ' . $province . ', ' . $postal_code;
-        $this->birthdate   = $this->faker->dateTimeBetween('-80 years', '-18 years')->format('Y-m-d');
-        $this->home_phone  = (string) Numbers::getRandomInt(1000000000, 9999999999);
-        $this->work_phone  = substr($this->home_phone, 0, 6) . Numbers::getRandomInt(1000,9999);
+        $this->ssn          = '0' . Numbers::getRandomInt(10000000, 99999999);
+        $street_number      = Numbers::getRandomInt(0, 99999);
+        $street_name        = $this->faker->streetName;
+        $city               = $this->faker->city;
+        $province           = $this->faker->randomElement(['BC', 'AB', 'SK', 'MB', 'ON', 'QC', 'NB', 'NF', 'PE']);
+        $postal_code        = chr(Numbers::getRandomInt(65, 90)) . Numbers::getRandomInt(0, 9) .
+                              chr(Numbers::getRandomInt(65, 90)) . Numbers::getRandomInt(0, 9) .
+                              chr(Numbers::getRandomInt(65, 90)) . Numbers::getRandomInt(0, 9);
+        $this->address      = $street_number . ' ' . $street_name . ', ' . $city . ', ' . $province . ', ' . $postal_code;
+        $this->birthdate    = $this->faker->dateTimeBetween('-80 years', '-18 years')->format('Y-m-d');
+        $this->home_phone   = (string) Numbers::getRandomInt(1000000000, 9999999999);
+        $this->work_phone   = substr($this->home_phone, 0, 6) . Numbers::getRandomInt(1000, 9999);
 
         return $this;
     }
@@ -221,7 +219,7 @@ class DataFakerPerson extends DataFaker
         return $this->ssn;
     }
 
-    
+
     /**
      * Returns the birthdate of this fake person
      *
@@ -231,8 +229,8 @@ class DataFakerPerson extends DataFaker
     {
         return $this->birthdate;
     }
-    
-    
+
+
     /**
      * Returns the home_phone of this fake person
      *
@@ -242,8 +240,8 @@ class DataFakerPerson extends DataFaker
     {
         return $this->home_phone;
     }
-    
-    
+
+
     /**
      * Returns the work_phone of this fake person
      *

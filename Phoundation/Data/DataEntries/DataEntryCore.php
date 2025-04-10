@@ -45,6 +45,7 @@ use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Enums\EnumStateMismatchHandling;
 use Phoundation\Data\DataEntries\Exception\DataEntryAlreadyExistsException;
+use Phoundation\Data\DataEntries\Exception\DataEntryColumnDefinitionInvalidException;
 use Phoundation\Data\DataEntries\Exception\DataEntryColumnNotDefinedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryException;
@@ -109,6 +110,7 @@ use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Stringable;
 use Throwable;
+use TypeError;
 
 class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierInterface
 {
@@ -2079,7 +2081,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         foreach ($this->definitions as $key => $definition) {
             if ($this->debug) {
-                Log::debug(ts('TRY COPYING VALUE FOR ":key" TO SOURCE', [
+                Log::debug(      ts('TRY COPYING VALUE FOR ":key" TO SOURCE', [
                     ':key' => $key,
                 ]), echo_header: false);
             }
@@ -2115,7 +2117,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                     $value = $definition->getDefault();
                 }
 
-            } else {
+            }
+            else {
                 // The current key is empty in the specified source and exists in the internal source, do not update
                 continue;
             }
@@ -2146,13 +2149,30 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             try {
                 $this->setColumnValueWithObjectSetter($key, $value, $directly, $definition);
 
-            } catch (DataEntryException $e) {
+            } catch (TypeError | DataEntryException $e) {
+                if (!is_string($key)) {
+                    throw DataEntryColumnDefinitionInvalidException::new(tr('Detected invalid column definition while copying new source data, Definition column name ":column" of ":class" DataEntry class is invalid, it should be a string', [
+                        ':class'  => $this::class,
+                        ':column' => $key,
+                    ]), $e)->setData([
+                                         'class'        => $this::class,
+                                         'failed_key'   => $key,
+                                         'failed_value' => $value,
+                                         'new_source'   => $source,
+                                         'definitions'  => $this->getDefinitionsObject()
+                                                                ->getSourceKeys()
+                                     ]);
+                }
+
                 throw DataEntryException::new(tr('Failed to copy new source into internal source for ":class" class', [
-                    ':class' => get_class($this),
+                    ':class' => $this::class,
                 ]), $e)->setData([
-                    'source'      => $this->source,
-                    'new_source'  => $source,
-                    'definitions' => $this->getDefinitionsObject()->getSourceKeys()
+                    'class'        => $this::class,
+                    'failed_key'   => $key,
+                    'failed_value' => $value,
+                    'new_source'   => $source,
+                    'definitions'  => $this->getDefinitionsObject()
+                                           ->getSourceKeys()
                 ]);
             }
         }

@@ -16,15 +16,15 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils;
 
-use Phoundation\Filesystem\PhoFile;
+use Phoundation\Data\Traits\TraitDataVersion;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
-use Phoundation\Utils\Traits\TraitVersion;
+use Phoundation\Filesystem\PhoFile;
 
 
 class Version
 {
-    use TraitVersion {
+    use TraitDataVersion {
         __construct as protected ___construct;
     }
 

@@ -18,6 +18,7 @@ namespace Phoundation\Data\Validator;
 
 use PDOStatement;
 use Phoundation\Accounts\Users\Password;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -2802,11 +2803,10 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool                        $must_be_directory
      * @param bool|null                   $require_exist
-     * @param Stringable|string|bool|null $prefix
      *
      * @return PhoPathInterface
      */
-    protected function validatePath(string $path, PhoDirectoryInterface|array $exists_in_directories, ?bool $must_be_directory, ?bool $require_exist, Stringable|string|bool|null $prefix = null): PhoPathInterface
+    protected function validatePath(string $path, PhoDirectoryInterface|array $exists_in_directories, ?bool $must_be_directory, ?bool $require_exist): PhoPathInterface
     {
         // Determine filetype, if any
         if ($must_be_directory) {
@@ -2822,33 +2822,13 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             $class = PhoPath::class;
         }
 
-        // Was a path specified? We need a path here!
+        // Was a path specified? A path is required here!
         if (!$path) {
-            // Some value must be specified
             $this->addFailure(tr('must contain a path'));
-
             return new $class($path, $this->restrictions);
         }
 
-        // Extract restrictions
-        if (is_array($exists_in_directories)) {
-            // We need the restrictions from $exists_in_directories.
-            // If multiple directories were specified, get restrictions from them all
-            $restrictions = new PhoRestrictions();
-
-            foreach ($exists_in_directories as $exists_in_directory) {
-                $restrictions->addRestrictions($exists_in_directory->getRestrictions());
-            }
-
-        } else {
-            $restrictions = $exists_in_directories->getRestrictions();
-        }
-
-        // Get the absolute "path", "file" does not need to exist here, we'll check that later
-        $path = PhoPath::new($path, $restrictions)
-                       ->makeReal($prefix, false)
-                       ->getSource();
-
+        // Check each specified directory if the file exists there.
         foreach (Arrays::force($exists_in_directories) as $exists_in_directory) {
             if (!$exists_in_directory instanceof PhoDirectoryInterface) {
                 throw new OutOfBoundsException(tr('Cannot validate if path ":path", the specified "$exists_in_directory" value ":value" must be an PhoDirectoryInterface object or an array with PhoDirectoryInterface objects', [
@@ -2860,10 +2840,12 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             $exists_in_directory->makeAbsolute(must_exist: false)
                                 ->checkRestrictions(false);
 
-            // The path should be an PhoPath object with restrictions from the specified directory we're testing
-            $path = new $class($path, $exists_in_directory->getRestrictions());
+            // The path should be a PhoPath object with restrictions from the specified directory that is tested
+            // Get the absolute "path", "file" doesn't need to exist here, that can be checked later
+            $test = $class::new($path, $exists_in_directory->getRestrictions())
+                          ->makeReal($exists_in_directory);
 
-            if ($path->isInDirectory($exists_in_directory)) {
+            if ($test->isInDirectory($exists_in_directory)) {
                 $does_exist = true;
                 break;
             }
@@ -2884,12 +2866,6 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                         ':paths' => $exists_in_directories
                     ]));
                 }
-
-            } else {
-                // File should not exist, and does not exist, but ensure the parent path will exist!
-                if (empty($parent_exists)) {
-                    $path->getParentDirectory()->ensure();
-                }
             }
 
         } else {
@@ -2900,22 +2876,21 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             }
 
             // The file exists, but that is okay, yay!
-
             if ($must_be_directory) {
                 // The file should be a directory
-                if (!$path->isDirectory()) {
+                if (!$test->isDirectory()) {
                     $this->addFailure(tr('must be a directory'));
                 }
 
             } elseif (is_bool($must_be_directory)) {
                 // The file should NOT be a directory
-                if ($path->isDirectory()) {
+                if ($test->isDirectory()) {
                     $this->addFailure(tr('cannot be a directory'));
                 }
             }
         }
 
-        return $path;
+        return $test;
     }
 
 
@@ -2924,15 +2899,14 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
-     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function isPath(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
+    public function isPath(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists, $prefix) {
+        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -2941,7 +2915,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             }
 
             // Check the path
-            $this->validatePath($value, $exists_in_directories, null, $require_exists, $prefix);
+            $this->validatePath($value, $exists_in_directories, null, $require_exists);
         });
     }
 
@@ -2951,15 +2925,14 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
-     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function isDirectory(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
+    public function isDirectory(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists, $prefix) {
+        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -2968,7 +2941,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             }
 
             // Check the directory
-            $this->validatePath($value, $exists_in_directories, true, $require_exists, $prefix);
+            $this->validatePath($value, $exists_in_directories, true, $require_exists);
         });
     }
 
@@ -2978,15 +2951,14 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
-     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function isFile(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
+    public function isFile(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists, $prefix) {
+        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -2995,7 +2967,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             }
 
             // Check the file
-            $this->validatePath($value, $exists_in_directories, false, $require_exists, $prefix);
+            $this->validatePath($value, $exists_in_directories, false, $require_exists);
         });
     }
 
@@ -3005,15 +2977,14 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
-     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function sanitizePath(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
+    public function sanitizePath(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists, $prefix) {
+        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -3022,7 +2993,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             }
 
             // Check the path and convert into PhoPath object
-            $value = $this->validatePath($value, $exists_in_directories, null, $require_exists, $prefix);
+            $value = $this->validatePath($value, $exists_in_directories, null, $require_exists);
         });
     }
 
@@ -3032,15 +3003,14 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
-     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function sanitizeDirectory(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
+    public function sanitizeDirectory(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists, $prefix) {
+        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -3049,7 +3019,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             }
 
             // Check the directory and convert into PhoDirectory object
-            $value = $this->validatePath($value, $exists_in_directories, true, $require_exists, $prefix);
+            $value = $this->validatePath($value, $exists_in_directories, true, $require_exists);
         });
     }
 
@@ -3059,15 +3029,14 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
-     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function sanitizeFile(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static
+    public function sanitizeFile(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists, $prefix) {
+        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -3076,7 +3045,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             }
 
             // Check the file and convert into PhoFile object
-            $value = $this->validatePath($value, $exists_in_directories, false, $require_exists, $prefix);
+            $value = $this->validatePath($value, $exists_in_directories, false, $require_exists);
         });
     }
 

@@ -16,8 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries\Traits;
 
-use Phoundation\Seo\Seo;
-
+use Phoundation\Utils\Seo;
 
 trait TraitDataEntryVersion
 {
