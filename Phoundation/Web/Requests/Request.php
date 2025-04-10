@@ -1143,7 +1143,7 @@ class Request implements RequestInterface
     {
         $return = true;
 
-        if (!Session::getUserObject()->hasAllRights($rights)) {
+        if (!Session::getUserObject()->hasAllRights($rights, null)) {
             $return = false;
         }
 

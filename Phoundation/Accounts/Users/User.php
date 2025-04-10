@@ -1207,7 +1207,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      *
      * @return bool
      */
-    public function hasAllRights(array|string $rights, ?string $always_match = null): bool
+    public function hasAllRights(array|string $rights, ?string $always_match = 'god'): bool
     {
         if (!$rights) {
             return true;
@@ -2699,7 +2699,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     protected function initSystemUser(): void
     {
-        // System user is readonly and also does not register meta requests
+        // System user is readonly and also doesn't register meta-requests
         $this->readonly     = true;
         $this->meta_enabled = false;
 

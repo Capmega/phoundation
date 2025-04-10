@@ -491,12 +491,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             return;
         }
 
-        throw DataEntryDeletedException::new(tr('Cannot load ":class" class object, specified column ":column" with identifier ":identifier" is deleted', [
+        throw DataEntryDeletedException::new(tr('Cannot load ":class" class object with identifier ":identifier", it has status "deleted"', [
             ':class'      => static::getClassName(),
-            ':column'     => static::determineColumn($this->identifier),
             ':identifier' => $this->identifier,
         ]))->addData([
-            'class' => static::class,
+            'class'      => static::getClassName(),
+            'identifier' => $this->identifier,
         ]);
     }
 
