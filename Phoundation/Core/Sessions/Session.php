@@ -2008,7 +2008,7 @@ class Session implements SessionInterface
      */
     public static function pageloadForSession(): int
     {
-        return $_SESSION['pages_loaded_this_session'];
+        return array_get_safe($_SESSION, 'pages_loaded_this_session', 0);
     }
 
 
@@ -2019,7 +2019,7 @@ class Session implements SessionInterface
      */
     public static function isFirstPage(): bool
     {
-        return $_SESSION['pages_loaded_this_session'] === 1;
+        return array_get_safe($_SESSION, 'pages_loaded_this_session', 0) === 1;
     }
 
 
