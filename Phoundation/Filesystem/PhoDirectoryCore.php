@@ -28,8 +28,6 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Filesystem\Exception\DirectoryException;
 use Phoundation\Filesystem\Exception\DirectoryNotMountedException;
-use Phoundation\Filesystem\Exception\FileNotExistException;
-use Phoundation\Filesystem\Exception\FilesystemDoesNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\FilesystemInvalidPattern;
 use Phoundation\Filesystem\Exception\PathNotDirectoryException;

@@ -77,7 +77,7 @@ class UserFile extends DataEntry
                             $validator->isUnique();
                         }))
 
-                    ->add(DefinitionFactory::newFile(PhoDirectory::newUserFilesObject(), column: 'seo_file')
+                    ->add(DefinitionFactory::newFile(PhoDirectory::newUserFilesObject(), 'seo_file')
                         ->setOptional(false)
                         ->setRender(false)
                         ->setSize(12)
