@@ -85,7 +85,7 @@ interface DropzoneInterface
      *
      * @return IteratorInterface
      */
-    public function getHeaders(): IteratorInterface;
+    public function getHeadersObject(): IteratorInterface;
 
 
     /**
@@ -111,7 +111,7 @@ interface DropzoneInterface
      *
      * @return IteratorInterface
      */
-    public function getAcceptedFiles(): IteratorInterface;
+    public function getAcceptedFilesObject(): IteratorInterface;
 
 
     /**

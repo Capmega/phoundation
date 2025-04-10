@@ -27,8 +27,8 @@ use Phoundation\Data\Traits\TraitDataReadonly;
 use Phoundation\Data\Traits\TraitDataScripts;
 use Phoundation\Data\Traits\TraitMethodHasRendered;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Seo\Seo;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Seo;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\A;
@@ -43,7 +43,6 @@ use Phoundation\Web\Html\Components\Widgets\Tooltips\Tooltip;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
-
 
 trait TraitElementAttributes
 {

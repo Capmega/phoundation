@@ -20,12 +20,11 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataRenderMethod;
 use Phoundation\Data\Traits\TraitDataUrl;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Seo\Seo;
+use Phoundation\Utils\Seo;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\Interfaces\AccordionInterface;
 use Stringable;
-
 
 class Accordion extends Widget implements AccordionInterface
 {

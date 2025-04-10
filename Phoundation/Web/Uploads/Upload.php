@@ -376,7 +376,7 @@ class Upload extends DataEntry implements UploadInterface
                                            ->setMaxlength(2048)
                                            ->setReadonly(true))
 
-                    ->add(DefinitionFactory::newFile(new PhoDirectory('/tmp/', PhoRestrictions::newWritableObject('/tmp/')), null,'tmp_name')
+                    ->add(DefinitionFactory::newFile(new PhoDirectory('/tmp/', PhoRestrictions::newWritableObject('/tmp/')), 'tmp_name')
                                            ->setLabel(tr('Temporary file name'))
                                            ->setMaxlength(255)
                                            ->setReadonly(true))

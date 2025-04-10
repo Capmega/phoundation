@@ -18,15 +18,14 @@ namespace Phoundation\Web\Html\Components\Widgets\Tabs;
 
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\Traits\TraitDataOrientation;
-use Phoundation\Enums\EnumOrientation;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabInterface;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabsInterface;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
+use Phoundation\Web\Html\Enums\EnumOrientation;
 use Phoundation\Web\Html\Traits\TraitButtons;
 use Stringable;
-
 
 class Tabs extends ElementsBlock implements TabsInterface
 {

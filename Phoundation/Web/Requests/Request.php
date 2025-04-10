@@ -1133,27 +1133,33 @@ class Request implements RequestInterface
      * @param string|int|null $rights_redirect
      * @param string|int|null $guest_redirect
      *
-     * @return void
+     * @return bool
      */
-    protected static function hasRightsOrRedirect(array|string $rights, string|int|null $rights_redirect = null, string|int|null $guest_redirect = null): void
+    public static function hasRightsOrRedirect(array|string $rights, string|int|null $rights_redirect = null, string|int|null $guest_redirect = null): bool
     {
-        if (Session::getUserObject()->hasAllRights($rights)) {
+        $return = true;
+
+        if (!Session::getUserObject()->hasAllRights($rights)) {
+            $return = false;
+        }
+
+        if ($return or Session::getUserObject()->hasAllRights($rights, 'god')) {
             // The user has all the required rights, but did the user sign in through a sign-in key?
             // If so, then there may be restrictions!
             if (!Session::getSignInKey()) {
                 // Well, then, all fine and dandy!
-                return;
+                return $return;
             }
 
             // Check sign-key restrictions and if those are okay, we are good to go
             static::hasSignKeyRestrictions($rights, static::$target->getSource());
-            return;
+            return $return;
         }
 
         // Is this a system page though? System pages require no rights to be viewed.
         if (static::getRequestType() === EnumRequestTypes::system) {
             // Hurrah, it's a bo, eh, system page! System pages require no rights. Everyone can see 404, 500, etc...
-            return;
+            return true;
         }
 
         // Is this a guest? Guests have no rights and can only see system pages and pages that require no rights
@@ -1164,7 +1170,8 @@ class Request implements RequestInterface
             }
 
             $current        = Response::getRedirect(Url::newCurrent());
-            $guest_redirect = Url::new($guest_redirect)->makeWww()
+            $guest_redirect = Url::new($guest_redirect)
+                                 ->makeWww()
                                  ->addRedirect($current);
 
             Incident::new()
@@ -1853,7 +1860,7 @@ class Request implements RequestInterface
 
 
     /**
-     * Returns the restrictions object for this request
+     * Returns the "restrictions" object for this request
      *
      * @return RequestMethodRestrictionsInterface
      */
