@@ -391,11 +391,15 @@ class Request implements RequestInterface
     /**
      * Returns the current TemplatePage used for this page
      *
-     * @return TemplatePageInterface|JsonPageInterface
+     * @return TemplatePageInterface|JsonPageInterface|null
      */
-    public static function getPageObject(): TemplatePageInterface|JsonPageInterface
+    public static function getPageObject(): TemplatePageInterface|JsonPageInterface|null
     {
-        return static::$page;
+        if (PLATFORM_WEB) {
+            return static::$page;
+        }
+
+        return null;
     }
 
 
