@@ -3708,6 +3708,36 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
 
     /**
+     * Makes the current field either "male", "female", "other", or null
+     *
+     * This method ensures that the specified array key is a boolean
+     *
+     * @return static
+     */
+    public function sanitizeGender(): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) {
+            if (!$this->checkIsOptional($value)) {
+                $value = match ((string) $value) {
+                    'm'      => 'male',
+                    'M'      => 'male',
+                    'Male'   => 'male',
+                    'male'   => 'male',
+                    'f'      => 'female',
+                    'F'      => 'female',
+                    'female' => 'female',
+                    'Female' => 'female',
+                    ''       => null,
+                    default  => 'other'
+                };
+            }
+        });
+    }
+
+
+    /**
      * Makes the current field a boolean value
      *
      * This method ensures that the specified array key is a boolean
