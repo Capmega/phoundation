@@ -116,7 +116,8 @@ class Non200Url extends DataEntry
                                     ->setRender(false))
 
                     ->add(Definition::new('net_len')
-                                    ->setIgnored(true)
+                                    ->setInputType(EnumInputType::positiveInteger)
+                                    ->setOptional(true, 0)
                                     ->setRender(false))
 
                     ->add(DefinitionFactory::newIpAddress('ip_address')

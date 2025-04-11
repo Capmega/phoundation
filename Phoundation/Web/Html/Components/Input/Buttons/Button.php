@@ -119,7 +119,7 @@ class Button extends Input implements ButtonInterface
             }
 
             // Value takes the content
-            $this->setValue(strtolower($this->getContent()));
+            $this->setValue($this->getContent());
 
         } elseif (empty($this->getContent())) {
             // Content takes the value
