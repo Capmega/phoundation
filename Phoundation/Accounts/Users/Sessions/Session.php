@@ -1126,13 +1126,14 @@ class Session implements SessionInterface
     /**
      * Authenticate a user with the specified password
      *
-     * @param string $user
-     * @param string $password
-     * @param string $user_class
+     * @param string      $user
+     * @param string      $password
+     * @param string      $user_class
+     * @param string|null $domain
      *
      * @return UserInterface
      */
-    public static function signIn(string $user, string $password, string $user_class = User::class): UserInterface
+    public static function signIn(string $user, string $password, string $user_class = User::class, ?string $domain = null): UserInterface
     {
         try {
             if (!Csrf::isEnabled()) {
@@ -1154,9 +1155,10 @@ class Session implements SessionInterface
                 }
             }
 
-            return static::signInWithUserObject(
-                $user_class::authenticate(['email' => $user], $password, EnumAuthenticationAction::signin)
-            );
+            $o_user = $user_class::authenticate(['email' => $user], $password, EnumAuthenticationAction::signin)
+                                 ->authenticateDomain(EnumAuthenticationAction::signin, $domain);
+
+            return static::signInWithUserObject($o_user);
 
         } catch (DataEntryNotExistsException $e) {
             if ($e->getDataKey('class')) {
