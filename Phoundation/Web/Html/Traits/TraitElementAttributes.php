@@ -416,7 +416,7 @@ trait TraitElementAttributes
      */
     public function addData(array|string|float|int|null $value, string $key): static
     {
-        $this->getDataObject()->add($value, $key, skip_null_values: false);
+        $this->getDataObject()->add($value, $key, false, false);
 
         return $this;
     }

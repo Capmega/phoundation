@@ -25,6 +25,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\EnvironmentNotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
@@ -37,6 +38,7 @@ use Phoundation\Web\Requests\Interfaces\SystemRequestInterface;
 use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Web;
 use Throwable;
+
 
 class SystemRequest implements SystemRequestInterface
 {
@@ -155,9 +157,19 @@ class SystemRequest implements SystemRequestInterface
         } else {
             if (config()->getBoolean('security.web.monitor.urls.non-200', true)) {
                 if (!Core::getReadonly()) {
-                    Non200Url::new()
-                        ->generate($http_code)
-                        ->save();
+                    try {
+                        Non200Url::new()
+                                 ->generate($http_code)
+                                 ->save();
+
+                    } catch (Throwable $f) {
+                        Incident::new($f)
+                                ->setType('database')
+                                ->setTitle('Failed to register non HTTP-200 URL')
+                                ->setLog(9)
+                                ->setNotifyRoles('developer')
+                                ->save();
+                    }
                 }
 
                 Log::warning('Registered request as non HTTP-200 URL');

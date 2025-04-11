@@ -109,6 +109,19 @@ trait TraitButtonProperties
 
 
     /**
+     * Returns true if the button type is the same as the specified type
+     *
+     * @param EnumButtonType $type
+     *
+     * @return bool
+     */
+    public function isButtonType(EnumButtonType $type): bool
+    {
+        return $this->button_type === $type;
+    }
+
+
+    /**
      * Returns the button type
      *
      * @return EnumButtonType|null

@@ -159,7 +159,6 @@ if (Request::isPostRequestMethod()) {
 if (!$user->getReadonly()) {
     $save = Button::new()
                   ->setContent(tr('Save'))
-                  ->setContent(tr('Save'))
                   ->setFloatRight(true);
 }
 

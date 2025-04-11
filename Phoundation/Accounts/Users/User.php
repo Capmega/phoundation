@@ -111,6 +111,7 @@ use Plugins\Phoundation\MultiFactorAuthentication\MultiFactorAuthentication;
 use Stringable;
 use Throwable;
 
+
 class User extends DataEntry implements UserInterface
 {
     use TraitDataEntryAddress;
@@ -486,6 +487,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         $authentication = Authentication::new()
                                         ->setAccount(Json::encode($identifier, JSON_OBJECT_AS_ARRAY))
                                         ->setAction($action);
+
         // Try authentication through hook
         $user = $hook->execute('authenticate', [
             'identifier'     => $identifier,
@@ -612,7 +614,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             $user = static::new()->load($identifier);
 
             if ($user->passwordMatch($password)) {
-                static::authenticateDomain($identifier, $user, $authentication, $domain, $test);
+                static::doAuthenticateDomain($identifier, $user, $authentication, $domain, $test);
 
                 Hook::new('phoundation/accounts/authentication')
                     ->execute('success', [
@@ -661,7 +663,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         ]);
 
         // NOTE: Non User::class objects likely authenticate against different databases and as such, those users will
-        // have non-existing user ids which cannot be used for "created_by" column
+        // have non-existing user ids which can't be used for "created_by" column
         $authentication->setCreatedBy(($user::class === User::class) ? $user->getId() : null)
                        ->setStatus('password-incorrect')
                        ->save();
@@ -682,6 +684,30 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
 
     /**
+     * Authenticates the specified user id / email with its password
+     *
+     * @param EnumAuthenticationAction $action
+     * @param string|null              $domain
+     *
+     * @return static
+     */
+    public function authenticateDomain(EnumAuthenticationAction $action, ?string $domain = null): static
+    {
+        if ($this->isGuest()) {
+            throw new AuthenticationException(tr('Cannot authenticate on a domain, the current user is a guest'));
+        }
+
+        $identifier       = ['email' => $this->getEmail()];
+        $o_authentication = Authentication::new()
+                                          ->setAction($action)
+                                          ->setAccount(Json::encode($identifier, JSON_OBJECT_AS_ARRAY));
+
+        static::doAuthenticateDomain($identifier, $this, $o_authentication, $domain);
+        return $this;
+    }
+
+
+    /**
      * Checks if the user is allowed to authenticate on the current domain
      *
      * @param array                   $identifier
@@ -690,9 +716,9 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      * @param string|null             $domain
      * @param bool                    $test
      *
-     * @return void
+     * @return bool
      */
-    protected static function authenticateDomain(array $identifier, UserInterface $user, AuthenticationInterface $authentication, ?string $domain, bool $test = false): void
+    protected static function doAuthenticateDomain(array $identifier, UserInterface $user, AuthenticationInterface $authentication, ?string $domain, bool $test = false): bool
     {
         if ($user->getDomain()) {
             // User is limited to a domain!
@@ -700,33 +726,48 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                 $domain = Domains::getCurrent();
             }
 
-            if ($user->getDomain() !== $domain) {
-                if (!$test) {
-                    $authentication->setStatus('domain-not-allowed')->save();
+            // Trim spaces but also dots as domain MAY have dots
+            $domain       = trim($domain, '. \n\r\t\v\0');
+            $user_domains = Arrays::force($user->getDomain());
 
-                    Incident::new()
-                            ->setCreatedBy($user->getId())
-                            ->setSeverity(EnumSeverity::medium)
-                            ->setType('security')
-                            ->setTitle('Domain access disallowed')
-                            ->setBody(tr('The user ":user" is not allowed to have access to domain ":domain"', [
-                                ':user'   => $user->getLogId(),
-                                ':domain' => $domain,
-                            ]))
-                            ->setDetails([
-                                'user'   => $user,
-                                'domain' => $domain,
-                            ])
-                            ->setNotifyRoles('accounts')
-                            ->save();
+            foreach ($user_domains as $user_domain) {
+                // Trim spaces but also dots as domain MAY have dots
+                $user_domain = trim($user_domain, '. \n\r\t\v\0');
+
+                if ($user_domain === $domain) {
+                    return true;
                 }
-
-                throw new AuthenticationException(tr('The specified user ":user" is not allowed to access the domain ":domain"', [
-                    ':user'   => $identifier,
-                    ':domain' => $domain,
-                ]));
             }
+
+            if (!$test) {
+                $authentication->setStatus('domain-not-allowed')
+                               ->save();
+
+                Incident::new()
+                        ->setCreatedBy($user->getId())
+                        ->setSeverity(EnumSeverity::medium)
+                        ->setType('security')
+                        ->setTitle('Domain access disallowed')
+                        ->setBody(tr('The user ":user" is not allowed to have access to domain ":domain"', [
+                            ':user'   => $user->getLogId(),
+                            ':domain' => $domain,
+                        ]))
+                        ->setDetails([
+                            'user'         => $user,
+                            'user_domains' => $user_domains,
+                            'domain'       => $domain,
+                        ])
+                        ->setNotifyRoles('accounts')
+                        ->save();
+            }
+
+            throw new AuthenticationException(tr('The specified user ":user" is not allowed to access the domain ":domain"', [
+                ':user'   => $identifier,
+                ':domain' => $domain,
+            ]));
         }
+
+        return true;
     }
 
 
@@ -1440,7 +1481,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         }
 
         if ($this->getRemoteId()) {
-            // There is a remote user, it's just not initialized yet. Instantiate the object and link it to this user
+            // There is a remote user, it is just not initialized yet. Instantiate the object and link it to this user
             $this->remote_user = $class::new()
                                        ->load([$column => $this->getRemoteId()])
                                        ->setRemoteUserObject($this);
@@ -2916,8 +2957,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setSize(3)
                                     ->setCliColumn('--domain')
                                     ->setCliAutoComplete(true)
-                                    ->setLabel(tr('Restrict to domain'))
-                                    ->setHelpText(tr('The domain where this user will be able to sign in'))
+                                    ->setLabel(tr('Restrict to domain(s)'))
+                                    ->setHelpText(tr('The domain(s) where this user will be able to sign in'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isDomain();
                                     }))

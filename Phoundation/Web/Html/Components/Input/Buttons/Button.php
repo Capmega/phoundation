@@ -110,20 +110,33 @@ class Button extends Input implements ButtonInterface
      */
     public function render(): ?string
     {
-        if (empty($this->getValue())) {
-            if (empty($this->getContent())) {
-                throw new OutOfBoundsException(tr('Cannot render ":class" object with name ":name", no value and or content specified', [
-                    ':name'  => $this->getName(),
-                    ':class' => static::class,
-                ]));
-            }
-
-            // Value takes the content
-            $this->setValue(strtolower($this->getContent()));
-
-        } elseif (empty($this->getContent())) {
+        if (empty($this->getContent())) {
             // Content takes the value
-            $this->setContent($this->getValue());
+            throw new OutOfBoundsException(tr('Cannot render ":class" button object with name ":name", no content specified', [
+                ':name'  => $this->getName(),
+                ':class' => static::class,
+            ]));
+        }
+
+        if (empty($this->getName())) {
+            // Content takes the value
+            throw new OutOfBoundsException(tr('Cannot render ":class" button object with value ":value" and content ":content", it has no name specified', [
+                ':value'   => $this->getValue(),
+                ':content' => $this->getContent(),
+                ':class'   => static::class,
+            ]));
+        }
+
+        if (empty($this->getValue())) {
+            if ($this->isButtonType(EnumButtonType::submit)) {
+                if (empty($this->getAnchorUrl())) {
+                    // Value takes the content
+                    throw new OutOfBoundsException(tr('Cannot render ":class" submit button object with name ":name", no value or anchor URL specified', [
+                        ':name'  => $this->getName(),
+                        ':class' => static::class,
+                    ]));
+                }
+            }
         }
 
         return $this->__render();
