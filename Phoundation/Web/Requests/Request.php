@@ -19,10 +19,10 @@ namespace Phoundation\Web\Requests;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Exception\InvalidRequestTypeException;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntries\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
@@ -76,7 +76,6 @@ use Phoundation\Web\Uploads\UploadHandlers;
 use Stringable;
 use Templates\Phoundation\AdminLte\AdminLte;
 use Throwable;
-
 
 class Request implements RequestInterface
 {

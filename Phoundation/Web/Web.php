@@ -17,8 +17,6 @@ declare(strict_types=1);
 namespace Phoundation\Web;
 
 use Phoundation\Core\Libraries\Libraries;
-use Phoundation\Core\Sessions\Session;
-
 
 class Web
 {

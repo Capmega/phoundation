@@ -14,13 +14,12 @@
 
 declare(strict_types=1);
 
-use Phoundation\Core\Sessions\Session;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
-
 
 // Create the notification, log it, and send it to this user.
 Notification::new()

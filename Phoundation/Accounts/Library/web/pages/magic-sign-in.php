@@ -15,9 +15,9 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Core;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;

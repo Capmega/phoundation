@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets;
 
-use Phoundation\Core\Sessions\Session;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Traits\TraitDataStatusFilter;
 use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Notifications\Interfaces\NotificationsInterface;
@@ -27,7 +27,6 @@ use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
 use Stringable;
-
 
 class NotificationsDropDown extends ElementsBlock
 {

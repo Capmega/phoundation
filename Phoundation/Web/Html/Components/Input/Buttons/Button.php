@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input\Buttons;
 
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Icons\Icons;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Input;
@@ -26,7 +27,9 @@ use Stringable;
 
 class Button extends Input implements ButtonInterface
 {
-    use TraitButtonProperties;
+    use TraitButtonProperties{
+        render as protected __render;
+    }
 
 
     /**
@@ -70,9 +73,7 @@ class Button extends Input implements ButtonInterface
             return $this;
         }
 
-        parent::setValue(null);
-
-        return parent::setContent($value, $make_safe);
+        return parent::setValue($value, $make_safe);
     }
 
 
@@ -99,5 +100,32 @@ class Button extends Input implements ButtonInterface
         }
 
         return parent::setContent($content, $make_safe);
+    }
+
+
+    /**
+     * Renders and returns the HTML for this object
+     *
+     * @return string|null
+     */
+    public function render(): ?string
+    {
+        if (empty($this->getValue())) {
+            if (empty($this->getContent())) {
+                throw new OutOfBoundsException(tr('Cannot render ":class" object with name ":name", no value and or content specified', [
+                    ':name'  => $this->getName(),
+                    ':class' => static::class,
+                ]));
+            }
+
+            // Value takes the content
+            $this->setValue(strtolower($this->getContent()));
+
+        } elseif (empty($this->getContent())) {
+            // Content takes the value
+            $this->setContent($this->getValue());
+        }
+
+        return $this->__render();
     }
 }

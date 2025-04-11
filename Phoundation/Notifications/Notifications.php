@@ -17,8 +17,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Notifications;
 
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Audio\Audio;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Notifications\Interfaces\NotificationsInterface;
@@ -28,7 +28,6 @@ use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Html\Enums\EnumTableRowType;
 use Phoundation\Web\Http\Url;
-
 
 class Notifications extends DataIterator implements NotificationsInterface
 {

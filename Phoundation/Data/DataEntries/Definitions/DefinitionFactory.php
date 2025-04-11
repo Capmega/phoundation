@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntries\Definitions;
 
 use Phoundation\Accounts\Roles\Roles;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Business\Companies\Companies;
@@ -24,7 +25,6 @@ use Phoundation\Business\Customers\Customers;
 use Phoundation\Business\Providers\Providers;
 use Phoundation\Core\CoreLocale;
 use Phoundation\Core\Locale\Language\Languages;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
@@ -41,7 +41,6 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputText;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
-
 
 class DefinitionFactory
 {
@@ -1892,7 +1891,7 @@ class DefinitionFactory
                                      return InputText::new()
                                                      ->setDisabled(true)
                                                      ->addClasses('text-center')
-                                                     ->setValue(tr('System'));
+                                                     ->setContent(tr('System'));
                                  }
                              }
                          });
@@ -2015,7 +2014,7 @@ class DefinitionFactory
                                      return InputText::new()
                                                      ->setDisabled(true)
                                                      ->addClasses('text-center')
-                                                     ->setValue(tr('System'));
+                                                     ->setContent(tr('System'));
                                  }
                              }
                          });

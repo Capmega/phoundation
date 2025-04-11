@@ -1096,10 +1096,10 @@ class Task extends DataEntry implements TaskInterface
                 return parent::save();
             }
 
-            // Validate data, generate a new code, and write it to database
+            // Validate data, generate a new code, and write it to the database
             return $this->validate()
                         ->generateCode()
-                        ->write($comments);
+                        ->write($force, $comments);
         }
 
         return $this;

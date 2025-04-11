@@ -14,14 +14,13 @@
 
 declare(strict_types=1);
 
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Accounts\Users\Users;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
-
 
 // Set page meta data
 Response::setHeaderTitle(tr('Employees'));

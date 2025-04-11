@@ -27,6 +27,7 @@ use PDOStatement;
 use Phoundation\Accounts\Config\Config;
 use Phoundation\Accounts\Config\Exception\ConfigEmptyException;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cache\Cache;
 use Phoundation\Cache\InstanceCache;
@@ -37,7 +38,6 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Interfaces\MetaInterface;
 use Phoundation\Core\Meta\Meta;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Definitions;
@@ -1285,7 +1285,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * (MUST exist in the database)
      *
      * @param IdentifierInterface|array|string|int|false|null $identifier
-     * @param array|string                              $columns
+     * @param array|string                                    $columns
      *
      * @return static
      */
@@ -1303,6 +1303,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         $this->cache_key = null;
         $this->columns   = $columns;
+
         return $this->load($identifier);
     }
 
@@ -3657,7 +3658,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             if (static::getUniqueColumn()) {
                 // When deleting an entry, the unique column goes to NULL
                 $this->source[static::getUniqueColumn()] = null;
-                $this->save(true, true);
             }
 
             return $this->setStatus('deleted', $comments, $auto_save);
@@ -3692,6 +3692,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                      ->saveToCache()
                      ->source['status'] = $status;
 
+                $this->changes[] = 'status';
                 $this->setTableState();
 
                 if ($auto_save and $this->isNotNew()) {
@@ -4055,7 +4056,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         if ($this->saveBecauseModified($force)) {
             // Object must ALWAYS be validated before writing! Validate data and write it to the database.
-            $this->validate($skip_validation)->write($comments)->saveToCache()->setTableState();
+            $this->validate($skip_validation)->write($force, $comments)->saveToCache()->setTableState();
         }
 
         return $this;
@@ -4089,11 +4090,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Writes the data to the database
      *
+     * @param bool        $force
      * @param string|null $comments
      *
      * @return static
      */
-    protected function write(?string $comments = null): static
+    protected function write(bool $force = false, ?string $comments = null): static
     {
         if ($this->readonly or $this->disabled) {
             throw new DataEntryReadonlyException(tr('Cannot save this ":name" object, the object is readonly or disabled', [
@@ -4116,6 +4118,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         // Write the data and store the returned ID column
         $this->source = array_replace($this->source, SqlDataEntry::new(sql($this->o_connector), $this)
                                                                  ->setDebug($this->debug)
+                                                                 ->setForce($force)
                                                                  ->write($comments));
 
         if ($this->debug) {

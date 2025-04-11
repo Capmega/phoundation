@@ -17,9 +17,9 @@ namespace Phoundation\Accounts\Users\Sessions;
 
 use Phoundation\Accounts\Exception\SessionNotExistsException;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Accounts\Users\Sessions\Exception\SessionDuplicateIdentifierException;
 use Phoundation\Accounts\Users\Sessions\Interfaces\UserSessionInterface;
 use Phoundation\Accounts\Users\User;
-use Phoundation\Core\Sessions\Exception\SessionDuplicateIdentifierException;
 use Phoundation\Data\Traits\TraitDataSourceArray;
 use Phoundation\Databases\Sql\Exception\SqlContstraintDuplicateEntryException;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
@@ -32,7 +32,6 @@ use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Strings;
 use ReturnTypeWillChange;
 use Stringable;
-
 
 class UserSession implements UserSessionInterface
 {

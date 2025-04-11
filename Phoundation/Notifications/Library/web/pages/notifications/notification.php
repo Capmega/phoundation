@@ -62,7 +62,7 @@ if (Request::isPostRequestMethod()) {
 if ($notification->getUrl()) {
     $go = Button::new()
                 ->setFloatRight(true)
-                ->setValue(tr('Go'))
+                ->setContent(tr('Go'))
                 ->setAnchorUrl($notification->getUrl());
 }
 

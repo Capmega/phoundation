@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class SessionStartFailedException
+ * Class SessionDuplicateIdentifierException
  *
  *
  *
@@ -14,9 +14,9 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Core\Sessions\Exception;
+namespace Phoundation\Accounts\Users\Sessions\Exception;
 
 
-class SessionStartFailedException extends SessionException
+class SessionDuplicateIdentifierException extends SessionException
 {
 }

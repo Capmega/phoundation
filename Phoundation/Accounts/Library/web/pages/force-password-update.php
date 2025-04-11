@@ -15,7 +15,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Core\Sessions\Session;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Passwords\Exception\NoPasswordSpecifiedException;
@@ -25,7 +25,6 @@ use Phoundation\Web\Html\Pages\ForcePasswordUpdatePage;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
-
 
 // Only allow being here when it was forced by redirect
 if (!Session::getUserObject()->getRedirect() or (Session::getUserObject()->getRedirect() !== (string)Url::new('/force-password-update.html')->makeWww())) {

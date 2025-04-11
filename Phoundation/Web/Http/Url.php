@@ -18,9 +18,9 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http;
 
 use Phoundation\Accounts\Config\Exception\ConfigPathDoesNotExistsException;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;

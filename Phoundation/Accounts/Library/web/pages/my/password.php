@@ -16,8 +16,8 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Enums\EnumAuthenticationAction;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Accounts\Users\User;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Passwords\Exception\NoPasswordSpecifiedException;
@@ -32,7 +32,6 @@ use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
-
 
 // Get current user and password objects
 $user     = Session::getUserObject();

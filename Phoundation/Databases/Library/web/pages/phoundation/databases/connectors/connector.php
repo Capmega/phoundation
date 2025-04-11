@@ -119,7 +119,7 @@ if (Request::isPostRequestMethod()) {
 // Save button
 if (!$connector->getReadonly()) {
     $save = Button::new()
-                  ->setValue(tr('Save'))
+                  ->setContent(tr('Save'))
                   ->setContent(tr('Save'));
 }
 
@@ -132,7 +132,7 @@ if (!$connector->isNew()) {
                             ->setFloatRight(true)
                             ->setMode(EnumDisplayMode::warning)
                             ->setOutlined(true)
-                            ->setValue(tr('Undelete'))
+                            ->setContent(tr('Undelete'))
                             ->setContent(tr('Undelete'));
 
         } else {
@@ -140,21 +140,21 @@ if (!$connector->isNew()) {
                             ->setFloatRight(true)
                             ->setMode(EnumDisplayMode::warning)
                             ->setOutlined(true)
-                            ->setValue(tr('Delete'))
+                            ->setContent(tr('Delete'))
                             ->setContent(tr('Delete'));
 
             if ($connector->isLocked()) {
                 $lock = Button::new()
                               ->setFloatRight(true)
                               ->setMode(EnumDisplayMode::warning)
-                              ->setValue(tr('Unlock'))
+                              ->setContent(tr('Unlock'))
                               ->setContent(tr('Unlock'));
 
             } else {
                 $lock = Button::new()
                               ->setFloatRight(true)
                               ->setMode(EnumDisplayMode::warning)
-                              ->setValue(tr('Lock'))
+                              ->setContent(tr('Lock'))
                               ->setContent(tr('Lock'));
             }
 
@@ -163,7 +163,7 @@ if (!$connector->isNew()) {
                            ->setFloatRight(true)
                            ->setMode(EnumDisplayMode::information)
                            ->setAnchorUrl('/audit/meta+' . $connector->getMetaId() . '.html')
-                           ->setValue(tr('Audit'))
+                           ->setContent(tr('Audit'))
                            ->setContent(tr('Audit'));
         }
     }
@@ -172,7 +172,7 @@ if (!$connector->isNew()) {
     $test = Button::new()
                   ->setFloatRight(true)
                   ->setMode(EnumDisplayMode::information)
-                  ->setValue(tr('Test'))
+                  ->setContent(tr('Test'))
                   ->setContent(tr('Test'));
 }
 

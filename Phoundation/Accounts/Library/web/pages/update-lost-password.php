@@ -15,19 +15,17 @@
 
 declare(strict_types=1);
 
-use Phoundation\Core\Sessions\Session;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\EnumSeverity;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Passwords\Exception\NoPasswordSpecifiedException;
-use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
 use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
 use Phoundation\Web\Html\Pages\LostPasswordUpdatedPage;
 use Phoundation\Web\Html\Pages\UpdateLostPasswordPage;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
-
 
 // Only allow being here when it was forced by redirect
 if (Session::getUserObject()->isGuest()) {

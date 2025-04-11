@@ -24,7 +24,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Core\Sessions;
+namespace Phoundation\Accounts\Users\Sessions;
 
 use DateTimeZone;
 use Exception;
@@ -34,15 +34,14 @@ use Phoundation\Accounts\Users\Authentication;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
+use Phoundation\Accounts\Users\Sessions\Exception\SessionStartFailedException;
+use Phoundation\Accounts\Users\Sessions\Interfaces\SessionInterface;
 use Phoundation\Accounts\Users\Sessions\Interfaces\UserSessionInterface;
-use Phoundation\Accounts\Users\Sessions\UserSession;
 use Phoundation\Accounts\Users\SignInKey;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Exception\SessionException;
-use Phoundation\Core\Sessions\Exception\SessionStartFailedException;
-use Phoundation\Core\Sessions\Interfaces\SessionInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryStatusException;
 use Phoundation\Data\Traits\TraitDataStaticFlashMessages;
@@ -73,6 +72,7 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Plugins\Phoundation\MultiFactorAuthentication\Interfaces\MultiFactorAuthenticationInterface;
 use Throwable;
+
 
 class Session implements SessionInterface
 {
@@ -1076,51 +1076,51 @@ class Session implements SessionInterface
     }
 
 
-    /**
-     * Checks if an extended session is available for this user
-     *
-     * @return bool
-     */
-    protected static function checkExtended(): bool
-    {
-        if (empty($_CONFIG['sessions']['extended']['enabled'])) {
-            return false;
-        }
-        if (isset($_COOKIE['extsession']) and !isset($_SESSION['user'])) {
-            // Pull  extsession data
-            $ext = sql_get('SELECT `users_id` 
-                            FROM   `extended_sessions` 
-                            WHERE  `session_key` = ":session_key" 
-                              AND  DATE(`addedon`) < DATE(NOW());', [
-                                  ':session_key' => cfm($_COOKIE['extsession'])
-                   ]);
-
-            if ($ext['users_id']) {
-                $user = sql_get('SELECT * 
-                                 FROM   `accounts_users` 
-                                 WHERE  `accounts_users`.`id` = :id', [
-                                     ':id' => cfi($ext['users_id'])
-                        ]);
-
-                if ($user['id']) {
-                    // Auto sign in user
-                    static::$user = User::signin($user, true);
-
-                    return true;
-
-                } else {
-                    // Remove cookie
-                    setcookie('extsession', 'stub', 1);
-                }
-
-            } else {
-                // Remove cookie
-                setcookie('extsession', 'stub', 1);
-            }
-        }
-
-        return false;
-    }
+//    /**
+//     * Checks if an extended session is available for this user
+//     *
+//     * @return bool
+//     */
+//    protected static function checkExtended(): bool
+//    {
+//        if (empty($_CONFIG['sessions']['extended']['enabled'])) {
+//            return false;
+//        }
+//        if (isset($_COOKIE['extsession']) and !isset($_SESSION['user'])) {
+//            // Pull  extsession data
+//            $ext = sql_get('SELECT `users_id`
+//                            FROM   `extended_sessions`
+//                            WHERE  `session_key` = ":session_key"
+//                              AND  DATE(`addedon`) < DATE(NOW());', [
+//                                  ':session_key' => cfm($_COOKIE['extsession'])
+//                   ]);
+//
+//            if ($ext['users_id']) {
+//                $user = sql_get('SELECT *
+//                                 FROM   `accounts_users`
+//                                 WHERE  `accounts_users`.`id` = :id', [
+//                                     ':id' => cfi($ext['users_id'])
+//                        ]);
+//
+//                if ($user['id']) {
+//                    // Auto sign in user
+//                    static::$user = User::signin($user, true);
+//
+//                    return true;
+//
+//                } else {
+//                    // Remove cookie
+//                    setcookie('extsession', 'stub', 1);
+//                }
+//
+//            } else {
+//                // Remove cookie
+//                setcookie('extsession', 'stub', 1);
+//            }
+//        }
+//
+//        return false;
+//    }
 
 
     /**

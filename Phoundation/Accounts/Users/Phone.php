@@ -264,7 +264,7 @@ class Phone extends DataEntry implements PhoneInterface
                                            ->setSize(2)
                                            ->setLabel(tr('Delete'))
                                            ->addClasses('btn btn-outline-warning')
-                                           ->setValue(tr('Delete')))
+                                           ->setContent(tr('Delete')))
 
                     ->add(DefinitionFactory::newDescription()
                                            ->setHelpText(tr('The description for this phone')));

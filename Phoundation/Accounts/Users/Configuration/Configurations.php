@@ -19,7 +19,7 @@ namespace Phoundation\Accounts\Users\Configuration;
 
 use Phoundation\Accounts\Users\Configuration\Interfaces\ConfigurationsInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
-use Phoundation\Core\Sessions\Session;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Definitions;
@@ -35,7 +35,6 @@ use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
-
 
 class Configurations extends IteratorCore implements ConfigurationsInterface
 {
