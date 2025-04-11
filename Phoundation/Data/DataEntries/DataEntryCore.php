@@ -1478,6 +1478,33 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
+     * Loads a random DataEntry object
+     *
+     * @param string     $where
+     * @param array|null $execute
+     *
+     * @return static|null
+     */
+    public function loadRandomWhere(string $where, ?array $execute = null): ?static
+    {
+        $identifier = sql(static::getDefaultConnector())->getInteger('SELECT   `id` 
+                                                                      FROM     `' . static::getTable() . '` 
+                                                                      WHERE ' . $where . '
+                                                                      ORDER BY RAND() 
+                                                                      LIMIT    1;', $execute);
+
+
+        if ($identifier) {
+            return $this->load($identifier);
+        }
+
+        throw new OutOfBoundsException(tr('Cannot select random record for table ":table", no records found', [
+            ':table' => static::getTable(),
+        ]));
+    }
+
+
+    /**
      * Returns the class name of this DataEntry object
      *
      * @return string
