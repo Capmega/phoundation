@@ -26,7 +26,7 @@ trait TraitDataEntryCode
      */
     public function getCode(): string|int|null
     {
-        return $this->getTypesafe('string', 'code');
+        return $this->getTypesafe('string|int', 'code');
     }
 
 
