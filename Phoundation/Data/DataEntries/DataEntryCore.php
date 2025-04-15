@@ -3520,7 +3520,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function extractDataEntryObject(array|string $columns, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): DataEntryInterface
     {
         // Clone this object, then filter the definitions object, then clean the source
-        $entry = static::new($this);
+        $entry = static::newFromSource($this);
 
         $entry->getDefinitionsObject()
               ->keepMatchingKeys($columns, $flags);
