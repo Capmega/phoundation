@@ -31,6 +31,7 @@ use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDirectory;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryPriority;
+use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoDirectory;
@@ -122,14 +123,16 @@ class Plugin extends DataEntry implements PluginInterface
      *       returned class will be Plugins\Phoundation\Phoundation\Library\Plugin, instead of
      *       Phoundation\Core\Plugins\Plugin
      *
-     * @param IdentifierInterface|array|string|int|false|null $identifier
+     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param EnumLoadParameters|null                   $on_load_null_identifier
+     * @param EnumLoadParameters|null                   $on_load_not_exists
      * @param bool                                      $load_plugin_file
      *
-     * @return static
+     * @return static|null
      */
-    public function load(IdentifierInterface|array|string|int|false|null $identifier = false, bool $load_plugin_file = true): static
+    public function load(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null, bool $load_plugin_file = true): ?static
     {
-        $plugin = parent::load($identifier);
+        $plugin = parent::load($identifier, $on_load_null_identifier, $on_load_not_exists);
         $file   = DIRECTORY_ROOT . $plugin->getDirectoryObject() . 'Library/Plugin.php';
 
         if ($load_plugin_file) {

@@ -588,12 +588,26 @@ class Definition implements DefinitionInterface
      * virtual column instead, and will not be validated nor copied in DataEntry::apply()
      *
      * @note Defaults to true
+     *
+     * @param bool $execute_if_callback Will execute the "render" flag automatically if it is callable, and then return
+     *                                  the true / false result
+     *
      * @return callable|bool|null
      * @see  Definition::getVirtual()
      */
-    public function getRender(): callable|bool|null
+    public function getRender(bool $execute_if_callback = true): callable|bool|null
     {
-        return get_safe_typed('bool|closure', $this->source, 'render', true);
+        $return = get_safe_typed('boolean|closure', $this->source, 'render', true);
+
+        if ($execute_if_callback and is_callable($return)) {
+            $return = $return();
+
+            check_datatype($return, 'boolean', tr('Definition->getRender() callback must return a boolean value but returned ":has" instead', [
+                ':has'  => gettype($return),
+            ]));
+        }
+
+        return $return;
     }
 
 

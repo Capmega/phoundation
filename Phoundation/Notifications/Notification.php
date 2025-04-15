@@ -166,7 +166,6 @@ class Notification extends DataEntry implements NotificationInterface
             parent::__construct($identifier);
         }
 
-
         if ($this->isNew()) {
             if (Session::isInitialized()) {
                 // By default, the object is created by the current user

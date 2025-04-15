@@ -29,6 +29,7 @@ use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryOptions;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryTimeout;
+use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\NotExistsException;
@@ -131,12 +132,12 @@ class PhoMount extends DataEntry implements PhoMountInterface
     /**
      * @inheritDoc
      */
-    public function load(IdentifierInterface|array|string|int|false|null $identifier): static
+    public function load(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
     {
         $column = static::determineColumn($identifier);
 
         try {
-            return parent::load($identifier);
+            return parent::load($identifier, $on_load_null_identifier, $on_load_not_exists);
 
         } catch (DataEntryNotExistsException $e) {
             // FsMount was not found in the database. Get it from configuration instead but that DOES require the name

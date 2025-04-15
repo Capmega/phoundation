@@ -22,6 +22,7 @@ use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntries\Exception\DataEntryNoIdentifierSpecifiedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryArrayServers;
@@ -33,6 +34,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryPassword;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntrySync;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUsername;
+use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Exception\ConnectorNotExistsException;
 use Phoundation\Databases\Connectors\Exception\InvalidConnectorTypeException;
@@ -193,11 +195,13 @@ class Connector extends DataEntry implements ConnectorInterface
      * @note The test to see if a DataEntry object exists in the database can be either DataEntry::isNew() or
      *       DataEntry::getId(), which should return a valid database id
      *
-     * @param IdentifierInterface|array|string|int|false|null $identifier
+     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param EnumLoadParameters|null                   $on_load_null_identifier
+     * @param EnumLoadParameters|null                   $on_load_not_exists
      *
-     * @return static
+     * @return static|null
      */
-    public function load(IdentifierInterface|array|string|int|false|null $identifier): static
+    public function load(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
     {
         if (is_numeric($identifier) and ($identifier < 0)) {
             // Negative identifier is a configured connector!
@@ -206,7 +210,7 @@ class Connector extends DataEntry implements ConnectorInterface
 
         try {
             // Load connector data and automatically cache it in the Datastores object
-            parent::load($identifier);
+            parent::load($identifier, $on_load_null_identifier, $on_load_not_exists);
 
             // TODO $this->identifier['name'] should always exist for a connector, but what if someone specified $identifier['id'] ???
             Databases::getConnectorsObject()->add($this, $this->getUniqueColumnValue(), exception: false);
@@ -226,16 +230,20 @@ class Connector extends DataEntry implements ConnectorInterface
      * This Connector::loadIdentifier() overrides DataEntry::loadIdentifier. It will check if the current database is
      * connected and if not, immediately skip database access and use DataEntry::tryLoadFromConfiguration() instead
      *
+     * @param string $action
+     *
      * @return static
+     * @throws DataEntryNoIdentifierSpecifiedException
      */
-    protected function loadIdentifier(): static
+    protected function loadIdentifier(string $action): static
     {
         if ($this->getDatabaseObject()?->isConnected()) {
-            return parent::loadIdentifier();
+            return parent::loadIdentifier($action);
         }
 
-        // We don't have a database connect, so don't even try to use the normal database load!
-        return $this->tryLoadFromConfiguration($this->identifier);
+        // We don't have a database connected, so don't even try to use the normal database load!
+        return $this->checkIdentifier($action)
+                    ->tryLoadFromConfiguration();
     }
 
 

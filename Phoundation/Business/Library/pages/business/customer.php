@@ -35,7 +35,7 @@ $get = GetValidator::new()
                    ->select('id')->isOptional()->isDbId()
                    ->validate();
 
-$customer = Customer::new()->loadOrThis($get['id']);
+$customer = Customer::new()->loadThis($get['id']);
 
 // Validate POST and submit
 if (Request::isPostRequestMethod()) {

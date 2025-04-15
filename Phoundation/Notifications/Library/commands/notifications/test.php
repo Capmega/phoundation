@@ -25,9 +25,9 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 // Get arguments
 $count = 0;
 $argv  = ArgvValidator::new()
-    ->select('-u,--users', true)->isOptional()->xor('roles')->hasMaxCharacters(2048)->sanitizeForceArray()->eachField()->isEmail()
-    ->select('-r,--roles', true)->isOptional()->xor('users')->hasMaxCharacters(2048)->sanitizeForceArray()->eachField()->isVariable()
-    ->validate();
+                      ->select('-u,--users', true)->isOptional()->xor('roles')->hasMaxCharacters(2048)->sanitizeForceArray()->forEachField()->isEmail()
+                      ->select('-r,--roles', true)->isOptional()->xor('users')->hasMaxCharacters(2048)->sanitizeForceArray()->forEachField()->isVariable()
+                      ->validate();
 
 if ($argv['users']) {
     foreach ($argv['users'] as $user) {
@@ -35,13 +35,13 @@ if ($argv['users']) {
 
         // Send the test notification to all specified users
         Notification::new()
-            ->setMode(pick_random_argument(EnumDisplayMode::error, EnumDisplayMode::warning, EnumDisplayMode::success, EnumDisplayMode::info, EnumDisplayMode::notice))
-            ->setUsersId($user->getId())
-            ->setTitle(tr('This is a test notification'))
-            ->setMessage(tr('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'))
-            ->setDetails(['test' => Strings::getRandom(16)])
-            ->log()
-            ->send();
+                    ->setMode(pick_random_argument(EnumDisplayMode::error, EnumDisplayMode::warning, EnumDisplayMode::success, EnumDisplayMode::info, EnumDisplayMode::notice))
+                    ->setUsersId($user->getId())
+                    ->setTitle(tr('This is a test notification'))
+                    ->setMessage(tr('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'))
+                    ->setDetails(['test' => Strings::getRandom(16)])
+                    ->log()
+                    ->send();
 
         $count++;
     }
@@ -49,13 +49,13 @@ if ($argv['users']) {
 } else {
     // Send the test notification to all specified users
     Notification::new()
-        ->setMode(pick_random_argument(EnumDisplayMode::error, EnumDisplayMode::warning, EnumDisplayMode::success, EnumDisplayMode::info, EnumDisplayMode::notice))
-        ->setRoles($argv['roles'])
-        ->setTitle(tr('This is a test notification'))
-        ->setMessage(tr('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'))
-        ->setDetails(['test' => Strings::getRandom(16)])
-        ->log()
-        ->send();
+                ->setMode(pick_random_argument(EnumDisplayMode::error, EnumDisplayMode::warning, EnumDisplayMode::success, EnumDisplayMode::info, EnumDisplayMode::notice))
+                ->setRoles($argv['roles'])
+                ->setTitle(tr('This is a test notification'))
+                ->setMessage(tr('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'))
+                ->setDetails(['test' => Strings::getRandom(16)])
+                ->log()
+                ->send();
 
     $count = count($argv['roles']);
 }

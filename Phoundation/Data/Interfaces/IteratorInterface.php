@@ -745,9 +745,11 @@ interface IteratorInterface extends IteratorBaseInterface
     /**
      * Executes the specified callback function on each
      *
+     * @param callable $callback
+     *
      * @return static
      */
-    public function eachField(callable $callback): static;
+    public function forEachField(callable $callback): static;
 
     /**
      * Returns a diff between this Iterator and the specified Iterator or array

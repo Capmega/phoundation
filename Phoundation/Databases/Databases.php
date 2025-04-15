@@ -144,14 +144,14 @@ class Databases
     /**
      * Returns a database object for the specified database connector
      *
-     * @param ConnectorInterface|string|null $connector
-     * @param string                         $class
-     * @param bool                           $connect
-     * @param bool                           $use_database
+     * @param ConnectorInterface|string $connector
+     * @param string                    $class
+     * @param bool                      $connect
+     * @param bool                      $use_database
      *
      * @return SqlInterface|RedisInterface|MemcachedInterface|MongoDb|FileDb|NullDb
      */
-    protected static function getDatabase(ConnectorInterface|string|null $connector, string $class, bool $connect = true, bool $use_database = true): SqlInterface|RedisInterface|MemcachedInterface|MongoDb|FileDb|NullDb
+    protected static function getDatabase(ConnectorInterface|string $connector, string $class, bool $connect = true, bool $use_database = true): SqlInterface|RedisInterface|MemcachedInterface|MongoDb|FileDb|NullDb
     {
         $o_connector    = Databases::getConnectorObject($connector);
         $connector_name = $o_connector->getDisplayName();

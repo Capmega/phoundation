@@ -1629,7 +1629,7 @@ class DefinitionFactory
                          ->setHelpText(tr('Phone numbers where this user can be reached'))
                          ->addValidationFunction(function (ValidatorInterface $validator) {
                              $validator->isPhoneNumbers();
-                             // $validator->sanitizeForceArray(',')->eachField()->isPhoneNumber()->sanitizeForceString()
+                             // $validator->sanitizeForceArray(',')->forEachField()->isPhoneNumber()->sanitizeForceString()
                          });
     }
 

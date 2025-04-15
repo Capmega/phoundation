@@ -153,7 +153,7 @@ class Connectors extends DataIterator implements ConnectorsInterface
      *
      * @return mixed
      */
-    public function get(float|Stringable|int|string $key, bool $exception = false): mixed
+    public function get(Stringable|string|float|int $key, bool $exception = false): mixed
     {
         if (empty($key)) {
             throw new OutOfBoundsException(tr('Cannot get connector object, no connector name specified'));

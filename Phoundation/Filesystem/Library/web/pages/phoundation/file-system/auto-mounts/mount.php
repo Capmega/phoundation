@@ -38,7 +38,7 @@ $get = GetValidator::new()
     ->select('id')->isOptional()->isDbId()
     ->validate();
 
-$mount = PhoMount::new()->loadOrThis($get['id']);
+$mount = PhoMount::new()->loadThis($get['id']);
 
 
 // Validate POST and submit
@@ -48,7 +48,7 @@ if (Request::isPostRequestMethod()) {
             case tr('Save'):
                 // Validate roles
                 $post = PostValidator::new()
-                    ->select('roles_id')->isOptional()->isArray()->eachField()->isOptional()->isDbId()
+                                     ->select('roles_id')->isOptional()->isArray()->forEachField()->isOptional()->isDbId()
                     ->validate(false);
 
                 // Update mount, roles, emails, and phones

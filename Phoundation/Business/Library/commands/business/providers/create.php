@@ -38,7 +38,7 @@ NAME                                    The name for the provider
 $argv = ArgvValidator::new()
                      ->select('name', true)->isName()
                      ->select('-d,--description', true)->isOptional(null)->isDescription()
-                     ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->eachField()->isName()
+                     ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->forEachField()->isName()
                      ->validate();
 
 

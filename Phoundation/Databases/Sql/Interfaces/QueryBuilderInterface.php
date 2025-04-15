@@ -295,4 +295,13 @@ interface QueryBuilderInterface extends QueryObjectInterface
      * @return string|null
      */
     public function getQueryHash(): ?string;
+
+    /**
+     * Returns the source of this object
+     *
+     * @note: This object doesn't work with "source" data as such, so it will be constructed upon request
+     *
+     * @return array
+     */
+    public function getSource(): array;
 }

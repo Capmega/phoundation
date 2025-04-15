@@ -310,7 +310,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      * @see DataValidator::select()
      * @see DataValidator::self()
      */
-    public function eachField(): static
+    public function forEachField(): static
     {
         // This very obviously only works on arrays
         $this->isArray();
@@ -416,7 +416,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      * Will let the validator treat the value as a single variable
      *
      * Basically each method will expect to process a list always and ->select() will put the selected value in an
-     * artificial array because of this. ->eachField() actually will have a list of values, so puts that list directly into
+     * artificial array because of this. ->forEachField() actually will have a list of values, so puts that list directly into
      * $this->process_values
      *
      * @return static

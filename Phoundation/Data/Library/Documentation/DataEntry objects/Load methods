@@ -66,14 +66,22 @@ See the identifier / return table below for a comprehensive view of how each met
 
 Identifier / return table:
 
-Method  /  identifier(s):         Empty (NULL, 0, "", etc)                          Existing                                          Non existing
+Method  /  identifier(s):       Existing                    Empty identifier (NULL, 0, "", etc)         Non existing
 
-DataEntry::load()                 DataEntryNoIdentifierSpecifiedException           DataEntry object with data                        DataEntryNotExistsException
+DataEntry::loadNullNull()       DataEntry object with data  NULL                                        NULL
 
-DataEntry::loadOrNull()           NULL                                              DataEntry object with data                        DataEntryNotExistsException
+DataEntry::loadThisNull()       DataEntry object with data  $this                                       NULL
 
-DataEntry::loadOrThis()           $this                                             DataEntry object with data                        DataEntryNotExistsException
+DataEntry::loadExceptionNull()  DataEntry object with data  DataEntryNoIdentifierSpecifiedException     NULL
 
-DataEntry::loadOrNullInitialize() NULL                                              DataEntry object with data                        $this, being a same object but initialized with the specified identifier value(s)
+DataEntry::loadNullException()  DataEntry object with data  NULL                                        DataEntryNotExistsException
 
-DataEntry::loadOrThisInitialize() $this                                             DataEntry object with data                        $this, being a same object but initialized with the specified identifier value(s)
+DataEntry::loadThisException()  DataEntry object with data  $this                                       DataEntryNotExistsException
+
+DataEntry::load()               DataEntry object with data  DataEntryNoIdentifierSpecifiedException     DataEntryNotExistsException
+
+DataEntry::loadNullThis()       DataEntry object with data  NULL                                        $this
+
+DataEntry::loadThisThis()       DataEntry object with data  $this                                       $this
+
+DataEntry::loadExceptionThis()  DataEntry object with data  DataEntryNoIdentifierSpecifiedException     $this

@@ -19,6 +19,7 @@ namespace Phoundation\Databases\Sql\QueryBuilder;
 use PDOStatement;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
+use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataFilterForm;
 use Phoundation\Data\Traits\TraitDataMetaEnabled;
@@ -64,6 +65,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
     {
         $this->___setFilterFormObject($filter_form);
         $this->filter_form?->applyFiltersToQueryBuilder($this);
+
         return $this;
     }
 
@@ -288,17 +290,19 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      *
      * @note Will cause an exception if the parent has not been set
      *
-     * @param IdentifierInterface|array|string|int|false|null $identifier
+     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param EnumLoadParameters|null                   $on_load_null_identifier
+     * @param EnumLoadParameters|null                   $on_load_not_exists
      *
-     * @return static
+     * @return static|null
      */
-    public function load(IdentifierInterface|array|string|int|false|null $identifier): static
+    public function load(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
     {
         if (empty($this->parent)) {
             throw new OutOfBoundsException(tr('Cannot load parent data from query, no parent has been specified'));
         }
 
-        $this->parent->load($identifier);
+        $this->parent->load($identifier, $on_load_null_identifier, $on_load_not_exists);
         return $this;
     }
 }

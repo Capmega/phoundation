@@ -63,7 +63,7 @@ class Mode implements ModeInterface
         $this->datetime = $mode_file?->getMtime() ?? new PhoDateTime();
 
         try {
-            $this->user = $mode_file ? User::new()->loadOrThis(['email' => $mode_file->getBasename()]) : User::newSystem();
+            $this->user = $mode_file ? User::new()->loadThis(['email' => $mode_file->getBasename()]) : User::newSystem();
 
         } catch (DataEntryNotExistsException | SqlUnknownDatabaseException | SqlTableDoesNotExistException $e) {
             Incident::new()

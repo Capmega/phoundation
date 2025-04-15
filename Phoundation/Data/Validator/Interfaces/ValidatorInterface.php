@@ -67,20 +67,20 @@ interface ValidatorInterface extends IteratorBaseInterface
      * Allow the validator to check each element in a list of values.
      *
      * Basically, each method will expect to process a list always and ->select() will put the selected value in an
-     * artificial array because of this. ->eachField() actually will have a list of values, so puts that list directly into
+     * artificial array because of this. ->forEachField() actually will have a list of values, so puts that list directly into
      * $this->process_values
      *
      * @return static
      * @see DataValidator::select()
      * @see DataValidator::self()
      */
-    public function eachField(): static;
+    public function forEachField(): static;
 
     /**
      * Will let the validator treat the value as a single variable
      *
      * Basically, each method will expect to process a list always and ->select() will put the selected value in an
-     * artificial array because of this. ->eachField() actually will have a list of values, so puts that list directly into
+     * artificial array because of this. ->forEachField() actually will have a list of values, so puts that list directly into
      * $this->process_values
      *
      * @return static

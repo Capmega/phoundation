@@ -374,15 +374,14 @@ class PhoPathCore implements PhoPathInterface
      *
      * @param PhoPathInterface|string|null $from
      *
-     * @return string|null
+     * @return string
      */
-    public function getSource(PhoPathInterface|string|null $from = null): ?string
+    public function getSource(PhoPathInterface|string|null $from = null): string
     {
         if ($this->isDirectory()) {
             $return = Strings::slash($this->source);
 
-        }
-        else {
+        } else {
             $return = $this->source;
         }
 

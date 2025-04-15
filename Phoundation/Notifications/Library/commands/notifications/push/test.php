@@ -33,9 +33,9 @@ use Serhiy\Pushover\Recipient;
 // Get arguments
 $count = 0;
 $argv  = ArgvValidator::new()
-    ->select('-u,--users'    , true)->isOptional()->xor('roles')->hasMaxCharacters(2048)->sanitizeForceArray()->eachField()->isEmail()
-    ->select('-r,--roles'    , true)->isOptional()->xor('users')->hasMaxCharacters(2048)->sanitizeForceArray()->eachField()->isVariable()
-    ->select('-e,--emergency', true)->isOptional()->xor('users')->hasMaxCharacters(2048)->sanitizeForceArray()->eachField()->isVariable()
+                      ->select('-u,--users'    , true)->isOptional()->xor('roles')->hasMaxCharacters(2048)->sanitizeForceArray()->forEachField()->isEmail()
+                      ->select('-r,--roles'    , true)->isOptional()->xor('users')->hasMaxCharacters(2048)->sanitizeForceArray()->forEachField()->isVariable()
+                      ->select('-e,--emergency', true)->isOptional()->xor('users')->hasMaxCharacters(2048)->sanitizeForceArray()->forEachField()->isVariable()
     ->validate();
 
 if ($argv['users']) {

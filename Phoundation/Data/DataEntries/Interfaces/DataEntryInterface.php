@@ -10,6 +10,7 @@ use Phoundation\Core\Interfaces\IntegerableInterface;
 use Phoundation\Core\Meta\Interfaces\MetaInterface;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
@@ -55,17 +56,51 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
 
 
     /**
-     * Returns a DataEntry object matching the specified identifier
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database
      *
-     * @note This method also accepts DataEntry objects, in which case it will simply return this object. This is to
-     *       simplify "if this is not DataEntry object then this is new DataEntry object" into
-     *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
+     * This method also accepts DataEntry objects of the same class, in which case it will simply return the specified
+     * object, as long as it exists in the database.
      *
-     * @param IdentifierInterface|array|string|int|false|null $identifier
+     * If the DataEntry doesn't exist in the database, then this method will check if perhaps it exists as a
+     * configuration entry. This requires DataEntry::$config_path to be set. DataEntries from configuration will be in
+     * readonly mode automatically as they can't be stored in the database.
      *
-     * @return static
+     * DataEntries from the database will also have their status checked. If the status is "deleted", then a
+     * DataEntryDeletedException will be thrown
+     *
+     * @note The test to see if a DataEntry object exists in the database can be either DataEntry::isNew() or
+     *       DataEntry::getId(), which should return a valid database id
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier                    Identifier for the DataEntry object to
+     *                                                                                 load. Can be specified with a
+     *                                                                                 [column => value] array, though also
+     *                                                                                 accepts an integer value which will convert
+     *                                                                                 to [id_column => integer_value] or a string
+     *                                                                                 value which will convert to
+     *                                                                                 [unique_column => string_value]]
+     * @param EnumLoadParameters|null                   $on_load_null_identifier       Specifies how this load method will handle
+     *                                                                                 the specified identifier being NULL.
+     *                                                                                 Options are: EnumLoadParameters::exception
+     *                                                                                 (Throws a
+     *                                                                                 DataEntryNoIdentifierSpecifiedException),
+     *                                                                                 EnumLoadParameters::null (will return NULL)
+     *                                                                                 or EnumLoadParameters::this (Will return
+     *                                                                                 the object as-is, without loading
+     *                                                                                 anything). Defaults to
+     *                                                                                 EnumLoadParameters::exception
+     * @param EnumLoadParameters|null                   $on_load_not_exists            Specifies how this load method will handle
+     *                                                                                 the specified identifier not existing in
+     *                                                                                 the database. Options are:
+     *                                                                                 EnumLoadParameters::exception (Throws a
+     *                                                                                 DataEntryNotExistsException),
+     *                                                                                 EnumLoadParameters::null (will return NULL)
+     *                                                                                 or EnumLoadParameters::this (Will return
+     *                                                                                 the object as-is, without loading anything)
+     *                                                                                 Defaults to EnumLoadParameters::exception
+     *
+     * @return static|null
      */
-    public function load(IdentifierInterface|array|string|int|false|null $identifier): static;
+    public function load(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static;
 
     /**
      * Returns if this DataEntry validates data before saving
@@ -201,6 +236,20 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      */
     public function getStatus(): ?string;
 
+    /**
+     * Returns all data for this data entry at once with an array of information
+     *
+     * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
+     *       will not become available outside this object
+     *
+     * @param bool $filter_meta              If true, will filter out the DataEntry meta-columns
+     * @param bool $filter_protected_columns If true, will filter out the DataEntry protected columns (typically
+     *                                       passwords, etc)
+     * @param bool $as_is
+     *
+     * @return array
+     */
+    public function getSource(bool $filter_meta = false, bool $filter_protected_columns = true, bool $as_is = false): array;
 
     /**
      * Set the status for this database entry

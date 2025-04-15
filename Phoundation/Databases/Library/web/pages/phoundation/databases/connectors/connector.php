@@ -37,7 +37,7 @@ $get = GetValidator::new()
                    ->select('id')->isOptional()->isDbId(false, true)
                    ->validate();
 
-$connector = Connector::new()->loadOrThis($get['id']);
+$connector = Connector::new()->loadThis($get['id']);
 
 
 // Validate POST and submit

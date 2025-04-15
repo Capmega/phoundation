@@ -2200,7 +2200,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @return static
      */
-    public function eachField(callable $callback): static
+    public function forEachField(callable $callback): static
     {
         foreach ($this->source as $key => &$value) {
             $callback($value, $key);

@@ -74,7 +74,7 @@ trait TraitDataEntrySshAccount
     public function getSshAccountObject(): ?SshAccountInterface
     {
         if (empty($this->o_ssh_account)) {
-            $this->o_ssh_account = SshAccount::new($this->getTypesafe('int', 'ssh_accounts_id'))->loadOrNull();
+            $this->o_ssh_account = SshAccount::new($this->getTypesafe('int', 'ssh_accounts_id'))->loadNull();
         }
 
         return $this->o_ssh_account;
@@ -116,6 +116,6 @@ trait TraitDataEntrySshAccount
      */
     public function setSshAccountsName(?string $ssh_accounts_name): static
     {
-        return $this->setSshAccountObject(SshAccount::new()->loadOrNull(['name' => $ssh_accounts_name]));
+        return $this->setSshAccountObject(SshAccount::new()->loadNull(['name' => $ssh_accounts_name]));
     }
 }

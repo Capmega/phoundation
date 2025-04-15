@@ -5,7 +5,7 @@
  *
  * This class implements the DataEntry class
  *
- * @see \Phoundation\Data\Entry
+ * @see \Phoundation\Data\Entry for detailed documentation on how to use DataEntry objects
  * @see \Phoundation\Data\DataEntries\DataEntry
  * @see \Phoundation\Data\DataEntries\Definitions\Definitions
  * @see \Phoundation\Data\DataEntries\Definitions\Definition
@@ -63,8 +63,10 @@ use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataDefinitions;
 use Phoundation\Data\EntryCore;
+use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataCacheKey;
+use Phoundation\Data\Traits\TraitDataColumns;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Data\Traits\TraitDataDisabled;
@@ -112,6 +114,7 @@ use Stringable;
 use Throwable;
 use TypeError;
 
+
 class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierInterface
 {
     use TraitDataCacheKey;
@@ -136,6 +139,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     use TraitMethodsTableState;
     use TraitMethodsGetTypesafe;
     use TraitMethodsVirtualColumns;
+    use TraitDataColumns;
 
 
     /**
@@ -289,11 +293,18 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     protected bool $is_loaded_from_cache = false;
 
     /**
-     * The specified columns to load. If empty, load all columns
+     * Tracks the handling of NULL identifiers
      *
-     * @var array
+     * @var EnumLoadParameters $on_load_null_identifier
      */
-    protected array $columns = [];
+    protected EnumLoadParameters $on_load_null_identifier = EnumLoadParameters::exception;
+
+    /**
+     * Tracks the handling of identifier not found
+     *
+     * @var EnumLoadParameters $on_load_not_exists
+     */
+    protected EnumLoadParameters $on_load_not_exists = EnumLoadParameters::exception;
 
 
     /**
@@ -308,8 +319,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *                                                                    FALSE, the object will NOT initialize, and the
      *                                                                    DataEntry::initialize() method must be called
      *                                                                    separately.
+     * @param EnumLoadParameters|null                         $on_load_null_identifier
+     * @param EnumLoadParameters|null                         $on_load_not_exists
      */
-    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false)
+    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null)
     {
         $this->cache = Cache::isEnabled();
 
@@ -319,7 +332,37 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         // Initialize the DataEntry object
-        $this->initialize($identifier === null ? false : $identifier);
+        $this->setOnLoadNullIdentifier($on_load_null_identifier)
+             ->setOnLoadNotExists($on_load_not_exists)
+             ->initialize(($identifier === null) ? false : $identifier);
+    }
+
+
+    /**
+     * DataEntry destructor
+     *
+     * @todo For now this check is only performed when enabled with configuration as this can cause a lot of unexpected behaviour. Improve this later
+     * @todo in the future  this should check if the Core is in uncaught exception state. If so, do nothing. If Core is in script execution state, this should throw an DataEntryNotSavedException
+     */
+    public function __destruct()
+    {
+        if ($this->is_modified and !$this->readonly) {
+            $enabled = config()->getBoolean('development.dataentries.destruct.modified.check', false);
+
+            if ($enabled) {
+                // Cannot destroy a modified DataEntry object without either resetting it or saving it
+                if (!Core::getErrorState() and !PhoException::hasBeenCreated()) {
+                    throw DataEntryNotSavedException::new(tr('Cannot destroy the ":class" object, it has unsaved modifications', [
+                        ':class' => $this::class
+                    ]));
+                }
+
+                // Core was handling an uncaught exception, the exception likely caused this state
+                Log::warning(ts('Object of class ":class" is destroyed while still having unsaved modifications, this is likely due to the (uncaught) exception that occurred', [
+                    ':class' => $this::class
+                ]));
+            }
+        }
     }
 
 
@@ -358,11 +401,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         if ($identifier) {
             // An identifier was specified, load data immediately using DataEntry::load() (Data MUST exist!)
-            return $this->load($identifier);
+            return $this->load(null);
         }
 
         if ($identifier === false) {
-            // Do not initialize the object source
+            // Don't initialize the object source
             return $this->ready();
         }
 
@@ -373,30 +416,58 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * DataEntry destructor
+     * Returns the handling of NULL identifiers
      *
-     * @todo For now this check is only performed when enabled with configuration as this can cause a lot of unexpected behaviour. Improve this later
-     * @todo in the future  this should check if the Core is in uncaught exception state. If so, do nothing. If Core is in script execution state, this should throw an DataEntryNotSavedException
+     * @return EnumLoadParameters|null
      */
-    public function __destruct()
+    public function getOnLoadNullIdentifier(): ?EnumLoadParameters
     {
-        if ($this->is_modified and !$this->readonly) {
-            $enabled = config()->getBoolean('development.dataentries.destruct.modified.check', false);
+        return $this->on_load_null_identifier;
+    }
 
-            if ($enabled) {
-                // Cannot destroy a modified DataEntry object without either resetting it or saving it
-                if (!Core::getErrorState() and !PhoException::hasBeenCreated()) {
-                    throw DataEntryNotSavedException::new(tr('Cannot destroy the ":class" object, it has unsaved modifications', [
-                        ':class' => $this::class
-                    ]));
-                }
 
-                // Core was handling an uncaught exception, the exception likely caused this state
-                Log::warning(ts('Object of class ":class" is destroyed while still having unsaved modifications, this is likely due to the (uncaught) exception that occurred', [
-                    ':class' => $this::class
-                ]));
-            }
+    /**
+     * Sets the handling of NULL identifiers
+     *
+     * @param EnumLoadParameters|null $on_load_null_identifier
+     *
+     * @return static
+     */
+    public function setOnLoadNullIdentifier(?EnumLoadParameters $on_load_null_identifier): static
+    {
+        if ($on_load_null_identifier) {
+            $this->on_load_null_identifier = $on_load_null_identifier;
         }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the handling of identifier not found
+     *
+     * @return EnumLoadParameters|null
+     */
+    public function getOnLoadNotExists(): ?EnumLoadParameters
+    {
+        return $this->on_load_not_exists;
+    }
+
+
+    /**
+     * Sets the handling of identifier not found
+     *
+     * @param EnumLoadParameters|null $on_load_not_exists
+     *
+     * @return static
+     */
+    public function setOnLoadNotExists(?EnumLoadParameters $on_load_not_exists): static
+    {
+        if ($on_load_not_exists) {
+            $this->on_load_not_exists = $on_load_not_exists;
+        }
+
+        return $this;
     }
 
 
@@ -458,16 +529,20 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Loads the data for the current identifier
      *
+     * @param string $action
+     *
      * @return static
+     * @throws DataEntryNoIdentifierSpecifiedException
      */
-    protected function loadIdentifier(): static
+    protected function loadIdentifier(string $action): static
     {
-        $this->loadFromDatabase();
+        $this->checkIdentifier($action)
+             ->loadFromDatabase();
 
         if ($this->isNew()) {
             // Source is still empty, so nothing was loaded from database (or, SQL table doesn't exist, also possible!)
             // Try to load it from configuration if this DataEntry supports that
-            $this->tryLoadFromConfiguration($this->identifier);
+            $this->tryLoadFromConfiguration();
         }
 
         return $this;
@@ -1071,102 +1146,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or NULL if NULL
-     * identifier was specified
-     *
-     * @param IdentifierInterface|array|string|int|false|null $identifier
-     *
-     * @return static|null
-     */
-    public function loadOrInitialize(IdentifierInterface|array|string|int|false|null $identifier = false): ?static
-    {
-        try {
-            return $this->load($identifier);
-
-        } catch (DataEntryNotExistsException) {
-            // This entry doesn't yet exist! Ignore, and just presume we want to make THIS particular entry.
-            return $this->initializeSource($identifier);
-        }
-    }
-
-
-    /**
-     * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or NULL if NULL
-     * identifier was specified
-     *
-     * @param IdentifierInterface|array|string|int|false|null $identifier
-     *
-     * @return static|null
-     */
-    public function loadOrNull(IdentifierInterface|array|string|int|false|null $identifier = false): ?static
-    {
-        if ($this->identifiersAreNull($identifier)) {
-            return null;
-        }
-
-        return $this->load($identifier);
-    }
-
-
-    /**
-     * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or the current
-     * object
-     *
-     * @param IdentifierInterface|array|string|int|false|null $identifier
-     *
-     * @return static
-     */
-    public function loadOrThis(IdentifierInterface|array|string|int|false|null $identifier = false): static
-    {
-        if ($this->identifiersAreNull($identifier)) {
-            return $this;
-        }
-
-        return $this->load($identifier);
-    }
-
-
-    /**
-     * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or the current
-     * object
-     *
-     * @param IdentifierInterface|array|string|int|false|null $identifier
-     *
-     * @return static
-     */
-    public function loadOrThisInitialize(IdentifierInterface|array|string|int|false|null $identifier = false): static
-    {
-        try {
-            return $this->loadOrThis($identifier);
-
-        } catch (DataEntryNotExistsException) {
-            // This entry does not yet exist! Ignore, and just presume we want to make THIS particular entry.
-            return $this->initializeSource($identifier);
-        }
-    }
-
-
-    /**
-     * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or the current
-     * object
-     *
-     * @param IdentifierInterface|array|string|int|false|null $identifier
-     *
-     * @return static|null
-     */
-    public function loadOrNullInitialize(IdentifierInterface|array|string|int|false|null $identifier = false): ?static
-    {
-        try {
-            return $this->loadOrNull($identifier);
-
-        } catch (DataEntryNotExistsException) {
-            // This entry does not yet exist! Ignore, and just presume we want to make THIS particular entry.
-            return $this->initializeSource($identifier);
-        }
-    }
-
-
-    /**
      * Reloads the data for this DataEntry
      *
      * @return static
@@ -1177,7 +1156,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $this->is_initializing_source = true;
 
         // Load data from identifier
-        $this->loadIdentifier();
+        $this->loadIdentifier('reload');
 
         // This entry exists in the database, yay! Is it not deleted, though?
         if ($this->isDeleted()) {
@@ -1189,14 +1168,32 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
+     * Returns the specified columns from the DataEntry object matching the specified identifier
+     * (MUST exist in the database)
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param EnumLoadParameters|null                   $on_load_null_identifier
+     * @param EnumLoadParameters|null                   $on_load_not_exists
+     * @param array|string                              $columns
+     *
+     * @return static
+     */
+    public function loadColumns(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null, array|string $columns = 'id'): static
+    {
+        return $this->setColumns($columns)
+                    ->load($identifier, $on_load_null_identifier, $on_load_not_exists);
+    }
+
+
+    /**
      * Returns a DataEntry object matching the specified identifier that MUST exist in the database
      *
      * This method also accepts DataEntry objects of the same class, in which case it will simply return the specified
      * object, as long as it exists in the database.
      *
-     * If the DataEntry does not exist in the database, then this method will check if perhaps it exists as a
+     * If the DataEntry doesn't exist in the database, then this method will check if perhaps it exists as a
      * configuration entry. This requires DataEntry::$config_path to be set. DataEntries from configuration will be in
-     * readonly mode automatically as they cannot be stored in the database.
+     * readonly mode automatically as they can't be stored in the database.
      *
      * DataEntries from the database will also have their status checked. If the status is "deleted", then a
      * DataEntryDeletedException will be thrown
@@ -1204,11 +1201,49 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * @note The test to see if a DataEntry object exists in the database can be either DataEntry::isNew() or
      *       DataEntry::getId(), which should return a valid database id
      *
-     * @param IdentifierInterface|array|string|int|false|null $identifier
+     * @param IdentifierInterface|array|string|int|null $identifier              Identifier for the DataEntry object to
+     *                                                                           load. Can be specified with a
+     *                                                                           [column => value] array, though also
+     *                                                                           accepts an integer value which will
+     *                                                                           convert to [id_column => integer_value]
+     *                                                                           or a string value which will convert to
+     *                                                                           [unique_column => string_value]]
      *
-     * @return static
+     * @param EnumLoadParameters|null                   $on_load_null_identifier Specifies how this load method will
+     *                                                                           handle the specified identifier being
+     *                                                                           NULL. Options are:
+     *                                                                           EnumLoadParameters::exception: Throws a
+     *                                                                           DataEntryNoIdentifierSpecifiedException
+     *                                                                           EnumLoadParameters::null: Will return
+     *                                                                           NULL
+     *                                                                           EnumLoadParameters::this: Will return
+     *                                                                           the object as-is, without loading
+     *                                                                           anything).
+     *
+     *                                                                           Defaults to
+     *                                                                           EnumLoadParameters::exception
+     *
+     * @param EnumLoadParameters|null                   $on_load_not_exists      Specifies how this load method will
+     *                                                                           handle the specified identifier not
+     *                                                                           existing in the database. Options are:
+     *                                                                           EnumLoadParameters::exception: Throws a
+     *                                                                           DataEntryNotExistsException.
+     *                                                                           EnumLoadParameters::null: Returns NULL
+     *                                                                           EnumLoadParameters::this Returns this,
+     *                                                                           the object as-is, without loading
+     *                                                                           anything.
+     *
+     *                                                                           Defaults to
+     *                                                                           EnumLoadParameters::exception
+     *
+     * @return static|null
+     *
+     * @throws DataEntryNoIdentifierSpecifiedException Thrown when the specified identifier is empty and
+     *                                                 $on_load_null_identifier is set to EnumLoadParameters::exception
+     * @throws DataEntryNotExistsException             Thrown when the specified identifier doesn't exist and
+     *                                                 $on_load_not_exists is set to EnumLoadParameters::exception
      */
-    public function load(IdentifierInterface|array|string|int|false|null $identifier): static
+    public function load(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
     {
         if ($this->debug) {
             Log::debug('TRY LOADING CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($identifier) . '"', 10, echo_header: false);
@@ -1223,19 +1258,19 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             ]);
         }
 
-        if (empty($identifier)) {
-            throw DataEntryNoIdentifierSpecifiedException::new(tr('Cannot load data for DataEntry object ":class", no identifier specified', [
-                ':class' => $this::class
-            ]))->addData([
-                'class' => static::getClassName(),
-            ]);
-        }
+        // Set the identifier and event handling modifiers
+        $this->setOnLoadNullIdentifier($on_load_null_identifier)
+             ->setOnLoadNotExists($on_load_not_exists)
+             ->setIdentifier($identifier)
+             ->is_initializing_source = true;
 
         if (!$this->is_initialized) {
             $this->initialize(false);
         }
 
         if (is_object($identifier)) {
+            $this->is_initializing_source = true;
+
             // This already is a DataEntry object, no need to create one. Validate that this is the same class
             if (($identifier instanceof static) or is_subclass_of(static::class, get_class($identifier))) {
                 // The identifier is the same as this, or extended this. Copy its source inside this object
@@ -1250,13 +1285,24 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             ]));
         }
 
-        // Start loading the object
-        $this->setIdentifier($identifier)
-             ->is_initializing_source = true;
-
-        if ($this->connector === null) {
+        if (empty($this->connector)) {
             // Use the default connector for this DataEntry object
             $this->setConnectorObject(static::getDefaultConnectorObject());
+        }
+
+        if (empty($this->identifier)) {
+            // Oh noes, no identifier specified!
+            switch ($this->on_load_null_identifier) {
+                case EnumLoadParameters::null:
+                    return null;
+
+                case EnumLoadParameters::this:
+                    return $this;
+
+                case EnumLoadParameters::exception:
+                    // Execute DataEntryCore::checkIdentifier(), it will cause the required exception
+                    $this->checkIdentifier('load');
+            }
         }
 
         if ($this->loadFromCache()) {
@@ -1264,47 +1310,158 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             return $this->ready(true);
         }
 
-        // Load data from identifier
-        $this->loadIdentifier();
+        try {
+            // Load data from identifier
+            $this->loadIdentifier('load');
 
-        // This entry exists in the database, yay! Is it not deleted, though?
-        if ($this->isDeleted()) {
-            if ($this->debug) {
-                Log::debug('CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($identifier) . '" IS DELETED', 10, echo_header: false);
+            // This entry exists in the database, yay! Is it not deleted, though?
+            if ($this->isDeleted()) {
+                if ($this->debug) {
+                    Log::debug('CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($identifier) . '" IS DELETED', 10, echo_header: false);
+                }
+
+                $this->processDeleted();
             }
 
-            $this->processDeleted();
+            return $this->saveToCache()->ready(true);
+
+        } catch (DataEntryNotExistsException $e) {
+            switch ($this->on_load_not_exists) {
+                case EnumLoadParameters::null:
+                    return null;
+
+                case EnumLoadParameters::this:
+                    return $this->initializeSource($identifier)->ready(true);
+
+                case EnumLoadParameters::exception:
+                    throw $e;
+            }
         }
 
-        return $this->saveToCache()->ready(true);
+        // Static analyzers sometimes don't catch on that we can never get here, this is just for those that can't see
+        // the obvious
+        throw DataEntryException::new(tr('The load method for DataEntry ":class" failed', [
+            ':class' => $this::class,
+        ]))->addData([
+            'class'      => $this::class,
+            'identifier' => $this->getIdentifier(),
+        ]);
     }
 
 
     /**
-     * Returns the specified columns from the DataEntry object matching the specified identifier
-     * (MUST exist in the database)
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or NULL if NULL
+     * identifier was specified
      *
-     * @param IdentifierInterface|array|string|int|false|null $identifier
-     * @param array|string                                    $columns
+     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param EnumLoadParameters|null                   $on_load_not_exists
+     *
+     * @return static|null
+     */
+    public function loadNull(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_not_exists = null): ?static
+    {
+        return $this->load($identifier, EnumLoadParameters::null, $on_load_not_exists);
+    }
+
+
+    /**
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or the current
+     * object
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param EnumLoadParameters|null                   $on_load_not_exists
      *
      * @return static
      */
-    public function loadColumns(IdentifierInterface|array|string|int|false|null $identifier = false, array|string $columns = 'id'): static
+    public function loadThis(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_not_exists = null): static
     {
-        $columns = Arrays::force($columns);
+        return $this->load($identifier, EnumLoadParameters::this, $on_load_not_exists);
+    }
 
-        foreach ($columns as &$column) {
-            if ($column === 'id') {
-                $column = static::getIdColumn();
-            }
-        }
 
-        unset($column);
+    /**
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or NULL if NULL
+     * identifier was specified
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param EnumLoadParameters|null                   $on_load_null_identifier
+     *
+     * @return static|null
+     */
+    public function loadOrThis(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_null_identifier = null): ?static
+    {
+        return $this->load($identifier, $on_load_null_identifier, EnumLoadParameters::this);
+    }
 
-        $this->cache_key = null;
-        $this->columns   = $columns;
 
-        return $this->load($identifier);
+    /**
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or NULL if NULL
+     * identifier was specified
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param EnumLoadParameters|null                   $on_load_null_identifier
+     *
+     * @return static|null
+     */
+    public function loadOrNull(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_null_identifier = null): ?static
+    {
+        return $this->load($identifier, $on_load_null_identifier, EnumLoadParameters::null);
+    }
+
+
+    /**
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or the current
+     * object
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier
+     *
+     * @return static
+     */
+    public function loadThisOrThis(IdentifierInterface|array|string|int|null $identifier): static
+    {
+        return $this->load($identifier, EnumLoadParameters::this, EnumLoadParameters::this);
+    }
+
+
+    /**
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or the current
+     * object
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier
+     *
+     * @return static
+     */
+    public function loadThisOrNull(IdentifierInterface|array|string|int|null $identifier): static
+    {
+        return $this->load($identifier, EnumLoadParameters::this, EnumLoadParameters::null);
+    }
+
+
+    /**
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or the current
+     * object
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier
+     *
+     * @return static|null
+     */
+    public function loadNullOrThis(IdentifierInterface|array|string|int|null $identifier): ?static
+    {
+        return $this->load($identifier, EnumLoadParameters::null, EnumLoadParameters::this);
+    }
+
+
+    /**
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or the current
+     * object
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier
+     *
+     * @return static|null
+     */
+    public function loadNullOrNull(IdentifierInterface|array|string|int|null $identifier): ?static
+    {
+        return $this->load($identifier, EnumLoadParameters::null, EnumLoadParameters::null);
     }
 
 
@@ -1343,17 +1500,20 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             return false;
         }
 
+        $this->checkIdentifier('cache-load');
+
         if (!InstanceCache::exists('dataentries', $this->getCacheKey())) {
             $data_entry = cache('dataentries')->get($this->getCacheKey());
 
            if ($data_entry) {
-               if ($this->debug) {
-                   Log::debug('FOUND CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($this->identifier) . '" IN GLOBAL CACHE WITH KEY "' . $this->getCacheKey() . '"', 10, echo_header: false);
-                   Log::printr($data_entry->getSource(as_is: true), 10, echo_header: false);
-               }
-
                 if ($data_entry instanceof DataEntryInterface) {
                     // Found it in external cache!
+
+                    if ($this->debug) {
+                        Log::debug('FOUND CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($this->identifier) . '" IN GLOBAL CACHE WITH KEY "' . $this->getCacheKey() . '"', 10, echo_header: false);
+                        Log::printr($data_entry->getSource(as_is: true), 10, echo_header: false);
+                    }
+
                     $this->is_loaded_from_cache = true;
                     $this->source               = $data_entry->getSource(false, false);
                     return true;
@@ -1830,26 +1990,21 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Try to load this DataEntry from configuration instead of database
      *
-     * @param array|string|int $identifier
-     *
      * @return static
      */
-    protected function tryLoadFromConfiguration(array|string|int $identifier): static
+    protected function tryLoadFromConfiguration(): static
     {
         $path = $this->getConfigurationPath();
 
         // Can only load from configuration if the configuration path is available
         if ($path) {
             if ($this->debug) {
-                Log::debug('TRY LOADING CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($identifier) . '" FROM CONFIGURATION', 10, echo_header: false);
+                Log::debug('TRY LOADING CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($this->identifier) . '" FROM CONFIGURATION', 10, echo_header: false);
             }
 
             // This DataEntry supports loading from configuration. Identifier arrays may ONLY contain one column!
-            $column = static::determineColumn($identifier);
-
-            if (is_array($identifier)) {
-                $identifier = $identifier[$column];
-            }
+            $column     = static::determineColumn($this->identifier);
+            $identifier = $this->identifier[$column];
 
             // Can only load from configuration using unique column, or id column or NULL column (means id column too)
             if (($column === null) or ($column === static::getUniqueColumn()) or ($column === static::getIdColumn())) {
@@ -1940,7 +2095,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $this->is_loading = true;
         $this->cache_key  = null;
 
-
         // TODO This may no longer be necessary with the upgraded setIdentifier() which already ensures identifier internally is an array!
         if (is_array($this->identifier)) {
             if ((!empty($this->columns)) and (count($this->identifier) > 1)) {
@@ -1949,10 +2103,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
             // Filter on multiple columns, multi column filter always pretends filtered column was id column
             static::buildManualQuery($this->identifier, $where, $joins, $group, $order, $execute);
-            $column = null;
 
         } else {
-            // For single column queries, determine the column we should use
+            // For single column queries, determine the column that should be used
             $column  = static::determineColumn($this->identifier);
             $where   = '`' . static::getTable() . '`.`' . $column . '` = :identifier';
             $execute = [':identifier' => $this->identifier];
@@ -1970,11 +2123,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 }
             }
         }
-
-        // Reset state
-        $this->is_loading  = false;
-        $this->is_saved    = false;
-        $this->is_modified = false;
 
         return $this;
     }
@@ -2108,8 +2256,16 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $validated = $this->is_validated;
 
         foreach ($this->definitions as $key => $definition) {
+            if ($this->columns and !array_key_exists($key, $this->columns)) {
+                // Don't copy this column
+                Log::debug(ts('NOT COPYING VALUE FOR ":key" TO SOURCE, KEY NOT SPECIFIED IN COLUMNS', [
+                    ':key' => $key,
+                ]), echo_header: false);
+                continue;
+            }
+
             if ($this->debug) {
-                Log::debug(      ts('TRY COPYING VALUE FOR ":key" TO SOURCE', [
+                Log::debug(ts('TRY COPYING VALUE FOR ":key" TO SOURCE', [
                     ':key' => $key,
                 ]), echo_header: false);
             }
@@ -2122,7 +2278,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             if ($this->is_applying and !$force) {
                 if ($definition->getReadonly() or $definition->getDisabled() or !$definition->getRender()) {
                     if (!$definition->getForcedProcessing()) {
-                        // Apply cannot update readonly or disabled columns
+                        // Apply can't update readonly or disabled columns
                         continue;
                     }
 
@@ -2698,7 +2854,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         } catch (ValidationFailedException $e) {
             if ($this->debug) {
                 Log::debug('FAILED VALIDATION OF "' . get_class($this) . '" DATA ENTRY DATA, SEE FOLLOWING LOG ENTRIES', 10, echo_header: false);
-                Log::printr($e->getData());
+                Log::printr($e->getData(), echo_header: false);
             }
 
             // Add the DataEntry object type to the exception message
@@ -2718,7 +2874,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         if ($this->debug) {
             Log::debug('DATA AFTER VALIDATION:', echo_header: false);
-            Log::printr($source);
+            Log::printr($source, echo_header: false);
         }
 
         return $source;
@@ -4411,5 +4567,30 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function isLoadedFromCache(): bool
     {
         return $this->is_loaded_from_cache;
+    }
+
+
+    /**
+     * Checks that this DataEntry object has an identifier
+     *
+     * @param string $action
+     *
+     * @return static
+     *
+     * @throws DataEntryNoIdentifierSpecifiedException
+     */
+    protected function checkIdentifier(string $action): static
+    {
+        if (empty($this->identifier)) {
+            throw DataEntryNoIdentifierSpecifiedException::new(tr('Cannot perform action ":action" on ":class" class DataEntry object, it has no identifier specified', [
+                ':action' => $action,
+                ':class'  => $this::class,
+            ]))->addData([
+                'action' => $action,
+                'class'  => static::getClassName(),
+            ]);
+        }
+
+        return $this;
     }
 }

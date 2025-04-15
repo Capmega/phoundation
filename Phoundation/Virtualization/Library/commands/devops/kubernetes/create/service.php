@@ -28,14 +28,14 @@ CliDocumentation::setHelp('This command creates a Kubernetes service using a ser
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('-n,--name', true)->isOptional(strtolower(PROJECT) . '-web')->matchesRegex('/^[a-z0-9-]+$/')
-    ->select('-s,--selectors', true)->sanitizeForceArray()->eachField()->matchesRegex('/^[a-z0-9-]+=[a-z0-9-]+$/')
-    ->validate();
+                     ->select('-n,--name', true)->isOptional(strtolower(PROJECT) . '-web')->matchesRegex('/^[a-z0-9-]+$/')
+                     ->select('-s,--selectors', true)->sanitizeForceArray()->forEachField()->matchesRegex('/^[a-z0-9-]+=[a-z0-9-]+$/')
+                     ->validate();
 
 
 // Create new service file and apply it
 $service = Service::new()
-    ->setName($argv['name'])
-    ->setSelectors($argv['selectors'])
-    ->save()
-    ->apply();
+                  ->setName($argv['name'])
+                  ->setSelectors($argv['selectors'])
+                  ->save()
+                  ->apply();

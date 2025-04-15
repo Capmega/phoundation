@@ -151,7 +151,7 @@ trait TraitMethodsVirtualColumns {
         if (empty($o_object)) {
             try {
                 $identifier = $this->getVirtualLoadIdentifier($configuration['columns'], array_get_safe($configuration, 'additional_filters'));
-                $o_object   = $configuration['class']::new()->loadOrNull($identifier);
+                $o_object   = $configuration['class']::new()->loadNull($identifier);
 
             } catch (DataEntryInvalidVirtualConfigurationException $e) {
                 // This means that a column was specified to be checked that does not exist in the Definitions object
