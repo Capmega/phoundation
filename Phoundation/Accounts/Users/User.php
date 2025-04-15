@@ -79,6 +79,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryType;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUrl;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryVerificationCode;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryVerifiedOn;
+use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
@@ -336,14 +337,16 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     /**
      * Returns a single user object for a single user that has the specified alternate email address.
      *
-     * @param IdentifierInterface|array|string|int|false|null $identifier
+     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param EnumLoadParameters|null                   $on_load_null_identifier
+     * @param EnumLoadParameters|null                   $on_load_not_exists
      *
-     * @return static
+     * @return static|null
      */
-    public function load(IdentifierInterface|array|string|int|false|null $identifier): static
+    public function load(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
     {
         try {
-            $user = parent::load($identifier);
+            $user = parent::load($identifier, $on_load_null_identifier, $on_load_not_exists);
 
         } catch (DataEntryNotExistsException $e) {
             if ($this->identifier === ['email' => 'guest']) {
@@ -1130,6 +1133,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      *
      * @param bool $official
      * @param bool $clean
+     * @param bool $reverse
      *
      * @return string|null
      */
@@ -1148,7 +1152,6 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
         if (!($name = $this->getNickname()) or $official) {
             // Nickname is NOT allowed for official information
-
             if ($reverse) {
                 $name = $this->getLastNames() . ', ' . $this->getFirstNames();
 
@@ -1157,6 +1160,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             }
 
             $name = trim($name);
+
             if (!($name)) {
                 if (!($name = $this->getUsername())) {
                     if (!($name = $this->getEmail())) {
@@ -1915,7 +1919,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function getLeader(): ?UserInterface
     {
-        return static::new()->loadOrNull($this->getTypesafe('int', 'leaders_id'));
+        return static::new()->loadNull($this->getTypesafe('int', 'leaders_id'));
     }
 
 
@@ -2709,7 +2713,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
         parent::__construct(false);
 
-        $this->loadOrInitialize(['email' => 'guest']);
+        $this->loadOrThis(['email' => 'guest']);
 
         $this->source['redirect'] = null;
         $this->source['email']    = 'guest';
@@ -2895,6 +2899,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                     ->add(Definition::new('last_sign_in')
                                     ->setOptional(true)
                                     ->setDisabled(true)
+                                    ->setRender(function() { return !$this->isNew(); })
                                     ->setInputType(EnumInputType::datetime_local)
                                     ->setDbNullInputType(EnumInputType::text)
                                     ->addClasses('text-center')
@@ -2905,6 +2910,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                     ->add(DefinitionFactory::newNumber('sign_in_count')
                                     ->setOptional(true, 0)
                                     ->setDisabled(true)
+                                    ->setRender(function() { return !$this->isNew(); })
                                     ->addClasses('text-center')
                                     ->setSize(3)
                                     ->setLabel(tr('Sign in count')))
@@ -2912,6 +2918,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                     ->add(DefinitionFactory::newNumber('authentication_failures')
                                     ->setOptional(true, 0)
                                     ->setDisabled(true)
+                                    ->setRender(function() { return !$this->isNew(); })
                                     ->setMin(0)
                                     ->addClasses('text-center')
                                     ->setSize(3)
@@ -2920,6 +2927,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                     ->add(Definition::new('locked_until')
                                     ->setOptional(true)
                                     ->setDisabled(true)
+                                    ->setRender(function() { return !$this->isNew(); })
                                     ->setInputType(EnumInputType::datetime_local)
                                     ->setDbNullInputType(EnumInputType::text)
                                     ->setNullDisplay(tr('Not locked'))
@@ -2927,7 +2935,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setSize(3)
                                     ->setLabel(tr('Locked until')))
 
-                    ->add(DefinitionFactory::newDivider())
+                    ->add(DefinitionFactory::newDivider()
+                                           ->setRender(function() { return $this->definitions->getDefinitionRender('last_sign_in')
+                                                                       and $this->definitions->getDefinitionRender('sign_in_count')
+                                                                       and $this->definitions->getDefinitionRender('authentication_failures')
+                                                                       and $this->definitions->getDefinitionRender('locked_until'); }))
 
                     ->add(DefinitionFactory::newEmail()
                                            ->setOptional(true)
@@ -3268,7 +3280,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setHelpText(tr('The keywords for this user'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isPrintable();
-                                        //$validator->sanitizeForceArray(' ')->eachField()->isWord()->sanitizeForceString()
+                                        //$validator->sanitizeForceArray(' ')->forEachField()->isWord()->sanitizeForceString()
                                     }))
 
                     ->add(DefinitionFactory::newDivider('redirect-divider'))
@@ -3293,7 +3305,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setHelpText(tr('A URL specified by the user, usually containing more information about the user')))
 
                     ->add(DefinitionFactory::newDateTime('verified_on')
-                                           ->setSize(2)
+                                           ->setSize(4)
                                            ->setDisabled(true)
                                            ->setDbNullInputType(EnumInputType::text)
                                            ->setNullDisplay(tr('Not verified'))

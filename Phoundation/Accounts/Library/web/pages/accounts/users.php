@@ -46,7 +46,7 @@ if (Request::isPostRequestMethod()) {
     // Validate POST
     $post = PostValidator::new()
                          ->ignoreFields('accounts_users_length') // This is paging length, ignore
-                         ->select('id')->isOptional()->isArray()->eachField()->isDbId()
+                         ->select('id')->isOptional()->isArray()->forEachField()->isDbId()
                          ->validate();
 
     try {
@@ -85,6 +85,11 @@ if (Request::isPostRequestMethod()) {
 
                 Response::getFlashMessagesObject()->addWarning(tr('No users selected to be deleted'));
                 Response::redirect();
+
+            default:
+                throw new ValidationFailedException(tr('Unknown submit button ":button" specified', [
+                    ':button' => PostValidator::new()->getSubmitButton()
+                ]));
         }
 
     } catch (ValidationFailedException $e) {

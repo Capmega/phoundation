@@ -32,6 +32,7 @@ use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDescription;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryNameLowercaseDash;
+use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
@@ -93,14 +94,16 @@ class Right extends DataEntry implements RightInterface
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      *
-     * @param IdentifierInterface|array|string|int|false|null $identifier
+     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param EnumLoadParameters|null                   $on_load_null_identifier
+     * @param EnumLoadParameters|null                   $on_load_not_exists
      *
-     * @return static
+     * @return static|null
      */
-    public function load(IdentifierInterface|array|string|int|false|null $identifier): static
+    public function load(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
     {
         try {
-            return parent::load($identifier);
+            return parent::load($identifier, $on_load_null_identifier, $on_load_not_exists);
 
         } catch (DataEntryNotExistsException|DataEntryDeletedException $e) {
             throw new RightNotExistsException($e);

@@ -47,7 +47,7 @@ OPTIONAL ARGUMENTS
 // Validate arguments
 $argv = ArgvValidator::new()
                      ->select('role', true)->isName()
-                     ->select('rights', true)->isOptional(null)->sanitizeForceArray()->eachField()->isName()
+                     ->select('rights', true)->isOptional(null)->sanitizeForceArray()->forEachField()->isName()
                      ->select('-a,--auto-create')->isOptional(false)->isBoolean()
                      ->validate();
 

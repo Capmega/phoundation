@@ -40,7 +40,7 @@ $get = GetValidator::new()
 
 
 // Build the page content
-$role = Role::new()->loadOrThis($get['id']);
+$role = Role::new()->loadThis($get['id']);
 
 
 // Validate POST and submit
@@ -50,7 +50,7 @@ if (Request::isPostRequestMethod()) {
             case tr('Save'):
                 // Validate rights
                 $post = PostValidator::new()
-                                     ->select('rights_id')->isOptional()->isArray()->eachField()->isOptional()->isDbId()
+                                     ->select('rights_id')->isOptional()->isArray()->forEachField()->isOptional()->isDbId()
                                      ->validate(false);
 
                 // Update role and rights

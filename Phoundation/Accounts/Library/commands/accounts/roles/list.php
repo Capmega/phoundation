@@ -37,7 +37,7 @@ OPTIONAL ARGUMENTS
 // Validate arguments
 $argv = ArgvValidator::new()
                      ->select('--status')->isOptional()->isVariable()
-                     ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->eachField()->isName()
+                     ->select('-r,--rights,--right', true)->isOptional(null)->sanitizeForceArray()->forEachField()->isName()
                      ->validate();
 
 

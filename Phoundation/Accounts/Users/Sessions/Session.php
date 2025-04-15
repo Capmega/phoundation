@@ -50,6 +50,7 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Memcached\Memcached;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\AccessDeniedException;
+use Phoundation\Exception\EndlessLoopException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Exception\UnderConstructionException;
@@ -993,6 +994,15 @@ class Session implements SessionInterface
      */
     public static function getUserObject(): UserInterface
     {
+        static $busy = false;
+
+        if ($busy) {
+            // This method is NOT allowed to call itself recursively as it will cause endless looping
+            throw new EndlessLoopException(tr('Detected endless loop while processing Session->getUserObject()'));
+        }
+
+        $busy = true;
+
         if (empty(session_id())) {
             if (PLATFORM_WEB) {
                 // TODO Add support for session users. For now we return the system user
@@ -1003,21 +1013,25 @@ class Session implements SessionInterface
                 throw new SessionException(tr('Cannot access session data yet, session has not yet been initialized'));
             }
 
-            return User::newSystem();
-        }
+            $return = User::newSystem();
 
-        // We can return impersonated user IF exists
-        if (!empty($_SESSION['user']['impersonate_id'])) {
+        } elseif (!empty($_SESSION['user']['impersonate_id'])) {
+            // We can return impersonated user IF exists
             // Return impersonated user
             if (empty(static::$impersonated_user)) {
                 // Load impersonated user into cache variable
                 static::$impersonated_user = static::loadUser($_SESSION['user']['impersonate_id']);
             }
 
-            return static::$impersonated_user;
+            $return = static::$impersonated_user;
+
+        } else {
+            $return = static::getRealUserObject();
         }
 
-        return static::getRealUserObject();
+        $busy = false;
+
+        return $return;
     }
 
 

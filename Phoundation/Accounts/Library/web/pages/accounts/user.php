@@ -41,7 +41,7 @@ $get = GetValidator::new()
 
 
 // Get the requested user and modify form design
-$user = User::new()->loadOrThis($get['id']);
+$user = User::new()->loadThis($get['id']);
 $user->getDefinitionsObject()->setRenderMeta(!$user->isNew())
                              ->setDefinitionRender('latitude'        , false)
                              ->setDefinitionRender('longitude'       , false)
@@ -75,7 +75,7 @@ if (Request::isPostRequestMethod()) {
             case tr('Save'):
                 // Validate roles
                 $post = PostValidator::new()
-                                     ->select('roles_id')->isOptional()->isArray()->eachField()->isOptional()->isDbId()
+                                     ->select('roles_id')->isOptional()->isArray()->forEachField()->isOptional()->isDbId()
                                      ->validate(false);
 
                 // Update user, roles, emails, and phones
