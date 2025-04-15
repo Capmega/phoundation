@@ -409,17 +409,11 @@ class QueryObject implements QueryObjectInterface
      */
     public function addJoin(?string $join, ?array $execute = null): static
     {
-        if (in_array($join, $this->joins)) {
-         // This join was already added. Do NOT add it again.
-            return $this;
-
-        } else {
-            if ($join) {
-                $this->joins[] = $join;
-            }
-
-            return $this->addExecuteArray($execute);
+        if ($join) {
+            $this->joins[] = $join;
         }
+
+        return $this->addExecuteArray($execute);
     }
 
 
