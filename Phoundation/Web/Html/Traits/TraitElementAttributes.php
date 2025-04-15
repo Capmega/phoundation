@@ -1379,8 +1379,14 @@ trait TraitElementAttributes
      */
     public function setRequired(bool $required): static
     {
-        $this->required = $required;
+        if ($required) {
+            $this->o_classes->add('required', 'required', exception: false);
 
+        } else {
+            $this->o_classes->removeKeys('required');
+        }
+
+        $this->required = $required;
         return $this;
     }
 
