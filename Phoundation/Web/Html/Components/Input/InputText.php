@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
+use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
@@ -127,5 +128,21 @@ class InputText extends Input implements InputTextInterface
     public function setPlaceholder(?string $placeholder): static
     {
         return $this->setAttribute($placeholder, 'placeholder');
+    }
+
+
+
+    /**
+     * Set the DataEntry Definition on this element
+     *
+     * @param DefinitionInterface|null $o_definition
+     *
+     * @return static
+     */
+    public function setDefinitionObject(?DefinitionInterface $o_definition): static
+    {
+        // Copy data used for input controls
+        return parent::setDefinitionObject($o_definition)
+                     ->setPlaceholder($o_definition->getPlaceholder());
     }
 }

@@ -699,13 +699,12 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
                 $value = $this->renderCheckboxColumn($column, $value, $made_checkbox);
                 $first = false;
 
-                $params['htmlentities'] = !$made_checkbox;
+                $params['htmlentities'] = !($this->process_entities or $made_checkbox);
                 $params['no_url']       = (isset_get($params['no_url'], false) or $made_checkbox or !$value);
 
                 // If HtmlTable::renderCheckboxColumn() returned NULL, it means that we should not render this cell
                 if ($value !== null) {
                     $this->executeCellCallbacks($row_id, $column, $value, $row_values, $params);
-
                     $cells .= $this->renderCell($row_id, $column, $value, $params);
                 }
 

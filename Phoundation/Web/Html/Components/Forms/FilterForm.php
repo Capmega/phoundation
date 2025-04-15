@@ -160,7 +160,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                           ->add(Definition::new('date_range_split')
                                                           ->setRender(false)
                                                           ->addValidationFunction(function (ValidatorInterface $validator) {
-                                                              $validator->isOptional($this->getDateRangeDefault())->sanitizeForceArray(' - ')->eachField()->isDate();
+                                                              $validator->isOptional($this->getDateRangeDefault())->sanitizeForceArray(' - ')->forEachField()->isDate();
                                                           }))
 
                                           ->add(Definition::new('users_id')
@@ -502,7 +502,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      */
     public function getUserObject(): ?UserInterface
     {
-        return User::new()->loadOrNull($this->getUsersId());
+        return User::new()->loadNull($this->getUsersId());
     }
 
 
