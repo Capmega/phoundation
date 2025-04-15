@@ -27,6 +27,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataEntry;
+use Phoundation\Data\DataEntries\DataEntryCore;
 use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
@@ -59,7 +60,7 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\Routing\Route;
 use Throwable;
 
-class Incident extends DataEntry implements IncidentInterface
+class Incident extends DataEntryCore implements IncidentInterface
 {
     use TraitDataEntryBody;
     use TraitDataEntryData;
@@ -94,7 +95,7 @@ class Incident extends DataEntry implements IncidentInterface
      *
      * @param IdentifierInterface|array|string|int|false|null $identifier
      */
-    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false)
+    public function __construct(Throwable|IdentifierInterface|array|string|int|false|null $identifier = false)
     {
         if (!isset($this->meta_columns)) {
             // By default, the Notification object has created_by NOT meta so that it can set it manually
@@ -107,14 +108,33 @@ class Incident extends DataEntry implements IncidentInterface
             ];
         }
 
-        parent::__construct($identifier);
-
         $this->setSeverity(EnumSeverity::severe);
 
         if ($this->isNew()) {
             // By default, the object is created by the current user
             $this->setCreatedBy(Session::getUserObject()->getId());
         }
+
+        if ($identifier instanceof Throwable) {
+            parent::__construct();
+            $this->setException($identifier);
+
+        } else {
+            parent::__construct($identifier);
+        }
+    }
+
+
+    /**
+     * Returns a new DataEntry object
+     *
+     * @param IdentifierInterface|array|string|int|false|null $identifier
+     *
+     * @return static
+     */
+    public static function new(Throwable|IdentifierInterface|array|string|int|false|null $identifier = false): static
+    {
+        return new static($identifier);
     }
 
 
@@ -461,16 +481,27 @@ class Incident extends DataEntry implements IncidentInterface
 
 
     /**
-     * Throw an incident exception
+     * Throws an exception from this incident
      *
      * @param string|null $exception
+     * @param bool        $non_production_environment_only
      *
-     * @return never
+     * @return static
      */
-    #[NoReturn] public function throw(?string $exception = null): never
+    #[NoReturn] public function throw(?string $exception = null, bool $non_production_environment_only = false): static
     {
+        if ($non_production_environment_only and Core::isProductionEnvironment()) {
+            // We're on a production environment and can continue after registering the incident
+            return $this;
+        }
+
         if (empty($exception)) {
-            $exception = IncidentsException::class;
+            if (empty($this->getException())) {
+                $exception = IncidentsException::class;
+
+            } else {
+                $exception = $this->getException()::class;
+            }
 
         } elseif(!is_a($exception, Throwable::class, true)) {
             // Specified class is NOT a Throwable exception class. Register incident and continue
