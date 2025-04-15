@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Trait TraitDataRequestMethod
+ * Trait TraitDataBooleanUseForm
  *
  *
  *
@@ -16,40 +16,38 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 
-
-trait TraitDataRequestMethod
+trait TraitDataBooleanUseForm
 {
     /**
      * The submit method
      *
-     * @var EnumHttpRequestMethod|null $request_method
+     * @var bool $use_form
      */
-    protected ?EnumHttpRequestMethod $request_method = null;
+    protected bool $use_form = false;
 
 
     /**
      * Returns the form request method
      *
-     * @return EnumHttpRequestMethod|null
+     * @return bool
      */
-    public function getRequestMethod(): ?EnumHttpRequestMethod
+    public function getUseForm(): bool
     {
-        return $this->request_method;
+        return $this->use_form;
     }
 
 
     /**
      * Sets the form request method
      *
-     * @param EnumHttpRequestMethod|null $request_method
+     * @param bool $use_form
      *
      * @return static
      */
-    public function setRequestMethod(?EnumHttpRequestMethod $request_method): static
+    public function setUseForm(bool $use_form): static
     {
-        $this->request_method = $request_method;
+        $this->use_form = $use_form;
         return $this;
     }
 }

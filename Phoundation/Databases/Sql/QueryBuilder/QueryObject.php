@@ -469,6 +469,17 @@ class QueryObject implements QueryObjectInterface
 
 
     /**
+     * Returns the JOINS parts of the query
+     *
+     * @return array
+     */
+    public function getJoins(): array
+    {
+        return $this->joins;
+    }
+
+
+    /**
      * Returns the WHERE parts of the query
      *
      * @return array

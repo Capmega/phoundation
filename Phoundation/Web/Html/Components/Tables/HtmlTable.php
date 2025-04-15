@@ -687,7 +687,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         }
 
         $cells = null;
-        $row   = '<tr' . $row_data . $this->renderRowClassString() . '>';
+        $row   = '<tr' . $row_data . $this->renderRowClassString($params) . '>';
         $first = true;
 
         foreach ($this->columns as $column) {
@@ -782,15 +782,23 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Builds and returns the class string
      *
+     * @param array $params
+     *
      * @return string|null
      */
-    protected function renderRowClassString(): ?string
+    protected function renderRowClassString(array $params): ?string
     {
+        $classes = null;
+
         if ($this->row_classes) {
-            return ' class="' . $this->row_classes . '"';
+            $classes .= ' ' . $this->row_classes;
         }
 
-        return null;
+        if (array_get_safe($params, 'row_classes')) {
+            $classes .= ' ' . $params['row_classes'];
+        }
+
+        return ' class="' . $classes . '"';
     }
 
 

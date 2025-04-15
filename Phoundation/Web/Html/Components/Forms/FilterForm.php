@@ -24,6 +24,7 @@ use Phoundation\Data\DataEntries\Definitions\Definitions;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Traits\TraitDataBooleanUseForm;
 use Phoundation\Data\Traits\TraitDataDateFormat;
 use Phoundation\Data\Traits\TraitDataRequestMethod;
 use Phoundation\Data\Traits\TraitMethodsGetTypesafe;
@@ -55,6 +56,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
     use TraitDataDateFormat;
     use TraitMethodsGetTypesafe;
     use TraitMethodsVirtualColumns;
+    use TraitDataBooleanUseForm;
 
 
     /**
@@ -109,7 +111,8 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
     {
         parent::__construct($source);
 
-        $this->defaultRequestMethod()
+        $this->setUseForm(true)
+             ->defaultRequestMethod()
              ->setFormat(PhoDateFormats::getDefaultPhp());
 
         // Define possible record states
@@ -122,12 +125,8 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
             ];
         }
 
-        // Make sure this is a submittable form with GET method
-        $this->setId('filters')
-             ->useForm(true)
-             ->getForm()
-                 ->setRequestMethod($this->request_method)
-                 ->setAction(Url::newCurrent());
+        // Set ID for these filters
+        $this->setId('filters');
 
         // Set basic definitions
         $this->o_definitions = Definitions::new()
@@ -193,6 +192,25 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
         // Auto apply
         $this->applyValidator(self::class);
+    }
+
+
+    /**
+     * Renders and returns HTML string content for this object
+     *
+     * @return string|null
+     */
+    public function render(): ?string
+    {
+        // Make sure this is a submittable form with GET method
+        if ($this->use_form) {
+            $this->useForm(true)
+                 ->getForm()
+                    ->setRequestMethod($this->request_method)
+                    ->setAction(Url::newCurrent());
+        }
+
+        return parent::render();
     }
 
 
