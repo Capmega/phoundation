@@ -37,6 +37,7 @@ use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\PhoDateTimeFormats;
 use Phoundation\Date\Exception\UnsupportedDateFormatException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoPath;
@@ -3785,6 +3786,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                     return;
                 }
 
+throw new UnderConstructionException(tr('The PhoDate class is still under construction, so is Validator::sanitizeToDate()'));
                 $value = PhoDate::new($value);
             }
         });
