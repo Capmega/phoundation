@@ -1036,6 +1036,7 @@ class Core implements CoreInterface
         Core::playUncaughtExceptionAudio($e);
 
         // Ensure the exception is a Phoundation exception
+        // TODO Fix this or get rid of this, it causes too much confusion with backtraces. Fixing would require removing line 1040 from backtraces!
         $e = PhoException::ensurePhoundationException($e);
 
         // When in CLI auto complete mode, log and display a standard exception message
