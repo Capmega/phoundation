@@ -992,6 +992,32 @@ function is_datatype_or_class(array|string $types, mixed &$variable): bool
 
 
 /**
+ * Returns true if the specified variable has the specified datatype, throws OutOfBounds exception otherwise
+ *
+ * @param mixed       $variable
+ * @param string      $type
+ * @param string|null $error_message
+ *
+ * @return bool
+ */
+function check_datatype(mixed $variable, string $type, ?string $error_message = null): bool
+{
+    if (gettype($variable) === $type) {
+        return true;
+    }
+
+    if (empty($error_message)) {
+        $error_message = tr('Specified variable has datatype ":has" but it should be ":type"', [
+            ':has'  => gettype($variable),
+            ':type' => $type
+        ]);
+    }
+
+    throw new OutOfBoundsException($error_message);
+}
+
+
+/**
  * Ensures the specified variable exists. If the variable already exists with a non NULL value, it will not be touched.
  * If the variable does not exist, or has a NULL value, it will be set to the $initialization variable
  *
