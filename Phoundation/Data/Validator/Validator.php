@@ -2354,7 +2354,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                     $test = EnumDisplayMode::tryFrom($value);
 
                     if ($test) {
-                        $value = $test;
+                        $value = $test->value;
 
                     } else {
                         $this->addFailure(tr('must be a valid display mode'));
