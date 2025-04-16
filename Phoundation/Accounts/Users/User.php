@@ -343,7 +343,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      *
      * @return static|null
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
     {
         try {
             $user = parent::load($identifier, $on_load_null_identifier, $on_load_not_exists);
@@ -1368,6 +1368,21 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
 
     /**
+     * Removes the specified roles from this user
+     *
+     * @param Stringable|array|string|int $keys
+     * @param bool                        $strict
+     *
+     * @return $this
+     */
+    public function removeRoles(Stringable|array|string|int $keys, bool $strict = false): static
+    {
+        $this->getRolesObject()->removeKeys($keys, $strict);
+        return $this;
+    }
+
+
+    /**
      * Easy access to adding a role to this user
      *
      * @param mixed                            $value
@@ -2279,7 +2294,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             throw new UsersException(tr('Cannot save password, this user does not have an id'));
         }
 
-        sql()->query('UPDATE `accounts_users` SET `password` = :password WHERE `id` = :id', [
+        sql()->setDebug($this->debug)
+             ->query('UPDATE `accounts_users` SET `password` = :password WHERE `id` = :id', [
             ':id'       => $this->source['id'],
             ':password' => $this->source['password'],
         ]);

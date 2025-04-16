@@ -102,6 +102,7 @@ class Emails extends DataIterator implements EmailsInterface
 
             return $this->__setParent($parent);
         }
+
         throw new OutOfBoundsException(tr('Specified parent ":parent" is invalid, it must have a UserInterface interface', [
             ':parent' => $parent,
         ]));

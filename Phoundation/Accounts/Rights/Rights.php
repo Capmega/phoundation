@@ -417,7 +417,7 @@ class Rights extends DataIterator implements RightsInterface
         if (is_array($keys)) {
             // Add multiple rights
             foreach ($keys as $key) {
-                $this->removeKeys($key);
+                $this->removeKeys($key, $strict);
             }
 
         } else {
@@ -436,7 +436,7 @@ class Rights extends DataIterator implements RightsInterface
                 ]);
 
                 // Delete right from the internal list
-                parent::removeKeys($right->getUniqueColumnValue());
+                parent::removeKeys($right->getUniqueColumnValue(), $strict);
 
             } elseif ($this->parent instanceof RoleInterface) {
                 Log::action(ts('Removing right ":right" from role ":role"', [
@@ -453,11 +453,11 @@ class Rights extends DataIterator implements RightsInterface
                 foreach ($this->parent->getUsersObject() as $user) {
                     User::new()->load($user)
                         ->getRightsObject()
-                        ->removeKeys($right);
+                        ->removeKeys($right, $strict);
                 }
 
                 // Delete right from the internal list
-                parent::removeKeys($right->getUniqueColumnValue());
+                parent::removeKeys($right->getUniqueColumnValue(), $strict);
             }
         }
 

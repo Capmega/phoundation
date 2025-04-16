@@ -188,9 +188,11 @@ class SignInKey extends DataEntry implements SignInKeyInterface
     /**
      * Apply this sign-in key
      *
+     * @param callable|null $callback
+     *
      * @return static
      */
-    #[NoReturn] public function execute(): static
+    #[NoReturn] public function execute(?callable $callback = null): static
     {
         // UUID sign in is only available on the web platform
         if (!PLATFORM_WEB) {
@@ -234,6 +236,10 @@ class SignInKey extends DataEntry implements SignInKeyInterface
         ]);
 
         Session::signKey($this);
+
+        if ($callback) {
+            $callback($this);
+        }
 
         if ($this->getRedirect()) {
             Response::redirect($this->getRedirect());
