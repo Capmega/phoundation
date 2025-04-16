@@ -22,9 +22,11 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Tables;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Date\Exception\DateTimeException;
 use Phoundation\Date\PhoDateFormats;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
@@ -238,9 +240,24 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
              ])
              ->addRowCallback(function (IteratorInterface|array &$row, EnumTableRowType $type, &$params) {
                  if (isset($row['created_on'])) {
-                     $row['created_on'] = PhoDateTime::new($row['created_on'])
-                                                     ->setTimezone('user')
-                                                     ->format($this->php_date_format);
+                     switch ($row['created_on']) {
+                         case '-':
+                             // No break
+
+                         case 'N/A':
+                             // Don't convert these values
+                             break;
+
+                         default:
+                             try {
+                                 $row['created_on'] = PhoDateTime::new($row['created_on'])
+                                                                 ->setTimezone('user')
+                                                                 ->format($this->php_date_format);
+                             } catch (DateTimeException $e) {
+                                 //
+                                 Incident::new($e)->save();
+                             }
+                     }
                  }
              })
              ->setLengthMenu([
