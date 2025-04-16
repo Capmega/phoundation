@@ -1779,7 +1779,12 @@ class Log implements LogInterface
                 $messages = Strings::fromBoolean($messages);
 
             } elseif (($messages !== 0) and ($messages !== 0.0)) {
-                $messages = '-';
+                if ($messages === null) {
+                    $messages = 'NULL';
+
+                } else {
+                    $messages = '-';
+                }
             }
 
         } elseif (is_array($messages)) {
