@@ -28,6 +28,25 @@ class PhoFile extends PhoFileCore
     use TraitPathConstructor;
     use TraitPathNew;
 
+
+    /**
+     * Returns a new file object for a file in data/...
+     *
+     * @param string|null                   $file
+     * @param PhoRestrictionsInterface|null $restrictions
+     *
+     * @return PhoFileInterface|null
+     */
+    public static function newOrNull(?string $file, ?PhoRestrictionsInterface $restrictions = null): ?PhoFileInterface
+    {
+        if ($file) {
+            return static::new($file, $restrictions);
+        }
+
+        return null;
+    }
+
+
     /**
      * Returns a new file object for a file in data/...
      *
