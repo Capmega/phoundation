@@ -65,6 +65,7 @@ use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Http\Url;
 use Throwable;
 
+
 class Notification extends DataEntry implements NotificationInterface
 {
     use TraitDataEntryUrl;
@@ -139,8 +140,8 @@ class Notification extends DataEntry implements NotificationInterface
 
         static::$auto_log = config()->getBoolean('notifications.auto-log', false);
 
-        $this->source['mode']     = 'notice';
-        $this->source['priority'] = 1;
+        $this->setMode(EnumDisplayMode::notice)
+             ->setPriority(1);
 
 //                EnumDisplayMode::warning, EnumDisplayMode::danger => 'exclamation-circle',
 //                EnumDisplayMode::success                          => 'check-circle',
@@ -876,7 +877,7 @@ FILES variables:
                     ->add(Definition::new('mode')
                                     ->setLabel(tr('Mode'))
                                     ->setReadonly(true)
-                                    ->setOptional(true, EnumDisplayMode::notice)
+                                    ->setOptional(true, EnumDisplayMode::notice->value)
                                     ->addClasses('text-center')
                                     ->setSize(3)
                                     ->setMaxlength(16)
