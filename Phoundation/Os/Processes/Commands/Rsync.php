@@ -442,10 +442,11 @@ class Rsync extends Command implements RsyncInterface
      * Returns the full command line
      *
      * @param bool $background
+     * @param bool $pipe
      *
      * @return string
      */
-    public function getFullCommandLine(bool $background = false): string
+    public function getFullCommandLine(bool $background = false, bool $pipe = false): string
     {
         if ($this->cached_command_line) {
             return $this->cached_command_line;
