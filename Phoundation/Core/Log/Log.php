@@ -800,28 +800,10 @@ class Log implements LogInterface
 
             static::$lock = true;
 
-            // Get the real level and check if we passed the threshold. If $threshold was negative, the same message may be
-            // logged multiple times
-            $real_threshold = abs($threshold);
-
-            if ($real_threshold < static::$threshold) {
-                // This log message level did not meet the threshold, discard it
+            // Check if we passed the log threshold. If not, discard the message
+            if (!static::passesThreshold($threshold)) {
                 static::$lock = false;
-
                 return false;
-            }
-
-            // Validate the specified log level
-            if ($real_threshold > 9) {
-                // This is an "always log!" message, which only are displayed if we're running in debug mode
-                if (Debug::isEnabled()) {
-                    if ($real_threshold > 10) {
-                        // Yeah, this is not okay
-                        static::warning(tr('Invalid log level ":level" specified for the following log message. This level should be set to 1-10', [
-                            ':level' => $threshold,
-                        ]), 10);
-                    }
-                }
             }
 
             // Make sure the log message is clean and readable.
@@ -1947,6 +1929,52 @@ class Log implements LogInterface
             ->setMtime('+' . ($age_in_days * 1440))
             ->setExec('rf {} -rf')
             ->executeNoReturn();
+    }
+
+
+    /**
+     * Returns true if the log threshold is passed
+     *
+     * @param int $threshold
+     *
+     * @return bool
+     */
+    public static function passesThreshold(int &$threshold): bool
+    {
+        // Get the real level and check if we passed the threshold. If $threshold was negative, the same message may be
+        // logged multiple times
+        $real_threshold = abs($threshold);
+
+        // Validate the specified log level
+        if ($real_threshold > 9) {
+            // This is an "always log!" message, which only are displayed if we're running in debug mode
+            if (Debug::isEnabled()) {
+                if ($real_threshold > 10) {
+                    // Yeah, this is not okay
+                    static::warning(tr('Invalid log level ":level" specified for the following log message. This level should be set to 1-10', [
+                        ':level' => $threshold,
+                    ]), 10);
+                }
+            }
+        }
+
+        return $real_threshold >= static::$threshold;
+    }
+
+
+    /**
+     * Executes the log callback when the log threshold is passed
+     *
+     * @param int      $threshold
+     * @param callable $callback
+     *
+     * @return void
+     */
+    public static function callback(int $threshold, callable $callback): void
+    {
+        if (static::passesThreshold($threshold)) {
+            $callback($threshold);
+        }
     }
 
 
