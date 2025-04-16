@@ -615,7 +615,7 @@ FILES variables:
         if ($details) {
             Log::write(Strings::size('Details', 10) . ': ', 'debug', $log, clean: false);
 
-            foreach (Arrays::force($details) as $key => $value) {
+            foreach (Arrays::force($details, null) as $key => $value) {
                 switch ($key) {
                     case 'trace':
                         Log::write(Strings::size(Strings::capitalize((string) $key), 10) . ': ', 'debug', $log, clean: false);
