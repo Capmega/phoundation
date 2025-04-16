@@ -85,14 +85,14 @@ class Notification extends DataEntry implements NotificationInterface
 
 
     /**
-     * Keeps track of if this noticication was logged or not
+     * Keeps track of if this notification was logged or not
      *
      * @var bool
      */
     protected static bool $logged = false;
 
     /**
-     * Keeps track of if noticications should abe automatically logged or not
+     * Keeps track of if notifications should abe automatically logged or not
      *
      * @var bool
      */
@@ -140,24 +140,19 @@ class Notification extends DataEntry implements NotificationInterface
 
         static::$auto_log = config()->getBoolean('notifications.auto-log', false);
 
-        $this->setMode(EnumDisplayMode::notice)
-             ->setPriority(1);
+        // By default, the Notification object has created_by NOT meta so that it can set it manually
+        $this->meta_columns = [
+            'id',
+            'created_on',
+            'meta_id',
+            'status',
+            'meta_state',
+        ];
 
 //                EnumDisplayMode::warning, EnumDisplayMode::danger => 'exclamation-circle',
 //                EnumDisplayMode::success                          => 'check-circle',
 //                EnumDisplayMode::info, EnumDisplayMode::notice    => 'info-circle',
 //                default                                           => 'question-circle',
-
-        if (!isset($this->meta_columns)) {
-            // By default, the Notification object has created_by NOT meta so that it can set it manually
-            $this->meta_columns = [
-                'id',
-                'created_on',
-                'meta_id',
-                'status',
-                'meta_state',
-            ];
-        }
 
         if ($identifier instanceof Throwable) {
             parent::__construct();
@@ -174,6 +169,9 @@ class Notification extends DataEntry implements NotificationInterface
                      ->ready();
             }
         }
+
+        $this->setMode(EnumDisplayMode::notice)
+             ->setPriority(1);
     }
 
 

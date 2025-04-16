@@ -387,7 +387,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
              ->is_initializing_source = true;
 
         // Set meta_columns for this class
-        if (!isset($this->meta_columns)) {
+        if (empty($this->meta_columns)) {
             $this->meta_columns = static::getDefaultMetaColumns();
         }
 
