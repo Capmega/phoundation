@@ -1578,8 +1578,8 @@ function execute(): ?string
 
     } catch (Throwable $e) {
         if (!($e instanceof PhoException) or !$e->isWarning()) {
-            Log::error(tr('Program ":program" failed with exception: :exception', [
-                ':program'   => Request::getTarget(),
+            Log::error(tr('Command ":command" failed with exception: :exception', [
+                ':command'   => Request::getTarget(),
                 ':exception' => $e->getMessage(),
             ]));
         }
