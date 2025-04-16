@@ -1007,6 +1007,7 @@ class Session implements SessionInterface
             if (PLATFORM_WEB) {
                 // TODO Add support for session users. For now we return the system user
                 if (Request::isRequestType(EnumRequestTypes::api)) {
+                    $busy = false;
                     return User::newSystem();
                 }
 
@@ -1030,7 +1031,6 @@ class Session implements SessionInterface
         }
 
         $busy = false;
-
         return $return;
     }
 
