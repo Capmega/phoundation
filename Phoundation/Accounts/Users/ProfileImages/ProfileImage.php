@@ -29,6 +29,7 @@ use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDescription;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryFile;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUser;
+use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
@@ -62,8 +63,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
         ]);
 
         parent::__construct($identifier);
-
-        $this->restrictions = PhoRestrictions::newWritableObject([DIRECTORY_TMP, DIRECTORY_CDN]);
+        $this->ensureFile();
     }
 
 
@@ -189,7 +189,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
      */
     public function getHtmlImgObject(): ImgInterface
     {
-        return Img::new('img/files/profile/' . $this->getFileObject()->getSource())->setAlt($this->getDescription());
+        return Img::new($this->getFileObject()->getFrom(DIRECTORY_PROJECT_CDN)->getSource())->setAlt($this->getDescription());
     }
 
 
@@ -220,6 +220,11 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
 
         if ($o_file) {
             // This profile image object has a file set, process it
+            $this->setReadonly(false)
+                 ->setRestrictions(PhoRestrictions::newWritableObject([DIRECTORY_TMP, DIRECTORY_CDN]));
+
+            $o_file->setRestrictions($this->getRestrictions());
+
             if ($o_user) {
                 $cdn_directory = PhoDirectory::newCdnObject(true, 'img/files/profile/' . $o_user->getId())
                                              ->ensure();
@@ -286,7 +291,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
     public function setFileObject(PhoFileInterface|null $file): static
     {
         if ($file) {
-            $o_directory = PhoDirectory::newCdnObject(false, 'img/files/profile/');
+            $o_directory = PhoDirectory::newCdnObject();
 
             if ($file->isInDirectory($o_directory)) {
                 $file = $file->getFrom($o_directory);
@@ -318,6 +323,37 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
     public function setUploadsId(int|null $uploads_id): static
     {
         return $this->set($uploads_id, 'uploads_id');
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function load(IdentifierInterface|array|int|string|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
+    {
+        parent::load($identifier, $on_load_null_identifier, $on_load_not_exists);
+        return $this->ensureFile();
+    }
+
+
+    /**
+     * Ensures a file will be available for this profile image
+     *
+     * @return static
+     */
+    protected function ensureFile(): static
+    {
+        if ($this->getFile()) {
+            $this->restrictions = PhoRestrictions::newWritableObject([DIRECTORY_TMP, DIRECTORY_CDN]);
+
+        } else {
+            // This profile image has no file, assign the default profile image file
+            $this->setReadonly(true)
+                 ->setRestrictions(PhoRestrictions::newReadonlyObject(DIRECTORY_PROJECT_CDN))
+                 ->setFile(DIRECTORY_PROJECT_CDN . 'img/profiles/default.png');
+        }
+
+        return $this;
     }
 
 

@@ -2831,18 +2831,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function getProfileImageObject(): ProfileImageInterface
     {
-        $profile_images_id = $this->getTypesafe('int', 'profile_images_id');
-
-        if ($profile_images_id) {
-            // Return the user's profile image
-            return ProfileImage::new()->load($profile_images_id);
-        }
-
-        // No profile image was set, return the default
-        return ProfileImage::new(null)
-                           ->setReadonly(true)
-                           ->setUserObject($this)
-                           ->setFile(DIRECTORY_CDN . LANGUAGE . '/img/profiles/default.png');
+        // Return the user's profile image
+        return ProfileImage::new()->loadThis($this->getTypesafe('int', 'profile_images_id'));
     }
 
 

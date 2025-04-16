@@ -1309,8 +1309,9 @@ class Session implements SessionInterface
     protected static function updateSignInTracking(): void
     {
         sql()->query('UPDATE `accounts_users`
-                      SET    `last_sign_in` = NOW(), `sign_in_count` = `sign_in_count` + 1
-                      WHERE  `id` = :id', [
+                      SET    `last_sign_in`  = NOW(), 
+                             `sign_in_count` = `sign_in_count` + 1
+                      WHERE  `id`            = :id', [
             ':id' => static::$user->getId(),
         ]);
     }
@@ -1332,6 +1333,9 @@ class Session implements SessionInterface
                 // There are flash messages in this session static object, export them to $_SESSIONS for the next page load
                 $_SESSION['flash_messages'] = static::$flash_messages->export();
             }
+
+            // Remove sign-key information if it was set
+            unset($_SESSION['sign-key']);
         }
 
         Session::release();
