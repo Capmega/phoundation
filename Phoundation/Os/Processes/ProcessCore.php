@@ -244,6 +244,7 @@ abstract class ProcessCore implements ProcessInterface
      * Builds and returns the command line that will be executed
      *
      * @param bool $background
+     * @param bool $pipe
      *
      * @return string
      */

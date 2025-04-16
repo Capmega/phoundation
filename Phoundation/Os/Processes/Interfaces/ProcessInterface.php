@@ -119,10 +119,11 @@ interface ProcessInterface extends ProcessVariablesInterface
      * Builds and returns the command line that will be executed
      *
      * @param bool $background
+     * @param bool $pipe
      *
      * @return string
      */
-    public function getFullCommandLine(bool $background = false): string;
+    public function getFullCommandLine(bool $background = false, bool $pipe = false): string;
 
     /**
      * Adds multiple arguments to the beginning of the existing list of arguments for the command that will be executed
