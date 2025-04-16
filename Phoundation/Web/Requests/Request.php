@@ -1245,7 +1245,7 @@ class Request implements RequestInterface
                     ->save();
 
         } else {
-            // Registered user does not have the required rights
+            // Registered user doesn't have the required rights
             Incident::new()
                     ->setType('403 - Forbidden')
                     ->setSeverity(in_array('admin', Session::getUserObject()->getMissingRights($rights)) ? EnumSeverity::high : EnumSeverity::medium)
