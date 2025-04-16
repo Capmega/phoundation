@@ -253,7 +253,7 @@ class Session implements SessionInterface
      */
     public static function getOriginalIpAddress(): ?string
     {
-        return $_SESSION['first_ip'];
+        return array_get_safe($_SESSION, 'first_ip');
     }
 
 
@@ -441,15 +441,15 @@ class Session implements SessionInterface
     public static function get(string|float|int $key, string|float|int|null $sub_key = null): mixed
     {
         if ($sub_key) {
-            $section = isset_get($_SESSION[$key]);
+            $section = array_get_safe($_SESSION, $key);
 
             if (is_array($section)) {
                 // Key exists and is an array, yay!
-                return isset_get($section[$sub_key]);
+                return array_get_safe($section, $sub_key);
             }
 
             if ($section === null) {
-                // Key does not exist or was null, either way, nothing to return!
+                // Key doesn't exist or was null, either way, nothing to return!
                 return null;
             }
 
@@ -460,7 +460,7 @@ class Session implements SessionInterface
             ]));
         }
 
-        return isset_get($_SESSION[$key]);
+        return array_get_safe($_SESSION, $key);
     }
 
 
@@ -790,16 +790,16 @@ class Session implements SessionInterface
              * URL cloaking was enabled and requires strict checking.
              *
              * Ensure that we have a cloaked URL users_id and that it matches the sessions users_id
-             * Only check cloaking rules if we are NOT displaying a system page
+             * Only check cloaking rules if we aren't displaying a system page
              */
             if (!Request::isRequestType(EnumRequestTypes::system)) {
                 if (empty($core->register['url_cloak_users_id'])) {
                     throw new SessionException(tr('Failed cloaked URL strict checking, no cloaked URL users_id registered'));
                 }
 
-                if ($core->register['url_cloak_users_id'] !== $_SESSION['user']['id']) {
+                if ($core->register['url_cloak_users_id'] !== array_get_safe(array_get_safe($_SESSION, 'user', []), 'id')) {
                     throw new AccessDeniedException(tr('Failed cloaked URL strict checking, cloaked URL users_id ":cloak_users_id" did not match the users_id ":session_users_id" of this session', [
-                        ':session_users_id' => isset_get($_SESSION['user']['id']),
+                        ':session_users_id' => array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'),
                         ':cloak_users_id'   => $core->register['url_cloak_users_id'],
                     ]));
                 }
@@ -818,14 +818,14 @@ class Session implements SessionInterface
 
         static::updatePagesLoaded();
 
-        if ($_SESSION['domain'] !== static::$domain) {
+        if (array_get_safe($_SESSION, 'domain') !== static::$domain) {
             // Domain mismatch? Okay if this is sub domain, but what if its a different domain? Check whitelist domains?
             // TODO Implement
         }
 
         $_SESSION['ip'] = Session::getIpAddress();
 
-        if ($_SESSION['ip'] !== $_SESSION['first_ip']) {
+        if ($_SESSION['ip'] !== array_get_safe($_SESSION, 'first_ip')) {
             // IP mismatch? What to do here? configurable actions!
             // TODO Implement
         }
@@ -971,6 +971,7 @@ class Session implements SessionInterface
             } catch (Exception $e) {
                 // Timezone invalid for this user. Notification developers, and fix timezone for user
                 $_SESSION['user']['timezone'] = config()->get('timezone.display', 'UTC');
+
                 Notification::new()
                             ->setException(SessionException::new(tr('Reset timezone for user ":user" to ":timezone"', [
                                 ':user'     => static::getUserObject()->getLogId(),
@@ -1021,7 +1022,7 @@ class Session implements SessionInterface
             // Return impersonated user
             if (empty(static::$impersonated_user)) {
                 // Load impersonated user into cache variable
-                static::$impersonated_user = static::loadUser($_SESSION['user']['impersonate_id']);
+                static::$impersonated_user = static::loadUser(array_get_safe(array_get_safe($_SESSION, 'user', []), 'impersonate_id'));
             }
 
             $return = static::$impersonated_user;
@@ -1070,7 +1071,7 @@ class Session implements SessionInterface
 
         } catch (DataEntryNotExistsException) {
             Log::warning(ts('The session user ":id" does not exist, removing session entry and dropping to guest user', [
-                ':id' => isset_get($_SESSION['user']['id']),
+                ':id' => array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'),
             ]));
 
         } catch (DataEntryStatusException $e) {
@@ -1079,7 +1080,7 @@ class Session implements SessionInterface
         } catch (Throwable $e) {
             Log::warning(ts('Failed to fetch user ":user" for session with ":e", removing session entry and dropping to guest user', [
                 ':e'    => $e->getMessage(),
-                ':user' => isset_get($_SESSION['user']['id']),
+                ':user' => array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'),
             ]));
         }
 
@@ -1269,18 +1270,18 @@ class Session implements SessionInterface
     {
         global $_SESSION;
 
-        $users_id = isset_get($_SESSION['user']['id']);
+        $users_id = array_get_safe(array_get_safe($_SESSION, 'user', []), 'id');
 
         if (isset($_SESSION['init'])) {
             // Conserve init data and flash messages
-            $messages = isset_get($_SESSION['flash_messages']);
-            $display  = isset_get($_SESSION['display']);
+            $messages = array_get_safe($_SESSION, 'flash_messages');
+            $display  = array_get_safe($_SESSION, 'display');
 
             $_SESSION = [
-                'init'         => $_SESSION['init'],
+                'init'         => array_get_safe($_SESSION, 'init'),
                 'domain'       => static::$domain,
-                'first_ip'     => $_SESSION['first_ip'],
-                'first_domain' => $_SESSION['first_domain'],
+                'first_ip'     => array_get_safe($_SESSION, 'first_ip'),
+                'first_domain' => array_get_safe($_SESSION, 'first_domain'),
             ];
 
             if ($messages) {
@@ -1351,8 +1352,8 @@ class Session implements SessionInterface
     {
         // Return the real user
         if (empty(static::$user)) {
-            // User object does not yet exist
-            if (isset_get($_SESSION['user']['id'])) {
+            // User object doesn't yet exist
+            if (array_get_safe(array_get_safe($_SESSION, 'user', []), 'id')) {
                 static::$user = static::loadUser($_SESSION['user']['id']);
 
             } else {
@@ -1532,7 +1533,7 @@ class Session implements SessionInterface
             Authentication::new()
                           ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                           ->setAction(EnumAuthenticationAction::startimpersonation)
-                          ->setCreatedBy($_SESSION['user']['id'])
+                          ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                           ->setStatus('cannot-impersonate-double')
                           ->save();
 
@@ -1557,7 +1558,7 @@ class Session implements SessionInterface
             Authentication::new()
                           ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                           ->setAction(EnumAuthenticationAction::startimpersonation)
-                          ->setCreatedBy($_SESSION['user']['id'])
+                          ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                           ->setStatus('impersonation-not-allowed')
                           ->save();
 
@@ -1581,7 +1582,7 @@ class Session implements SessionInterface
             Authentication::new()
                           ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                           ->setAction(EnumAuthenticationAction::startimpersonation)
-                          ->setCreatedBy($_SESSION['user']['id'])
+                          ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                           ->setStatus('cannot-impersonate-self')
                           ->save();
 
@@ -1605,7 +1606,7 @@ class Session implements SessionInterface
             Authentication::new()
                           ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                           ->setAction(EnumAuthenticationAction::startimpersonation)
-                          ->setCreatedBy($_SESSION['user']['id'])
+                          ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                           ->setStatus('cannot-impersonate-god')
                           ->save();
 
@@ -1634,7 +1635,7 @@ class Session implements SessionInterface
         Authentication::new()
                       ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                       ->setAction(EnumAuthenticationAction::startimpersonation)
-                      ->setCreatedBy($_SESSION['user']['id'])
+                      ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                       ->save();
 
         // Register an incident
@@ -1657,7 +1658,7 @@ class Session implements SessionInterface
         Notification::new()
                     ->setUrl(Url::new('profiles/profile+' . $original_user->getId() . '.html')->makeWww())
                     ->setMode(EnumDisplayMode::warning)
-                    ->setUsersId($_SESSION['user']['impersonate_id'])
+                    ->setUsersId(array_get_safe(array_get_safe($_SESSION, 'user', []), 'impersonate_id'))
                     ->setTitle(tr('Your account was impersonated'))
                     ->setMessage(tr('Your account was impersonated by the user ":user". For questions or more information about this, please contact the user', [
                         ':user' => $original_user->getLogId(),
@@ -1709,7 +1710,6 @@ class Session implements SessionInterface
 
         $_SESSION['user']['id'] = static::$user->getId();
         $_SESSION['sign-key']   = $key->getUuid();
-
         return static::$user;
     }
 
@@ -1796,9 +1796,9 @@ class Session implements SessionInterface
                 // This session was impersonation a user. Don't sign out, stop impersonating
                 try {
                     // We're impersonating a user, return to the original user.
-                    $url            = $_SESSION['user']['impersonate_url'];
-                    $users_id       = $_SESSION['user']['id'];
-                    $impersonate_id = $_SESSION['user']['impersonate_id'];
+                    $url            = array_get_safe($_SESSION['user'], 'impersonate_url');
+                    $users_id       = array_get_safe($_SESSION['user'], 'id');
+                    $impersonate_id = array_get_safe($_SESSION['user'], 'impersonate_id');
 
                     unset($_SESSION['user']['impersonate_id']);
                     unset($_SESSION['user']['impersonate_url']);
@@ -1843,7 +1843,7 @@ class Session implements SessionInterface
                     Authentication::new()
                                   ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                                   ->setAction(EnumAuthenticationAction::stopimpersonation)
-                                  ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user'), 'id'))
+                                  ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                                   ->setStatus('failed')
                                   ->save();
 
@@ -1851,12 +1851,12 @@ class Session implements SessionInterface
                             ->setType('User impersonation')
                             ->setSeverity(EnumSeverity::low)
                             ->setTitle(tr('User impersonation failure', [
-                                ':id'             => array_get_safe(array_get_safe($_SESSION, 'user'), 'id'),
-                                ':impersonate_id' => array_get_safe(array_get_safe($_SESSION, 'user'), 'impersonate_id'),
+                                ':id'             => array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'),
+                                ':impersonate_id' => array_get_safe(array_get_safe($_SESSION, 'user', []), 'impersonate_id'),
                             ]))
                             ->setBody(tr('User impersonation sign out failed users id ":id", impersonate id ":impersonate_id", closing sessions', [
-                                ':id'             => array_get_safe(array_get_safe($_SESSION, 'user'), 'id'),
-                                ':impersonate_id' => array_get_safe(array_get_safe($_SESSION, 'user'), 'impersonate_id'),
+                                ':id'             => array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'),
+                                ':impersonate_id' => array_get_safe(array_get_safe($_SESSION, 'user', []), 'impersonate_id'),
                             ]))
                             ->save();
                 }
@@ -1865,7 +1865,7 @@ class Session implements SessionInterface
             Authentication::new()
                           ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                           ->setAction(EnumAuthenticationAction::signout)
-                          ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user'), 'id'))
+                          ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                           ->save();
 
             Incident::new()
@@ -1885,7 +1885,7 @@ class Session implements SessionInterface
 
             Authentication::new()
                           ->setAction(EnumAuthenticationAction::signout)
-                          ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user'), 'id'))
+                          ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                           ->setStatus('failed')
                           ->save();
 
