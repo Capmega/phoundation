@@ -100,7 +100,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      *
      * @return static|null
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static;
+    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static;
 
     /**
      * Returns if this DataEntry validates data before saving
@@ -765,4 +765,20 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * @return static
      */
     public function setIgnoreDeleted(?bool $ignore_deleted): static;
+
+    /**
+     * Returns the debug value
+     *
+     * @return bool
+     */
+    public function getDebug(): bool;
+
+    /**
+     * Sets the debug value
+     *
+     * @param bool $debug
+     *
+     * @return static
+     */
+    public function setDebug(bool $debug): static;
 }

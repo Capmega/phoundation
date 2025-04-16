@@ -296,7 +296,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      *
      * @return static|null
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
     {
         if (empty($this->parent)) {
             throw new OutOfBoundsException(tr('Cannot load parent data from query, no parent has been specified'));

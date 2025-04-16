@@ -1243,7 +1243,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * @throws DataEntryNotExistsException             Thrown when the specified identifier doesn't exist and
      *                                                 $on_load_not_exists is set to EnumLoadParameters::exception
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
     {
         if ($this->debug) {
             Log::debug('TRY LOADING CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($identifier) . '"', 10, echo_header: false);
@@ -1258,32 +1258,38 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             ]);
         }
 
-        // Set the identifier and event handling modifiers
-        $this->setOnLoadNullIdentifier($on_load_null_identifier)
-             ->setOnLoadNotExists($on_load_not_exists)
-             ->setIdentifier($identifier)
-             ->is_initializing_source = true;
-
-        if (!$this->is_initialized) {
-            $this->initialize(false);
-        }
-
         if (is_object($identifier)) {
+            if (!$this->is_initialized) {
+                $this->initialize(false);
+            }
+
             $this->is_initializing_source = true;
 
             // This already is a DataEntry object, no need to create one. Validate that this is the same class
             if (($identifier instanceof static) or is_subclass_of(static::class, get_class($identifier))) {
                 // The identifier is the same as this, or extended this. Copy its source inside this object
-                return $this->setIdentifier($identifier->getIdentifier())
+                return $this->setOnLoadNullIdentifier($on_load_null_identifier)
+                            ->setOnLoadNotExists($on_load_not_exists)
+                            ->setIdentifier($identifier->getIdentifier())
                             ->setSource($identifier->getSource(false, false))
                             ->ready(true);
             }
 
             throw new OutOfBoundsException(tr('Specified DataEntry identifier ":has" is incompatible with this object\'s class ":should"', [
-                ':has'    => get_class($identifier),
+                ':has'    => $identifier::class,
                 ':should' => static::class,
             ]));
         }
+
+        if (!$this->is_initialized) {
+            $this->initialize(false);
+        }
+
+        // Set the identifier and event handling modifiers
+        $this->setOnLoadNullIdentifier($on_load_null_identifier)
+             ->setOnLoadNotExists($on_load_not_exists)
+             ->setIdentifier($identifier)
+             ->is_initializing_source = true;
 
         if (empty($this->connector)) {
             // Use the default connector for this DataEntry object

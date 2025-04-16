@@ -130,7 +130,7 @@ class Plugin extends DataEntry implements PluginInterface
      *
      * @return static|null
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null, bool $load_plugin_file = true): ?static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null, bool $load_plugin_file = true): ?static
     {
         $plugin = parent::load($identifier, $on_load_null_identifier, $on_load_not_exists);
         $file   = DIRECTORY_ROOT . $plugin->getDirectoryObject() . 'Library/Plugin.php';

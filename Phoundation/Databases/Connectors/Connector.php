@@ -201,7 +201,7 @@ class Connector extends DataEntry implements ConnectorInterface
      *
      * @return static|null
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
     {
         if (is_numeric($identifier) and ($identifier < 0)) {
             // Negative identifier is a configured connector!

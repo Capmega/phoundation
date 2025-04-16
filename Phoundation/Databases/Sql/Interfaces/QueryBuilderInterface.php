@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Sql\Interfaces;
 
 use PDOStatement;
-use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryObjectInterface;
 

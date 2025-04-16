@@ -132,7 +132,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
     /**
      * @inheritDoc
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
     {
         $column = static::determineColumn($identifier);
 
@@ -140,7 +140,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
             return parent::load($identifier, $on_load_null_identifier, $on_load_not_exists);
 
         } catch (DataEntryNotExistsException $e) {
-            // FsMount was not found in the database. Get it from configuration instead but that DOES require the name
+            // FsMount wasn't found in the database. Get it from configuration instead but that DOES require the name
             // column
             switch ($column) {
                 case 'name':
