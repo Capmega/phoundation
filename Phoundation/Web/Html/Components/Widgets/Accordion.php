@@ -20,6 +20,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataRenderMethod;
 use Phoundation\Data\Traits\TraitDataUrl;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Seo;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Script;
@@ -220,6 +221,22 @@ class Accordion extends Widget implements AccordionInterface
         } else {
             $this->header_classes[$key] = 'd-none';
         }
+
+        return $this;
+    }
+
+
+    /**
+     * Adds classes to the header
+     *
+     * @param string      $key
+     * @param string|null $class
+     *
+     * @return static
+     */
+    public function setHeaderClass(string $key, string|null $class): static
+    {
+        $this->header_classes[$key] = $class;
 
         return $this;
     }
