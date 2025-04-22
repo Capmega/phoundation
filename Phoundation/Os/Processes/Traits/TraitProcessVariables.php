@@ -1715,7 +1715,7 @@ trait TraitProcessVariables
             return $this->pipe;
         }
 
-        return $this->pipe->getFullCommandLine();
+        return $this->pipe->getFullCommandLine(pipe: true);
     }
 
 
@@ -1763,7 +1763,6 @@ trait TraitProcessVariables
     public function setPipe(ProcessInterface|PhoFileInterface|string|null $pipe): static
     {
         if ($pipe instanceof ProcessInterface) {
-            $pipe->setEscape(true);
             $pipe->setTerm();
         }
 

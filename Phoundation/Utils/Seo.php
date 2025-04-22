@@ -8,19 +8,17 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Core
+ * @package   Phoundation\Utils
  */
 
 
 declare(strict_types=1);
 
-namespace Phoundation\Seo;
+namespace Phoundation\Utils;
 
 use Phoundation\Core\Core;
 use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Strings;
 
 
 class Seo
@@ -39,8 +37,6 @@ class Seo
      * @param string         $column
      * @param string         $replace
      * @param null           $first_suffix
-     * @param string|null    $connector_name If specified, use the specified database connector instead of the default
-     *                                       database connector
      *
      * @return string|null                  The specified $source string seo optimized, which does not yet exist in the
      *                                      specified $table
@@ -56,7 +52,6 @@ class Seo
      * code
      * capmega
      * /code
-     *
      */
     // :TODO: Update to use bound variable queries
     // :TODO: Add WAY more comments in code, I can barely figure out whats going on there
@@ -200,7 +195,7 @@ class Seo
     /**
      * Return a seo appropriate string for given source string
      */
-    public static function string($source, $replace = '-')
+    public static function string($source, $replace = '-'): string
     {
         $source = (string) $source;
 

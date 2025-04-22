@@ -33,9 +33,9 @@ class Map implements MapInterface
     /**
      * The map source
      *
-     * @var array|null $source
+     * @var array $source
      */
-    protected ?array $source;
+    protected array $source;
 
 
     /**
@@ -70,7 +70,7 @@ class Map implements MapInterface
      *
      * @return array|null
      */
-    public function getSource(): ?array
+    public function getSource(): array
     {
         return $this->source;
     }

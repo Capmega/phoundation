@@ -272,9 +272,9 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                         $field_name = '';
                     }
 
-                    if (is_callable($o_definition->getRender())) {
+                    if (is_callable($o_definition->getRender(false))) {
                         // Rendering depends on the return of the callback
-                        $o_definition->setRender($o_definition->getRender()());
+                        $o_definition->setRender($o_definition->getRender(false)());
                     }
 
                     if (!$o_definition->getRender()) {

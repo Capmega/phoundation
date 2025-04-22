@@ -20,6 +20,7 @@ use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryPriority;
 use Phoundation\Data\Traits\TraitDataPath;
@@ -42,7 +43,7 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
     /**
      * FsMimetype class constructor
      *
-     * @param array|int|string|DataEntryInterface|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      */
     public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false)
     {
@@ -245,14 +246,14 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
     /**
      * @inheritDoc
      */
-    public function write(?string $comments = null): static
+    protected function write(bool $force = false, ?string $comments = null): static
     {
         // Force primary and secondary values from the mimetype
         // Data has been validated at this point, we can safely use it.
         $this->setPrimaryPart(Strings::until($this->getMimetype(), '/'));
         $this->setSecondaryPart(Strings::from($this->getMimetype(), '/'));
 
-        return parent::write($comments);
+        return parent::write($force, $comments);
     }
 
 

@@ -73,7 +73,7 @@ class Audio extends PhoFile
 
                 if (!$directory->exists()) {
                     // No language / project specific audio directory found, fall back to english / phoundation
-                    $directory = new PhoDirectory(DIRECTORY_CDN . 'en/phoundation/audio', PhoRestrictions::newDataObject());
+                    $directory = new PhoDirectory(DIRECTORY_CDN . '/en/phoundation/audio', PhoRestrictions::newDataObject());
                 }
 
                 try {

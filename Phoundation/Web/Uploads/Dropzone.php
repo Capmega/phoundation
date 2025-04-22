@@ -162,9 +162,9 @@ class Dropzone implements DropzoneInterface
     /**
      * The upload handler to which this dropzone belongs
      *
-     * @var UploadHandlerInterface $handler
+     * @var UploadHandlerInterface $o_handler
      */
-    protected UploadHandlerInterface $handler;
+    protected UploadHandlerInterface $o_handler;
 
 
     /**
@@ -178,7 +178,7 @@ class Dropzone implements DropzoneInterface
         $this->setUrl(Url::newCurrent())
              ->setSelector($selector)
              ->setRequestMethod(EnumHttpRequestMethod::post)
-             ->handler = $handler;
+             ->o_handler = $handler;
     }
 
 
@@ -201,9 +201,9 @@ class Dropzone implements DropzoneInterface
      *
      * @return UploadHandlerInterface
      */
-    public function getHandler(): UploadHandlerInterface
+    public function getHandlerObject(): UploadHandlerInterface
     {
-        return $this->handler;
+        return $this->o_handler;
     }
 
 
@@ -460,7 +460,7 @@ class Dropzone implements DropzoneInterface
      *
      * @return IteratorInterface
      */
-    public function getHeaders(): IteratorInterface
+    public function getHeadersObject(): IteratorInterface
     {
         if (empty($this->headers)) {
             $this->headers = Iterator::new()->setAcceptedDataTypes('string');
@@ -501,7 +501,7 @@ class Dropzone implements DropzoneInterface
      *
      * @return IteratorInterface
      */
-    public function getAcceptedFiles(): IteratorInterface
+    public function getAcceptedFilesObject(): IteratorInterface
     {
         if (empty($this->accepted_files)) {
             $this->accepted_files = Iterator::new()->setAcceptedDataTypes('string');

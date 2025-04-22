@@ -27,14 +27,14 @@ CliDocumentation::setHelp('This command creates a Kubernetes deployment using a 
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('-n,--name', true)->isOptional(strtolower(PROJECT) . '-web')->matchesRegex('/^[a-z0-9-]+$/')
-    ->select('-d,--data', true)->sanitizeForceArray()->eachField()->matchesRegex('/^[a-z0-9-]+=[a-z0-9-]+$/')
-    ->validate();
+                     ->select('-n,--name', true)->isOptional(strtolower(PROJECT) . '-web')->matchesRegex('/^[a-z0-9-]+$/')
+                     ->select('-d,--data', true)->sanitizeForceArray()->forEachField()->matchesRegex('/^[a-z0-9-]+=[a-z0-9-]+$/')
+                     ->validate();
 
 
 // Create new deployment file and apply it
 $deployment = ConfigMap::new()
-    ->setName($argv['name'])
-    ->setData($argv['data'])
-    ->save()
-    ->apply();
+                       ->setName($argv['name'])
+                       ->setData($argv['data'])
+                       ->save()
+                       ->apply();

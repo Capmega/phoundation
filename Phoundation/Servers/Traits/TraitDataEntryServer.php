@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Servers\Traits;
 
+use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Servers\Interfaces\ServerInterface;
 use Phoundation\Servers\Server;
 
@@ -38,7 +39,6 @@ trait TraitDataEntryServer
     public function setServersId(?int $servers_id): static
     {
         unset($this->server);
-
         return $this->set($servers_id, 'servers_id');
     }
 
@@ -50,8 +50,7 @@ trait TraitDataEntryServer
      */
     public function getServersHostname(): ?string
     {
-        return $this->getServer()
-                    ?->getHostname();
+        return $this->getServer()?->getHostname();
     }
 
 
@@ -62,8 +61,8 @@ trait TraitDataEntryServer
      */
     public function getServer(): ?ServerInterface
     {
-        if (!isset($this->server)) {
-            $this->server = Server::new($this->getServersId())->loadOrNull();
+        if (empty($this->server)) {
+            $this->server = Server::new()->loadNull($this->getServersId());
         }
 
         return $this->server;

@@ -63,6 +63,10 @@ trait TraitDataMetaColumns
      */
     public function hasMetaColumn(string $column): bool
     {
-        return in_array($column, $this->meta_columns);
+        if ($this->meta_columns) {
+            return in_array($column, $this->meta_columns);
+        }
+
+        return false;
     }
 }

@@ -222,10 +222,11 @@ interface RsyncInterface
      * Returns the full command line
      *
      * @param bool $background
+     * @param bool $pipe
      *
      * @return string
      */
-    public function getFullCommandLine(bool $background = false): string;
+    public function getFullCommandLine(bool $background = false, bool $pipe = false): string;
 
 
     /**

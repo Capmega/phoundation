@@ -127,7 +127,7 @@ trait TraitValidatorCore
 
     /**
      * The value(s) that actually will be tested. This most of the time will be an array with a single reference to
-     * $selected_value, but when ->eachField() validates a list of values, this will reference that list directly
+     * $selected_value, but when ->forEachField() validates a list of values, this will reference that list directly
      *
      * @var array|null $process_values
      */

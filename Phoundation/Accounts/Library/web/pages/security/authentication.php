@@ -7,7 +7,7 @@
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyauthentication Copyauthentication (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyauthentication Copyauthentication (c) 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
 
@@ -77,14 +77,14 @@ if (!$authentication->isNew()) {
                    ->setFloatRight(true)
                    ->setMode(EnumDisplayMode::information)
                    ->setAnchorUrl('/audit/meta+' . $authentication->getMetaId() . '.html')
-                   ->setValue(tr('Audit'))
+                   ->setContent(tr('Audit'))
                    ->setContent(tr('Audit'));
 
     $delete = Button::new()
                     ->setFloatRight(true)
                     ->setMode(EnumDisplayMode::warning)
                     ->setOutlined(true)
-                    ->setValue(tr('Delete'))
+                    ->setContent(tr('Delete'))
                     ->setContent(tr('Delete'));
 }
 

@@ -67,20 +67,20 @@ interface ValidatorInterface extends IteratorBaseInterface
      * Allow the validator to check each element in a list of values.
      *
      * Basically, each method will expect to process a list always and ->select() will put the selected value in an
-     * artificial array because of this. ->eachField() actually will have a list of values, so puts that list directly into
+     * artificial array because of this. ->forEachField() actually will have a list of values, so puts that list directly into
      * $this->process_values
      *
      * @return static
      * @see DataValidator::select()
      * @see DataValidator::self()
      */
-    public function eachField(): static;
+    public function forEachField(): static;
 
     /**
      * Will let the validator treat the value as a single variable
      *
      * Basically, each method will expect to process a list always and ->select() will put the selected value in an
-     * artificial array because of this. ->eachField() actually will have a list of values, so puts that list directly into
+     * artificial array because of this. ->forEachField() actually will have a list of values, so puts that list directly into
      * $this->process_values
      *
      * @return static
@@ -701,11 +701,10 @@ interface ValidatorInterface extends IteratorBaseInterface
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
-     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function isPath(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
+    public function isPath(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static;
 
 
     /**
@@ -713,11 +712,10 @@ interface ValidatorInterface extends IteratorBaseInterface
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
-     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function isDirectory(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
+    public function isDirectory(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static;
 
 
     /**
@@ -725,11 +723,10 @@ interface ValidatorInterface extends IteratorBaseInterface
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
-     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function isFile(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
+    public function isFile(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static;
 
 
     /**
@@ -737,11 +734,10 @@ interface ValidatorInterface extends IteratorBaseInterface
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
-     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function sanitizePath(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
+    public function sanitizePath(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static;
 
 
     /**
@@ -749,11 +745,10 @@ interface ValidatorInterface extends IteratorBaseInterface
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
-     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function sanitizeDirectory(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
+    public function sanitizeDirectory(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static;
 
 
     /**
@@ -761,11 +756,10 @@ interface ValidatorInterface extends IteratorBaseInterface
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
-     * @param Stringable|string|bool|null $prefix
      *
      * @return static
      */
-    public function sanitizeFile(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, Stringable|string|bool|null $prefix = null): static;
+    public function sanitizeFile(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static;
 
     /**
      * Validates if the selected field is a valid description

@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Core\Sessions\Exception;
+namespace Phoundation\Accounts\Users\Sessions\Exception;
 
 
 class SessionDuplicateIdentifierException extends SessionException

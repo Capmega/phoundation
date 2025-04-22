@@ -71,6 +71,8 @@ class PhoDirectory extends PhoDirectoryCore
      */
     public static function newDataTmpObject(bool $writable = false, ?string $sub_directory = null): PhoDirectoryInterface
     {
+        $sub_directory = Strings::ensureStartsNotWith($sub_directory, '/');
+
         return static::new(
             DIRECTORY_TMP . $sub_directory,
             PhoRestrictions::new(DIRECTORY_TMP . $sub_directory, $writable)
@@ -88,6 +90,8 @@ class PhoDirectory extends PhoDirectoryCore
      */
     public static function newCdnObject(bool $writable = false, ?string $sub_directory = null): PhoDirectoryInterface
     {
+        $sub_directory = Strings::ensureStartsNotWith($sub_directory, '/');
+
         return static::new(
             DIRECTORY_PROJECT_CDN . $sub_directory,
             PhoRestrictions::new(DIRECTORY_PROJECT_CDN . $sub_directory, $writable)
@@ -105,6 +109,8 @@ class PhoDirectory extends PhoDirectoryCore
      */
     public static function newRootObject(bool $writable = false, ?string $sub_directory = null): static
     {
+        $sub_directory = Strings::ensureStartsNotWith($sub_directory, '/');
+
         return static::new(
             DIRECTORY_ROOT . $sub_directory,
             PhoRestrictions::new(DIRECTORY_ROOT . $sub_directory, $writable)
@@ -122,6 +128,8 @@ class PhoDirectory extends PhoDirectoryCore
      */
     public static function newFilesystemRootObject(bool $writable = false, ?string $sub_directory = null): static
     {
+        $sub_directory = Strings::ensureStartsNotWith($sub_directory, '/');
+
         return static::new(
             '/' . $sub_directory,
             PhoRestrictions::new('/' . $sub_directory, $writable)
@@ -140,6 +148,8 @@ class PhoDirectory extends PhoDirectoryCore
      */
     public static function newDomainObject(string $domain, bool $writable = false, ?string $sub_directory = null): static
     {
+        $sub_directory = Strings::ensureStartsNotWith($sub_directory, '/');
+
         return static::new(
             $domain . ':/' . $sub_directory,
             PhoRestrictions::new($domain . ':/' . $sub_directory, $writable)
@@ -157,6 +167,8 @@ class PhoDirectory extends PhoDirectoryCore
      */
     public static function newCommandsObject(bool $writable = false, ?string $sub_directory = null): static
     {
+        $sub_directory = Strings::ensureStartsNotWith($sub_directory, '/');
+
         return static::new(
             DIRECTORY_COMMANDS . $sub_directory,
             PhoRestrictions::new(DIRECTORY_COMMANDS . $sub_directory, $writable)
@@ -175,6 +187,8 @@ class PhoDirectory extends PhoDirectoryCore
      */
     public static function newWebObject(bool $writable = false, ?string $sub_directory = null): static
     {
+        $sub_directory = Strings::ensureStartsNotWith($sub_directory, '/');
+
         return static::new(
             DIRECTORY_WEB . $sub_directory,
             PhoRestrictions::new(DIRECTORY_WEB . $sub_directory, $writable)
@@ -193,6 +207,8 @@ class PhoDirectory extends PhoDirectoryCore
      */
     public static function newDataObject(bool $writable = false, ?string $sub_directory = null): static
     {
+        $sub_directory = Strings::ensureStartsNotWith($sub_directory, '/');
+
         return static::new(
             DIRECTORY_DATA . $sub_directory,
             PhoRestrictions::new(DIRECTORY_DATA . $sub_directory, $writable)
@@ -210,6 +226,8 @@ class PhoDirectory extends PhoDirectoryCore
      */
     public static function newDataProjectObject(bool $writable = false, ?string $sub_directory = null): static
     {
+        $sub_directory = Strings::ensureStartsNotWith($sub_directory, '/');
+
         return static::new(
             DIRECTORY_DATA . PROJECT . '/' . $sub_directory,
             PhoRestrictions::newDataProjectObject($writable)
@@ -227,6 +245,8 @@ class PhoDirectory extends PhoDirectoryCore
      */
     public static function newDataSourcesProjectObject(bool $writable = false, ?string $sub_directory = null): static
     {
+        $sub_directory = Strings::ensureStartsNotWith($sub_directory, '/');
+
         return static::new(
             DIRECTORY_DATA . 'sources/' . strtolower(str_replace('_', '-', PROJECT)) . '/' . $sub_directory,
             PhoRestrictions::newDataSourcesProjectObject($writable)
@@ -244,6 +264,8 @@ class PhoDirectory extends PhoDirectoryCore
      */
     public static function newDataSourcesObject(bool $writable = false, ?string $sub_directory = null): static
     {
+        $sub_directory = Strings::ensureStartsNotWith($sub_directory, '/');
+
         return static::new(
             DIRECTORY_DATA . 'sources/' . $sub_directory,
             PhoRestrictions::new(DIRECTORY_DATA . 'sources/' . $sub_directory, $writable)
@@ -261,6 +283,8 @@ class PhoDirectory extends PhoDirectoryCore
      */
     public static function newUserFilesObject(bool $writable = false, ?string $sub_directory = null): static
     {
+        $sub_directory = Strings::ensureStartsNotWith($sub_directory, '/');
+
         return static::new(
             DIRECTORY_DATA . 'files/' . $sub_directory,
             PhoRestrictions::newUserFilesObject($writable, $sub_directory)

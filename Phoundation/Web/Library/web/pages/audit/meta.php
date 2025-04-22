@@ -27,7 +27,7 @@ use Phoundation\Web\Requests\Response;
 
 // Validate GET
 $get = GetValidator::new()
-                   ->select('id')->sanitizeForceArray('-')->eachField()->isDbId()
+                   ->select('id')->sanitizeForceArray('-')->forEachField()->isDbId()
                    ->validate();
 
 

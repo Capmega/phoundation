@@ -77,11 +77,12 @@ interface IncidentInterface
 
 
     /**
-     * Throw an incidents exception
+     * Throws an exception from this incident
      *
      * @param string|null $exception
+     * @param bool        $non_production_environment_only
      *
-     * @return never
+     * @return static
      */
-    public function throw(?string $exception = null): never;
+    public function throw(?string $exception = null, bool $non_production_environment_only = false): static;
 }

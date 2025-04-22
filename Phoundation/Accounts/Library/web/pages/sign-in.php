@@ -15,8 +15,8 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Accounts\Users\User;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -26,7 +26,6 @@ use Phoundation\Web\Html\Pages\SignInPage;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
-
 
 // Only show sign-in page if we're a guest user
 if (!Session::getUserObject()->isGuest()) {
@@ -52,13 +51,13 @@ if (Request::isPostRequestMethod()) {
             // If the signed-in user has the same email as the GET specified email, try to execute the specified redirect.
             if (empty($get['email']) or ($user->getEmail() === $get['email'])) {
                 $get['redirect'] = Url::filter($get['redirect'], ['sign-out', 'sign-in']);
-                $get['redirect'] = Url::newRedirect($get['redirect'], $user->getDefaultPage());
+                $get['redirect'] = Url::newRedirect($get['redirect']);
 
                 Response::redirect($get['redirect']);
             }
 
             // GET email didn't match, redirect the default page for this user
-            Response::redirect($user->getDefaultPage() ?? Url::new('index')->makeWww());
+            Response::redirect(Url::new('index')->makeWww());
 
         } catch (AuthenticationException | PasswordTooShortException | NoPasswordSpecifiedException | ValidationFailedException $e) {
             Response::getFlashMessagesObject()->addWarning(tr('The specified email and/or password were incorrect'));

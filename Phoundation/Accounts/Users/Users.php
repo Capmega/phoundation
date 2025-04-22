@@ -96,8 +96,7 @@ class Users extends DataIterator implements UsersInterface
 
             foreach ($list as $user) {
                 if ($user) {
-                    $users_list[] = static::getDefaultContentDataType()::load($user)
-                                          ->getId();
+                    $users_list[] = static::getDefaultContentDataType()::load($user)->getId();
                 }
             }
 
@@ -251,7 +250,7 @@ class Users extends DataIterator implements UsersInterface
         if (is_array($keys)) {
             // Add multiple rights
             foreach ($keys as $key) {
-                $this->removeKeys($key);
+                $this->removeKeys($key, $strict);
             }
 
         } else {
@@ -270,7 +269,7 @@ class Users extends DataIterator implements UsersInterface
                 ]);
 
                 // Remove user from the internal list
-                parent::removeKeys($user->getUniqueColumnValue());
+                parent::removeKeys($user->getUniqueColumnValue(), $strict);
 
             } elseif ($this->parent instanceof RightInterface) {
                 Log::action(ts('Removing user ":user" from right ":right"', [
@@ -284,7 +283,7 @@ class Users extends DataIterator implements UsersInterface
                 ]);
 
                 // Remove user from the internal list
-                parent::removeKeys($user->getUniqueColumnValue());
+                parent::removeKeys($user->getUniqueColumnValue(), $strict);
             }
         }
 

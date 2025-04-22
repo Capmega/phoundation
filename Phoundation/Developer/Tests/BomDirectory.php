@@ -48,7 +48,6 @@ class BomDirectory extends PhoDirectory
      * Clears the BOM bytes from all files in this path
      *
      * @return int
-     * @throws \Throwable
      */
     public function clearBom(): int
     {

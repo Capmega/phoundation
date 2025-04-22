@@ -42,6 +42,15 @@ interface AccordionInterface extends WidgetInterface
     public function setOpen(Stringable|string|float|int|null $open): static;
 
     /**
+     * Sets the first key of the accordion to open
+     *
+     * @param bool $do
+     *
+     * @return static
+     */
+    public function setOpenFirst(bool $do = true): static;
+
+    /**
      * @inheritDoc
      */
     public function render(): ?string;

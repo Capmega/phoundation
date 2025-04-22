@@ -111,9 +111,11 @@ class PhoCore extends WorkersCore implements PhoInterface
      * Returns the full command line if a PHO command has been specified
      *
      * @param bool $background
+     * @param bool $pipe
+     *
      * @return string
      */
-    public function getFullCommandLine(bool $background = false): string
+    public function getFullCommandLine(bool $background = false, bool $pipe = false): string
     {
         if (empty($this->pho_commands) and empty($this->arguments)) {
             // TODO Add exceptions for commands like "pho -Z"

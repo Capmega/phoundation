@@ -21,6 +21,7 @@ use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Connectors\SystemConnector;
 use Phoundation\Exception\OutOfBoundsException;
 
+
 trait TraitDataConnector
 {
     /**

@@ -35,7 +35,7 @@ $get = GetValidator::new()
                    ->select('id')->isOptional()->isDbId()
                    ->validate();
 
-$provider = Provider::new()->loadOrThis($get['id']);
+$provider = Provider::new()->loadThis($get['id']);
 
 // Validate POST and submit
 if (Request::isPostRequestMethod()) {

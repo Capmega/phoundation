@@ -556,7 +556,7 @@ class Task extends DataEntry implements TaskInterface
     public function getParent(): ?static
     {
         if (empty($this->parent)) {
-            $this->parent = static::new($this->getParentsId())->loadOrNull();
+            $this->parent = static::new($this->getParentsId())->loadNull();
         }
 
         return $this->parent;
@@ -1096,10 +1096,10 @@ class Task extends DataEntry implements TaskInterface
                 return parent::save();
             }
 
-            // Validate data, generate a new code, and write it to database
+            // Validate data, generate a new code, and write it to the database
             return $this->validate()
                         ->generateCode()
-                        ->write($comments);
+                        ->write($force, $comments);
         }
 
         return $this;

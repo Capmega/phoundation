@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces;
 
-use Phoundation\Enums\EnumOrientation;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
+use Phoundation\Web\Html\Enums\EnumOrientation;
 
 interface TabsInterface extends ElementsBlockInterface
 {

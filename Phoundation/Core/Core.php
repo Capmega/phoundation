@@ -21,6 +21,7 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Config\Config;
 use Phoundation\Accounts\Config\Exception\ConfigException;
 use Phoundation\Accounts\Config\Exception\ConfigurationInvalidException;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Audio\Audio;
 use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Cli\CliCommand;
@@ -39,7 +40,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Modes\Interfaces\ModeInterface;
 use Phoundation\Core\Modes\Mode;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
 use Phoundation\Data\Traits\TraitDataStaticIsExecutedPath;
 use Phoundation\Data\Traits\TraitDataStaticReadonly;
@@ -386,7 +386,7 @@ class Core implements CoreInterface
 
         define('DIRECTORY_DATA'       , $data . '/');
         define('DIRECTORY_SYSTEM'     , DIRECTORY_DATA   . 'system/');
-        define('DIRECTORY_CDN'        , DIRECTORY_DATA   . 'content/cdn/');
+        define('DIRECTORY_CDN'        , realpath(DIRECTORY_DATA . 'content/cdn/'));
         define('DIRECTORY_PUBTMP'     , DIRECTORY_CDN    . 'tmp/');
         define('DIRECTORY_TMP'        , DIRECTORY_SYSTEM . 'tmp/');
         define('DIRECTORY_COMMANDS'   , DIRECTORY_SYSTEM . 'cache/system/commands/');
@@ -651,8 +651,8 @@ class Core implements CoreInterface
                 break;
         }
 
-        define('DIRECTORY_PROJECT_CDN'   , DIRECTORY_DATA . 'content/cdn/' . LANGUAGE . '/' . Core::getProjectSeoName() . '/');
-        define('DIRECTORY_PROJECT_PUBTMP', DIRECTORY_CDN  . 'tmp/');
+        define('DIRECTORY_PROJECT_CDN'   , DIRECTORY_CDN . '/' . LANGUAGE . '/' . Core::getProjectSeoName() . '/');
+        define('DIRECTORY_PROJECT_PUBTMP', DIRECTORY_CDN . 'tmp/');
     }
 
 
@@ -1036,6 +1036,7 @@ class Core implements CoreInterface
         Core::playUncaughtExceptionAudio($e);
 
         // Ensure the exception is a Phoundation exception
+        // TODO Fix this or get rid of this, it causes too much confusion with backtraces. Fixing would require removing line 1040 from backtraces!
         $e = PhoException::ensurePhoundationException($e);
 
         // When in CLI auto complete mode, log and display a standard exception message

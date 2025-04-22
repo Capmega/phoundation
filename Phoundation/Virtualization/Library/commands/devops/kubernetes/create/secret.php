@@ -28,10 +28,10 @@ CliDocumentation::setHelp('This command creates a Kubernetes secret using a secr
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('-n,--name', true)->isOptional(strtolower(PROJECT) . '-web')->matchesRegex('/^[a-z0-9-]+$/')
-    ->select('-t,--type', true)->isOptional('Opaque')->isInArray(['Opaque'])
-    ->select('-k,--keys', true)->sanitizeForceArray(',')
-    ->validate();
+                     ->select('-n,--name', true)->isOptional(strtolower(PROJECT) . '-web')->matchesRegex('/^[a-z0-9-]+$/')
+                     ->select('-t,--type', true)->isOptional('Opaque')->isInArray(['Opaque'])
+                     ->select('-k,--keys', true)->sanitizeForceArray(',')
+                     ->validate();
 
 
 // Get values for the keys
@@ -44,7 +44,7 @@ foreach ($argv['keys'] as $key) {
 
 // Create new secret file and apply it
 $secret = Secret::new()
-    ->setName($argv['name'])
-    ->setData($keys)
-    ->save()
-    ->apply();
+                ->setName($argv['name'])
+                ->setData($keys)
+                ->save()
+                ->apply();

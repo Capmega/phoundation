@@ -20,8 +20,7 @@ use Phoundation\Core\Core;
 use Phoundation\Databases\Sql\Exception\SqlNoDatabaseSelectedException;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
-use Phoundation\Seo\Seo;
-
+use Phoundation\Utils\Seo;
 
 trait TraitDataEntryAlias
 {

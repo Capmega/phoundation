@@ -48,13 +48,13 @@ ARGUMENTS
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->selectAll('plugins')->isOptional()->sanitizeForceArray()->eachField()->isName()
+                     ->selectAll('plugins')->isOptional()->sanitizeForceArray()->forEachField()->isName()
                      ->validate();
 
 
 if (ALL) {
     // Get all plugins
-    $plugin = Plugins::new()->load()->eachField(function ($plugin, $plugin_name) {
+    $plugin = Plugins::new()->load()->forEachField(function ($plugin, $plugin_name) {
         // Disable plugin
         Plugin::new()->load($plugin_name)->disable();
     });

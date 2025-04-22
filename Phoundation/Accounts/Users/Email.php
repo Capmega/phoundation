@@ -32,6 +32,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryEmail;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUser;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryVerificationCode;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryVerifiedOn;
+use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Utils\Arrays;
@@ -139,14 +140,16 @@ class Email extends DataEntry implements EmailInterface
      *       simplify "if this is not DataEntry object then this is new DataEntry object" into
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      *
-     * @param IdentifierInterface|array|string|int|false|null $identifier
+     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param EnumLoadParameters|null                   $on_load_null_identifier
+     * @param EnumLoadParameters|null                   $on_load_not_exists
      *
-     * @return static
+     * @return static|null
      */
-    public function load(IdentifierInterface|array|string|int|false|null $identifier): static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
     {
         try {
-            return parent::load($identifier);
+            return parent::load($identifier, $on_load_null_identifier, $on_load_not_exists);
 
         } catch (DataEntryNotExistsException|DataEntryDeletedException $e) {
             throw new EmailNotExistsException($e);
@@ -232,7 +235,7 @@ class Email extends DataEntry implements EmailInterface
                                            ->setSize(2)
                                            ->setLabel(tr('Delete'))
                                            ->addClasses('btn btn-outline-warning')
-                                           ->setValue(tr('Delete')))
+                                           ->setContent(tr('Delete')))
 
                     ->add(DefinitionFactory::newDescription()
                                            ->setHelpText(tr('The description for this email')));

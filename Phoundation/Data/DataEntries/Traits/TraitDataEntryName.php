@@ -17,11 +17,11 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntries\Traits;
 
 use Phoundation\Core\Core;
+use Phoundation\Data\DataEntries\Exception\DataEntryNoSeoNameException;
 use Phoundation\Databases\Sql\Exception\SqlNoDatabaseSelectedException;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
-use Phoundation\Seo\Seo;
-
+use Phoundation\Utils\Seo;
 
 trait TraitDataEntryName
 {
@@ -64,7 +64,13 @@ trait TraitDataEntryName
      */
     public function getSeoName(): ?string
     {
-        return $this->getTypesafe('string', 'seo_name');
+        if ($this->supports_seo_name) {
+            return $this->getTypesafe('string', 'seo_name');
+        }
+
+        throw new DataEntryNoSeoNameException(tr('Cannot return seo_name from ":class" DataEntry object, it has seo name support disabled', [
+            ':class' => $this::class
+        ]));
     }
 
 
@@ -141,9 +147,11 @@ trait TraitDataEntryName
      */
     public function setName(?string $name, bool $set_seo_name = true): static
     {
-        if ($set_seo_name) {
-            if (!$this->is_loading) {
-                $this->setSeoNameFromName($name);
+        if ($this->supports_seo_name) {
+            if ($set_seo_name) {
+                if (!$this->is_loading) {
+                    $this->setSeoNameFromName($name);
+                }
             }
         }
 

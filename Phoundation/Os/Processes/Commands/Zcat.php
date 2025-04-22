@@ -44,10 +44,11 @@ class Zcat extends Command
      * Builds and returns the command line that will be executed
      *
      * @param bool $background
+     * @param bool $pipe
      *
      * @return string
      */
-    public function getFullCommandLine(bool $background = false): string
+    public function getFullCommandLine(bool $background = false, bool $pipe = false): string
     {
         if ($this->cached_command_line) {
             return $this->cached_command_line;

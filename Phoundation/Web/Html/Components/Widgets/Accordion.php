@@ -20,12 +20,12 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataRenderMethod;
 use Phoundation\Data\Traits\TraitDataUrl;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Seo\Seo;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Seo;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\Interfaces\AccordionInterface;
 use Stringable;
-
 
 class Accordion extends Widget implements AccordionInterface
 {
@@ -189,6 +189,23 @@ class Accordion extends Widget implements AccordionInterface
 
 
     /**
+     * Sets the first key of the accordion to open
+     *
+     * @param bool $do
+     *
+     * @return static
+     */
+    public function setOpenFirst(bool $do = true): static
+    {
+        if ($do) {
+            $this->open = $this->getFirstKey();
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Sets whether a key should be displayed or not
      *
      * @param string $key
@@ -204,6 +221,22 @@ class Accordion extends Widget implements AccordionInterface
         } else {
             $this->header_classes[$key] = 'd-none';
         }
+
+        return $this;
+    }
+
+
+    /**
+     * Adds classes to the header
+     *
+     * @param string      $key
+     * @param string|null $class
+     *
+     * @return static
+     */
+    public function setHeaderClass(string $key, string|null $class): static
+    {
+        $this->header_classes[$key] = $class;
 
         return $this;
     }

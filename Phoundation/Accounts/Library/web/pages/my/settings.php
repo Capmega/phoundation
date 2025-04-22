@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Core\Sessions\Session;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
@@ -26,7 +26,6 @@ use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
-
 
 // No get parameters allowed
 $user = Session::getUserObject();
@@ -56,7 +55,6 @@ $settings_card = Card::new()
                      ->setContent($user->getConfigurationsObject()->getHtmlDataEntryFormObject())
                      ->setButtons(Buttons::new()
                                          ->addButton(tr('Save'), right: true)
-                                         ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/my/settings.html'), true)
                                          ->addButton(isset_get($delete))
                                          ->addButton(isset_get($audit)));
 
@@ -67,8 +65,8 @@ $relevant_card = Card::new()
                      ->setTitle(tr('Relevant links'))
                      ->setContent('<a href="' . Url::new('/my/profile.html')->makeWww() . '">' . tr('Manage my profile') . '</a><br>
                                    <a href="' . Url::new('/my/password.html')->makeWww() . '">' . tr('Change my password') . '</a><br>                                 
-                                   <a href="' . Url::new('/my/authentication-history.html')->makeWww() . '">' . tr('Review my authentication history') . '</a><br>
                                    <a href="' . Url::new('/mfa/create.html')->makeWww()->addRedirect(Url::newCurrent()) . '">' . tr('Setup multi factor authentication') . '</a><br>');
+//<a href="' . Url::new('/my/authentication-history.html')->makeWww() . '">' . tr('Review my authentication history') . '</a><br>
 
 
 // Build documentation
@@ -90,5 +88,5 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 
 // Render and return the page grid
 return Grid::new()
-            ->addGridColumn($settings_card                      , EnumDisplaySize::nine, true)
-            ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+            ->addGridColumn($settings_card                               , EnumDisplaySize::nine, true)
+            ->addGridColumn($relevant_card . '<br>' . $documentation_card, EnumDisplaySize::three);

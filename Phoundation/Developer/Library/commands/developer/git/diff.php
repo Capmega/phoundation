@@ -30,7 +30,7 @@ useful- beyond testing the git library');
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->select('files')->sanitizeForceArray()->eachField()->sanitizeFile()
+                     ->select('files')->sanitizeForceArray()->forEachField()->sanitizeFile()
                      ->validate();
 
 

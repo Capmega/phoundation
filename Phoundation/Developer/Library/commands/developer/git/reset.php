@@ -31,7 +31,7 @@ useful- beyond testing the git library');
 // Get command line arguments
 $argv = ArgvValidator::new()
                      ->select('branch', true)->isVariable()
-                     ->select('files', true)->isOptional()->sanitizeForceArray()->eachField()->sanitizeFile()
+                     ->select('files', true)->isOptional()->sanitizeForceArray()->forEachField()->sanitizeFile()
                      ->select('--hard')->isOptional()->isBoolean()
                      ->validate();
 

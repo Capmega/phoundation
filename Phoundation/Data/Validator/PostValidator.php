@@ -26,6 +26,7 @@ use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Csrf;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Requests\Request;
 use Stringable;
 
@@ -84,6 +85,9 @@ class PostValidator extends Validator
     public function __construct()
     {
         $this->construct(null, static::$post);
+
+        // If the program accesses the PostValidator object, we can safely assume that post is at least allowed
+        Request::getMethodRestrictionsObject()->allow(EnumHttpRequestMethod::post);
     }
 
 

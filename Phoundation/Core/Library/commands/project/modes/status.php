@@ -8,7 +8,7 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Scripts
+ * @package   Phoundation\Core
  */
 
 
@@ -17,9 +17,7 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\ArgvValidator;
-
 
 CliDocumentation::setUsage('./pho project modes maintenance status');
 

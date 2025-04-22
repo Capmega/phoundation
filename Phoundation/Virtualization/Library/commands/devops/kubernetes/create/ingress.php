@@ -26,13 +26,13 @@ CliDocumentation::setHelp('This command creates a Kubernetes ingress using a ing
 
 // Validate arguments
 $argv = ArgvValidator::new()
-    ->select('-n,--name', true)->isOptional(strtolower(PROJECT) . '-web')->matchesRegex('/^[a-z0-9-]+$/')
-    ->select('-s,--selectors', true)->sanitizeForceArray()->eachField()->matchesRegex('/^[a-z0-9-]+=[a-z0-9-]+$/')
-    ->validate();
+                     ->select('-n,--name', true)->isOptional(strtolower(PROJECT) . '-web')->matchesRegex('/^[a-z0-9-]+$/')
+                     ->select('-s,--selectors', true)->sanitizeForceArray()->forEachField()->matchesRegex('/^[a-z0-9-]+=[a-z0-9-]+$/')
+                     ->validate();
 
 
 // Create new ingress file and apply it
 $ingress = Ingress::new()
-    ->setName($argv['name'])
-    ->save()
-    ->apply();
+                  ->setName($argv['name'])
+                  ->save()
+                  ->apply();

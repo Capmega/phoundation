@@ -71,7 +71,6 @@ namespace Phoundation\Accounts\Config;
 
 use Exception;
 use Phoundation\Accounts\Config\Exception\ConfigDataTypeException;
-use Phoundation\Accounts\Config\Exception\ConfigEmptyException;
 use Phoundation\Accounts\Config\Exception\ConfigEnvironmentDoesNotExistException;
 use Phoundation\Accounts\Config\Exception\ConfigException;
 use Phoundation\Accounts\Config\Exception\ConfigFailedException;
@@ -80,9 +79,9 @@ use Phoundation\Accounts\Config\Exception\ConfigParseFailedException;
 use Phoundation\Accounts\Config\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Accounts\Config\Exception\ConfigReadFailedException;
 use Phoundation\Accounts\Config\Interfaces\ConfigInterface;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Developer\Debug\Debug;
@@ -95,7 +94,6 @@ use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Throwable;
-
 
 class Config implements ConfigInterface
 {
@@ -482,15 +480,12 @@ class Config implements ConfigInterface
             return Strings::toBoolean($return);
 
         } catch (OutOfBoundsException $e) {
-            if (empty($return)) {
-                $this->throwEmptyException($path, 'boolean');
-            }
-
             throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a boolean value (Accepted are true, "true", "yes", "y", "1", false, "false", "no", "n", or 1), but has ":value" instead', [
                 ':path'  => $path,
                 ':value' => $return,
             ]), $e)->addData([
-                'value' => $return
+                'value'      => $return,
+                'value_type' => gettype($return)
             ]);
         }
     }
@@ -522,15 +517,12 @@ class Config implements ConfigInterface
             return (int) $return;
         }
 
-        if (empty($return)) {
-            $this->throwEmptyException($path, 'integer');
-        }
-
         throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold an integer value but has ":value" instead', [
             ':path'  => $path,
             ':value' => $return,
         ]))->addData([
-            'value' => $return
+            'value'      => $return,
+            'value_type' => gettype($return)
         ]);
     }
 
@@ -569,15 +561,12 @@ class Config implements ConfigInterface
             return $return;
         }
 
-        if (empty($return)) {
-            $this->throwEmptyException($path, 'positive integer');
-        }
-
         throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a positive integer number but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]))->addData([
-            'value' => $return
+            'value'      => $return,
+            'value_type' => gettype($return)
         ]);
     }
 
@@ -616,15 +605,12 @@ class Config implements ConfigInterface
             return $return;
         }
 
-        if (empty($return)) {
-            $this->throwEmptyException($path, 'negative integer');
-        }
-
         throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a negative integer number but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]))->addData([
-            'value' => $return
+            'value'      => $return,
+            'value_type' => gettype($return)
         ]);
     }
 
@@ -723,15 +709,12 @@ class Config implements ConfigInterface
             return (float) $return;
         }
 
-        if (empty($return)) {
-            $this->throwEmptyException($path, 'float');
-        }
-
         throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a float but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]))->addData([
-            'value' => $return
+            'value'      => $return,
+            'value_type' => gettype($return)
         ]);
     }
 
@@ -798,15 +781,12 @@ class Config implements ConfigInterface
             return $return;
         }
 
-        if (empty($return)) {
-            $this->throwEmptyException($path, 'array');
-        }
-
         throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold an "array" value but has ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]))->addData([
-            'value' => $return
+            'value'      => $return,
+            'value_type' => gettype($return)
         ]);
     }
 
@@ -837,15 +817,52 @@ class Config implements ConfigInterface
             return $return;
         }
 
-        if (empty($return)) {
-            $this->throwEmptyException($path, 'string');
+        throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a string but has value ":value"', [
+            ':path'  => $path,
+            ':value' => $return,
+        ]))->addData([
+            'value'      => $return,
+            'value_type' => gettype($return)
+        ]);
+    }
+
+
+    /**
+     * Return configuration STRING for the specified key path
+     *
+     * @note Will throw an exception if a non-string value is returned!
+     *
+     * @param string|array $path                     The configuration path for which the value should be returned
+     * @param string|int|null  $default              The default value to return if the configuration path doesn't
+     *                                               exist. If not specified, or NULL, an exception will be thrown when
+     *                                               the path doesn't exist
+     * @param bool         $allow_user_configuration If true will allow user configuration to override system
+     *                                               configuration
+     * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
+     *                                               cache
+     *
+     * @return string|int                            The value for the requested path
+     *
+     * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
+     */
+    public function getStringInteger(string|array $path, string|int|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): string|int
+    {
+        $return = $this->get($path, $default, $allow_user_configuration, $use_cache);
+
+        if (is_int($return)) {
+            return $return;
+        }
+
+        if (is_string($return)) {
+            return $return;
         }
 
         throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a string but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]))->addData([
-            'value' => $return
+            'value'      => $return,
+            'value_type' => gettype($return)
         ]);
     }
 
@@ -880,15 +897,12 @@ class Config implements ConfigInterface
             return $return;
         }
 
-        if (empty($return)) {
-            $this->throwEmptyException($path, 'array or string');
-        }
-
         throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold an array or a string but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]))->addData([
-            'value' => $return
+            'value'      => $return,
+            'value_type' => gettype($return)
         ]);
     }
 
@@ -915,7 +929,7 @@ class Config implements ConfigInterface
      *
      * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getBooleanString(string|array $path, string|bool|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): string|bool
+    public function getStringBoolean(string|array $path, string|bool|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): string|bool
     {
         $return = $this->get($path, $default, $allow_user_configuration, $use_cache);
 
@@ -931,15 +945,12 @@ class Config implements ConfigInterface
             // fall through
         }
 
-        if (empty($return)) {
-            $this->throwEmptyException($path, 'string or boolean');
-        }
-
         throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a string or a boolean value but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]), $e)->addData([
-            'value' => $return
+            'value'      => $return,
+            'value_type' => gettype($return)
         ]);
     }
 
@@ -966,7 +977,7 @@ class Config implements ConfigInterface
      *
      * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getBooleanInteger(string|array $path, string|bool|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): int|bool
+    public function getIntegerBoolean(string|array $path, string|bool|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): int|bool
     {
         $return = $this->get($path, $default, $allow_user_configuration, $use_cache);
 
@@ -978,34 +989,13 @@ class Config implements ConfigInterface
             return $return;
         }
 
-        if (empty($return)) {
-            $this->throwEmptyException($path, 'integer or boolean');
-        }
-
         throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a integer or a boolean value but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]))->addData([
-            'value' => $return
+            'value'      => $return,
+            'value_type' => gettype($return)
         ]);
-    }
-
-
-    /**
-     * Throws an ConfigEmptyException
-     *
-     * @param string $path
-     * @param string $type
-     *
-     * @return void
-     * @throws ConfigEmptyException
-     */
-    protected function throwEmptyException(string $path, string $type): void
-    {
-        throw ConfigEmptyException::new(tr('The configuration path ":path" should hold a ":type" value but exist with no value', [
-            ':path'  => $path,
-            ':type'  => $type,
-        ]));
     }
 
 

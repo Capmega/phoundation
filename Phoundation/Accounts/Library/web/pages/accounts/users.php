@@ -37,7 +37,8 @@ $filters      = FilterForm::new();
 $filters_card = Card::new()
                     ->setCollapseSwitch(true)
                     ->setTitle('Filters')
-                    ->setContent($filters);
+                    ->setContent($filters)
+                    ->setButtons(Buttons::new()->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html', right: true));
 
 
 // Button clicked?
@@ -45,7 +46,7 @@ if (Request::isPostRequestMethod()) {
     // Validate POST
     $post = PostValidator::new()
                          ->ignoreFields('accounts_users_length') // This is paging length, ignore
-                         ->select('id')->isOptional()->isArray()->eachField()->isDbId()
+                         ->select('id')->isOptional()->isArray()->forEachField()->isDbId()
                          ->validate();
 
     try {
@@ -84,6 +85,11 @@ if (Request::isPostRequestMethod()) {
 
                 Response::getFlashMessagesObject()->addWarning(tr('No users selected to be deleted'));
                 Response::redirect();
+
+            default:
+                throw new ValidationFailedException(tr('Unknown submit button ":button" specified', [
+                    ':button' => PostValidator::new()->getSubmitButton()
+                ]));
         }
 
     } catch (ValidationFailedException $e) {
@@ -133,9 +139,9 @@ $users_card = Card::new()
                                      ])->setRowUrl('/accounts/user+:ROW.html'))
                   ->useForm(true)
                   ->setButtons(Buttons::new()
-                                      ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html')
-                                      ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true)
-                                      ->addButton(tr('Lock')  , EnumDisplayMode::warning, EnumButtonType::submit, true, true));
+                                      ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html', right: true)
+                                      ->addButton(tr('Delete'), EnumDisplayMode::danger, EnumButtonType::submit, true)
+                                      ->addButton(tr('Lock')  , EnumDisplayMode::warning, EnumButtonType::submit, true));
 
 
 $users_card->getForm()
@@ -168,5 +174,5 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($filters_card  . $users_card        , EnumDisplaySize::nine)
-           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($filters_card  . '<br>' . $users_card        , EnumDisplaySize::nine)
+           ->addGridColumn($relevant_card . '<br>' . $documentation_card, EnumDisplaySize::three);

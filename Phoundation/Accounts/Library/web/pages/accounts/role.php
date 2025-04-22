@@ -40,7 +40,7 @@ $get = GetValidator::new()
 
 
 // Build the page content
-$role = Role::new()->loadOrThis($get['id']);
+$role = Role::new()->loadThis($get['id']);
 
 
 // Validate POST and submit
@@ -50,7 +50,7 @@ if (Request::isPostRequestMethod()) {
             case tr('Save'):
                 // Validate rights
                 $post = PostValidator::new()
-                                     ->select('rights_id')->isOptional()->isArray()->eachField()->isOptional()->isDbId()
+                                     ->select('rights_id')->isOptional()->isArray()->forEachField()->isOptional()->isDbId()
                                      ->validate(false);
 
                 // Update role and rights
@@ -91,7 +91,7 @@ if ($role->isNotNew()) {
                    ->setMode(EnumDisplayMode::information)
                    ->setAnchorUrl('/audit/meta+' . $role->getMetaId() . '.html')
                    ->setFloatRight(true)
-                   ->setValue(tr('Audit'))
+                   ->setContent(tr('Audit'))
                    ->setContent(tr('Audit'));
 
     if ($role->isDeleted()) {
@@ -99,7 +99,7 @@ if ($role->isNotNew()) {
                         ->setFloatRight(true)
                         ->setMode(EnumDisplayMode::warning)
                         ->setOutlined(true)
-                        ->setValue(tr('Undelete'))
+                        ->setContent(tr('Undelete'))
                         ->setContent(tr('Undelete'));
 
     } else {
@@ -107,7 +107,7 @@ if ($role->isNotNew()) {
                         ->setFloatRight(true)
                         ->setMode(EnumDisplayMode::warning)
                         ->setOutlined(true)
-                        ->setValue(tr('Delete'))
+                        ->setContent(tr('Delete'))
                         ->setContent(tr('Delete'));
     }
 

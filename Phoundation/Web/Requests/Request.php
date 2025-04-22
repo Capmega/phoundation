@@ -19,10 +19,10 @@ namespace Phoundation\Web\Requests;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Exception\InvalidRequestTypeException;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntries\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
@@ -76,7 +76,6 @@ use Phoundation\Web\Uploads\UploadHandlers;
 use Stringable;
 use Templates\Phoundation\AdminLte\AdminLte;
 use Throwable;
-
 
 class Request implements RequestInterface
 {
@@ -255,7 +254,7 @@ class Request implements RequestInterface
      *
      * @return TemplateInterface
      */
-    public static function getTemplate(): TemplateInterface
+    public static function getTemplateObject(): TemplateInterface
     {
         if (empty(static::$template)) {
             // Default template is AdminLte
@@ -391,11 +390,17 @@ class Request implements RequestInterface
     /**
      * Returns the current TemplatePage used for this page
      *
-     * @return TemplatePageInterface|JsonPageInterface
+     * @return TemplatePageInterface|JsonPageInterface|null
      */
-    public static function getPageObject(): TemplatePageInterface|JsonPageInterface
+    public static function getPageObject(): TemplatePageInterface|JsonPageInterface|null
     {
-        return static::$page;
+        if (PLATFORM_WEB) {
+            if (static::isRequestType(EnumRequestTypes::html)) {
+                return static::$page;
+            }
+        }
+
+        return null;
     }
 
 
@@ -964,6 +969,28 @@ class Request implements RequestInterface
 
 
     /**
+     * Redirects to the default page for this user if the user has configured one and this is the first page after
+     * signing in
+     *
+     * @return void
+     */
+    protected static function redirectToDefaultPage(): void
+    {
+        $page = Session::getDefaultPage();
+
+        if ($page) {
+            if (array_get_safe($_SERVER, 'SCRIPT_URI') === $page) {
+                // The current location is the default page, we're good
+                return;
+            }
+
+            // Redirect to the default page instead
+            Response::redirect($page);
+        }
+    }
+
+
+    /**
      * Sets the target for this request
      *
      * @param PhoFileInterface|string|int $target
@@ -1111,27 +1138,33 @@ class Request implements RequestInterface
      * @param string|int|null $rights_redirect
      * @param string|int|null $guest_redirect
      *
-     * @return void
+     * @return bool
      */
-    protected static function hasRightsOrRedirect(array|string $rights, string|int|null $rights_redirect = null, string|int|null $guest_redirect = null): void
+    public static function hasRightsOrRedirect(array|string $rights, string|int|null $rights_redirect = null, string|int|null $guest_redirect = null): bool
     {
-        if (Session::getUserObject()->hasAllRights($rights)) {
+        $return = true;
+
+        if (!Session::getUserObject()->hasAllRights($rights, null)) {
+            $return = false;
+        }
+
+        if ($return or Session::getUserObject()->hasAllRights($rights, 'god')) {
             // The user has all the required rights, but did the user sign in through a sign-in key?
             // If so, then there may be restrictions!
             if (!Session::getSignInKey()) {
                 // Well, then, all fine and dandy!
-                return;
+                return $return;
             }
 
             // Check sign-key restrictions and if those are okay, we are good to go
             static::hasSignKeyRestrictions($rights, static::$target->getSource());
-            return;
+            return $return;
         }
 
         // Is this a system page though? System pages require no rights to be viewed.
         if (static::getRequestType() === EnumRequestTypes::system) {
             // Hurrah, it's a bo, eh, system page! System pages require no rights. Everyone can see 404, 500, etc...
-            return;
+            return true;
         }
 
         // Is this a guest? Guests have no rights and can only see system pages and pages that require no rights
@@ -1142,7 +1175,8 @@ class Request implements RequestInterface
             }
 
             $current        = Response::getRedirect(Url::newCurrent());
-            $guest_redirect = Url::new($guest_redirect)->makeWww()
+            $guest_redirect = Url::new($guest_redirect)
+                                 ->makeWww()
                                  ->addRedirect($current);
 
             Incident::new()
@@ -1211,7 +1245,7 @@ class Request implements RequestInterface
                     ->save();
 
         } else {
-            // Registered user does not have the required rights
+            // Registered user doesn't have the required rights
             Incident::new()
                     ->setType('403 - Forbidden')
                     ->setSeverity(in_array('admin', Session::getUserObject()->getMissingRights($rights)) ? EnumSeverity::high : EnumSeverity::medium)
@@ -1513,6 +1547,9 @@ class Request implements RequestInterface
 
             switch (static::getRequestType()) {
                 case EnumRequestTypes::html:
+                    // Does the user have a default page configured? If so, ensure we're going there
+                    static::redirectToDefaultPage();
+
                     if (!static::getSystem()) {
                         // Check if the user has access to the requested page, then check if the user should be force redirected
                         static::hasRightsOrRedirect(static::$o_parameters->getRequiredRights((string) static::$target));
@@ -1828,7 +1865,7 @@ class Request implements RequestInterface
 
 
     /**
-     * Returns the restrictions object for this request
+     * Returns the "restrictions" object for this request
      *
      * @return RequestMethodRestrictionsInterface
      */

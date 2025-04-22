@@ -21,7 +21,6 @@ use DateTimeInterface;
 use Phoundation\Accounts\Enums\EnumAuthenticationAction;
 use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
-use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Rights\RightsBySeoName;
 use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
@@ -42,14 +41,14 @@ use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImageInterface;
 use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImagesInterface;
 use Phoundation\Accounts\Users\ProfileImages\ProfileImage;
 use Phoundation\Accounts\Users\ProfileImages\ProfileImages;
+use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
+use Phoundation\Accounts\Users\Sessions\Interfaces\SessionInterface;
+use Phoundation\Accounts\Users\Sessions\Session;
+use Phoundation\Accounts\Users\Sessions\Sessions;
 use Phoundation\Core\Core;
 use Phoundation\Core\Hooks\Hook;
 use Phoundation\Core\Hooks\Interfaces\HookInterface;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Exception\SessionException;
-use Phoundation\Core\Sessions\Interfaces\SessionInterface;
-use Phoundation\Core\Sessions\Session;
-use Phoundation\Core\Sessions\Sessions;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
@@ -63,7 +62,6 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryAddress;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryCode;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryComments;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryData;
-use Phoundation\Data\DataEntries\Traits\TraitDataEntryDefaultPage;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDescription;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDomain;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryEmail;
@@ -81,6 +79,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryType;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUrl;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryVerificationCode;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryVerifiedOn;
+use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
@@ -97,9 +96,9 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
-use Phoundation\Seo\Seo;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
+use Phoundation\Utils\Seo;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
@@ -120,7 +119,6 @@ class User extends DataEntry implements UserInterface
     use TraitDataEntryCode;
     use TraitDataEntryComments;
     use TraitDataEntryData;
-    use TraitDataEntryDefaultPage;
     use TraitDataEntryDescription;
     use TraitDataEntryDomain;
     use TraitDataEntryEmail;
@@ -339,14 +337,16 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     /**
      * Returns a single user object for a single user that has the specified alternate email address.
      *
-     * @param IdentifierInterface|array|string|int|false|null $identifier
+     * @param IdentifierInterface|array|string|int|null $identifier
+     * @param EnumLoadParameters|null                   $on_load_null_identifier
+     * @param EnumLoadParameters|null                   $on_load_not_exists
      *
-     * @return static
+     * @return static|null
      */
-    public function load(IdentifierInterface|array|string|int|false|null $identifier): static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
     {
         try {
-            $user = parent::load($identifier);
+            $user = parent::load($identifier, $on_load_null_identifier, $on_load_not_exists);
 
         } catch (DataEntryNotExistsException $e) {
             if ($this->identifier === ['email' => 'guest']) {
@@ -490,6 +490,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         $authentication = Authentication::new()
                                         ->setAccount(Json::encode($identifier, JSON_OBJECT_AS_ARRAY))
                                         ->setAction($action);
+
         // Try authentication through hook
         $user = $hook->execute('authenticate', [
             'identifier'     => $identifier,
@@ -616,7 +617,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             $user = static::new()->load($identifier);
 
             if ($user->passwordMatch($password)) {
-                static::authenticateDomain($identifier, $user, $authentication, $domain, $test);
+                static::doAuthenticateDomain($identifier, $user, $authentication, $domain, $test);
 
                 Hook::new('phoundation/accounts/authentication')
                     ->execute('success', [
@@ -638,7 +639,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                         ':action' => $authentication->getAction(),
                         ':user'   => Json::encode($identifier, JSON_OBJECT_AS_ARRAY),
                     ]))
-                    ->setDetails(['user' => $identifier])
+                    ->setDetails([
+                        'user'               => $identifier,
+                        'remote_ip'          => Session::getIpAddress(),
+                        'original_remote_ip' => Session::getOriginalIpAddress()
+                    ])
                     ->setNotifyRoles('accounts')
                     ->save()
                     ->throw(AuthenticationException::class);
@@ -661,7 +666,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         ]);
 
         // NOTE: Non User::class objects likely authenticate against different databases and as such, those users will
-        // have non-existing user ids which cannot be used for "created_by" column
+        // have non-existing user ids which can't be used for "created_by" column
         $authentication->setCreatedBy(($user::class === User::class) ? $user->getId() : null)
                        ->setStatus('password-incorrect')
                        ->save();
@@ -682,6 +687,30 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
 
     /**
+     * Authenticates the specified user id / email with its password
+     *
+     * @param EnumAuthenticationAction $action
+     * @param string|null              $domain
+     *
+     * @return static
+     */
+    public function authenticateDomain(EnumAuthenticationAction $action, ?string $domain = null): static
+    {
+        if ($this->isGuest()) {
+            throw new AuthenticationException(tr('Cannot authenticate on a domain, the current user is a guest'));
+        }
+
+        $identifier       = ['email' => $this->getEmail()];
+        $o_authentication = Authentication::new()
+                                          ->setAction($action)
+                                          ->setAccount(Json::encode($identifier, JSON_OBJECT_AS_ARRAY));
+
+        static::doAuthenticateDomain($identifier, $this, $o_authentication, $domain);
+        return $this;
+    }
+
+
+    /**
      * Checks if the user is allowed to authenticate on the current domain
      *
      * @param array                   $identifier
@@ -690,9 +719,9 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      * @param string|null             $domain
      * @param bool                    $test
      *
-     * @return void
+     * @return bool
      */
-    protected static function authenticateDomain(array $identifier, UserInterface $user, AuthenticationInterface $authentication, ?string $domain, bool $test = false): void
+    protected static function doAuthenticateDomain(array $identifier, UserInterface $user, AuthenticationInterface $authentication, ?string $domain, bool $test = false): bool
     {
         if ($user->getDomain()) {
             // User is limited to a domain!
@@ -700,33 +729,48 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                 $domain = Domains::getCurrent();
             }
 
-            if ($user->getDomain() !== $domain) {
-                if (!$test) {
-                    $authentication->setStatus('domain-not-allowed')->save();
+            // Trim spaces but also dots as domain MAY have dots
+            $domain       = trim($domain, '. \n\r\t\v\0');
+            $user_domains = Arrays::force($user->getDomain());
 
-                    Incident::new()
-                            ->setCreatedBy($user->getId())
-                            ->setSeverity(EnumSeverity::medium)
-                            ->setType('security')
-                            ->setTitle('Domain access disallowed')
-                            ->setBody(tr('The user ":user" is not allowed to have access to domain ":domain"', [
-                                ':user'   => $user->getLogId(),
-                                ':domain' => $domain,
-                            ]))
-                            ->setDetails([
-                                'user'   => $user,
-                                'domain' => $domain,
-                            ])
-                            ->setNotifyRoles('accounts')
-                            ->save();
+            foreach ($user_domains as $user_domain) {
+                // Trim spaces but also dots as domain MAY have dots
+                $user_domain = trim($user_domain, '. \n\r\t\v\0');
+
+                if ($user_domain === $domain) {
+                    return true;
                 }
-
-                throw new AuthenticationException(tr('The specified user ":user" is not allowed to access the domain ":domain"', [
-                    ':user'   => $identifier,
-                    ':domain' => $domain,
-                ]));
             }
+
+            if (!$test) {
+                $authentication->setStatus('domain-not-allowed')
+                               ->save();
+
+                Incident::new()
+                        ->setCreatedBy($user->getId())
+                        ->setSeverity(EnumSeverity::medium)
+                        ->setType('security')
+                        ->setTitle('Domain access disallowed')
+                        ->setBody(tr('The user ":user" is not allowed to have access to domain ":domain"', [
+                            ':user'   => $user->getLogId(),
+                            ':domain' => $domain,
+                        ]))
+                        ->setDetails([
+                            'user'         => $user,
+                            'user_domains' => $user_domains,
+                            'domain'       => $domain,
+                        ])
+                        ->setNotifyRoles('accounts')
+                        ->save();
+            }
+
+            throw new AuthenticationException(tr('The specified user ":user" is not allowed to access the domain ":domain"', [
+                ':user'   => $identifier,
+                ':domain' => $domain,
+            ]));
         }
+
+        return true;
     }
 
 
@@ -1089,6 +1133,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      *
      * @param bool $official
      * @param bool $clean
+     * @param bool $reverse
      *
      * @return string|null
      */
@@ -1107,7 +1152,6 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
         if (!($name = $this->getNickname()) or $official) {
             // Nickname is NOT allowed for official information
-
             if ($reverse) {
                 $name = $this->getLastNames() . ', ' . $this->getFirstNames();
 
@@ -1116,6 +1160,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             }
 
             $name = trim($name);
+
             if (!($name)) {
                 if (!($name = $this->getUsername())) {
                     if (!($name = $this->getEmail())) {
@@ -1202,10 +1247,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      * Returns true if the user has ALL the specified rights
      *
      * @param array|string $rights
+     * @param string|null  $always_match
      *
      * @return bool
      */
-    public function hasAllRights(array|string $rights): bool
+    public function hasAllRights(array|string $rights, ?string $always_match = 'god'): bool
     {
         if (!$rights) {
             return true;
@@ -1215,7 +1261,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             return false;
         }
 
-        $contains = $this->getRightsObject()->containsKeys($rights, true, 'god');
+        $contains = $this->getRightsObject()->containsKeys($rights, true, $always_match);
 
         if (!$contains) {
             if ($this->getRightsObject()->getCount()) {
@@ -1318,6 +1364,21 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     public function getActiveSessions(): IteratorInterface
     {
         return Sessions::getActiveForUsersId($this->getId());
+    }
+
+
+    /**
+     * Removes the specified roles from this user
+     *
+     * @param Stringable|array|string|int $keys
+     * @param bool                        $strict
+     *
+     * @return $this
+     */
+    public function removeRoles(Stringable|array|string|int $keys, bool $strict = false): static
+    {
+        $this->getRolesObject()->removeKeys($keys, $strict);
+        return $this;
     }
 
 
@@ -1439,7 +1500,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         }
 
         if ($this->getRemoteId()) {
-            // There is a remote user, it's just not initialized yet. Instantiate the object and link it to this user
+            // There is a remote user, it is just not initialized yet. Instantiate the object and link it to this user
             $this->remote_user = $class::new()
                                        ->load([$column => $this->getRemoteId()])
                                        ->setRemoteUserObject($this);
@@ -1873,7 +1934,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function getLeader(): ?UserInterface
     {
-        return static::new()->loadOrNull($this->getTypesafe('int', 'leaders_id'));
+        return static::new()->loadNull($this->getTypesafe('int', 'leaders_id'));
     }
 
 
@@ -2233,7 +2294,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             throw new UsersException(tr('Cannot save password, this user does not have an id'));
         }
 
-        sql()->query('UPDATE `accounts_users` SET `password` = :password WHERE `id` = :id', [
+        sql()->setDebug($this->debug)
+             ->query('UPDATE `accounts_users` SET `password` = :password WHERE `id` = :id', [
             ':id'       => $this->source['id'],
             ':password' => $this->source['password'],
         ]);
@@ -2667,7 +2729,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
         parent::__construct(false);
 
-        $this->loadOrInitialize(['email' => 'guest']);
+        $this->loadOrThis(['email' => 'guest']);
 
         $this->source['redirect'] = null;
         $this->source['email']    = 'guest';
@@ -2697,7 +2759,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     protected function initSystemUser(): void
     {
-        // System user is readonly and also does not register meta requests
+        // System user is readonly and also doesn't register meta-requests
         $this->readonly     = true;
         $this->meta_enabled = false;
 
@@ -2769,18 +2831,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function getProfileImageObject(): ProfileImageInterface
     {
-        $profile_images_id = $this->getTypesafe('int', 'profile_images_id');
-
-        if ($profile_images_id) {
-            // Return the user's profile image
-            return ProfileImage::new()->load($profile_images_id);
-        }
-
-        // No profile image was set, return the default
-        return ProfileImage::new(null)
-                           ->setReadonly(true)
-                           ->setUserObject($this)
-                           ->setFile(DIRECTORY_CDN . LANGUAGE . '/img/profiles/default.png');
+        // Return the user's profile image
+        return ProfileImage::new()->loadThis($this->getTypesafe('int', 'profile_images_id'));
     }
 
 
@@ -2853,6 +2905,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                     ->add(Definition::new('last_sign_in')
                                     ->setOptional(true)
                                     ->setDisabled(true)
+                                    ->setRender(function() { return !$this->isNew(); })
                                     ->setInputType(EnumInputType::datetime_local)
                                     ->setDbNullInputType(EnumInputType::text)
                                     ->addClasses('text-center')
@@ -2863,6 +2916,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                     ->add(DefinitionFactory::newNumber('sign_in_count')
                                     ->setOptional(true, 0)
                                     ->setDisabled(true)
+                                    ->setRender(function() { return !$this->isNew(); })
                                     ->addClasses('text-center')
                                     ->setSize(3)
                                     ->setLabel(tr('Sign in count')))
@@ -2870,6 +2924,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                     ->add(DefinitionFactory::newNumber('authentication_failures')
                                     ->setOptional(true, 0)
                                     ->setDisabled(true)
+                                    ->setRender(function() { return !$this->isNew(); })
                                     ->setMin(0)
                                     ->addClasses('text-center')
                                     ->setSize(3)
@@ -2878,6 +2933,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                     ->add(Definition::new('locked_until')
                                     ->setOptional(true)
                                     ->setDisabled(true)
+                                    ->setRender(function() { return !$this->isNew(); })
                                     ->setInputType(EnumInputType::datetime_local)
                                     ->setDbNullInputType(EnumInputType::text)
                                     ->setNullDisplay(tr('Not locked'))
@@ -2885,7 +2941,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setSize(3)
                                     ->setLabel(tr('Locked until')))
 
-                    ->add(DefinitionFactory::newDivider())
+                    ->add(DefinitionFactory::newDivider()
+                                           ->setRender(function() { return $this->definitions->getDefinitionRender('last_sign_in')
+                                                                       and $this->definitions->getDefinitionRender('sign_in_count')
+                                                                       and $this->definitions->getDefinitionRender('authentication_failures')
+                                                                       and $this->definitions->getDefinitionRender('locked_until'); }))
 
                     ->add(DefinitionFactory::newEmail()
                                            ->setOptional(true)
@@ -2915,8 +2975,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setSize(3)
                                     ->setCliColumn('--domain')
                                     ->setCliAutoComplete(true)
-                                    ->setLabel(tr('Restrict to domain'))
-                                    ->setHelpText(tr('The domain where this user will be able to sign in'))
+                                    ->setLabel(tr('Restrict to domain(s)'))
+                                    ->setHelpText(tr('The domain(s) where this user will be able to sign in'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isDomain();
                                     }))
@@ -3226,10 +3286,10 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setHelpText(tr('The keywords for this user'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isPrintable();
-                                        //$validator->sanitizeForceArray(' ')->eachField()->isWord()->sanitizeForceString()
+                                        //$validator->sanitizeForceArray(' ')->forEachField()->isWord()->sanitizeForceString()
                                     }))
 
-                    ->add(DefinitionFactory::newDivider())
+                    ->add(DefinitionFactory::newDivider('redirect-divider'))
 
                     ->add(DefinitionFactory::newUrl('redirect')
                                            // Normal users always start with "/force-password-update.html" URL because they lack a password, but remote users should already have a password.
@@ -3241,14 +3301,6 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setHelpGroup(tr('Account information'))
                                            ->setHelpText(tr('The URL where this user will be forcibly redirected to upon sign in')))
 
-                    ->add(DefinitionFactory::newUrl('default_page')
-                                           ->setSize(2)
-                                           ->setDataSource(Url::new('system/accounts/users/redirect/autosuggest.json')->makeAjax())
-                                           ->setInputType(EnumInputType::auto_suggest)
-                                           ->setLabel(tr('Default page'))
-                                           ->setHelpGroup(tr('Preferences'))
-                                           ->setHelpText(tr('The user configurable default page where this user will be redirected to upon sign in')))
-
                     ->add(Definition::new('url')
                                     ->setSize(4)
                                     ->setOptional(true)
@@ -3259,7 +3311,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setHelpText(tr('A URL specified by the user, usually containing more information about the user')))
 
                     ->add(DefinitionFactory::newDateTime('verified_on')
-                                           ->setSize(2)
+                                           ->setSize(4)
                                            ->setDisabled(true)
                                            ->setDbNullInputType(EnumInputType::text)
                                            ->setNullDisplay(tr('Not verified'))
@@ -3341,20 +3393,19 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                                }
                                             }))
 
-                    ->add(DefinitionFactory::newFile(null, null, 'profile_image')
+                    ->add(DefinitionFactory::newFile(null, 'profile_image')
                                            ->setLabel('Profile image')
                                            ->setOptional(true)
                                            ->setRender(false)
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                if ($validator->getSelectedValue()) {
                                                    if ($this->isNew()) {
-                                                       // Cannot save a profile image with a user that does not yet exist in the database
+                                                       // Can't save a profile image with a user that does not yet exist in the database
                                                        $validator->addFailure(tr('requires that the user is saved first'));
 
                                                    } else {
                                                        $validator->isFile(
                                                            PhoDirectory::newCdnObject(true, '/img/files/profile/' . $this->getId() . '/'),
-                                                           prefix: PhoDirectory::newCdnObject()
                                                        );
                                                    }
                                                }

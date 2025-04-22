@@ -16,8 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Pages;
 
-use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Session;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataDisabled;
 use Phoundation\Data\Traits\TraitDataIteratorSource;
@@ -28,8 +27,6 @@ use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Html\Pages\Interfaces\TemplateInterface;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
-use Throwable;
-
 
 class Template implements TemplateInterface
 {
@@ -162,7 +159,7 @@ class Template implements TemplateInterface
     public function setPage(?string $page): static
     {
         $this->page = $page;
-        $renderer_class = Request::getTemplate()->getRendererClass($this);
+        $renderer_class = Request::getTemplateObject()->getRendererClass($this);
 
         if ($renderer_class) {
             $this->text = $renderer_class::new($this)->render();

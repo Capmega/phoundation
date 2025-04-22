@@ -22,8 +22,8 @@ use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Exception\SignInKeyStatusException;
 use Phoundation\Accounts\Users\Exception\SignInKeyUsedException;
 use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
@@ -39,7 +39,6 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Phoundation\Web\Routing\Route;
 use Stringable;
-
 
 class SignInKey extends DataEntry implements SignInKeyInterface
 {
@@ -189,9 +188,11 @@ class SignInKey extends DataEntry implements SignInKeyInterface
     /**
      * Apply this sign-in key
      *
+     * @param callable|null $callback
+     *
      * @return static
      */
-    #[NoReturn] public function execute(): static
+    #[NoReturn] public function execute(?callable $callback = null): static
     {
         // UUID sign in is only available on the web platform
         if (!PLATFORM_WEB) {
@@ -235,6 +236,10 @@ class SignInKey extends DataEntry implements SignInKeyInterface
         ]);
 
         Session::signKey($this);
+
+        if ($callback) {
+            $callback($this);
+        }
 
         if ($this->getRedirect()) {
             Response::redirect($this->getRedirect());

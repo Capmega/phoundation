@@ -53,7 +53,7 @@ trait TraitDataEntryCreatedBy
      */
     public function getCreatedByObject(): ?UserInterface
     {
-        return User::new()->loadOrNull($this->getCreatedBy());
+        return User::new()->loadNull($this->getCreatedBy());
     }
 
     /**

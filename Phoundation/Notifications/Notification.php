@@ -20,16 +20,17 @@ namespace Phoundation\Notifications;
 use Phoundation\Accounts\Roles\Exception\RoleNotExistsException;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryCode;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryCreatedBy;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDetails;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryFile;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryIcon;
@@ -37,7 +38,6 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryLine;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryMessage;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryMode;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryPriority;
-use Phoundation\Data\DataEntries\Traits\TraitDataEntryCreatedBy;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryTitle;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryTrace;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUrl;
@@ -65,6 +65,7 @@ use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Http\Url;
 use Throwable;
 
+
 class Notification extends DataEntry implements NotificationInterface
 {
     use TraitDataEntryUrl;
@@ -84,14 +85,14 @@ class Notification extends DataEntry implements NotificationInterface
 
 
     /**
-     * Keeps track of if this noticication was logged or not
+     * Keeps track of if this notification was logged or not
      *
      * @var bool
      */
     protected static bool $logged = false;
 
     /**
-     * Keeps track of if noticications should abe automatically logged or not
+     * Keeps track of if notifications should abe automatically logged or not
      *
      * @var bool
      */
@@ -129,9 +130,9 @@ class Notification extends DataEntry implements NotificationInterface
     /**
      * Notification class constructor
      *
-     * @param IdentifierInterface|array|string|int|false|null $identifier
+     * @param Throwable|IdentifierInterface|array|string|int|false|null $identifier
      */
-    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false)
+    public function __construct(Throwable|IdentifierInterface|array|string|int|false|null $identifier = false)
     {
         $this->initializeVirtualConfiguration([
             'users' => ['id'],
@@ -139,26 +140,27 @@ class Notification extends DataEntry implements NotificationInterface
 
         static::$auto_log = config()->getBoolean('notifications.auto-log', false);
 
-        $this->source['mode']     = 'notice';
-        $this->source['priority'] = 1;
+        // By default, the Notification object has created_by NOT meta so that it can set it manually
+        $this->meta_columns = [
+            'id',
+            'created_on',
+            'meta_id',
+            'status',
+            'meta_state',
+        ];
 
 //                EnumDisplayMode::warning, EnumDisplayMode::danger => 'exclamation-circle',
 //                EnumDisplayMode::success                          => 'check-circle',
 //                EnumDisplayMode::info, EnumDisplayMode::notice    => 'info-circle',
 //                default                                           => 'question-circle',
 
-        if (!isset($this->meta_columns)) {
-            // By default, the Notification object has created_by NOT meta so that it can set it manually
-            $this->meta_columns = [
-                'id',
-                'created_on',
-                'meta_id',
-                'status',
-                'meta_state',
-            ];
-        }
+        if ($identifier instanceof Throwable) {
+            parent::__construct();
+            $this->setException($identifier);
 
-        parent::__construct($identifier);
+        } else {
+            parent::__construct($identifier);
+        }
 
         if ($this->isNew()) {
             if (Session::isInitialized()) {
@@ -167,17 +169,20 @@ class Notification extends DataEntry implements NotificationInterface
                      ->ready();
             }
         }
+
+        $this->setMode(EnumDisplayMode::notice)
+             ->setPriority(1);
     }
 
 
     /**
      * Returns a new Notification object
      *
-     * @param IdentifierInterface|array|string|int|false|null $identifier
+     * @param Throwable|IdentifierInterface|array|string|int|false|null $identifier
      *
      * @return static
      */
-    public static function new(IdentifierInterface|array|string|int|false|null $identifier = false): static
+    public static function new(Throwable|IdentifierInterface|array|string|int|false|null $identifier = false): static
     {
         return new static($identifier);
     }
@@ -610,7 +615,7 @@ FILES variables:
         if ($details) {
             Log::write(Strings::size('Details', 10) . ': ', 'debug', $log, clean: false);
 
-            foreach (Arrays::force($details) as $key => $value) {
+            foreach (Arrays::force($details, null) as $key => $value) {
                 switch ($key) {
                     case 'trace':
                         Log::write(Strings::size(Strings::capitalize((string) $key), 10) . ': ', 'debug', $log, clean: false);
@@ -870,7 +875,7 @@ FILES variables:
                     ->add(Definition::new('mode')
                                     ->setLabel(tr('Mode'))
                                     ->setReadonly(true)
-                                    ->setOptional(true, EnumDisplayMode::notice)
+                                    ->setOptional(true, EnumDisplayMode::notice->value)
                                     ->addClasses('text-center')
                                     ->setSize(3)
                                     ->setMaxlength(16)

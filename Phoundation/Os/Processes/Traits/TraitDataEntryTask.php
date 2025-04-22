@@ -53,7 +53,7 @@ trait TraitDataEntryTask
             return $this;
         }
 
-        return $this->setTaskData(Task::new()->loadOrNull($id));
+        return $this->setTaskData(Task::new()->loadNull($id));
     }
 
 
@@ -81,7 +81,7 @@ trait TraitDataEntryTask
             return $this;
         }
 
-        return $this->setTaskData(Task::new()->loadOrNull(['code' => $code]));
+        return $this->setTaskData(Task::new()->loadNull(['code' => $code]));
     }
 
 

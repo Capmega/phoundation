@@ -144,6 +144,7 @@ Route::getParametersObject()
     ->add(RoutingParameters::new('/^\w{2}\/ajax/') // Routing parameters for AJAX requests
                            ->setRequireDirectoryRights('/ajax/')
                            ->setRootUrl(':PROTOCOL://:DOMAIN/:LANGUAGE/')
+                           ->setTemplate(Mdb::class)
                            ->setRights('mmb'))
 
     ->add(RoutingParameters::new('/^\w{2}\//') // Routing parameters for most pages

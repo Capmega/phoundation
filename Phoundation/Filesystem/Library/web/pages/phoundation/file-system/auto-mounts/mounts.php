@@ -43,9 +43,9 @@ $filters_card = Card::new()
 if (Request::isPostRequestMethod()) {
     // Validate POST
     $post = PostValidator::new()
-        ->select('filesystem_mounts_length')->isOptional()->isNumeric()    // This is paging length, ignore
-        ->select('submit-button')->isOptional()->isVariable()
-        ->select('id')->isOptional()->isArray()->eachField()->isDbId()
+                         ->select('filesystem_mounts_length')->isOptional()->isNumeric()    // This is paging length, ignore
+                         ->select('submit-button')->isOptional()->isVariable()
+                         ->select('id')->isOptional()->isArray()->forEachField()->isDbId()
         ->validate();
 
     try {

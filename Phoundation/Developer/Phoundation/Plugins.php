@@ -472,7 +472,7 @@ class Plugins extends Project
     {
         return PhoDirectory::new(DIRECTORY_ROOT . 'Plugins/', PhoRestrictions::newRootObject(false, 'Plugins/'))
                            ->scan()
-                           ->eachField(function (&$value, $key) {
+                           ->forEachField(function (&$value, $key) {
                               $value = Strings::ensureEndsNotWith($value, '/');
                           });
     }
@@ -487,7 +487,7 @@ class Plugins extends Project
     {
         return PhoDirectory::new($this->directory . 'Plugins/', $this->directory->getRestrictions())
                            ->scan()
-                           ->eachField(function (&$value, $key) {
+                           ->forEachField(function (&$value, $key) {
                               $value = Strings::ensureEndsNotWith($value, '/');
                           });
     }

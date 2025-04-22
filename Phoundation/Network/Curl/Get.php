@@ -17,12 +17,12 @@ declare(strict_types=1);
 namespace Phoundation\Network\Curl;
 
 use Exception;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Cli\CliColor;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;
+use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Network\Curl\Exception\Curl404Exception;
@@ -34,7 +34,6 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Stringable;
 use Throwable;
-
 
 class Get extends Curl
 {

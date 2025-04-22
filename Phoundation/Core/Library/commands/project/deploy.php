@@ -8,7 +8,7 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Scripts
+ * @package   Phoundation\Core
  */
 
 
@@ -135,7 +135,7 @@ TARGET                                  - The target name to which to deploy
 
 // Validate arguments
 $argv = ArgvValidator::new()
-                     ->select('target')->isOptional()->sanitizeForceArray(',')->eachField()->isVariable()
+                     ->select('target')->isOptional()->sanitizeForceArray(',')->forEachField()->isVariable()
                      ->select('--targets')->isOptional()->isBoolean()
                      ->select('-c,--categories')->isOptional()->isBoolean()
                      ->select('--do-ignore-changes')->isOptional()->orColumn('--no-ignore-changes')->isBoolean()

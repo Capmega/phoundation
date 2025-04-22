@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 
 

@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
+
 trait TraitMethodsGetTypesafe {
     /**
      * Returns the value for the specified data key
@@ -28,6 +29,6 @@ trait TraitMethodsGetTypesafe {
      */
     protected function getTypesafe(string $type, string $column, mixed $default = null): mixed
     {
-        return get_safe_typed($type, $this->source, $column, $default, false);
+        return get_safe_typed($type, $this->source, $column, $default);
     }
 }

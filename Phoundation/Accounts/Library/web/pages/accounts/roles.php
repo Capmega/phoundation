@@ -50,7 +50,7 @@ if (Request::isPostRequestMethod()) {
     try {
         $post = PostValidator::new()
                              ->ignoreFields('accounts_roles_length')
-                             ->select('id')->isOptional()->isArray()->eachField()->isDbId()
+                             ->select('id')->isOptional()->isArray()->forEachField()->isDbId()
                              ->validate();
 
         switch (PostValidator::new()->getSubmitButton()) {

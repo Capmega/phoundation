@@ -16,8 +16,8 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Enums\EnumAuthenticationAction;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Accounts\Users\User;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Passwords\Exception\NoPasswordSpecifiedException;
@@ -33,7 +33,6 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
-
 // Get current user and password objects
 $user     = Session::getUserObject();
 $password = $user->getPasswordObject();
@@ -42,47 +41,54 @@ $password->getDefinitionsObject()->setRenderMeta(false);
 
 // Validate POST and submit
 if (Request::isPostRequestMethod()) {
-    if (PostValidator::new()->getSubmitButton() === tr('Save')) {
-        try {
-            $post = PostValidator::new()
-                                 ->select('current')->isPassword()
-                                 ->select('password')->isPassword()
-                                 ->select('passwordv')->isPassword()
-                                 ->validate();
+    switch (PostValidator::new()->getSubmitButton()) {
+        case tr('Save'):
+            try {
+                $post = PostValidator::new()
+                                     ->select('current')->isPassword()
+                                     ->select('password')->isPassword()
+                                     ->select('passwordv')->isPassword()
+                                     ->validate();
 
-            // First, ensure the current password is correct
-            User::authenticate(['email' => $user->getEmail()], $post['current'], EnumAuthenticationAction::authentication);
+                // First, ensure the current password is correct
+                User::authenticate(['email' => $user->getEmail()], $post['current'], EnumAuthenticationAction::authentication);
 
-            // Update user password
-            $user->changePassword($post['password'], $post['passwordv']);
+                // Update user password
+                $user->changePassword($post['password'], $post['passwordv']);
 
-            Response::getFlashMessagesObject()->addSuccess(tr('Your password has been updated'));
-            Response::redirect(Url::new(Url::newPrevious('/my/profile.html')->makeWww()));
+                Response::getFlashMessagesObject()->addSuccess(tr('Your password has been updated'));
+                Response::redirect(Url::new(Url::newPrevious('/my/profile.html')->makeWww()));
 
-        } catch (PasswordTooShortException | NoPasswordSpecifiedException) {
-            Response::getFlashMessagesObject()->addWarning(tr('Please specify at least 10 characters for the password'));
+            } catch (PasswordTooShortException | NoPasswordSpecifiedException) {
+                Response::getFlashMessagesObject()->addWarning(tr('Please specify at least 10 characters for the password'));
 
-        } catch (AuthenticationException $e) {
-            // Oops! The Current password was wrong
-            Response::getFlashMessagesObject()->addWarning(tr('Please specify at least ":count" characters for the password', [
-                ':count' => config()->getInteger('security.passwords.size.minimum', 10),
+            } catch (AuthenticationException $e) {
+                // Oops! The Current password was wrong
+                Response::getFlashMessagesObject()->addWarning(tr('Please specify at least ":count" characters for the password', [
+                    ':count' => config()->getInteger('security.passwords.size.minimum', 10),
+                ]));
+
+            } catch (ValidationFailedException $e) {
+                // Oops! Show validation errors and remain on this page
+                Response::getFlashMessagesObject()->addWarning($e);
+
+            } catch (PasswordNotChangedException $e) {
+                Response::getFlashMessagesObject()->addWarning(tr('You provided your current password. Please update your account to have a new and secure password'));
+            }
+
+            break;
+
+        default:
+            throw new ValidationFailedException(tr('Unknown button ":button" specified', [
+                ':button' => Request::getSubmitButton()
             ]));
-
-        } catch (ValidationFailedException $e) {
-            // Oops! Show validation errors and remain on this page
-            Response::getFlashMessagesObject()->addWarning($e);
-
-        } catch (PasswordNotChangedException $e) {
-            Response::getFlashMessagesObject()->addWarning(tr('You provided your current password. Please update your account to have a new and secure password'));
-        }
     }
 }
 
 
 // Build the buttons
 $buttons = Buttons::new()
-                  ->addButton(tr('Save'))
-                  ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/my/profile.html'), true);
+                  ->addButton(tr('Save'), right: true);
 
 
 // Build the "user" form
@@ -98,9 +104,8 @@ $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
                      ->setContent('<a href="' . Url::new('/my/profile.html')->makeWww() . '">' . tr('Manage my profile') . '</a><br>
-                                   <a href="' . Url::new('/my/settings.html')->makeWww() . '">' . tr('Manage my settings') . '</a><br>
-                                   <a href="' . Url::new('/my/authentication-history.html')->makeWww() . '">' . tr('Review my authentication history') . '</a>');
-
+                                   <a href="' . Url::new('/my/settings.html')->makeWww() . '">' . tr('Manage my settings') . '</a><br>');
+//<a href="' . Url::new('/my/authentication-history.html')->makeWww() . '">' . tr('Review my authentication history') . '</a>
 
 // Build documentation
 $documentation_card = Card::new()

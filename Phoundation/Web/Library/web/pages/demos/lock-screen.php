@@ -14,13 +14,11 @@
 
 declare(strict_types=1);
 
-use Phoundation\Core\Core;
-use Phoundation\Core\Sessions\Session;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
-
 
 // Set page meta data
 Response::setHeaderTitle(tr('Lock screen'));
@@ -82,7 +80,7 @@ Response::setRenderMainWrapper(false);
             <a href="<?= Url::new('sign-out')->makeWww(); ?>">Or sign in as a different user</a>
         </div>
         <div class="lockscreen-footer text-center">
-            <?= 'Copyright © ' . config()->getString('project.copyright', '2024') . ' <b><a href="' . config()->getString('project.owner.url', 'https://phoundation.org') . '" target="_blank">' . config()->getString('project.owner.name', 'Phoundation') . '</a></b><br>'; ?>
+            <?= 'Copyright © ' . config()->getString('project.copyright', '2025') . ' <b><a href="' . config()->getString('project.owner.url', 'https://phoundation.org') . '" target="_blank">' . config()->getString('project.owner.name', 'Phoundation') . '</a></b><br>'; ?>
             All rights reserved
         </div>
     </div>

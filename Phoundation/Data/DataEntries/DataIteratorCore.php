@@ -17,11 +17,11 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntries;
 
 use PDOStatement;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Cache\Cache;
 use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntries\Exception\DataIteratorNotCleanException;
@@ -35,10 +35,8 @@ use Phoundation\Data\IteratorCore;
 use Phoundation\Data\Traits\TraitDataCacheKey;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
-use Phoundation\Data\Traits\TraitDataDisabled;
 use Phoundation\Data\Traits\TraitDataFilterForm;
 use Phoundation\Data\Traits\TraitDataMetaEnabled;
-use Phoundation\Data\Traits\TraitDataReadonly;
 use Phoundation\Data\Traits\TraitDataStatusFilter;
 use Phoundation\Data\Traits\TraitMethodBuildManualQuery;
 use Phoundation\Data\Traits\TraitMethodsTableState;
@@ -54,7 +52,6 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Tables\HtmlDataTable;
 use Phoundation\Web\Html\Components\Tables\HtmlTable;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
@@ -62,7 +59,6 @@ use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use ReturnTypeWillChange;
 use Stringable;
-
 
 class DataIteratorCore extends IteratorCore implements DataIteratorInterface, IdentifierInterface
 {
@@ -1178,11 +1174,11 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     /**
      * Creates a new DataEntry object and returns it
      *
-     * @param IdentifierInterface|array|string|int|false|null $identifier
+     * @param IdentifierInterface|array|string|int|null $identifier
      *
      * @return DataEntryInterface
      */
-    protected function loadObject(IdentifierInterface|array|string|int|false|null $identifier = false): DataEntryInterface
+    protected function loadObject(IdentifierInterface|array|string|int|null $identifier): DataEntryInterface
     {
         return $this->getAcceptedDataType()::new()
                                            ->setDebug($this->debug)
@@ -1322,7 +1318,6 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      */
     public function load(array|string|int|null $identifiers = null, bool $only_if_empty = true): static
     {
-        // Log::debug(static::getTable() . ' > ' . $this->getConnectorObject()?->getDisplayName());
         $this->setIsLoading(true)
              ->selectQuery($identifiers);
 

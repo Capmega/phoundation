@@ -18,7 +18,7 @@ namespace Phoundation\Web\Routing;
 
 use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Rights\Rights;
-use Phoundation\Core\Sessions\Session;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\PhoPathCore;
@@ -31,7 +31,6 @@ use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Templates\Phoundation\AdminLte\AdminLte;
-
 
 class RoutingParameters implements RoutingParametersInterface
 {

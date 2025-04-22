@@ -18,18 +18,16 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem;
 
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataRestrictions;
-use Phoundation\Exception\PhoException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\PhoException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Filesystem\Exception\DirectoryException;
 use Phoundation\Filesystem\Exception\DirectoryNotMountedException;
-use Phoundation\Filesystem\Exception\FileNotExistException;
-use Phoundation\Filesystem\Exception\FilesystemDoesNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\FilesystemInvalidPattern;
 use Phoundation\Filesystem\Exception\PathNotDirectoryException;
@@ -50,7 +48,6 @@ use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Stringable;
 use Throwable;
-
 
 class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
 {
@@ -506,9 +503,9 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
      * @param PhoPathInterface|string|null $from
      * @param bool                         $remove_terminating_slash
      *
-     * @return string|null
+     * @return string
      */
-    public function getSource(PhoPathInterface|string|null $from = null, bool $remove_terminating_slash = false): ?string
+    public function getSource(PhoPathInterface|string|null $from = null, bool $remove_terminating_slash = false): string
     {
         $path = parent::getSource($from);
 

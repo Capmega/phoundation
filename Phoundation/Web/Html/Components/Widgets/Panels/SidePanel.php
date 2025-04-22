@@ -44,16 +44,20 @@ class SidePanel extends Panel
      */
     public function render(): ?string
     {
-        $sign_in = new SignInModal();
-        $sign_in->useForm(true)
-                ->getForm()
-                ->setId('form-sign-in')
-                ->setRequestMethod(EnumHttpRequestMethod::post)
-                ->setAction(Url::new('sign-in')->makeAjax());
         $this->setMenu(Request::getMenusObject()
-                              ->getPrimaryMenu())
-             ->getModals()
-             ->addModal('sign-in', $sign_in);
+                              ->getPrimaryMenu());
+
+// TODO Re-enable support for sign-in modal, and other modals
+//        $sign_in = new SignInModal();
+//        $sign_in->useForm(true)
+//                ->getForm()
+//                ->setId('form-sign-in')
+//                ->setRequestMethod(EnumHttpRequestMethod::post)
+//                ->setAction(Url::new('sign-in')->makeAjax());
+//        $this->setMenu(Request::getMenusObject()
+//                              ->getPrimaryMenu())
+//             ->getModals()
+//             ->addModal('sign-in', $sign_in);
 
         return parent::render();
     }

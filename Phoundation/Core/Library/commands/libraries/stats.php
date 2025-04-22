@@ -8,7 +8,7 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Scripts
+ * @package   Phoundation\Core
  */
 
 
@@ -34,7 +34,7 @@ CliDocumentation::setHelp('The libraries info script will show detailed informat
 // Validate arguments
 $argv = ArgvValidator::new()
                      ->select('-t,--type,--types', true)->isOptional(null)->isName()
-                     ->select('library')->isOptional(null)->hasMaxCharacters(64)->sanitizeForceArray()->eachField()->isName()
+                     ->select('library')->isOptional(null)->hasMaxCharacters(64)->sanitizeForceArray()->forEachField()->isName()
                      ->validate();
 
 

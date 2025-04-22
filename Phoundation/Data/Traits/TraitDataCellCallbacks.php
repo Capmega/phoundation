@@ -107,7 +107,6 @@ trait TraitDataCellCallbacks
         Arrays::ensure($params);
         Arrays::ensure($params['skiphtmlentities']);
 
-        $params['htmlentities']           = $this->process_entities;
         $params['skiphtmlentities']['id'] = true;
 
         foreach ($this->cell_callbacks as $callback) {

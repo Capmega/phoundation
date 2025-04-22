@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input\Buttons;
 
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Icons\Icons;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Input;
@@ -26,7 +27,9 @@ use Stringable;
 
 class Button extends Input implements ButtonInterface
 {
-    use TraitButtonProperties;
+    use TraitButtonProperties{
+        render as protected __render;
+    }
 
 
     /**
@@ -70,9 +73,7 @@ class Button extends Input implements ButtonInterface
             return $this;
         }
 
-        parent::setValue(null);
-
-        return parent::setContent($value, $make_safe);
+        return parent::setValue($value, $make_safe);
     }
 
 
@@ -99,5 +100,45 @@ class Button extends Input implements ButtonInterface
         }
 
         return parent::setContent($content, $make_safe);
+    }
+
+
+    /**
+     * Renders and returns the HTML for this object
+     *
+     * @return string|null
+     */
+    public function render(): ?string
+    {
+        if (empty($this->getContent())) {
+            // Content takes the value
+            throw new OutOfBoundsException(tr('Cannot render ":class" button object with name ":name", no content specified', [
+                ':name'  => $this->getName(),
+                ':class' => static::class,
+            ]));
+        }
+
+        if (empty($this->getName())) {
+            // Content takes the value
+            throw new OutOfBoundsException(tr('Cannot render ":class" button object with value ":value" and content ":content", it has no name specified', [
+                ':value'   => $this->getValue(),
+                ':content' => $this->getContent(),
+                ':class'   => static::class,
+            ]));
+        }
+
+        if (empty($this->getValue())) {
+            if ($this->isButtonType(EnumButtonType::submit)) {
+                if (empty($this->getAnchorUrl())) {
+                    // Value takes the content
+                    throw new OutOfBoundsException(tr('Cannot render ":class" submit button object with name ":name", no value or anchor URL specified', [
+                        ':name'  => $this->getName(),
+                        ':class' => static::class,
+                    ]));
+                }
+            }
+        }
+
+        return $this->__render();
     }
 }

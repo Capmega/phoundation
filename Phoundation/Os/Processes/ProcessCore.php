@@ -5,6 +5,7 @@
  *
  * This class embodies a process that will be executed
  *
+ * @see       https://stackoverflow.com/questions/6697753/difference-between-single-and-double-quotes-in-bash/42082956#42082956
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -243,16 +244,17 @@ abstract class ProcessCore implements ProcessInterface
      * Builds and returns the command line that will be executed
      *
      * @param bool $background
+     * @param bool $pipe
      *
      * @return string
      */
-    public function getFullCommandLine(bool $background = false): string
+    public function getFullCommandLine(bool $background = false, bool $pipe = false): string
     {
         if (!$this->command) {
             throw new OutOfBoundsException(tr('Cannot generate full command line, no command specified'));
         }
 
-// TODO What to do with this next section?
+// TODO What to do with this next section? ->isNull() ?? Did AI create this or wtf?
 //        if ($this->execution_directory->isNull()) {
 //            throw new OutOfBoundsException(tr('Cannot execute process command ":command", no execution directory specified', [
 //                ':command' => $this->command
@@ -323,6 +325,9 @@ abstract class ProcessCore implements ProcessInterface
             }
         }
 
+        // Escape command line string
+        $this->cached_command_line = str_replace("'", "'\\''", $this->cached_command_line);
+
         // Pipe the output through to the next command
         if ($this->pipe) {
             $this->cached_command_line .= ' | ' . $this->getPipeCommandLine();
@@ -379,28 +384,32 @@ abstract class ProcessCore implements ProcessInterface
             $nohup = '';
         }
 
-        // Escape command line string if needed
-        $this->cached_command_line = $this->escapeString($this->cached_command_line);
-
         // Background commands get some extra options around
-        if ($this->use_run_file) {
-            // Create command line with run-file
-            if ($background) {
-                $this->cached_command_line = "(" . $nohup . "bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . ($this->getLogFile() ?? '/dev/null') . " 2>&1 & echo \$! >&3) 3> " . ($this->getRunFile() ?? '/dev/null');
-
-            } elseif ($this->register_run_file) {
-                // Make sure the PID will be registered in the run file
-                $this->cached_command_line = "bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . "; exit \$?'; EXIT=\$?; echo \$\$ > " . ($this->getRunFile() ?? '/dev/null') . "; exit \$EXIT;";
-            }
+        if ($pipe) {
 
         } else {
-            // Create command line without run-file
-            if ($background) {
-                $this->cached_command_line = "(" . $nohup . "bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . ($this->getLogFile() ?? '/dev/null') . " 2>&1 & echo \$!)";
+            if ($this->use_run_file) {
+                // Create command line with run-file
+                if ($background) {
+                    $this->cached_command_line = '(' . $nohup . "bash -c 'set -o pipefail; " . $this->cached_command_line . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . ($this->getLogFile() ?? '/dev/null') . " 2>&1 & echo \$! >&3) 3> " . ($this->getRunFile() ?? '/dev/null');
 
-            } elseif ($this->register_run_file) {
-                // Make sure the PID will be registered in the run file
-                $this->cached_command_line = "bash -c 'set -o pipefail; " . str_replace("'", '"', $this->cached_command_line) . "; exit \$?';";
+                }
+                elseif ($this->register_run_file) {
+                    // Make sure the PID will be registered in the run file
+                    $this->cached_command_line = "bash -c 'set -o pipefail; " . $this->cached_command_line . "; exit \$?'; EXIT=\$?; echo \$\$ > " . ($this->getRunFile() ?? '/dev/null') . "; exit \$EXIT;";
+                }
+
+            }
+            else {
+                // Create command line without run-file
+                if ($background) {
+                    $this->cached_command_line = '(' . $nohup . "bash -c 'set -o pipefail; " . $this->cached_command_line . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . ($this->getLogFile() ?? '/dev/null') . " 2>&1 & echo \$!)";
+
+                }
+                elseif ($this->register_run_file) {
+                    // Make sure the PID will be registered in the run file
+                    $this->cached_command_line = "bash -c 'set -o pipefail; " . $this->cached_command_line . "; exit \$?';";
+                }
             }
         }
 

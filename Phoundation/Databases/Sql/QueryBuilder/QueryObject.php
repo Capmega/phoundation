@@ -188,6 +188,57 @@ class QueryObject implements QueryObjectInterface
 
 
     /**
+     * Returns the source of this object
+     *
+     * @note: This object doesn't work with "source" data as such, so it will be constructed upon request
+     *
+     * @return array
+     */
+    public function getSource(): array
+    {
+        $return = [];
+
+        if ($this->select) {
+            $return['select'] = $this->select;
+        }
+
+        if ($this->from) {
+            $return['from'] = $this->from;
+        }
+
+        if ($this->wheres) {
+            $return['wheres'] = $this->wheres;
+        }
+
+        if ($this->joins) {
+            $return['joins'] = $this->joins;
+        }
+
+        if ($this->group_by) {
+            $return['group_by'] = $this->group_by;
+        }
+
+        if ($this->execute) {
+            $return['execute'] = $this->execute;
+        }
+
+        if ($this->delete) {
+            $return['delete'] = $this->delete;
+        }
+
+        if ($this->predefines) {
+            $return['predefines'] = $this->predefines;
+        }
+
+        if ($this->order_by) {
+            $return['order_by'] = $this->order_by;
+        }
+
+        return $return;
+    }
+
+
+    /**
      * Returns the principle "FROM" table
      *
      * @return string|null
@@ -414,6 +465,17 @@ class QueryObject implements QueryObjectInterface
         }
 
         return $this->addExecuteArray($execute);
+    }
+
+
+    /**
+     * Returns the JOINS parts of the query
+     *
+     * @return array
+     */
+    public function getJoins(): array
+    {
+        return $this->joins;
     }
 
 

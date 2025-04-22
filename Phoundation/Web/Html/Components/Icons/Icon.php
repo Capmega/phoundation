@@ -38,8 +38,8 @@ class Icon extends ElementCore implements IconInterface
 
     /**
      * The vendor this icon belongs to
-     * 
-     * @var $vendor string|null 
+     *
+     * @var $vendor string|null
      */
     protected ?string $vendor;
 
@@ -56,7 +56,7 @@ class Icon extends ElementCore implements IconInterface
      * @var $stroke_width int|null
      */
     protected ?int $stroke_width;
-    
+
 
     /**
      * Returns a new Icon object
@@ -82,7 +82,7 @@ class Icon extends ElementCore implements IconInterface
     {
         $this->setLabel($label)
              ->setVendor($vendor);
-        
+
         parent::__construct();
         $this->setElement('i');
     }
@@ -112,8 +112,8 @@ class Icon extends ElementCore implements IconInterface
         $this->content = $icon;
         return $this;
     }
-    
-    
+
+
     /**
      * Returns the Label for this Icon
      *
@@ -148,8 +148,8 @@ class Icon extends ElementCore implements IconInterface
         $this->label = $label;
         return $this;
     }
-    
-    
+
+
     /**
      * Returns the Vendor for this Icon
      *
@@ -174,7 +174,7 @@ class Icon extends ElementCore implements IconInterface
         return $this;
     }
 
-    
+
     /**
      * Returns the Subset for this Icon
      *
@@ -210,11 +210,10 @@ throw new UnderConstructionException(tr('Subset is not yet supported for icons')
      */
     public function setColor(?string $color): static
     {
-        $color = Strings::ensureStartsWith($color, 'color-');
-        return $this->addClass($color);
+        return $this->addClass(Strings::ensureStartsWith($color, 'color-'));
     }
 
-    
+
     /**
      * @return string|null
      */

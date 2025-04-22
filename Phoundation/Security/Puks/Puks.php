@@ -16,10 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Security\Puks;
 
-use Phoundation\Core\Sessions\Session;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Puks\Exception\PuksException;
 use Phoundation\Utils\Json;
-
 
 class Puks
 {

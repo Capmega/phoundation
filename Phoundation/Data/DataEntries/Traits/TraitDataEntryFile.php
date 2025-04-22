@@ -64,13 +64,7 @@ trait TraitDataEntryFile
      */
     public function getFileObject(): ?PhoFileInterface
     {
-        $file = $this->getFile();
-
-        if ($file) {
-            $file = new PhoFile($file, $this->restrictions);
-        }
-
-        return $file;
+        return PhoFile::newOrNull($this->getFile(), $this->restrictions);
     }
 
 

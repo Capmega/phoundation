@@ -1,22 +1,25 @@
 <?php
 
 /**
- * Class SessionStartFailedException
+ * Enum EnumOrientation
  *
  *
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Core
+ * @package   Phoundation\Web
  */
 
 
 declare(strict_types=1);
 
-namespace Phoundation\Core\Sessions\Exception;
+namespace Phoundation\Web\Html\Enums;
 
-
-class SessionStartFailedException extends SessionException
+enum EnumOrientation: string
 {
+    case top    = 'top';
+    case bottom = 'bottom';
+    case left   = 'left';
+    case right  = 'right';
 }

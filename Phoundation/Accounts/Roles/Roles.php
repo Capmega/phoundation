@@ -264,7 +264,6 @@ class Roles extends DataIterator implements RolesInterface
      * Remove the specified role from the roles list
      *
      * @param Stringable|array|string|int $keys
-     * @param bool                        $strict
      *
      * @return static
      * @todo Move saving part to ->save(). ->removeKeys() should NOT immediately save to database!
@@ -281,7 +280,7 @@ class Roles extends DataIterator implements RolesInterface
         if (is_array($keys)) {
             // Add multiple rights
             foreach ($keys as $key) {
-                $this->removeKeys($key);
+                $this->removeKeys($key, $strict);
             }
 
         } else {
@@ -292,7 +291,7 @@ class Roles extends DataIterator implements RolesInterface
                 Log::action(ts('Removing role ":role" from user ":user"', [
                     ':user' => $this->parent->getLogId(),
                     ':role' => $role->getLogId(),
-                ]));
+                ]), 3);
 
                 sql()->delete('accounts_users_roles', [
                     'users_id' => $this->parent->getId(),
@@ -300,7 +299,7 @@ class Roles extends DataIterator implements RolesInterface
                 ]);
 
                 // Delete this role from the internal list
-                parent::removeKeys($role->getUniqueColumnValue());
+                parent::removeKeys($role->getUniqueColumnValue(), $strict);
 
                 // Remove the rights related to this role
                 foreach ($role->getRightsObject() as $right) {
@@ -312,7 +311,7 @@ class Roles extends DataIterator implements RolesInterface
                         }
                     }
 
-                    $this->parent->getRightsObject()->removeKeys($right);
+                    $this->parent->getRightsObject()->removeKeys($right, $strict);
                 }
 
             } elseif ($this->parent instanceof RightInterface) {
@@ -327,13 +326,14 @@ class Roles extends DataIterator implements RolesInterface
                 ]);
 
                 // Remove right from the internal list
-                parent::removeKeys($role->getUniqueColumnValue());
+                parent::removeKeys($role->getUniqueColumnValue(), $strict);
 
                 // Update all users with this right to remove the new right as well!
                 foreach ($this->parent->getUsersObject() as $user) {
-                    User::new()->load($user)
+                    User::new()
+                        ->load($user)
                         ->getRightsObject()
-                        ->removeKeys($this->parent);
+                        ->removeKeys($this->parent, $strict);
                 }
             }
         }

@@ -405,6 +405,19 @@ class Definitions extends IteratorCore implements DefinitionsInterface
 
 
     /**
+     * Direct method to get if the specified key renders or not
+     *
+     * @param Stringable|string|float|int $key
+     *
+     * @return bool
+     */
+    public function getDefinitionRender(Stringable|string|float|int $key): bool
+    {
+        return $this->get($key)->getRender();
+    }
+
+
+    /**
      * Direct method to render or not render entries
      *
      * @param Stringable|string|float|int $key
@@ -507,7 +520,14 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function getRenderMeta(): bool
     {
-        return $this->render_meta;
+        $render  = false;
+        $columns = $this->getDataEntryObject()?->getMetaColumns();
+
+        foreach ($columns as $column) {
+            $render = ($render or $this->get($column, false)?->getRender());
+        }
+
+        return $this->render_meta and $render;
     }
 
 

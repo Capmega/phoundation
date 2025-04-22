@@ -38,7 +38,7 @@ $get = GetValidator::new()
     ->select('id')->isOptional()->isDbId()
     ->validate();
 
-$mount = PhoMount::new()->loadOrThis($get['id']);
+$mount = PhoMount::new()->loadThis($get['id']);
 
 
 // Validate POST and submit
@@ -48,7 +48,7 @@ if (Request::isPostRequestMethod()) {
             case tr('Save'):
                 // Validate roles
                 $post = PostValidator::new()
-                    ->select('roles_id')->isOptional()->isArray()->eachField()->isOptional()->isDbId()
+                                     ->select('roles_id')->isOptional()->isArray()->forEachField()->isOptional()->isDbId()
                     ->validate(false);
 
                 // Update mount, roles, emails, and phones
@@ -89,7 +89,7 @@ if (Request::isPostRequestMethod()) {
 // Save button
 if (!$mount->getReadonly()) {
     $save = Button::new()
-                  ->setValue(tr('Save'))
+                  ->setContent(tr('Save'))
                   ->setContent(tr('Save'));
 }
 
@@ -101,7 +101,7 @@ if (!$mount->isNew()) {
                         ->setFloatRight(true)
                         ->setMode(EnumDisplayMode::warning)
                         ->setOutlined(true)
-                        ->setValue(tr('Undelete'))
+                        ->setContent(tr('Undelete'))
                         ->setContent(tr('Undelete'));
 
     } else {
@@ -109,7 +109,7 @@ if (!$mount->isNew()) {
                         ->setFloatRight(true)
                         ->setMode(EnumDisplayMode::warning)
                         ->setOutlined(true)
-                        ->setValue(tr('Delete'))
+                        ->setContent(tr('Delete'))
                         ->setContent(tr('Delete'));
 
         // Audit button.
@@ -118,7 +118,7 @@ if (!$mount->isNew()) {
                        ->setMode(EnumDisplayMode::information)
                        ->setAnchorUrl('/audit/meta+' . $mount->getMetaId() . '.html')
                        ->setFloatRight(true)
-                       ->setValue(tr('Audit'))
+                       ->setContent(tr('Audit'))
                        ->setContent(tr('Audit'));
     }
 }

@@ -17,7 +17,7 @@ declare(strict_types=1);
 use Phoundation\Accounts\Users\Authentication;
 use Phoundation\Accounts\Users\Authentications;
 use Phoundation\Accounts\Users\AuthenticationsFilterForm;
-use Phoundation\Core\Sessions\Session;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
@@ -29,7 +29,6 @@ use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
-
 // Build users filter card
 $filters = AuthenticationsFilterForm::new();
 $filters->getDefinitionsObject()->setDefinitionRender('users_id', false)
@@ -38,8 +37,7 @@ $filters->getDefinitionsObject()->setDefinitionRender('users_id', false)
                                 ->setDefinitionSize('action'    , 4);
 
 $filters_card = Card::new()
-                    ->setCollapseSwitch(true)
-                    ->setTitle('Authentication filters')
+                    ->setTitle('Authentication history')
                     ->setContent($filters);
 
 
@@ -60,8 +58,6 @@ $authentications->getQueryBuilder()->addJoin('LEFT JOIN `accounts_users` ON `acc
 
 // Build the "authentications" card
 $authentications_card = Card::new()
-                            ->setTitle('Authentications')
-                            ->setSwitches('reload')
                             ->setContent($authentications->getHtmlDataTableObject([
                                 'id'         => tr('ID'),
                                 'created_on' => tr('Date'),
@@ -107,5 +103,5 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($filters_card  . $authentications_card, EnumDisplaySize::nine)
-           ->addGridColumn($relevant_card . $documentation_card  , EnumDisplaySize::three);
+           ->addGridColumn($filters_card  . '<br>' . $authentications_card, EnumDisplaySize::nine)
+           ->addGridColumn($relevant_card . '<br>' . $documentation_card  , EnumDisplaySize::three);

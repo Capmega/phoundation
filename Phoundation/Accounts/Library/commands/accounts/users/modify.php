@@ -64,10 +64,10 @@ OPTIONAL ARGUMENTS
 // Validate user
 $argv = ArgvValidator::new()
                      ->select('user', true)->hasMaxCharacters(128)->isDbId()->or()->isEmail()
-                     ->select('-r,--role,--roles', true)->isOptional()->sanitizeForceArray()->eachField()->isName()
+                     ->select('-r,--role,--roles', true)->isOptional()->sanitizeForceArray()->forEachField()->isName()
                      ->select('--email', true)->isOptional()->isEmail()
-                     ->select('--emails', true)->isOptional()->sanitizeForceArray()->eachField()->matchesRegex('/^.+?\/(?:personal|business|other\/.+?)$/i')
-                     ->select('--phones', true)->isOptional()->sanitizeForceArray()->eachField()->matchesRegex('/^.+?\/(?:personal|business|other\/.+?)$/i')
+                     ->select('--emails', true)->isOptional()->sanitizeForceArray()->forEachField()->matchesRegex('/^.+?\/(?:personal|business|other\/.+?)$/i')
+                     ->select('--phones', true)->isOptional()->sanitizeForceArray()->forEachField()->matchesRegex('/^.+?\/(?:personal|business|other\/.+?)$/i')
                      ->validate();
 
 

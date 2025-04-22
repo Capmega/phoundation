@@ -45,7 +45,7 @@ if (Request::isPostRequestMethod()) {
     $post = PostValidator::new()
                          ->select('databases_connectors_length')->isOptional()->isNumeric()    // This is paging length, ignore
                          ->select('submit-button')->isOptional()->isVariable()
-                         ->select('id')->isOptional()->isArray()->eachField()->isDbId()
+                         ->select('id')->isOptional()->isArray()->forEachField()->isDbId()
                          ->validate();
 
     try {

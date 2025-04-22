@@ -14,8 +14,8 @@
 
 declare(strict_types=1);
 
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Accounts\Users\User;
-use Phoundation\Core\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -28,7 +28,6 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
-
 
 // Get parameters
 $get = GetValidator::new()
@@ -94,7 +93,7 @@ if (Session::getUserObject()->hasAllRights(['accounts'])) {
     $edit = Button::new()
                   ->setMode(EnumDisplayMode::secondary)
                   ->setBlock(true)
-                  ->setValue(tr('Edit'))
+                  ->setContent(tr('Edit'))
                   ->setContent(tr('Edit'))
                   ->setAnchorUrl('/accounts/user+' . $user->getId() . '.html');
 
@@ -102,7 +101,7 @@ if (Session::getUserObject()->hasAllRights(['accounts'])) {
         $impersonate = Button::new()
                              ->setBlock(true)
                              ->setMode(EnumDisplayMode::danger)
-                             ->setValue(tr('Impersonate'))
+                             ->setContent(tr('Impersonate'))
                              ->setContent(tr('Impersonate'));
     }
 
@@ -111,13 +110,13 @@ if (Session::getUserObject()->hasAllRights(['accounts'])) {
             $lock = Button::new()
                           ->setBlock(true)
                           ->setMode(EnumDisplayMode::warning)
-                          ->setValue(tr('Unlock'))
+                          ->setContent(tr('Unlock'))
                           ->setContent(tr('Unlock'));
         } else {
             $lock = Button::new()
                           ->setBlock(true)
                           ->setMode(EnumDisplayMode::warning)
-                          ->setValue(tr('Lock'))
+                          ->setContent(tr('Lock'))
                           ->setContent(tr('Lock'));
         }
     }

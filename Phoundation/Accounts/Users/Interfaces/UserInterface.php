@@ -7,9 +7,10 @@ namespace Phoundation\Accounts\Users\Interfaces;
 use DateTimeInterface;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
+use Phoundation\Accounts\Users\Configuration\Interfaces\ConfigurationsInterface;
 use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImageInterface;
 use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImagesInterface;
-use Phoundation\Core\Sessions\Interfaces\SessionInterface;
+use Phoundation\Accounts\Users\Sessions\Interfaces\SessionInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
@@ -605,10 +606,11 @@ interface UserInterface extends DataEntryInterface
      * Returns true if the user has ALL the specified rights
      *
      * @param array|string $rights
+     * @param string|null  $always_match
      *
      * @return bool
      */
-    public function hasAllRights(array|string $rights): bool;
+    public function hasAllRights(array|string $rights, ?string $always_match = null): bool;
 
 
     /**
@@ -874,4 +876,11 @@ interface UserInterface extends DataEntryInterface
      * @return static
      */
     public function updateMfaTimeslice(?int $timeslice): static;
+
+    /**
+     * Returns the "configurations" object for this user
+     *
+     * @return ConfigurationsInterface
+     */
+    public function getConfigurationsObject(): ConfigurationsInterface;
 }

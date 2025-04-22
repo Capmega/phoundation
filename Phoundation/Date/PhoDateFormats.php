@@ -97,7 +97,7 @@ class PhoDateFormats
      */
     public static function getSupportedPhp(): IteratorInterface
     {
-        return config()->getIteratorObject('locale.formats.date', static::$defaults, true);
+        return config()->getIteratorObject('locale.formats.date', static::$defaults);
     }
 
 
