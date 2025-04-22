@@ -1003,7 +1003,6 @@ class CliCommand
                 CliCommand::$command_file = CliCommand::findCommand();
 
             } catch (CliNoCommandSpecifiedException) {
-print_r(ArgvValidator::new()->getSource())
                 if (CliCommand::$service) {
                     throw ServiceUnavailableException::new(tr('Cannot start pho as a service without a valid command'))
                                                      ->makeWarning();
