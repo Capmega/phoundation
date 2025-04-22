@@ -556,7 +556,7 @@ class Session implements SessionInterface
      *
      * @return void
      */
-    protected static function setIni(): void
+    public static function setIni(): void
     {
         $handler = config()->getString('web.sessions.handler', 'files');
 

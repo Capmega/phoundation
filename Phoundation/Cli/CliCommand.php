@@ -29,6 +29,7 @@ use Phoundation\Accounts\Config\Config;
 use Phoundation\Audio\Audio;
 use Phoundation\Cache\Cache;
 use Phoundation\Cache\InstanceCache;
+use Phoundation\Cli\Exception\CliAutoCompleteException;
 use Phoundation\Cli\Exception\CliCommandException;
 use Phoundation\Cli\Exception\CliCommandNotExistsException;
 use Phoundation\Cli\Exception\CliCommandNotFoundException;
@@ -286,8 +287,14 @@ class CliCommand
      */
     #[NoReturn] public static function execute(): void
     {
-        // Get parameters, get the command to execute, get a run file
-        $parameters = CliCommand::start();
+        try {
+            // Get parameters, get the command to execute, get a run file
+            $parameters = CliCommand::start();
+
+        } catch (Throwable $e) {
+            echo 'CLI startup failed with the following exception:' . PHP_EOL;
+            throw $e;
+        }
 
         CliCommand::setCommandOrExecuteDocumentation($parameters);
         CliCommand::$run_file = new CliRunFile(CliCommand::$command_file);
@@ -996,6 +1003,7 @@ class CliCommand
                 CliCommand::$command_file = CliCommand::findCommand();
 
             } catch (CliNoCommandSpecifiedException) {
+print_r(ArgvValidator::new()->getSource())
                 if (CliCommand::$service) {
                     throw ServiceUnavailableException::new(tr('Cannot start pho as a service without a valid command'))
                                                      ->makeWarning();
@@ -1697,44 +1705,50 @@ return 'under construction';
 
         // Validate system modifier arguments. Ensure that these variables get stored in the global $argv array because
         // they may be used later down the line by (for example) Documenation class, for example!
-        $argv = ArgvValidator::new()
-                             ->select('-A,--all')->isOptional(false)->isBoolean()
-                             ->select('-C,--no-color')->isOptional(false)->isBoolean()
-                             ->select('-D,--debug')->isOptional(false)->isBoolean()
-                             ->select('-E,--environment', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(64)
-                             ->select('-F,--force')->isOptional(false)->isBoolean()
-                             ->select('-G,--prefix')->isOptional(false)->isBoolean()
-                             ->select('-H,--help')->isOptional(false)->isBoolean()
-                             ->select('-I,--json-input', true)->isOptional()->hasMaxCharacters(8192)
-                             ->select('-J,--json-output')->isOptional()->isBoolean()
-                             ->select('-L,--log-level', true)->isOptional()->isInteger()->isBetween(1, 10)
-                             ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
-                             ->select('-P,--page', true)->isOptional(1)->isNatural(false)
-                             ->select('-Q,--quiet')->isOptional(false)->isBoolean()
-                             ->select('-R,--rebuild-commands')->isOptional(false)->isBoolean()
-                             ->select('-M,--timeout', true)->isOptional(false)->isInteger()
-                             ->select('-N,--no-audio')->isOptional(false)->isBoolean()
-                             ->select('-S,--service', true)->isOptional()->hasMaxcharacters(2048)
-                             ->select('-T,--test')->isOptional(false)->isBoolean()
-                             ->select('-U,--usage')->isOptional(false)->isBoolean()
-                             ->select('-V,--verbose')->isOptional(false)->isBoolean()
-                             ->select('-W,--no-warnings')->isOptional(false)->isBoolean()
-                             ->select('-X,--ignore-readonly')->isOptional(false)->isBoolean()
-                             ->select('-Y,--clear-tmp')->isOptional(false)->isBoolean()
-                             ->select('-Z,--clear-caches')->isOptional(false)->isBoolean()
-                             ->select('--language', true)->isOptional()->isCode()
-                             ->select('--deleted')->isOptional(false)->isBoolean()
-                             ->select('--version')->isOptional(false)->isBoolean()
-                             ->select('--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
-                             ->select('--sudo')->isOptional(false)->isBoolean()
-                             ->select('--very-quiet')->isOptional(false)->isBoolean()
-                             ->select('--limit', true)->isOptional(0)->isNatural()
-                             ->select('--timezone', true)->isOptional()->isString()
-                             ->select('--auto-complete', true)->isOptional()->hasMaxCharacters(1024)
-                             ->select('--show-passwords')->isOptional(false)->isBoolean()
-                             ->select('--no-validation')->isOptional(false)->isBoolean()
-                             ->select('--no-password-validation')->isOptional(false)->isBoolean()
-                             ->validate(false);
+        try {
+            $argv = ArgvValidator::new()
+                                 ->select('-A,--all')->isOptional(false)->isBoolean()
+                                 ->select('-C,--no-color')->isOptional(false)->isBoolean()
+                                 ->select('-D,--debug')->isOptional(false)->isBoolean()
+                                 ->select('-E,--environment', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(64)
+                                 ->select('-F,--force')->isOptional(false)->isBoolean()
+                                 ->select('-G,--prefix')->isOptional(false)->isBoolean()
+                                 ->select('-H,--help')->isOptional(false)->isBoolean()
+                                 ->select('-I,--json-input', true)->isOptional()->hasMaxCharacters(8192)
+                                 ->select('-J,--json-output')->isOptional()->isBoolean()
+                                 ->select('-L,--log-level', true)->isOptional()->isInteger()->isBetween(1, 10)
+                                 ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
+                                 ->select('-P,--page', true)->isOptional(1)->isNatural(false)
+                                 ->select('-Q,--quiet')->isOptional(false)->isBoolean()
+                                 ->select('-R,--rebuild-commands')->isOptional(false)->isBoolean()
+                                 ->select('-M,--timeout', true)->isOptional(false)->isInteger()
+                                 ->select('-N,--no-audio')->isOptional(false)->isBoolean()
+                                 ->select('-S,--service', true)->isOptional()->hasMaxcharacters(2048)
+                                 ->select('-T,--test')->isOptional(false)->isBoolean()
+                                 ->select('-U,--usage')->isOptional(false)->isBoolean()
+                                 ->select('-V,--verbose')->isOptional(false)->isBoolean()
+                                 ->select('-W,--no-warnings')->isOptional(false)->isBoolean()
+                                 ->select('-X,--ignore-readonly')->isOptional(false)->isBoolean()
+                                 ->select('-Y,--clear-tmp')->isOptional(false)->isBoolean()
+                                 ->select('-Z,--clear-caches')->isOptional(false)->isBoolean()
+                                 ->select('--language', true)->isOptional()->isCode()
+                                 ->select('--deleted')->isOptional(false)->isBoolean()
+                                 ->select('--version')->isOptional(false)->isBoolean()
+                                 ->select('--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
+                                 ->select('--sudo')->isOptional(false)->isBoolean()
+                                 ->select('--very-quiet')->isOptional(false)->isBoolean()
+                                 ->select('--limit', true)->isOptional(0)->isNatural()
+                                 ->select('--timezone', true)->isOptional()->isString()
+                                 ->select('--auto-complete', true)->isOptional()->hasMaxCharacters(1024)
+                                 ->select('--show-passwords')->isOptional(false)->isBoolean()
+                                 ->select('--no-validation')->isOptional(false)->isBoolean()
+                                 ->select('--no-password-validation')->isOptional(false)->isBoolean()
+                                 ->validate(false);
+
+        } catch (ValidationFailedException $e) {
+            Core::setScriptState();
+            throw $e;
+        }
 
         Core::detectProject();
 
@@ -1825,7 +1839,11 @@ return 'under construction';
             $argv['no_color']      = true;
             $argv['auto_complete'] = explode(' ', trim($argv['auto_complete']));
 
-            $location = (int) array_shift($argv['auto_complete']);
+            $location = array_shift($argv['auto_complete']);
+
+            if (!is_numeric_integer($location)) {
+                throw new CliAutoCompleteException(tr('Invalid location specified, must be an integer number'));
+            }
 
             // Reset the $argv array to the auto complete data
             ArgvValidator::hideData($argv['auto_complete']);

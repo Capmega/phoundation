@@ -729,7 +729,8 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                 // The current value was found, but it was at the end of the array
                 throw MissingArgumentValueException::new(tr('Argument ":value" does not have a required value specified, see --help or --usage', [
                     ':value' => $arguments,
-                ]), $e)->addData($e->getData());
+                ]), $e)->addData($e->getData())
+                       ->makeWarning();
             }
 
             if (str_starts_with((string) $value, '-')) {

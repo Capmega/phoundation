@@ -19,7 +19,7 @@ namespace Phoundation\Data\Validator\Exception;
 use Throwable;
 
 
-class MissingArgumentValueException extends ValidatorException
+class MissingArgumentValueException extends ValidationFailedException
 {
     /**
      * MissingArgumentValueException class constructor
