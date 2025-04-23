@@ -236,7 +236,7 @@ class Accordion extends Widget implements AccordionInterface
      */
     public function setHeaderClass(string $key, string|null $class): static
     {
-        $this->header_classes[$key] = $class;
+        $this->header_classes[$key] = ' ' . $class;
 
         return $this;
     }
@@ -256,7 +256,7 @@ class Accordion extends Widget implements AccordionInterface
         foreach ($this->source as $key => $value) {
             $seo_key = Seo::string($key);
             $data    = $this->renderDataKey($key);
-            $return .= '        <div class="accordion-item ' . array_get_safe($this->header_classes,$key) . '"' . $data . '>
+            $return .= '        <div class="accordion-item' . array_get_safe($this->header_classes, $key) . '"' . $data . '>
                                     <h2 class="accordion-header' . ($this->selectors ? ' accordion-header-selectors' : null) . '" id="accordion-heading-' . $seo_key . '">
                                         ' . $this->getSelector($seo_key) . '
                                         <button data-mdb-collapse-init class="accordion-button text-dark' . (($key === $this->open) ? ' collapsed' : '') . '" type="button" data-mdb-toggle="collapse" data-mdb-target="#accordion-collapse-' . $seo_key . '" aria-expanded="' . (($key === $this->open) ? 'true' : 'false') . '" aria-controls="accordion-collapse-' . $seo_key . '">
