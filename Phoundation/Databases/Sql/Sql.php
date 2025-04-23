@@ -309,8 +309,8 @@ class Sql implements SqlInterface
     /**
      * Parses and returns the query with the execute variables
      *
-     * @param \PDOStatement|SqlQueryInterface|string|null $query
-     * @param array|null                                  $execute
+     * @param PDOStatement|SqlQueryInterface|string|null $query
+     * @param array|null                                 $execute
      *
      * @return string|null
      */
@@ -1435,7 +1435,9 @@ class Sql implements SqlInterface
             ]);
         }
 
-        return (bool) $this->getRow('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column, [$column => $value]);
+        return (bool) $this->getRow('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column, [
+            ':' . $column => $value
+        ]);
     }
 
 
