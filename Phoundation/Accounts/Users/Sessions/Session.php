@@ -503,6 +503,11 @@ class Session implements SessionInterface
      */
     protected static function configureCookies(): void
     {
+        if (Request::isRequestType(EnumRequestTypes::api)) {
+            // API calls do not handle cookies, sessions are done manually
+            return;
+        }
+
         if (Response::getHttpHeadersSent()) {
             // Cannot configure cookies, headers have already been sent!
             throw new SessionException(tr('Cannot startup session, HTTP headers have already been sent'));
@@ -632,7 +637,7 @@ class Session implements SessionInterface
         } else {
             if (config()->get('cache.http.enabled', true) === 'auto') {
                 ini_set('session.cache_limiter', config()->getBoolean('cache.http.php-cache-limiter', true));
-                ini_set('session.cache_expire', config()->getBoolean('cache.http.php-cache-php-cache-expire', true));
+                ini_set('session.cache_expire' , config()->getBoolean('cache.http.php-cache-php-cache-expire', true));
             }
         }
     }
