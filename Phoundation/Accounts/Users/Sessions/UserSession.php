@@ -340,14 +340,14 @@ class UserSession implements UserSessionInterface
     /**
      * Registers a new started session in the accounts_user_sessions table
      *
-     * @param int    $users_id
-     * @param string $domain
-     * @param string $ip
-     * @param string $identifier
+     * @param int|null $users_id
+     * @param string   $domain
+     * @param string   $ip
+     * @param string   $identifier
      *
      * @return static
      */
-    public static function start(int $users_id, string $domain, string $ip, string $identifier): static
+    public static function start(?int $users_id, string $domain, string $ip, string $identifier): static
     {
         try {
             sql()->insert('accounts_user_sessions', [

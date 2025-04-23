@@ -31,7 +31,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.9.0';
+        return '0.9.1';
     }
 
 
@@ -1291,6 +1291,13 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             if ($table->columnExists('default_page')) {
                 $table->alter()->dropColumn('default_page');
+            }
+
+        })->addUpdate('0.9.1', function () {
+            $table = sql()->getSchemaObject()->getTableObject('accounts_user_sessions');
+
+            if ($table->columnExists('users_id')) {
+                $table->alter()->changeColumn('`users_id`', '`users_id` bigint NULL DEFAULT NULL,');
             }
         });
     }
