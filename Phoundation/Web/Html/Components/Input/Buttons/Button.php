@@ -86,7 +86,7 @@ class Button extends Input implements ButtonInterface
      * @return static
      * @todo add documentation for when button is floating as it is unclear what is happening there
      */
-    public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
+    public function setContent(Stringable|string|float|int|null $content, bool $make_safe = true): static
     {
         if ($this->floating) {
             // What does this do?????????????
