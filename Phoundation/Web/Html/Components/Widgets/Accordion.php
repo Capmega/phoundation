@@ -219,7 +219,7 @@ class Accordion extends Widget implements AccordionInterface
             $this->header_classes[$key] = null;
 
         } else {
-            $this->header_classes[$key] = 'd-none';
+            $this->header_classes[$key] = ' d-none ';
         }
 
         return $this;
