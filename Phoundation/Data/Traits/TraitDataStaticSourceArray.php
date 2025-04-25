@@ -79,7 +79,7 @@ trait TraitDataStaticSourceArray
      */
     public function getSourceKeys(): array
     {
-        return array_keys(static::$source);
+        return array_keys(static::getSource());
     }
 
 

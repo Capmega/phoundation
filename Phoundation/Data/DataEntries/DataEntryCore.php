@@ -1088,17 +1088,15 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Returns a list of all internal source keys
      *
-     * @return mixed
+     * @param bool $filter_meta
+     * @param bool $filter_protected_columns
+     * @param bool $as_is
+     *
+     * @return array
      */
-    public function getSourceKeys(bool $filter_meta = false): array
+    public function getSourceKeys(bool $filter_meta = false, bool $filter_protected_columns = true, bool $as_is = false): array
     {
-        $keys = array_keys($this->source);
-
-        if ($filter_meta) {
-            return Arrays::removeValues($keys, $this->meta_columns);
-        }
-
-        return $keys;
+        return array_keys($this->getSource($filter_meta, $filter_protected_columns, $as_is));
     }
 
 

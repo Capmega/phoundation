@@ -150,7 +150,7 @@ trait TraitDataSourceArray
      *
      * @return array
      */
-    public function getSourceReindexed(): array
+    public function getSourceReIndexed(): array
     {
         return Arrays::reindex($this->source);
     }
@@ -163,7 +163,7 @@ trait TraitDataSourceArray
      */
     public function getSourceKeys(): array
     {
-        return array_keys($this->source);
+        return array_keys($this->getSource());
     }
 
 
