@@ -24,6 +24,7 @@ use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataDataEntry;
 use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ArgvValidatorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
@@ -777,6 +778,56 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns whether the clear button is enabled for this definition
+     *
+     * @return bool
+     */
+    public function getClearButton(): bool
+    {
+        return get_safe_typed('bool', $this->source, 'clear_button', false);
+    }
+
+
+    /**
+     * Enables a clear button for this definition. The definition must be of an input type that supports this
+     *
+     * @param bool $value
+     *
+     * @return $this
+     */
+    public function setClearButton(bool $value): static
+    {
+        $input = $this->getInputType();
+
+        switch ($input) {
+            // These are the input types that support clear button
+            case EnumInputType::auto_suggest:
+                // No break
+            case EnumInputType::text:
+                // No break
+            case EnumInputType::date:
+                // No break
+            case EnumInputType::username:
+                // No break
+            case EnumInputType::name:
+                break;
+
+            default:
+                // Throw an exception for all other input types
+                throw new ValidationFailedException(ts('The input type ":input" does not support a clear button', [
+                    ':input' => $input
+                ]));
+        }
+
+        if ($value) {
+            $this->setKey(true, 'clear_button');
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Adds the specified HTML classes to the DataEntryForm object
      *
      * @note When specifying multiple classes in a string, make sure they are space separated!
@@ -1491,7 +1542,7 @@ class Definition implements DefinitionInterface
      */
     public function getKey(string $key): mixed
     {
-        return isset_get($this->source[$key]);
+        return array_get_safe($this->source, $key);
     }
 
 

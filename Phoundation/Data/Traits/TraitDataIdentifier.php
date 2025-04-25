@@ -68,7 +68,6 @@ trait TraitDataIdentifier
     {
         if ($identifier) {
             if ($this->identifier) {
-                show('GODVERDOMME!');
                 $e = new DataEntryDoubleIdentifierSpecifiedException(tr('Cannot set identifier ":new" for DataEntry object of class ":class", it already has identifier ":identifier" specified', [
                     ':new'        => $identifier,
                     ':identifier' => $this->identifier,
