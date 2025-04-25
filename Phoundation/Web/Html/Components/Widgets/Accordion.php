@@ -233,6 +233,16 @@ class Accordion extends Widget implements AccordionInterface
         return $this;
     }
 
+    /**
+     * Returns the item classes
+     *
+     * @return array
+     */
+    public function getItemClasses(): array
+    {
+        return $this->item_classes;
+    }
+
 
     /**
      * Adds classes to the header
@@ -260,7 +270,7 @@ class Accordion extends Widget implements AccordionInterface
      */
     public function addItemClass(string $key, string|null $class): static
     {
-        $current_classes            = $this->item_classes[$key];
+        $current_classes          = array_get_safe($this->item_classes, $key);
         $this->item_classes[$key] = $current_classes . ' ' . $class;
 
         return $this;
@@ -284,6 +294,17 @@ class Accordion extends Widget implements AccordionInterface
 
 
     /**
+     * Returns the header classes
+     *
+     * @return array
+     */
+    public function getHeaderClasses(): array
+    {
+        return $this->header_classes;
+    }
+
+
+    /**
      * Adds classes to the header
      *
      * @param string      $key
@@ -293,7 +314,7 @@ class Accordion extends Widget implements AccordionInterface
      */
     public function addHeaderClass(string $key, string|null $class): static
     {
-        $current_classes            = $this->header_classes[$key];
+        $current_classes            = array_get_safe($this->header_classes, $key);
         $this->header_classes[$key] = $current_classes . ' ' . $class;
 
         return $this;
