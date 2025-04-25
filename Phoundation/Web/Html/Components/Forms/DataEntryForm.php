@@ -165,7 +165,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
             }
 
             $source        = $this->getSource();
-            $o_definitions   = $this->getDefinitionsObject();
+            $o_definitions = $this->getDefinitionsObject();
             $prefix        = $this->getDefinitionsObject()->getPrefix();
             $auto_focus_id = $this->getAutofocusId();
 

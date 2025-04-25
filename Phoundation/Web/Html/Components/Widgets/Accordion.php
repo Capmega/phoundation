@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataRenderMethod;
 use Phoundation\Data\Traits\TraitDataUrl;
@@ -55,9 +56,16 @@ class Accordion extends Widget implements AccordionInterface
     protected array $headers = [];
 
     /**
+     * Tracks optional classes for each of the items for this accordion
+     *
+     * @var array $item_classes
+     */
+    protected array $item_classes = [];
+
+    /**
      * Tracks optional classes for each of the headers for this accordion
      *
-     * @var array $headers
+     * @var array $header_classes
      */
     protected array $header_classes = [];
 
@@ -216,11 +224,44 @@ class Accordion extends Widget implements AccordionInterface
     public function setDisplayKey(string $key, bool $display): static
     {
         if ($display) {
-            $this->header_classes[$key] = null;
+            $this->item_classes[$key] = null;
 
         } else {
-            $this->header_classes[$key] = ' d-none ';
+            $this->item_classes[$key] = ' d-none ';
         }
+
+        return $this;
+    }
+
+
+    /**
+     * Adds classes to the header
+     *
+     * @param string      $key
+     * @param string|null $class
+     *
+     * @return static
+     */
+    public function setItemClass(string $key, string|null $class): static
+    {
+        $this->item_classes[$key] = ' ' . $class;
+
+        return $this;
+    }
+
+
+    /**
+     * Adds classes to the header
+     *
+     * @param string      $key
+     * @param string|null $class
+     *
+     * @return static
+     */
+    public function addItemClass(string $key, string|null $class): static
+    {
+        $current_classes            = $this->item_classes[$key];
+        $this->item_classes[$key] = $current_classes . ' ' . $class;
 
         return $this;
     }
@@ -243,6 +284,23 @@ class Accordion extends Widget implements AccordionInterface
 
 
     /**
+     * Adds classes to the header
+     *
+     * @param string      $key
+     * @param string|null $class
+     *
+     * @return static
+     */
+    public function addHeaderClass(string $key, string|null $class): static
+    {
+        $current_classes            = $this->header_classes[$key];
+        $this->header_classes[$key] = $current_classes . ' ' . $class;
+
+        return $this;
+    }
+
+
+    /**
      * @inheritDoc
      */
     public function render(): ?string
@@ -256,8 +314,8 @@ class Accordion extends Widget implements AccordionInterface
         foreach ($this->source as $key => $value) {
             $seo_key = Seo::string($key);
             $data    = $this->renderDataKey($key);
-            $return .= '        <div class="accordion-item' . array_get_safe($this->header_classes, $key) . '"' . $data . '>
-                                    <h2 class="accordion-header' . ($this->selectors ? ' accordion-header-selectors' : null) . '" id="accordion-heading-' . $seo_key . '">
+            $return .= '        <div class="accordion-item' . array_get_safe($this->item_classes, $key) . '"' . $data . '>
+                                    <h2 class="accordion-header' . array_get_safe($this->header_classes, $key) . ($this->selectors ? ' accordion-header-selectors' : null) . '" id="accordion-heading-' . $seo_key . '">
                                         ' . $this->getSelector($seo_key) . '
                                         <button data-mdb-collapse-init class="accordion-button text-dark' . (($key === $this->open) ? ' collapsed' : '') . '" type="button" data-mdb-toggle="collapse" data-mdb-target="#accordion-collapse-' . $seo_key . '" aria-expanded="' . (($key === $this->open) ? 'true' : 'false') . '" aria-controls="accordion-collapse-' . $seo_key . '">
                                             ' . $key . '

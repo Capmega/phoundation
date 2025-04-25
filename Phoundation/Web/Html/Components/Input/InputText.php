@@ -131,7 +131,6 @@ class InputText extends Input implements InputTextInterface
     }
 
 
-
     /**
      * Set the DataEntry Definition on this element
      *
@@ -143,6 +142,7 @@ class InputText extends Input implements InputTextInterface
     {
         // Copy data used for input controls
         return parent::setDefinitionObject($o_definition)
+                     ->setClearButton($o_definition->getClearButton())
                      ->setPlaceholder($o_definition->getPlaceholder());
     }
 }
