@@ -115,9 +115,6 @@ class Audio extends PhoFile
         if (config()->getBoolean('audio.remote.enabled', true)) {
             switch (Request::getRequestType()) {
                 case EnumRequestTypes::html:
-                    // no break
-
-                case EnumRequestTypes::admin:
                     Response::addHtmlToPageFooters(\Phoundation\Web\Html\Components\Audio::new()
                                                                                          ->addClasses($class)
                                                                                          ->setFile($this)
