@@ -1921,9 +1921,6 @@ class Response implements ResponseInterface
                     case EnumRequestTypes::ajax:
                         // no break
 
-                    case EnumRequestTypes::admin:
-                        break;
-
                     default:
                         // Session pages for specific users should not be stored on proxy servers either
                         if (!empty($_SESSION['user']['id'])) {
