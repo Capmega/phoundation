@@ -27,6 +27,7 @@ use Phoundation\Web\Html\Pages\UpdateLostPasswordPage;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
+
 // Only allow being here when it was forced by redirect
 if (Session::getUserObject()->isGuest()) {
     Response::redirect('prev', 302, reason_warning: tr('Update lost password page is only available to registered users'));
@@ -60,8 +61,8 @@ if (Request::isPostRequestMethod()) {
                  ->save();
 
             // Add a flash message and redirect to the original target
+            Session::clearSignKey();
             Response::getFlashMessagesObject()->addSuccess(tr('Your password has been updated'));
-
             $updated = true;
         }
 
@@ -75,9 +76,6 @@ if (Request::isPostRequestMethod()) {
     }
 }
 
-
-// This page will build its own body
-Response::setRenderMainWrapper(false);
 
 if (isset($updated)) {
     // Register a security incident

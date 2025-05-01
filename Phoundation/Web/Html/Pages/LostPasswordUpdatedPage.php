@@ -16,7 +16,21 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Pages;
 
+use Phoundation\Web\Requests\Response;
+
 
 class LostPasswordUpdatedPage extends Page
 {
+    /**
+     * LostPasswordPage class constructor
+     *
+     * @param string|null $name
+     */
+    public function __construct(?string $name = null) {
+        // This page must build its own body
+        // Set page meta-data
+        Response::setPageTitle(tr('Update your lost password'));
+
+        parent::__construct($name);
+    }
 }

@@ -93,6 +93,7 @@ use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Stringable;
 use Throwable;
 
 class Config implements ConfigInterface
@@ -845,22 +846,22 @@ class Config implements ConfigInterface
      *
      * @note Will throw an exception if a non-string value is returned!
      *
-     * @param string|array $path                     The configuration path for which the value should be returned
-     * @param string|null  $default                  The default value to return if the configuration path doesn't
-     *                                               exist. If not specified, or NULL, an exception will be thrown when
-     *                                               the path doesn't exist
-     * @param bool         $allow_user_configuration If true will allow user configuration to override system
-     *                                               configuration
-     * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
-     *                                               cache
+     * @param string|array           $path                     The configuration path for which the value should be
+     *                                                         returned
+     * @param Stringable|string|null $default                  The default value to return if the configuration path
+     *                                                         doesn't exist. If not specified, or NULL, an exception
+     *                                                         will be thrown when the path doesn't exist
+     * @param bool                   $allow_user_configuration If true will allow user configuration to override system
+     *                                                         configuration
+     * @param bool                   $use_cache                If true will allow user configuration to be stored in and
+     *                                                         read from cache
      *
      * @return string                                The value for the requested path
      *
-     * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
      */
-    public function getString(string|array $path, string|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): string
+    public function getString(string|array $path, Stringable|string|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): string
     {
-        $return = $this->get($path, $default, $allow_user_configuration, $use_cache);
+        $return = $this->get($path, (string) $default, $allow_user_configuration, $use_cache);
 
         if (is_string($return)) {
             return $return;

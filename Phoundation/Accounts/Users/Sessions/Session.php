@@ -1311,17 +1311,14 @@ class Session implements SessionInterface
     public static function exit(): void
     {
         if (PLATFORM_WEB) {
-            // If this page has flash messages that have not yet been displayed then store them in the session variable
-            // so that they can be displayed on the next page load
+            // If this page has flash messages that haven't yet been displayed, then store them in the session variable so that they can be displayed on the
+            // next page load
             static::getFlashMessagesObject()->addSource(Response::getFlashMessagesObject());
 
             if (static::$flash_messages?->getCount()) {
                 // There are flash messages in this session static object, export them to $_SESSIONS for the next page load
                 $_SESSION['flash_messages'] = static::$flash_messages->export();
             }
-
-            // Remove sign-key information if it was set
-            unset($_SESSION['sign-key']);
         }
 
         Session::release();
@@ -1664,13 +1661,25 @@ class Session implements SessionInterface
 
 
     /**
+     * Clears the sign-key from the session
+     *
+     * @return void
+     */
+    public static function clearSignKey(): void
+    {
+        static::$key  = null;
+        unset($_SESSION['sign-key']);
+    }
+
+
+    /**
      * Create a new session with basic data from the specified sign in key
      *
      * @param SignInKeyInterface $key
      *
      * @return UserInterface
      */
-    public static function signKey(SignInKeyInterface $key): UserInterface
+    public static function setSignKey(SignInKeyInterface $key): UserInterface
     {
         static::$key  = $key;
         static::$user = $key->getUserObject();
@@ -1695,6 +1704,7 @@ class Session implements SessionInterface
 
         $_SESSION['user']['id'] = static::$user->getId();
         $_SESSION['sign-key']   = $key->getUuid();
+
         return static::$user;
     }
 

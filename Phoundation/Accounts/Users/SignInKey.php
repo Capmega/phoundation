@@ -186,7 +186,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     #[NoReturn] public function execute(?callable $callback = null): static
     {
-        // UUID sign in is only available on the web platform
+        // UUID sign-in is only available on the web platform
         if (!PLATFORM_WEB) {
             throw new AuthenticationException(tr('Cannot execute sign in key ":uuid" this is only available on PLATFORM_WEB', [
                 ':uuid' => $this->getUuid(),
@@ -204,30 +204,30 @@ class SignInKey extends DataEntry implements SignInKeyInterface
         // Execute only once?
         if ($this->hasStatus('executed')) {
             if ($this->getOnce()) {
-                throw new SignInKeyUsedException(tr('This link ":uuid" has already been used', [
+                throw new SignInKeyUsedException(tr('This sign-in key link ":uuid" has already been used', [
                     ':uuid' => $this->getUuid(),
                 ]));
             }
 
             // No status other than NULL or "executed" allowed!
         } elseif ($this->getStatus()) {
-            throw new SignInKeyStatusException(tr('This link has status ":status" and can no longer be used', [
+            throw new SignInKeyStatusException(tr('This sign-in key link has status ":status" and can no longer be used', [
                 ':status' => $this->getStatus(),
             ]));
         }
 
-        Log::warning(ts('Accepted UUID key ":key" for user ":user"', [
+        Log::warning(ts('Accepted UUID sign-in key ":key" for user ":user"', [
             ':key'  => $this->getUuid(),
             ':user' => $this->getUserObject()->getLogId(),
         ]));
 
         // Update meta-history and set the status to "executed"
-        $this->setStatus('executed');
-        $this->addToMetaHistory('executed', tr('The sign in key ":uuid" has been executed', [':uuid' => $this->getUuid()]), [
+        $this->setStatus('executed')
+             ->addToMetaHistory('executed', tr('The sign in key ":uuid" has been executed', [':uuid' => $this->getUuid()]), [
             ':ip' => Route::getRemoteIp(),
         ]);
 
-        Session::signKey($this);
+        Session::setSignKey($this);
 
         if ($callback) {
             $callback($this);

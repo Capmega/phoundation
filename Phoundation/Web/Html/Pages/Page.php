@@ -105,6 +105,27 @@ class Page extends Template
      */
     public function getValue(EnumHttpRequestMethod $method, string $key, bool $exception = false): ?string
     {
+        $value = $this->get($method, $key, $exception);
+
+        if ($value) {
+            return ' value="' . $value . '"';
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Returns the value="" if the specified key exists in the specified method
+     *
+     * @param EnumHttpRequestMethod $method
+     * @param string                $key
+     * @param bool                  $exception
+     *
+     * @return string|null
+     */
+    public function get(EnumHttpRequestMethod $method, string $key, bool $exception = false): ?string
+    {
         $method = match ($method) {
             EnumHttpRequestMethod::get,
             EnumHttpRequestMethod::post => $method->value,
@@ -118,7 +139,7 @@ class Page extends Template
         }
 
         if (array_get_safe($this->$method, $key)) {
-            return ' value="' . $this->$method[$key] . '"';
+            return $this->$method[$key];
         }
 
         if ($exception) {
