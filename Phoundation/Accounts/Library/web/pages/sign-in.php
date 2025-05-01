@@ -72,4 +72,6 @@ $get['email'] = isset_get($post['email']) ?? $get['email'];
 
 
 // Display the sign-in page
-return SignInPage::new()->setGetData($get);
+return SignInPage::new()
+                 ->setGetData($get)
+                 ->setPostData(isset_get($post));
