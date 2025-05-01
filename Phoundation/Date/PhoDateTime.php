@@ -170,14 +170,29 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
+     * Returns the source of this PhoDateTime object
+     *
+     * @param PhoDateTimeInterface|string|float|int|null $datetime
+     *
+     * @return static
+     */
+    public function setSource(PhoDateTimeInterface|string|float|int|null $datetime): static
+    {
+        $datetime = PhoDateTime::new($datetime);
+
+        return $this->setDate($datetime->getYear(), $datetime->getMonth(), $datetime->getDay())
+                    ->setTime($datetime->getHour(), $datetime->getMinute(), $datetime->getSecond(), $datetime->getMicroSecond());
+    }
+
+
+    /**
      * Returns a new DateTime object for tomorrow
      *
      * @return static
      */
     public function increaseDay(): static
     {
-        $this->modify('+1 day');
-        return $this;
+        return $this->setSource($this->modify('+1 day'));
     }
 
 
@@ -190,8 +205,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public function increaseByDays(int $days = 1): static
     {
-        $this->modify('+' . $days . ' day');
-        return $this;
+        return $this->setSource($this->modify('+' . $days . ' day'));
     }
 
 
@@ -202,8 +216,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public function decreaseDay(): static
     {
-        $this->modify('-1 day');
-        return $this;
+        return $this->setSource($this->modify('-1 day'));
     }
 
 
@@ -216,8 +229,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public function decreaseByDays(int $days = 1): static
     {
-        $this->modify('-' . $days . ' day');
-        return $this;
+        return $this->setSource($this->modify('-' . $days . ' day'));
     }
 
 
@@ -240,8 +252,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
             return $this;
         }
 
-        $this->modify('+' . $days . ' day');
-        return $this;
+        return $this->setSource($this->modify('+' . $days . ' day'));
     }
 
 
@@ -264,8 +275,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
             return $this;
         }
 
-        $this->modify('-' . $days . ' day');
-        return $this;
+        return $this->setSource($this->modify('-' . $days . ' day'));
     }
 
 
