@@ -15,7 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Core\Core;
-use Phoundation\Web\Html\Pages\Template;
+use Phoundation\Web\Html\Pages\Page;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\JsonPage;
@@ -31,22 +31,11 @@ $e = Core::readRegister('e');
 switch (Request::getRequestType()) {
     case EnumRequestTypes::ajax:
         // no break
+
     case EnumRequestTypes::api:
         Response::setHttpCode(503);
         JsonPage::new()->reply(['error' => tr('Service Unavailable')]);
 }
-
-
-// Build the error page
-echo Template::new('system/http-error')->setSource([
-    ':h2'     => '503',
-    ':h3'     => tr('Service Unavailable'),
-    ':img'    => Url::new('backgrounds/404/large.jpg')->makeImg(),
-    ':p'      => tr('The server is under maintenance and will return momentarily. Please contact the system administrator for more information'),
-    ':type'   => 'warning',
-    ':search' => tr('Search'),
-    ':action' => Url::new('search/')->makeWww(),
-                                                   ])->render();
 
 
 // Set page meta data
@@ -56,3 +45,15 @@ Response::setPageTitle('503 - Service Unavailable');
 Response::setHeaderTitle(tr('503 - Error'));
 Response::setDescription(tr('The server is under maintenance and will return momentarily'));
 Response::setBreadCrumbs();
+
+
+// Render and return the system page
+return Page::new('system/http-error')->addTextsObject([
+    ':h2'     => '503',
+    ':h3'     => tr('Service Unavailable'),
+    ':img'    => Url::new('backgrounds/404/large.jpg')->makeImg(),
+    ':p'      => tr('The server is under maintenance and will return momentarily. Please contact the system administrator for more information'),
+    ':type'   => 'warning',
+    ':search' => tr('Search'),
+    ':action' => Url::new('search/')->makeWww(),
+]);

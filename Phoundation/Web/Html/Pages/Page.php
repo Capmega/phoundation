@@ -17,10 +17,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Pages;
 
-use Phoundation\Web\Html\Components\ElementsBlock;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 
 
-abstract class Page extends ElementsBlock
+class Page extends Template
 {
     /**
      * The GET data available to this page
@@ -35,17 +36,6 @@ abstract class Page extends ElementsBlock
      * @var array $post
      */
     protected array $post;
-
-
-    /**
-     * SignIn class constructor
-     *
-     * @param string|null $source
-     */
-    public function __construct(?string $source = null)
-    {
-        parent::__construct($source);
-    }
 
 
     /**
@@ -72,7 +62,6 @@ abstract class Page extends ElementsBlock
     public function setGetData(?array $get): static
     {
         $this->get = $get ?? [];
-
         return $this;
     }
 
@@ -101,7 +90,44 @@ abstract class Page extends ElementsBlock
     public function setPostData(?array $post): static
     {
         $this->post = $post ?? [];
-
         return $this;
+    }
+
+
+    /**
+     * Returns the value="" if the specified key exists in the specified method
+     *
+     * @param EnumHttpRequestMethod $method
+     * @param string                $key
+     * @param bool                  $exception
+     *
+     * @return string|null
+     */
+    public function getValue(EnumHttpRequestMethod $method, string $key, bool $exception = false): ?string
+    {
+        $method = match ($method) {
+            EnumHttpRequestMethod::get,
+            EnumHttpRequestMethod::post => $method->value,
+            default                     => throw new OutOfBoundsException(tr('Unsupported HTTP request method ":method" specified', [
+                ':method' => $method
+            ])),
+        };
+
+        if (empty($this->$method)) {
+            $this->$method = [];
+        }
+
+        if (array_get_safe($this->$method, $key)) {
+            return ' value="' . $this->$method[$key] . '"';
+        }
+
+        if ($exception) {
+            throw new OutOfBoundsException(tr('Cannot return ":method" data key ":key", the key does not exist', [
+                ':method' => $method,
+                ':key'    => $key
+            ]));
+        }
+
+        return null;
     }
 }

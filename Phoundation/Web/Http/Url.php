@@ -251,15 +251,16 @@ class Url implements UrlInterface
     {
         $url        = (string) $url;
         $configured = match (Strings::until($url, '.html')) {
-            'dashboard', 'index'   => config()->getString('web.pages.index'     , '/index'),
-            'sign-in'  , 'signin'  => config()->getString('web.pages.sign-in'   , '/sign-in'),
-            'sign-up'  , 'signup'  => config()->getString('web.pages.sign-up'   , '/sign-up'),
-            'sign-out' , 'signout' => config()->getString('web.pages.sign-out'  , '/sign-out'),
-            'sign-key' , 'signkey' => config()->getString('web.pages.sign-key'  , '/sign-key+:key'),
-            'profile'              => config()->getString('web.pages.profile'   , '/my/profile'),
-            'settings'             => config()->getString('web.pages.settings'  , '/my/settings'),
-            'mfa-create'           => config()->getString('web.pages.mfa.create', '/mfa/create'),
-            'mfa-verify'           => config()->getString('web.pages.mfa.verify', '/mfa/verify'),
+            'dashboard', 'index'   => config()->getString('web.pages.index'        , '/index'),
+            'sign-in'  , 'signin'  => config()->getString('web.pages.sign-in'      , '/sign-in'),
+            'sign-up'  , 'signup'  => config()->getString('web.pages.sign-up'      , '/sign-up'),
+            'sign-out' , 'signout' => config()->getString('web.pages.sign-out'     , '/sign-out'),
+            'sign-key' , 'signkey' => config()->getString('web.pages.sign-key'     , '/sign-key+:key'),
+            'profile'              => config()->getString('web.pages.profile'      , '/my/profile'),
+            'settings'             => config()->getString('web.pages.settings'     , '/my/settings'),
+            'mfa-create'           => config()->getString('web.pages.mfa.create'   , '/mfa/create'),
+            'mfa-verify'           => config()->getString('web.pages.mfa.verify'   , '/mfa/verify'),
+            'lost-password'        => config()->getString('web.pages.password.lost', '/lost-password'),
             default                => config()->getString('web.pages.' . $url , '')
         };
 

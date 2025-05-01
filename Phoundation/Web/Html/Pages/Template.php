@@ -17,10 +17,15 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Pages;
 
 use Phoundation\Accounts\Users\Sessions\Session;
-use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataDisabled;
-use Phoundation\Data\Traits\TraitDataIteratorSource;
+use Phoundation\Data\Traits\TraitDataIteratorEnabled;
+use Phoundation\Data\Traits\TraitDataIteratorImages;
+use Phoundation\Data\Traits\TraitDataIteratorSections;
+use Phoundation\Data\Traits\TraitDataIteratorTexts;
+use Phoundation\Data\Traits\TraitDataIteratorUrls;
+use Phoundation\Data\Traits\TraitDataStringName;
 use Phoundation\Data\Traits\TraitDataReadonly;
+use Phoundation\Data\Traits\TraitDataStringSource;
 use Phoundation\Data\Traits\TraitMethodHasRendered;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Csrf;
@@ -28,38 +33,46 @@ use Phoundation\Web\Html\Pages\Interfaces\TemplateInterface;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 
+
 class Template implements TemplateInterface
 {
-    use TraitDataIteratorSource;
+    use TraitDataStringName {
+        setName as protected __setName;
+    }
+    use TraitDataStringSource;
+    use TraitDataIteratorTexts {
+        getTextsObject as protected __getTextsObject;
+        setTextsObject as protected __setTextsObject;
+    }
+    use TraitDataIteratorUrls {
+        getUrlsObject as protected __getUrlsObject;
+        setUrlsObject as protected __setUrlsObject;
+    }
+    use TraitDataIteratorImages {
+        getImagesObject as protected __getImagesObject;
+        setImagesObject as protected __setImagesObject;
+    }
+    use TraitDataIteratorSections {
+        getSectionsObject as protected __getSectionsObject;
+        setSectionsObject as protected __setSectionsObject;
+    }
+    use TraitDataIteratorEnabled {
+        getEnabledsObject as protected __getEnabledsObject;
+        setEnabledsObject as protected __setEnabledsObject;
+    }
     use TraitMethodHasRendered;
     use TraitDataReadonly;
     use TraitDataDisabled;
 
 
     /**
-     * The template text
-     *
-     * @var string|null $text
-     */
-    protected ?string $text = null;
-
-    /**
-     * The template page to display
-     *
-     * @var string $page
-     */
-    protected string $page;
-
-
-    /**
      * Template class constructor
      *
-     * @param string $page
+     * @param string|null $name
      */
-    public function __construct(string $page)
+    public function __construct(?string $name = null)
     {
-        $this->setPage($page);
-        $this->source = new Iterator();
+        $this->setName($name);
     }
 
 
@@ -77,39 +90,13 @@ class Template implements TemplateInterface
     /**
      * Returns a new Template page object
      *
-     * @param string $page
+     * @param string|null $name
      *
      * @return TemplateInterface
      */
-    public static function new(string $page): TemplateInterface
+    public static function new(?string $name = null): TemplateInterface
     {
-        return new static($page);
-    }
-
-
-    /**
-     * Returns the template text
-     *
-     * @return string|null
-     */
-    public function getText(): ?string
-    {
-        return $this->text;
-    }
-
-
-    /**
-     * Set the template text
-     *
-     * @param string|null $text
-     *
-     * @return static
-     */
-    public function setText(?string $text): static
-    {
-        $this->text = $text;
-
-        return $this;
+        return new static($name);
     }
 
 
@@ -127,87 +114,96 @@ class Template implements TemplateInterface
      */
     public function render(): ?string
     {
-        $text = $this->text;
-
-        foreach ($this->source as $search => $replace) {
-            $text = str_replace($search, (string) $replace, $text);
+        if ($this->render) {
+            return $this->render;
         }
 
-        return $text;
-    }
+        $renderer_class = Request::getTemplateObject()->getRendererClass($this);
 
+        if ($renderer_class and ($renderer_class !== 'Templates\Phoundation\Mdb\Html\Pages\Template')) {
+            return $this->render = $renderer_class::new($this)->render();
+        }
 
-    /**
-     * Returns the template page to use
-     *
-     * @return string|null
-     */
-    public function getPage(): ?string
-    {
-        return $this->page;
+        $text = $this->source;
+
+        foreach ($this->__getTextsObject() as $search => $replace) {
+            $text = str_replace($search, (string)$replace, $text);
+        }
+
+        return $this->render = $text;
     }
 
 
     /**
      * Sets the template page to use
      *
-     * @param string|null $page
+     * @param string|null $name
      *
      * @return static
      * @todo Implement! For now this just returns hard coded texts
      */
-    public function setPage(?string $page): static
+    public function setName(?string $name): static
     {
-        $this->page = $page;
-        $renderer_class = Request::getTemplateObject()->getRendererClass($this);
+        $this->__setName($name);
 
-        if ($renderer_class) {
-            $this->text = $renderer_class::new($this)->render();
+        // TODO Get rid of this hard coded stuff
+        switch ($this->name) {
+            case '':
+                // No template name specified, this is fine.
+                break;
 
-        } else {
-            $sign_out = Session::isGuest() ? null : '<p>' . tr('Click :here to sign out', [
-                ':here' => '<a href="' . Url::new('sign-out')->makeWww() . '">here</a>'
-            ]) . '</p>';
+            case 'system/http-error':
+                $this->source = '<body>
+                                    <div class="container pt-5">
 
-            switch ($this->page) {
-                case 'system/http-error':
-                    $this->text = ' <body class="hold-transition login-page">
-                                    <div class="login-box">
-                                        <div class="error-page">
-                                            <h2 class="headline text-warning"> :h2</h2>
+                                      <!-- Section: Design Block -->
+                                      <section class="mb-8">
+                                        <style>
+                                          .rounded-t-2-5 {
+                                            border-top-left-radius: 0.75rem;
+                                            border-top-right-radius: 0.75rem;
+                                          }
+                                          @media (min-width: 992px) {
+                                            .rounded-tr-lg-0 {
+                                              border-top-right-radius: 0;
+                                            }
+                                            .rounded-bl-lg-2-5 {
+                                              border-bottom-left-radius: 0.75rem;
+                                            }
+                                          }
+                                        </style>
+                                        <div class="card rounded-6 shadow-3-soft" style="background-color: #fff9f2">
+                                          <div class="row g-0 d-flex align-items-center">
+                                            <div class="col-lg-6 col-xl-5">
+                                              <img src=":img" alt="' . tr('Background image') . '" class="w-100 rounded-t-2-5 rounded-tr-lg-0 rounded-bl-lg-2-5"/>
+                                            </div>
+                                            <div class="col-lg-6 col-xl-7">
+                                              <div class="card-body py-4 py-md-5 py-lg-4 py-xl-5 px-md-5">
+                                                <div class="border-top border-dark" style="width: 100px"></div>
+                                                <h2 class="display-4 mt-5 mb-4" style="color: #344e41"><i class="fas fa-exclamation-triangle text-:type"></i> :h2 :h3</h2>
+                                                  <p>:p</p>
+                                                  <p>' . tr('Click :here to go to the index page', [':here' => '<a href="' . Url::newCurrentDomainRootUrl() . '">here</a>']) . '</p>' .
+               (Session::isGuest() ? null : '     <p>' . tr('Click :here to sign out', [':here' => '<a href="' . Url::new('sign-out')->makeWww() . '">here</a>']) .'</p>');
 
-                                            <div class="error-content">
-                                                <h3><i class="fas fa-exclamation-triangle text-:type"></i> :h3</h3>
+                if (Session::isUser()) {
+                    $this->source .= '    <form class="search-form" method="post" action=":action">
+                                              ' . Csrf::getHiddenElement() . '
+                                              <div class="input-group">
+                                                  <input type="text" name="search" class="form-control" placeholder=":search">
+                                                  <div class="input-group-append">
+                                                      <button type="submit" name="submit" class="btn btn-warning"><i class="fas fa-search"></i>
+                                                      </button>
+                                                  </div>
+                                              </div>
+                                          </form>';
+                }
 
-                                                <p>:p</p>
-                                                <p>' . tr('Click :here to go to the index page', [':here' => '<a href="' . Url::newCurrentDomainRootUrl() . '">here</a>']) . '</p>' .
-                                  $sign_out;
+                break;
 
-                    if (Session::isUser()) {
-                        $this->text .= '    <form class="search-form" method="post" action=":action">
-                                                ' . Csrf::getHiddenElement() . '
-                                                <div class="input-group">
-                                                    <input type="text" name="search" class="form-control" placeholder=":search">
-                                                    <div class="input-group-append">
-                                                        <button type="submit" name="submit" class="btn btn-warning"><i class="fas fa-search"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </form>';
-                    }
-
-                    $this->text .= '        </div>
-                                <!-- /.error-content -->
-                                    </div>
-                                </div>
-                            </body>';
-                    break;
-
-                default:
-                    throw new OutOfBoundsException(tr('Specified template page ":template" does not exist', [
-                        ':template' => $page,
-                    ]));
-            }
+            default:
+                throw new OutOfBoundsException(tr('Specified template page ":template" does not exist', [
+                    ':template' => $name,
+                ]));
         }
 
         return $this;

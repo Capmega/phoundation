@@ -177,9 +177,9 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
         $render       = '';
 
         foreach ($this->columns as $column) {
-            $definition = $column->getDefinitionObject();
+            $o_definition = $column->getDefinitionObject();
 
-            if ($definition === null) {
+            if ($o_definition === null) {
                 // No row is open right now?
                 if ($column_count === $this->column_count) {
                     break;
@@ -190,19 +190,19 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
 
             } else {
                 // Hidden elements don't display anything beyond the hidden <input>
-                if ($definition->getHidden()) {
+                if ($o_definition->getHidden()) {
                     $render .= $column->render();
                 }
 
-                if (($definition->getSize() <= 0) or ($definition->getSize() > 12)) {
+                if (($o_definition->getSize() <= 0) or ($o_definition->getSize() > 12)) {
                     throw new OutOfBoundsException(tr('Cannot render DataEntryForm ":class" because the definition for column ":column" has invalid size ":size", it must be an integer number between 1 and 12', [
-                        ':size'   => $definition->getSize(),
-                        ':column' => $definition->getColumn(),
+                        ':size'   => $o_definition->getSize(),
+                        ':column' => $o_definition->getColumn(),
                         ':class'  => get_class($this->render_object),
                     ]));
                 }
 
-                $cols[] = $definition->getLabel() . ' = "' . $definition->getColumn() . '" [' . $definition->getSize() . ']';
+                $cols[] = $o_definition->getLabel() . ' = "' . $o_definition->getColumn() . '" [' . $o_definition->getSize() . ']';
 
                 // Keep track of column size, close each row when size 12 is reached
                 if (static::$force_rows) {
@@ -210,7 +210,7 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
                         // Open a new row
                         $render .= '<div class="row">';
 
-                    } elseif ($definition->getSize() > $column_count) {
+                    } elseif ($o_definition->getSize() > $column_count) {
                         // This item is going to overflow the row, close the current row and open a new one.
                         $render       .= '</div><div class="row">';
                         $column_count = $this->column_count;
@@ -218,14 +218,14 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
                 }
 
                 $render       .= $column->render();
-                $column_count -= $definition->getSize();
+                $column_count -= $o_definition->getSize();
 
                 if (static::$force_rows) {
                     if ($column_count < 0) {
                         throw OutOfBoundsException::new(tr('Cannot add column ":label" for table / class ":class" form with size ":size", the row would surpass size 12 by ":count"', [
                             ':class' => $this->render_object?->getDefinitionsObject()->getTable(),
-                            ':label' => $definition->getLabel() . ' [' . $definition->getColumn() . ']',
-                            ':size'  => abs($definition->getSize()),
+                            ':label' => $o_definition->getLabel() . ' [' . $o_definition->getColumn() . ']',
+                            ':size'  => abs($o_definition->getSize()),
                             ':count' => abs($column_count),
                         ]))->setData([
                             'Columns on this row' => $cols,

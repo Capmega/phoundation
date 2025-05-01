@@ -77,6 +77,7 @@ use Stringable;
 use Templates\Phoundation\AdminLte\AdminLte;
 use Throwable;
 
+
 class Request implements RequestInterface
 {
     use TraitDataStaticContentType;
@@ -84,6 +85,7 @@ class Request implements RequestInterface
     use TraitDataStaticRestrictions;
     use TraitDataStaticRouteParameters;
     use TraitGetInstance;
+
 
     /**
      * Singleton instance

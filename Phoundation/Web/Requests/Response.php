@@ -118,9 +118,9 @@ class Response implements ResponseInterface
     /**
      * Information that goes into the HTML header
      *
-     * @var array $http_headers
+     * @var IteratorInterface $http_headers
      */
-    protected static array $http_headers = [];
+    protected static IteratorInterface $http_headers;
 
     /**
      * CORS headers
@@ -239,7 +239,11 @@ class Response implements ResponseInterface
         // Take file access restrictions from the Request object
         static::$restrictions = Request::getRestrictions();
 
-        // Add required headers
+        // Add required HTTP headers
+        // TODO Add support for "vary" header
+        Response::addHttpHeaders(config()->get('web.headers.accept-ch', ['Sec-CH-UA, Device-Memory, Sec-CH-UA-Arch, Sec-CH-UA-Full-Version, Sec-CH-UA-Mobile, Sec-CH-UA-Model, Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version, Viewport-Width, Width, Sec-CH-Prefers-Color-Scheme']), 'Accept-CH');
+
+        // Add required page headers
         Response::addMetaToPageHeaders(config()->get('languages.encoding.character-set', 'UTF-8')                            , 'character_set');
         Response::addMetaToPageHeaders(config()->get('web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no'), 'character_set');
     }
@@ -627,10 +631,14 @@ class Response implements ResponseInterface
     /**
      * Returns the HTTP headers for this response
      *
-     * @return array
+     * @return IteratorInterface
      */
-    public static function getHttpHeaders(): array
+    public static function getHttpHeaders(): IteratorInterface
     {
+        if (empty(static::$http_headers)) {
+            static::$http_headers = new Iterator();
+        }
+
         return static::$http_headers;
     }
 
@@ -644,10 +652,41 @@ class Response implements ResponseInterface
      */
     public static function setHttpHeaders(IteratorInterface|array $http_headers): void
     {
-        if (is_array($http_headers)) {
-            $http_headers = new Iterator($http_headers);
+        static::$http_headers = new Iterator($http_headers);
+        static::addHttpHeaders($http_headers);
+    }
+
+
+    /**
+     * Adds the specified HTTP headers for this response
+     *
+     * @param IteratorInterface|array|string $http_headers
+     * @param string|null                    $key
+     *
+     * @return void
+     */
+    public static function addHttpHeaders(IteratorInterface|array|string $http_headers, ?string $key = null): void
+    {
+        $o_headers = static::getHttpHeaders();
+
+        if (is_string($http_headers)) {
+            $o_headers->add(($key ? Strings::ensureEndsWith($key, ':') : null) . $http_headers);
+
+        } else {
+            foreach ($http_headers as $header => $value) {
+                if ($value === false) {
+                    // Don't add this header
+                    continue;
+                }
+
+                if ($key) {
+                    static::addHttpHeaders($value, $key);
+
+                } else {
+                    static::addHttpHeaders($value, $header);
+                }
+            }
         }
-        static::$http_headers = $http_headers;
     }
 
 
@@ -1511,10 +1550,10 @@ class Response implements ResponseInterface
             $length = 0;
 
             // Set correct headers
-            http_response_code(static::$http_code);
+            http_response_code(static::getHttpCode());
 
             // Send all available headers
-            foreach (static::$http_headers as $header) {
+            foreach (static::getHttpHeaders() as $header) {
                 $length += strlen($header);
                 header($header);
             }

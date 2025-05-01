@@ -15,7 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Core\Core;
-use Phoundation\Web\Html\Pages\Template;
+use Phoundation\Web\Html\Pages\Page;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\JsonPage;
@@ -47,8 +47,8 @@ Response::setDescription(tr('The specified page is not found'));
 Response::setBreadCrumbs();
 
 
-// Build the error page
-return Template::new('system/http-error')->setSource([
+// Render and return the system page
+return Page::new('system/http-error')->addTextsObject([
     ':h2'     => '404',
     ':h3'     => tr('Page not found'),
     ':p'      => tr('We could not find the page you were looking for. Please go back where you came from!'),
@@ -56,4 +56,4 @@ return Template::new('system/http-error')->setSource([
     ':search' => tr('Search'),
     ':img'    => Url::new('backgrounds/404/large.jpg')->makeImg(),
     ':action' => Url::new('search/')->makeWww(),
-]);
+])->render();

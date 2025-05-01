@@ -159,7 +159,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      *
      * @var bool|null $defer_render_enabled
      */
-    protected ?bool $defer_render_enabled = false;
+    protected ?bool $defer_render_enabled = true;
 
     /**
      * Initial order (sort) to apply to the table.

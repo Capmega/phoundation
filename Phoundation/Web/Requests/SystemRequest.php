@@ -253,19 +253,20 @@ class SystemRequest implements SystemRequestInterface
             Log::warning(ts('The ":code" page failed to show with an exception, showing ":code" template message instead and logging exception below', [
                 ':code' => $variables['code'],
             ]));
+
             Log::setBacktraceDisplay('BACKTRACE_DISPLAY_BOTH');
             Log::error($e);
-            echo Template::new('system/http-error')
-                         ->setSource([
-                             ':h2'     => $variables['code'],
-                             ':h3'     => Strings::capitalize($variables['title']),
-                             ':p'      => $variables['message'],
-                             ':body'   => $variables['details'],
-                             ':type'   => 'warning',
-                             ':search' => tr('Search'),
-                             ':action' => Url::new('search/')->makeWww(),
-                         ])
-                         ->render();
+
+            // Build and return the error page
+            echo Template::new('system/http-error')->getTextsObject()->setSource([
+                ':h2'     => $variables['code'],
+                ':h3'     => Strings::capitalize($variables['title']),
+                ':p'      => $variables['message'],
+                ':body'   => $variables['details'],
+                ':type'   => 'warning',
+                ':search' => tr('Search'),
+                ':action' => Url::new('search/')->makeWww(),
+            ]);
 
         } catch (Throwable $f) {
             static::displayHardcoded500($e, $f);

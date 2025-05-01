@@ -15,7 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Core\Core;
-use Phoundation\Web\Html\Pages\Template;
+use Phoundation\Web\Html\Pages\Page;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\JsonPage;
@@ -31,22 +31,11 @@ $e = Core::readRegister('e');
 switch (Request::getRequestType()) {
     case EnumRequestTypes::ajax:
         // no break
+
     case EnumRequestTypes::api:
         Response::setHttpCode(500);
         JsonPage::new()->reply(['error' => tr('Internal server error')]);
 }
-
-
-// Build the error page
-echo Template::new('system/http-error')->setSource([
-    ':h2'     => '500',
-    ':h3'     => tr('Internal Server Error'),
-    ':img'    => Url::new('backgrounds/404/large.jpg')->makeImg(),
-    ':p'      => tr('The server encountered an internal error and could not fulfill your request. Please contact the system administrator'),
-    ':type'   => 'warning',
-    ':search' => tr('Search'),
-    ':action' => Url::new('search/')->makeWww(),
-                                                   ])->render();
 
 
 // Set page meta data
@@ -56,3 +45,15 @@ Response::setPageTitle('500 - Internal Server Error');
 Response::setHeaderTitle(tr('500 - Error'));
 Response::setDescription(tr('The server encountered an internal error and could not fulfill your request'));
 Response::setBreadCrumbs();
+
+
+// Render and return the system page
+return Page::new('system/http-error')->addTextsObject([
+    ':h2'     => '500',
+    ':h3'     => tr('Internal Server Error'),
+    ':img'    => Url::new('backgrounds/404/large.jpg')->makeImg(),
+    ':p'      => tr('The server encountered an internal error and could not fulfill your request. Please contact the system administrator'),
+    ':type'   => 'warning',
+    ':search' => tr('Search'),
+    ':action' => Url::new('search/')->makeWww()
+]);

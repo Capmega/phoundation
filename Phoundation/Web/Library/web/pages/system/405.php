@@ -15,7 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Core\Core;
-use Phoundation\Web\Html\Pages\Template;
+use Phoundation\Web\Html\Pages\Page;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\JsonPage;
@@ -38,20 +38,6 @@ switch (Request::getRequestType()) {
 }
 
 
-// Build the error page
-echo Template::new('system/http-error')->setSource([
-    ':h2'     => '405',
-    ':h3'     => tr('Method not allowed'),
-    ':img'    => Url::new('backgrounds/404/large.jpg')->makeImg(),
-    ':p'      => tr('The action you requested could not be executed because the method is (currently) not allowed. Please try again later or contact your system administrator', [
-                                                           ':url' => Request::getReferer(true),
-                                                       ]),
-    ':type'   => 'warning',
-    ':search' => tr('Search'),
-    ':action' => Url::new('search/')->makeWww(),
-                                                   ])->render();
-
-
 // Set page meta data
 Response::setHttpCode(405);
 Response::setRenderMainWrapper(false);
@@ -59,3 +45,17 @@ Response::setPageTitle('405 - Method not allowed');
 Response::setHeaderTitle(tr('405 - Method not allowed'));
 Response::setDescription(tr('The specified method is not allowed'));
 Response::setBreadCrumbs();
+
+
+// Render and return the system page
+return Page::new('system/http-error')->addTextsObject([
+    ':h2'     => '405',
+    ':h3'     => tr('Method not allowed'),
+    ':img'    => Url::new('backgrounds/404/large.jpg')->makeImg(),
+    ':p'      => tr('The action you requested could not be executed because the method is (currently) not allowed. Please try again later or contact your system administrator', [
+        ':url' => Request::getReferer(true),
+    ]),
+    ':type'   => 'warning',
+    ':search' => tr('Search'),
+    ':action' => Url::new('search/')->makeWww()
+]);

@@ -15,7 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Core\Core;
-use Phoundation\Web\Html\Pages\Template;
+use Phoundation\Web\Html\Pages\Page;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\JsonPage;
@@ -47,8 +47,8 @@ Response::setDescription(tr('You do not have access to the specified resource'))
 Response::setBreadCrumbs();
 
 
-// Build and send the error page
-return Template::new('system/http-error')->setSource([
+// Render and return the system page
+return Page::new('system/http-error')->addTextsObject([
     ':h2'     => '403',
     ':h3'     => tr('Forbidden'),
     ':img'    => Url::new('backgrounds/404/large.jpg')->makeImg(),

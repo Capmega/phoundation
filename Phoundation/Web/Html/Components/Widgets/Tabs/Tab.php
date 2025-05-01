@@ -19,7 +19,7 @@ namespace Phoundation\Web\Html\Components\Widgets\Tabs;
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataLabel;
-use Phoundation\Data\Traits\TraitDataName;
+use Phoundation\Data\Traits\TraitDataStringName;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\ElementsBlock;
@@ -29,7 +29,7 @@ use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabInterface;
 class Tab extends ElementsBlock implements TabInterface
 {
     use TraitDataLabel;
-    use TraitDataName {
+    use TraitDataStringName {
         setName as protected __setName;
     }
 

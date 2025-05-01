@@ -3,7 +3,7 @@
 /**
  * Page 400
  *
- * This is the page that will be shown when a user sent incorrect information (typically caused by a non caught
+ * This is the page that will be shown when a user sent incorrect information (typically caused by a non-caught
  * validation exception)
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -16,7 +16,7 @@
 declare(strict_types=1);
 
 use Phoundation\Core\Core;
-use Phoundation\Web\Html\Pages\Template;
+use Phoundation\Web\Html\Pages\Page;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\JsonPage;
@@ -32,22 +32,11 @@ $e = Core::readRegister('e');
 switch (Request::getRequestType()) {
     case EnumRequestTypes::ajax:
         // no break
+
     case EnumRequestTypes::api:
         Response::setHttpCode(400);
         JsonPage::new()->reply($e->getData());
 }
-
-
-// Build the error page
-echo Template::new('system/http-error')->setSource([
-    ':h2'     => '400',
-    ':h3'     => tr('Bad Request'),
-    ':img'    => Url::new('backgrounds/404/large.jpg')->makeImg(),
-    ':p'      => tr('You sent incorrect or invalid information and your request was denied. If you think this was in error, please contact the system administrator'),
-    ':type'   => 'warning',
-    ':search' => tr('Search'),
-    ':action' => Url::new('search/')->makeWww(),
-                                                   ])->render();
 
 
 // Set page meta data
@@ -57,3 +46,15 @@ Response::setPageTitle('400 - Bad Request');
 Response::setHeaderTitle(tr('400 - Error'));
 Response::setDescription(tr('You sent incorrect or invalid information and your request was denied'));
 Response::setBreadCrumbs();
+
+
+// Render and return the system page
+return Page::new('system/http-error')->addTextsObject([
+    ':h2'     => '400',
+    ':h3'     => tr('Bad Request'),
+    ':img'    => Url::new('backgrounds/404/large.jpg')->makeImg(),
+    ':p'      => tr('You sent incorrect or invalid information and your request was denied. If you think this was in error, please contact the system administrator'),
+    ':type'   => 'warning',
+    ':search' => tr('Search'),
+    ':action' => Url::new('search/')->makeWww()
+]);

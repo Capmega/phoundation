@@ -15,6 +15,9 @@
 declare(strict_types=1);
 
 use Phoundation\Web\Html\Csrf;
+use Phoundation\Web\Requests\Exception\PageNotFoundException;
+
+throw new PageNotFoundException(tr('The lock screen is under construction and not available yet.'));
 
 ?>
 <!DOCTYPE html>

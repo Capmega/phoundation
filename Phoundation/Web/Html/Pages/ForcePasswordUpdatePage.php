@@ -19,4 +19,16 @@ namespace Phoundation\Web\Html\Pages;
 
 class ForcePasswordUpdatePage extends Page
 {
+    /**
+     * ForcePasswordUpdatePage class constructor
+     *
+     * @param string|null $name
+     */
+    public function __construct(?string $name) {
+        parent::__construct($name);
+
+        $this->addTexts([
+            tr('Please update your account to have a new and secure password password before continuing...'),
+        ]);
+    }
 }
