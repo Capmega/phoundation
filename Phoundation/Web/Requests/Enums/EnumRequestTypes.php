@@ -42,9 +42,7 @@ namespace Phoundation\Web\Requests\Enums;
 enum EnumRequestTypes: string
 {
     case api         = 'api';
-    case admin       = 'admin';
     case ajax        = 'ajax';
-    case amp         = 'amp';
     case system      = 'system';
     case html        = 'html';
     case cli         = 'cli';

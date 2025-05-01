@@ -1106,10 +1106,7 @@ class Request implements RequestInterface
             $request_type = EnumRequestTypes::cli;
 
         } else {
-            if (str_contains($target, 'admin/')) {
-                $request_type = EnumRequestTypes::admin;
-
-            } elseif (str_contains($target, 'ajax/')) {
+            if (str_contains($target, 'ajax/')) {
                 $request_type = EnumRequestTypes::ajax;
 
             } elseif (str_contains($target, 'api/') or (str_starts_with($_SERVER['SERVER_NAME'], 'api'))) {
@@ -1117,9 +1114,6 @@ class Request implements RequestInterface
 
             } elseif (str_starts_with($_SERVER['SERVER_NAME'], 'cdn')) {
                 $request_type = EnumRequestTypes::file;
-
-            } elseif (config()->get('web.html.amp.enabled', false) and (!empty($_GET['amp']) or (str_starts_with($_SERVER['SERVER_NAME'], 'amp')))) {
-                $request_type = EnumRequestTypes::amp;
 
             } elseif (is_numeric(substr($target, -3, 3))) {
                 $request_type = EnumRequestTypes::system;
@@ -1375,12 +1369,6 @@ class Request implements RequestInterface
                     // Any HTML request may generate and return a file, so any HTML request can switch to a file
                     switch (static::$request_type) {
                         case EnumRequestTypes::html:
-                            // no break
-
-                        case EnumRequestTypes::admin:
-                            // no break
-
-                        case EnumRequestTypes::amp:
                             // no break
 
                         case EnumRequestTypes::file:
@@ -1841,9 +1829,7 @@ class Request implements RequestInterface
             EnumRequestTypes::ajax    => Strings::ensureStartsWith($target, 'ajax/'),
             EnumRequestTypes::html,
             EnumRequestTypes::file,
-            EnumRequestTypes::system,
-            EnumRequestTypes::admin,
-            EnumRequestTypes::amp     => Strings::ensureStartsWith($target, 'pages/'),
+            EnumRequestTypes::system  => Strings::ensureStartsWith($target, 'pages/'),
             default                   => throw new OutOfBoundsException(tr('Unsupported request type ":request" for this process', [
                 ':request' => static::getRequestType(),
             ])),

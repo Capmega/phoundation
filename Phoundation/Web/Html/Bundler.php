@@ -160,7 +160,6 @@ class Bundler
      */
     protected function newBundle(array $files, string $extension): void
     {
-        $admin_path = (Request::isRequestType(EnumRequestTypes::admin) ? 'admin/' : '');
         $this->extension   = (config()->get('web.minify', true) ? '.min.' . $extension : '.' . $extension);
         $this->directory   = DIRECTORY_WEB . LANGUAGE . '/' . $admin_path . 'pub/' . $extension . '/';
         $this->bundle_file = Strings::force($files);

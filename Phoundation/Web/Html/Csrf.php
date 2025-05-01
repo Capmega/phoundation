@@ -292,8 +292,8 @@ class Csrf
             return false;
         }
 
-        if (!Request::isRequestType(EnumRequestTypes::html) and !Request::isRequestType(EnumRequestTypes::admin)) {
-            // CSRF only works for HTTP or ADMIN requests
+        if (!Request::isRequestType(EnumRequestTypes::html)) {
+            // CSRF only works for HTML request type
             return false;
         }
 
