@@ -1,6 +1,7 @@
 <?php
+
 /**
- * Session class
+ * Class UserSession
  *
  * This class tracks and manages individual sessions
  *
@@ -20,7 +21,7 @@ use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionDuplicateIdentifierException;
 use Phoundation\Accounts\Users\Sessions\Interfaces\UserSessionInterface;
 use Phoundation\Accounts\Users\User;
-use Phoundation\Data\Traits\TraitDataSourceArray;
+use Phoundation\Data\Traits\TraitDataArraySource;
 use Phoundation\Databases\Sql\Exception\SqlContstraintDuplicateEntryException;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDateTime;
@@ -33,9 +34,10 @@ use Phoundation\Utils\Strings;
 use ReturnTypeWillChange;
 use Stringable;
 
+
 class UserSession implements UserSessionInterface
 {
-    use TraitDataSourceArray{
+    use TraitDataArraySource {
         get as protected __Get;
         set as protected __Set;
     }
@@ -65,6 +67,11 @@ class UserSession implements UserSessionInterface
                     ':session' => $identifier,
                 ]));
             }
+
+            $this->source = [
+                'string' => null,
+                'data'   => [],
+            ];
 
         } else {
             $this->source           = $source;
@@ -199,6 +206,28 @@ class UserSession implements UserSessionInterface
 
 
     /**
+     * Returns the source for this object
+     *
+     * @return array
+     */
+    public function getSource(): array
+    {
+        return array_get_safe($this->source, 'data');
+    }
+
+
+    /**
+     * Returns the source keys for this object
+     *
+     * @return array
+     */
+    public function getSourceKeys(): array
+    {
+        return array_keys($this->getSource());
+    }
+
+
+    /**
      *  Returns the value for the specified session user data key
      *
      * @param Stringable|string|float|int $key
@@ -209,13 +238,22 @@ class UserSession implements UserSessionInterface
     #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed
     {
         // Does this entry exist?
-        if (array_key_exists($key, $this->source['data'])) {
-            return $this->source['data'][$key];
-        }
+        if (array_key_exists('data', $this->source)) {
+            if (array_key_exists($key, $this->source['data'])) {
+                return $this->source['data'][$key];
+            }
 
-        if ($exception) {
-            // The key does not exist
-            throw new NotExistsException(tr('The key ":key" does not exist in this ":class" object', [
+            if ($exception) {
+                // The key doesn't exist
+                throw new NotExistsException(tr('The key ":key" does not exist in this ":class" object', [
+                    ':key'   => $key,
+                    ':class' => $this::class,
+                ]));
+            }
+
+        } elseif ($exception) {
+            // The session data doesn't exist
+            throw new NotExistsException(tr('The ":class" object does not have session data loaded', [
                 ':key'   => $key,
                 ':class' => $this::class,
             ]));
@@ -351,9 +389,9 @@ class UserSession implements UserSessionInterface
     {
         try {
             sql()->insert('accounts_user_sessions', [
-                'users_id'   => $users_id,
-                'domain'     => $domain,
                 'ip'         => $ip,
+                'domain'     => $domain,
+                'users_id'   => $users_id,
                 'identifier' => $identifier,
             ]);
 
@@ -370,12 +408,23 @@ class UserSession implements UserSessionInterface
     /**
      * Stops this session
      *
-     * @return static
+     * @param int    $users_id
+     * @param string $domain
+     * @param string $ip
+     * @param string $identifier
+     *
+     * @return void
      */
-    public function stop(): static
+    public static function stop(int $users_id, string $domain, string $ip, string $identifier): void
     {
-        sql()->update('sessions', ['stop' => PhoDateTime::new()->format('mysql')]);
-        return $this;
+        sql()->setDebug(true)->update('accounts_user_sessions', [
+            'stop' => PhoDateTime::new()->format('mysql')
+        ], [
+            'users_id'   => $users_id,
+            'domain'     => $domain,
+            'ip'         => $ip,
+            'identifier' => $identifier,
+        ]);
     }
 
 

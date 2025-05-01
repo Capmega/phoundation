@@ -5,6 +5,7 @@
  *
  * This class can manage various user configuration entries.
  *
+ * @see       https://www.hanselman.com/blog/how-to-detect-if-the-users-os-prefers-dark-mode-and-change-your-site-with-css-and-js
  * @see       \Phoundation\Accounts\Users\User
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -35,6 +36,7 @@ use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
+
 
 class Configurations extends IteratorCore implements ConfigurationsInterface
 {
@@ -222,17 +224,17 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->setLabel(tr('Automatically sign-out'))
                                                  ->setHelpText(tr('Here you can specify if you wish the system to sign you out automatically after X amount of seconds. Specify 0 to never automatically sign out'))
                                                  ->setDataSource([
-                                                     0      => tr('Off'),
-                                                     300    => tr('5 minutes'),
-                                                     600    => tr('10 minutes'),
-                                                     1800   => tr('30 minutes'),
-                                                     3600   => tr('1 hour'),
-                                                     7200   => tr('2 hours'),
-                                                     14400  => tr('4 hours'),
-                                                     28800  => tr('8 hours'),
-                                                     43200  => tr('12 hours'),
-                                                     86400  => tr('1 day'),
-                                                     172800 => tr('2 days'),
+                                                     0     => tr('Off'),
+                                                     300   => tr('5 minutes'),
+                                                     600   => tr('10 minutes'),
+                                                     900   => tr('15 minutes'),
+                                                     1800  => tr('30 minutes'),
+                                                     3600  => tr('1 hour'),
+                                                     7200  => tr('2 hours'),
+                                                     14400 => tr('4 hours'),
+                                                     28800 => tr('8 hours'),
+                                                     43200 => tr('12 hours'),
+                                                     86400 => tr('1 day'),
                                                  ]))
 
                                  ->add(Definition::new('dark_mode')

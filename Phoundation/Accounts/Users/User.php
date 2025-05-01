@@ -1034,6 +1034,10 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     protected function notifyUserAboutWrite(): static
     {
+        if (!$this->notifications_enabled) {
+            return $this;
+        }
+
         if ($this->isSystemUser()) {
             // Yeah, we don't notify the system users
             return $this;
@@ -1041,19 +1045,23 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
         if ($this->isCreated()) {
             // Notify the user that their account was created, accompanied by a login link
-            $key = $this->getSigninKey()->generate(Url::new('/force-password-update.html')->makeWww());
+            $key = $this->getSigninKey()
+                        ->generate(Url::new('/force-password-update.html')
+                                      ->makeWww());
 
-            $this->notify()?->setTitle(tr('An account has been created for you on :project', [
-                                ':project' => config()->getString('project.name', 'Phoundation')
-                            ]))
-                            ->setMessage(tr('An account has been created on :project by :user. To enter the system, you can click the link :link or copy/paste the :url in your browser. This will immediately take you to your account where you only have to enter your desired password', [
-                                ':url'     => $key->getUrl(),
-                                ':link'    => '<a href="' . $key->getUrl() . '">' . tr('here') . '</a>',
-                                ':user'    => Session::getUserObject()->getDisplayName(),
-                                ':project' => config()->getString('project.name', 'Phoundation'),
-                            ]))
-                            ->save()
-                            ->send();
+            $this->notify()
+                 ?->setTitle(tr('An account has been created for you on :project', [
+                     ':project' => config()->getString('project.name', 'Phoundation')
+                 ]))
+                 ->setMessage(tr('An account has been created on :project by :user. To enter the system, you can click the link :link or copy/paste the :url in your browser. This will immediately take you to your account where you only have to enter your desired password', [
+                     ':url'     => $key->getUrl(),
+                     ':link'    => '<a href="' . $key->getUrl() . '">' . tr('here') . '</a>',
+                     ':user'    => Session::getUserObject()
+                                          ->getDisplayName(),
+                     ':project' => config()->getString('project.name', 'Phoundation'),
+                 ]))
+                 ->save()
+                 ->send();
 
             return $this;
         }
@@ -1767,7 +1775,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function getFingerprintObject(): ?DateTimeInterface
     {
-        return PhoDateTime::newOrNull($this->getFingerprint());
+        return PhoDateTime::newNull($this->getFingerprint());
     }
 
 

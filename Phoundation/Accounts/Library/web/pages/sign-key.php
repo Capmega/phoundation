@@ -29,6 +29,7 @@ $get = GetValidator::new()
                    ->select('id')->isUuid()
                    ->validate();
 
+
 try {
     SignInKey::new()->load(['uuid' => $get['id']])->execute();
 

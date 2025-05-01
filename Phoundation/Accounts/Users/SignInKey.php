@@ -165,20 +165,12 @@ class SignInKey extends DataEntry implements SignInKeyInterface
      */
     public function generate(Stringable|string|null $redirect): static
     {
-        $this->generateUuid();
-        $this->setRedirect($redirect);
-
-        // Set up the sign-key URL
-        $uuid = $this->getUuid();
-
-        if (!$uuid) {
-            throw new OutOfBoundsException(tr('Cannot generate sign in key, no UUID has been generated yet.'));
-        }
-
-        $this->setUuid($uuid)->save();
+        $this->setRedirect($redirect)
+             ->generateUuid()
+             ->save();
 
         $url       = Url::new('sign-key')->makeWww();
-        $url       = str_replace(':key', $uuid, (string) $url);
+        $url       = str_replace(':key', $this->getUuid(), (string) $url);
         $this->url = Url::new($url)->makeWww()->getSource();
 
         return $this;

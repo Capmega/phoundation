@@ -21,15 +21,55 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Date\PhoDateTime;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Os\Processes\Commands\Find;
+
 
 class Sessions
 {
     /**
-     * Sessions class constructor
+     * Returns the handler for sessions
+     *
+     * @return string
      */
-    public function __construct() {}
+    public static function getHandler(): string
+    {
+        static $handler;
+
+        if ($handler) {
+            // Cached
+            return $handler;
+        }
+
+        $handler = config()->getString('web.sessions.handler', 'files');
+
+        switch ($handler) {
+            case 'redis':
+                // no break
+
+            case 'mongodb':
+                // no break
+
+            case 'sql':
+                // These will be supported some day, any day now!
+                throw new UnderConstructionException(tr('Session handler ":handler" is still under construction and cannot yet be used', [
+                    ':handler' => $handler
+                ]));
+
+            case 'files':
+                // no break;
+
+            case 'memcached':
+                return $handler;
+
+            default:
+                throw new OutOfBoundsException(tr('Unknown session handler ":handler" configured in configuration path "web.sessions.handler"', [
+                    ':handler' => $handler
+                ]));
+        }
+    }
 
 
     /**
@@ -42,17 +82,23 @@ class Sessions
     public static function clean(?int $age_in_minutes): void
     {
         if (!$age_in_minutes) {
-            $age_in_minutes = config()->getInteger('tmp.clean.age', 1440);
+            $age_in_minutes = config()->getInteger('web.sessions.clean.age', 1440);
         }
 
-        Log::action(ts('Cleaning session files older than ":age" minutes', [
-            ':age' => $age_in_minutes,
-        ]));
+        switch (Sessions::getHandler()) {
+            case 'files':
+                Log::action(ts('Cleaning session files older than ":age" minutes', [
+                    ':age' => $age_in_minutes,
+                ]));
 
-        Find::new(PhoDirectory::newTemporaryObject())
-            ->setOlderThan($age_in_minutes)
-            ->setExecute('rf {} -rf')
-            ->executeNoReturn();
+                Find::new(PhoDirectory::newTemporaryObject())
+                    ->setOlderThan($age_in_minutes)
+                    ->setExecute('rf {} -rf')
+                    ->executeNoReturn();
+                break;
+
+            case 'memcached':
+        }
     }
 
 
@@ -198,7 +244,8 @@ class Sessions
      */
     public static function getActive(): IteratorInterface
     {
-        return Iterator::new(sql()->listKeyValues('SELECT *
+        return Iterator::new(sql()->listKeyValues('SELECT `identifier` AS `unique`, 
+                                                          `id`, `domain`, `identifier`, `users_id`, `ip`, `start`, `stop`
                                                    FROM   `accounts_user_sessions` 
                                                    WHERE  `stop` IS NULL'));
     }
@@ -211,7 +258,8 @@ class Sessions
      */
     public static function getAll(): IteratorInterface
     {
-        return Iterator::new(sql()->listKeyValues('SELECT *  
+        return Iterator::new(sql()->listKeyValues('SELECT `identifier` AS `unique`, 
+                                                          `id`, `domain`, `identifier`, `users_id`, `ip`, `start`, `stop`
                                                    FROM   `accounts_user_sessions`'));
     }
 
@@ -225,7 +273,8 @@ class Sessions
      */
     public static function getAllForUsersId(int $users_id): IteratorInterface
     {
-        return Iterator::new(sql()->listKeyValues('SELECT * 
+        return Iterator::new(sql()->listKeyValues('SELECT `identifier` AS `unique`, 
+                                                          `id`, `domain`, `identifier`, `users_id`, `ip`, `start`, `stop`
                                                    FROM   `accounts_user_sessions` 
                                                    WHERE  `users_id` = :users_id', [
             ':users_id' => $users_id
@@ -242,7 +291,8 @@ class Sessions
      */
     public static function getActiveForUsersId(int $users_id): IteratorInterface
     {
-        return Iterator::new(sql()->listKeyValues('SELECT * 
+        return Iterator::new(sql()->listKeyValues('SELECT `identifier` AS `unique`, 
+                                                          `id`, `domain`, `identifier`, `users_id`, `ip`, `start`, `stop`
                                                    FROM   `accounts_user_sessions` 
                                                    WHERE  `users_id` = :users_id 
                                                      AND  `stop` IS NULL', [
@@ -260,7 +310,8 @@ class Sessions
      */
     public static function getAllForIp(string $ip): IteratorInterface
     {
-        return Iterator::new(sql()->listKeyValues('SELECT * 
+        return Iterator::new(sql()->listKeyValues('SELECT `identifier` AS `unique`, 
+                                                          `id`, `domain`, `identifier`, `users_id`, `ip`, `start`, `stop` 
                                                    FROM   `accounts_user_sessions` 
                                                    WHERE  `ip` = :ip', [
             ':ip' => $ip
@@ -277,7 +328,8 @@ class Sessions
      */
     public static function getActiveForIp(string $ip): IteratorInterface
     {
-        return Iterator::new(sql()->listKeyValues('SELECT * 
+        return Iterator::new(sql()->listKeyValues('SELECT `identifier` AS `unique`, 
+                                                          `id`, `domain`, `identifier`, `users_id`, `ip`, `start`, `stop`
                                                    FROM   `accounts_user_sessions` 
                                                    WHERE  `ip` = :ip 
                                                      AND  `stop` IS NULL', [
@@ -320,4 +372,22 @@ class Sessions
         mc('sessions')->clear();
         sql()->truncate('accounts_user_sessions');
     }
+
+
+    /**
+     * Adds data to the specified sessions list
+     *
+     * @param IteratorInterface $sessions
+     *
+     * @return IteratorInterface
+     */
+    public static function addData(IteratorInterface $sessions): IteratorInterface
+    {
+        foreach ($sessions as $identifier => $session) {
+            $sessions->set(Session::addData($session), $identifier);
+        }
+
+        return $sessions;
+    }
 }
+

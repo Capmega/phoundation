@@ -28,7 +28,6 @@ namespace Phoundation\Accounts\Users\Sessions;
 
 use DateTimeZone;
 use Exception;
-use Phoundation\Accounts\Config\Exception\ConfigException;
 use Phoundation\Accounts\Enums\EnumAuthenticationAction;
 use Phoundation\Accounts\Users\Authentication;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
@@ -48,12 +47,12 @@ use Phoundation\Data\Traits\TraitDataStaticFlashMessages;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Memcached\Memcached;
+use Phoundation\Date\PhoDateTime;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\EndlessLoopException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
-use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Geo\GeoIp\GeoIp;
@@ -596,7 +595,7 @@ class Session implements SessionInterface
      */
     public static function setIni(): void
     {
-        $handler = config()->getString('web.sessions.handler', 'files');
+        $handler = Sessions::getHandler();
 
         // Force session cookie configuration
         ini_set('session.serialize_handler', 'php_serialize');
@@ -622,8 +621,8 @@ class Session implements SessionInterface
             ini_set('memcached.sess_lock_wait_max', config()->getPositiveInteger('web.sessions.memcached.lock-wait-max', 2000));
 
             // Is memcached enabled?
-            if (!config()->getBoolean('databases.memcached.enabled', true)) {
-                throw new SessionException(tr('Cannot use memcached session handler (Configured in web.sessions.handler) because memcached is not enabled'));
+            if (!Memcached::getEnabled()) {
+                throw new SessionException(tr('Cannot use memcached session handler (Configured in configuration path "web.sessions.handler") because memcached is not enabled'));
             }
         }
 
@@ -676,7 +675,7 @@ class Session implements SessionInterface
 //show('IMPLEMENT MEMCACHED SUPPORT WITH FALLBACK TO MYSQL');
 //showdie('IMPLEMENT RETURN TO PREVIOUS PAGE AFTER LOGOUT SUPPORT');
         // What handler to use?
-        switch (config()->getString('web.sessions.handler', 'files')) {
+        switch (Sessions::getHandler()) {
             case 'files':
                 $directory = PhoDirectory::new(
                     config()->getString('web.sessions.path', DIRECTORY_SYSTEM . 'sessions/'),
@@ -688,25 +687,6 @@ class Session implements SessionInterface
 
                 session_save_path($directory->getSource());
                 break;
-
-            case 'memcached':
-                break;
-
-            case 'redis':
-                // no break
-
-            case 'mongo':
-                // no break
-
-            case 'sql':
-                // TODO Implement these session handlers ASAP
-                throw new UnderConstructionException();
-                break;
-
-            default:
-                throw new ConfigException(tr('Unknown session handler ":handler" specified in configuration path "web.sessions.handler"', [
-                    ':handler' => config()->getString('web.sessions.handler', 'files'),
-                ]));
         }
 
         try {
@@ -1283,8 +1263,8 @@ class Session implements SessionInterface
             $display  = array_get_safe($_SESSION, 'display');
 
             $_SESSION = [
+                'domain'       => array_get_safe($_SESSION, 'domain'),
                 'init'         => array_get_safe($_SESSION, 'init'),
-                'domain'       => static::$domain,
                 'first_ip'     => array_get_safe($_SESSION, 'first_ip'),
                 'first_domain' => array_get_safe($_SESSION, 'first_domain'),
             ];
@@ -1907,6 +1887,9 @@ class Session implements SessionInterface
                     ->setNotifyRoles('developer');
         }
 
+        // Stop the session
+        UserSession::stop(static::getUserObject()->getId(), static::$domain, Session::getIpAddress(), session_id());
+
         // Attempt sign-out
         static::$user_changed = !static::getUserObject()->isGuest();
 
@@ -2075,5 +2058,26 @@ class Session implements SessionInterface
         }
 
         return null;
+    }
+
+
+    /**
+     * Adds data to the specified sessions list
+     *
+     * @param array $session
+     *
+     * @return array
+     */
+    public static function addData(array $session): array
+    {
+        // Ensure the session exists!
+        $session['data']          = UserSession::new($session['identifier'], false)->getSource();
+        $session['user']          = User::new()->loadNull(array_get_safe(array_get_safe($session['data'], 'user'), 'id'));
+        $session['last_activity'] = array_get_safe($session['data'], 'last_activity') ?? array_get_safe($session, 'stop') ?? array_get_safe($session, 'start');
+        $session['last_activity'] = PhoDateTime::new($session['last_activity']);
+        $session['start']         = PhoDateTime::new($session['start']);
+        $session['stop']          = PhoDateTime::new($session['stop']);
+
+        return $session;
     }
 }

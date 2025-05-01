@@ -59,6 +59,12 @@ $user->getDefinitionsObject()->setRenderMeta(false)
                              ->setDefinitionRender('domain'               , false)
                              ->setDefinitionRender('redirect'             , false)
                              ->setDefinitionRender('redirect-divider'     , false)
+                             ->setDefinitionRender('zipcode'              , false)
+                             ->setDefinitionRender('address'              , false)
+                             ->setDefinitionRender('countries_id'         , false)
+                             ->setDefinitionRender('states_id'            , false)
+                             ->setDefinitionRender('cities_id'            , false)
+                             ->setDefinitionRender('timezones_id'         , false)
                              ->setDefinitionReadonly('email'              , true)
                              ->setDefinitionReadonly('comments'           , true)
                              ->setDefinitionReadonly('domain'             , true)
@@ -68,8 +74,7 @@ $user->getDefinitionsObject()->setRenderMeta(false)
                              ->setDefinitionReadonly('code'               , true)
                              ->setDefinitionReadonly('type'               , true)
                              ->setDefinitionReadonly('priority'           , true)
-                             ->setDefinitionReadonly('offset_latitude'    , true)
-                             ->moveBeforeKey('zipcode', 'address');
+                             ->setDefinitionReadonly('offset_latitude'    , true);
 
 
 // Define the drag/drop upload selector

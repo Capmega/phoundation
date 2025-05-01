@@ -484,6 +484,55 @@ class Config implements ConfigInterface
                 ':path'  => $path,
                 ':value' => $return,
             ]), $e)->addData([
+                                 'value'      => $return,
+                                 'value_type' => gettype($return)
+                             ]);
+        }
+    }
+
+
+    /**
+     * Return configuration BOOLEAN or NULL for the specified key path
+     *
+     * @note Will throw a ConfigException if a non-boolean, non-ternary value is returned
+     *
+     * @note Accepted ternary values are NULL or "auto". "auto" will be converted to NULL.
+     *
+     * @param string|array $path                     The configuration path for which the value should be returned
+     * @param bool|null    $default                  The default value to return if the configuration path doesn't
+     *                                               exist. If not specified, or NULL, an exception will be thrown when
+     *                                               the path doesn't exist
+     * @param bool         $allow_user_configuration If true will allow user configuration to override system
+     *                                               configuration
+     * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
+     *                                               cache
+     *
+     * @return bool|null                             The value for the requested path
+     *
+     * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
+     */
+    public function getTristate(string|array $path, ?bool $default = null, bool $allow_user_configuration = false, bool $use_cache = true): ?bool
+    {
+        $return = $this->get($path, $default, $allow_user_configuration, $use_cache);
+
+        try {
+            if (is_bool($return)) {
+                return $return;
+            }
+
+            // Try to interpret as boolean
+            return Strings::toBoolean($return);
+
+        } catch (OutOfBoundsException $e) {
+            // Could still be the ternary value!
+            if (($return === null) or ($return === 'auto')) {
+                return null;
+            }
+
+            throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a boolean value (Accepted are true, "true", "yes", "y", "1", false, "false", "no", "n", or 1), but has ":value" instead', [
+                ':path'  => $path,
+                ':value' => $return,
+            ]), $e)->addData([
                 'value'      => $return,
                 'value_type' => gettype($return)
             ]);

@@ -31,6 +31,7 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use PHPMailer\PHPMailer\PHPMailer;
 
+
 // Only show sign-in page if we're a guest user
 if (!Session::getUserObject()->isGuest()) {
     Response::redirect('prev', 302, reason_warning: tr('Lost password page is only available to guest users'));
@@ -77,20 +78,10 @@ if (Request::isPostRequestMethod()) {
 
 //        // Setup email host configuration
 //        $mail->Host = "smtp.gmail.com";
-
-
 //        $mail->SMTPAuth = true;
-
-
 //        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-
-
 //        $mail->Username = "so.oostenbrink@gmail.com";
-
-
 //        $mail->Password = 'kzusumqvavzfmyml';
-
-
 //        $mail->Port = "587";
 
         $mail->Host = "10.10.0.9";
@@ -160,9 +151,5 @@ if (Request::isPostRequestMethod()) {
 }
 
 
-// Set page meta data
-Response::setPageTitle(tr('Request a new password'));
-
-
-// Render the page
+// Render and return the page
 return LostPasswordPage::new()->setGetData($get);
