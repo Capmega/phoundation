@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes\Commands;
 
 use JetBrains\PhpStorm\ExpectedValues;
-use Phoundation\Data\Traits\TraitDataName;
+use Phoundation\Data\Traits\TraitDataStringName;
 use Phoundation\Data\Traits\TraitDataPath;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoDirectory;
@@ -36,7 +36,7 @@ use Stringable;
 
 class Find extends Command implements FindInterface
 {
-    use TraitDataName;
+    use TraitDataStringName;
     use TraitDataPath {
         setPath as protected __setPath;
     }

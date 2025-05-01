@@ -20,7 +20,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataHostnamePort;
-use Phoundation\Data\Traits\TraitDataSourceString;
+use Phoundation\Data\Traits\TraitDataStringSource;
 use Phoundation\Data\Traits\TraitDataUserPassword;
 use Phoundation\Databases\Exception\MysqlException;
 use Phoundation\Databases\Sql\Sql;
@@ -44,7 +44,7 @@ class MySql extends Command
 {
     use TraitDataHostnamePort;
     use TraitDataUserPassword;
-    use TraitDataSourceString;
+    use TraitDataStringSource;
     use TraitDataConnector;
 
 

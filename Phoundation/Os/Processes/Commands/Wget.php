@@ -18,14 +18,14 @@ namespace Phoundation\Os\Processes\Commands;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataBindAddress;
-use Phoundation\Data\Traits\TraitDataSourceString;
+use Phoundation\Data\Traits\TraitDataStringSource;
 use Phoundation\Data\Traits\TraitDataTarget;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 
 
 class Wget extends Command
 {
-    use TraitDataSourceString;
+    use TraitDataStringSource;
     use TraitDataTarget;
     use TraitDataBindAddress;
 

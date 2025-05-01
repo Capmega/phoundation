@@ -19,7 +19,7 @@ namespace Phoundation\Network\Sockets;
 
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\TraitDataName;
+use Phoundation\Data\Traits\TraitDataStringName;
 use Phoundation\Data\Traits\TraitDataUSleep;
 use Phoundation\Network\Enums\EnumNetworkSocketDomain;
 use Phoundation\Network\Sockets\Interfaces\PhoSocketInterface;
@@ -34,7 +34,7 @@ use Throwable;
 class PhoSocketServerCore implements PhoSocketServerInterface
 {
     use TraitDataUSleep;
-    use TraitDataName;
+    use TraitDataStringName;
 
 
     /**

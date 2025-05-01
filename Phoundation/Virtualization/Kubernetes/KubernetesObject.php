@@ -19,7 +19,7 @@ namespace Phoundation\Virtualization\Kubernetes;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataArrayData;
 use Phoundation\Data\Traits\TraitDataArrayOutput;
-use Phoundation\Data\Traits\TraitDataName;
+use Phoundation\Data\Traits\TraitDataStringName;
 use Phoundation\Data\Traits\TraitStaticMethodNewWithName;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Os\Processes\Process;
@@ -36,7 +36,7 @@ class KubernetesObject
     use TraitDataAnnotations;
     use TraitDataArrayData;
     use TraitDataLabels;
-    use TraitDataName;
+    use TraitDataStringName;
     use TraitDataNamespace;
     use TraitUsesKubeCtl;
     use TraitStaticMethodNewWithName;

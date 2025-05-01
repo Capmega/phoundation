@@ -77,12 +77,35 @@ class Memcached implements MemcachedInterface
     public function __construct(ConnectorInterface $o_connector)
     {
         // Ensure PHP has memcached support and that the specified connector is a memcached connector
-        static::checkDriver();
         $o_connector->checkDriver('memcached');
 
-        // Get instance information and connect to memcached servers
-        $this->setConnectorObject($o_connector)
-             ->connect();
+        if (static::getEnabled()) {
+            // Get instance information and connect to memcached servers
+            $this->setConnectorObject($o_connector)->connect();
+        }
+    }
+
+
+    /**
+     * Returns true if memcached is enabled and the driver is available
+     *
+     * @return bool
+     */
+    public static function getEnabled(): bool
+    {
+        static $enabled;
+
+        if ($enabled) {
+            // Cached
+            return true;
+        }
+
+        if (config()->getBoolean('databases.memcached.enabled', true)) {
+            static::checkDriver();
+            return $enabled = true;
+        }
+
+        return false;
     }
 
 

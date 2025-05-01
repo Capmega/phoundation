@@ -17,9 +17,11 @@ declare(strict_types=1);
 namespace Phoundation\Date;
 
 use DateInterval;
+use DateMalformedStringException;
 use DateTime;
 use DateTimeInterface;
 use DateTimeZone;
+use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
 use Phoundation\Date\Enums\DateTimeSegment;
 use Phoundation\Date\Exception\DateIntervalException;
 use Phoundation\Date\Exception\DateTimeException;
@@ -37,10 +39,10 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
     /**
      * Returns a new DateTime object
      *
-     * @param PhoDateTimeInterface|string|int|null $datetime
-     * @param DateTimeZone|string|null   $timezone
+     * @param PhoDateTimeInterface|string|float|int|null $datetime
+     * @param DateTimeZone|string|null                   $timezone
      */
-    public function __construct(PhoDateTimeInterface|string|int|null $datetime = 'now', DateTimeZone|string|null $timezone = null)
+    public function __construct(PhoDateTimeInterface|string|float|int|null $datetime = 'now', DateTimeZone|string|null $timezone = null)
     {
         // Ensure we have NULL or timezone object for parent constructor
         $timezone = get_null($timezone);
@@ -50,8 +52,8 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
             $timezone = new PhoDateTimeZone(trim($timezone));
         }
 
-        if (is_int($datetime)) {
-            $datetime = PhoDateTime::new('now', $timezone)->setTimestamp($datetime)->format('Y-m-d H:i:s.u');
+        if (is_numeric($datetime)) {
+            $datetime = PhoDateTime::new('now', $timezone)->setTimestamp((int) $datetime)->format('Y-m-d H:i:s.u');
         }
 
         // Return Phoundation DateTime object for whatever given $datetime
@@ -78,12 +80,12 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
     /**
      * Returns a new DateTime object
      *
-     * @param PhoDateTimeInterface|string|int|null $datetime
-     * @param DateTimeZone|string|null   $timezone
+     * @param PhoDateTimeInterface|string|float|int|null $datetime
+     * @param DateTimeZone|string|null                   $timezone
      *
      * @return static
      */
-    public static function new(PhoDateTimeInterface|string|int|null $datetime = 'now', DateTimeZone|string|null $timezone = null): static
+    public static function new(PhoDateTimeInterface|string|float|int|null $datetime = 'now', DateTimeZone|string|null $timezone = null): static
     {
         return new static($datetime, $timezone);
     }
@@ -92,12 +94,12 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
     /**
      * Returns a new DateTime object, or if the specified datetime is empty, NULL
      *
-     * @param PhoDateTimeInterface|string|int|null $datetime
-     * @param DateTimeZone|string|null             $timezone
+     * @param PhoDateTimeInterface|string|float|int|null $datetime
+     * @param DateTimeZone|string|null                   $timezone
      *
      * @return PhoDateTime|null
      */
-    public static function newOrNull(PhoDateTimeInterface|string|int|null $datetime = 'now', DateTimeZone|string|null $timezone = null): ?static
+    public static function newNull(PhoDateTimeInterface|string|float|int|null $datetime = 'now', DateTimeZone|string|null $timezone = null): ?static
     {
         if (empty($datetime)) {
             return null;
@@ -635,30 +637,64 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
     /**
      * Adds a number of days, months, years, hours, minutes and seconds to a DateTime object
      *
-     * @link https://secure.php.net/manual/en/datetime.diff.php
+     * @link https://secure.php.net/manual/en/datetime.add.php
      *
      * @param DateInterval $interval
+     * @param bool         $return_new
      *
-     * @return DateTime
+     * @return static
      */
-    public function add(DateInterval $interval): DateTime
+    public function add(DateInterval $interval, bool $return_new = true): static
     {
-        return new PhoDateTime(parent::add($interval));
+        if ($return_new) {
+            $return = clone $this;
+            return $return->add($interval, false);
+        }
+
+        return static::new(parent::add($interval));
     }
 
 
     /**
      * Subtracts a number of days, months, years, hours, minutes and seconds from a DateTime object
      *
-     * @link https://secure.php.net/manual/en/datetime.diff.php
+     * @link https://secure.php.net/manual/en/datetime.sub.php
      *
      * @param DateInterval $interval
+     * @param bool         $return_new
      *
-     * @return DateTime
+     * @return static
      */
-    public function sub(DateInterval $interval): DateTime
+    public function sub(DateInterval $interval, bool $return_new = true): static
     {
-        return new PhoDateTime(parent::sub($interval));
+        if ($return_new) {
+            $return = clone $this;
+            return $return->sub($interval, false);
+        }
+
+        return static::new(parent::sub($interval));
+    }
+
+
+    /**
+     * Alter the timestamp of a DateTime object by incrementing or decrementing in a format accepted by strtotime().
+     *
+     * @link https://secure.php.net/manual/en/datetime.modify.php
+     *
+     * @param string $modifier
+     * @param bool   $return_new
+     *
+     * @return static
+     * @throws DateMalformedStringException
+     */
+    public function modify(#[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $modifier, bool $return_new = true): static
+    {
+        if ($return_new) {
+            $return = clone $this;
+            return $return->modify($modifier, false);
+        }
+
+        return static::new(parent::modify($modifier));
     }
 
 

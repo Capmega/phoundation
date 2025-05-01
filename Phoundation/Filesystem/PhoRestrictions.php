@@ -21,7 +21,7 @@ namespace Phoundation\Filesystem;
 use PDOStatement;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Traits\TraitDataSourceArray;
+use Phoundation\Data\Traits\TraitDataArraySource;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
@@ -37,7 +37,7 @@ use Throwable;
 
 class PhoRestrictions implements PhoRestrictionsInterface
 {
-    use TraitDataSourceArray;
+    use TraitDataArraySource;
 
 
     /**

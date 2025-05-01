@@ -20,7 +20,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Data\Traits\TraitDataNetworkConnection;
 use Phoundation\Data\Traits\TraitDataSourceServer;
-use Phoundation\Data\Traits\TraitDataSourceString;
+use Phoundation\Data\Traits\TraitDataStringSource;
 use Phoundation\Data\Traits\TraitDataTarget;
 use Phoundation\Data\Traits\TraitDataTargetServer;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
@@ -35,7 +35,7 @@ class Rsync extends Command implements RsyncInterface
 {
     use TraitDataDebug;
     use TraitDataNetworkConnection;
-    use TraitDataSourceString;
+    use TraitDataStringSource;
     use TraitDataSourceServer;
     use TraitDataTarget;
     use TraitDataTargetServer;

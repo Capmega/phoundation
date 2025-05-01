@@ -20,7 +20,7 @@ use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Meta\Activities\Interfaces\ActivityInterface;
 use Phoundation\Core\Meta\Interfaces\MetaInterface;
-use Phoundation\Data\Traits\TraitDataSourceArray;
+use Phoundation\Data\Traits\TraitDataArraySource;
 use Phoundation\Data\Traits\TraitMethodHasRendered;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
@@ -36,7 +36,7 @@ use Phoundation\Web\Http\Url;
 class Activity implements ActivityInterface, RenderInterface
 {
     use TraitMethodHasRendered;
-    use TraitDataSourceArray;
+    use TraitDataArraySource;
 
 
     /**

@@ -16,11 +16,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Kubernetes\Pods;
 
-use Phoundation\Data\Traits\TraitDataName;
+use Phoundation\Data\Traits\TraitDataStringName;
 use Phoundation\Virtualization\Kubernetes\KubernetesObject;
 
 
 class Pod extends KubernetesObject
 {
-    use TraitDataName;
+    use TraitDataStringName;
 }

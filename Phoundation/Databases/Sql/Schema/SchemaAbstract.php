@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\Schema;
 
-use Phoundation\Data\Traits\TraitDataName;
+use Phoundation\Data\Traits\TraitDataStringName;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Schema\Interfaces\SchemaAbstractInterface;
 use Phoundation\Databases\Sql\Schema\Interfaces\SchemaInterface;
@@ -25,7 +25,7 @@ use Phoundation\Databases\Sql\Sql;
 
 abstract class SchemaAbstract implements SchemaAbstractInterface
 {
-    use TraitDataName {
+    use TraitDataStringName {
         setName as protected __setName;
     }
 

@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Developer;
 
 use Phoundation\Data\Traits\TraitDataDirectoryReadonly;
-use Phoundation\Data\Traits\TraitDataName;
+use Phoundation\Data\Traits\TraitDataStringName;
 use Phoundation\Data\Traits\TraitDataPath;
 use Phoundation\Developer\Enums\EnumRepositoryType;
 use Phoundation\Developer\Interfaces\VendorInterface;
@@ -32,7 +32,7 @@ use Phoundation\Utils\Arrays;
 
 class Vendor implements VendorInterface
 {
-    use TraitDataName;
+    use TraitDataStringName;
     use TraitDataDirectoryReadonly;
     use TraitDataRepositoryType;
 

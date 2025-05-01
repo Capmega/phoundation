@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Kubernetes\Deployments;
 
-use Phoundation\Data\Traits\TraitDataName;
+use Phoundation\Data\Traits\TraitDataStringName;
 use Phoundation\Virtualization\Kubernetes\KubernetesObject;
 use Phoundation\Virtualization\Kubernetes\Traits\TraitDataReplicas;
 use Phoundation\Virtualization\Traits\TraitDataImage;
@@ -24,7 +24,7 @@ use Phoundation\Virtualization\Traits\TraitDataImage;
 
 class Deployment extends KubernetesObject
 {
-    use TraitDataName;
+    use TraitDataStringName;
     use TraitDataImage;
     use TraitDataReplicas;
 
