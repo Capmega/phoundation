@@ -34,7 +34,7 @@ use ReturnTypeWillChange;
 
 trait TraitIterator
 {
-    use TraitDataSourceArray;
+    use TraitDataArraySource;
 
 
     /**

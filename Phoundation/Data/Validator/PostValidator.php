@@ -528,6 +528,17 @@ class PostValidator extends Validator
 
 
     /**
+     * Checks the display mode
+     *
+     * @return static
+     */
+    protected function checkDisplayMode(): static
+    {
+
+    }
+
+
+    /**
      * Checks if the CSRF code
      *
      * @return static

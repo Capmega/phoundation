@@ -511,14 +511,14 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      *
      * @param string                                  $at_key
      * @param ElementInterface|ElementsBlockInterface $value
-     * @param DefinitionInterface|array|null          $definition
+     * @param DefinitionInterface|array|null          $o_definition
      * @param bool                                    $after
      *
      * @return static
      * @todo Improve by first splitting meta data off the new data entry and then ALWAYS prepending it to ensure its at
      *       the front
      */
-    public function injectElement(string $at_key, ElementInterface|ElementsBlockInterface $value, DefinitionInterface|array|null $definition = null, bool $after = true): static;
+    public function injectElement(string $at_key, ElementInterface|ElementsBlockInterface $value, DefinitionInterface|array|null $o_definition = null, bool $after = true): static;
 
 
     /**

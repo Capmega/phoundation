@@ -44,7 +44,7 @@ trait TraitValidatorCore
     use TraitDataIntId;
     use TraitDataMaxStringSize;
     use TraitDataMetaColumns;
-    use TraitDataSourceArray;
+    use TraitDataArraySource;
     use TraitDataIgnoreIterator;
     use TraitDataDataEntry {
         setDataEntryObject as protected __setDataEntry;
@@ -750,7 +750,7 @@ trait TraitValidatorCore
 
 
     /**
-     * Will validate that the specified argument was not specified
+     * Will validate that the specified argument wasn't specified
      *
      * @param string $argument
      * @param mixed  $value                The value of said argument.
@@ -933,6 +933,9 @@ trait TraitValidatorCore
 
                 switch ($field) {
                     case '__csrf':
+                        // no break
+
+                    case '__display_mode':
                         // no break
 
                     case 'submit-button':

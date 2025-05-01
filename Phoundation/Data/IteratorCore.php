@@ -48,12 +48,12 @@ use Phoundation\Data\Traits\TraitDataCacheKey;
 use Phoundation\Data\Traits\TraitDataColumns;
 use Phoundation\Data\Traits\TraitDataDisabled;
 use Phoundation\Data\Traits\TraitDataFilterForm;
-use Phoundation\Data\Traits\TraitDataName;
+use Phoundation\Data\Traits\TraitDataStringName;
 use Phoundation\Data\Traits\TraitDataReadonly;
 use Phoundation\Data\Traits\TraitDataRowCallbacks;
 use Phoundation\Data\Traits\TraitDataParent;
 use Phoundation\Data\Traits\TraitDataRestrictions;
-use Phoundation\Data\Traits\TraitDataSourceArray;
+use Phoundation\Data\Traits\TraitDataArraySource;
 use Phoundation\Databases\Sql\Limit;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -91,10 +91,10 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     }
     use TraitDataRestrictions;
     use TraitDataRowCallbacks;
-    use TraitDataSourceArray{
+    use TraitDataArraySource{
         setSource as protected __setSource;
     }
-    use TraitDataName {
+    use TraitDataStringName {
         getName as protected __getName;
     }
     use TraitDataReadonly {

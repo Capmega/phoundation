@@ -27,7 +27,7 @@ use Phoundation\Data\Enums\EnumPoadTypes;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Interfaces\PoadInterface;
 use Phoundation\Data\Traits\TraitDataMixedValue;
-use Phoundation\Data\Traits\TraitDataSourceArray;
+use Phoundation\Data\Traits\TraitDataArraySource;
 use Phoundation\Exception\ObjectDecodeException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
@@ -39,7 +39,7 @@ use Phoundation\Web\Requests\Response;
 
 class Poad
 {
-    use TraitDataSourceArray {
+    use TraitDataArraySource {
         setSource as protected __setSource;
     }
     use TraitDataMixedValue {
@@ -228,7 +228,7 @@ class Poad
      * @param bool $process_headers_footers
      *
      * @return PoadInterface|array|string|float|int|null
-     * @see    TraitDataSourceArray::__toArray()
+     * @see    TraitDataArraySource::__toArray()
      */
     public function getObject(bool $process_headers_footers = true): PoadInterface|array|string|float|int|null
     {

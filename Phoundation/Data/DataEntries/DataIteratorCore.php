@@ -40,6 +40,7 @@ use Phoundation\Data\Traits\TraitDataMetaEnabled;
 use Phoundation\Data\Traits\TraitDataStatusFilter;
 use Phoundation\Data\Traits\TraitMethodBuildManualQuery;
 use Phoundation\Data\Traits\TraitMethodsTableState;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
@@ -1542,9 +1543,23 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
         $validator = Validator::pick($source);
         $source    = Arrays::groupByPrefix($validator->getSource(), non_prefix_action: Arrays::GROUP_BY_DROP);
 
+        // First, ensure we have all the entries specified by the source
+        if ($require_clean_source) {
+            try {
+                foreach ($source as $data_entry_id => $data_entry_source) {
+                    $this->get($data_entry_id);
+                }
+
+            } catch (NotExistsException $e) {
+                throw new ValidationFailedException(tr('Cannot apply changes to ":id", the specified DataEntry does not exist', [
+                    ':id' => $data_entry_id,
+                ]), $e);
+            }
+        }
+
         // Apply will first validate, so we know ALL has been validated before we're saving
         foreach ($source as $data_entry_id => $data_entry_source) {
-            $this->get($data_entry_id)->apply(true, $data_entry_source);
+            $this->get($data_entry_id, $require_clean_source)?->apply(true, $data_entry_source);
         }
 
         // Require clean source

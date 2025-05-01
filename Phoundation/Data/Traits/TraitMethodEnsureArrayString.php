@@ -24,7 +24,7 @@ use ReturnTypeWillChange;
 
 trait TraitMethodEnsureArrayString
 {
-    use TraitDataSourceArray;
+    use TraitDataArraySource;
 
 
     /**

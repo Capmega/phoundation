@@ -1066,7 +1066,7 @@ class DefinitionFactory
                                        ->isQueryResult('SELECT `id` 
                                                         FROM   `accounts_users` 
                                                         WHERE  `id` = :id 
-                                                          AND  `status` IS NULL', [
+                                                          AND  ((`status` IS NULL) or (`status` != "deleted"))', [
                                                               ':id' => '$' . $column
                                        ]);
                          });

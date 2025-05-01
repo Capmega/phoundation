@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 
-trait TraitDataName
+trait TraitDataStringName
 {
     /**
      * The name to use

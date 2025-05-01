@@ -19,7 +19,7 @@ namespace Phoundation\Data\Traits;
 
 trait TraitStaticMethodNewWithName
 {
-    use TraitDataName;
+    use TraitDataStringName;
 
 
     /**

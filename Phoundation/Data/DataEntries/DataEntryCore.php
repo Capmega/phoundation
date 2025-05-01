@@ -3467,21 +3467,21 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @param string                                  $at_key
      * @param ElementInterface|ElementsBlockInterface $value
-     * @param DefinitionInterface|array|null          $definition
+     * @param DefinitionInterface|array|null          $o_definition
      * @param bool                                    $after
      *
      * @return static
      * @todo Improve by first splitting meta data off the new data entry and then ALWAYS prepending it to ensure its at
      *       the front
      */
-    public function injectElement(string $at_key, ElementInterface|ElementsBlockInterface $value, DefinitionInterface|array|null $definition = null, bool $after = true): static
+    public function injectElement(string $at_key, ElementInterface|ElementsBlockInterface $value, DefinitionInterface|array|null $o_definition = null, bool $after = true): static
     {
         // Render the specified element directly into the definition. Remove the specified column from this source (overwrite, basically)
-        $element_definition                             = $value->getDefinitionObject()->setContent($value);
-        $this->source[$element_definition->getColumn()] = null;
+        $o_element_definition                             = $value->getDefinitionObject()->setContent($value);
+        $this->source[$o_element_definition->getColumn()] = null;
 
         try {
-            $this->getDefinitionsObject()->spliceByKey($at_key, 0, [$element_definition->getColumn() => $element_definition], $after);
+            $this->getDefinitionsObject()->spliceByKey($at_key, 0, [$o_element_definition->getColumn() => $o_element_definition], $after);
 
         } catch (OutOfBoundsException $e) {
             throw new OutOfBoundsException(tr('Failed to inject element at key ":key", the key does not exist', [
@@ -3489,19 +3489,19 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             ]), $e);
         }
 
-        if ($definition) {
+        if ($o_definition) {
             // Apply specified definitions as well
-            if ($definition instanceof DefinitionInterface) {
-                $definition->setColumn($element_definition->getColumn());
-                $this->getDefinitionsObject()->get($element_definition->getColumn())->setSource($definition->getSource());
+            if ($o_definition instanceof DefinitionInterface) {
+                $o_definition->setColumn($o_element_definition->getColumn());
+                $this->getDefinitionsObject()->get($o_element_definition->getColumn())->setSource($o_definition->getSource());
 
             } else {
                 // Merge the specified definitions over the existing one
-                $definition = Arrays::removeKeys($definition, 'column');
-                $rules      = $this->getDefinitionsObject()->get($element_definition->getColumn())->getSource();
-                $rules      = array_merge($rules, $definition);
+                $o_definition = Arrays::removeKeys($o_definition, 'column');
+                $rules        = $this->getDefinitionsObject()->get($o_element_definition->getColumn())->getSource();
+                $rules        = array_merge($rules, $o_definition);
 
-                $this->getDefinitionsObject()->get($element_definition->getColumn())->setSource($rules);
+                $this->getDefinitionsObject()->get($o_element_definition->getColumn())->setSource($rules);
             }
         }
 

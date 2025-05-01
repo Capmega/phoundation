@@ -27,7 +27,7 @@ use ReturnTypeWillChange;
 use Stringable;
 
 
-trait TraitDataSourceArray
+trait TraitDataArraySource
 {
     use TraitMethodsPoad;
 
@@ -76,7 +76,7 @@ trait TraitDataSourceArray
      *
      * @param ArraySourceInterface|array|string|null $source
      *
-     * @return TraitDataSourceArray|null
+     * @return TraitDataArraySource|null
      */
     public static function newFromSourceOrNull(ArraySourceInterface|array|string|null $source): ?static
     {

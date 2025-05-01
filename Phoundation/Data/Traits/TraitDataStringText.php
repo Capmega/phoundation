@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Trait TraitDataSourceString
+ * Trait TraitDataText
  *
- *
+ * This trait adds support for a string containing a text
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -17,37 +17,37 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 
-trait TraitDataSourceString
+trait TraitDataStringText
 {
     /**
-     * Contains the source string for this object
+     * Registers if this object is text or not
      *
-     * @var string|null $source
+     * @var string|null $text
      */
-    protected ?string $source;
+    protected ?string $text = null;
 
 
     /**
-     * Returns the source string
+     * Returns if this object is text or not
      *
      * @return string|null
      */
-    public function getSource(): ?string
+    public function getText(): ?string
     {
-        return $this->source;
+        return $this->text;
     }
 
 
     /**
-     * Sets the source string
+     * Returns if this object is text or not
      *
-     * @param string|null $source
+     * @param string|null $text
      *
      * @return static
      */
-    public function setSource(?string $source): static
+    public function setText(?string $text): static
     {
-        $this->source = get_null($source);
+        $this->text = $text;
         return $this;
     }
 }
