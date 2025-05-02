@@ -21,6 +21,7 @@ use PDOStatement;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Date\PhoTime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Exception\ArraysKeyException;
@@ -3921,5 +3922,36 @@ class Arrays extends Utils
 
         unset($value);
         return $source;
+    }
+
+
+    /**
+     * Converts all values in the specified source to human-readable PhoTime differences
+     *
+     * @note Requires ALL values to be numeric
+     *
+     * @param array       $source
+     * @param string|null $zero_label
+     *
+     * @return array
+     */
+    public static function convertToTimeDifference(array $source, string $zero_label = null): array
+    {
+        $return = [];
+
+        foreach ($source as $value) {
+            if (is_numeric($value)) {
+                $return[$value] = PhoTime::difference(0, $value, zero_label: $zero_label);
+                continue;
+            }
+
+            throw OutOfBoundsException::new(tr('Cannot convert non-numeric value ":value" to time difference', [
+                ':value' => $value,
+            ]))->addData([
+                'source' => $source
+            ]);
+        }
+
+        return $return;
     }
 }
