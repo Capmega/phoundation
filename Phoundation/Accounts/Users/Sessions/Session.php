@@ -725,9 +725,9 @@ class Session implements SessionInterface
             ]));
         }
 
-        // Check cookie signout and auto sign out
-        $cookie_signout = config()->getPositiveInteger('web.sessions.cookies.lifetime'      , 0, true);
-        $auto_signout   = config()->getPositiveInteger('web.security.sessions.auto.sign-out', 0, true);
+        // Check cookie sign-out and auto sign out
+        $cookie_signout = config()->getPositiveInteger('web.sessions.cookies.lifetime'            , 0, true);
+        $auto_signout   = config()->getPositiveInteger('web.security.sessions.auto.sign-out.value', 0, true);
 
         if ($cookie_signout) {
             // Session cookie timed out?
@@ -743,17 +743,21 @@ class Session implements SessionInterface
             }
         }
 
-        if ($auto_signout) {
-            if (isset($_SESSION['last_activity']) and (($_SESSION['last_activity'] + $auto_signout) < time())) {
-                $_SESSION['last_activity'] = microtime(true);
+        if (PLATFORM_WEB) {
+            if ($auto_signout) {
+                if (!Session::getUserObject()->isGuest()) {
+                    if (isset($_SESSION['last_activity']) and (($_SESSION['last_activity'] + $auto_signout) < time())) {
+                        $_SESSION['last_activity'] = microtime(true);
 
-                Log::warning(tr('Automatically signing out user ":user" because their session surpassed the auto sign-out time of ":time" seconds', [
-                    ':user' => static::getUserObject()->getLogId(),
-                    ':time' => $auto_signout,
-                ]));
+                        Log::warning(tr('Automatically signing out user ":user" because their session surpassed the auto sign-out time of ":time" seconds', [
+                            ':user' => static::getUserObject()->getLogId(),
+                            ':time' => $auto_signout,
+                        ]));
 
-                Response::getFlashMessagesObject()->addWarning(tr('You were signed out automatically because your session timed out'));
-                Response::redirect('signout');
+                        Response::getFlashMessagesObject()->addWarning(tr('You were signed out automatically because your session timed out'));
+                        Response::redirect('signout');
+                    }
+                }
             }
         }
 

@@ -1381,7 +1381,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      * @param Stringable|array|string|int $keys
      * @param bool                        $strict
      *
-     * @return $this
+     * @return static
      */
     public function removeRoles(Stringable|array|string|int $keys, bool $strict = false): static
     {

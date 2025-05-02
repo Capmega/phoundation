@@ -219,23 +219,13 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->setOptional(true, 0)
                                                  ->setInputType(EnumInputType::select)
                                                  ->setSize(6)
-                                                 ->addProperty('getInteger'                         , 'configuration_method')
-                                                 ->addProperty('web.security.sessions.auto.sign-out', 'configuration_path')
+                                                 ->addProperty('getInteger'                               , 'configuration_method')
+                                                 ->addProperty('web.security.sessions.auto.sign-out.value', 'configuration_path')
                                                  ->setLabel(tr('Automatically sign-out'))
                                                  ->setHelpText(tr('Here you can specify if you wish the system to sign you out automatically after X amount of seconds. Specify 0 to never automatically sign out'))
-                                                 ->setDataSource([
-                                                     0     => tr('Off'),
-                                                     300   => tr('5 minutes'),
-                                                     600   => tr('10 minutes'),
-                                                     900   => tr('15 minutes'),
-                                                     1800  => tr('30 minutes'),
-                                                     3600  => tr('1 hour'),
-                                                     7200  => tr('2 hours'),
-                                                     14400 => tr('4 hours'),
-                                                     28800 => tr('8 hours'),
-                                                     43200 => tr('12 hours'),
-                                                     86400 => tr('1 day'),
-                                                 ]))
+                                                 ->setDataSource(Arrays::convertToTimeDifference(config()->getArray('web.security.sessions.auto.sign-out.list', [
+                                                     0, 300, 600, 900, 1800, 3600, 7200, 14400, 28800, 43200, 86400,
+                                                 ]), tr('Off'))))
 
                                  ->add(Definition::new('dark_mode')
                                                  ->setOptional(true, false)
