@@ -18,6 +18,7 @@ namespace Phoundation\Date;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\P;
 
 
 class PhoTime
@@ -25,14 +26,15 @@ class PhoTime
     /**
      * Returns the difference in times with the pointed precision
      *
-     * @param float  $start
-     * @param float  $stop
-     * @param string $precision
-     * @param int    $decimals
+     * @param float       $start
+     * @param float       $stop
+     * @param string      $precision
+     * @param int         $decimals
+     * @param string|null $zero_label
      *
      * @return string
      */
-    public static function difference(float $start, float $stop, string $precision = 'auto', int $decimals = 2): string
+    public static function difference(float $start, float $stop, string $precision = 'auto', int $decimals = 2, ?string $zero_label = null): string
     {
         $time = $stop - $start;
 
@@ -48,65 +50,39 @@ class PhoTime
         // 6 years 2 months 5 days 4 hours 7 minutes 53.8236 seconds
         //$time = 7673.8237 + 7200 + (86400 * 5) + (86400 * 60) + ((86400 * 365) * 6);
 
-        switch ($precision) {
-            case 'second':
-                // no break
-            case 'seconds':
-                return static::differenceSeconds($time, $decimals);
-
-            case 'minute':
-                // no break
-            case 'minutes':
-                return static::differenceMinutes($time, $decimals);
-
-            case 'hour':
-                // no break
-            case 'hours':
-                return static::differenceHours($time, $decimals);
-
-            case 'day':
-                // no break
-            case 'days':
-                return static::differenceDays($time, $decimals);
-
-            case 'week':
-                // no break
-            case 'weeks':
-                return static::differenceWeeks($time, $decimals);
-
-            case 'month':
-                // no break
-            case 'months':
-                return static::differenceMonths($time, $decimals);
-
-            case 'year':
-                // no break
-            case 'years':
-                return static::differenceYears($time, $decimals);
-
-            case 'auto':
-                return static::differenceAuto($time, $start, $stop, $decimals);
-
-            default:
-                throw new OutOfBoundsException(tr('Unknown precision ":precision" specified', [
-                    ':precision' => $precision,
-                ]));
-        }
+        return match ($precision) {
+            'second', 'seconds' => static::differenceSeconds($time, $decimals, $zero_label),
+            'minute', 'minutes' => static::differenceMinutes($time, $decimals, $zero_label),
+            'hour'  , 'hours'   => static::differenceHours($time, $decimals, $zero_label),
+            'day'   , 'days'    => static::differenceDays($time, $decimals, $zero_label),
+            'week'  , 'weeks'   => static::differenceWeeks($time, $decimals, $zero_label),
+            'month' , 'months'  => static::differenceMonths($time, $decimals, $zero_label),
+            'year'  , 'years'   => static::differenceYears($time, $decimals, $zero_label),
+            'auto'              => static::differenceAuto($time, $start, $stop, $decimals, $zero_label),
+            default             => throw new OutOfBoundsException(tr('Unknown precision ":precision" specified', [
+                ':precision' => $precision,
+            ])),
+        };
     }
 
 
     /**
      * Returns the difference in times with automatic precision
      *
-     * @param float $time
-     * @param float $start
-     * @param float $stop
-     * @param int   $decimals
+     * @param float       $time
+     * @param float       $start
+     * @param float       $stop
+     * @param int         $decimals
+     * @param string|null $zero_label
      *
      * @return string
      */
-    protected static function differenceAuto(float $time, float $start, float $stop, int $decimals = 2): string
+    protected static function differenceAuto(float $time, float $start, float $stop, int $decimals = 2, ?string $zero_label = null): string
     {
+        if (empty($time) and $zero_label) {
+            return $zero_label;
+        }
+
         if ($time < 60) {
             // Seconds
             return PhoTime::difference($start, $stop, 'seconds', $decimals);
@@ -147,15 +123,19 @@ class PhoTime
      *
      * @param int $years
      *
-     * @return string
+     * @return string|null
      */
-    protected static function getYearsString(int $years): string
+    protected static function getYearsString(int $years): ?string
     {
-        return Strings::plural($years, tr(':time year', [
-            ':time' => $years,
-        ]), tr(':time years', [
-            ':time' => $years,
-        ]));
+        if ($years) {
+            return Strings::plural($years, tr(':time year', [
+                ':time' => $years,
+            ]), tr(':time years', [
+                ':time' => $years,
+            ]));
+        }
+
+        return null;
     }
 
 
@@ -164,15 +144,19 @@ class PhoTime
      *
      * @param int $months
      *
-     * @return string
+     * @return string|null
      */
-    protected static function getMonthString(int $months): string
+    protected static function getMonthString(int $months): ?string
     {
-        return Strings::plural($months, tr(':time month', [
-            ':time' => $months,
-        ]), tr(':time months', [
-            ':time' => $months,
-        ]));
+        if ($months) {
+            return Strings::plural($months, tr(':time month', [
+                ':time' => $months,
+            ]), tr(':time months', [
+                ':time' => $months,
+            ]));
+        }
+
+        return null;
     }
 
 
@@ -181,15 +165,19 @@ class PhoTime
      *
      * @param int $weeks
      *
-     * @return string
+     * @return string|null
      */
-    protected static function getWeeksString(int $weeks): string
+    protected static function getWeeksString(int $weeks): ?string
     {
-        return Strings::plural($weeks, tr(':time week', [
-            ':time' => $weeks,
-        ]), tr(':time weeks', [
-            ':time' => $weeks,
-        ]));
+        if ($weeks) {
+            return Strings::plural($weeks, tr(':time week', [
+                ':time' => $weeks,
+            ]), tr(':time weeks', [
+                ':time' => $weeks,
+            ]));
+        }
+
+        return null;
     }
 
 
@@ -198,15 +186,19 @@ class PhoTime
      *
      * @param int $days
      *
-     * @return string
+     * @return string|null
      */
-    protected static function getDaysString(int $days): string
+    protected static function getDaysString(int $days): ?string
     {
-        return Strings::plural($days, tr(':time day', [
-            ':time' => $days,
-        ]), tr(':time days', [
-            ':time' => $days,
-        ]));
+        if ($days) {
+            return Strings::plural($days, tr(':time day', [
+                ':time' => $days,
+            ]), tr(':time days', [
+                ':time' => $days,
+            ]));
+        }
+
+        return null;
     }
 
 
@@ -215,15 +207,19 @@ class PhoTime
      *
      * @param int $hours
      *
-     * @return string
+     * @return string|null
      */
-    protected static function getHoursString(int $hours): string
+    protected static function getHoursString(int $hours): ?string
     {
-        return Strings::plural($hours, tr(':time hour', [
-            ':time' => $hours,
-        ]), tr(':time hours', [
-            ':time' => $hours,
-        ]));
+        if ($hours) {
+            return Strings::plural($hours, tr(':time hour', [
+                ':time' => $hours,
+            ]), tr(':time hours', [
+                ':time' => $hours,
+            ]));
+        }
+
+        return null;
     }
 
 
@@ -232,15 +228,19 @@ class PhoTime
      *
      * @param int $minutes
      *
-     * @return string
+     * @return string|null
      */
-    protected static function getMinutesString(int $minutes): string
+    protected static function getMinutesString(int $minutes): ?string
     {
-        return Strings::plural($minutes, tr(':time minute', [
-            ':time' => $minutes,
-        ]), tr(':time minutes', [
-            ':time' => $minutes,
-        ]));
+        if ($minutes) {
+            return Strings::plural($minutes, tr(':time minute', [
+                ':time' => $minutes,
+            ]), tr(':time minutes', [
+                ':time' => $minutes,
+            ]));
+        }
+
+        return null;
     }
 
 
@@ -249,28 +249,37 @@ class PhoTime
      *
      * @param float $seconds
      *
-     * @return string
+     * @return string|null
      */
-    protected static function getSecondsString(float $seconds): string
+    protected static function getSecondsString(float $seconds): ?string
     {
-        return Strings::plural($seconds, tr(':time second', [
-            ':time' => $seconds,
-        ]), tr(':time seconds', [
-            ':time' => $seconds,
-        ]));
+        if ($seconds) {
+            return Strings::plural($seconds, tr(':time second', [
+                ':time' => $seconds,
+            ]), tr(':time seconds', [
+                ':time' => $seconds,
+            ]));
+        }
+
+        return null;
     }
 
 
     /**
      * Returns the difference in times with the pointed precision for weeks
      *
-     * @param float $time
-     * @param int   $decimals
+     * @param float       $time
+     * @param int         $decimals
+     * @param string|null $zero_label
      *
      * @return string
      */
-    protected static function differenceYears(float $time, int $decimals = 2): string
+    protected static function differenceYears(float $time, int $decimals = 2, ?string $zero_label = null): string
     {
+        if (empty($time) and $zero_label) {
+            return $zero_label;
+        }
+
         // Calculate the times
         // NOTE: Year is assumed 365 days!
         $years   = (int) floor($time / 31536000);
@@ -295,17 +304,21 @@ class PhoTime
     }
 
 
-
     /**
      * Returns the difference in times with the pointed precision for weeks
      *
-     * @param float  $time
-     * @param int    $decimals
+     * @param float       $time
+     * @param int         $decimals
+     * @param string|null $zero_label
      *
      * @return string
      */
-    protected static function differenceMonths(float $time, int $decimals = 2): string
+    protected static function differenceMonths(float $time, int $decimals = 2, ?string $zero_label = null): string
     {
+        if (empty($time) and $zero_label) {
+            return $zero_label;
+        }
+
         // Calculate the times
         // NOTE: Month is assumed 30 days!
         $months   = (int) floor($time / 2592000);
@@ -328,17 +341,21 @@ class PhoTime
     }
 
 
-
     /**
      * Returns the difference in times with the pointed precision for weeks
      *
-     * @param float  $time
-     * @param int    $decimals
+     * @param float       $time
+     * @param int         $decimals
+     * @param string|null $zero_label
      *
      * @return string
      */
-    protected static function differenceWeeks(float $time, int $decimals = 2): string
+    protected static function differenceWeeks(float $time, int $decimals = 2, ?string $zero_label = null): string
     {
+        if (empty($time) and $zero_label) {
+            return $zero_label;
+        }
+
         // Calculate the times
         $weeks    = (int) floor($time / 604800);
         $days     = (int) floor(($time - ($weeks * 604800)) / 86400);
@@ -363,13 +380,18 @@ class PhoTime
     /**
      * Returns the difference in times with the pointed precision for days
      *
-     * @param float  $time
-     * @param int    $decimals
+     * @param float       $time
+     * @param int         $decimals
+     * @param string|null $zero_label
      *
      * @return string
      */
-    protected static function differenceDays(float $time, int $decimals = 2): string
+    protected static function differenceDays(float $time, int $decimals = 2, ?string $zero_label = null): string
     {
+        if (empty($time) and $zero_label) {
+            return $zero_label;
+        }
+
         // Calculate the times
         $days     = (int) floor($time / 86400);
         $hours    = (int) floor(($time - ($days * 86400)) / 3600);
@@ -392,13 +414,18 @@ class PhoTime
     /**
      * Returns the difference in times with the pointed precision for hours
      *
-     * @param float  $time
-     * @param int    $decimals
+     * @param float       $time
+     * @param int         $decimals
+     * @param string|null $zero_label
      *
      * @return string
      */
-    protected static function differenceHours(float $time, int $decimals = 2): string
+    protected static function differenceHours(float $time, int $decimals = 2, ?string $zero_label = null): string
     {
+        if (empty($time) and $zero_label) {
+            return $zero_label;
+        }
+
         // Calculate the times
         $hours    = (int) floor($time / 3600);
         $minutes  = (float) number_format(($time - ($hours * 3600)) / 60, $decimals);
@@ -419,13 +446,18 @@ class PhoTime
     /**
      * Returns the difference in times with the pointed precision for minutes
      *
-     * @param float  $time
-     * @param int    $decimals
+     * @param float       $time
+     * @param int         $decimals
+     * @param string|null $zero_label
      *
      * @return string
      */
-    protected static function differenceMinutes(float $time, int $decimals = 2): string
+    protected static function differenceMinutes(float $time, int $decimals = 2, ?string $zero_label = null): string
     {
+        if (empty($time) and $zero_label) {
+            return $zero_label;
+        }
+
         // Calculate the times
         $minutes  = (float) number_format($time / 60, $decimals);
         $seconds  = $minutes - (int) $minutes;
@@ -444,13 +476,18 @@ class PhoTime
     /**
      * Returns the difference in times with the pointed precision for minutes
      *
-     * @param float  $time
-     * @param int    $decimals
+     * @param float       $time
+     * @param int         $decimals
+     * @param string|null $zero_label
      *
      * @return string
      */
-    protected static function differenceSeconds(float $time, int $decimals = 2): string
+    protected static function differenceSeconds(float $time, int $decimals = 2, ?string $zero_label = null): string
     {
+        if (empty($time) and $zero_label) {
+            return $zero_label;
+        }
+
         return static::getSecondsString((float) number_format($time, $decimals));
     }
 
