@@ -76,17 +76,22 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
             return null;
         }
 
-        $scripts    = '';
-        $definition = $this->o_definition;
+        $scripts      = '';
+        $o_definition = $this->o_definition;
+
+        // Add marker to all labels that are obligatory
+        if (!$o_definition->getOptional()) {
+            $o_definition->setLabel('* ' . $o_definition->getLabel());
+        }
 
         // Add scripts?
-        if ($definition->getScriptsObject()) {
-            foreach ($definition->getScriptsObject() as $script) {
+        if ($o_definition->getScriptsObject()) {
+            foreach ($o_definition->getScriptsObject() as $script) {
                 $scripts .= $script->render();
             }
         }
 
-        if ($definition->getHidden()) {
+        if ($o_definition->getHidden()) {
             // Hidden elements don't display anything beyond the hidden <input>
             return $this->column_component . $scripts;
         }
@@ -105,11 +110,11 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
             }
         }
 
-        $this->render .= match ($definition->getInputType()?->value) {
-            default => '  <div class="' . Html::safe($definition->getSize() ? 'col-sm-' . $definition->getSize() : 'col') . ($definition->getVisible() ? '' : ' invisible') . ($definition->getDisplay() ? '' : ' d-none') . (isset($class) ? ' ' . $class : '') . '"' . (isset($attributes) ? ' ' . $attributes : '') . '>
+        $this->render .= match ($o_definition->getInputType()?->value) {
+            default => '  <div class="' . Html::safe($o_definition->getSize() ? 'col-sm-' . $o_definition->getSize() : 'col') . ($o_definition->getVisible() ? '' : ' invisible') . ($o_definition->getDisplay() ? '' : ' d-none') . (isset($class) ? ' ' . $class : '') . '"' . (isset($attributes) ? ' ' . $attributes : '') . '>
                                  <div data-mdb-input-init class="form-outline">
                                      ' . $render . $scripts . '
-                                     <label class="form-label" for="' . Html::safe($definition->getColumn()) . '">' . Html::safe($definition->getLabel()) . '</label>
+                                     <label class="form-label" for="' . Html::safe($o_definition->getColumn()) . '">' . Html::safe($o_definition->getLabel()) . '</label>
                                  </div>
                              </div>',
             //            ' . $this->renderTooltip($definition) . '

@@ -2139,7 +2139,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         $this->test_count++;
 
         return $this->validateValues(function (&$value) use ($formats) {
-            $this->sanitizeTrim()->hasMinCharacters(5)->hasMaxCharacters(18); // 00:00:00.000000 AM
+            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(18); // 00:00:00.000000 AM
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -3757,6 +3757,32 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                 $this->isDate();
 // TODO Change this to isDateTime() when the PhoDate class is ready
 //                $this->isDateTime();
+
+                if ($this->process_value_failed or $this->selected_is_default) {
+                    // Validation already failed or defaulted, don't test anything more
+                    return;
+                }
+
+                $value = PhoDateTime::new($value);
+            }
+        });
+    }
+
+
+    /**
+     * Makes the current field a boolean value
+     *
+     * This method ensures that the specified array key is a boolean
+     *
+     * @return static
+     */
+    public function sanitizeToTime(): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) {
+            if (!$this->checkIsOptional($value)) {
+                $this->isTime();
 
                 if ($this->process_value_failed or $this->selected_is_default) {
                     // Validation already failed or defaulted, don't test anything more
