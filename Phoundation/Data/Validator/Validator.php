@@ -1427,9 +1427,12 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                     $value = $this->field_prefix . substr($value, 1);
 
                     if (!array_key_exists($value, $this->source)) {
-                        throw new OutOfBoundsException(tr('Specified execution variable ":value" does not exist in the specified source', [
+                        throw OutOfBoundsException::new(tr('Specified execution variable ":value" does not exist in the specified source', [
                             ':value' => $value,
-                        ]));
+                        ]))->addData([
+                            'source'         => $this->source,
+                            'selected_field' => $this->selected_field,
+                        ]);
                     }
 
                     // Replace this value with key from the array

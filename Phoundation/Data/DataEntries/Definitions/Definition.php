@@ -793,7 +793,7 @@ class Definition implements DefinitionInterface
      *
      * @param bool $value
      *
-     * @return $this
+     * @return static
      */
     public function setClearButton(bool $value): static
     {
