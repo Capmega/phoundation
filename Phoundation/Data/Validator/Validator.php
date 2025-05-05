@@ -18,6 +18,7 @@ namespace Phoundation\Data\Validator;
 
 use PDOStatement;
 use Phoundation\Accounts\Users\Password;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
@@ -4783,6 +4784,17 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
                     $value = Phn::checkSanitizeAndValidate($value);
 
                 } catch (InvalidPhnException | PhnRequiredException) {
+                    if (str_starts_with($value, '00000')) {
+                        // Seems to be a test PHN, verify requirements
+                        if (is_numeric($value) and (strlen($value) === 10)) {
+                            // This is a test PHN, which is valid on non-production platforms
+                            if (!Core::isProductionEnvironment()) {
+                                // Yeah, this is valid.
+                                return;
+                            }
+                        }
+                    }
+
                     $this->addFailure(tr('must be a valid PHN'));
                 }
             }
