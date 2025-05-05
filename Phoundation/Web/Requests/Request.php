@@ -1106,16 +1106,19 @@ class Request implements RequestInterface
             $request_type = EnumRequestTypes::cli;
 
         } else {
-            if (str_contains($target, 'ajax/')) {
+            $uri = Strings::from($target, 'web/pages/');
+
+            if (str_starts_with($uri, 'ajax/')) {
                 $request_type = EnumRequestTypes::ajax;
 
-            } elseif (str_contains($target, 'api/') or (str_starts_with($_SERVER['SERVER_NAME'], 'api'))) {
+            } elseif (str_starts_with($uri, 'api/') or (str_starts_with($_SERVER['SERVER_NAME'], 'api'))) {
                 $request_type = EnumRequestTypes::api;
 
             } elseif (str_starts_with($_SERVER['SERVER_NAME'], 'cdn')) {
                 $request_type = EnumRequestTypes::file;
 
             } elseif (is_numeric(substr($target, -3, 3))) {
+                // TODO Should this not be set by the system?
                 $request_type = EnumRequestTypes::system;
 
             } else {
