@@ -53,6 +53,7 @@ use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\EndlessLoopException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Geo\GeoIp\GeoIp;
@@ -609,6 +610,12 @@ class Session implements SessionInterface
         ini_set('session.save_handler'     , $handler);
         ini_set('session.save_path'        , Strings::force(config()->getArrayString('web.sessions.save-path', DIRECTORY_SYSTEM . 'sessions/'), ';'));
 
+        // Sanity check
+        if (ini_get('session.cookie_secure')) {
+            // TODO Add checks here. IF cookie_secure is required, then we need to also be sure that all links are HTTPS and vice versa
+            // TODO Add log incidents on http-only being disabled (ONCE PER new cookie, I guess?)
+        }
+
         // Are we using memcached?
         if ($handler === 'memcached') {
             // Do we have the memcached driver loaded?
@@ -649,6 +656,10 @@ class Session implements SessionInterface
      */
     protected static function resume(): bool
     {
+        if (PLATFORM_CLI) {
+            return false;
+        }
+
         if (!config()->get('web.sessions.enabled', true)) {
             return false;
         }
@@ -711,7 +722,21 @@ class Session implements SessionInterface
 
         // Initialize session?
         if (empty($_SESSION['init'])) {
-            static::create();
+            switch (Request::getRequestType()) {
+                case EnumRequestTypes::api:
+                    throw new UnderConstructionException();
+
+                case EnumRequestTypes::file:
+                    // FILE requests can't ever cookies
+                    break;
+
+                case EnumRequestTypes::ajax:
+                    // AJAX requests can't create cookies automatically
+                    break;
+
+                default:
+                    static::create();
+            }
 
         } else {
             // Check for extended sessions
