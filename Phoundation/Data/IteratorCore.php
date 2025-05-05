@@ -1055,6 +1055,19 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
+     * Returns true if the specified key exists in the array source
+     *
+     * @param Stringable|string|float|int|null $key
+     *
+     * @return bool
+     */
+    public function hasKey(Stringable|string|float|int|null $key): bool
+    {
+        return array_key_exists($key, $this->source);
+    }
+
+
+    /**
      * Returns the first key contained in this object without changing the internal pointer
      *
      * @return Stringable|string|float|int|null
