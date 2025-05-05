@@ -881,4 +881,13 @@ interface IteratorInterface extends IteratorBaseInterface
      * @return static
      */
     public function addValidator(callable $validator, ?string $name = null): static;
+
+    /**
+     * Returns true if the specified key exists in the array source
+     *
+     * @param Stringable|string|float|int|null $key
+     *
+     * @return bool
+     */
+    public function hasKey(Stringable|string|float|int|null $key): bool;
 }
