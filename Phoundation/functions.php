@@ -2147,6 +2147,29 @@ function logmsg(string $file = 'syslog'): LogInterface
 
 
 /**
+ * Returns true if the specified value is truly empty.
+ *
+ * @note This function is a wrapper around PHP's empty() language construct but it will not consider "0" empty as that
+ *       particular string is, you know, not empty
+ *
+ * @param mixed $value
+ *
+ * @return bool
+ */
+function really_empty(mixed &$value): bool
+{
+    if (empty($value)) {
+        if ($value === '0') {
+            return false;
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+/**
  * Returns the number of references to the specified variable
  *
  * @see https://www.php.net/manual/en/language.references.php#99644 <<< Taken from here
