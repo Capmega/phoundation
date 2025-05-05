@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Interfaces\EntryInterface;
@@ -230,7 +231,7 @@ class Utils
      */
     protected static function prepareNeedles(IteratorInterface|Stringable|array|string|int|null $needles, array $flags): array
     {
-        if (!$needles) {
+        if (really_empty($needles)) {
             throw new OutOfBoundsException(tr('No needles specified'));
         }
 

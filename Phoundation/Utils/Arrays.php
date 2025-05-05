@@ -178,21 +178,24 @@ class Arrays extends Utils
             $source = [];
         }
 
-        if ($needles) {
-            foreach (Arrays::force($needles) as $needle) {
-                if (!$needle) {
-                    continue;
+        if (really_empty($needles)) {
+            // No needles specified
+            return;
+        }
+
+        foreach (Arrays::force($needles) as $needle) {
+            if (!$needle) {
+                continue;
+            }
+
+            if (array_key_exists($needle, $source)) {
+                if ($trim_existing and is_string($source[$needle])) {
+                    // Automatically trim the found value
+                    $source[$needle] = trim($source[$needle], (is_bool($trim_existing) ? ' ' : $trim_existing));
                 }
 
-                if (array_key_exists($needle, $source)) {
-                    if ($trim_existing and is_string($source[$needle])) {
-                        // Automatically trim the found value
-                        $source[$needle] = trim($source[$needle], (is_bool($trim_existing) ? ' ' : $trim_existing));
-                    }
-
-                } else {
-                    $source[$needle] = $default_value;
-                }
+            } else {
+                $source[$needle] = $default_value;
             }
         }
     }
@@ -1780,21 +1783,23 @@ class Arrays extends Utils
     {
         $return = [];
 
-        if ($needles) {
-            foreach (Arrays::force($needles) as $needle) {
-                if (!$needle) {
-                    continue;
+        if (really_empty($needles)) {
+            return $return;
+        }
+
+        foreach (Arrays::force($needles) as $needle) {
+            if (!$needle) {
+                continue;
+            }
+
+            if (array_key_exists($needle, $source)) {
+                if ($trim_existing and is_string($source[$needle])) {
+                    // Automatically trim the found value
+                    $return[$needle] = trim($source[$needle], (is_bool($trim_existing) ? ' ' : $trim_existing));
                 }
 
-                if (array_key_exists($needle, $source)) {
-                    if ($trim_existing and is_string($source[$needle])) {
-                        // Automatically trim the found value
-                        $return[$needle] = trim($source[$needle], (is_bool($trim_existing) ? ' ' : $trim_existing));
-                    }
-
-                } else {
-                    $return[$needle] = $default_value;
-                }
+            } else {
+                $return[$needle] = $default_value;
             }
         }
 

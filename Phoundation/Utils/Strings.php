@@ -2690,17 +2690,19 @@ class Strings extends Utils
      */
     public static function removeCharacters(Stringable|string $source, Stringable|string|null $needles, bool $trim = true): string
     {
-        if ($needles) {
-            $source  = (string) $source;
-            $needles = (string) $needles;
+        if (really_empty($needles)) {
+            return $source;
+        }
 
-            for ($i = 0; $i < strlen($needles); $i++) {
-                $source  = str_replace($needles[$i], '', $source);
-            }
+        $source  = (string) $source;
+        $needles = (string) $needles;
 
-            if ($trim) {
-                $source = trim($source);
-            }
+        for ($i = 0; $i < strlen($needles); $i++) {
+            $source  = str_replace($needles[$i], '', $source);
+        }
+
+        if ($trim) {
+            $source = trim($source);
         }
 
         return $source;
