@@ -2224,14 +2224,15 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      * Validates that the selected field is in the past
      *
      * @param PhoDateTimeInterface|null $before
+     * @param bool                      $include_this_date
      *
      * @return static
      */
-    public function isBefore(?PhoDateTimeInterface $before): static
+    public function isBefore(?PhoDateTimeInterface $before, bool $include_this_date = false): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($before) {
+        return $this->validateValues(function (&$value) use ($before, $include_this_date) {
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
             $this->sanitizeTrim()
                  ->hasMaxCharacters(32);
@@ -2243,7 +2244,14 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
             $value = new PhoDateTime($value);
 
-            if ($value > $before) {
+            if ($include_this_date) {
+                if ($value > $before) {
+                    $this->addFailure(tr('must be a valid date on or before ":date"', [
+                        ':date' => $before->getHumanReadableDateTime(),
+                    ]));
+                }
+
+            } elseif ($value >= $before) {
                 $this->addFailure(tr('must be a valid date before ":date"', [
                     ':date' => $before->getHumanReadableDateTime(),
                 ]));
@@ -2256,14 +2264,15 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      * Validates that the selected field is in the past
      *
      * @param PhoDateTimeInterface|null $after
+     * @param bool                      $include_this_date
      *
      * @return static
      */
-    public function isAfter(?PhoDateTimeInterface $after): static
+    public function isAfter(?PhoDateTimeInterface $after, bool $include_this_date = false): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($after) {
+        return $this->validateValues(function (&$value) use ($after, $include_this_date) {
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
             $this->sanitizeTrim()->hasMaxCharacters(32);
 
@@ -2274,7 +2283,14 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
             $value = new PhoDateTime($value);
 
-            if ($value > $after) {
+            if ($include_this_date) {
+                if ($value < $after) {
+                    $this->addFailure(tr('must be a valid date on or after ":date"', [
+                        ':date' => $after->getHumanReadableDateTime(),
+                    ]));
+                }
+
+            } elseif ($value <= $after) {
                 $this->addFailure(tr('must be a valid date after ":date"', [
                     ':date' => $after->getHumanReadableDateTime(),
                 ]));
