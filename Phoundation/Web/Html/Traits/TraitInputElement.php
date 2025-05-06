@@ -252,10 +252,16 @@ trait TraitInputElement
      */
     protected function renderInputAttributes(): IteratorInterface
     {
+        $source = [
+            'type'  => $this->input_type?->value,
+            'value' => $this->value,
+        ];
+
+        if ($this->required) {
+            $source['required'] = '';
+        }
+
         return Iterator::new()
-                       ->setSource([
-                           'type'  => $this->input_type?->value,
-                           'value' => $this->value,
-                       ]);
+                       ->setSource($source);
     }
 }
