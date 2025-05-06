@@ -28,6 +28,8 @@ use Phoundation\Core\Interfaces\FloatableInterface;
 use Phoundation\Core\Interfaces\IntegerableInterface;
 use Phoundation\Core\Log\Interfaces\LogInterface;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Validate;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Databases;
 use Phoundation\Databases\FileDb\FileDb;
@@ -2130,6 +2132,30 @@ function datatype_is_class(string $datatype): bool
 function config(?string $section = null, ?string $environment = null): ConfigInterface
 {
     return Config::fromSection($section, $environment);
+}
+
+
+/**
+ * Returns true if the specified source is a valid email address
+ *
+ * @param Stringable|string $source
+ *
+ * @return bool
+ */
+if (!function_exists('is_email')) {
+    function is_email(Stringable|string $source): bool
+    {
+        try {
+            Validate::new($source)
+                    ->isEmail();
+            return true;
+
+        } catch (ValidationFailedException) {
+            // Yeah, this is not an email address
+        }
+
+        return false;
+    }
 }
 
 
