@@ -3625,6 +3625,25 @@ class Arrays extends Utils
 
 
     /**
+     * Returns true if all values in the specified array are empty
+     *
+     * @param array $source The array to be filtered
+     *
+     * @return bool The array with empty values removed
+     */
+    public static function allValuesEmpty(array $source): bool
+    {
+        foreach ($source as $key => $value) {
+            if ($value) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
      * Remove empty values from the given array
      *
      * @param array $source The array to be filtered
