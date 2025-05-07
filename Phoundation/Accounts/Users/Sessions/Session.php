@@ -768,19 +768,23 @@ class Session implements SessionInterface
             }
         }
 
+        // TODO REDIRECT AJAX REQUESTS THROUGH SIGNOUT MESSAGE!
         if (PLATFORM_WEB) {
+            // Only auto sign-out on WEB
             if ($auto_signout) {
                 if (!Session::getUserObject()->isGuest()) {
-                    if (isset($_SESSION['last_activity']) and (($_SESSION['last_activity'] + $auto_signout) < time())) {
-                        $_SESSION['last_activity'] = microtime(true);
+                    if (Url::newCurrent()->removeAllQueries()->getSource() !== Url::new('signout')->makeWww()->getSource()) {
+                        if (isset($_SESSION['last_activity']) and (($_SESSION['last_activity'] + $auto_signout) < microtime(true))) {
+                            $_SESSION['last_activity'] = microtime(true);
 
-                        Log::warning(tr('Automatically signing out user ":user" because their session surpassed the auto sign-out time of ":time" seconds', [
-                            ':user' => static::getUserObject()->getLogId(),
-                            ':time' => $auto_signout,
-                        ]));
+                            Log::warning(tr('Automatically signing out user ":user" because their session surpassed the auto sign-out time of ":time" seconds', [
+                                ':user' => static::getUserObject()->getLogId(),
+                                ':time' => $auto_signout,
+                            ]));
 
-                        Response::getFlashMessagesObject()->addWarning(tr('You were signed out automatically because your session timed out'));
-                        Response::redirect('signout');
+                            Response::getFlashMessagesObject()->addWarning(tr('You were signed out automatically because your session timed out'));
+                            Response::redirect('signout');
+                        }
                     }
                 }
             }
