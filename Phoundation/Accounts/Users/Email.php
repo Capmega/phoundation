@@ -160,21 +160,21 @@ class Email extends DataEntry implements EmailInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(DefinitionFactory::newCode('verification_code')
-                                           ->setOptional(true)
-                                           ->setRender(false)
-                                           ->setReadonly(true))
+        $o_definitions->add(DefinitionFactory::newCode('verification_code')
+                                             ->setOptional(true)
+                                             ->setRender(false)
+                                             ->setReadonly(true))
 
-                    ->add(DefinitionFactory::newUsersId()
+                      ->add(DefinitionFactory::newUsersId()
                                            ->setRender(false))
 
-                    ->add(DefinitionFactory::newEmail()
+                      ->add(DefinitionFactory::newEmail()
                                            ->setSize(4)
                                            ->setOptional(false)
                                            ->setHelpText(tr('The extra email address for the user'))

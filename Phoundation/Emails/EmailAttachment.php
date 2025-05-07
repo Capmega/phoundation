@@ -55,15 +55,15 @@ class EmailAttachment extends DataEntry
     /**
      * @inheritDoc
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(DefinitionFactory::newUsersEmail()
+        $o_definitions->add(DefinitionFactory::newUsersEmail()
+                                             ->setRender(false))
+
+                      ->add(DefinitionFactory::newUsersId()
                                            ->setRender(false))
 
-                    ->add(DefinitionFactory::newUsersId()
-                                           ->setRender(false))
-
-                    ->add(DefinitionFactory::newRolesId('view_roles_id')
+                      ->add(DefinitionFactory::newRolesId('view_roles_id')
                                            ->setRender(false))
 
                     ->add(DefinitionFactory::newRolesName('view_roles_name')

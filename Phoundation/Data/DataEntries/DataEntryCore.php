@@ -396,7 +396,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         // Set up the definitions for this object and initialize meta-data
         $this->setMetaDefinitions()
-             ->setDefinitions($this->definitions)
+             ->setDefinitionsObject($this->definitions)
              ->setMetaData()
              ->columns_filter_on_insert = [static::getIdColumn()];
 
@@ -1852,11 +1852,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * null_readonly  boolean            false          If "value" for entry is null, then use this for "readonly"
      * null_type      boolean            false          If "value" for entry is null, then use this for "type"
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
         // Each DataEntry object should set its own definitions!
         return $this;
@@ -2863,6 +2863,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 // The validator MIGHT have a failure that was permitted!
                 if ($validator->getFailures()) {
                     $this->setStatus('failedvalidation', auto_save: false);
+
+                } elseif ($this->hasStatus('failedvalidation')) {
+                    $this->setStatus(null, auto_save: false);
                 }
             }
 

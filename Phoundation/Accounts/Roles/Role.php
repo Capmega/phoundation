@@ -293,19 +293,19 @@ class Role extends DataEntry implements RoleInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(DefinitionFactory::newName()
-                                           ->setOptional(false)
-                                           ->setInputType(EnumInputType::name)
-                                           ->setSize(12)
-                                           ->setMaxlength(64)
-                                           ->setHelpText(tr('The name for this role'))
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+        $o_definitions->add(DefinitionFactory::newName()
+                                             ->setOptional(false)
+                                             ->setInputType(EnumInputType::name)
+                                             ->setSize(12)
+                                             ->setMaxlength(64)
+                                             ->setHelpText(tr('The name for this role'))
+                                             ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isUnique();
                                            }))
 

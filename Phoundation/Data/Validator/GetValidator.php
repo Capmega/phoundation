@@ -130,12 +130,12 @@ class GetValidator extends Validator
      * Add the specified value for key to the internal GET array
      *
      * @param mixed                      $value
-     * @param Stringable|string|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param bool                       $skip_null_values
      *
      * @return static
      */
-    public function add(mixed $value, Stringable|string|int|null $key = null, bool $skip_null_values = false): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = false): static
     {
         if (($value === null) and $skip_null_values) {
             // Don't permit empty values

@@ -59,13 +59,13 @@ class StaticRoute extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions;
+        $o_definitions;
 
         return $this;
     }

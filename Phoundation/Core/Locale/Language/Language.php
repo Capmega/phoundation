@@ -162,19 +162,19 @@ class Language extends DataEntry implements LanguageInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(DefinitionFactory::newName()
-                                           ->setDisabled(true)
-                                           ->setHelpText(tr('The name for this language')))
+        $o_definitions->add(DefinitionFactory::newName()
+                                             ->setDisabled(true)
+                                             ->setHelpText(tr('The name for this language')))
 
-                    ->add(DefinitionFactory::newSeoName())
+                      ->add(DefinitionFactory::newSeoName())
 
-                    ->add(Definition::new('code_639_1')
+                      ->add(Definition::new('code_639_1')
                                     ->setDisabled(true)
                                     ->setInputType(EnumInputType::code)
                                     ->setLabel(tr('ISO 639-1 code'))

@@ -56,13 +56,13 @@ interface IteratorInterface extends IteratorBaseInterface
      * Wrapper for Iterator::append()
      *
      * @param mixed                      $value
-     * @param Stringable|string|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param bool                       $skip_null_values
      * @param bool                       $exception
      *
      * @return static
      */
-    public function add(mixed $value, Stringable|string|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static;
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static;
 
     /**
      * Add the specified value to the iterator array using an optional key
@@ -70,13 +70,13 @@ interface IteratorInterface extends IteratorBaseInterface
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
      * @param mixed                      $value
-     * @param Stringable|string|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param bool                       $skip_null_values
      * @param bool                       $exception
      *
      * @return static
      */
-    public function append(mixed $value, Stringable|string|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static;
+    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static;
 
     /**
      * Add the specified value to the iterator array using an optional key
@@ -84,13 +84,13 @@ interface IteratorInterface extends IteratorBaseInterface
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
      * @param mixed                      $value
-     * @param Stringable|string|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param bool                       $skip_null_values
      * @param bool                       $exception
      *
      * @return static
      */
-    public function prepend(mixed $value, Stringable|string|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static;
+    public function prepend(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static;
 
     /**
      * Add the specified value to the iterator array using an optional key BEFORE the specified $before_key
@@ -98,14 +98,14 @@ interface IteratorInterface extends IteratorBaseInterface
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
      * @param mixed                      $value
-     * @param Stringable|string|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param Stringable|string|int|null $before
      * @param bool                       $skip_null_values
      * @param bool                       $exception
      *
      * @return static
      */
-    public function prependBeforeKey(mixed $value, Stringable|string|int|null $key = null, Stringable|string|int|null $before = null, bool $skip_null_values = true, bool $exception = true): static;
+    public function prependBeforeKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|int|null $before = null, bool $skip_null_values = true, bool $exception = true): static;
 
     /**
      * Same as Arrays::spliceKey() but for this Iterator
@@ -126,14 +126,14 @@ interface IteratorInterface extends IteratorBaseInterface
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
      * @param mixed                      $value
-     * @param Stringable|string|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param Stringable|string|int|null $after
      * @param bool                       $skip_null_values
      * @param bool                       $exception
      *
      * @return static
      */
-    public function appendAfterKey(mixed $value, Stringable|string|int|null $key = null, Stringable|string|int|null $after = null, bool $skip_null_values = true, bool $exception = true): static;
+    public function appendAfterKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|int|null $after = null, bool $skip_null_values = true, bool $exception = true): static;
 
     /**
      * Add the specified value to the iterator array using an optional key BEFORE the specified $before_value
@@ -141,7 +141,7 @@ interface IteratorInterface extends IteratorBaseInterface
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
      * @param mixed                      $value
-     * @param Stringable|string|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param mixed                      $before
      * @param bool                       $strict
      * @param bool                       $skip_null_values
@@ -149,7 +149,7 @@ interface IteratorInterface extends IteratorBaseInterface
      *
      * @return static
      */
-    public function prependBeforeValue(mixed $value, Stringable|string|int|null $key = null, mixed $before = null, bool $strict = false, bool $skip_null_values = true, bool $exception = true): static;
+    public function prependBeforeValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $before = null, bool $strict = false, bool $skip_null_values = true, bool $exception = true): static;
 
     /**
      * Add the specified value to the iterator array using an optional key AFTER the specified $after_value
@@ -157,7 +157,7 @@ interface IteratorInterface extends IteratorBaseInterface
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
      * @param mixed                      $value
-     * @param Stringable|string|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param mixed                      $after
      * @param bool                       $strict
      * @param bool                       $skip_null_values
@@ -165,29 +165,29 @@ interface IteratorInterface extends IteratorBaseInterface
      *
      * @return static
      */
-    public function appendAfterValue(mixed $value, Stringable|string|int|null $key = null, mixed $after = null, bool $strict = false, bool $skip_null_values = true, bool $exception = true): static;
+    public function appendAfterValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $after = null, bool $strict = false, bool $skip_null_values = true, bool $exception = true): static;
 
     /**
      * Will remove the entry with the specified key before the $before key
      *
-     * @param Stringable|string|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param Stringable|string|int|null $before
      * @param bool                       $strict
      *
      * @return static
      */
-    public function moveBeforeKey(Stringable|string|int|null $key, Stringable|string|int|null $before, bool $strict = true): static;
+    public function moveBeforeKey(Stringable|string|float|int|null $key, Stringable|string|int|null $before, bool $strict = true): static;
 
     /**
      * Will remove the entry with the specified key after the $after key
      *
-     * @param Stringable|string|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param Stringable|string|int|null $after
      * @param bool                       $strict
      *
      * @return static
      */
-    public function moveAfterKey(Stringable|string|int|null $key, Stringable|string|int|null $after, bool $strict = true): static;
+    public function moveAfterKey(Stringable|string|float|int|null $key, Stringable|string|int|null $after, bool $strict = true): static;
 
     /**
      * Adds the specified source(s) to the internal source

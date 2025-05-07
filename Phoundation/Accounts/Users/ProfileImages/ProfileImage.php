@@ -360,17 +360,17 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(DefinitionFactory::newUsersId())
+        $o_definitions->add(DefinitionFactory::newUsersId())
 
-                    ->add(DefinitionFactory::newId('uploads_id'))
+                      ->add(DefinitionFactory::newId('uploads_id'))
 
-                    ->add(DefinitionFactory::newFile()
+                      ->add(DefinitionFactory::newFile()
                                            ->setMaxlength(2048)
                                            ->setRender(false)
                                            ->addValidationFunction(function (ValidatorInterface $validator) {

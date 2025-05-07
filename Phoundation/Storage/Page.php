@@ -77,11 +77,11 @@ class Page extends DataEntry implements PageInterface
     /**
      * Sets and returns the field definitions for the data fields in this DataEntry object
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
 //`view_rights_id` bigint DEFAULT NULL,
 //`collections_id` bigint NOT NULL,
@@ -91,15 +91,15 @@ class Page extends DataEntry implements PageInterface
 //`categories_id` bigint DEFAULT NULL,
 //`templates_id` bigint DEFAULT NULL,
 //`is_template` tinyint DEFAULT NULL,
-        $definitions->add(DefinitionFactory::newParentsId()
-                                           ->setElement(EnumElement::select)
-                                           ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+        $o_definitions->add(DefinitionFactory::newParentsId()
+                                             ->setElement(EnumElement::select)
+                                             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                                                return Pages::new()
                                                            ->getHtmlSelectOld()
                                                            ->setName($key)
                                                            ->setSelected(isset_get($source[$key]));
                                            })
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+                                             ->addValidationFunction(function (ValidatorInterface $validator) {
                                                // Ensure categories id exists and that its or category
                                                $validator->orColumn('parents_name')
                                                          ->isDbId()

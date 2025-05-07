@@ -475,17 +475,17 @@ class Server extends DataEntry implements ServerInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(Definition::new('seo_hostname')
-                                    ->setVirtual(true)
-                                    ->setReadonly(true))
+        $o_definitions->add(Definition::new('seo_hostname')
+                                      ->setVirtual(true)
+                                      ->setReadonly(true))
 
-                    ->add(Definition::new('categories_name')
+                      ->add(Definition::new('categories_name')
                                     ->setOptional(true)
                                     ->setVirtual(true)
                                     ->setCliColumn('--category CATEGORY-NAME')

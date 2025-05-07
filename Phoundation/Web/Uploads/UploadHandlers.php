@@ -620,13 +620,13 @@ throw new UnderConstructionException(tr('IMPLEMENT FILE VALIDATIONS'));
      *
      *
      * @param mixed                      $value
-     * @param Stringable|string|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param bool                       $skip_null_values
      * @param bool                       $exception
      *
      * @return static
      */
-    public function append(mixed $value, Stringable|int|string|null $key = null, bool $skip_null_values = true, bool $exception = true): static
+    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
         if (empty($key)) {
             $key = $value->getDropzoneObject()->getMimetypes();
@@ -643,13 +643,13 @@ throw new UnderConstructionException(tr('IMPLEMENT FILE VALIDATIONS'));
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
      * @param mixed                      $value
-     * @param Stringable|string|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param bool                       $skip_null_values
      * @param bool                       $exception
      *
      * @return static
      */
-    public function prepend(mixed $value, Stringable|int|string|null $key = null, bool $skip_null_values = true, bool $exception = true): static
+    public function prepend(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
         if (empty($key)) {
             $key = $value->getDropzoneObject()->getMimetypes();

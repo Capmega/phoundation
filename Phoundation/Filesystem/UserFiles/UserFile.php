@@ -65,19 +65,19 @@ class UserFile extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(DefinitionFactory::newFile(PhoDirectory::newUserFilesObject())
-                        ->setOptional(false)
-                        ->setSize(12)
-                        ->setHelpText(tr('Filename'))
-                        ->addValidationFunction(function (ValidatorInterface $validator) {
+        $o_definitions->add(DefinitionFactory::newFile(PhoDirectory::newUserFilesObject())
+                                             ->setOptional(false)
+                                             ->setSize(12)
+                                             ->setHelpText(tr('Filename'))
+                                             ->addValidationFunction(function (ValidatorInterface $validator) {
                             $validator->isUnique();
                         }))
 
-                    ->add(DefinitionFactory::newFile(PhoDirectory::newUserFilesObject(), 'seo_file')
+                      ->add(DefinitionFactory::newFile(PhoDirectory::newUserFilesObject(), 'seo_file')
                         ->setOptional(false)
                         ->setRender(false)
                         ->setSize(12)

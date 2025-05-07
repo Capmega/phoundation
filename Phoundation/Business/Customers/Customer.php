@@ -134,15 +134,15 @@ class Customer extends DataEntry implements CustomerInterface
     /**
      * Sets the available data keys for the User class
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(DefinitionFactory::getCategoriesId($this))
-                    ->add(DefinitionFactory::getCategory($this))
-                    ->add(DefinitionFactory::getCompaniesId($this))
-                    ->add(DefinitionFactory::getCompany($this))
-                    ->add(DefinitionFactory::getName($this)
+        $o_definitions->add(DefinitionFactory::getCategoriesId($this))
+                      ->add(DefinitionFactory::getCategory($this))
+                      ->add(DefinitionFactory::getCompaniesId($this))
+                      ->add(DefinitionFactory::getCompany($this))
+                      ->add(DefinitionFactory::getName($this)
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isFalse(function ($value, $source) {
                                                    Customer::exists(['name' => $value], isset_get($source['id']));

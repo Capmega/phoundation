@@ -230,6 +230,13 @@ class Response implements ResponseInterface
      */
     protected static bool $render_main_contents_only = false;
 
+    /**
+     * Tracks attributes for the <head> tag
+     *
+     * @var Iterator $o_head_data_attributes
+     */
+    protected static Iterator $o_head_data_attributes;
+
 
     /**
      * Response class constructor
@@ -1086,6 +1093,76 @@ class Response implements ResponseInterface
         static::$html_headers_sent = true;
 
         return $return . '</head>';
+    }
+
+
+    /**
+     * Renders and returns the <head> tag
+     *
+     * @return string|null
+     */
+    public static function renderHeadTag(): ?string
+    {
+//showdie('<head' . static::renderHtmlHeadTagData() . '>');
+        return '<head' . static::renderHtmlHeadTagData() . '>';
+    }
+
+
+    /**
+     * Renders and returns the <head> data attributes
+     *
+     * @return string|null
+     */
+    public static function renderHtmlHeadTagData(): ?string
+    {
+        $data = static::getHeadDataAttributes(false);
+
+        if (!$data) {
+            return null;
+        }
+
+        $return = [];
+
+        foreach ($data as $key => $value) {
+            $return[] = 'data-' . $key . '="' . $value . '"';
+        }
+
+        return implode(' ', $return);
+    }
+
+
+    /**
+     * Returns the <head> tag "data" attributes Iterator object
+     *
+     * @param bool $auto_initialize
+     *
+     * @return IteratorInterface|null
+     */
+    public static function getHeadDataAttributes(bool $auto_initialize = true): ?IteratorInterface
+    {
+        if (empty(static::$o_head_data_attributes)) {
+            if (!$auto_initialize) {
+                return null;
+            }
+
+            static::$o_head_data_attributes = new Iterator();
+        }
+
+        return static::$o_head_data_attributes;
+    }
+
+
+    /**
+     * Adds the specified data attribute to the head tag
+     *
+     * @param Stringable|string|float|int|null $value
+     * @param Stringable|string|float|int|null $key
+     *
+     * @return void
+     */
+    public static function addHeadDataAttribute(Stringable|string|float|int|null $value, Stringable|string|float|int|null $key): void
+    {
+        static::getHeadDataAttributes()->add($value, $key);
     }
 
 

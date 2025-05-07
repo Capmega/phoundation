@@ -2898,19 +2898,19 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     /**
      * Sets the available data keys for the User class
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->get('status')->setNullDisplay(tr('Ok'));
-        $definitions->add(Definition::new('remote_id')
-                                    ->setOptional(true)
-                                    ->setRender(false)
-                                    ->setInputType(EnumInputType::number))
+        $o_definitions->get('status')->setNullDisplay(tr('Ok'));
+        $o_definitions->add(Definition::new('remote_id')
+                                      ->setOptional(true)
+                                      ->setRender(false)
+                                      ->setInputType(EnumInputType::number))
 
-                    ->add(Definition::new('last_sign_in')
+                      ->add(Definition::new('last_sign_in')
                                     ->setOptional(true)
                                     ->setDisabled(true)
                                     ->setRender(function() { return !$this->isNew(); })

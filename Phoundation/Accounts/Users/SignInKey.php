@@ -308,15 +308,15 @@ class SignInKey extends DataEntry implements SignInKeyInterface
     /**
      * @inheritDoc
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(DefinitionFactory::newUsersId())
+        $o_definitions->add(DefinitionFactory::newUsersId())
 
-                    ->add(DefinitionFactory::newUuid())
+                      ->add(DefinitionFactory::newUuid())
 
-                    ->add(DefinitionFactory::newUrl('redirect'))
+                      ->add(DefinitionFactory::newUrl('redirect'))
 
-                    ->add(DefinitionFactory::newDate('valid_until')
+                      ->add(DefinitionFactory::newDate('valid_until')
                                            ->setLabel(tr('Valid until')))
 
                     ->add(DefinitionFactory::newBoolean('allow_navigation')

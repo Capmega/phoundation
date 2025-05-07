@@ -130,18 +130,18 @@ class Email extends DataEntry
     /**
      * Sets and returns the field definitions for the data fields in this DataEntry object
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(DefinitionFactory::newUsersEmail()
-                                           ->setRender(false))
+        $o_definitions->add(DefinitionFactory::newUsersEmail()
+                                             ->setRender(false))
 
-                    ->add(DefinitionFactory::newUsersId())
+                      ->add(DefinitionFactory::newUsersId())
 
-                    ->add(Definition::new('parents_id')
+                      ->add(Definition::new('parents_id')
                                     ->setRender(false)
                                     ->setInputType(EnumInputType::dbid)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {

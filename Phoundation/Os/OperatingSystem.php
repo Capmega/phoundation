@@ -88,11 +88,11 @@ class OperatingSystem extends DataEntry implements OperatingSystemInterface
     /**
      * @inheritDoc
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(DefinitionFactory::newName())
+        $o_definitions->add(DefinitionFactory::newName())
 
-                    ->add(DefinitionFactory::newDescription());
+                      ->add(DefinitionFactory::newDescription());
 
         return $this;
     }

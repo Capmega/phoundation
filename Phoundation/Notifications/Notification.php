@@ -843,14 +843,15 @@ FILES variables:
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
+     *
      * @return Notification
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(DefinitionFactory::newCreatedBy())
+        $o_definitions->add(DefinitionFactory::newCreatedBy())
 
-                    ->add(Definition::new('users_id')
+                      ->add(Definition::new('users_id')
                                     ->setRender(false)
                                     ->setInputType(EnumInputType::dbid)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {

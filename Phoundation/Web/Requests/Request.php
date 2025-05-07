@@ -1770,11 +1770,12 @@ class Request implements RequestInterface
             // Execute the entire page and return the output
             $results = static::$page->execute();
 
-            // Are all request method restrictions satisfied? Only check non system pages, system pages will allow all
+            // Are all request method restrictions satisfied? Only check non-system pages, system pages will allow all
             if (!static::$is_system) {
                 Request::getMethodRestrictionsObject()->checkRestrictions();
             }
 
+            Response::addHeadDataAttribute(Session::get('last_activity'), 'last-activity');
             return $results;
 
         } catch (ValidationFailedException | RequestMethodRestrictionsException $e) {

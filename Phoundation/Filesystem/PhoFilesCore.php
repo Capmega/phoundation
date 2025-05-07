@@ -388,7 +388,7 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
     /**
      * @inheritDoc
      */
-    public function append(mixed $value, Stringable|int|string|null $key = null, bool $skip_null_values = true, bool $exception = true): static
+    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
         // Skip NULL values?
         if ($value === null) {

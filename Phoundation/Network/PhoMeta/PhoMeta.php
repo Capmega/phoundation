@@ -465,21 +465,21 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(DefinitionFactory::newCode('global_id')
-                                           ->setMaxlength(32)
-                                           ->setLabel('Global request identifier'))
+        $o_definitions->add(DefinitionFactory::newCode('global_id')
+                                             ->setMaxlength(32)
+                                             ->setLabel('Global request identifier'))
 
-                    ->add(DefinitionFactory::newCode('hash')
+                      ->add(DefinitionFactory::newCode('hash')
                                            ->setMaxlength(64)
                                            ->setLabel('Message digest'))
 
-                    ->add(DefinitionFactory::newData()
+                      ->add(DefinitionFactory::newData()
                                            ->setLabel('Message meta data'));
 
         return $this;

@@ -341,13 +341,13 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      * Wrapper for Iterator::append()
      *
      * @param mixed                      $value
-     * @param Stringable|string|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param bool                       $skip_null_values
      * @param bool                       $exception
      *
      * @return static
      */
-    public function add(mixed $value, Stringable|string|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
         return $this->append($value, $key, $skip_null_values, $exception);
     }
@@ -358,14 +358,14 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
-     * @param mixed                      $value
-     * @param Stringable|string|int|null $key
-     * @param bool                       $skip_null_values
-     * @param bool                       $exception
+     * @param mixed                            $value
+     * @param Stringable|string|float|int|null $key
+     * @param bool                             $skip_null_values
+     * @param bool                             $exception
      *
      * @return static
      */
-    public function append(mixed $value, Stringable|string|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
+    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
         // Skip NULL values?
         if ($value === null) {
@@ -404,12 +404,12 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * Throws an OutOfBounds exception if the datatype or Interface is not allowed
      *
-     * @param mixed                      $value
-     * @param Stringable|string|int|null $key
+     * @param mixed                            $value
+     * @param Stringable|string|float|int|null $key
      *
      * @return void
      */
-    protected function checkDataTypeAndContent(mixed $value, Stringable|string|int|null $key): void
+    protected function checkDataTypeAndContent(mixed $value, Stringable|string|float|int|null $key): void
     {
         if ($this->accepted_data_types) {
             if (!is_datatype_or_class($this->accepted_data_types, $value)) {
@@ -520,13 +520,13 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
      * @param mixed                      $value
-     * @param Stringable|string|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param bool                       $skip_null_values
      * @param bool                       $exception
      *
      * @return static
      */
-    public function prepend(mixed $value, Stringable|string|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
+    public function prepend(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
         // Skip NULL values?
         if ($value === null) {
@@ -562,14 +562,14 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
      * @param mixed                      $value
-     * @param Stringable|string|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param Stringable|string|int|null $before
      * @param bool                       $skip_null_values
      * @param bool                       $exception
      *
      * @return static
      */
-    public function prependBeforeKey(mixed $value, Stringable|string|int|null $key = null, Stringable|string|int|null $before = null, bool $skip_null_values = true, bool $exception = true): static
+    public function prependBeforeKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|int|null $before = null, bool $skip_null_values = true, bool $exception = true): static
     {
         // Skip NULL values?
         if ($value === null) {
@@ -636,14 +636,14 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
      * @param mixed                      $value
-     * @param Stringable|string|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param Stringable|string|int|null $after
      * @param bool                       $skip_null_values
      * @param bool                       $exception
      *
      * @return static
      */
-    public function appendAfterKey(mixed $value, Stringable|string|int|null $key = null, Stringable|string|int|null $after = null, bool $skip_null_values = true, bool $exception = true): static
+    public function appendAfterKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|int|null $after = null, bool $skip_null_values = true, bool $exception = true): static
     {
         // Skip NULL values?
         if ($value === null) {
@@ -684,7 +684,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
      * @param mixed                      $value
-     * @param Stringable|string|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param mixed                      $before
      * @param bool                       $strict
      * @param bool                       $skip_null_values
@@ -692,7 +692,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @return static
      */
-    public function prependBeforeValue(mixed $value, Stringable|string|int|null $key = null, mixed $before = null, bool $strict = false, bool $skip_null_values = true, bool $exception = true): static
+    public function prependBeforeValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $before = null, bool $strict = false, bool $skip_null_values = true, bool $exception = true): static
     {
         // Skip NULL values?
         if ($value === null) {
@@ -735,7 +735,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
      * @param mixed                      $value
-     * @param Stringable|string|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param mixed                      $after
      * @param bool                       $strict
      * @param bool                       $skip_null_values
@@ -743,7 +743,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @return static
      */
-    public function appendAfterValue(mixed $value, Stringable|string|int|null $key = null, mixed $after = null, bool $strict = false, bool $skip_null_values = true, bool $exception = true): static
+    public function appendAfterValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $after = null, bool $strict = false, bool $skip_null_values = true, bool $exception = true): static
     {
         // Skip NULL values?
         if ($value === null) {
@@ -783,13 +783,13 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Will remove the entry with the specified key before the $before key
      *
-     * @param Stringable|string|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param Stringable|string|int|null $before
      * @param bool                       $strict
      *
      * @return static
      */
-    public function moveBeforeKey(Stringable|string|int|null $key, Stringable|string|int|null $before, bool $strict = true): static
+    public function moveBeforeKey(Stringable|string|float|int|null $key, Stringable|string|int|null $before, bool $strict = true): static
     {
         $pos_key    = array_search($key   , array_keys($this->source), $strict);
         $pos_before = array_search($before, array_keys($this->source), $strict);
@@ -820,13 +820,13 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Will remove the entry with the specified key after the $after key
      *
-     * @param Stringable|string|int|null $key
+     * @param Stringable|string|float|int|null $key
      * @param Stringable|string|int|null $after
      * @param bool                       $strict
      *
      * @return static
      */
-    public function moveAfterKey(Stringable|string|int|null $key, Stringable|string|int|null $after, bool $strict = true): static
+    public function moveAfterKey(Stringable|string|float|int|null $key, Stringable|string|int|null $after, bool $strict = true): static
     {
         $pos_key   = array_search($key  , array_keys($this->source), $strict);
         $pos_after = array_search($after, array_keys($this->source), $strict);

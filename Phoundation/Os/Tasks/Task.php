@@ -1282,19 +1282,19 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(DefinitionFactory::newCode()
-                                           ->setReadonly(true)
-                                           ->setOptional(true)
-                                           ->setLabel(tr('Code'))
-                                           ->setSize(4)
-                                           ->setMaxlength(36)
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+        $o_definitions->add(DefinitionFactory::newCode()
+                                             ->setReadonly(true)
+                                             ->setOptional(true)
+                                             ->setLabel(tr('Code'))
+                                             ->setSize(4)
+                                             ->setMaxlength(36)
+                                             ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isCode();
                                            }))
 
