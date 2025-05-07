@@ -846,7 +846,7 @@ FILES variables:
      * @param DefinitionsInterface $definitions
      * @return Notification
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newCreatedBy())
 

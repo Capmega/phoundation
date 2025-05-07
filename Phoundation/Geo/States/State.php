@@ -129,7 +129,7 @@ class State extends DataEntry implements StateInterface
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions;
 

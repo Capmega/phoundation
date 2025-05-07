@@ -268,7 +268,7 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newVariable('component')
                                            ->setMaxlength(32)

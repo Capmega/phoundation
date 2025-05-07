@@ -136,7 +136,7 @@ class Customer extends DataEntry implements CustomerInterface
      *
      * @param DefinitionsInterface $definitions
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::getCategoriesId($this))
                     ->add(DefinitionFactory::getCategory($this))

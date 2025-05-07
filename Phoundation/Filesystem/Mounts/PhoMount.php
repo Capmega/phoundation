@@ -475,7 +475,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
     /**
      * @inheritDoc
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newName()
                                            ->setInputType(EnumInputType::name)

@@ -448,7 +448,7 @@ class Password extends DataEntry implements PasswordInterface
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions->add(Definition::new('current')
                                     ->setRender(true)

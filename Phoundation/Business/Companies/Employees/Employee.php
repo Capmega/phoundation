@@ -66,7 +66,7 @@ class Employee extends DataEntry implements EmployeeInterface
      *
      * @param DefinitionsInterface $definitions
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions;
     }

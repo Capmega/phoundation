@@ -346,7 +346,7 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
      * @param DefinitionsInterface $definitions
      * @return PhoMimetype
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newName()
                                            ->setOptional(false)

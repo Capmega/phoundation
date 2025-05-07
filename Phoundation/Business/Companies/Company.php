@@ -118,7 +118,7 @@ class Company extends DataEntry implements CompanyInterface
      *
      * @return Company
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions;
 

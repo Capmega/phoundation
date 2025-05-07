@@ -570,7 +570,7 @@ class Plugin extends DataEntry implements PluginInterface
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions->add(Definition::new('disabled')
                                     ->setInputType(EnumInputType::boolean)

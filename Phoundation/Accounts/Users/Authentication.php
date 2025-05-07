@@ -450,7 +450,7 @@ class Authentication extends DataEntry implements AuthenticationInterface
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         // Ensure status will be limited to the defined possible states
         $definitions->removeKeys('new-divider')

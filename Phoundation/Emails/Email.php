@@ -134,7 +134,7 @@ class Email extends DataEntry
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newUsersEmail()
                                            ->setRender(false))

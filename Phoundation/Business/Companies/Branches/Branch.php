@@ -66,7 +66,7 @@ class Branch extends DataEntry implements BranchInterface
      *
      * @param DefinitionsInterface $definitions
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions;
     }

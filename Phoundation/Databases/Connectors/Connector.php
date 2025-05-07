@@ -924,7 +924,7 @@ class Connector extends DataEntry implements ConnectorInterface
     /**
      * @inheritDoc
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newName()
                                            ->setOptional(false)

@@ -110,6 +110,7 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
+use Plugins\Medinet\Encounters\EncounterRole;
 use Stringable;
 use Throwable;
 use TypeError;
@@ -393,7 +394,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         // Set up the definitions for this object and initialize meta-data
         $this->setMetaDefinitions()
-             ->setDefinitions($this->definitions)
+             ->setDefinitionsObject($this->definitions)
              ->setMetaData()
              ->columns_filter_on_insert = [static::getIdColumn()];
 
@@ -1853,7 +1854,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         // Each DataEntry object should set its own definitions!
         return $this;
@@ -1954,6 +1955,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function setSource(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, bool $filter_meta = false): static
     {
         // Initialize the object
+        if (!$this->is_initialized) {
+            $this->initialize(false);
+        }
+
         $this->is_initializing_source = true;
         $this->source                 = [];
 

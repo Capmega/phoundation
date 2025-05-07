@@ -2902,7 +2902,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions->get('status')->setNullDisplay(tr('Ok'));
         $definitions->add(Definition::new('remote_id')
@@ -2950,10 +2950,12 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setLabel(tr('Locked until')))
 
                     ->add(DefinitionFactory::newDivider()
-                                           ->setRender(function() { return $this->definitions->getDefinitionRender('last_sign_in')
-                                                                       and $this->definitions->getDefinitionRender('sign_in_count')
-                                                                       and $this->definitions->getDefinitionRender('authentication_failures')
-                                                                       and $this->definitions->getDefinitionRender('locked_until'); }))
+                                           ->setRender(function() {
+                                               return $this->definitions->getDefinitionRender('last_sign_in')
+                                                  and $this->definitions->getDefinitionRender('sign_in_count')
+                                                  and $this->definitions->getDefinitionRender('authentication_failures')
+                                                  and $this->definitions->getDefinitionRender('locked_until');
+                                           }))
 
                     ->add(DefinitionFactory::newEmail()
                                            ->setOptional(true)

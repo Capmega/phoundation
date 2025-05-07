@@ -1286,7 +1286,7 @@ class Task extends DataEntry implements TaskInterface
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newCode()
                                            ->setReadonly(true)

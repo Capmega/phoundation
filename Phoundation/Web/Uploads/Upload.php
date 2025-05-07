@@ -364,7 +364,7 @@ class Upload extends DataEntry implements UploadInterface
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newFilename('name')
                                            ->setLabel(tr('File name'))

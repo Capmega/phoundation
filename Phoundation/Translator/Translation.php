@@ -61,7 +61,7 @@ class Translation extends DataEntry
      *
      * @param DefinitionsInterface $definitions
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions;
     }

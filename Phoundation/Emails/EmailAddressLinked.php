@@ -78,7 +78,7 @@ class EmailAddressLinked extends DataEntry
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newDatabaseId('emails_id')
                                            ->setRender(false))

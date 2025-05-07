@@ -67,7 +67,7 @@ class UserFile extends DataEntry
      *
      * @param DefinitionsInterface $definitions
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newFile(PhoDirectory::newUserFilesObject())
                         ->setOptional(false)

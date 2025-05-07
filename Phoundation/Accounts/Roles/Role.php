@@ -297,7 +297,7 @@ class Role extends DataEntry implements RoleInterface
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newName()
                                            ->setOptional(false)

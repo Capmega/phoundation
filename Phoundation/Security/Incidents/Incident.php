@@ -530,7 +530,7 @@ class Incident extends DataEntryCore implements IncidentInterface
      *
      * @return Incident
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions->removeKeys('new-divider')
 

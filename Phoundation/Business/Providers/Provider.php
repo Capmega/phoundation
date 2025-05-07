@@ -138,7 +138,7 @@ class Provider extends DataEntry implements ProviderInterface
      *
      * @return void
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::getCategoriesId($this))
                     ->add(DefinitionFactory::getCategory($this))

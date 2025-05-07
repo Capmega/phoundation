@@ -469,7 +469,7 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newCode('global_id')
                                            ->setMaxlength(32)

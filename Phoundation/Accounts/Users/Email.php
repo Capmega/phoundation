@@ -164,7 +164,7 @@ class Email extends DataEntry implements EmailInterface
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newCode('verification_code')
                                            ->setOptional(true)

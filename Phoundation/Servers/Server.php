@@ -479,7 +479,7 @@ class Server extends DataEntry implements ServerInterface
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions->add(Definition::new('seo_hostname')
                                     ->setVirtual(true)

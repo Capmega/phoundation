@@ -308,7 +308,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
     /**
      * @inheritDoc
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newUsersId())
 

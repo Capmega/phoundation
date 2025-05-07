@@ -201,7 +201,7 @@ class Right extends DataEntry implements RightInterface
      * @param DefinitionsInterface $definitions
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions->add(DefinitionFactory::newName()
                                            ->setInputType(EnumInputType::name)

@@ -136,7 +136,7 @@ class Category extends DataEntry implements CategoryInterface
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
         $definitions->add(Definition::new('parents_id')
                                     ->setOptional(true)

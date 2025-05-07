@@ -81,7 +81,7 @@ class Page extends DataEntry implements PageInterface
      *
      * @return static
      */
-    protected function setDefinitions(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
     {
 //`view_rights_id` bigint DEFAULT NULL,
 //`collections_id` bigint NOT NULL,
