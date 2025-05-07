@@ -2967,13 +2967,13 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                                $validator->isUnique(tr('already exists as a primary email address'));
 
                                                $exists = sql()->getRow('SELECT `id` 
-                                                                     FROM   `accounts_emails` 
-                                                                     WHERE  `email` = :email', [
+                                                                        FROM   `accounts_emails` 
+                                                                        WHERE  `email` = :email', [
                                                                          ':email' => $validator->getSelectedValue(),
                                                ]);
 
                                                if ($exists) {
-                                                   $validator->addFailure(tr('already exists as an additional email address'));
+                                                   $validator->addSoftFailure(tr('already exists as an additional email address'));
                                                }
                                            }))
 
@@ -3118,7 +3118,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setHelpText(tr('The birthdate for this user'))
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isDate()
-                                                         ->isBefore(PhoDateTime::newTomorrow());
+                                                         ->isBefore(PhoDateTime::new(), true);
                                            }))
 
                     ->add(DefinitionFactory::newPhone()
@@ -3409,7 +3409,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                                if ($validator->getSelectedValue()) {
                                                    if ($this->isNew()) {
                                                        // Can't save a profile image with a user that does not yet exist in the database
-                                                       $validator->addFailure(tr('requires that the user is saved first'));
+                                                       $validator->addSoftFailure(tr('requires that the user is saved first'));
 
                                                    } else {
                                                        $validator->isFile(

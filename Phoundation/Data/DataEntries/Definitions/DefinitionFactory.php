@@ -1271,6 +1271,7 @@ class DefinitionFactory
                          ->setOptional(true)
                          ->setInputType(EnumInputType::datetime_local)
                          ->setSize(3)
+                         ->setMaxlength(20)
                          ->setLabel(tr('Date time'));
     }
 
@@ -1288,6 +1289,7 @@ class DefinitionFactory
                          ->setOptional(true)
                          ->setInputType(EnumInputType::date)
                          ->setSize(3)
+                         ->setMaxlength(8)
                          ->setCliAutoComplete(true)
                          ->setLabel(tr('Date'));
     }
@@ -1325,7 +1327,7 @@ class DefinitionFactory
     public static function newPort(?string $column = 'number', ?int $default = null): DefinitionInterface
     {
         return static::newNumber($column, $default)
-                     ->setInputType(EnumInputType::dbid)
+                     ->setInputType(EnumInputType::positiveInteger)
                      ->setMin(1)
                      ->setMax(65535);
     }
@@ -1864,126 +1866,6 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function getCreatedBy(?string $column = 'created_by'): DefinitionInterface
-    {
-        return Definition::new($column)
-                         ->setDisabled(true)
-                         ->setSize(3)
-                         ->setLabel(tr('Created by'))
-                         ->setTooltip(tr('This column contains the user who created this object. Other users may have made further edits to this object, that information may be found in the object\'s meta data'))
-                         ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) {
-                             if ($definition->getDataEntryObject()->isNew()) {
-                                 // This is a new DataEntry object, so the creator is.. Well, you!
-                                 return InputText::new()
-                                                 ->setDisabled(true)
-                                                 ->addClasses('text-center')
-                                                 ->setValue(Session::getUserObject()
-                                                     ->getDisplayName());
-                             } else {
-                                 // This is created by a user or by the system user
-                                 if ($source[$key]) {
-                                     return InputText::new()
-                                                     ->setDisabled(true)
-                                                     ->addClasses('text-center')
-                                                     ->setValue(User::new()->load($source[$key])
-                                                         ->getDisplayName());
-                                 } else {
-                                     return InputText::new()
-                                                     ->setDisabled(true)
-                                                     ->addClasses('text-center')
-                                                     ->setContent(tr('System'));
-                                 }
-                             }
-                         });
-    }
-
-
-    /**
-     * Returns a Definition object for created_on
-     *
-     * @param string|null $column
-     *
-     * @return DefinitionInterface
-     */
-    public static function getCreatedOn(?string $column = 'created_on'): DefinitionInterface
-    {
-        return Definition::new($column)
-                         ->setDisabled(true)
-                         ->setInputType(EnumInputType::datetime_local)
-                         ->setDbNullInputType(EnumInputType::text)
-                         ->addClasses('text-center')
-                         ->setSize(3)
-                         ->setTooltip(tr('This column contains the exact date / time when this object was created'))
-                         ->setLabel(tr('Created on'));
-    }
-
-
-    /**
-     * Returns a Definition object for meta_id
-     *
-     * @param string|null $column
-     *
-     * @return DefinitionInterface
-     */
-    public static function getMetaId(?string $column = 'meta_id'): DefinitionInterface
-    {
-        return Definition::new($column)
-                         ->setDisabled(true)
-                         ->setRender(false)
-                         ->setInputType(EnumInputType::dbid)
-                         ->setDbNullInputType(EnumInputType::text)
-                         ->setTooltip(tr('This column contains the identifier for this object\'s audit history'))
-                         ->setLabel(tr('Meta ID'));
-    }
-
-
-    /**
-     * Returns a Definition object for status
-     *
-     * @param string|null $column
-     *
-     * @return DefinitionInterface
-     */
-    public static function getStatus(?string $column = 'status'): DefinitionInterface
-    {
-        return Definition::new($column)
-                         ->setOptional(true)
-                         ->setDisabled(true)
-                         ->setInputType(EnumInputType::text)
-                         ->setTooltip(tr('This column contains the current status of this object. A typical status is "Ok", but objects may also be "Deleted" or "In process", for example. Depending on their status, objects may be visible in tables, or not'))
-                         ->addClasses('text-center')
-                         ->setSize(3)
-                         ->setMaxlength(32)
-                         ->setLabel(tr('Status'));
-    }
-
-
-    /**
-     * Returns a Definition object for meta_state
-     *
-     * @param string|null $column
-     *
-     * @return DefinitionInterface
-     */
-    public static function getMetaState(?string $column = 'meta_state'): DefinitionInterface
-    {
-        return Definition::new($column)
-                         ->setDisabled(true)
-                         ->setRender(false)
-                         ->setInputType(EnumInputType::text)
-                         ->setTooltip(tr('This column contains a cache identifier value for this object. This information usually is of no importance to normal users'))
-                         ->setLabel(tr('Meta state'));
-    }
-
-
-
-    /**
-     * Returns a Definition object for created_by
-     *
-     * @param string|null $column
-     *
-     * @return DefinitionInterface
-     */
     public static function newCreatedBy(?string $column = 'created_by'): DefinitionInterface
     {
         return Definition::new($column)
@@ -2036,6 +1918,7 @@ class DefinitionFactory
                          ->setDbNullInputType(EnumInputType::text)
                          ->addClasses('text-center')
                          ->setSize(3)
+                         ->setMaxlength(20)
                          ->setTooltip(tr('This column contains the exact date / time when this object was created'))
                          ->setLabel(tr('Created on'));
     }

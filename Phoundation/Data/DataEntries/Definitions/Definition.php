@@ -1502,6 +1502,34 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns the required datatype for this definition
+     *
+     * @return string|null
+     */
+    public function getDatatype(): ?string
+    {
+        return match ($this->getElement()) {
+            EnumElement::textarea => 'string',
+            EnumElement::select   => 'int',
+            EnumElement::input    => match ($this->getInputType()) {
+                EnumInputType::boolean => 'boolean',
+                EnumInputType::float   => 'float',
+                EnumInputType::negativeInteger,
+                EnumInputType::positiveInteger,
+                EnumInputType::number,
+                EnumInputType::dbid,
+                EnumInputType::year,
+                EnumInputType::month,
+                EnumInputType::week,
+                EnumInputType::day     => 'int',
+                default                => 'string',
+            },
+            default               => null,
+        };
+    }
+
+
+    /**
      * Sets the type of input element.
      *
      * @return EnumInputType
@@ -1972,7 +2000,7 @@ class Definition implements DefinitionInterface
                 // Reset button should never arrive
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
-                         $validator->addFailure(tr('is not supported'));
+                         $validator->addSoftFailure(tr('is not supported'));
                      });
                 break;
             case EnumInputType::radio:
@@ -3353,7 +3381,7 @@ class Definition implements DefinitionInterface
                         ->setNotifyRoles('security')
                         ->save();
 
-                $validator->addFailure(tr('The field ":field" is unknown', [':field' => $column]));
+                $validator->addSoftFailure(tr('The field ":field" is unknown', [':field' => $column]));
             }
         }
 

@@ -187,7 +187,7 @@ class Email extends DataEntry implements EmailInterface
                                                ]);
 
                                                if ($exists) {
-                                                   $validator->addFailure(tr('value ":email" already exists as a primary email address', [':email' => $validator->getSelectedValue()]));
+                                                   $validator->addSoftFailure(tr('value ":email" already exists as a primary email address', [':email' => $validator->getSelectedValue()]));
                                                }
                                            }))
 

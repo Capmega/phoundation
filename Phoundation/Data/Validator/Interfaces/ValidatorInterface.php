@@ -1262,7 +1262,17 @@ interface ValidatorInterface extends IteratorBaseInterface
      *
      * @return void
      */
-    public function addFailure(string $failure, ?string $field = null): void;
+    public function addSoftFailure(string $failure, ?string $field = null): static;
+
+    /**
+     * Add the specified failure message to the failure list
+     *
+     * @param string      $failure
+     * @param string|null $field
+     *
+     * @return void
+     */
+    public function addFailure(string $failure, ?string $field = null): static;
 
     /**
      * Returns the data entry

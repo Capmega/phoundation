@@ -29,6 +29,7 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Phoundation\Web\Uploads\UploadHandler;
 
+
 // Get the user and alter the default user form
 $user = Session::getUserObject();
 $user->getDefinitionsObject()->setRenderMeta(false)
@@ -37,6 +38,7 @@ $user->getDefinitionsObject()->setRenderMeta(false)
                              ->setDefinitionSize('authentication_failures', 4)
                              ->setDefinitionSize('keywords'               , 3)
                              ->setDefinitionSize('url'                    , 6)
+                             ->setDefinitionSize('phone'                  , 6)
                              ->setDefinitionRender('locked_until'         , false)
                              ->setDefinitionRender('username'             , false)
                              ->setDefinitionRender('nickname'             , false)
@@ -65,6 +67,7 @@ $user->getDefinitionsObject()->setRenderMeta(false)
                              ->setDefinitionRender('states_id'            , false)
                              ->setDefinitionRender('cities_id'            , false)
                              ->setDefinitionRender('timezones_id'         , false)
+                             ->setDefinitionRender('languages_id'         , false)
                              ->setDefinitionReadonly('email'              , true)
                              ->setDefinitionReadonly('comments'           , true)
                              ->setDefinitionReadonly('domain'             , true)
@@ -104,6 +107,8 @@ if (Request::isPostRequestMethod()) {
                 Response::getFlashMessagesObject()->addMessage($e);
                 $user->forceApply();
             }
+
+            break;
 
         default:
             throw new ValidationFailedException(tr('Unknown submit button ":button" specified', [
