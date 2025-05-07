@@ -64,6 +64,7 @@ use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataDefinitions;
 use Phoundation\Data\EntryCore;
 use Phoundation\Data\Enums\EnumLoadParameters;
+use Phoundation\Data\Enums\EnumSoftHard;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataCacheKey;
 use Phoundation\Data\Traits\TraitDataColumns;
@@ -76,6 +77,7 @@ use Phoundation\Data\Traits\TraitDataInsertUpdate;
 use Phoundation\Data\Traits\TraitDataMaxIdRetries;
 use Phoundation\Data\Traits\TraitDataMetaColumns;
 use Phoundation\Data\Traits\TraitDataMetaEnabled;
+use Phoundation\Data\Traits\TraitDataPermitValidationFailures;
 use Phoundation\Data\Traits\TraitDataRandomId;
 use Phoundation\Data\Traits\TraitDataReadonly;
 use Phoundation\Data\Traits\TraitDataRestrictions;
@@ -141,6 +143,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     use TraitMethodsGetTypesafe;
     use TraitMethodsVirtualColumns;
     use TraitDataColumns;
+    use TraitDataPermitValidationFailures;
 
 
     /**
@@ -351,7 +354,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             $enabled = config()->getBoolean('development.dataentries.destruct.modified.check', false);
 
             if ($enabled) {
-                // Cannot destroy a modified DataEntry object without either resetting it or saving it
+                // Can't destroy a modified DataEntry object without either resetting it or saving it
                 if (!Core::getErrorState() and !PhoException::hasBeenCreated()) {
                     throw DataEntryNotSavedException::new(tr('Cannot destroy the ":class" object, it has unsaved modifications', [
                         ':class' => $this::class
@@ -1850,11 +1853,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * null_readonly  boolean            false          If "value" for entry is null, then use this for "readonly"
      * null_type      boolean            false          If "value" for entry is null, then use this for "type"
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
         // Each DataEntry object should set its own definitions!
         return $this;
@@ -2824,7 +2827,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         // Go over each column and let the column definition do the validation since it knows the specs
         foreach ($this->definitions as $column => $definition) {
             if ($definition->isMeta()) {
-                // This column is metadata and should not be validated. Only apply static values
+                // This column is metadata and shouldn't be validated. Only apply static values
                 if ($definition->getValue()) {
                     $this->source[$column] = $definition->getValue();
                 }
@@ -2857,8 +2860,19 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         try {
             // Execute the validate method to get the results of the validation
-            $source             = $validator->validate($require_clean_source);
+            $source             = $validator->setPermitValidationFailures($this->getPermitValidationFailures())
+                                            ->validate($require_clean_source);
             $this->is_validated = true;
+
+            if (!$this->hasPermitValidationFailures(EnumSoftHard::none)) {
+                // The validator MIGHT have a failure that was permitted!
+                if ($validator->getFailures()) {
+                    $this->setStatus('failedvalidation', auto_save: false);
+
+                } elseif ($this->hasStatus('failedvalidation')) {
+                    $this->setStatus(null, auto_save: false);
+                }
+            }
 
         } catch (ValidationFailedException $e) {
             if ($this->debug) {

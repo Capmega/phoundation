@@ -444,20 +444,20 @@ class Password extends DataEntry implements PasswordInterface
     /**
      * Sets and returns the field definitions for the data fields in this DataEntry object
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(Definition::new('current')
-                                    ->setRender(true)
-                                    ->setVirtual(true)
-                                    ->setInputType(EnumInputType::password)
-                                    ->setMaxlength(128)
-                                    ->setLabel(tr('Current password'))
-                                    ->setHelpText(tr('Your current password'))
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+        $o_definitions->add(Definition::new('current')
+                                      ->setRender(true)
+                                      ->setVirtual(true)
+                                      ->setInputType(EnumInputType::password)
+                                      ->setMaxlength(128)
+                                      ->setLabel(tr('Current password'))
+                                      ->setHelpText(tr('Your current password'))
+                                      ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isStrongPassword();
                                     }))
 

@@ -475,15 +475,15 @@ class PhoMount extends DataEntry implements PhoMountInterface
     /**
      * @inheritDoc
      */
-    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(DefinitionFactory::newName()
-                                           ->setInputType(EnumInputType::name)
-                                           ->setSize(12)
-                                           ->setMaxlength(64)
-                                           ->setLabel(tr('Name'))
-                                           ->setHelpText(tr('The unique identifier name for this mount'))
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+        $o_definitions->add(DefinitionFactory::newName()
+                                             ->setInputType(EnumInputType::name)
+                                             ->setSize(12)
+                                             ->setMaxlength(64)
+                                             ->setLabel(tr('Name'))
+                                             ->setHelpText(tr('The unique identifier name for this mount'))
+                                             ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isUnique();
                                            }))
 

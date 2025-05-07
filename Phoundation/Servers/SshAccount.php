@@ -171,19 +171,19 @@ class SshAccount extends DataEntry implements SshAccountInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(DefinitionFactory::newName()
-                                           ->setSize(6)
-                                           ->setUnique(true)
-                                           ->setHelpGroup(tr('Identification'))
-                                           ->setHelpText(tr('The name for this account')))
+        $o_definitions->add(DefinitionFactory::newName()
+                                             ->setSize(6)
+                                             ->setUnique(true)
+                                             ->setHelpGroup(tr('Identification'))
+                                             ->setHelpText(tr('The name for this account')))
 
-                    ->add(Definition::new('seo_name')
+                      ->add(Definition::new('seo_name')
                                     ->setRender(false)
                                     ->setReadonly(true))
 

@@ -91,7 +91,7 @@ class Tabs extends ElementsBlock implements TabsInterface
      * Add tab to this Tabs object
      *
      * @param mixed                            $value
-     * @param float|Stringable|int|string|null $key
+     * @param Stringable|string|float|int|null $key
      * @param bool                             $skip_null_values
      * @param bool                             $exception
      *

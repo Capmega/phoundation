@@ -526,20 +526,20 @@ class Incident extends DataEntryCore implements IncidentInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return Incident
      */
-    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->removeKeys('new-divider')
+        $o_definitions->removeKeys('new-divider')
 
-                    ->add(DefinitionFactory::newCreatedBy()
+                      ->add(DefinitionFactory::newCreatedBy()
                                            ->setOptional(true))
 
-                    ->add(DefinitionFactory::newDivider('new-divider'))
+                      ->add(DefinitionFactory::newDivider('new-divider'))
 
-                    ->add(Definition::new('type')
+                      ->add(Definition::new('type')
                                     ->setLabel(tr('Incident type'))
                                     ->setReadonly(true)
                                     ->setDefault(tr('Unknown'))

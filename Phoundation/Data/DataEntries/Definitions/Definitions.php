@@ -147,7 +147,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      * Adds the specified Definition object to the "definitions" list
      *
      * @param mixed                            $value
-     * @param float|Stringable|int|string|null $key
+     * @param Stringable|string|float|int|null $key
      * @param bool                             $skip_null_values
      * @param bool                             $exception
      *

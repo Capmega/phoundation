@@ -924,16 +924,16 @@ class Connector extends DataEntry implements ConnectorInterface
     /**
      * @inheritDoc
      */
-    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(DefinitionFactory::newName()
-                                           ->setOptional(false)
-                                           ->setSize(4)
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+        $o_definitions->add(DefinitionFactory::newName()
+                                             ->setOptional(false)
+                                             ->setSize(4)
+                                             ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isUnique();
                                            }))
 
-                    ->add(DefinitionFactory::newSeoName())
+                      ->add(DefinitionFactory::newSeoName())
 
                     ->add(Definition::new('environment')
                                     ->setSize(4)

@@ -406,7 +406,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 // Get the class for this element and ensure the library file is loaded
                                 // Build the component, depending on the input type
                                 $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\Input' . $type);
-                                $o_component     = match ($o_definition->getInputType()) {
+                                $o_component   = match ($o_definition->getInputType()) {
                                     EnumInputType::number       => $element_class::new()
                                                                                  ->setDefinitionObject($o_definition)
                                                                                  ->setRequired($o_definition->getRequired())

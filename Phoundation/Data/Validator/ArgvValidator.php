@@ -857,7 +857,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         if (isset_get($this->source[$this->selected_field]) and !$this->argument($this->selected_field, $this->next, true)) {
             // The currently selected field exists, the specified field cannot exist
             if (isset_get($this->source[$field]) or $this->argument($this->cli_fields, $this->next, true)) {
-                $this->addFailure(tr('Both fields ":field" and ":selected_field" were set, where only either one of them are allowed', [
+                $this->addSoftFailure(tr('Both fields ":field" and ":selected_field" were set, where only either one of them are allowed', [
                     ':field'          => $field,
                     ':selected_field' => $this->selected_field,
                 ]));
@@ -871,7 +871,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         } else {
             // The currently selected field does not exist, the specified field MUST exist
             if (!isset_get($this->source[$field]) and !$this->argument($this->cli_fields, $this->next, true)) {
-                $this->addFailure(tr('neither the field ":current" nor ":field" were set, where either one of them is required', [
+                $this->addSoftFailure(tr('neither the field ":current" nor ":field" were set, where either one of them is required', [
                     ':current' => $this->selected_field,
                     ':field'   => $field,
                 ]));
@@ -916,7 +916,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             if (!$this->selected_is_optional) {
                 // The currently selected field is required but does not exist, so the other must exist
                 if (!isset_get($this->source[$field]) and !$this->argument($this->cli_fields, $this->next, true)) {
-                    $this->addFailure(tr('nor ":field" field were set, where at least one of them is required', [
+                    $this->addSoftFailure(tr('nor ":field" field were set, where at least one of them is required', [
                         ':field' => $field,
                     ]));
 

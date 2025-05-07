@@ -109,13 +109,13 @@ class Non200Url extends DataEntry
     /**
      * @inheritDoc
      */
-    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(Definition::new('ip_address_binary')
-                                    ->setIgnored(true)
-                                    ->setRender(false))
+        $o_definitions->add(Definition::new('ip_address_binary')
+                                      ->setIgnored(true)
+                                      ->setRender(false))
 
-                    ->add(Definition::new('net_len')
+                      ->add(Definition::new('net_len')
                                     ->setInputType(EnumInputType::positiveInteger)
                                     ->setOptional(true, 0)
                                     ->setRender(false))

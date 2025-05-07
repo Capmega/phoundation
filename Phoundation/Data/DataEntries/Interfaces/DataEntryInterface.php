@@ -11,6 +11,7 @@ use Phoundation\Core\Meta\Interfaces\MetaInterface;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Enums\EnumLoadParameters;
+use Phoundation\Data\Enums\EnumSoftHard;
 use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
@@ -781,4 +782,29 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * @return static
      */
     public function setDebug(bool $debug): static;
+
+    /**
+     * Returns if this object is permit_validation_failures or not
+     *
+     * @return EnumSoftHard
+     */
+    public function getPermitValidationFailures(): EnumSoftHard;
+
+    /**
+     * Sets if this object is permit_validation_failures or not
+     *
+     * @param EnumSoftHard $permit_validation_failures
+     *
+     * @return static
+     */
+    public function setPermitValidationFailures(EnumSoftHard $permit_validation_failures): static;
+
+    /**
+     * Returns true if this object has the specified permit_validation_failures
+     *
+     * @param EnumSoftHard $permit
+     *
+     * @return bool
+     */
+    public function hasPermitValidationFailures(EnumSoftHard $permit): bool;
 }

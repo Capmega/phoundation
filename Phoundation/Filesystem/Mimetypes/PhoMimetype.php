@@ -343,19 +343,20 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
+     *
      * @return PhoMimetype
      */
-    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(DefinitionFactory::newName()
-                                           ->setOptional(false)
-                                           ->setInputType(EnumInputType::name)
-                                           ->setSize(6)
-                                           ->setMaxlength(128)
-                                           ->setHelpText(tr('The name for this mimetype')))
+        $o_definitions->add(DefinitionFactory::newName()
+                                             ->setOptional(false)
+                                             ->setInputType(EnumInputType::name)
+                                             ->setSize(6)
+                                             ->setMaxlength(128)
+                                             ->setHelpText(tr('The name for this mimetype')))
 
-                    ->add(DefinitionFactory::newSeoName())
+                      ->add(DefinitionFactory::newSeoName())
 
                     ->add(DefinitionFactory::newCode('extension')
                                            ->setOptional(false)

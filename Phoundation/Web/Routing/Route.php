@@ -480,9 +480,13 @@ class Route
             static::executeSystem(503);
         }
 
-        // Domain should NOT end with a .
+        // Domain shouldn't end with a .
         if (str_ends_with($_SERVER['HTTP_HOST'], '.')) {
             // Redirect to the same URL, but the host without .
+            Log::warning(ts('Requested URI ":uri" host ":host" ends with a dot, automatically redirecting to cleaned URL', [
+                ':uri'  => $_SERVER['REQUEST_URI'],
+                ':host' => $_SERVER['HTTP_HOST'],
+            ]));
             Response::redirect($_SERVER['REQUEST_SCHEME'] . '://' . substr($_SERVER['HTTP_HOST'], 0, -1) . $_SERVER['REQUEST_URI']);
         }
 
@@ -513,6 +517,14 @@ class Route
             // The specified domain ends with a "." like "phoundation.org." instead of "phoundation.org".
             // Redirect
             Response::redirect($_SERVER['REQUEST_SCHEME'] . '://' . Strings::ensureEndsNotWith($_SERVER['HTTP_HOST'], '.') . $_SERVER['REQUEST_URI']);
+        }
+
+        // Ensure URL doesn't end with a trailing &
+        if (str_ends_with($_SERVER['REQUEST_URI'], '&')) {
+            Log::warning(ts('Requested URI ":uri" ends with one or multiple ampersands (&), automatically redirecting to cleaned URL', [
+                ':uri' => $_SERVER['REQUEST_URI'],
+            ]));
+            Response::redirect(Strings::ensureEndsNotWith($_SERVER['REQUEST_URI'], '&'));
         }
 
         // Apply mappings

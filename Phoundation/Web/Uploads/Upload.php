@@ -360,18 +360,18 @@ class Upload extends DataEntry implements UploadInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(DefinitionFactory::newFilename('name')
-                                           ->setLabel(tr('File name'))
-                                           ->setMaxlength(2048)
-                                           ->setReadonly(true))
+        $o_definitions->add(DefinitionFactory::newFilename('name')
+                                             ->setLabel(tr('File name'))
+                                             ->setMaxlength(2048)
+                                             ->setReadonly(true))
 
-                    ->add(DefinitionFactory::newFilename('full_path')
+                      ->add(DefinitionFactory::newFilename('full_path')
                                            ->setLabel(tr('Full file path'))
                                            ->setMaxlength(2048)
                                            ->setReadonly(true))

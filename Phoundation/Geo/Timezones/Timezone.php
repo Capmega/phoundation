@@ -67,25 +67,25 @@ class Timezone extends DataEntry implements TimezoneInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(DefinitionFactory::newName()
-                                           ->setOptional(false)
-                                           ->setSize(4)
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+        $o_definitions->add(DefinitionFactory::newName()
+                                             ->setOptional(false)
+                                             ->setSize(4)
+                                             ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isUnique();
                                            }))
 
-                    ->add(DefinitionFactory::newSeoName());
+                      ->add(DefinitionFactory::newSeoName());
 
-        $definitions->add(DefinitionFactory::newCode()
-                                           ->setOptional(false)
-                                           ->setSize(4)
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+        $o_definitions->add(DefinitionFactory::newCode()
+                                             ->setOptional(false)
+                                             ->setSize(4)
+                                             ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isUnique();
                                            }));
 

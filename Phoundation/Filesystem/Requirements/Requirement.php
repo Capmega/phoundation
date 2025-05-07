@@ -76,15 +76,15 @@ class Requirement extends DataEntry
     /**
      * @inheritDoc
      */
-    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(DefinitionFactory::newName()
-                                           ->setInputType(EnumInputType::name)
-                                           ->setSize(12)
-                                           ->setMaxlength(128)
-                                           ->setLabel(tr('Name'))
-                                           ->setHelpText(tr('The unique identifier name for this requirement'))
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+        $o_definitions->add(DefinitionFactory::newName()
+                                             ->setInputType(EnumInputType::name)
+                                             ->setSize(12)
+                                             ->setMaxlength(128)
+                                             ->setLabel(tr('Name'))
+                                             ->setHelpText(tr('The unique identifier name for this requirement'))
+                                             ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isUnique();
                                            }))
                     ->add(DefinitionFactory::newSeoName())

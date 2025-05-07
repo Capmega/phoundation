@@ -566,20 +566,20 @@ class Plugin extends DataEntry implements PluginInterface
     /**
      * Sets the available data keys for the User class
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(Definition::new('disabled')
-                                    ->setInputType(EnumInputType::boolean)
-                                    ->setOptional(true)
-                                    ->setVirtual(true)
-                                    ->setRender(false)
-                                    ->setCliColumn('-d,--disable'))
+        $o_definitions->add(Definition::new('disabled')
+                                      ->setInputType(EnumInputType::boolean)
+                                      ->setOptional(true)
+                                      ->setVirtual(true)
+                                      ->setRender(false)
+                                      ->setCliColumn('-d,--disable'))
 
-                    ->add(Definition::new('vendor')
+                      ->add(Definition::new('vendor')
                                     ->setLabel(tr('Vendor'))
                                     ->setInputType(EnumInputType::text)
                                     ->setMaxlength(128)

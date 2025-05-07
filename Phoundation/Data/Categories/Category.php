@@ -132,23 +132,23 @@ class Category extends DataEntry implements CategoryInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(Definition::new('parents_id')
-                                    ->setOptional(true)
-                                    ->setElement(EnumElement::select)
-                                    ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+        $o_definitions->add(Definition::new('parents_id')
+                                      ->setOptional(true)
+                                      ->setElement(EnumElement::select)
+                                      ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
                                                          ->setSelected(isset_get($source[$key]));
                                     })
-                                    ->setSize(6)
-                                    ->setLabel(tr('Parent category'))
+                                      ->setSize(6)
+                                      ->setLabel(tr('Parent category'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         // Ensure parents_id exists and that its or parent
                                         $validator->orColumn('parent')

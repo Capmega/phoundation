@@ -446,20 +446,20 @@ class Authentication extends DataEntry implements AuthenticationInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
         // Ensure status will be limited to the defined possible states
-        $definitions->removeKeys('new-divider')
-                    ->get('status')->setDataSource(static::getStatuses());
+        $o_definitions->removeKeys('new-divider')
+                      ->get('status')->setDataSource(static::getStatuses());
 
-        $definitions->add(DefinitionFactory::newCreatedBy()
-                                           ->setOptional(true))
+        $o_definitions->add(DefinitionFactory::newCreatedBy()
+                                             ->setOptional(true))
 
-                    ->add(DefinitionFactory::newDivider('new-divider'))
+                      ->add(DefinitionFactory::newDivider('new-divider'))
 
                     ->add(Definition::new('account')
                                     ->setLabel(tr('Used user account'))

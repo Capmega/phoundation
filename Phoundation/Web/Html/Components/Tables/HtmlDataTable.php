@@ -298,12 +298,13 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
             'copy'   => '{ extend: "copy"  , text: "' . tr('Copy') . '" }',
             'csv'    => '{ extend: "csv"   , text: "' . tr('CSV') . '" }',
             'excel'  => '{ extend: "excel" , text: "' . tr('Excel') . '" }',
-            'pdf'    => '{ extend: "pdf"   , text: "' . tr('PDF') . '" }',
+//            'pdf'    => '{ extend: "pdf"   , text: "' . tr('PDF') . '" }',
+            'pdf'    => '{ extend: "pdfHtml5", orientation: "landscape", pageSize: "LEGAL", text: "' . tr('PDF') . '" }',
             'print'  => '{ extend: "print" , text: "' . tr('Print') . '" }',
             'colvis' => '{ extend: "colvis", text: "' . tr('Column visibility') . '" }',
         ];
 
-        // Validate buttons & reformat definition
+        // Validate buttons and reformat definition
         $buttons = Arrays::force($buttons);
         $source  = [];
 
@@ -311,7 +312,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
             if (!array_key_exists($button, $builtin)) {
                 throw new OutOfBoundsException(tr('Unknown button ":button" specified. Please specify one of ":builtin"', [
                     ':button'  => $button,
-                    ':builtin' => $builtin,
+                    ':builtin' => array_keys($builtin),
                 ]));
             }
 

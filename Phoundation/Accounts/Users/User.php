@@ -2898,19 +2898,19 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     /**
      * Sets the available data keys for the User class
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->get('status')->setNullDisplay(tr('Ok'));
-        $definitions->add(Definition::new('remote_id')
-                                    ->setOptional(true)
-                                    ->setRender(false)
-                                    ->setInputType(EnumInputType::number))
+        $o_definitions->get('status')->setNullDisplay(tr('Ok'));
+        $o_definitions->add(Definition::new('remote_id')
+                                      ->setOptional(true)
+                                      ->setRender(false)
+                                      ->setInputType(EnumInputType::number))
 
-                    ->add(Definition::new('last_sign_in')
+                      ->add(Definition::new('last_sign_in')
                                     ->setOptional(true)
                                     ->setDisabled(true)
                                     ->setRender(function() { return !$this->isNew(); })
@@ -2969,13 +2969,13 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                                $validator->isUnique(tr('already exists as a primary email address'));
 
                                                $exists = sql()->getRow('SELECT `id` 
-                                                                     FROM   `accounts_emails` 
-                                                                     WHERE  `email` = :email', [
+                                                                        FROM   `accounts_emails` 
+                                                                        WHERE  `email` = :email', [
                                                                          ':email' => $validator->getSelectedValue(),
                                                ]);
 
                                                if ($exists) {
-                                                   $validator->addFailure(tr('already exists as an additional email address'));
+                                                   $validator->addSoftFailure(tr('already exists as an additional email address'));
                                                }
                                            }))
 
@@ -3120,7 +3120,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setHelpText(tr('The birthdate for this user'))
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isDate()
-                                                         ->isBefore(PhoDateTime::newTomorrow());
+                                                         ->isBefore(PhoDateTime::new(), true);
                                            }))
 
                     ->add(DefinitionFactory::newPhone()
@@ -3411,7 +3411,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                                if ($validator->getSelectedValue()) {
                                                    if ($this->isNew()) {
                                                        // Can't save a profile image with a user that does not yet exist in the database
-                                                       $validator->addFailure(tr('requires that the user is saved first'));
+                                                       $validator->addSoftFailure(tr('requires that the user is saved first'));
 
                                                    } else {
                                                        $validator->isFile(

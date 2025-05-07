@@ -264,21 +264,21 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    protected function setDefinitionsObject(DefinitionsInterface $definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $definitions->add(DefinitionFactory::newVariable('component')
-                                           ->setMaxlength(32)
-                                           ->setLabel('Tested component'))
+        $o_definitions->add(DefinitionFactory::newVariable('component')
+                                             ->setMaxlength(32)
+                                             ->setLabel('Tested component'))
 
-                    ->add(DefinitionFactory::newVariable('connector_name')
+                      ->add(DefinitionFactory::newVariable('connector_name')
                                            ->setMaxlength(64)
                                            ->setLabel('Connector'))
 
-                    ->add(DefinitionFactory::newCode('database_name')
+                      ->add(DefinitionFactory::newCode('database_name')
                                            ->setMinlength(1)
                                            ->setMaxlength(64)
                                            ->setLabel('Database'))

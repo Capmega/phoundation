@@ -936,17 +936,26 @@ class Url implements UrlInterface
         $remove_keys = Arrays::force($remove_keys);
 
         foreach ($queries as $query) {
-            [$key, $value] = explode('=', $query);
-
-            if ($remove_keys and array_key_exists($key, $remove_keys)) {
+            if (empty($query)) {
                 continue;
             }
 
-            if ($unescape) {
-                $return[$key] = urldecode($value);
+            if (str_contains($query, '=')) {
+                [$key, $value] = explode('=', $query);
+
+                if ($remove_keys and array_key_exists($key, $remove_keys)) {
+                    continue;
+                }
+
+                if ($unescape) {
+                    $return[$key] = urldecode($value);
+
+                } else {
+                    $return[$key] = $value;
+                }
 
             } else {
-                $return[$key] = $value;
+                $return[$key] = null;
             }
         }
 
