@@ -26,6 +26,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataBooleanUseForm;
 use Phoundation\Data\Traits\TraitDataDateFormat;
+use Phoundation\Data\Traits\TraitDataRedirectUrlObject;
 use Phoundation\Data\Traits\TraitDataRequestMethod;
 use Phoundation\Data\Traits\TraitMethodsGetTypesafe;
 use Phoundation\Data\Traits\TraitMethodsVirtualColumns;
@@ -57,6 +58,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
     use TraitMethodsGetTypesafe;
     use TraitMethodsVirtualColumns;
     use TraitDataBooleanUseForm;
+    use TraitDataRedirectUrlObject;
 
 
     /**

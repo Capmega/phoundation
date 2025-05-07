@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 use Phoundation\Web\Http\Interfaces\UrlInterface;
+use Phoundation\Web\Http\Url;
 use Stringable;
 
 
@@ -38,6 +39,17 @@ trait TraitDataUrl
     public function getUrl(): ?string
     {
         return $this->url;
+    }
+
+
+    /**
+     * Returns the URL as an object
+     *
+     * @return UrlInterface|null
+     */
+    public function getUrlObject(): ?UrlInterface
+    {
+        return Url::new($this->url);
     }
 
 
