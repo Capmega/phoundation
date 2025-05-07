@@ -783,15 +783,19 @@ class Session implements SessionInterface
                             ]));
 
                             Response::getFlashMessagesObject()->addWarning(tr('You were signed out automatically because your session timed out'));
-                            Response::redirect('signout');
+                            Session::signOut();
+                            Response::redirect('signin');
                         }
                     }
                 }
             }
         }
 
-        // Update last activity
-        $_SESSION['last_activity'] = microtime(true);
+        // TODO DETERMINE WHAT SERVER CALLS CONSTITUTE ACTIVITY! NOTIFICATIONS DROPDOWN UPDATES ARE NOT ACTIVITY!
+        if (Request::getExecutedFile() !== 'dropdown.php') {
+            // Update last activity
+            $_SESSION['last_activity'] = microtime(true);
+        }
 
         // Euro cookie check, can we do cookies at all?
         if (config()->getBoolean('web.sessions.cookies.europe', true) and !config()->getString('web.sessions.cookies.name', 'phoundation')) {
