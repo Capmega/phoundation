@@ -790,7 +790,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         $this->test_count++;
 
         return $this->validateValues(function (&$value) use ($table, $column, $failure_message) {
-            $this->isDbId();
+            $this->isScalar();
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -808,7 +808,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             ]);
 
             if (!$exists) {
-                $this->addFailure($failure_message ?? tr('must exist'));
+                $this->addFailure($failure_message ?? tr('does not exist'));
             }
         });
     }
