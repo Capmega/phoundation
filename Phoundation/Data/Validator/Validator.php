@@ -2077,7 +2077,7 @@ throw new ObsoleteException();
         $this->test_count++;
 
         return $this->validateValues(function (&$value) use ($table, $column, $failure_message) {
-            $this->isDbId();
+            $this->isScalar();
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
