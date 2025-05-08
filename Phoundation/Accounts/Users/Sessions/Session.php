@@ -271,10 +271,10 @@ class Session implements SessionInterface
 
         Log::action(ts('Starting session object'), 1);
 
-        static::checkDomains();
-        static::configureCookies();
-        static::resume();
-        static::$has_started_up = true;
+        Session::checkDomains();
+        Session::configureCookies();
+        Session::resume();
+        Session::$has_started_up = true;
 
         Http::setSslDefaultContext();
     }
@@ -504,7 +504,7 @@ class Session implements SessionInterface
     protected static function configureCookies(): void
     {
         if (Request::isRequestType(EnumRequestTypes::api)) {
-            // API calls do not handle cookies, sessions are done manually
+            // API calls don't handle cookies, sessions are done manually
             return;
         }
 
@@ -513,7 +513,7 @@ class Session implements SessionInterface
             throw new SessionException(tr('Cannot startup session, HTTP headers have already been sent'));
         }
 
-        // Check the cookie domain configuration to see if it's valid.
+        // Check the cookie domain configuration to see if its valid.
         // NOTE: In case whitelabel domains are used, $_CONFIG[cookie][domain] must be one of "auto" or ".auto"
         switch (config()->getStringBoolean('web.sessions.cookies.domain', '.auto')) {
             case false:
@@ -568,7 +568,7 @@ class Session implements SessionInterface
         // Set session and cookie parameters
         try {
             if (config()->getBoolean('web.sessions.enabled', true)) {
-                Session::setIni();
+                Session::initializePhpIni();
             }
 
         } catch (Exception $e) {
@@ -583,6 +583,7 @@ class Session implements SessionInterface
                         ':platform'  => PLATFORM,
                     ]), $e);
                 }
+
                 throw new SessionException(tr('Session startup failed'), $e);
             }
         }
@@ -594,7 +595,7 @@ class Session implements SessionInterface
      *
      * @return void
      */
-    public static function setIni(): void
+    public static function initializePhpIni(): void
     {
         $handler = Sessions::getHandler();
 
@@ -664,42 +665,80 @@ class Session implements SessionInterface
             return false;
         }
 
-        if (Request::getRequestType() === EnumRequestTypes::api) {
-            // APIs don't ever use cookies, make sure we can't use them accidentally
-            // TODO Later we might manually store session data in $_COOKIE, so that sessions can manually authenticate and use sessions
-            $_COOKIE = [];
-        }
-
-        if (isset_get(Core::readRegister('session', 'client')['type']) === 'crawler') {
-            // Do not send cookies to crawlers!
-            Log::information(ts('Crawler ":crawler" on URL ":url"', [
-                ':crawler' => Core::readRegister('session', 'client'),
-                ':url'     => (empty($_SERVER['HTTPS']) ? 'http' : 'https') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
-            ]));
-
+        if (Session::detectCrawler()) {
             return false;
         }
 
-//show(session_get_cookie_params());
-//show('IMPLEMENT LONG SESSIONS SUPPORT');
-//show('IMPLEMENT MYSQL SESSIONS SUPPORT');
-//show('IMPLEMENT MEMCACHED SUPPORT WITH FALLBACK TO MYSQL');
-//showdie('IMPLEMENT RETURN TO PREVIOUS PAGE AFTER LOGOUT SUPPORT');
-        // What handler to use?
+        Session::processHandler();
+        Session::startForPhp();
+        Session::initialize();
+        Session::processCookieRefresh();
+        Session::processCookieAutoSignOut();
+        Session::processAutoSignOut();
+
+        if (!Session::processEuroCookie()) {
+            return false;
+        }
+
+        Session::processUrlCloaking();
+        Session::updatePagesLoaded();
+        Session::processSessionDomains();
+        Session::processSessionIp();
+        Session::processSessionFlashMessages();
+
+        return true;
+    }
+
+
+    /**
+     * Returns true if a crawler was detected
+     *
+     * @return bool
+     */
+    protected static function detectCrawler(): bool
+    {
+        if (isset_get(Core::readRegister('session', 'client')['type']) === 'crawler') {
+            // Don't send cookies to crawlers!
+            Log::information(ts('Detected crawler ":crawler"', [
+                ':crawler' => Core::readRegister('session', 'client'),
+            ]));
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Processes the session handler, files, memcached, mysql, etc.
+     *
+     * @return void
+     */
+    protected static function processHandler(): void
+    {
         switch (Sessions::getHandler()) {
             case 'files':
                 $directory = PhoDirectory::new(
                     config()->getString('web.sessions.path', DIRECTORY_SYSTEM . 'sessions/'),
                     PhoRestrictions::new([
-                        DIRECTORY_DATA,
-                        '/var/lib/php/sessions/',
-                    ], true)
+                                             DIRECTORY_DATA,
+                                             '/var/lib/php/sessions/',
+                                         ], true)
                 )->ensure();
 
                 session_save_path($directory->getSource());
                 break;
         }
+    }
 
+    /**
+     * Starts the session for PHP
+     *
+     * @return void
+     */
+    protected static function startForPhp(): void
+    {
         try {
             // Start session. Two log entries are added around it to more easily debug issues with PHP session starting
             Log::action(ts('About to start session ":session"', [
@@ -719,8 +758,16 @@ class Session implements SessionInterface
 
         static::$user              = null;
         static::$impersonated_user = null;
+    }
 
-        // Initialize session?
+
+    /**
+     * Initialized the session, if needed
+     *
+     * @return void
+     */
+    protected static function initialize(): void
+    {
         if (empty($_SESSION['init'])) {
             switch (Request::getRequestType()) {
                 case EnumRequestTypes::api:
@@ -739,40 +786,178 @@ class Session implements SessionInterface
             }
 
         } else {
-            // Check for extended sessions
-            // TODO Why are we still doing this? We should be able to do extended sessions better
-            // static::checkExtended();
-
+            // The session has already been initialized!
             Log::success(ts('Resumed session ":session" for user ":user" from IP ":ip"', [
                 ':session' => session_id(),
                 ':user'    => static::getUserObject()->getLogId(),
                 ':ip'      => Session::getIpAddress(),
             ]));
         }
+    }
 
-        // Check cookie sign-out and auto sign out
-        $cookie_signout = config()->getPositiveInteger('web.sessions.cookies.lifetime'            , 0, true);
-        $auto_signout   = config()->getPositiveInteger('web.security.sessions.auto.sign-out.value', 0, true);
 
-        if ($cookie_signout) {
-            // Session cookie timed out?
-            if (isset($_SESSION['last_activity']) and (($_SESSION['last_activity'] + $cookie_signout) < time())) {
-                // Session expired!
-                session_unset();
-                session_destroy();
+    /**
+     * Processes session flash messages
+     *
+     * @return void
+     */
+    protected static function processSessionFlashMessages(): void
+    {
+        // If any flash messages were stored in the $_SESSION, import them into the flash messages object
+        if (isset($_SESSION['flash_messages'])) {
+            static::getFlashMessagesObject()->import((array) $_SESSION['flash_messages']);
+            unset($_SESSION['flash_messages']);
+        }
+    }
 
-                Log::warning('RESTART SESSION');
 
-                session_start();
-                session_regenerate_id(true);
+    /**
+     * Processes the IP of the current request
+     *
+     * @return void
+     */
+    protected static function processSessionIp(): void
+    {
+        $_SESSION['ip'] = Session::getIpAddress();
+
+        if ($_SESSION['ip'] !== array_get_safe($_SESSION, 'first_ip')) {
+            // IP mismatch? What to do here? configurable actions!
+            // TODO Implement
+        }
+    }
+
+
+    /**
+     *
+     *
+     * @return void
+     */
+    protected static function processSessionDomains(): void
+    {
+        if (array_get_safe($_SESSION, 'domain') !== static::$domain) {
+            // Domain mismatch? Okay if this is sub domain, but what if its a different domain? Check whitelist domains?
+            // TODO Implement
+        }
+    }
+
+
+    /**
+     * Performs check related to cloaked URLs
+     *
+     * @return void
+     */
+    protected static function processUrlCloaking(): void
+    {
+        if (config()->getBoolean('security.url-cloaking.enabled', false) and config()->getBoolean('security.url-cloaking.strict', false)) {
+            /*
+             * URL cloaking was enabled and requires strict checking.
+             *
+             * Ensure that we have a cloaked URL users_id and that it matches the sessions users_id
+             * Only check cloaking rules if we aren't displaying a system page
+             */
+            if (!Request::isRequestType(EnumRequestTypes::system)) {
+                if (empty($core->register['url_cloak_users_id'])) {
+                    throw new SessionException(tr('Failed cloaked URL strict checking, no cloaked URL users_id registered'));
+                }
+
+                if ($core->register['url_cloak_users_id'] !== array_get_safe(array_get_safe($_SESSION, 'user', []), 'id')) {
+                    throw new AccessDeniedException(tr('Failed cloaked URL strict checking, cloaked URL users_id ":cloak_users_id" did not match the users_id ":session_users_id" of this session', [
+                        ':session_users_id' => array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'),
+                        ':cloak_users_id'   => $core->register['url_cloak_users_id'],
+                    ]));
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Processes cookies related to European countries
+     *
+     * @return bool
+     */
+    protected static  function processEuroCookie(): bool
+    {
+        // Euro cookie check, can we do cookies at all?
+        if (config()->getBoolean('web.sessions.cookies.europe', true) and !config()->getString('web.sessions.cookies.name', 'phoundation')) {
+            if (GeoIp::new()->isEuropean()) {
+                // All first visits to european countries require cookie permissions given!
+                $_SESSION['euro_cookie'] = true;
+
+                return false;
             }
         }
 
+        return true;
+    }
+
+
+    /**
+     * Processes refreshing cookies
+     *
+     * @return void
+     */
+    protected static function processCookieRefresh(): void
+    {
+        if (PLATFORM_WEB) {
+            // Check cookie refresh
+            $cookie_signout = config()->getPositiveInteger('web.sessions.cookies.lifetime', 3600);
+
+            if ($cookie_signout) {
+                // Session cookie timed out?
+                if (isset($_SESSION['created']) and (($_SESSION['created'] + $cookie_signout) < time())) {
+                    // Session expired!
+                    Log::warning('Regenerated session id');
+                    session_regenerate_id(true);
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Processes auto-sign-out for cookies
+     *
+     * @return void
+     */
+    protected static function processCookieAutoSignOut(): void
+    {
+        if (PLATFORM_WEB) {
+            // Check cookie refresh
+            $cookie_signout = config()->getPositiveInteger('web.sessions.cookies.lifetime', 0);
+
+            if ($cookie_signout) {
+                // Session cookie timed out?
+                if (isset($_SESSION['last_activity']) and (($_SESSION['last_activity'] + $cookie_signout) < time())) {
+                    // Session expired!
+                    Log::warning('Regenerated session id');
+                    session_regenerate_id(true);
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Processes auto-sign-out for sessions
+     *
+     * @return void
+     */
+    protected static function processAutoSignOut(): void
+    {
         // TODO REDIRECT AJAX REQUESTS THROUGH SIGNOUT MESSAGE!
         if (PLATFORM_WEB) {
+            // Check cookie sign-out and auto sign out
+            $auto_signout = config()->getPositiveInteger('web.security.sessions.auto.sign-out.value', 0, true);
+
             // Only auto sign-out on WEB
             if ($auto_signout) {
+                // Pass auto-sign-out to client too
+                Response::addHeadDataAttribute(Session::get('last_activity'), 'auto-sign-out');
+
+                // Only auto sign-out when not guest user
                 if (!Session::getUserObject()->isGuest()) {
+                    // Only auto sign-out when last_activity timed out
                     if (Url::newCurrent()->removeAllQueries()->getSource() !== Url::new('signout')->makeWww()->getSource()) {
                         if (isset($_SESSION['last_activity']) and (($_SESSION['last_activity'] + $auto_signout) < microtime(true))) {
                             $_SESSION['last_activity'] = microtime(true);
@@ -796,69 +981,6 @@ class Session implements SessionInterface
             // Update last activity
             $_SESSION['last_activity'] = microtime(true);
         }
-
-        // Euro cookie check, can we do cookies at all?
-        if (config()->getBoolean('web.sessions.cookies.europe', true) and !config()->getString('web.sessions.cookies.name', 'phoundation')) {
-            if (GeoIp::new()->isEuropean()) {
-                // All first visits to european countries require cookie permissions given!
-                $_SESSION['euro_cookie'] = true;
-
-                return false;
-            }
-        }
-
-        if (config()->getBoolean('security.url-cloaking.enabled', false) and config()->getBoolean('security.url-cloaking.strict', false)) {
-            /*
-             * URL cloaking was enabled and requires strict checking.
-             *
-             * Ensure that we have a cloaked URL users_id and that it matches the sessions users_id
-             * Only check cloaking rules if we aren't displaying a system page
-             */
-            if (!Request::isRequestType(EnumRequestTypes::system)) {
-                if (empty($core->register['url_cloak_users_id'])) {
-                    throw new SessionException(tr('Failed cloaked URL strict checking, no cloaked URL users_id registered'));
-                }
-
-                if ($core->register['url_cloak_users_id'] !== array_get_safe(array_get_safe($_SESSION, 'user', []), 'id')) {
-                    throw new AccessDeniedException(tr('Failed cloaked URL strict checking, cloaked URL users_id ":cloak_users_id" did not match the users_id ":session_users_id" of this session', [
-                        ':session_users_id' => array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'),
-                        ':cloak_users_id'   => $core->register['url_cloak_users_id'],
-                    ]));
-                }
-            }
-        }
-
-        if (config()->getBoolean('web.sessions.regenerate-id', false)) {
-            // Regenerate session identifier
-            if (isset($_SESSION['created']) and (time() - $_SESSION['created'] > config()->getBoolean('web.sessions.regenerate_id', false))) {
-                // Use "created" to monitor session id age and refresh it periodically to mitigate
-                // attacks on sessions like session fixation
-                session_regenerate_id(true);
-                $_SESSION['created'] = time();
-            }
-        }
-
-        static::updatePagesLoaded();
-
-        if (array_get_safe($_SESSION, 'domain') !== static::$domain) {
-            // Domain mismatch? Okay if this is sub domain, but what if its a different domain? Check whitelist domains?
-            // TODO Implement
-        }
-
-        $_SESSION['ip'] = Session::getIpAddress();
-
-        if ($_SESSION['ip'] !== array_get_safe($_SESSION, 'first_ip')) {
-            // IP mismatch? What to do here? configurable actions!
-            // TODO Implement
-        }
-
-        // If any flash messages were stored in the $_SESSION, import them into the flash messages object
-        if (isset($_SESSION['flash_messages'])) {
-            static::getFlashMessagesObject()->import((array) $_SESSION['flash_messages']);
-            unset($_SESSION['flash_messages']);
-        }
-
-        return true;
     }
 
 
@@ -1111,53 +1233,6 @@ class Session implements SessionInterface
 
         return User::newGuest();
     }
-
-
-//    /**
-//     * Checks if an extended session is available for this user
-//     *
-//     * @return bool
-//     */
-//    protected static function checkExtended(): bool
-//    {
-//        if (empty($_CONFIG['sessions']['extended']['enabled'])) {
-//            return false;
-//        }
-//        if (isset($_COOKIE['extsession']) and !isset($_SESSION['user'])) {
-//            // Pull  extsession data
-//            $ext = sql_get('SELECT `users_id`
-//                            FROM   `extended_sessions`
-//                            WHERE  `session_key` = ":session_key"
-//                              AND  DATE(`addedon`) < DATE(NOW());', [
-//                                  ':session_key' => cfm($_COOKIE['extsession'])
-//                   ]);
-//
-//            if ($ext['users_id']) {
-//                $user = sql_get('SELECT *
-//                                 FROM   `accounts_users`
-//                                 WHERE  `accounts_users`.`id` = :id', [
-//                                     ':id' => cfi($ext['users_id'])
-//                        ]);
-//
-//                if ($user['id']) {
-//                    // Auto sign in user
-//                    static::$user = User::signin($user, true);
-//
-//                    return true;
-//
-//                } else {
-//                    // Remove cookie
-//                    setcookie('extsession', 'stub', 1);
-//                }
-//
-//            } else {
-//                // Remove cookie
-//                setcookie('extsession', 'stub', 1);
-//            }
-//        }
-//
-//        return false;
-//    }
 
 
     /**
