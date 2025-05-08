@@ -1767,6 +1767,8 @@ class Request implements RequestInterface
                 return execute();
             }
 
+            Response::addHeadDataAttribute(Session::get('last_activity'), 'last-activity');
+
             // Execute the entire page and return the output
             $results = static::$page->execute();
 
@@ -1775,7 +1777,6 @@ class Request implements RequestInterface
                 Request::getMethodRestrictionsObject()->checkRestrictions();
             }
 
-            Response::addHeadDataAttribute(Session::get('last_activity'), 'last-activity');
             return $results;
 
         } catch (ValidationFailedException | RequestMethodRestrictionsException $e) {

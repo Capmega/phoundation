@@ -1103,7 +1103,6 @@ class Response implements ResponseInterface
      */
     public static function renderHeadTag(): ?string
     {
-//showdie('<head' . static::renderHtmlHeadTagData() . '>');
         return '<head' . static::renderHtmlHeadTagData() . '>';
     }
 
@@ -1127,7 +1126,7 @@ class Response implements ResponseInterface
             $return[] = 'data-' . $key . '="' . $value . '"';
         }
 
-        return implode(' ', $return);
+        return ' ' . implode(' ', $return);
     }
 
 

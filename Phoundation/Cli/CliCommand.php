@@ -1817,7 +1817,7 @@ return 'under construction';
         Core::setEnvironment($environment);
 
         // Set session configuration in case session data must be accessed
-        Session::setIni();
+        Session::initializePhpIni();
 
         // Define basic platform constants
         define('ADMIN'     , '');
