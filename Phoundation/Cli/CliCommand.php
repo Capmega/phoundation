@@ -36,6 +36,7 @@ use Phoundation\Cli\Exception\CliCommandNotExistsException;
 use Phoundation\Cli\Exception\CliCommandNotFoundException;
 use Phoundation\Cli\Exception\CliException;
 use Phoundation\Cli\Exception\CliNoCommandSpecifiedException;
+use Phoundation\Cli\Exception\CliRunTimeExpiredException;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Exception\ProjectException;
@@ -71,6 +72,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Requests\Request;
 use Throwable;
+
 
 class CliCommand
 {
@@ -160,6 +162,13 @@ class CliCommand
      * @var string|null $service
      */
     protected static ?string $service;
+
+    /**
+     * The maximum runtime for this command
+     *
+     * @var float|null
+     */
+    protected static ?float $max_runtime = null;
 
 
     /**
@@ -2115,6 +2124,65 @@ return 'under construction';
 
         Config::allowNoEnvironment();
         Core::exit(2, $message);
+    }
+
+
+    /**
+     * Returns the max runtime for this CLICommand
+     *
+     * @return float|null
+     */
+    public static function getMaxRunTime(): ?float
+    {
+        return static::$max_runtime;
+    }
+
+
+    /**
+     * Sets the max runtime for this CLICommand
+     *
+     * @param float|null $seconds
+     *
+     * @return void
+     */
+    public static function setMaxRunTime(?float $seconds): void
+    {
+        static::$max_runtime = $seconds;
+    }
+
+
+    /**
+     * Returns the amount of time the current CLICommand has been running for
+     *
+     * @return float
+     */
+    public static function getRunTime(): float
+    {
+        return microtime(true) - STARTTIME;
+    }
+
+
+    /**
+     * Compares the current time to the max runtime. If the max runtime is surpassed, return a callback function
+     * and/or throw an exception
+     *
+     * @param callable|null $callback
+     *
+     * @return void
+     */
+    public static function checkMaxRunTime(?callable $callback): void
+    {
+        if (static::getMaxRunTime()) {
+            if (static::getRunTime() > static::getMaxRunTime()) {
+                if ($callback) {
+                    $callback();
+                }
+
+                throw new CliRunTimeExpiredException(tr('The maximum runtime of :time was surpassed', [
+                    ':time' => static::getMaxRunTime(),
+                ]));
+            }
+        }
     }
 
 
