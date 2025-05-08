@@ -1186,6 +1186,52 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
+     * Adds separators into a date-time string
+     *
+     * @param string|null $source
+     * @param string      $date_separator
+     * @param string      $time_separator
+     * @param string      $date_time_separator
+     *
+     * @return string|null
+     */
+    public static function addDateSeparators(?string $source, string $date_separator = '-', string $time_separator = ':', string $date_time_separator = ' '): ?string
+    {
+        if (!$source) {
+            return null;
+        }
+
+        switch (strlen($source)) {
+            case 8:
+                $return = substr($source, 0, 4) . $date_separator .
+                          substr($source, 4, 2) . $date_separator .
+                          substr($source, 6, 2);
+                break;
+
+            case 12:
+                $return = substr($source, 0, 4)  . $date_separator .
+                          substr($source, 4, 2)  . $date_separator .
+                          substr($source, 6, 2)  . $date_separator .
+                          substr($source, 8, 2)  . $time_separator .
+                          substr($source, 10, 2) . $time_separator
+                          . '00';
+                break;
+
+            case 14:
+                $return = substr($source, 0, 4) . $date_separator .
+                          substr($source, 4, 2) . $date_separator .
+                          substr($source, 6, 2) . $date_separator .
+                          substr($source, 8, 2) . $time_separator .
+                          substr($source, 10, 2) . $time_separator .
+                          substr($source, 12, 2);
+
+        }
+
+        return $return;
+    }
+
+
+    /**
      * Returns a string representation of how long ago the specified date was, from now
      *
      * @param PhoDate|PhoDateTimeInterface|string|int|null $date
