@@ -235,11 +235,11 @@ class Notification extends DataEntry implements NotificationInterface
     /**
      * Sets the exception for this notification
      *
-     * @param Throwable $e
+     * @param \Throwable|null $e
      *
      * @return static
      */
-    public function setException(Throwable $e): static
+    public function setException(?Throwable $e): static
     {
         if ($e instanceof PhoException) {
             if ($e->isWarning()) {
