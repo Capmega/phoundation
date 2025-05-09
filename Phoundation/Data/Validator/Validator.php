@@ -29,6 +29,7 @@ use Phoundation\Data\Enums\EnumSoftHard;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\IteratorBase;
 use Phoundation\Data\Traits\TraitDataArraySource;
+use Phoundation\Data\Traits\TraitDataClassException;
 use Phoundation\Data\Traits\TraitDataDataEntry;
 use Phoundation\Data\Traits\TraitDataDefinitions;
 use Phoundation\Data\Traits\TraitDataIgnoreIterator;
@@ -44,6 +45,8 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
+use Phoundation\Databases\Sql\Exception\SqlException;
+use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDate;
 use Phoundation\Date\PhoDateFormats;
@@ -83,6 +86,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     use TraitDataIntId;
     use TraitDataMaxStringSize;
     use TraitDataMetaColumns;
+    use TraitDataClassException;
     use TraitDataArraySource;
     use TraitDataIgnoreIterator;
     use TraitDataDataEntry {
@@ -1316,7 +1320,15 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             $values = Arrays::keepKeys($this->source, array_keys($this->failures));
 
             if (Core::inBootState() or config()->getBoolean('security.validation.enabled', true)) {
-                $permit = $this->getPermitValidationFailures();
+                $permit          = $this->getPermitValidationFailures();
+                $this->exception = ValidationFailedException::new(tr('Data validation failed with the following issues:'))
+                                                            ->addData([
+                                                                          'class'    => $this->o_data_entry ? $this->o_data_entry::class : 'N/A',
+                                                                          'failures' => $this->failures,
+                                                                          'values'   => $values
+                                                                      ])
+                                                            ->setDataEntryObject($this->o_definitions?->getDataEntryObject())
+                                                            ->makeWarning();
 
                 switch ($permit) {
                     case EnumSoftHard::hard:
@@ -1336,14 +1348,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                         // no break
 
                     case EnumSoftHard::none:
-                        throw ValidationFailedException::new(tr('Data validation failed with the following issues:'))
-                                                       ->addData([
-                                                                     'class'    => $this->o_data_entry ? $this->o_data_entry::class : 'N/A',
-                                                                     'failures' => $this->failures,
-                                                                     'values'   => $values
-                                                                 ])
-                                                       ->setDataEntryObject($this->o_definitions?->getDataEntryObject())
-                                                       ->makeWarning();
+                        throw $this->exception;
                 }
             }
 
@@ -6134,6 +6139,39 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
                     $this->addSoftFailure($failure);
                 }
             }
+        });
+    }
+
+
+    /**
+     * If this value, when searched for in the specified table with "LIKE :value%", returns a single result, set the
+     * value to that single result
+     *
+     * @param \PDOStatement|string $query
+     * @param array|null           $execute
+     * @param string               $column
+     *
+     * @return $this
+     */
+    public function checkSingleQueryResult(string $column, PDOStatement|string $query, ?array $execute = null): static
+    {
+        return $this->validateValues(function (&$value) use ($query, $execute, $column) {
+
+            try {
+                $exists = sql()->getColumn($query, $execute, $column);
+
+            } catch (SqlException) {
+                // Multiple rows exist
+                $exists = false;
+            }
+
+            if ($exists) {
+                // Detected an entry, setting value to found entry
+                $value = $exists;
+            }
+
+            // If no results found, continue with other validations
+            return $this;
         });
     }
 }
