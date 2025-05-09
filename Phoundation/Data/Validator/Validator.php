@@ -6141,37 +6141,4 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
             }
         });
     }
-
-
-    /**
-     * If this value, when searched for in the specified table with "LIKE :value%", returns a single result, set the
-     * value to that single result
-     *
-     * @param \PDOStatement|string $query
-     * @param array|null           $execute
-     * @param string               $column
-     *
-     * @return $this
-     */
-    public function checkSingleQueryResult(string $column, PDOStatement|string $query, ?array $execute = null): static
-    {
-        return $this->validateValues(function (&$value) use ($query, $execute, $column) {
-
-            try {
-                $exists = sql()->getColumn($query, $execute, $column);
-
-            } catch (SqlException) {
-                // Multiple rows exist
-                $exists = false;
-            }
-
-            if ($exists) {
-                // Detected an entry, setting value to found entry
-                $value = $exists;
-            }
-
-            // If no results found, continue with other validations
-            return $this;
-        });
-    }
 }
