@@ -237,7 +237,7 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->setHelpText(tr('Here you can specify if you wish the user interface to be in dark mode, light mode, or use whatever your system uses'))
                                                  ->setDataSource([
                                                      'on'   => tr('On'),
-                                                     'auto' => tr('System'),
+//                                                     'auto' => tr('System'),
                                                      'off'  => tr('Off'),
                                                  ]))
 
