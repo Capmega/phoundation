@@ -1040,8 +1040,8 @@ class CliCommand
     {
         Core::setScriptState();
 
-        Log::action(ts('Executing auto complete with command: :command', [
-            ':command' => CliCommand::getCommandline()
+        Log::action(ts('Executing auto complete with command ":command"', [
+            ':command' => implode(' ', $_SERVER['argv'])
         ]), 7, echo_screen: false);
 
         try {
@@ -1050,7 +1050,7 @@ class CliCommand
 
             // AutoComplete::getPosition() might become -1 if one were to <TAB> right at the end of the last command.
             // If this is the case, we actually have to expand the command, NOT yet the command parameters!
-            if ((CliAutoComplete::getPosition() - count(CliCommand::$commands)) === 0) {
+            if ((CliAutoComplete::getPosition() - count(CliCommand::$commands)) < 0) {
                 throw CliCommandNotExistsException::new(tr('The specified command file ":file" does exist but requires auto complete extension', [
                     ':file' => $command,
                 ]))

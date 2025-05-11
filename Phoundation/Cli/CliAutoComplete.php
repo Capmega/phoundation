@@ -764,7 +764,7 @@ PHO=$(./pho --auto-complete "${COMP_CWORD} ${COMP_LINE}");
 COMPREPLY+=($(compgen -W "$PHO"));
 }
 
-complete -o nospace -F _phoundation pho' . PHP_EOL);
+complete -F -W _phoundation pho' . PHP_EOL);
 
         // Source the .bash_completion file
         Process::new('source', which_command: false)
