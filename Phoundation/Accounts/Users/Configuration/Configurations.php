@@ -283,6 +283,7 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                  ->add(DefinitionFactory::newDivider())
 
                                  ->add(DefinitionFactory::newUrl('default_page')
+                                                        ->setDisabled(true)
                                                         ->setOptional(true, '')
                                                         ->setSize(12)
                                                         ->addProperty('getString'        , 'configuration_method')
