@@ -34,8 +34,10 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Http\Url;
 
 
 class Configurations extends IteratorCore implements ConfigurationsInterface
@@ -283,12 +285,24 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                  ->add(DefinitionFactory::newDivider())
 
                                  ->add(DefinitionFactory::newUrl('default_page')
+                                                        ->setDisabled(true)
+                                                        ->setClearButton(true)
                                                         ->setOptional(true, '')
                                                         ->setSize(12)
                                                         ->addProperty('getString'        , 'configuration_method')
                                                         ->addProperty('web.pages.default', 'configuration_path')
                                                         ->setLabel(tr('Default page'))
-                                                        ->setHelpText(tr('Here you can specify the default page you wish to see when you sign in')));
+                                                        ->setHelpText(tr('Here you can specify the default page you wish to see when you sign in'))
+                                                        ->addScriptObject(Script::new('$(".trailing.clear").on("click", function (e) {
+                                                                       e.preventDefault();
+                                                                       var $self = $(this);
+                                                                       $.post("' . Url::new('my/profile/default-url/clear.json')->makeAjax() . '")
+                                                                       .done(function (response) {
+                                                                           $self.siblings("input.form-control").val("");
+                                                                           $self.remove();
+                                                                       });                                                                    
+                                                                       return false;
+                                                                    });')));
     }
 
 

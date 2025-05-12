@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Ajax my/profile/set-default-url.php
+ * Ajax my/profile/set.php
  *
  * This AJAX request allows the user to set their default page
  *
@@ -27,13 +27,15 @@ $post = PostValidator::new()
 
 
 // Update the user configuration
-Session::getUserObject()->getConfigurationsObject()->set($post['url']->clearQueries(), 'default_page')->save();
+Session::getUserObject()
+       ->getConfigurationsObject()->set($post['url']->clearQueries(), 'default_page')
+                                  ->save();
 
 
 // Notify the user that the default page has been updated
 JsonPage::new()
         ->addFlashMessageSections(FlashMessage::new()
                                               ->setMode(EnumDisplayMode::success)
-                                              ->setTitle(tr('Default page updated!'))
+                                              ->setTitle(tr('Default page updated'))
                                               ->setMessage(tr('This page is now your default page')))
         ->reply();
