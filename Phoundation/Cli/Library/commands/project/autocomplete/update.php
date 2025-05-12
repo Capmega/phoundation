@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Command system autocomplete
+ * Command project autocomplete update
  *
- * This command ensures autocomplete will be available
+ * This command will update the BaSH autocomplete code to the latest version
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -19,10 +19,9 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
-CliDocumentation::setUsage('./pho system clear [OPTIONS]
-');
+CliDocumentation::setUsage('./pho project autocomplete update');
 
-CliDocumentation::setHelp('This command ensures autocomplete will be available
+CliDocumentation::setHelp('
 
 
 ARGUMENTS
@@ -31,10 +30,9 @@ ARGUMENTS
 -');
 
 
-// Get command line arguments
-$argv = ArgvValidator::new()
-                     ->validate();
+// Don't allow any arguments at all
+ArgvValidator::new()->validate();
 
 
-// Go!
-CliAutoComplete::setup();
+// Setup auto complete
+CliAutoComplete::setup(true);

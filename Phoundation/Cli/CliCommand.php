@@ -327,7 +327,7 @@ class CliCommand
         }
 
         // Make sure that the CLI auto-completion is configured for this shell.
-        CliAutoComplete::ensureAvailable();
+        CliAutoComplete::setup();
 
         if (!stream_isatty(STDIN) and !CliCommand::$stdin_has_been_read) {
             // STDIN might happen with commands executed. Test the input stream if there was any data at all in it
@@ -1021,7 +1021,7 @@ class CliCommand
                 CliCommand::limitCommand(isset_get($parameters['limit']), isset_get($parameters['reason']));
 
                 CliCommand::documentation();
-                CliAutoComplete::ensureAvailable();
+                CliAutoComplete::setup();
                 exit();
             }
         }
