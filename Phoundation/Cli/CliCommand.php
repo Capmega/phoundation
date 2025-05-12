@@ -1214,7 +1214,7 @@ class CliCommand
         // We're stuck in a directory still, no command to execute.
         // Add the available files to display to help the user
         throw CliCommandNotFoundException::new(tr('The specified command file ":file" was not found', [
-            ':file' => $file,
+            ':file' => Strings::from($file, DIRECTORY_COMMANDS)
         ]))
         ->makeWarning()
         ->addData([

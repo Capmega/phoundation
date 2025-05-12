@@ -802,6 +802,6 @@ PHO=$(./pho --auto-complete "${COMP_CWORD} ${COMP_LINE}");
 COMPREPLY+=($(compgen -W "$PHO"));
 }
 
-complete -F -W _phoundation pho';
+complete -F _phoundation pho';
     }
 }
