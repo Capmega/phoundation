@@ -118,7 +118,7 @@ interface IteratorInterface extends IteratorBaseInterface
      *
      * @return static
      */
-    public function spliceByKey(string $key, ?int $length = null, IteratorInterface|array $replacement = [], bool $after = false, array &$spliced = null): static;
+    public function spliceByKey(string $key, ?int $length = null, IteratorInterface|array $replacement = [], bool $after = false, ?array &$spliced = null): static;
 
     /**
      * Add the specified value to the iterator array using an optional key AFTER the specified $after_key
@@ -690,7 +690,7 @@ interface IteratorInterface extends IteratorBaseInterface
      *
      * @return static
      */
-    public function splice(int $offset, ?int $length = null, IteratorInterface|array $replacement = [], array &$spliced = null): static;
+    public function splice(int $offset, ?int $length = null, IteratorInterface|array $replacement = [], ?array &$spliced = null): static;
 
     /**
      * Renames and returns the specified value

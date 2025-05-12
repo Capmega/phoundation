@@ -615,7 +615,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @return static
      */
-    public function spliceByKey(string $key, ?int $length = null, IteratorInterface|array $replacement = [], bool $after = false, array &$spliced = null): static
+    public function spliceByKey(string $key, ?int $length = null, IteratorInterface|array $replacement = [], bool $after = false, ?array &$spliced = null): static
     {
         try {
             $spliced = Arrays::spliceByKey($this->source, $key, $length, $replacement, $after);
@@ -1937,7 +1937,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @return static
      */
-    public function splice(int $offset, ?int $length = null, IteratorInterface|array $replacement = [], array &$spliced = null): static
+    public function splice(int $offset, ?int $length = null, IteratorInterface|array $replacement = [], ?array &$spliced = null): static
     {
         $spliced = Arrays::splice($this->source, $offset, $length, $replacement);
 

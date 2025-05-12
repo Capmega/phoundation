@@ -57,7 +57,7 @@ class Process extends ProcessCore
      *
      * @return static
      */
-    public static function new(?string $command = null, PhoRestrictionsInterface|PhoDirectoryInterface $execution_directory_or_restrictions = null, ?string $operating_system = null, ?string $packages = null, bool $which_command = true): static
+    public static function new(?string $command = null, PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory_or_restrictions = null, ?string $operating_system = null, ?string $packages = null, bool $which_command = true): static
     {
         return new static($command, $execution_directory_or_restrictions, $operating_system, $packages, $which_command);
     }
