@@ -393,7 +393,7 @@ class Arrays extends Utils
      *       "compare to null"
      * @version 2.5.119: Added function and documentation
      */
-    public static function params(mixed &$params, string $string_key = null, ?string $numeric_key = null, ?bool $default = false): void
+    public static function params(mixed &$params, ?string $string_key = null, ?string $numeric_key = null, ?bool $default = false): void
     {
         if (!$params) {
             // The specified value is empty (probably null, "", etc). Convert it into an array containing the numeric and string keys with null values
@@ -3959,7 +3959,7 @@ class Arrays extends Utils
      *
      * @return array
      */
-    public static function convertToTimeDifference(array $source, string $zero_label = null): array
+    public static function convertToTimeDifference(array $source, ?string $zero_label = null): array
     {
         $return = [];
 

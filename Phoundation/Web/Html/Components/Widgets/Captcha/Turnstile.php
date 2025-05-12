@@ -56,7 +56,7 @@ class Turnstile extends Captcha
      *
      * @return void
      */
-    public function validateResponse(?string $response, string $remote_ip = null, string $secret = null): void
+    public function validateResponse(?string $response, ?string $remote_ip = null, ?string $secret = null): void
     {
         if (!$this->isValid($response, $remote_ip, $secret)) {
             throw new ValidationFailedException(tr('The Turnstile response is invalid for ":remote_ip"', [
@@ -75,7 +75,7 @@ class Turnstile extends Captcha
      *
      * @return bool
      */
-    public function isValid(?string $response, string $remote_ip = null, string $secret = null): bool
+    public function isValid(?string $response, ?string $remote_ip = null, ?string $secret = null): bool
     {
         if (!$response) {
             // There is no response, this is failed before we even begin

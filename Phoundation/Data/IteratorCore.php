@@ -1507,7 +1507,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @return static
      */
-    public function displayCliKeyValueTable(?string $key_header = null, string $value_header = null, int $offset = 0): static
+    public function displayCliKeyValueTable(?string $key_header = null, ?string $value_header = null, int $offset = 0): static
     {
         Cli::displayForm($this->source, $key_header, $value_header, $offset);
         return $this;
@@ -1634,7 +1634,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @return bool
      */
-    public function containsKeys(IteratorInterface|array|string $list, bool $all = true, string $always_match = null): bool
+    public function containsKeys(IteratorInterface|array|string $list, bool $all = true, ?string $always_match = null): bool
     {
         foreach (Arrays::force($list) as $key) {
             if (!array_key_exists($key, $this->source)) {
@@ -1669,7 +1669,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      * @return array
      * @todo Redo this with array_diff()
      */
-    public function getMissingKeys(IteratorInterface|array|string $list, string $always_match = null): array
+    public function getMissingKeys(IteratorInterface|array|string $list, ?string $always_match = null): array
     {
         $return = [];
 

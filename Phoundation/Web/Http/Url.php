@@ -113,7 +113,7 @@ class Url implements UrlInterface
      *
      * @return static
      */
-    public static function newFromPath(PhoPathInterface $source = null): static
+    public static function newFromPath(?PhoPathInterface $source = null): static
     {
         $source = Strings::from($source, DIRECTORY_PROJECT_CDN);
         $source = Strings::from($source, DIRECTORY_CDN);

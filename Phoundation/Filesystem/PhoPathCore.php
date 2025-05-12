@@ -2462,7 +2462,7 @@ class PhoPathCore implements PhoPathInterface
      *
      * @return PhoPathInterface
      */
-    public function getRelativePathTo(PhoPathInterface|string $target, PhoPathInterface|string|bool $absolute_prefix = null): PhoPathInterface
+    public function getRelativePathTo(PhoPathInterface|string $target, PhoPathInterface|string|?bool $absolute_prefix = null): PhoPathInterface
     {
         $target      = static::new($target, $this->restrictions);
         $target_path = Strings::ensureEndsNotWith($target->getAbsolutePath($absolute_prefix, false), '/');

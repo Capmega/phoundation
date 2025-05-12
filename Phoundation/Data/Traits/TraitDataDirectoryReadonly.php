@@ -49,7 +49,7 @@ trait TraitDataDirectoryReadonly
      *
      * @return static
      */
-    protected function setDirectoryObject(?PhoDirectoryInterface $directory, string $prefix = null, bool $must_exist = true): static
+    protected function setDirectoryObject(?PhoDirectoryInterface $directory, ?string $prefix = null, bool $must_exist = true): static
     {
         $this->o_directory = $directory?->makeAbsolute($prefix, $must_exist);
         return $this;

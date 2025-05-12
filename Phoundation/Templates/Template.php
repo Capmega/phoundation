@@ -35,7 +35,7 @@ class Template extends Page implements TemplateInterface
     /**
      * Returns a new Template object
      */
-    public static function page(string $page_name = null): Template
+    public static function page(?string $page_name = null): Template
     {
         $text = static::getPage($page_name);
         return static::new()->setText($text);

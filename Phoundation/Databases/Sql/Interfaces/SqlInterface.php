@@ -235,7 +235,7 @@ interface SqlInterface extends DatabaseInterface
      *
      * @return array|null
      */
-    public function getRow(string|PDOStatement $query, array $execute = null, bool $meta_enabled = true): ?array;
+    public function getRow(string|PDOStatement $query, ?array $execute = null, bool $meta_enabled = true): ?array;
 
 
     /**
@@ -247,7 +247,7 @@ interface SqlInterface extends DatabaseInterface
      *
      * @return string|float|int|bool|null
      */
-    public function getColumn(string|PDOStatement $query, array $execute = null, ?string $column = null): string|float|int|bool|null;
+    public function getColumn(string|PDOStatement $query, ?array $execute = null, ?string $column = null): string|float|int|bool|null;
 
 
     /**
@@ -260,7 +260,7 @@ interface SqlInterface extends DatabaseInterface
      * @return float|int|null
      * @throws OutOfBoundsException Thrown if the result is non numeric
      */
-    public function getNumeric(string|PDOStatement $query, array $execute = null, ?string $column = null): float|int|null;
+    public function getNumeric(string|PDOStatement $query, ?array $execute = null, ?string $column = null): float|int|null;
 
 
     /**
@@ -272,7 +272,7 @@ interface SqlInterface extends DatabaseInterface
      *
      * @return int|null
      */
-    public function getInteger(string|PDOStatement $query, array $execute = null, ?string $column = null): int|null;
+    public function getInteger(string|PDOStatement $query, ?array $execute = null, ?string $column = null): int|null;
 
 
     /**
@@ -284,7 +284,7 @@ interface SqlInterface extends DatabaseInterface
      *
      * @return float|null
      */
-    public function getFloat(string|PDOStatement $query, array $execute = null, ?string $column = null): float|null;
+    public function getFloat(string|PDOStatement $query, ?array $execute = null, ?string $column = null): float|null;
 
 
     /**
@@ -296,7 +296,7 @@ interface SqlInterface extends DatabaseInterface
      *
      * @return bool|null
      */
-    public function getBoolean(string|PDOStatement $query, array $execute = null, ?string $column = null): bool|null;
+    public function getBoolean(string|PDOStatement $query, ?array $execute = null, ?string $column = null): bool|null;
 
 
     /**

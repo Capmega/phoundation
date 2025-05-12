@@ -74,7 +74,7 @@ abstract class ObjectFile
      *
      * @return array
      */
-    protected function renderConfiguration(array $configuration = null): array
+    protected function renderConfiguration(?array $configuration = null): array
     {
         $return = array_merge([
             'apiVersion' => $this->object->getApiVersion(),

@@ -60,7 +60,7 @@ class Import extends \Phoundation\Developer\Project\Import
      *
      * @return PhoDirectory
      */
-    public static function download(string $directory = null, PhoRestrictionsInterface|array|string|null $restrictions = null): PhoDirectory
+    public static function download(?string $directory = null, PhoRestrictionsInterface|array|string|null $restrictions = null): PhoDirectory
     {
         // Default restrictions are default path writable
         $directory    = $directory ?? DIRECTORY_DATA . 'sources/geo';
@@ -456,7 +456,7 @@ class Import extends \Phoundation\Developer\Project\Import
      *
      * @return void
      */
-    public static function import(string $database = null): void
+    public static function import(?string $database = null): void
     {
         if (!$database) {
             $database = 'geonames';

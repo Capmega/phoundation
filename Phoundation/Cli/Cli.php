@@ -243,7 +243,7 @@ class Cli
      *
      * @return void
      */
-    public static function displayForm(array $source, string|float|int|null $key_header = null, string $value_header = null, int $offset = 0): void
+    public static function displayForm(array $source, string|float|int|null $key_header = null, ?string $value_header = null, int $offset = 0): void
     {
         // Validate arguments
         if ($offset < 0) {

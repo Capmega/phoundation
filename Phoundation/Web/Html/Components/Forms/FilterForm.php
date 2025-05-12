@@ -588,7 +588,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      *
      * @return static
      */
-    protected function applyValidator(string $class, bool $require_clean_source = null): static
+    protected function applyValidator(string $class, ?bool $require_clean_source = null): static
     {
         $require_clean_source = $require_clean_source ?? $this->require_clean_source;
 

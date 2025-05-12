@@ -238,7 +238,7 @@ class Sql implements SqlInterface
      *
      * @return array|null
      */
-    public function getRow(string|PDOStatement $query, array $execute = null, bool $meta_enabled = true): ?array
+    public function getRow(string|PDOStatement $query, ?array $execute = null, bool $meta_enabled = true): ?array
     {
         $result = $this->query($query, $execute);
 
@@ -706,7 +706,7 @@ class Sql implements SqlInterface
      *
      * @return bool|null
      */
-    public function getBoolean(string|PDOStatement $query, array $execute = null, ?string $column = null): bool|null
+    public function getBoolean(string|PDOStatement $query, ?array $execute = null, ?string $column = null): bool|null
     {
         $result = static::getColumn($query, $execute, $column);
 
@@ -728,7 +728,7 @@ class Sql implements SqlInterface
      *
      * @return string|float|int|bool|null
      */
-    public function getColumn(string|PDOStatement $query, array $execute = null, ?string $column = null): string|float|int|bool|null
+    public function getColumn(string|PDOStatement $query, ?array $execute = null, ?string $column = null): string|float|int|bool|null
     {
         $result = $this->getRow($query, $execute);
 
@@ -1510,7 +1510,7 @@ class Sql implements SqlInterface
      *
      * @return int|null
      */
-    public function getInteger(string|PDOStatement $query, array $execute = null, ?string $column = null): int|null
+    public function getInteger(string|PDOStatement $query, ?array $execute = null, ?string $column = null): int|null
     {
         $result = static::getNumeric($query, $execute, $column);
 
@@ -1540,7 +1540,7 @@ class Sql implements SqlInterface
      * @return float|int|null
      * @throws OutOfBoundsException Thrown if the result is non numeric
      */
-    public function getNumeric(string|PDOStatement $query, array $execute = null, ?string $column = null): float|int|null
+    public function getNumeric(string|PDOStatement $query, ?array $execute = null, ?string $column = null): float|int|null
     {
         $result = static::getColumn($query, $execute, $column);
 
@@ -1573,7 +1573,7 @@ class Sql implements SqlInterface
      *
      * @return float|null
      */
-    public function getFloat(string|PDOStatement $query, array $execute = null, ?string $column = null): float|null
+    public function getFloat(string|PDOStatement $query, ?array $execute = null, ?string $column = null): float|null
     {
         return (float) static::getNumeric($query, $execute, $column);
     }

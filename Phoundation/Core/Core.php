@@ -1706,7 +1706,7 @@ class Core implements CoreInterface
      *
      * @return void
      */
-    protected static function doSleep(int $seconds, int $offset = null): void
+    protected static function doSleep(int $seconds, ?int $offset = null): void
     {
         if (Core::$usleep) {
             // Ups, we were sleeping, but it got interrupted. Resume
@@ -1755,7 +1755,7 @@ class Core implements CoreInterface
      *
      * @return void
      */
-    protected static function doUsleep(int $micro_seconds, int $offset = null): void
+    protected static function doUsleep(int $micro_seconds, ?int $offset = null): void
     {
         if (Core::$usleep) {
             // Ups, we were sleeping, but it got interrupted. Resume

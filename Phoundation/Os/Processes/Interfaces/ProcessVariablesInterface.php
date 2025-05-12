@@ -208,7 +208,7 @@ interface ProcessVariablesInterface extends Stringable
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function setTerm(string $term = null, bool $only_if_empty = false): static;
+    public function setTerm(?string $term = null, bool $only_if_empty = false): static;
 
 
     /**

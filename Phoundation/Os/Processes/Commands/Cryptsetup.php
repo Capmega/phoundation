@@ -35,7 +35,7 @@ class Cryptsetup extends Command
      *
      * @return void
      */
-    public function luksFormat(DeviceInterface $device, string $key = null, ?PhoFileInterface $key_file = null): void
+    public function luksFormat(DeviceInterface $device, ?string $key = null, ?PhoFileInterface $key_file = null): void
     {
         // Get restrictions from the specified device
         $this->setRestrictions($device->getRestrictions());

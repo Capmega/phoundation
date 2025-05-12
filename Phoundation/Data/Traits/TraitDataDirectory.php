@@ -35,7 +35,7 @@ trait TraitDataDirectory
      *
      * @return static
      */
-    public function setDirectoryObject(?PhoDirectoryInterface $o_directory, string $prefix = null, bool $must_exist = true): static
+    public function setDirectoryObject(?PhoDirectoryInterface $o_directory, ?string $prefix = null, bool $must_exist = true): static
     {
         return $this->__setDirectoryObject($o_directory, $prefix, $must_exist);
     }

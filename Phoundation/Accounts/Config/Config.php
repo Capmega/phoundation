@@ -168,7 +168,7 @@ class Config implements ConfigInterface
      * @param string|null $section
      * @param string|null $environment
      */
-    public function __construct(string $section = null, ?string $environment = null)
+    public function __construct(?string $section = null, ?string $environment = null)
     {
         $this->setSection($section)
              ->setEnvironment($environment)
@@ -288,7 +288,7 @@ class Config implements ConfigInterface
      *
      * @return ConfigInterface
      */
-    public static function fromSection(string $section = null, ?string $environment = null): ConfigInterface
+    public static function fromSection(?string $section = null, ?string $environment = null): ConfigInterface
     {
         if ($environment === null) {
             $environment = static::$default_environment;

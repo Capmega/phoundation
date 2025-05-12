@@ -641,7 +641,7 @@ class Log implements LogInterface
      *
      * @return void
      */
-    public static function closeFile(string $file = null): void
+    public static function closeFile(?string $file = null): void
     {
         if ($file === null) {
             // Default log file is always the syslog
@@ -1109,7 +1109,7 @@ class Log implements LogInterface
      * @return string|null
      * @throws LogException if the specified threshold is invalid.
      */
-    public static function setFile(string $file = null): ?string
+    public static function setFile(?string $file = null): ?string
     {
         if (!static::getFileEnabled()) {
             // Logging to file is disabled, don't set a file

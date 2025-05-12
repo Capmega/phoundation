@@ -687,7 +687,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
      * set $mode to the default value, specified in $_CONFIG, and then
      * do the same as 0000
      */
-    public function copyTree(string $destination, array $search = null, array $replace = null, string|array $extensions = null, mixed $mode = true, bool $novalidate = false): string
+    public function copyTree(string $destination, ?array $search = null, ?array $replace = null, string|?array $extensions = null, mixed $mode = true, bool $novalidate = false): string
     {
         throw new UnderConstructionException('$this->copyTree() is under construction');
         // Check filesystem restrictions

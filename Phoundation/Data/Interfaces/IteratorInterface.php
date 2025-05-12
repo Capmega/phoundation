@@ -536,7 +536,7 @@ interface IteratorInterface extends IteratorBaseInterface
      *
      * @return static
      */
-    public function displayCliKeyValueTable(?string $key_header = null, string $value_header = null, int $offset = 0): static;
+    public function displayCliKeyValueTable(?string $key_header = null, ?string $value_header = null, int $offset = 0): static;
 
     /**
      * Sorts the Iterator source in ascending order
@@ -598,7 +598,7 @@ interface IteratorInterface extends IteratorBaseInterface
      *
      * @return bool
      */
-    public function containsKeys(IteratorInterface|array|string $list, bool $all = true, string $always_match = null): bool;
+    public function containsKeys(IteratorInterface|array|string $list, bool $all = true, ?string $always_match = null): bool;
 
     /**
      * Returns a list of items that are specified, but not available in this Iterator
@@ -609,7 +609,7 @@ interface IteratorInterface extends IteratorBaseInterface
      * @return array
      * @todo Redo this with array_diff()
      */
-    public function getMissingKeys(IteratorInterface|array|string $list, string $always_match = null): array;
+    public function getMissingKeys(IteratorInterface|array|string $list, ?string $always_match = null): array;
 
     /**
      * Returns multiple column values for a single entry
