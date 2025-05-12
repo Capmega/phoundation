@@ -47,7 +47,7 @@ $role = Role::new()->loadThis($get['id']);
 if (Request::isPostRequestMethod()) {
     try {
         switch (PostValidator::new()->getSubmitButton()) {
-            case tr('Save'):
+            case 'save':
                 // Validate rights
                 $post = PostValidator::new()
                                      ->select('rights_id')->isOptional()->isArray()->forEachField()->isOptional()->isDbId()
@@ -65,12 +65,12 @@ if (Request::isPostRequestMethod()) {
                 Response::getFlashMessagesObject()->addSuccess(tr('Role ":role" has been saved', [':role' => $role->getName()]));
                 Response::redirect('accounts/role+' . $role->getId() . '.html');
 
-            case tr('Delete'):
+            case 'delete':
                 $role->delete();
                 Response::getFlashMessagesObject()->addSuccess(tr('The role ":role" has been deleted', [':role' => $role->getName()]));
                 Response::redirect();
 
-            case tr('Undelete'):
+            case 'undelete':
                 $role->undelete();
                 Response::getFlashMessagesObject()->addSuccess(tr('The role ":role" has been undeleted', [':role' => $role->getName()]));
                 Response::redirect();
@@ -91,7 +91,7 @@ if ($role->isNotNew()) {
                    ->setMode(EnumDisplayMode::information)
                    ->setAnchorUrl('/audit/meta+' . $role->getMetaId() . '.html')
                    ->setFloatRight(true)
-                   ->setContent(tr('Audit'))
+                   ->setValue('audit')
                    ->setContent(tr('Audit'));
 
     if ($role->isDeleted()) {
@@ -99,7 +99,7 @@ if ($role->isNotNew()) {
                         ->setFloatRight(true)
                         ->setMode(EnumDisplayMode::warning)
                         ->setOutlined(true)
-                        ->setContent(tr('Undelete'))
+                        ->setValue('undelete')
                         ->setContent(tr('Undelete'));
 
     } else {
@@ -107,7 +107,7 @@ if ($role->isNotNew()) {
                         ->setFloatRight(true)
                         ->setMode(EnumDisplayMode::warning)
                         ->setOutlined(true)
-                        ->setContent(tr('Delete'))
+                        ->setValue('delete')
                         ->setContent(tr('Delete'));
     }
 
