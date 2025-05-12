@@ -21,6 +21,7 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Stringable;
+use Throwable;
 
 
 interface DataEntryInterface extends EntryInterface, IntegerableInterface
@@ -807,4 +808,19 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * @return bool
      */
     public function hasPermitValidationFailures(EnumSoftHard $permit): bool;
+
+    /**
+     * Returns the Throwable exception for this object or null
+     *
+     * @return Throwable|null
+     */
+    public function getException(): ?Throwable;
+
+    /**
+     * Sets the Throwable ID for this object
+     *
+     * @param Throwable|null $exception
+     * @return static
+     */
+    public function setException(?Throwable $exception): static;
 }

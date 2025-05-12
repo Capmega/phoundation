@@ -327,7 +327,7 @@ class CliCommand
         }
 
         // Make sure that the CLI auto-completion is configured for this shell.
-        CliAutoComplete::ensureAvailable();
+        CliAutoComplete::setup();
 
         if (!stream_isatty(STDIN) and !CliCommand::$stdin_has_been_read) {
             // STDIN might happen with commands executed. Test the input stream if there was any data at all in it
@@ -1021,7 +1021,7 @@ class CliCommand
                 CliCommand::limitCommand(isset_get($parameters['limit']), isset_get($parameters['reason']));
 
                 CliCommand::documentation();
-                CliAutoComplete::ensureAvailable();
+                CliAutoComplete::setup();
                 exit();
             }
         }
@@ -1040,8 +1040,8 @@ class CliCommand
     {
         Core::setScriptState();
 
-        Log::action(ts('Executing auto complete with command: :command', [
-            ':command' => CliCommand::getCommandline()
+        Log::action(ts('Executing auto complete with command ":command"', [
+            ':command' => implode(' ', $_SERVER['argv'])
         ]), 7, echo_screen: false);
 
         try {
@@ -1050,7 +1050,7 @@ class CliCommand
 
             // AutoComplete::getPosition() might become -1 if one were to <TAB> right at the end of the last command.
             // If this is the case, we actually have to expand the command, NOT yet the command parameters!
-            if ((CliAutoComplete::getPosition() - count(CliCommand::$commands)) === 0) {
+            if ((CliAutoComplete::getPosition() - count(CliCommand::$commands)) < 0) {
                 throw CliCommandNotExistsException::new(tr('The specified command file ":file" does exist but requires auto complete extension', [
                     ':file' => $command,
                 ]))
@@ -1214,7 +1214,7 @@ class CliCommand
         // We're stuck in a directory still, no command to execute.
         // Add the available files to display to help the user
         throw CliCommandNotFoundException::new(tr('The specified command file ":file" was not found', [
-            ':file' => $file,
+            ':file' => Strings::from($file, DIRECTORY_COMMANDS)
         ]))
         ->makeWarning()
         ->addData([

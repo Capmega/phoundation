@@ -67,6 +67,7 @@ use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Enums\EnumSoftHard;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataCacheKey;
+use Phoundation\Data\Traits\TraitDataClassException;
 use Phoundation\Data\Traits\TraitDataColumns;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
@@ -121,6 +122,9 @@ use TypeError;
 class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierInterface
 {
     use TraitDataCacheKey;
+    use TraitDataClassException {
+        setException as protected __setException;
+    }
     use TraitDataConnector;
     use TraitDataDebug;
     use TraitDataDisabled;
@@ -2867,7 +2871,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             if (!$this->hasPermitValidationFailures(EnumSoftHard::none)) {
                 // The validator MIGHT have a failure that was permitted!
                 if ($validator->getFailures()) {
-                    $this->setStatus('failedvalidation', auto_save: false);
+                    $this->setException($validator->getException())
+                         ->setStatus('failedvalidation', auto_save: false);
 
                 } elseif ($this->hasStatus('failedvalidation')) {
                     $this->setStatus(null, auto_save: false);

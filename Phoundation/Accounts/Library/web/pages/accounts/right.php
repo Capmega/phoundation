@@ -45,7 +45,7 @@ $right = Right::new()->loadThis($get['id']);
 if (Request::isPostRequestMethod()) {
     try {
         switch (PostValidator::new()->getSubmitButton()) {
-            case tr('Save'):
+            case 'save':
                 // Update right
                 $right
                     ->apply()
@@ -57,12 +57,12 @@ if (Request::isPostRequestMethod()) {
                 Response::getFlashMessagesObject()->addSuccess(tr('Right ":right" has been saved', [':right' => $right->getName()]));
                 Response::redirect(Url::new('/accounts/right+' . $right->getId() . '.html')->makeWww());
 
-            case tr('Delete'):
+            case 'delete':
                 $right->delete();
                 Response::getFlashMessagesObject()->addSuccess(tr('The right ":right" has been deleted', [':right' => $right->getName()]));
                 Response::redirect();
 
-            case tr('Undelete'):
+            case 'undelete':
                 $right->undelete();
                 Response::getFlashMessagesObject()->addSuccess(tr('The right ":right" has been undeleted', [':right' => $right->getName()]));
                 Response::redirect();
@@ -83,7 +83,7 @@ if (!$right->isNew()) {
                    ->setMode(EnumDisplayMode::information)
                    ->setAnchorUrl('/audit/meta+' . $right->getMetaId() . '.html')
                    ->setFloatRight(true)
-                   ->setContent(tr('Audit'))
+                   ->setValue('audit')
                    ->setContent(tr('Audit'));
 
     if ($right->isDeleted()) {
@@ -91,7 +91,7 @@ if (!$right->isNew()) {
                         ->setFloatRight(true)
                         ->setMode(EnumDisplayMode::warning)
                         ->setOutlined(true)
-                        ->setContent(tr('Undelete'))
+                        ->setValue('undelete')
                         ->setContent(tr('Undelete'));
 
     } else {
@@ -99,7 +99,7 @@ if (!$right->isNew()) {
                         ->setFloatRight(true)
                         ->setMode(EnumDisplayMode::warning)
                         ->setOutlined(true)
-                        ->setContent(tr('Delete'))
+                        ->setValue('delete')
                         ->setContent(tr('Delete'));
     }
 

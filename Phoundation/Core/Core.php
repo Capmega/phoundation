@@ -2962,6 +2962,7 @@ class Core implements CoreInterface
                         Log::notice($file, 10);
                     }
                 }
+
             } elseif ($e instanceof CliCommandNotFoundException) {
                 if ($data = $e->getData()) {
                     Log::information('Available sub methods:', 9, echo_prefix: false);

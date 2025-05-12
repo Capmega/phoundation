@@ -690,9 +690,11 @@ class CliAutoComplete
     /**
      * Checks if autocomplete has been correctly setup
      *
+     * @param bool $force
+     *
      * @return void
      */
-    public static function ensureAvailable(): void
+    public static function setup(bool $force = false): void
     {
         $file = PhoFile::new('~/.bash_completion', PhoRestrictions::newWritableObject('~/.bash_completion'))
                        ->makeAbsolute(must_exist: false);
@@ -708,6 +710,22 @@ class CliAutoComplete
 
                 if ($results) {
                     // bash_completion contains rule for Phoundation
+                    if (!$force) {
+                        // We're done
+                        return;
+                    }
+
+                    // Phoundation rule exists, update it forcibly by replacing the old command with the current
+                    $contents    = $file->getContentsAsString();
+                    $phoundation = Strings::from($contents, '_phoundation()');
+                    $phoundation = Strings::untilReverse($phoundation, '_phoundation pho');
+                    $phoundation = '_phoundation()' . $phoundation . '_phoundation pho';
+                    $contents    = str_replace($phoundation, CliAutoComplete::getBashCompleteCommand(), $contents);
+
+                    $file->putContents($contents);
+
+                    Log::success('Updated auto complete for Phoundation in ~/.bash_completion');
+                    Log::success('You may need to logout and login again for auto complete to work correctly with the new update');
                     return;
                 }
 
@@ -758,13 +776,7 @@ class CliAutoComplete
         }
 
         // Phoundation command line auto complete has not yet been set up, do so now.
-        $file->appendData(PHP_EOL . '_phoundation()
-{
-PHO=$(./pho --auto-complete "${COMP_CWORD} ${COMP_LINE}");
-COMPREPLY+=($(compgen -W "$PHO"));
-}
-
-complete -o nospace -F _phoundation pho' . PHP_EOL);
+        $file->appendData(PHP_EOL . CliAutoComplete::getBashCompleteCommand() . PHP_EOL);
 
         // Source the .bash_completion file
         Process::new('source', which_command: false)
@@ -774,5 +786,22 @@ complete -o nospace -F _phoundation pho' . PHP_EOL);
 
         Log::success('Setup auto complete for Phoundation in ~/.bash_completion');
         Log::success('You may need to logout and login again for auto complete to work correctly');
+    }
+
+
+    /**
+     * Returns the bash complete command
+     *
+     * @return string
+     */
+    public static function getBashCompleteCommand(): string
+    {
+        return '_phoundation()
+{
+PHO=$(./pho --auto-complete "${COMP_CWORD} ${COMP_LINE}");
+COMPREPLY+=($(compgen -W "$PHO"));
+}
+
+complete -F _phoundation pho';
     }
 }

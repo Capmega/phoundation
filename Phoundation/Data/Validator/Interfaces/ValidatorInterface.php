@@ -28,6 +28,7 @@ use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Stringable;
+use Throwable;
 use UnitEnum;
 
 
@@ -1368,4 +1369,19 @@ interface ValidatorInterface extends IteratorBaseInterface
      * @return mixed
      */
     public function isPhn();
+
+    /**
+     * Returns the Throwable exception for this object or null
+     *
+     * @return Throwable|null
+     */
+    public function getException(): ?Throwable;
+
+    /**
+     * Sets the Throwable ID for this object
+     *
+     * @param Throwable|null $exception
+     * @return static
+     */
+    public function setException(?Throwable $exception): static;
 }
