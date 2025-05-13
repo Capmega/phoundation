@@ -33,11 +33,12 @@ class Tab extends ElementsBlock implements TabInterface
         setName as protected __setName;
     }
 
-    public function __construct(?string $name = null, array|null|PDOStatement|IteratorInterface|string|null $source = null)
+    public function __construct(?string $name = null, PDOStatement|IteratorInterface|array|string|null $source = null)
     {
         $this->setName($name);
         parent::__construct($source);
     }
+
 
     /**
      * @return string|null
