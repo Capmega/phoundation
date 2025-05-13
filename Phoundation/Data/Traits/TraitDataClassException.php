@@ -50,4 +50,15 @@ trait TraitDataClassException
         $this->exception = $exception;
         return $this;
     }
+
+
+    /**
+     * Returns true if this object has an exception
+     *
+     * @return bool
+     */
+    public function hasException(): bool
+    {
+        return !empty($this->exception);
+    }
 }

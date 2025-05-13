@@ -823,4 +823,11 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * @return static
      */
     public function setException(?Throwable $exception): static;
+
+    /**
+     * Returns true if this object has an exception set
+     *
+     * @return bool
+     */
+    public function hasException(): bool;
 }
