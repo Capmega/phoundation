@@ -90,6 +90,13 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     protected ?string $row_url = null;
 
     /**
+     * queries that apply to all rows
+     *
+     * @var array|null $row_queries
+     */
+    protected ?array $row_queries = null;
+
+    /**
      * The table column headers
      *
      * @var IteratorInterface|null $headers
@@ -544,6 +551,32 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
 
     /**
+     * Returns the URL that applies to each row
+     *
+     * @return array|null
+     */
+    public function getRowQueries(): ?array
+    {
+        return $this->row_queries;
+    }
+
+
+    /**
+     * Sets the URL that applies to each row
+     *
+     * @param \Stringable|array|null $row_queries
+     *
+     * @return static
+     */
+    public function setRowQueries(Stringable|array|null $row_queries): static
+    {
+        $this->row_queries = $row_queries;
+
+        return $this;
+    }
+
+
+    /**
      * Returns the table headers
      *
      * @return IteratorInterface
@@ -892,7 +925,8 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         }
 
         if (isset($url)) {
-            $value = $this->renderUrl($row_id, $column, $value, $url);
+            $queries = $this->getRowQueries();
+            $value = $this->renderUrl($row_id, $column, $value, $url, $queries);
         }
 
         // Add data attributes?
@@ -940,14 +974,15 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Builds a URL around the specified column value
      *
-     * @param mixed  $row_id
-     * @param mixed  $column
-     * @param string $value
-     * @param string $url
+     * @param mixed      $row_id
+     * @param mixed      $column
+     * @param string     $value
+     * @param string     $url
+     * @param array|null $queries
      *
      * @return string
      */
-    protected function renderUrl(mixed $row_id, mixed $column, string $value, string $url): string
+    protected function renderUrl(mixed $row_id, mixed $column, string $value, string $url, ?array $queries): string
     {
         if ($url) {
             // Ensure all :ROW and :COLUMN markings are converted
@@ -964,7 +999,13 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
                 }
             }
 
-            return '<a' . $this->renderAnchorClassString() . ' href="' . Url::new($url)->makeWww() . '"' . $attributes . '>' . $value . '</a>';
+            $url = Url::new($url)->makeWww();
+
+            if ($queries) {
+                $url->addQueries($queries);
+            }
+
+            return '<a' . $this->renderAnchorClassString() . ' href="' . $url . '"' . $attributes . '>' . $value . '</a>';
         }
 
         return $url;
