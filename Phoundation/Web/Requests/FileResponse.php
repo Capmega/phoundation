@@ -424,7 +424,7 @@ class FileResponse extends PhoFile
      *
      * @return PhoFileInterface|null     The path to the downloaded file or NULL if a callback was specified
      */
-    public function download(string $url, callable $callback = null): PhoFileInterface|null
+    public function download(string $url, ?callable $callback = null): PhoFileInterface|null
     {
         // Set temp file and download data
         $file = FileResponse::newTemporaryObject()->getSource();

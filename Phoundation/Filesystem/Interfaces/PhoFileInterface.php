@@ -180,7 +180,7 @@ interface PhoFileInterface extends PhoPathInterface
      * set $mode to the default value, specified in $_CONFIG, and then
      * do the same as 0000
      */
-    public function copyTree(string $destination, array $search = null, array $replace = null, string|array $extensions = null, mixed $mode = true, bool $novalidate = false): string;
+    public function copyTree(string $destination, ?array $search = null, ?array $replace = null, string|array|null $extensions = null, mixed $mode = true, bool $novalidate = false): string;
 
     /**
      * Makes a backup of this file to the specified target and returns a new PhoFileInterface object for the target

@@ -49,7 +49,7 @@ class RepositoryVendor extends Vendor implements ProjectVendorInterface
      *
      * @return static
      */
-    public static function new(?RepositoryInterface $repository, PhoDirectoryInterface $directory = null): static
+    public static function new(?RepositoryInterface $repository, ?PhoDirectoryInterface $directory = null): static
     {
         return new static($repository, $directory);
     }

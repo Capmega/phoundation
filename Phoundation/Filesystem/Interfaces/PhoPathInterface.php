@@ -859,7 +859,7 @@ interface PhoPathInterface extends Stringable
      *
      * @return PhoPathInterface
      */
-    public function getRelativePathTo(PhoPathInterface|string $target, PhoPathInterface|string|bool $absolute_prefix = null): PhoPathInterface;
+    public function getRelativePathTo(PhoPathInterface|string $target, PhoPathInterface|string|bool|null $absolute_prefix = null): PhoPathInterface;
 
 
     /**

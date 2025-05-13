@@ -20,7 +20,7 @@ interface FlashMessagesInterface extends ElementsBlockInterface
      *
      * @return static
      */
-    public function addSuccess(FlashMessageInterface|PhoException|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static;
+    public function addSuccess(FlashMessageInterface|PhoException|string|null $message = null, ?string $icon = null, ?int $auto_close = 10000): static;
 
 
     /**
@@ -32,7 +32,7 @@ interface FlashMessagesInterface extends ElementsBlockInterface
      *
      * @return static
      */
-    public function addWarning(FlashMessageInterface|PhoException|string|null $message = null, string $icon = null, ?int $auto_close = 0): static;
+    public function addWarning(FlashMessageInterface|PhoException|string|null $message = null, ?string $icon = null, ?int $auto_close = 0): static;
 
 
     /**
@@ -44,7 +44,7 @@ interface FlashMessagesInterface extends ElementsBlockInterface
      *
      * @return static
      */
-    public function addValidationFailed(FlashMessageInterface|PhoException|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static;
+    public function addValidationFailed(FlashMessageInterface|PhoException|string|null $message = null, ?string $icon = null, ?int $auto_close = 10000): static;
 
 
     /**
@@ -56,7 +56,7 @@ interface FlashMessagesInterface extends ElementsBlockInterface
      *
      * @return static
      */
-    public function addException(FlashMessageInterface|PhoException|string|null $message = null, string $icon = null, ?int $auto_close = 0): static;
+    public function addException(FlashMessageInterface|PhoException|string|null $message = null, ?string $icon = null, ?int $auto_close = 0): static;
 
 
     /**
@@ -68,7 +68,7 @@ interface FlashMessagesInterface extends ElementsBlockInterface
      *
      * @return static
      */
-    public function addNoticeMessage(FlashMessageInterface|PhoException|string|null $message = null, string $icon = null, ?int $auto_close = 10000): static;
+    public function addNoticeMessage(FlashMessageInterface|PhoException|string|null $message = null, ?string $icon = null, ?int $auto_close = 10000): static;
 
 
     /**
@@ -82,7 +82,7 @@ interface FlashMessagesInterface extends ElementsBlockInterface
      *
      * @return static
      */
-    public function addMessage(FlashMessageInterface|PhoException|Stringable|string|null $message, ?string $title = null, ?EnumDisplayMode $mode = EnumDisplayMode::error, string $icon = null, ?int $auto_close = 5000): static;
+    public function addMessage(FlashMessageInterface|PhoException|Stringable|string|null $message, ?string $title = null, ?EnumDisplayMode $mode = EnumDisplayMode::error, ?string $icon = null, ?int $auto_close = 5000): static;
 
 
     /**

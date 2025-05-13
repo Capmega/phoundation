@@ -266,7 +266,7 @@ class Libraries
      *
      * @return int
      */
-    protected static function initializeLibraries(bool $system = true, bool $plugins = true, bool $templates = true, ?string $comments = null, array $filter_libraries = null): int
+    protected static function initializeLibraries(bool $system = true, bool $plugins = true, bool $templates = true, ?string $comments = null, ?array $filter_libraries = null): int
     {
         // Get a list of all available libraries and their versions
         $libraries      = static::listLibraries($system, $plugins, $templates);
@@ -476,7 +476,7 @@ class Libraries
      *
      * @return void
      */
-    protected static function orderAndFilterLibraries(array &$libraries, array $filter_libraries = null): void
+    protected static function orderAndFilterLibraries(array &$libraries, ?array $filter_libraries = null): void
     {
         // Prepare libraries filter if specified
         if ($filter_libraries) {

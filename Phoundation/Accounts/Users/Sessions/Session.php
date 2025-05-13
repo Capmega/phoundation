@@ -1474,7 +1474,7 @@ class Session implements SessionInterface
      *
      * @return array
      */
-    public static function validateSignIn(ValidatorInterface $validator = null): array
+    public static function validateSignIn(?ValidatorInterface $validator = null): array
     {
         $validator = $validator ?? PostValidator::new();
 
@@ -1491,7 +1491,7 @@ class Session implements SessionInterface
      *
      * @return array
      */
-    public static function validateSignUp(ValidatorInterface $validator = null): array
+    public static function validateSignUp(?ValidatorInterface $validator = null): array
     {
         if (!$validator) {
             $validator = PostValidator::new();

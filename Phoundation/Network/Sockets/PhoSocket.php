@@ -1174,7 +1174,7 @@ class PhoSocket implements Stringable, PhoSocketInterface
      * @throws SocketException If there was a failure.
      *
      */
-    public function write(string $buffer, int $length = null): int
+    public function write(string $buffer, ?int $length = null): int
     {
         if (!$this->isConnected()) {
             throw SocketDisconnectedException::new(tr('Cannot read from socket ":address::port", it is not connected', [
@@ -1246,7 +1246,7 @@ class PhoSocket implements Stringable, PhoSocketInterface
      *
      * @return int Returns the number of bytes sent.
      */
-    public function send(string $buffer, int $flags = 0, int $length = null): int
+    public function send(string $buffer, int $flags = 0, ?int $length = null): int
     {
         if ($length === null) {
             $length = strlen($buffer);

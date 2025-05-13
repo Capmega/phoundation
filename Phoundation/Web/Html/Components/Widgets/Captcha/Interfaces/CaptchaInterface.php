@@ -17,7 +17,7 @@ interface CaptchaInterface extends ElementsBlockInterface
      *
      * @return void
      */
-    function validateResponse(?string $response, string $remote_ip = null, string $secret = null): void;
+    function validateResponse(?string $response, ?string $remote_ip = null, ?string $secret = null): void;
 
 
     /**
@@ -29,7 +29,7 @@ interface CaptchaInterface extends ElementsBlockInterface
      *
      * @return bool
      */
-    function isValid(?string $response, string $remote_ip = null, string $secret = null): bool;
+    function isValid(?string $response, ?string $remote_ip = null, ?string $secret = null): bool;
 
 
     /**

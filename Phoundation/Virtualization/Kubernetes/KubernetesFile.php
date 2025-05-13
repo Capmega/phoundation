@@ -68,7 +68,7 @@ abstract class KubernetesFile
      *
      * @return array
      */
-    protected function renderConfiguration(array $configuration = null): array
+    protected function renderConfiguration(?array $configuration = null): array
     {
         if (!isset($this->kind)) {
             throw new OutOfBoundsException(tr('No Kubernetes file kind specified'));

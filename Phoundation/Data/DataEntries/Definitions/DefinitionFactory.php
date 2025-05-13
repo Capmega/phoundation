@@ -68,7 +68,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function newCategoriesId(?string $column = 'categories_id', array $filters = null): DefinitionInterface
+    public static function newCategoriesId(?string $column = 'categories_id', ?array $filters = null): DefinitionInterface
     {
         return Definition::new($column)
                          ->setOptional(true)
@@ -141,7 +141,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function newServersId(?string $column = 'servers_id', array $filters = null): DefinitionInterface
+    public static function newServersId(?string $column = 'servers_id', ?array $filters = null): DefinitionInterface
     {
         return Definition::new($column)
                          ->setOptional(true)
@@ -248,7 +248,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function newCompaniesId(?string $column = 'companies_id', array $filters = null): DefinitionInterface
+    public static function newCompaniesId(?string $column = 'companies_id', ?array $filters = null): DefinitionInterface
     {
         return Definition::new($column)
                          ->setOptional(true)
@@ -321,7 +321,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function newLanguagesId(?string $column = 'languages_id', array $filters = null): DefinitionInterface
+    public static function newLanguagesId(?string $column = 'languages_id', ?array $filters = null): DefinitionInterface
     {
         return Definition::new($column)
                          ->setOptional(true)
@@ -434,7 +434,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function newProvidersId(?string $column = 'providers_id', array $filters = null): DefinitionInterface
+    public static function newProvidersId(?string $column = 'providers_id', ?array $filters = null): DefinitionInterface
     {
         return Definition::new($column)
                          ->setOptional(true)
@@ -506,7 +506,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function newCustomersId(?string $column = 'customers_id', array $filters = null): DefinitionInterface
+    public static function newCustomersId(?string $column = 'customers_id', ?array $filters = null): DefinitionInterface
     {
         return Definition::new($column)
                          ->setOptional(true)
@@ -578,7 +578,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function newTimezonesId(?string $column = 'timezones_id', array $filters = null): DefinitionInterface
+    public static function newTimezonesId(?string $column = 'timezones_id', ?array $filters = null): DefinitionInterface
     {
         return Definition::new($column)
                          ->setOptional(true)
@@ -691,7 +691,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function newCountriesId(?string $column = 'countries_id', array $filters = null): DefinitionInterface
+    public static function newCountriesId(?string $column = 'countries_id', ?array $filters = null): DefinitionInterface
     {
         return Definition::new($column)
                          ->setOptional(true)
@@ -804,7 +804,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function newStatesId(?string $column = 'states_id', array $filters = null): DefinitionInterface
+    public static function newStatesId(?string $column = 'states_id', ?array $filters = null): DefinitionInterface
     {
         return Definition::new($column)
                          ->setOptional(true)
@@ -925,7 +925,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function newCitiesId(?string $column = 'cities_id', array $filters = null): DefinitionInterface
+    public static function newCitiesId(?string $column = 'cities_id', ?array $filters = null): DefinitionInterface
     {
         return Definition::new($column)
                          ->setOptional(true)
@@ -1044,7 +1044,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function newUsersId(?string $column = 'users_id', array $filters = null): DefinitionInterface
+    public static function newUsersId(?string $column = 'users_id', ?array $filters = null): DefinitionInterface
     {
         return Definition::new($column)
                          ->setOptional(true)
@@ -1153,7 +1153,7 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
-    public static function newRolesId(?string $column = 'roles_id', array $filters = null): DefinitionInterface
+    public static function newRolesId(?string $column = 'roles_id', ?array $filters = null): DefinitionInterface
     {
         return Definition::new($column)
                          ->setOptional(true)

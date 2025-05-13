@@ -331,7 +331,7 @@ interface PhoSocketInterface
      * @throws SocketException If there was a failure.
      *
      */
-    public function write(string $buffer, int $length = null): int;
+    public function write(string $buffer, ?int $length = null): int;
 
 
     /**
@@ -351,7 +351,7 @@ interface PhoSocketInterface
      *
      * @return int Returns the number of bytes sent.
      */
-    public function send(string $buffer, int $flags = 0, int $length = null): int;
+    public function send(string $buffer, int $flags = 0, ?int $length = null): int;
 
 
     /**

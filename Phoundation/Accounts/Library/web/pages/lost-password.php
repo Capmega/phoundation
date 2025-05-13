@@ -101,11 +101,10 @@ if (Request::isPostRequestMethod()) {
 //        $mail->SMTPDebug = SMTP::DEBUG_SERVER;
 
         if (Core::isProductionEnvironment()) {
-            $mail->addAddress($user->getEmail(), $user->getDisplayName());
             $mail->addBCC('sven@medinet.ca', 'Sven Olaf Oostenbrink');
 
         } else {
-            $mail->addAddress('sven@medinet.ca', 'Sven Olaf Oostenbrink');
+            $mail->addAddress($user->getEmail(), $user->getDisplayName());
         }
 
         $mail->setFrom('no-reply@medinet.ca', 'Medinet no-reply');

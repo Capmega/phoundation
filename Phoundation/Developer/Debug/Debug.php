@@ -1022,7 +1022,7 @@ class Debug
      *
      * @return void
      */
-    public static function dieIn(int $count, string $message = null): void
+    public static function dieIn(int $count, ?string $message = null): void
     {
         static $counter = 1;
         if (!$message) {
