@@ -982,7 +982,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
                                                ->makeWarning();
             }
 
-            Log::error('WARNING: SKIPPED FIELDS VALIDATION DUE TO "security.validation.disabled" = false CONFIGURATION! SYSTEM DATA MAY BE IN UNKNOWN STATE!');
+            Log::error('WARNING: SKIPPED FIELDS VALIDATION DUE TO "security.validation.enabled" = false CONFIGURATION! SYSTEM DATA MAY BE IN UNKNOWN STATE!');
         }
 
         return Arrays::extract($this->source, $this->selected_fields);

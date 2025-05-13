@@ -1350,9 +1350,10 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                     case EnumSoftHard::none:
                         throw $this->exception;
                 }
-            }
 
-            Log::error('WARNING: SKIPPED FIELDS VALIDATION DUE TO "security.validation.disabled" = false CONFIGURATION! SYSTEM DATA MAY BE IN UNKNOWN STATE!');
+            } else {
+                Log::error('WARNING: SKIPPED FIELDS VALIDATION DUE TO "security.validation.enabled" = false CONFIGURATION! SYSTEM DATA MAY BE IN UNKNOWN STATE!');
+            }
         }
     }
 
