@@ -2375,24 +2375,28 @@ class Definition implements DefinitionInterface
     /**
      * Returns if changes to the field result into an auto-submit
      *
-     * @return bool
+     * @return ScriptInterface|bool
      */
-    public function getAutoSubmit(): bool
+    public function getAutoSubmit(): ScriptInterface|bool
     {
-        return (bool) get_safe_typed('bool', $this->source, 'auto_submit', false);
+        return get_safe_typed(ScriptInterface::class . '|bool', $this->source, 'auto_submit', false);
     }
 
 
     /**
      * Returns if changes to the field result into an auto-submit
      *
-     * @param bool|null $value
+     * @param ScriptInterface|bool|null $value
      *
      * @return static
      */
-    public function setAutoSubmit(?bool $value): static
+    public function setAutoSubmit(ScriptInterface|bool|null $value): static
     {
-        return $this->setKey((bool) $value, 'auto_submit');
+        if (!$value) {
+            $value = (bool) $value;
+        }
+
+        return $this->setKey($value, 'auto_submit');
     }
 
 

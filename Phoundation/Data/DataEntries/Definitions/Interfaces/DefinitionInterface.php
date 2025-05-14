@@ -1211,9 +1211,9 @@ interface DefinitionInterface extends BeforeAfterContentInterface
     /**
      * Returns if changes to the field result into an auto-submit
      *
-     * @return bool
+     * @return ScriptInterface|bool
      */
-    public function getAutoSubmit(): bool;
+    public function getAutoSubmit(): ScriptInterface|bool;
 
 
     /**
