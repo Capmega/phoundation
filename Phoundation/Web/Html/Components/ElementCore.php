@@ -104,11 +104,11 @@ abstract class ElementCore implements ElementInterface
             throw new OutOfBoundsException(tr('Cannot render HTML element, no element type specified'));
         }
 
-        if ($this->o_attributes->get('auto_submit', false)) {
-            // Add JavaScript code to automatically submit on change
-            // NOTE: This method uses the WINDOW JavaScript wrapper because it fires AFTER the event
-            // document.addEventListener('DOMContentLoaded') which could cause accidental change events right on load
-            $this->addScriptObject(Script::new('$(\'[name="' . $this->name . '"]\').on("change keydown", function (e) {
+        $auto_submit = $this->o_attributes->get('auto_submit', false);
+
+        if ($auto_submit) {
+            if (!is_object($auto_submit)) {
+                $auto_submit = Script::new('$(\'[name="' . $this->name . '"]\').on("change keydown", function (e) {
                                                     switch (e.type) {
                                                         case "keydown":
                                                             if (e.keyCode !== 13) {
@@ -124,7 +124,12 @@ abstract class ElementCore implements ElementInterface
                                                                 $(e.target).closest("form").trigger("submit"); 
                                                             }, 100);
                                                     }           
-                                                });')->setJavascriptWrapper(EnumJavascriptWrappers::window));
+                                                });')->setJavascriptWrapper(EnumJavascriptWrappers::window);
+            }
+            // Add JavaScript code to automatically submit on change
+            // NOTE: This method uses the WINDOW JavaScript wrapper because it fires AFTER the event
+            // document.addEventListener('DOMContentLoaded') which could cause accidental change events right on load
+            $this->addScriptObject($auto_submit);
         }
 
         $this->o_attributes->removeKeys('auto_submit');

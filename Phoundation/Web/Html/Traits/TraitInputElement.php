@@ -22,6 +22,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataDescription;
 use Phoundation\Data\Traits\TraitDataIcon;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Html;
 use Stringable;
@@ -198,11 +199,11 @@ trait TraitInputElement
     /**
      * Sets if the element will auto submit
      *
-     * @param bool $auto_submit
+     * @param ScriptInterface|bool $auto_submit
      *
      * @return static
      */
-    public function setAutoSubmit(bool $auto_submit): static
+    public function setAutoSubmit(ScriptInterface|bool $auto_submit): static
     {
         return $this->setAttribute($auto_submit, 'auto_submit');
     }
@@ -211,9 +212,9 @@ trait TraitInputElement
     /**
      * Returns if the element will auto submit
      *
-     * @return bool
+     * @return ScriptInterface|bool
      */
-    public function getAutoSubmit(): bool
+    public function getAutoSubmit(): ScriptInterface|bool
     {
         return $this->o_attributes->get('auto_submit', false);
     }
