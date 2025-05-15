@@ -24,6 +24,10 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
+use Phoundation\Web\Html\Components\Input\Input;
+use Phoundation\Web\Html\Components\Input\InputAutoSuggest;
+use Phoundation\Web\Html\Components\Input\InputText;
+use Phoundation\Web\Html\Components\Input\InputTextInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
@@ -108,6 +112,31 @@ abstract class ElementCore implements ElementInterface
 
         if ($auto_submit) {
             if (!is_object($auto_submit)) {
+                if ($this instanceof InputTextInterface) {
+                    if ($this instanceof InputAutoSuggest) {
+                        $auto_suggest_auto_submit = Script::new('var $input   = $(\'[name="' . $this->getName() . '"]\');
+                                                                 var dropdown = "#autocomplete-dropdown-' . $this->getName() . '_autosuggest_div";
+                                                                        
+                                                                 $input.on("keydown", function(e){
+                                                                     if (e.keyCode === 13) {
+                                                                         $(this).closest("form").trigger("submit");
+                                                                     }
+                                                                 });
+                                                                        
+                                                                 $(document).on("mousedown", dropdown + " .autocomplete-item", function(){
+                                                                     var txt = $(this).text();
+                                                                     $input.val(txt);
+                                                                     $input.closest("form").trigger("submit");
+                                                                 });')->setJavascriptWrapper(EnumJavascriptWrappers::window);
+                    }
+
+                    if ($this->getClearButton()) {
+                        $clear_button_auto_submit = Script::new('$(document).on("click", "div.form-icon-trailing.ward .clear", function(){
+                                                                     $(\'[name="' . $this->getName() . '"]\').closest("form").trigger("submit");
+                                                                 });')->setJavascriptWrapper(EnumJavascriptWrappers::window);
+                    }
+                }
+
                 $auto_submit = Script::new('$(\'[name="' . $this->name . '"]\').on("change keydown", function (e) {
                                                     switch (e.type) {
                                                         case "keydown":
@@ -115,7 +144,7 @@ abstract class ElementCore implements ElementInterface
                                                                 break;
                                                             } 
                                                             
-                                                            // On enter, auto submit too
+                                                            // On enter, auto submit too by using the "on change" event
                                                             // no break
                                                             
                                                         case "change":
@@ -124,7 +153,7 @@ abstract class ElementCore implements ElementInterface
                                                                 $(e.target).closest("form").trigger("submit"); 
                                                             }, 100);
                                                     }           
-                                                });')->setJavascriptWrapper(EnumJavascriptWrappers::window);
+                                                });' . isset_get($auto_suggest_auto_submit) . isset_get($clear_button_auto_submit))->setJavascriptWrapper(EnumJavascriptWrappers::window);
             }
             // Add JavaScript code to automatically submit on change
             // NOTE: This method uses the WINDOW JavaScript wrapper because it fires AFTER the event
