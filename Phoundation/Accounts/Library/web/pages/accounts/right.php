@@ -45,7 +45,7 @@ $right = Right::new()->loadThis($get['id']);
 if (Request::isPostRequestMethod()) {
     try {
         switch (PostValidator::new()->getSubmitButton()) {
-            case 'save':
+            case tr('Save'):
                 // Update right
                 $right
                     ->apply()
@@ -57,12 +57,12 @@ if (Request::isPostRequestMethod()) {
                 Response::getFlashMessagesObject()->addSuccess(tr('Right ":right" has been saved', [':right' => $right->getName()]));
                 Response::redirect(Url::new('/accounts/right+' . $right->getId() . '.html')->makeWww());
 
-            case 'delete':
+            case tr('Delete'):
                 $right->delete();
                 Response::getFlashMessagesObject()->addSuccess(tr('The right ":right" has been deleted', [':right' => $right->getName()]));
                 Response::redirect();
 
-            case 'undelete':
+            case tr('Undelete'):
                 $right->undelete();
                 Response::getFlashMessagesObject()->addSuccess(tr('The right ":right" has been undeleted', [':right' => $right->getName()]));
                 Response::redirect();
@@ -83,7 +83,6 @@ if (!$right->isNew()) {
                    ->setMode(EnumDisplayMode::information)
                    ->setAnchorUrl('/audit/meta+' . $right->getMetaId() . '.html')
                    ->setFloatRight(true)
-                   ->setValue('audit')
                    ->setContent(tr('Audit'));
 
     if ($right->isDeleted()) {
@@ -91,7 +90,6 @@ if (!$right->isNew()) {
                         ->setFloatRight(true)
                         ->setMode(EnumDisplayMode::warning)
                         ->setOutlined(true)
-                        ->setValue('undelete')
                         ->setContent(tr('Undelete'));
 
     } else {
@@ -99,7 +97,6 @@ if (!$right->isNew()) {
                         ->setFloatRight(true)
                         ->setMode(EnumDisplayMode::warning)
                         ->setOutlined(true)
-                        ->setValue('delete')
                         ->setContent(tr('Delete'));
     }
 
