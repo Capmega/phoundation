@@ -18,13 +18,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
 
-use Phoundation\Data\Validator\Interfaces\FileValidatorInterface;
-use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
-use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Data\Traits\TraitDataStaticArrayUnclean;
 
 
 class ImageValidator extends FileValidator
 {
+    use TraitDataStaticArrayUnclean;
+
+
     /**
      * Validates that the image has a resolution smaller than
      *

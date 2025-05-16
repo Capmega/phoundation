@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Validator;
 
 use Phoundation\Data\Traits\TraitDataStaticArrayBackup;
+use Phoundation\Data\Traits\TraitDataStaticArrayUnclean;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Data\Validator\Exception\GetValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -31,6 +32,7 @@ class GetValidator extends Validator
 {
     use TraitDataStaticArrayBackup;
     use TraitStaticMethodNew;
+    use TraitDataStaticArrayUnclean;
 
 
     /**
@@ -112,17 +114,27 @@ class GetValidator extends Validator
 
         foreach ($get as $field) {
             if (!in_array($field, $this->selected_fields)) {
-                $messages[] = tr('Unknown field ":field" encountered', [
-                    ':field' => $field,
-                ]);
+                $fields[]   = $field;
+                $messages[] = [
+                    'hard'      => false,
+                    'label'     => $field,
+                    'column'    => $field,
+                    'value'     => $this->selected_value,
+                    'message'   => tr('Unknown field ":field" encountered', [
+                        ':field' => $field,
+                    ])
+                ];
             }
         }
 
         throw ValidatorException::new(tr('Unknown GET fields ":fields" encountered', [
-            ':fields' => Strings::force($get, ', '),
-        ]))->addData($messages)
-           ->makeWarning()
-           ->log();
+            ':fields'  => Strings::force($fields, ', '),
+        ]))
+        ->addData([
+            'failures' => $messages,
+        ])
+        ->makeWarning()
+        ->log();
     }
 
 

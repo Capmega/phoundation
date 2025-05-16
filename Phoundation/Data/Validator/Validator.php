@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
 
-use Doctrine\Common\Annotations\Annotation\Enum;
 use PDOStatement;
 use Phoundation\Accounts\Users\Password;
 use Phoundation\Cli\Cli;
@@ -45,8 +44,6 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
-use Phoundation\Databases\Sql\Exception\SqlException;
-use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDate;
 use Phoundation\Date\PhoDateFormats;
@@ -266,6 +263,13 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      * @var bool $debug
      */
     protected bool $debug = false;
+
+    /**
+     * Tracks if the validator has been executed
+     *
+     * @var bool $has_been_validated
+     */
+    protected static bool $has_been_validated = false;
 
 
     /**
@@ -833,25 +837,34 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             $selected_field = $field;
 
         } else {
+            $field          = $this->selected_field;
             $selected_field = $this->selected_field;
-
-            if ($this->parent_field) {
-                $field = $this->parent_field . '>' . $selected_field;
-
-            } else {
-                if (!$selected_field) {
-                    throw OutOfBoundsException::new(tr('No field specified or selected for validation failure ":failure"', [
-                        ':failure' => $failure,
-                    ]));
-                }
-
-                $field = $selected_field;
-            }
-
-            if ($this->process_key) {
-                $field .= '>' . $this->process_key;
-            }
         }
+
+//        // Detect field name to store this failure
+//        if ($field) {
+//            $selected_field = $field;
+//
+//        } else {
+//            $selected_field = $this->selected_field;
+//
+//            if ($this->parent_field) {
+//                $field = $this->parent_field . '>' . $selected_field;
+//
+//            } else {
+//                if (!$selected_field) {
+//                    throw OutOfBoundsException::new(tr('No field specified or selected for validation failure ":failure"', [
+//                        ':failure' => $failure,
+//                    ]));
+//                }
+//
+//                $field = $selected_field;
+//            }
+//
+//            if ($this->process_key) {
+//                $field .= '>' . $this->process_key;
+//            }
+//        }
 
         $failure = trim($failure);
 
@@ -1229,7 +1242,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     protected function ensureSelected(): void
     {
         if (empty($this->selected_field)) {
-            throw new NoKeySelectedException(tr('The specified key ":key" has already been selected before', [
+            throw new NoKeySelectedException(tr('Cannot execute validations, no field has been selected', [
                 ':key' => $this->selected_field,
             ]));
         }
@@ -1275,10 +1288,10 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                 ]));
             }
 
-            Log::error('WARNING: SKIPPED VALIDATION DUE TO security.validation.disabled = false CONFIGURATION! SYSTEM MAY BE IN UNKNOWN STATE!');
+            Log::error('WARNING: SKIPPED VALIDATION DUE TO security.validation.disabled = false CONFIGURATION! SYSTEM MAY CONTAIN UNVALIDATED DATA!');
         }
 
-        $unclean = $this->processExtraFields($require_clean_source);
+        $unclean = $this->getExtraFields($require_clean_source);
 
         $this->processFailures();
 
@@ -1286,7 +1299,48 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             $this->processUnclean($unclean);
         }
 
+        static::$has_been_validated = true;
+
         return Arrays::extract($this->source, $this->selected_fields);
+    }
+
+
+    /**
+     * Returns true if the data in this validator has been completely validated
+     *
+     * @param bool $require_clean_source
+     *
+     * @return bool
+     */
+    public function hasBeenValidated(bool $require_clean_source = true): bool
+    {
+        if (static::$has_been_validated) {
+            if (!$require_clean_source or !static::$unclean) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Throws a ValidatorException if the data in this validator has not yet been completely validated
+     *
+     * @param bool $require_clean_source
+     *
+     * @return static
+     * @throws ValidatorException
+     */
+    public function checkHasBeenValidated(bool $require_clean_source = true): static
+    {
+        if ($this->hasBeenValidated($require_clean_source)) {
+            return $this;
+        }
+
+        throw new ValidatorException(tr('The ":class" data has not been completely validated', [
+            ':class' => Strings::from(static::class, '\\')
+        ]));
     }
 
 
@@ -1301,7 +1355,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     {
         if (config()->getBoolean('security.validation.enabled', true)) {
             throw ValidationFailedException::new(tr('Data validation failed because of the following unknown fields'))
-                                           ->addData($unclean)
+                                           ->addData(['failures' => $unclean])
                                            ->makeWarning();
         }
 
@@ -1466,7 +1520,7 @@ throw new ObsoleteException();
      *
      * @return array|null
      */
-    protected function processExtraFields(bool $require_clean_source = true): ?array
+    protected function getExtraFields(bool $require_clean_source = true): ?array
     {
         $unclean = [];
 
@@ -1527,7 +1581,7 @@ throw new ObsoleteException();
             }
         }
 
-        return get_null($unclean);
+        return static::$unclean = get_null($unclean);
     }
 
 
@@ -1819,13 +1873,13 @@ throw new ObsoleteException();
     /**
      * Validates the datatype for the selected field
      *
-     * This method ensures that the specified array key is positive
+     * This method ensures that the specified array key is negative
      *
      * @param bool $allow_zero
      *
      * @return static
      */
-    public function isPositive(bool $allow_zero = false): static
+    public function isNegative(bool $allow_zero = false): static
     {
         $this->test_count++;
 
@@ -1837,7 +1891,35 @@ throw new ObsoleteException();
                 return;
             }
 
-            if ($value < ($allow_zero ? 0 : 1)) {
+            if (($allow_zero and ($value > 0)) or (!$allow_zero and ($value >= 0))) {
+                $this->addSoftFailure(tr('must have a negative value'));
+            }
+        });
+    }
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
+     * This method ensures that the specified array key is positive
+     *
+     * @param bool $allow_zero
+     *
+     * @return static
+     */
+    public function isPositive(bool $allow_zero = true): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) use ($allow_zero) {
+            $this->isNumeric();
+
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
+            }
+
+            if (($allow_zero and ($value < 0)) or (!$allow_zero and ($value <= 0))) {
                 $this->addSoftFailure(tr('must have a positive value'));
             }
         });
@@ -2510,34 +2592,6 @@ throw new ObsoleteException();
                 if ($value >= $amount) {
                     $this->addSoftFailure(tr('must be less than ":amount"', [':amount' => $amount]));
                 }
-            }
-        });
-    }
-
-
-    /**
-     * Validates the datatype for the selected field
-     *
-     * This method ensures that the specified array key is negative
-     *
-     * @param bool $allow_zero
-     *
-     * @return static
-     */
-    public function isNegative(bool $allow_zero = false): static
-    {
-        $this->test_count++;
-
-        return $this->validateValues(function (&$value) use ($allow_zero) {
-            $this->isNumeric();
-
-            if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
-                return;
-            }
-
-            if ($value > ($allow_zero ? 0 : 1)) {
-                $this->addSoftFailure(tr('must have a negative value'));
             }
         });
     }
@@ -3415,6 +3469,36 @@ throw new ObsoleteException();
 
         // Nothing matched
         return null;
+    }
+
+
+    /**
+     * Validates that the selected field is a timestamp
+     *
+     * @param bool $force_integer
+     *
+     * @return static
+     */
+    public function isTimestamp(bool $force_integer = false): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) use ($force_integer) {
+            $this->isNumeric()->isPositive();
+
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
+            }
+
+            if ($value > 8_640_000_000_000) {
+                $this->addSoftFailure(tr('must be a valid timestamp'));
+            }
+
+            if ($force_integer) {
+                $value = (int) $value;
+            }
+        });
     }
 
 
