@@ -153,6 +153,37 @@ class Url implements UrlInterface
 
 
     /**
+     * Returns a base URL
+     *
+     * @param bool $use_configured_root
+     *
+     * @return string
+     */
+    public static function getBase(bool $use_configured_root = true): string
+    {
+        // Get the base URL configuration for the domain
+        if ($use_configured_root) {
+            $base = Domains::getRootUrl();
+
+        } elseif (PLATFORM_WEB) {
+            try {
+                $base = Request::getRoutingParametersObject()->getRootUrl();
+
+            } catch (OutOfBoundsException $e) {
+                // Routing parameters are not yet available, assume /
+                $base = '/';
+            }
+
+        } else {
+            $base = Domains::getRootUrl();
+        }
+
+        // Build the URL
+        return Strings::ensureEndsWith($base, '/');
+    }
+
+
+    /**
      * Returns the URL as requested for the primary domain
      *
      * @return static
@@ -725,25 +756,8 @@ class Url implements UrlInterface
             return $url;
         }
 
-        // Get the base URL configuration for the domain
-        if ($use_configured_root) {
-            $base = Domains::getRootUrl();
-
-        } elseif (PLATFORM_WEB) {
-            try {
-                $base = Request::getRoutingParametersObject()->getRootUrl();
-
-            } catch (OutOfBoundsException $e) {
-                // Routing parameters are not yet available, assume /
-                $base = '/';
-            }
-
-        } else {
-            $base = Domains::getRootUrl();
-        }
-
         // Build the URL
-        $base  = Strings::ensureEndsWith($base    , '/');
+        $base  = Url::getBase($use_configured_root);
         $url   = Strings::ensureStartsNotWith($url, '/');
         $url   = $prefix . $url;
         $url   = str_replace(':LANGUAGE', Session::getLanguage(), $base . $url);
