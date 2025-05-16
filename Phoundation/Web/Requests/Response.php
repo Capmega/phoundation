@@ -30,6 +30,9 @@ use Phoundation\Data\Traits\TraitDataStaticContentType;
 use Phoundation\Data\Traits\TraitDataStaticExecuted;
 use Phoundation\Data\Traits\TraitDataStaticFlashMessages;
 use Phoundation\Data\Traits\TraitGetInstance;
+use Phoundation\Data\Validator\Exception\ValidatorException;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Date\PhoDate;
 use Phoundation\Date\PhoTime;
@@ -48,6 +51,7 @@ use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Interfaces\BreadCrumbsInterface;
 use Phoundation\Web\Html\Enums\EnumAttachJavascript;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
@@ -1742,6 +1746,7 @@ class Response implements ResponseInterface
      * @param bool $exit
      *
      * @return void
+     * @throws ValidatorException
      */
     public static function send(bool $exit = true): void
     {
@@ -1927,7 +1932,7 @@ class Response implements ResponseInterface
         }
 
         // CORS headers
-        if (config()->get('web.security.cors', true) or static::$cors) {
+        if (config()->get('security.web.cors', true) or static::$cors) {
             // Add CORS / Access-Control-Allow-.... headers
             // TODO This will cause issues if configured web.cors is not an array!
             static::$cors = array_merge(Arrays::force(config()->get('web.cors', [])), static::$cors);
@@ -2064,10 +2069,10 @@ class Response implements ResponseInterface
     {
         if (Request::getAttachment()) {
             // Send download headers and send the $html payload
-            FileResponse::new(Request::getTarget(), PhoRestrictions::newWeb())
+            FileResponse::new(Request::getTargetObject(), PhoRestrictions::newWeb())
                         ->setAttachment(true)
                         ->setData(static::getOutput())
-                        ->setFilename(basename(Request::getTarget()->getSource()))
+                        ->setFilename(basename(Request::getTargetObject()->getSource()))
                         ->send();
         }
 

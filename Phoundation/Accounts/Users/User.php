@@ -2971,7 +2971,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                                $exists = sql()->getRow('SELECT `id` 
                                                                         FROM   `accounts_emails` 
                                                                         WHERE  `email` = :email', [
-                                                                         ':email' => $validator->getSelectedValue(),
+                                                                            ':email' => $validator->getSelectedValue(),
                                                ]);
 
                                                if ($exists) {

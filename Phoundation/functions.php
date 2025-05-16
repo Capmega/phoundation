@@ -1570,7 +1570,7 @@ function execute(): ?string
     try {
         Core::setScriptState();
 
-        $result = include(Request::getTarget());
+        $result = include(Request::getTargetObject());
 
         if ($result and (is_string($result) or $result instanceof RenderInterface)) {
             echo $result;
@@ -1581,7 +1581,7 @@ function execute(): ?string
     } catch (Throwable $e) {
         if (!($e instanceof PhoException) or !$e->isWarning()) {
             Log::error(tr('Command ":command" failed with exception: :exception', [
-                ':command'   => Request::getTarget(),
+                ':command'   => Request::getTargetObject(),
                 ':exception' => $e->getMessage(),
             ]));
         }

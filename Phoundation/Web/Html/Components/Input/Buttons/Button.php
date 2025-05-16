@@ -129,12 +129,18 @@ class Button extends Input implements ButtonInterface
 
         if (empty($this->getValue())) {
             if ($this->isButtonType(EnumButtonType::submit)) {
-                if (empty($this->getAnchorUrl())) {
-                    // Value takes the content
-                    throw new OutOfBoundsException(tr('Cannot render ":class" submit button object with name ":name", no value or anchor URL specified', [
-                        ':name'  => $this->getName(),
-                        ':class' => static::class,
-                    ]));
+                if (empty($this->getContent())) {
+                    if (empty($this->getAnchorUrl())) {
+                        // Value takes the content
+                        throw new OutOfBoundsException(tr('Cannot render ":class" submit button object with name ":name", no value or anchor URL specified', [
+                            ':name'  => $this->getName(),
+                            ':class' => static::class,
+                        ]));
+                    }
+
+                } else {
+                    // By default, use the content as value
+                    $this->setValue(strip_tags($this->getContent()));
                 }
             }
         }

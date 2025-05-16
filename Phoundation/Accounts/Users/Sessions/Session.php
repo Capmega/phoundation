@@ -34,6 +34,7 @@ use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
+use Phoundation\Accounts\Users\Sessions\Exception\SessionPostAndSignoutException;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionStartFailedException;
 use Phoundation\Accounts\Users\Sessions\Interfaces\SessionInterface;
 use Phoundation\Accounts\Users\Sessions\Interfaces\UserSessionInterface;
@@ -66,6 +67,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Client;
 use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
@@ -157,6 +159,13 @@ class Session implements SessionInterface
      * @var UserSessionInterface|null
      */
     protected static ?userSessionInterface $o_user_session = null;
+
+    /**
+     * Tracks if the session should sign out when Session::exit() is called
+     *
+     * @var bool $signout_on_exit
+     */
+    protected static bool $signout_on_exit = false;
 
 
     /**
@@ -601,13 +610,13 @@ class Session implements SessionInterface
 
         // Force session cookie configuration
         ini_set('session.serialize_handler', 'php_serialize');
-        ini_set('session.gc_maxlifetime'   , config()->getInteger('web.sessions.timeout', 86400));
-        ini_set('session.cookie_lifetime'  , config()->getInteger('web.sessions.cookies.lifetime', 0));
+        ini_set('session.gc_maxlifetime'   , config()->getInteger('web.sessions.timeout'            , 86400));
+        ini_set('session.cookie_lifetime'  , config()->getInteger('web.sessions.cookies.lifetime'   , 0));
         ini_set('session.use_strict_mode'  , config()->getBoolean('web.sessions.cookies.strict_mode', true));
-        ini_set('session.name'             , config()->getString('web.sessions.cookies.name', 'phoundation'));
-        ini_set('session.cookie_httponly'  , config()->getBoolean('web.sessions.cookies.http-only', true));
-        ini_set('session.cookie_secure'    , config()->getBoolean('web.sessions.cookies.secure', true));
-        ini_set('session.cookie_samesite'  , config()->getBoolean('web.sessions.cookies.same-site', true));
+        ini_set('session.name'             , config()->getString('web.sessions.cookies.name'        , 'phoundation'));
+        ini_set('session.cookie_httponly'  , config()->getBoolean('web.sessions.cookies.http-only'  , true));
+        ini_set('session.cookie_secure'    , config()->getBoolean('web.sessions.cookies.secure'     , true));
+        ini_set('session.cookie_samesite'  , config()->getBoolean('web.sessions.cookies.same-site'  , true));
         ini_set('session.save_handler'     , $handler);
         ini_set('session.save_path'        , Strings::force(config()->getArrayString('web.sessions.save-path', DIRECTORY_SYSTEM . 'sessions/'), ';'));
 
@@ -876,7 +885,7 @@ class Session implements SessionInterface
      *
      * @return bool
      */
-    protected static  function processEuroCookie(): bool
+    protected static function processEuroCookie(): bool
     {
         // Euro cookie check, can we do cookies at all?
         if (config()->getBoolean('web.sessions.cookies.europe', true) and !config()->getString('web.sessions.cookies.name', 'phoundation')) {
@@ -899,88 +908,171 @@ class Session implements SessionInterface
      */
     protected static function processCookieRefresh(): void
     {
-        if (PLATFORM_WEB) {
-            // Check cookie refresh
-            $cookie_signout = config()->getPositiveInteger('web.sessions.cookies.lifetime', 3600);
+        // Check cookie refresh
+        $cookie_sign_out = config()->getPositiveInteger('web.sessions.cookies.lifetime', 3600);
 
-            if ($cookie_signout) {
-                // Session cookie timed out?
-                if (isset($_SESSION['created']) and (($_SESSION['created'] + $cookie_signout) < time())) {
-                    // Session expired!
-                    Log::warning('Regenerated session id');
-                    session_regenerate_id(true);
-                }
+        if ($cookie_sign_out) {
+            // Session cookie timed out?
+            if (isset($_SESSION['created']) and (($_SESSION['created'] + $cookie_sign_out) < time())) {
+                // Session expired!
+                Log::warning('Regenerated session id');
+                session_regenerate_id(true);
             }
         }
     }
 
 
     /**
-     * Processes auto-sign-out for cookies
+     * Processes auto sign out for cookies
      *
      * @return void
      */
     protected static function processCookieAutoSignOut(): void
     {
-        if (PLATFORM_WEB) {
-            // Check cookie refresh
-            $cookie_signout = config()->getPositiveInteger('web.sessions.cookies.lifetime', 0);
-
-            if ($cookie_signout) {
-                // Session cookie timed out?
-                if (isset($_SESSION['last_activity']) and (($_SESSION['last_activity'] + $cookie_signout) < time())) {
-                    // Session expired!
-                    Log::warning('Regenerated session id');
-                    session_regenerate_id(true);
-                }
-            }
-        }
+// TODO Implement!
+//        // Check cookie refresh
+//        $cookie_sign_out = config()->getPositiveInteger('web.sessions.cookies.lifetime', 0);
+//
+//        if ($cookie_sign_out) {
+//            // Session cookie timed out?
+//            if (isset($_SESSION['last_activity']) and (($_SESSION['last_activity'] + $cookie_sign_out) < time())) {
+//                // Session expired!
+//                Log::warning('Regenerated session id');
+//                session_regenerate_id(true);
+//            }
+//        }
     }
 
 
     /**
-     * Processes auto-sign-out for sessions
+     * Processes auto sign out for sessions
+     *
+     * @return bool
+     */
+    protected static function processAutoSignOut(): bool
+    {
+        // Update the last activity
+        if (!Session::updateLastActivityTimestamp()) {
+            return false;
+        }
+
+        // Pass auto sign out to the client too
+        Response::addHeadDataAttribute(Session::getAutoSignOut(), 'auto-sign-out');
+        return true;
+    }
+
+
+    /**
+     * This method will inject auto-sign-out-submit-code as a global client variable in the <head> tag
+     *
+     * This variable will permit a single submit for only this page on auto sign out
+     *
+     * @param string $selector
      *
      * @return void
      */
-    protected static function processAutoSignOut(): void
+    public static function enableAutoSignOutAutoSubmit(string $selector): void
     {
+        $_SESSION['auto_sign_out_submit_selector'] = $selector;
+        $_SESSION['auto_sign_out_submit_code']     = Strings::getUuid();
+        $_SESSION['auto_sign_out_submit_file']     = Request::getTargetObject()->getSource();
+
+        Response::addHeadDataAttribute(Session::getAutoSignOutSubmitCode()    , 'auto-sign-out-submit-code');
+        Response::addHeadDataAttribute(Session::getAutoSignOutSubmitSelector(), 'auto-sign-out-submit-selector');
+    }
+
+
+    /**
+     * Returns auto-sign-out timestamp
+     *
+     * @return string|null
+     */
+    public static function getAutoSignOutSubmitSelector(): ?string
+    {
+        return array_get_safe($_SESSION, 'auto_sign_out_submit_selector');
+    }
+
+
+    /**
+     * Returns auto-sign-out timestamp
+     *
+     * @param string $selector
+     *
+     * @return void
+     */
+    public static function setAutoSignOutSubmitSelector(string $selector): void
+    {
+        $_SESSION['auto_sign_out_submit_selector'] = $selector;
+    }
+
+
+    /**
+     * Returns true if there are reasons why the auto sign-out test procedure should be skipped
+     *
+     * Reasons can be:
+     *
+     * * This page is not a standard HTML page request
+     * * Auto sign out is disabled for this user session
+     * * The current user for this session is guest, which can't sign out
+     * * The current page is sign-out, or sign-in
+     *
+     * @param bool $force
+     *
+     * @return false|int
+     */
+    protected static function getAutoSignOutConfiguration(bool $force = false): false|int
+    {
+        if (!Request::isRequestType(EnumRequestTypes::html) and !$force) {
+            // Auto sign-out changes can only be done with standard HTTP page requests, or system/activity/notify.json!
+            return false;
+        }
+
         // TODO REDIRECT AJAX REQUESTS THROUGH SIGNOUT MESSAGE!
-        if (PLATFORM_WEB) {
-            // Check cookie sign-out and auto sign out
-            $auto_signout = config()->getPositiveInteger('web.security.sessions.auto.sign-out.value', 0, true);
+        // Check cookie sign-out and auto sign out
+        $auto_sign_out = config()->getPositiveInteger('security.web.sessions.auto.sign-out.value', 0, true);
 
-            // Only auto sign-out on WEB
-            if ($auto_signout) {
-                // Pass auto-sign-out to client too
-                Response::addHeadDataAttribute(Session::get('last_activity'), 'auto-sign-out');
-
-                // Only auto sign-out when not guest user
-                if (!Session::getUserObject()->isGuest()) {
-                    // Only auto sign-out when last_activity timed out
-                    if (Url::newCurrent()->removeAllQueries()->getSource() !== Url::new('signout')->makeWww()->getSource()) {
-                        if (isset($_SESSION['last_activity']) and (($_SESSION['last_activity'] + $auto_signout) < microtime(true))) {
-                            $_SESSION['last_activity'] = microtime(true);
-
-                            Log::warning(tr('Automatically signing out user ":user" because their session surpassed the auto sign-out time of ":time" seconds', [
-                                ':user' => static::getUserObject()->getLogId(),
-                                ':time' => $auto_signout,
-                            ]));
-
-                            Response::getFlashMessagesObject()->addWarning(tr('You were signed out automatically because your session timed out'));
-                            Session::signOut();
-                            Response::redirect('signin');
-                        }
-                    }
-                }
-            }
+        // Auto sign-out only works if it is configured to a non-zero numeric value!
+        if (empty($auto_sign_out)) {
+            return false;
         }
 
-        // TODO DETERMINE WHAT SERVER CALLS CONSTITUTE ACTIVITY! NOTIFICATIONS DROPDOWN UPDATES ARE NOT ACTIVITY!
-        if (Request::getExecutedFile() !== 'dropdown.php') {
-            // Update last activity
-            $_SESSION['last_activity'] = microtime(true);
+        // Only auto sign-out when not guest user
+        if (Session::getUserObject()->isGuest()) {
+            return false;
         }
+
+        // Auto sign-out will NOT work for sign-in or sign-out pages
+        switch (Url::newCurrent()->removeAllQueries()->getSource()) {
+            case Url::new('signout')->makeWww()->getSource():
+                // no break
+
+            case Url::new('signin')->makeWww()->getSource():
+                return false;
+        }
+
+        return $auto_sign_out;
+    }
+
+
+    /**
+     * Executes an automatic sign-out for this session
+     *
+     * @param int $auto_signout
+     *
+     * @return void
+     */
+    protected static function autoSignout(int $auto_signout): void
+    {
+        $_SESSION['last_activity'] = time();
+
+        Log::warning(tr('Automatically signing out user ":user" because their session surpassed the auto sign-out time of ":time" seconds', [
+            ':user' => static::getUserObject()->getLogId(),
+            ':time' => $auto_signout,
+        ]));
+
+        Response::getFlashMessagesObject()->addWarning(tr('You were signed out automatically because your session timed out'));
+        Session::signOut(true);
+        Response::redirect('signin');
     }
 
 
@@ -1423,6 +1515,10 @@ class Session implements SessionInterface
     public static function exit(): void
     {
         if (PLATFORM_WEB) {
+            if (static::$signout_on_exit) {
+                Session::signOut();
+            }
+
             // If this page has flash messages that haven't yet been displayed, then store them in the session variable so that they can be displayed on the
             // next page load
             static::getFlashMessagesObject()->addSource(Response::getFlashMessagesObject());
@@ -1884,9 +1980,11 @@ class Session implements SessionInterface
     /**
      * Destroy the current user session
      *
+     * @param bool $hard If true will sign out impersonated sessions completely
+     *
      * @return UserInterface|null
      */
-    public static function signOut(): ?UserInterface
+    public static function signOut(bool $hard = false): ?UserInterface
     {
         if (!session_id()) {
             Incident::new()
@@ -1937,7 +2035,9 @@ class Session implements SessionInterface
                                 ':user' => User::new()->load($users_id)->getLogId(),
                             ]));
 
-                    Response::redirect($url);
+                    if (!$hard) {
+                        Response::redirect($url);
+                    }
 
                 } catch (Throwable $e) {
                     // Oops?
@@ -2136,7 +2236,7 @@ class Session implements SessionInterface
      *
      * @return int
      */
-    public static function pageloadForSession(): int
+    public static function getPagesLoadedForThisSession(): int
     {
         return array_get_safe($_SESSION, 'pages_loaded_this_session', 0);
     }
@@ -2154,13 +2254,168 @@ class Session implements SessionInterface
 
 
     /**
+     * Returns last-activity timestamp
+     *
+     * @return float|null
+     */
+    public static function getLastActivityTimestamp(): ?float
+    {
+        return array_get_safe($_SESSION, 'last_activity');
+    }
+
+
+    /**
+     * Updates last-activity timestamp to the specified amount of seconds ago
+     *
+     * @param int  $seconds
+     * @param bool $force
+     *
+     * @return bool
+     */
+    public static function updateLastActivityTimestamp(int $seconds = 0, bool $force = false): bool
+    {
+        $auto_sign_out = Session::getAutoSignOutConfiguration($force);
+
+        if (empty($auto_sign_out)) {
+            return false;
+        }
+
+        // Only auto sign-out when last_activity timed out
+        Session::attemptAutoSignout($auto_sign_out);
+
+        // Update last activity and auto_sign_out values
+        $_SESSION['last_activity'] = time() - $seconds;
+        $_SESSION['auto_sign_out'] = $_SESSION['last_activity'] + $auto_sign_out;
+
+        return true;
+    }
+
+
+    /**
+     * Clears the post and submit data from the session
+     *
+     * @return void
+     */
+    protected static function clearPostAndSubmit(): void
+    {
+        unset($_SESSION['auto_sign_out_submit_code']);
+        unset($_SESSION['auto_sign_out_submit_file']);
+        unset($_SESSION['auto_sign_out_submit_selector']);
+    }
+
+
+    /**
+     * Attempts to execute an auto sign out
+     *
+     * @param int $auto_sign_out
+     *
+     * @return void
+     */
+    protected static function attemptAutoSignout(int $auto_sign_out): void
+    {
+        // If the page request is POST, it MIGHT be post-and-sign-out!
+        if (Request::isRequestMethod(EnumHttpRequestMethod::post)) {
+            $post = PostValidator::new()
+                                 ->select('__auto_sign_out_submit_code')->isOptional()->isCode()
+                                 ->validate(false);
+
+            if (array_get_safe($post, '__auto_sign_out_submit_code')) {
+                // This is an attempt at post-and-sign-out!
+                if ($post['__auto_sign_out_submit_code'] !== array_get_safe($_SESSION, 'auto_sign_out_submit_code')) {
+                    throw SessionPostAndSignoutException::new(ts('Cannot perform post-and-sign-out, the client specified auto_sign_out_submit_code ":code" is not authorized', [
+                        ':code' => $post['__auto_sign_out_submit_code'],
+                    ]))->addData([
+                        'session auto_sign_out_submit_code'  => array_get_safe($_SESSION, 'auto_sign_out_submit_code'),
+                        'client __auto_sign_out_submit_code' => $post['__auto_sign_out_submit_code'],
+                    ]);
+                }
+
+                if (array_get_safe($_SESSION, 'auto_sign_out_submit_file') !== Request::getTargetObject()->getSource()) {
+                    throw SessionPostAndSignoutException::new(ts('Cannot perform post-and-sign-out on page ":page", the client specified auto_sign_out_submit_code ":code" is only authorized on page ":authorized"', [
+                        ':code'       => $post['__auto_sign_out_submit_code'],
+                        ':page'       => Request::getTargetObject()->getSource(),
+                        ':authorized' => $_SESSION['auto_sign_out_submit_file'],
+                    ]))->addData([
+                        'session auto_sign_out_submit_file' => array_get_safe($_SESSION, 'auto_sign_out_submit_file'),
+                        'current file'                      => Request::getTargetObject()->getSource(),
+                    ]);
+                }
+
+                Log::warning(ts('Allowing auto submit on auto sign out with code ":code"', [
+                    ':code' => $post['__auto_sign_out_submit_code'],
+                ]));
+
+                // Yay, we're cleared for submission! Clear the submit-and-signout codes so they won't be used again
+                Session::clearPostAndSubmit();
+                Session::setSignoutOnExit(true);
+                return;
+            }
+        }
+
+        if (Request::isRequestType(EnumRequestTypes::html)) {
+            // Normal page loads clear the auto sign-out code to ensure it won't be abused by other pages
+            Session::clearPostAndSubmit();
+        }
+
+        if (isset($_SESSION['last_activity']) and (($_SESSION['last_activity'] + $auto_sign_out) < time())) {
+            // Execute the auto sign out
+            Session::autoSignout($auto_sign_out);
+        }
+    }
+
+
+    /**
+     * Returns auto-sign-out timestamp
+     *
+     * @return string|null
+     */
+    public static function getAutoSignOutSubmitCode(): ?string
+    {
+        return array_get_safe($_SESSION, 'auto_sign_out_submit_code');
+    }
+
+
+    /**
+     * Returns auto-sign-out timestamp
+     *
+     * @return float|null
+     */
+    public static function getAutoSignOutTimestamp(): ?float
+    {
+        return array_get_safe($_SESSION, 'auto_sign_out');
+    }
+
+
+    /**
+     * Returns auto-sign-out timestamp
+     *
+     * @return float|null
+     */
+    public static function getAutoSignOutTimeLeft(): ?float
+    {
+        return static::getAutoSignOutTimestamp() - time();
+    }
+
+
+    /**
      * Returns true if this page load is the first for this session after signing in
      *
      * @return bool
      */
-    public static function autoShowMenu(): bool
+    public static function getAutoShowMenu(): bool
     {
         return config()->getBoolean('web.interface.user.menu.open', false, true) and Session::isFirstPage();
+    }
+
+
+    /**
+     * Returns the auto sign out value for this user, in seconds, if available, null otherwise
+     *
+     * @return int|null
+     */
+    public static function getAutoSignOut(): ?int
+    {
+        return config()->getInteger('security.web.sessions.auto.sign-out.value', null, true);
     }
 
 
@@ -2201,5 +2456,29 @@ class Session implements SessionInterface
         $session['stop']          = PhoDateTime::new($session['stop']);
 
         return $session;
+    }
+
+
+    /**
+     * Returns if the session should sign out when Session::exit() is called
+     *
+     * @return bool
+     */
+    public function getSignoutOnExit(): bool
+    {
+        return static::$signout_on_exit;
+    }
+
+
+    /**
+     * Sets if the session should sign out when Session::exit() is called
+     *
+     * @param bool $signout_on_exit
+     *
+     * @return void
+     */
+    public static function setSignoutOnExit(bool $signout_on_exit): void
+    {
+        static::$signout_on_exit = $signout_on_exit;
     }
 }

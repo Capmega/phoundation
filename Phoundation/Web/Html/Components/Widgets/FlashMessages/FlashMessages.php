@@ -132,6 +132,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
                     // the end users.
                     $title = trim(Strings::from($title, '('));
                 }
+
                 if ($message->getData()) {
                     $count = 0;
 

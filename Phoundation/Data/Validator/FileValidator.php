@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
 
+use Phoundation\Data\Traits\TraitDataStaticArrayUnclean;
 use Phoundation\Data\Validator\Interfaces\FileValidatorInterface;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Utils\Numbers;
@@ -25,6 +26,9 @@ use Phoundation\Utils\Numbers;
 
 class FileValidator implements FileValidatorInterface
 {
+    use TraitDataStaticArrayUnclean;
+
+
     /**
      * The file being validated
      *
@@ -37,7 +41,7 @@ class FileValidator implements FileValidatorInterface
      * FileValidator constructor
      *
      * @param PhoFileInterface $source
-* \     */
+     */
     public function __construct(PhoFileInterface $source)
     {
         $this->source = &$source;

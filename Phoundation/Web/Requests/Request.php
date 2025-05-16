@@ -32,7 +32,10 @@ use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataStaticContentType;
 use Phoundation\Data\Traits\TraitDataStaticExecuted;
 use Phoundation\Data\Traits\TraitGetInstance;
+use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Exception\ValidatorException;
+use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\AccessDeniedException;
@@ -927,7 +930,7 @@ class Request implements RequestInterface
         if (static::isExecutedDirectly()) {
             if (!$message) {
                 $message = tr('The target ":target" cannot be accessed directly', [
-                    ':target' => static::getTarget()
+                    ':target' => static::getTargetObject()
                                        ->getSource('root'),
                 ]);
             }
@@ -953,7 +956,7 @@ class Request implements RequestInterface
      *
      * @return PhoFileInterface
      */
-    public static function getTarget(): PhoFileInterface
+    public static function getTargetObject(): PhoFileInterface
     {
         return static::$target;
     }
@@ -1572,12 +1575,40 @@ class Request implements RequestInterface
         if ($flush or (static::$stack_level < 0)) {
             // The stack is empty, there is nothing executing above this. Assume HTTP headers have been set by this
             // point, and send the output to the client
+            Request::checkDataValidated();
             Response::addOutput($return);
             Response::send(true);
         }
 
         // Return the output to the page that executed this page
         return $return;
+    }
+
+
+    /**
+     * Checks that all untrusted data was validated, will throw ValidatorException if not
+     *
+     * @return void
+     * @throws ValidatorException
+     */
+    protected static function checkDataValidated(): void
+    {
+        if (PLATFORM_WEB) {
+            if (!config()->getBoolean('security.validation.require', true)) {
+                // Non-validated pages are allowed
+                return;
+            }
+
+            // Ensure GET and POST data has been validated!
+            if (Request::isRequestMethod(EnumHttpRequestMethod::post)) {
+                PostValidator::new()->checkHasBeenValidated();
+            }
+
+            GetValidator::new()->checkHasBeenValidated();
+
+        } else {
+            ArgvValidator::new()->checkHasBeenValidated();
+        }
     }
 
 
@@ -1733,7 +1764,7 @@ class Request implements RequestInterface
             switch (static::getRequestType()) {
                 case EnumRequestTypes::api:
                     Log::action(ts('Executing API page ":target" on stack level ":level" with in language ":language" and sending output as API page', [
-                        ':target'   => Strings::from(static::getTarget(), '/web/'),
+                        ':target'   => Strings::from(static::getTargetObject(), '/web/'),
                         ':level'    => static::$stack_level,
                         ':language' => LANGUAGE,
                     ]), (static::$stack_level ? 5 : 7));
@@ -1741,7 +1772,7 @@ class Request implements RequestInterface
 
                 case EnumRequestTypes::ajax:
                     Log::action(ts('Executing AJAX page ":target" on stack level ":level" with in language ":language" and sending output as AJAX API page', [
-                        ':target'   => Strings::from(static::getTarget(), '/web/'),
+                        ':target'   => Strings::from(static::getTargetObject(), '/web/'),
                         ':level'    => static::$stack_level,
                         ':language' => LANGUAGE,
                     ]), (static::$stack_level ? 5 : 7));
@@ -1749,7 +1780,7 @@ class Request implements RequestInterface
 
                 default:
                     Log::action(ts('Executing program ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
-                        ':target'   => Strings::from(static::getTarget(), '/web/'),
+                        ':target'   => Strings::from(static::getTargetObject(), '/web/'),
                         ':template' => static::$template->getName(),
                         ':level'    => static::$stack_level,
                         ':language' => LANGUAGE,
@@ -1767,7 +1798,7 @@ class Request implements RequestInterface
                 return execute();
             }
 
-            Response::addHeadDataAttribute(Session::get('last_activity'), 'last-activity');
+            Response::addHeadDataAttribute(Url::getBase(), 'base-url');
 
             // Execute the entire page and return the output
             $results = static::$page->execute();

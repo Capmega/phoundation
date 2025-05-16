@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Validator;
 
+use Phoundation\Data\Traits\TraitDataStaticArrayUnclean;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Utils\Strings;
@@ -26,6 +27,9 @@ use Stringable;
 
 class ArrayValidator extends Validator
 {
+    use TraitDataStaticArrayUnclean;
+
+
     /**
      * Validator constructor.
      *
@@ -121,16 +125,24 @@ class ArrayValidator extends Validator
         foreach ($post as $field) {
             if (!in_array($field, $this->selected_fields)) {
                 $fields[]   = $field;
-                $messages[] = tr('Unknown field ":field" encountered', [
-                    ':field' => $field,
-                ]);
+                $messages[] = [
+                    'hard'      => false,
+                    'label'     => $field,
+                    'column'    => $field,
+                    'value'     => $this->selected_value,
+                    'message'   => tr('Unknown field ":field" encountered', [
+                        ':field' => $field,
+                    ])
+                ];
             }
         }
 
         throw ValidatorException::new(tr('Unknown ARRAY fields ":fields" encountered', [
             ':fields' => Strings::force($fields, ', '),
-        ]))->addData($messages)
-           ->makeWarning()
-           ->log();
+        ]))->addData([
+            'failures' => $messages,
+        ])
+        ->makeWarning()
+       ->log();
     }
 }

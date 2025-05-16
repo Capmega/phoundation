@@ -72,7 +72,7 @@ if ($user->isNotNew()) {
 if (Request::isPostRequestMethod()) {
     try {
         switch (PostValidator::new()->getSubmitButton()) {
-            case 'save':
+            case tr('Save'):
                 // Validate roles
                 $post = PostValidator::new()
                                      ->select('roles_id')->isOptional()->isArray()->forEachField()->isOptional()->isDbId()
@@ -101,7 +101,7 @@ if (Request::isPostRequestMethod()) {
                 // Redirect away from POST
                 Response::redirect(Url::new('/accounts/user+' . $user->getId() . '.html')->makeWww());
 
-            case 'impersonate':
+            case tr('Impersonate'):
                 $user->impersonate();
 
                 Response::getFlashMessagesObject()->addSuccess(tr('You are now impersonating ":user"', [
@@ -110,7 +110,7 @@ if (Request::isPostRequestMethod()) {
 
                 Response::redirect('root');
 
-            case 'delete':
+            case tr('Delete'):
                 $user->delete();
 
                 Response::getFlashMessagesObject()->addSuccess(tr('The account for user ":user" has been deleted', [
@@ -119,7 +119,7 @@ if (Request::isPostRequestMethod()) {
 
                 Response::redirect();
 
-            case 'lock':
+            case tr('Lock'):
                 $user->lock();
 
                 Response::getFlashMessagesObject()->addSuccess(tr('The account for user ":user" has been locked', [
@@ -128,7 +128,7 @@ if (Request::isPostRequestMethod()) {
 
                 Response::redirect();
 
-            case 'unlock':
+            case tr('Unlock'):
                 $user->unlock();
 
                 Response::getFlashMessagesObject()->addSuccess(tr('The account for user ":user" has been unlocked', [
@@ -137,7 +137,7 @@ if (Request::isPostRequestMethod()) {
 
                 Response::redirect();
 
-            case 'undelete':
+            case tr('Undelete'):
                 $user->undelete();
 
                 Response::getFlashMessagesObject()->addSuccess(tr('The account for user ":user" has been undeleted', [
@@ -158,7 +158,6 @@ if (Request::isPostRequestMethod()) {
 // Save button
 if (!$user->getReadonly()) {
     $save = Button::new()
-                  ->setValue('save')
                   ->setContent(tr('Save'))
                   ->setFloatRight(true);
 }
@@ -170,7 +169,6 @@ if ($user->canBeImpersonated()) {
     $impersonate = Button::new()
                          ->setFloatRight(true)
                          ->setMode(EnumDisplayMode::danger)
-                         ->setValue('impersonate')
                          ->setContent(tr('Impersonate'))
                          ->setFloatRight(true);
 }
@@ -183,7 +181,6 @@ if ($user->canBeStatusChanged()) {
                         ->setFloatRight(true)
                         ->setMode(EnumDisplayMode::warning)
                         ->setOutlined(true)
-                        ->setValue('undelete')
                         ->setContent(tr('Undelete'))
                         ->setFloatRight(true);
 
@@ -192,7 +189,6 @@ if ($user->canBeStatusChanged()) {
                         ->setFloatRight(true)
                         ->setMode(EnumDisplayMode::warning)
                         ->setOutlined(true)
-                        ->setValue('delete')
                         ->setContent(tr('Delete'))
                         ->setFloatRight(true);
 
@@ -200,7 +196,6 @@ if ($user->canBeStatusChanged()) {
             $lock = Button::new()
                           ->setFloatRight(true)
                           ->setMode(EnumDisplayMode::warning)
-                          ->setValue('unlock')
                           ->setContent(tr('Unlock'))
                           ->setFloatRight(true);
 
@@ -208,7 +203,6 @@ if ($user->canBeStatusChanged()) {
             $lock = Button::new()
                           ->setFloatRight(true)
                           ->setMode(EnumDisplayMode::warning)
-                          ->setValue('lock')
                           ->setContent(tr('Lock'))
                           ->setFloatRight(true);
         }
@@ -223,7 +217,6 @@ if (!$user->isNew()) {
                    ->setMode(EnumDisplayMode::information)
                    ->setAnchorUrl('/audit/meta+' . $user->getMetaId() . '.html')
                    ->setFloatRight(true)
-                   ->setValue('audit')
                    ->setContent(tr('Audit'))
                    ->setFloatRight(true);
 }
