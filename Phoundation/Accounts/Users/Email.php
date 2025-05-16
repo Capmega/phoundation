@@ -176,7 +176,7 @@ class Email extends DataEntry implements EmailInterface
 
                       ->add(DefinitionFactory::newEmail()
                                            ->setSize(4)
-                                           ->setOptional(false)
+                                           ->setOptional(true)
                                            ->setHelpText(tr('The extra email address for the user'))
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                // Email cannot exist in accounts_users or accounts_emails!
