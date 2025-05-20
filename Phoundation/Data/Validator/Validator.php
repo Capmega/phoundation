@@ -436,7 +436,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         return $this->validateValues(function (&$value) use ($keys, $also_if_selected_is_default) {
             $requires = [];
 
-            if (!$this->checkIsOptional($value) or $also_if_selected_is_default) {
+            if (!$this->hasOptionalValue($value) or $also_if_selected_is_default) {
                 // Ensure we have clean keys to test, test all keys
                 foreach ($keys as $key) {
                     $clean_key = Strings::ensureStartsNotWith($key, '-');
@@ -1604,7 +1604,7 @@ throw new ObsoleteException();
      *
      * @return bool
      */
-    protected function checkIsOptional(mixed &$value): bool
+    protected function hasOptionalValue(mixed &$value): bool
     {
         if ($this->process_value_failed) {
             // Value processing already failed anyway, so always fail
@@ -1622,7 +1622,6 @@ throw new ObsoleteException();
                 if (!$this->selected_is_optional) {
                     // At this point we know we MUST have a value, so we're bad here
                     $this->addSoftFailure(tr('is required'));
-
                     return true;
                 }
 
@@ -1652,7 +1651,7 @@ throw new ObsoleteException();
         $this->test_count++;
 
         return $this->validateValues(function (&$value) {
-            if (!$this->checkIsOptional($value)) {
+            if (!$this->hasOptionalValue($value)) {
                 if (!is_array($value)) {
                     if ($value !== null) {
                         $this->addFailure(tr('must have an array value'));
@@ -1731,14 +1730,17 @@ throw new ObsoleteException();
      *
      * This method ensures that the specified array key is a boolean
      *
+     * @param bool|null $string tristate variable, false means MUST be boolean, true means MUST be string
+     *                          ("true", "false"), NULL means MAY be either string or boolean
+     *
      * @return static
      */
-    public function isBoolean(): static
+    public function isBoolean(?bool $string = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) {
-            if ($this->checkIsOptional($value)) {
+        return $this->validateValues(function (&$value) use ($string) {
+            if ($this->hasOptionalValue($value)) {
                 if (!is_bool($this->selected_optional)) {
                     if ($this->selected_optional !== null) {
                         throw new OutOfBoundsException(tr('Invalid default data ":data" specified for field ":selected", it must be boolean', [
@@ -1753,9 +1755,18 @@ throw new ObsoleteException();
                 $value = $this->selected_optional;
 
             } else {
-                $value = Strings::toBoolean($value, false);
+                $fail = true;
 
-                if ($value === null) {
+                if (($string === true) or ($string === null)) {
+                    $value = Strings::toBoolean($value, false);
+                    $fail  = ($value === null);
+                }
+
+                if ($fail and (($string === false) or ($string === null))) {
+                    $fail = is_bool($value);
+                }
+
+                if ($fail) {
                     $this->addFailure(tr('must have a boolean value'));
                 }
             }
@@ -1798,7 +1809,7 @@ throw new ObsoleteException();
         $this->test_count++;
 
         return $this->validateValues(function (&$value) {
-            if (!$this->checkIsOptional($value)) {
+            if (!$this->hasOptionalValue($value)) {
                 if (!is_integer($value)) {
                     if (is_string($value) and (((int) $value) == $value)) {
                         // This integer value was specified as a numeric string
@@ -1857,7 +1868,7 @@ throw new ObsoleteException();
         $this->test_count++;
 
         return $this->validateValues(function (&$value) {
-            if (!$this->checkIsOptional($value)) {
+            if (!$this->hasOptionalValue($value)) {
                 if (!is_numeric($value)) {
                     if ($value !== null) {
                         $this->addSoftFailure(tr('must have a numeric value'));
@@ -1951,7 +1962,7 @@ throw new ObsoleteException();
         $this->test_count++;
 
         return $this->validateValues(function (&$value) {
-            if (!$this->checkIsOptional($value)) {
+            if (!$this->hasOptionalValue($value)) {
                 if (!is_float($value)) {
                     if (is_string($value) and ((float) $value == $value)) {
                         // This float value was specified as a numeric string
@@ -2175,7 +2186,7 @@ throw new ObsoleteException();
         $this->test_count++;
 
         return $this->validateValues(function (&$value) {
-            if (!$this->checkIsOptional($value)) {
+            if (!$this->hasOptionalValue($value)) {
                 if (!is_scalar($value)) {
                     if ($value !== null) {
                         $this->addFailure(tr('must have a scalar value'));
@@ -2307,7 +2318,7 @@ throw new ObsoleteException();
         $this->test_count++;
 
         return $this->validateValues(function (&$value) {
-            if (!$this->checkIsOptional($value)) {
+            if (!$this->hasOptionalValue($value)) {
                 if (!is_string($value)) {
                     if ($value instanceof Stringable) {
                         // Force object to be string from here
@@ -5014,7 +5025,7 @@ throw new ObsoleteException();
         $this->test_count++;
 
         return $this->validateValues(function (&$value) {
-            if (!$this->checkIsOptional($value)) {
+            if (!$this->hasOptionalValue($value)) {
                 $value = (bool) $value;
             }
         });
@@ -5033,7 +5044,7 @@ throw new ObsoleteException();
         $this->test_count++;
 
         return $this->validateValues(function (&$value) {
-            if (!$this->checkIsOptional($value)) {
+            if (!$this->hasOptionalValue($value)) {
                 $value = match ((string) $value) {
                     'm'      => 'male',
                     'M'      => 'male',
@@ -5063,7 +5074,7 @@ throw new ObsoleteException();
         $this->test_count++;
 
         return $this->validateValues(function (&$value) {
-            if (!$this->checkIsOptional($value)) {
+            if (!$this->hasOptionalValue($value)) {
                 $this->isDate();
 // TODO Change this to isDateTime() when the PhoDate class is ready
 //                $this->isDateTime();
@@ -5091,7 +5102,7 @@ throw new ObsoleteException();
         $this->test_count++;
 
         return $this->validateValues(function (&$value) {
-            if (!$this->checkIsOptional($value)) {
+            if (!$this->hasOptionalValue($value)) {
                 $this->isTime();
 
                 if ($this->process_value_failed or $this->selected_is_default) {
@@ -5117,7 +5128,7 @@ throw new ObsoleteException();
         $this->test_count++;
 
         return $this->validateValues(function (&$value) {
-            if (!$this->checkIsOptional($value)) {
+            if (!$this->hasOptionalValue($value)) {
                 $this->isDate();
 
                 if ($this->process_value_failed or $this->selected_is_default) {
@@ -5148,7 +5159,7 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
         $this->test_count++;
 
         return $this->validateValues(function (&$value) use ($class, $identifier, $method) {
-            if (!$this->checkIsOptional($value)) {
+            if (!$this->hasOptionalValue($value)) {
                 // Since we cannot know what identifier column value we may expect, we don't know if it should be a
                 // database id, a code, a name, etcetera, so no prior validations are possible here
                 $value = $class::new()->$method($identifier);
@@ -5174,7 +5185,7 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
                 return;
             }
 
-            if (!$this->checkIsOptional($value)) {
+            if (!$this->hasOptionalValue($value)) {
                 $value = $function($value);
             }
         });
@@ -6088,7 +6099,7 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
         $this->test_count++;
 
         return $this->validateValues(function (&$value) {
-            if (!$this->checkIsOptional($value)) {
+            if (!$this->hasOptionalValue($value)) {
                 try {
                     $value = Phn::checkSanitizeAndValidate($value);
 
@@ -6113,7 +6124,7 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
         $this->test_count++;
 
         return $this->validateValues(function (&$value) use ($failure) {
-            if (!$this->checkIsOptional($value)) {
+            if (!$this->hasOptionalValue($value)) {
                 if ($value) {
                     $this->addSoftFailure($failure);
                 }
@@ -6135,7 +6146,7 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
         $this->test_count++;
 
         return $this->validateValues(function (&$value) use ($failure) {
-            if (!$this->checkIsOptional($value)) {
+            if (!$this->hasOptionalValue($value)) {
                 if (empty($value)) {
                     $this->addSoftFailure($failure);
                 }
