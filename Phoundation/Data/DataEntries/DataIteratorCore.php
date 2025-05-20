@@ -467,7 +467,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     public function setEnsureObjectDirect(bool $ensure_object_direct): static
     {
         $this->ensure_object_direct = $ensure_object_direct;
-        return $this
+        return $this;
     }
 
 
