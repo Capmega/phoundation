@@ -126,7 +126,9 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntries;
 
 
+use Phoundation\Data\DataEntries\Exception\DataEntryBadException;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
+use Phoundation\Data\Interfaces\ArraySourceInterface;
 
 class DataEntry extends DataEntryCore
 {
@@ -140,5 +142,32 @@ class DataEntry extends DataEntryCore
     public static function new(IdentifierInterface|array|string|int|false|null $identifier = false): static
     {
         return new static($identifier);
+    }
+
+
+    /**
+     * Returns a new DataEntry object from the specified array source
+     *
+     * @param ArraySourceInterface|array|string $source
+     *
+     * @return static
+     */
+    public static function newFromSourceDirect(ArraySourceInterface|array|string $source): static
+    {
+        if ($source instanceof ArraySourceInterface) {
+            if (!is_a($source, static::class)) {
+                throw new DataEntryBadException(
+                    tr('The specified source ":source" must be either an array or an instance of ":static"', [
+                        ':static' => static::class,
+                        ':source' => $source::class,
+                    ])
+                );
+            }
+
+            $source = $source->getSource();
+        }
+
+        $entry = new static(null);
+        return $entry->setSourceDirect($source);
     }
 }
