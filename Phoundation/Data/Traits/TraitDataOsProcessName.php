@@ -62,6 +62,6 @@ trait TraitDataOsProcessName
      */
     public function detectOsProcessName(): static
     {
-        return $this->setOsProcessName('pho-' . Strings::force(CliCommand::getCommands(), '-'));
+        return $this->setOsProcessName('pho-' . strtolower(ENVIRONMENT) . '-' . Strings::force(CliCommand::getCommands(), '-'));
     }
 }
