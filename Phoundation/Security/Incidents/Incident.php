@@ -310,7 +310,7 @@ class Incident extends DataEntryCore implements IncidentInterface
         try {
             parent::save($force, $skip_validation, $comments);
 
-        } catch (CoreReadonlyException $e) {
+        } catch (CoreReadonlyException) {
             // Can't save incidents when Core is in readonly mode!
             Log::warning(ts('Cannot save Incident object for Session ":session" for user ":user" from IP ":ip", core is readonly', [
                 ':session'  => Session::getId(),
@@ -334,79 +334,114 @@ class Incident extends DataEntryCore implements IncidentInterface
 
         // Notify anybody? If we notify somebody, logging is not required as the notification will log too
         if (isset($this->notify_roles)) {
-            // Notify the specified roles
-            $notification = Notification::new();
+            return $this->notify($severity, $details);
 
-            switch ($severity) {
-                case 'notice':
-                    $notification->setMode(EnumDisplayMode::information);
-                    break;
-
-                case 'low':
-                    $notification->setMode(EnumDisplayMode::notice);
-                    break;
-
-                case 'medium':
-                    $notification->setMode(EnumDisplayMode::warning);
-                    break;
-
-                default:
-                    $notification->setMode(EnumDisplayMode::danger);
-                    break;
-            }
-
-            // Some incidents may have Type and Title specified, but not Body. Fix that for the notification
-            $body = get_null($this->getBody());
-
-            $notification->setUrl(Url::new('security/incident+' . $this->getId() . '.html')->makeWww())
-                         ->setRoles($this->notify_roles)
-                         ->setTitle($body ? $this->getTitle(): $this->getType())
-                         ->setMessage($body ?? $this->getTitle())
-                         ->setDetails($details)
-                         ->log($this->log)
-                         ->send();
-
-        } elseif ($this->log) {
-            switch ($severity) {
-                case 'notice':
-                    // no break
-
-                case 'low':
-                    Log::notice(ts('Security notice (:id): :message', [
-                        ':id'      => $this->getId(),
-                        ':message' => $this->getTitle(),
-                    ]), (is_integer($this->log) ? $this->log : 3));
-
-                    break;
-
-                case 'high':
-                    // no break
-
-                case 'warning':
-                    Log::warning(ts('Security incident (:id / :severity): :message', [
-                        ':id'       => $this->getId(),
-                        ':severity' => $severity,
-                        ':message'  => $this->getTitle(),
-                    ]), (is_integer($this->log) ? $this->log : 7));
-
-                    if ($details) {
-                        Log::warning(print_r($details, true), (is_integer($this->log) ? $this->log : 7), clean: false);
-                    }
-
-                    break;
-
-                default:
-                    Log::error(ts('Security incident (:id / :severity): :message', [
-                        ':id'       => $this->getId(),
-                        ':severity' => $severity,
-                        ':message'  => $this->getTitle(),
-                    ]), (is_integer($this->log) ? $this->log : 9));
-
-                    if ($details) {
-                        Log::error(print_r($details, true), (is_integer($this->log) ? $this->log : 9), clean: false);
-                    }
-            }
         }
+
+        // So no notifications, should we log this?
+        if ($this->log) {
+            return $this->log($severity, $details);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Writes this incident to the log
+     *
+     * @param string $severity
+     * @param mixed  $details
+     *
+     * @return $this
+     */
+    protected function log(string $severity, mixed $details): static
+    {
+        switch ($severity) {
+            case 'notice':
+                // no break
+
+            case 'low':
+                Log::notice(ts('Security notice (:id): :message', [
+                    ':id'      => $this->getId(),
+                    ':message' => $this->getTitle(),
+                ]), (is_integer($this->log) ? $this->log : 3));
+
+                break;
+
+            case 'high':
+                // no break
+
+            case 'warning':
+                Log::warning(ts('Security incident (:id / :severity): :message', [
+                    ':id'       => $this->getId(),
+                    ':severity' => $severity,
+                    ':message'  => $this->getTitle(),
+                ]), (is_integer($this->log) ? $this->log : 7));
+
+                if ($details) {
+                    Log::warning(print_r($details, true), (is_integer($this->log) ? $this->log : 7), clean: false);
+                }
+
+                break;
+
+            default:
+                Log::error(ts('Security incident (:id / :severity): :message', [
+                    ':id'       => $this->getId(),
+                    ':severity' => $severity,
+                    ':message'  => $this->getTitle(),
+                ]), (is_integer($this->log) ? $this->log : 9));
+
+                if ($details) {
+                    Log::error(print_r($details, true), (is_integer($this->log) ? $this->log : 9), clean: false);
+                }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Sends notifications about this incident
+     *
+     * @param string     $severity
+     * @param array|null $details
+     *
+     * @return $this
+     */
+    protected function notify(string $severity, ?array $details): static
+    {
+        // Notify the specified roles
+        $notification = Notification::new();
+
+        switch ($severity) {
+            case 'notice':
+                $notification->setMode(EnumDisplayMode::information);
+                break;
+
+            case 'low':
+                $notification->setMode(EnumDisplayMode::notice);
+                break;
+
+            case 'medium':
+                $notification->setMode(EnumDisplayMode::warning);
+                break;
+
+            default:
+                $notification->setMode(EnumDisplayMode::danger);
+                break;
+        }
+
+        // Some incidents may have Type and Title specified, but not Body. Fix that for the notification
+        $body = get_null($this->getBody());
+
+        $notification->setUrl(Url::new('security/incident+' . $this->getId() . '.html')->makeWww())
+                     ->setRoles($this->notify_roles)
+                     ->setTitle($body ? $this->getTitle(): $this->getType())
+                     ->setMessage($body ?? $this->getTitle())
+                     ->setDetails($details)
+                     ->log($this->log)
+                     ->send();
 
         return $this;
     }
