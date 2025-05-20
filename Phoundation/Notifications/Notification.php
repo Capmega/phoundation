@@ -481,7 +481,7 @@ FILES variables:
             // Save and send this notification to all users that are members of the specified roles
             foreach ($this->getRolesObject() as $role) {
                 try {
-                    $users = Role::new()->load($role)->getUsersObject();
+                    $users = Role::new()->load($role)->getUsersObject()->load();
 
                     foreach ($users as $user) {
                         try {
@@ -758,7 +758,8 @@ FILES variables:
             $message = $this->getMessage();
 
             if ($this->getDetails()) {
-                $message .= PHP_EOL . PHP_EOL . tr('Details:') . PHP_EOL . Json::encode($this->getDetails());
+                $message .= PHP_EOL . PHP_EOL . tr('Details:') . PHP_EOL . print_r($this->getDetails(), true);
+                $message  = '<pre>' . $message . '</pre>';
             }
 
             Pho::new()
