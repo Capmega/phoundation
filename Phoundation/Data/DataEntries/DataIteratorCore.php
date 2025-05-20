@@ -158,6 +158,13 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      */
     protected int $saved_count = 0;
 
+    /**
+     * Tracks if DataEntry objects should be created using normal setSource() or setSourceDirectly()
+     *
+     * @var bool $ensure_object_direct
+     */
+    protected bool $ensure_object_direct = false;
+
 
     /**
      * DataIterator class constructor
@@ -436,6 +443,31 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns if DataEntry objects should be created using normal setSource() or setSourceDirectly()
+     *
+     * @return bool
+     */
+    public function getEnsureObjectDirect(): bool
+    {
+        return $this->ensure_object_direct;
+    }
+
+
+    /**
+     * Sets if DataEntry objects should be created using normal setSource() or setSourceDirectly()
+     *
+     * @param bool $ensure_object_direct
+     *
+     * @return static
+     */
+    public function setEnsureObjectDirect(bool $ensure_object_direct): static
+    {
+        $this->ensure_object_direct = $ensure_object_direct;
+        return $this
     }
 
 
@@ -1210,8 +1242,13 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
 
             } else {
                 if (is_array($this->source[$key])) {
-                    // Souce is stored as array. Create a new DataEntry and copy the source array into the entry
-                    $entry = $this->getAcceptedDataType()::newFromSource($this->source[$key]);
+                    // Source is stored as an array. Create a new DataEntry and copy the source array into the entry
+                    if ($this->ensure_object_direct) {
+                        $entry = $this->getAcceptedDataType()::newFromSourceDirect($this->source[$key]);
+
+                    } else {
+                        $entry = $this->getAcceptedDataType()::newFromSource($this->source[$key]);
+                    }
 
                 } elseif ($this->source[$key] === null) {
                     return null;
