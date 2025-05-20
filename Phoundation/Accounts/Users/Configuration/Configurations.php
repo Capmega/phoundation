@@ -203,6 +203,8 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
     protected function initDefinitionsObject(): DefinitionsInterface
     {
         return Definitions::new()->add(Definition::new('timezones_name')
+// TODO Implement with new GEO library
+->setRender(false)
                                                  ->setOptional(true, 'auto')
                                                  ->setSize(6)
                                                  ->setElement(EnumElement::select)
