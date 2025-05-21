@@ -2909,7 +2909,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 throw $e;
 
             } catch (Throwable $e) {
-                throw ValidatorException::new(tr('Encountered an exception while validating column ":column"', [
+                throw ValidatorException::new(tr('Encountered an exception while validating ":class" class column ":column"', [
+                    ':class'  => static::class,
                     ':column' => $column,
                 ]), $e);
             }

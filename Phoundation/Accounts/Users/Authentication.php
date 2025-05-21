@@ -28,6 +28,7 @@ use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryAlreadySavedException;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryCity;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryCountry;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryCreatedBy;
@@ -60,7 +61,7 @@ class Authentication extends DataEntry implements AuthenticationInterface
     /**
      * Authentication class constructor
      *
-     * @param array|int|string|DataEntryInterface|null $identifier
+     * @param IdentifierInterface|array|string|int|false|null $identifier
      */
     public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false)
     {

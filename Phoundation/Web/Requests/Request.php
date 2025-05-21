@@ -1863,8 +1863,8 @@ class Request implements RequestInterface
         return match (static::getRequestType()) {
             EnumRequestTypes::api     => Strings::ensureStartsWith($target, 'api/'),
             EnumRequestTypes::ajax    => Strings::ensureStartsWith($target, 'ajax/'),
+            EnumRequestTypes::file    => Strings::ensureStartsWith($target, 'files/'),
             EnumRequestTypes::html,
-            EnumRequestTypes::file,
             EnumRequestTypes::system  => Strings::ensureStartsWith($target, 'pages/'),
             default                   => throw new OutOfBoundsException(tr('Unsupported request type ":request" for this process', [
                 ':request' => static::getRequestType(),

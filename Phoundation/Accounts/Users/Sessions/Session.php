@@ -1036,6 +1036,28 @@ class Session implements SessionInterface
             return false;
         }
 
+        // Pass auto-sign-out to client too
+        Response::addHeadDataAttribute(Session::get('last_activity'), 'sign-out');
+
+        // Only auto sign-out when not guest user
+        if (!Session::getUserObject()->isGuest()) {
+            // Only auto sign-out when last_activity timed out
+            if (Url::newCurrent()->removeAllQueries()->getSource() !== Url::new('signout')->makeWww()->getSource()) {
+                if (isset($_SESSION['last_activity']) and (($_SESSION['last_activity'] + $auto_sign_out) < microtime(true))) {
+                    $_SESSION['last_activity'] = microtime(true);
+
+                    Log::warning(tr('Automatically signing out user ":user" because their session surpassed the auto sign-out time of ":time" seconds', [
+                        ':user' => static::getUserObject()->getLogId(),
+                        ':time' => $auto_sign_out,
+                    ]));
+
+                    Response::getFlashMessagesObject()->addWarning(tr('You were signed out automatically because your session timed out'));
+                    Session::signOut();
+                    Response::redirect('signin');
+                }
+            }
+        }
+
         // Only auto sign-out when not guest user
         if (Session::getUserObject()->isGuest()) {
             return false;

@@ -1948,6 +1948,7 @@ class Definition implements DefinitionInterface
 
             case EnumInputType::button:
                 // no break
+
             case EnumInputType::submit:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -1987,6 +1988,7 @@ class Definition implements DefinitionInterface
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                         // Validate input text strings
                         $validator->sanitizeTrim();
+
                         if ($this->getMinlength()) {
                             $validator->hasMinCharacters($this->getMinlength());
                         }
@@ -1996,6 +1998,7 @@ class Definition implements DefinitionInterface
                         }
                      });
                 break;
+
             case EnumInputType::reset:
                 // Reset button should never arrive
                 $this->setElement(EnumElement::input)
@@ -2003,6 +2006,7 @@ class Definition implements DefinitionInterface
                          $validator->addSoftFailure(tr('is not supported'));
                      });
                 break;
+
             case EnumInputType::radio:
                 $this->setElement(EnumElement::input);
                 break;
@@ -2031,7 +2035,6 @@ class Definition implements DefinitionInterface
     public function clearValidationFunctions(): static
     {
         $this->validations = [];
-
         return $this;
     }
 
@@ -2043,9 +2046,16 @@ class Definition implements DefinitionInterface
      *
      * @return static
      */
-    public function addValidationFunction(callable $function): static
+    public function addValidationFunction(callable $function, bool $set_content_test_done = false): static
     {
-        $this->validations[] = $function;
+        // Add the validation for this column, but wrap it in a lambda function that will also set content test as done
+        $this->validations[] = function (ValidatorInterface $validator) use ($function, $set_content_test_done) {
+            if ($set_content_test_done) {
+                $validator->setContentTestDone();
+            }
+
+            $function($validator);
+        };
 
         return $this;
     }
@@ -3234,14 +3244,14 @@ class Definition implements DefinitionInterface
         $this->validateProcessEmptyValues($validator, $column);
 
         if ($this->o_data_entry?->isApplying()) {
-            // If we are applying to a DataEntry, READONLY, DISABLED, and NORENDER columns are treated differently
+            // If we're applying to a DataEntry, READONLY, DISABLED, and NORENDER columns are treated differently
             if ($this->validateProcessAppliedReadonlyDisabled($validator, $column)) {
-                // Yeah, this column is readonly / disabled and should not be validated (and not saved either)
+                // Yeah, this column is readonly / disabled and shouldn't be validated (and not saved either)
                 return false;
             }
 
             if ($this->validateProcessAppliedNotRendering($validator, $column)) {
-                // This column does not render so should not be validated (and not saved either)
+                // This column doesn't render so shouldn't be validated (and not saved either)
                 return false;
             }
 
@@ -3369,7 +3379,7 @@ class Definition implements DefinitionInterface
         // This column isn't rendered (so not sent to the user) which means that it CANNOT be submitted.
         // If the user submitted it, they're messing around, don't allow it!
         if ($validator->get($column, false)) {
-            // This column isn't rendered and should not have a value whilst applying unless forced processing.
+            // This column isn't rendered and shouldn't have a value whilst applying unless forced processing.
             if (!$this->getForcedProcessing()) {
                 // Frack...
                 Incident::new()
@@ -3389,7 +3399,7 @@ class Definition implements DefinitionInterface
             }
         }
 
-        // Do not validate this column and try to apply static value
+        // Don't validate this column and try to apply static value
         $this->validateProcessStaticValue($validator, $column);
         $validator->doNotValidate();
         return true;

@@ -380,7 +380,7 @@ class Route
         $parameters = static::getParametersObject()->select(static::$url);
         $route      = new PhoFile(static::$page, PhoRestrictions::newReadonlyObject(DIRECTORY_WEB));
 
-        // Setup the request object, send parameters, attachment configuration and if this is a system request
+        // Set up the request object, send parameters, attachment configuration and if this is a system request
         Request::setRoutingParameters($parameters);
         Request::setAttachment(static::$attachment);
         Request::setSystem($system);
