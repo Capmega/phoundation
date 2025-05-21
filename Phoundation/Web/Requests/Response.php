@@ -62,6 +62,7 @@ use Phoundation\Web\Uploads\Interfaces\UploadHandlersInterface;
 use Stringable;
 use Throwable;
 
+
 class Response implements ResponseInterface
 {
     use TraitDataStaticFlashMessages;
@@ -69,6 +70,7 @@ class Response implements ResponseInterface
     use TraitDataStaticExecuted;
     use TraitDataStaticRestrictions;
     use TraitGetInstance;
+
 
     /**
      * Singleton instance
@@ -224,18 +226,18 @@ class Response implements ResponseInterface
     protected static int $bytes_sent = 0;
 
     /**
-     * Sets if the request should render the entire page or the contents of the page only
-     *
-     * @var bool $render_main_contents_only
-     */
-    protected static bool $render_main_contents_only = false;
-
-    /**
      * Tracks attributes for the <head> tag
      *
      * @var Iterator $o_head_data_attributes
      */
     protected static Iterator $o_head_data_attributes;
+
+    /**
+     * Tracks direct output mode that will bypass everything and send program output to client directly
+     *
+     * @var bool $direct_output_mode
+     */
+    protected static bool $direct_output_mode = false;
 
 
     /**
@@ -275,6 +277,30 @@ class Response implements ResponseInterface
     public static function getBytesSent(): int
     {
         return static::$bytes_sent;
+    }
+
+
+    /**
+     * Returns direct output mode that will bypass everything and send program output to client directly
+     *
+     * @return bool
+     */
+    public static function getDirectOutputMode(): bool
+    {
+        return static::$direct_output_mode;
+    }
+
+
+    /**
+     * Sets direct output mode that will bypass everything and send program output to client directly
+     *
+     * @param bool $direct_output_mode
+     *
+     * @return void
+     */
+    public static function setDirectOutputMode(bool $direct_output_mode): void
+    {
+        static::$direct_output_mode = $direct_output_mode;
     }
 
 
@@ -2190,30 +2216,6 @@ class Response implements ResponseInterface
     public static function addOutput(?string $output): void
     {
         echo $output;
-    }
-
-
-    /**
-     * Returns if only the main contents should be rendered, or the entire page
-     *
-     * @return bool
-     */
-    public static function getRenderMainContentsOnly(): bool
-    {
-        return static::$render_main_contents_only;
-    }
-
-
-    /**
-     * Sets if only the main contents should be rendered, or the entire page
-     *
-     * @param bool $render_main_contents_only
-     *
-     * @return void
-     */
-    public static function setRenderMainContentsOnly(bool $render_main_contents_only): void
-    {
-        static::$render_main_contents_only = $render_main_contents_only;
     }
 
 
