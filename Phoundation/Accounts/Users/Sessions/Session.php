@@ -953,7 +953,7 @@ class Session implements SessionInterface
             // Only auto sign-out on WEB
             if ($auto_signout) {
                 // Pass auto-sign-out to client too
-                Response::addHeadDataAttribute(Session::get('last_activity'), 'auto-sign-out');
+                Response::addHeadDataAttribute(Session::get('last_activity'), 'sign-out');
 
                 // Only auto sign-out when not guest user
                 if (!Session::getUserObject()->isGuest()) {
