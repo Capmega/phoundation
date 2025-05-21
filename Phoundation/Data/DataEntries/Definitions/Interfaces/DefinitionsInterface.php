@@ -9,6 +9,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\DropdownButtonInterface;
 use Stringable;
 
 interface DefinitionsInterface extends IteratorInterface
@@ -148,11 +149,11 @@ interface DefinitionsInterface extends IteratorInterface
     /**
      * Sets the modal buttons
      *
-     * @param ButtonInterface|null $button
+     * @param DropdownButtonInterface|ButtonInterface|null $button
      *
      * @return static
      */
-    public function addButton(?ButtonInterface $button): static;
+    public function addButton(DropdownButtonInterface|ButtonInterface|null $button): static;
 
     /**
      * Direct method to render or not render entries

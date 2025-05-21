@@ -1971,13 +1971,15 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $this->source                 = [];
 
         if ($source) {
+            $source = $this->prepareSource($source, $execute, $filter_meta);
+
             if (!$filter_meta) {
                 // Load meta data too
                 $this->setMetaData($source);
             }
 
             // Load data with object init
-            $this->copyValuesToSource($this->prepareSource($source, $execute, $filter_meta), false);
+            $this->copyValuesToSource($source, false);
         }
 
         // Done!
@@ -2010,13 +2012,15 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
         if ($source) {
+            $source = $this->prepareSource($source, $execute, $filter_meta);
+
             if (!$filter_meta) {
                 // Load meta data too
                 $this->setMetaData($source);
             }
 
             // Load data directly
-            $this->source = $this->prepareSource($source, $execute, $filter_meta) ?? [];
+            $this->source = $source ?? [];
         }
 
         // Done!
