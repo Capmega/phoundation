@@ -254,11 +254,18 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     protected bool $clear_failed_fields = false;
 
     /**
-     * Tracks the number of Tests performed on the currently selected field
+     * Tracks the number of tests performed on the currently selected field
      *
      * @var int $test_count
      */
     protected int $test_count = 0;
+
+    /**
+     * Tracks the number of content tests performed on the currently selected field
+     *
+     * @var int $content_count
+     */
+    protected int $content_test_count = 0;
 
     /**
      * Tracks if debug should be used or not
@@ -544,7 +551,8 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             ]));
         }
 
-        $this->test_count = PHP_INT_MIN;
+        $this->test_count         = PHP_INT_MIN;
+        $this->content_test_count = PHP_INT_MIN;
         return $this;
     }
 
@@ -1171,13 +1179,14 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      */
     public function isEqualTo(string $field, bool $strict = false): static
     {
+        $this->test_count++;
+        $this->content_test_count++;
+
         return $this->validateValues(function ($value) use ($field, $strict) {
             if ($this->process_value_failed) {
                 // Validation already failed, don't test anything more
                 return '';
             }
-
-            $this->test_count++;
 
             if ($strict) {
                 if ($value !== $this->source[$field]) {
@@ -1258,7 +1267,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * Called at the end of defining all validation rules.
      *
-     * This method will check the failures array and if any failures were registered, it will throw an exception
+     * This method will check the "failures" array and if any failures were registered, it will throw an exception
      *
      * @param bool $require_clean_source
      *
@@ -1268,14 +1277,24 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     {
         // Check if there is still a field selected that has no test applied.
         // If so, fail, because all fields must be tested
-        if ($this->selected_field and !$this->test_count) {
+        if ($this->selected_field and empty($this->test_count)) {
             if (!config()->getBoolean('security.validation.disabled', false)) {
                 throw new ValidatorException(tr('Cannot validate because the last selected field ":field" has no validations performed yet', [
                     ':field' => $this->selected_field,
                 ]));
             }
 
-            Log::error('WARNING: SKIPPED VALIDATION DUE TO security.validation.disabled = false CONFIGURATION! SYSTEM MAY BE IN UNKNOWN STATE!');
+            Log::error(ts('WARNING: SKIPPED VALIDATION DUE TO security.validation.disabled = false CONFIGURATION! SYSTEM MAY BE IN UNKNOWN STATE!'));
+        }
+
+        if ($this->selected_field and empty($this->content_test_count)) {
+            if (!config()->getBoolean('security.validation.content.disabled', false)) {
+                throw new ValidatorException(tr('Cannot validate because the last selected field ":field" has no content validations performed yet', [
+                    ':field' => $this->selected_field,
+                ]));
+            }
+
+            Log::error(ts('WARNING: SKIPPED CONTENT VALIDATION DUE TO security.validation.content.disabled = false CONFIGURATION! SYSTEM MAY BE IN UNKNOWN STATE!'));
         }
 
         $unclean = $this->processExtraFields($require_clean_source);
@@ -1640,31 +1659,6 @@ throw new ObsoleteException();
 
 
     /**
-     * Validates the datatype for the selected field
-     *
-     * This method ensures that the specified array key is an array
-     *
-     * @return static
-     */
-    public function isArray(): static
-    {
-        $this->test_count++;
-
-        return $this->validateValues(function (&$value) {
-            if (!$this->hasOptionalValue($value)) {
-                if (!is_array($value)) {
-                    if ($value !== null) {
-                        $this->addFailure(tr('must have an array value'));
-                    }
-
-                    $value = [];
-                }
-            }
-        });
-    }
-
-
-    /**
      * Apply the specified anonymous function on a single or all of the process_values for the selected field
      *
      * @param callable $function
@@ -1699,6 +1693,7 @@ throw new ObsoleteException();
             // Clear up work data
             unset($value);
             unset($this->process_value);
+
             $this->process_key = null;
         }
 
@@ -1728,6 +1723,31 @@ throw new ObsoleteException();
     /**
      * Validates the datatype for the selected field
      *
+     * This method ensures that the specified array key is an array
+     *
+     * @return static
+     */
+    public function isArray(): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) {
+            if (!$this->hasOptionalValue($value)) {
+                if (!is_array($value)) {
+                    if ($value !== null) {
+                        $this->addFailure(tr('must have an array value'));
+                    }
+
+                    $value = [];
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
      * This method ensures that the specified array key is a boolean
      *
      * @param bool|null $string tristate variable, false means MUST be boolean, true means MUST be string
@@ -1738,6 +1758,7 @@ throw new ObsoleteException();
     public function isBoolean(?bool $string = null): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($string) {
             if ($this->hasOptionalValue($value)) {
@@ -1771,29 +1792,6 @@ throw new ObsoleteException();
                 }
             }
         });
-    }
-
-
-    /**
-     * Validates the datatype for the selected field
-     *
-     * This method ensures that the specified array key is a valid natural number (integer, 1 and above)
-     *
-     * @param bool $allow_zero
-     *
-     * @return static
-     */
-    public function isNatural(bool $allow_zero = true): static
-    {
-        $this->test_count++;
-        $this->isInteger();
-
-        if ($this->process_value_failed or $this->selected_is_default) {
-            // Validation already failed or defaulted, don't test anything more
-            return $this;
-        }
-
-        return $this->isPositive($allow_zero);
     }
 
 
@@ -1840,6 +1838,7 @@ throw new ObsoleteException();
     public function isPositive(bool $allow_zero = false): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($allow_zero) {
             $this->isNumeric();
@@ -1853,6 +1852,59 @@ throw new ObsoleteException();
                 $this->addSoftFailure(tr('must have a positive value'));
             }
         });
+    }
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
+     * This method ensures that the specified array key is negative
+     *
+     * @param bool $allow_zero
+     *
+     * @return static
+     */
+    public function isNegative(bool $allow_zero = false): static
+    {
+        $this->test_count++;
+        $this->content_test_count++;
+
+        return $this->validateValues(function (&$value) use ($allow_zero) {
+            $this->isNumeric();
+
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
+            }
+
+            if ($value > ($allow_zero ? 0 : 1)) {
+                $this->addSoftFailure(tr('must have a negative value'));
+            }
+        });
+    }
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
+     * This method ensures that the specified array key is a valid natural number (integer, 1 and above)
+     *
+     * @param bool $allow_zero
+     *
+     * @return static
+     */
+    public function isNatural(bool $allow_zero = true): static
+    {
+        $this->test_count++;
+
+        $this->isInteger();
+
+        if ($this->process_value_failed or $this->selected_is_default) {
+            // Validation already failed or defaulted, don't test anything more
+            return $this;
+        }
+
+        return $this->isPositive($allow_zero);
     }
 
 
@@ -1894,63 +1946,6 @@ throw new ObsoleteException();
 
 
     /**
-     * Validates that the specified value is either an integer number, or a valid number of bytes
-     *
-     * 1KB    = 1000
-     * 1MB    = 1000000
-     * 1GB    = 1000000000
-     * 1GiB   = 1073741824
-     * 1.5GiB = 1610612736
-     * etc...
-     *
-     * @return static
-     * @see trim()
-     */
-    public function isBytes(): static
-    {
-        $this->test_count++;
-
-        return $this->validateValues(function (&$value) {
-            $this->hasMaxCharacters(32);
-
-            if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
-                return;
-            }
-
-            if (!is_numeric_integer($value)) {
-                try {
-                    $value = Numbers::fromBytes($value);
-                } catch (Throwable) {
-                    $this->addSoftFailure(tr('must have a valid byte size, like 1000, 1000kb, 1000MiB, etc'));
-                }
-            }
-        });
-    }
-
-
-    /**
-     * Validates the datatype for the selected field
-     *
-     * This method ensures that the specified array key is a valid latitude coordinate
-     *
-     * @return static
-     */
-    public function isLatitude(): static
-    {
-        $this->test_count++;
-        $this->isFloat();
-
-        if ($this->process_value_failed or $this->selected_is_default) {
-            // Validation already failed or defaulted, don't test anything more
-            return $this;
-        }
-
-        return $this->isBetween(-90, 90);
-    }
-
-
-    /**
      * Validates the datatype for the selected field
      *
      * This method ensures that the specified array key is an float
@@ -1966,7 +1961,7 @@ throw new ObsoleteException();
                 if (!is_float($value)) {
                     if (is_string($value) and ((float) $value == $value)) {
                         // This float value was specified as a numeric string
-// TODO Test this! There may be slight inaccuracies here due to how floats work, so maybe we should check within a range?
+                        // TODO Test this! There may be slight inaccuracies here due to how floats work, so maybe we should check within a range?
                         $value = (float) $value;
 
                     } else {
@@ -1976,6 +1971,108 @@ throw new ObsoleteException();
 
                         $value = 0.0;
                     }
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
+     * This method ensures that the specified array key is a string
+     *
+     * @return static
+     */
+    public function isString(): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) {
+            if (!$this->hasOptionalValue($value)) {
+                if (!is_string($value)) {
+                    if ($value instanceof Stringable) {
+                        // Force object to be string from here
+                        $value = (string) $value;
+
+                    } elseif (is_enum($value)) {
+                        // Force enum to be string from here
+                        $value = (string) $value->value;
+
+                    } elseif (!is_numeric($value)) {
+                        if ($value !== null) {
+                            $this->addFailure(tr('must have a string value'));
+                        }
+
+                        $value = '';
+
+                    } else {
+                        // A number is allowed to be interpreted as a string
+                        $value = (string) $value;
+                    }
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
+     * This method ensures that the specified array key is a scalar value
+     *
+     * @return static
+     */
+    public function isScalar(): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) {
+            if (!$this->hasOptionalValue($value)) {
+                if (!is_scalar($value)) {
+                    if ($value !== null) {
+                        $this->addFailure(tr('must have a scalar value'));
+                    }
+
+                    $value = '';
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Validates that the specified value is either an integer number, or a valid number of bytes
+     *
+     * 1KB    = 1000
+     * 1MB    = 1000000
+     * 1GB    = 1000000000
+     * 1GiB   = 1073741824
+     * 1.5GiB = 1610612736
+     * etc...
+     *
+     * @return static
+     * @see trim()
+     */
+    public function isBytes(): static
+    {
+        $this->test_count++;
+        $this->content_test_count++;
+
+        return $this->validateValues(function (&$value) {
+            $this->hasMaxCharacters(32);
+
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
+            }
+
+            if (!is_numeric_integer($value)) {
+                try {
+                    $value = Numbers::fromBytes($value);
+
+                } catch (Throwable) {
+                    $this->addSoftFailure(tr('must have a valid byte size, like 1000, 1000kb, 1000MiB, etc'));
                 }
             }
         });
@@ -1996,6 +2093,7 @@ throw new ObsoleteException();
     public function isBetween(int|float $minimum, int|float $maximum, bool $equal = true): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($minimum, $maximum, $equal) {
             $this->isNumeric();
@@ -2028,6 +2126,30 @@ throw new ObsoleteException();
     /**
      * Validates the datatype for the selected field
      *
+     * This method ensures that the specified array key is a valid latitude coordinate
+     *
+     * @return static
+     */
+    public function isLatitude(): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) {
+            $this->isFloat();
+
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return $this;
+            }
+
+            return $this->isBetween(-90, 90);
+        });
+    }
+
+
+    /**
+     * Validates the datatype for the selected field
+     *
      * This method ensures that the specified array key is a valid longitude coordinate
      *
      * @return static
@@ -2035,14 +2157,17 @@ throw new ObsoleteException();
     public function isLongitude(): static
     {
         $this->test_count++;
-        $this->isFloat();
 
-        if ($this->process_value_failed or $this->selected_is_default) {
-            // Validation already failed or defaulted, don't test anything more
-            return $this;
-        }
+        return $this->validateValues(function (&$value) {
+            $this->isFloat();
 
-        return $this->isBetween(0, 180);
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return $this;
+            }
+
+            return $this->isBetween(0, 180);
+        });
     }
 
 
@@ -2059,22 +2184,26 @@ throw new ObsoleteException();
     public function isDbId(bool $allow_zero = false, bool $allow_negative = false): static
     {
         $this->test_count++;
-        $this->isInteger();
+        $this->content_test_count++;
 
-        if ($this->process_value_failed or $this->selected_is_default) {
-            // Validation already failed or defaulted, don't test anything more
-            return $this;
-        }
+        return $this->validateValues(function (&$value) use ($allow_zero, $allow_negative) {
+            $this->isInteger();
 
-        if ($allow_negative) {
-            if ($allow_zero) {
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
                 return $this;
             }
 
-            return $this->isNotValue(0);
-        }
+            if ($allow_negative) {
+                if ($allow_zero) {
+                    return $this;
+                }
 
-        return $this->isPositive($allow_zero);
+                return $this->isNotValue(0);
+            }
+
+            return $this->isPositive($allow_zero);
+        });
     }
 
 
@@ -2092,6 +2221,7 @@ throw new ObsoleteException();
     public function columnExists(?string $failure_message = null, string $column = 'id', ?string $table = null): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($table, $column, $failure_message) {
             $this->isScalar();
@@ -2132,6 +2262,7 @@ throw new ObsoleteException();
     public function isNotValue(mixed $validate_value, bool $strict = false, bool $secret = false, bool $ignore_case = true): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($validate_value, $strict, $secret, $ignore_case) {
             if ($strict) {
@@ -2177,31 +2308,6 @@ throw new ObsoleteException();
     /**
      * Validates the datatype for the selected field
      *
-     * This method ensures that the specified array key is a scalar value
-     *
-     * @return static
-     */
-    public function isScalar(): static
-    {
-        $this->test_count++;
-
-        return $this->validateValues(function (&$value) {
-            if (!$this->hasOptionalValue($value)) {
-                if (!is_scalar($value)) {
-                    if ($value !== null) {
-                        $this->addFailure(tr('must have a scalar value'));
-                    }
-
-                    $value = '';
-                }
-            }
-        });
-    }
-
-
-    /**
-     * Validates the datatype for the selected field
-     *
      * This method ensures that the specified array key is a valid code
      *
      * @param string|null $until
@@ -2213,6 +2319,7 @@ throw new ObsoleteException();
     public function isCode(?string $until = null, ?int $max_characters = 64, ?int $min_characters = 1): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($until, $min_characters, $max_characters) {
             if ($until) {
@@ -2229,6 +2336,32 @@ throw new ObsoleteException();
             }
 
             $this->isPrintable();
+        });
+    }
+
+
+    /**
+     * Validates that the selected field is equal or larger than the specified number of characters
+     *
+     * @param int $characters
+     *
+     * @return static
+     */
+    public function hasMinCharacters(int $characters): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) use ($characters) {
+            $this->isString();
+
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
+            }
+
+            if (strlen($value) < $characters) {
+                $this->addSoftFailure(tr('must have ":count" characters or more', [':count' => $characters]));
+            }
         });
     }
 
@@ -2283,6 +2416,7 @@ throw new ObsoleteException();
     public function hasValue(mixed $value = null, bool $strict = true): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$test_value) use ($value, $strict) {
             $this->isString();
@@ -2301,71 +2435,6 @@ throw new ObsoleteException();
                 if ($value != $test_value) {
                     $this->addSoftFailure(tr('has an incorrect value'));
                 }
-            }
-        });
-    }
-
-
-    /**
-     * Validates the datatype for the selected field
-     *
-     * This method ensures that the specified array key is a string
-     *
-     * @return static
-     */
-    public function isString(): static
-    {
-        $this->test_count++;
-
-        return $this->validateValues(function (&$value) {
-            if (!$this->hasOptionalValue($value)) {
-                if (!is_string($value)) {
-                    if ($value instanceof Stringable) {
-                        // Force object to be string from here
-                        $value = (string) $value;
-
-                    } elseif (is_enum($value)) {
-                        // Force enum to be string from here
-                        $value = (string) $value->value;
-
-                    } elseif (!is_numeric($value)) {
-                        if ($value !== null) {
-                            $this->addFailure(tr('must have a string value'));
-                        }
-
-                        $value = '';
-
-                    } else {
-                        // A number is allowed to be interpreted as a string
-                        $value = (string) $value;
-                    }
-                }
-            }
-        });
-    }
-
-
-    /**
-     * Validates that the selected field is equal or larger than the specified number of characters
-     *
-     * @param int $characters
-     *
-     * @return static
-     */
-    public function hasMinCharacters(int $characters): static
-    {
-        $this->test_count++;
-
-        return $this->validateValues(function (&$value) use ($characters) {
-            $this->isString();
-
-            if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
-                return;
-            }
-
-            if (strlen($value) < $characters) {
-                $this->addSoftFailure(tr('must have ":count" characters or more', [':count' => $characters]));
             }
         });
     }
@@ -2412,6 +2481,7 @@ throw new ObsoleteException();
     public function sanitizeBytes(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             $this->hasMaxCharacters(32);
@@ -2468,6 +2538,7 @@ throw new ObsoleteException();
     public function isMoreThan(int|float $amount, bool $equal = false): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($amount, $equal) {
             $this->isNumeric();
@@ -2504,6 +2575,7 @@ throw new ObsoleteException();
     public function isLessThan(int|float $amount, bool $equal = false): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($amount, $equal) {
             $this->isNumeric();
@@ -2530,34 +2602,6 @@ throw new ObsoleteException();
     /**
      * Validates the datatype for the selected field
      *
-     * This method ensures that the specified array key is negative
-     *
-     * @param bool $allow_zero
-     *
-     * @return static
-     */
-    public function isNegative(bool $allow_zero = false): static
-    {
-        $this->test_count++;
-
-        return $this->validateValues(function (&$value) use ($allow_zero) {
-            $this->isNumeric();
-
-            if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
-                return;
-            }
-
-            if ($value > ($allow_zero ? 0 : 1)) {
-                $this->addSoftFailure(tr('must have a negative value'));
-            }
-        });
-    }
-
-
-    /**
-     * Validates the datatype for the selected field
-     *
      * This method ensures that the specified array key contains a currency value
      *
      * @return static
@@ -2565,6 +2609,7 @@ throw new ObsoleteException();
     public function isCurrency(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             $this->isFloat();
@@ -2595,6 +2640,7 @@ throw new ObsoleteException();
     public function isInEnum(string $enum): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($enum) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
@@ -2625,6 +2671,7 @@ throw new ObsoleteException();
     public function setColumnFromCallback(string $column, callable $callback, bool $ignore_case = false, bool $fail_on_null = true): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($column, $callback, $ignore_case, $fail_on_null) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
@@ -2672,6 +2719,7 @@ throw new ObsoleteException();
     public function setColumnFromQuery(string $column, PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false, bool $fail_on_null = true, ?ConnectorInterface $connector = null): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($column, $query, $execute, $ignore_case, $fail_on_null, $connector) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
@@ -2766,6 +2814,7 @@ throw new ObsoleteException();
     public function containsQueryColumn(PDOStatement|string $query, ?array $execute = null, ?ConnectorInterface $connector = null): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($query, $execute, $connector) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
@@ -2798,6 +2847,7 @@ throw new ObsoleteException();
     public function contains(string $string, bool $regex = false, bool $not = false): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($string, $regex, $not) {
             // This value must be scalar
@@ -2810,7 +2860,7 @@ throw new ObsoleteException();
 
             if ($regex) {
                 try {
-                    if ($not xor !preg_match($string, (string) $value)) {
+                    if ($not xor preg_match($string, (string) $value)) {
                         $this->addSoftFailure(tr('must match regex ":value"', [':value' => $string]));
                     }
 
@@ -2847,6 +2897,7 @@ throw new ObsoleteException();
     public function containsNot(string $string, bool $regex = false, bool $not = false): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($string, $regex, $not) {
             // This value must be scalar
@@ -2895,8 +2946,6 @@ throw new ObsoleteException();
      */
     public function matchesNotRegex(string $regex, bool $not = false): static
     {
-        $this->test_count++;
-
         return $this->containsNot($regex, true, $not);
     }
 
@@ -2915,6 +2964,7 @@ throw new ObsoleteException();
     public function inQueryResultArray(PDOStatement|string $query, ?array $execute = null, ?ConnectorInterface $connector = null): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($query, $execute, $connector) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
@@ -2945,6 +2995,7 @@ throw new ObsoleteException();
     public function isInArray(IteratorInterface|array $array): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($array) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
@@ -3012,6 +3063,7 @@ throw new ObsoleteException();
     public function startsWith(string $string): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($string) {
             // This value must be scalar
@@ -3039,6 +3091,7 @@ throw new ObsoleteException();
     public function endsWith(string $string): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($string) {
             // This value must be scalar
@@ -3064,6 +3117,7 @@ throw new ObsoleteException();
     public function isAlpha(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             $this->isString();
@@ -3088,6 +3142,7 @@ throw new ObsoleteException();
     public function isLowercase(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             $this->isString();
@@ -3112,6 +3167,7 @@ throw new ObsoleteException();
     public function isUppercase(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             $this->isString();
@@ -3185,6 +3241,7 @@ throw new ObsoleteException();
     public function isWhitespace(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             $this->isString();
@@ -3209,6 +3266,7 @@ throw new ObsoleteException();
     public function isOctal(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             $this->isString();
@@ -3239,6 +3297,7 @@ throw new ObsoleteException();
     public function isValue(mixed $validate_value, bool $strict = false, bool $secret = false, bool $ignore_case = true): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($validate_value, $strict, $secret, $ignore_case) {
             if ($strict) {
@@ -3295,6 +3354,7 @@ throw new ObsoleteException();
     public function isDate(array|string|null $formats = null): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($formats) {
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
@@ -3332,6 +3392,7 @@ throw new ObsoleteException();
     public function isDateRange(array|string|null $formats = null): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($formats) {
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
@@ -3442,6 +3503,7 @@ throw new ObsoleteException();
     public function isTime(array|string|null $formats = null): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($formats) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(18); // 00:00:00.000000 AM
@@ -3491,6 +3553,7 @@ throw new ObsoleteException();
     public function isDateTime(array|string|null $formats = null): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($formats) {
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
@@ -3535,6 +3598,7 @@ throw new ObsoleteException();
     public function isBefore(?PhoDateTimeInterface $before, bool $include_this_date = false): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($before, $include_this_date) {
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
@@ -3575,6 +3639,7 @@ throw new ObsoleteException();
     public function isAfter(?PhoDateTimeInterface $after, bool $include_this_date = false): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($after, $include_this_date) {
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
@@ -3617,6 +3682,7 @@ throw new ObsoleteException();
     public function isCreditCard(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             // Sort-of arbitrary max size, just to ensure regex won't receive a 2MB string
@@ -3665,6 +3731,7 @@ throw new ObsoleteException();
     public function isDisplayMode(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -3697,6 +3764,7 @@ throw new ObsoleteException();
     public function isTimezone(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
@@ -3727,6 +3795,7 @@ throw new ObsoleteException();
     public function isQueryResult(PDOStatement|string $query, ?array $execute = null, bool $ignore_case = false, ?ConnectorInterface $connector = null): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($query, $execute, $ignore_case, $connector) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
@@ -3765,6 +3834,7 @@ throw new ObsoleteException();
     public function hasElements(int $count): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($count) {
             $this->isArray();
@@ -3791,6 +3861,7 @@ throw new ObsoleteException();
     public function hasMinimumElements(int $count): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($count) {
             $this->isArray();
@@ -3817,6 +3888,7 @@ throw new ObsoleteException();
     public function hasMaximumElements(int $count): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($count) {
             $this->isArray();
@@ -3841,6 +3913,7 @@ throw new ObsoleteException();
     public function isHttpMethod(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(128);
@@ -3898,6 +3971,7 @@ throw new ObsoleteException();
     public function isPhoneNumbers(string $separator = ','): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($separator) {
             $this->sanitizeTrim()->hasMinCharacters(10)->hasMaxCharacters(64);
@@ -3922,6 +3996,7 @@ throw new ObsoleteException();
     public function isGender(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters(16);
@@ -3946,6 +4021,7 @@ throw new ObsoleteException();
     public function isName(?int $max_characters = 128): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($max_characters) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters($max_characters);
@@ -3968,6 +4044,7 @@ throw new ObsoleteException();
     public function isNotNumeric(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             $this->isString();
@@ -3994,6 +4071,7 @@ throw new ObsoleteException();
     public function isUsername(?int $max_characters = 64): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($max_characters) {
             $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters($max_characters);
@@ -4040,6 +4118,7 @@ throw new ObsoleteException();
     public function isWord(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters(32);
@@ -4064,6 +4143,7 @@ throw new ObsoleteException();
     public function isVariable(?int $max_characters = null): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($max_characters) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters($max_characters);
@@ -4088,6 +4168,7 @@ throw new ObsoleteException();
     public function isVariableName(?int $max_characters = 128): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($max_characters) {
             $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters($max_characters);
@@ -4112,6 +4193,7 @@ throw new ObsoleteException();
     public function isFilename(?int $max_characters = 2048): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($max_characters) {
             $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters($max_characters);
@@ -4230,6 +4312,7 @@ throw new ObsoleteException();
     public function isPath(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
@@ -4256,6 +4339,7 @@ throw new ObsoleteException();
     public function isDirectory(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
@@ -4282,6 +4366,7 @@ throw new ObsoleteException();
     public function isFile(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
@@ -4308,6 +4393,7 @@ throw new ObsoleteException();
     public function sanitizePath(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
@@ -4334,6 +4420,7 @@ throw new ObsoleteException();
     public function sanitizeDirectory(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
@@ -4360,6 +4447,7 @@ throw new ObsoleteException();
     public function sanitizeFile(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists) {
             $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
@@ -4385,6 +4473,7 @@ throw new ObsoleteException();
     public function isDescription(?int $max_characters = 16_777_200): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($max_characters) {
             $this->sanitizeTrim()->hasMaxCharacters($max_characters);
@@ -4407,6 +4496,7 @@ throw new ObsoleteException();
     public function isPassword(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             if (static::passwordsDisabled()) {
@@ -4448,6 +4538,7 @@ throw new ObsoleteException();
     public function isStrongPassword(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(10)->hasMaxCharacters(128);
@@ -4472,6 +4563,7 @@ throw new ObsoleteException();
     public function isColor(?int $max_characters = 6): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($max_characters) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($max_characters);
@@ -4495,6 +4587,7 @@ throw new ObsoleteException();
     public function isHexadecimal(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             $this->isString();
@@ -4521,6 +4614,7 @@ throw new ObsoleteException();
     public function isEmail(?int $max_characters = 2048): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($max_characters) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($max_characters);
@@ -4548,6 +4642,7 @@ throw new ObsoleteException();
     public function isUrl(?string $domain = null, ?int $max_characters = 2048): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($max_characters, $domain) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($max_characters);
@@ -4610,6 +4705,7 @@ throw new ObsoleteException();
     public function isDomain(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(128);
@@ -4634,6 +4730,7 @@ throw new ObsoleteException();
     public function isIp(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(48);
@@ -4658,6 +4755,7 @@ throw new ObsoleteException();
     public function isDomainOrIp(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(128);
@@ -4684,6 +4782,7 @@ throw new ObsoleteException();
     public function isUuid(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(48);
@@ -4714,6 +4813,7 @@ throw new ObsoleteException();
     public function isJson(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
@@ -4749,6 +4849,7 @@ throw new ObsoleteException();
     public function isCsv(string $separator = ',', string $enclosure = "\"", string $escape = "\\"): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($separator, $enclosure, $escape) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
@@ -4783,6 +4884,7 @@ throw new ObsoleteException();
     public function isSerialized(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
@@ -4814,6 +4916,7 @@ throw new ObsoleteException();
     public function isBase58(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
@@ -4842,6 +4945,7 @@ throw new ObsoleteException();
     public function isBase64(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
@@ -4868,6 +4972,7 @@ throw new ObsoleteException();
     public function isVersion(?int $max_characters = 11): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($max_characters) {
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($max_characters);
@@ -4895,6 +5000,7 @@ throw new ObsoleteException();
     public function isTrue(callable|bool $value_or_function, string $failure): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($value_or_function, $failure) {
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -4927,6 +5033,7 @@ throw new ObsoleteException();
     public function isFalse(callable|bool $value_or_function, string $failure): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($value_or_function, $failure) {
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -4962,6 +5069,7 @@ throw new ObsoleteException();
     public function isUnique(?string $failure = null, ?ConnectorInterface $o_connector = null): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($failure, $o_connector) {
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -5023,6 +5131,7 @@ throw new ObsoleteException();
     public function sanitizeToBoolean(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             if (!$this->hasOptionalValue($value)) {
@@ -5042,6 +5151,7 @@ throw new ObsoleteException();
     public function sanitizeGender(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             if (!$this->hasOptionalValue($value)) {
@@ -5158,6 +5268,12 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
     {
         $this->test_count++;
 
+        if (empty($this->content_test_count)) {
+            throw new ValidatorException(tr('Cannot sanitize column ":column" to DataEntry, no content tests have been executed yet', [
+                ':column' => $this->selected_field,
+            ]));
+        }
+
         return $this->validateValues(function (&$value) use ($class, $identifier, $method) {
             if (!$this->hasOptionalValue($value)) {
                 // Since we cannot know what identifier column value we may expect, we don't know if it should be a
@@ -5178,6 +5294,7 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
     public function sanitizeCallback(callable $function): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($function) {
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -5686,6 +5803,8 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
         $this->test_count++;
 
         return $this->validateValues(function (&$value) {
+            $this->isUrl();
+
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
                 return;
@@ -5881,6 +6000,7 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
     public function isPhoneNumber(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             $this->sanitizeTrim()->hasMinCharacters(10)->hasMaxCharacters(30);
@@ -5959,6 +6079,29 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
 
 
     /**
+     * Returns the number of Tests performed on the current column
+     *
+     * @return int
+     */
+    public function getContentTestCountForSelectedColumn(): int
+    {
+        return $this->content_test_count;
+    }
+
+
+    /**
+     * Sets the content test as done
+     *
+     * @return static
+     */
+    public function setContentTestDone(): static
+    {
+        $this->content_test_count++;
+        return $this;
+    }
+
+
+    /**
      * Increases the test counter by the specified amount
      *
      * @param int $count
@@ -5985,12 +6128,28 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
             throw new OutOfBoundsException(tr('No field specified'));
         }
 
-        if ($this->selected_field and !$this->test_count) {
-            throw new ValidatorException(tr('Cannot select field ":field" for object ":object", the previously selected field ":previous" has no validations performed yet', [
-                ':object'   => ($this->o_definitions?->getDataEntryObject() ? get_class($this->o_definitions->getDataEntryObject()) : '-'),
-                ':field'    => $field,
-                ':previous' => $this->selected_field,
-            ]));
+        if ($this->selected_field and empty($this->test_count)) {
+            if (!config()->getBoolean('security.validation.content.disabled', false)) {
+                throw new ValidatorException(tr('Cannot select field ":field" for object ":object", the previously selected field ":previous" has no validations performed yet', [
+                    ':object'   => ($this->o_definitions?->getDataEntryObject() ? get_class($this->o_definitions->getDataEntryObject()) : '-'),
+                    ':field'    => $field,
+                    ':previous' => $this->selected_field,
+                ]));
+            }
+
+            Log::error(ts('WARNING: SKIPPED VALIDATION DUE TO security.validation.disabled = false CONFIGURATION! SYSTEM MAY BE IN UNKNOWN STATE!'));
+        }
+
+        if ($this->selected_field and empty($this->content_test_count)) {
+            if (!config()->getBoolean('security.validation.content.disabled', false)) {
+                throw new ValidatorException(tr('Cannot select field ":field" for class ":class", the previously selected field ":previous" has no content validations performed yet', [
+                    ':class'    => ($this->o_definitions?->getDataEntryObject() ? get_class($this->o_definitions->getDataEntryObject()) : 'N/A'),
+                    ':field'    => $field,
+                    ':previous' => $this->selected_field,
+                ]));
+            }
+
+            Log::error(ts('WARNING: SKIPPED CONTENT VALIDATION DUE TO security.validation.content.disabled = false CONFIGURATION! SYSTEM MAY BE IN UNKNOWN STATE!'));
         }
 
         // Unset various values first to ensure the byref link is broken
@@ -6023,12 +6182,13 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
         }
 
         // Select the field.
-        $this->test_count        = 0;
-        $this->selected_field    = $field;
-        $this->selected_fields[] = $field;
-        $this->selected_value    = &$this->source[$field];
-        $this->process_values    = [null => &$this->selected_value];
-        $this->selected_optional = null;
+        $this->test_count         = 0;
+        $this->content_test_count = 0;
+        $this->selected_field     = $field;
+        $this->selected_fields[]  = $field;
+        $this->selected_value     = &$this->source[$field];
+        $this->process_values     = [null => &$this->selected_value];
+        $this->selected_optional  = null;
 
         return $this;
     }
@@ -6048,7 +6208,7 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
         $this->o_parent = $parent;
 
         $this->o_reflection_selected_optional = new ReflectionProperty($this, 'selected_optional');
-        $this->reflection_process_value     = new ReflectionProperty($this, 'process_value');
+        $this->reflection_process_value       = new ReflectionProperty($this, 'process_value');
     }
 
 
@@ -6097,6 +6257,7 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
     public function isPhn(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             if (!$this->hasOptionalValue($value)) {

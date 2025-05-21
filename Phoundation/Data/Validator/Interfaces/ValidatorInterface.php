@@ -1384,4 +1384,11 @@ interface ValidatorInterface extends IteratorBaseInterface
      * @return static
      */
     public function setException(?Throwable $exception): static;
+
+    /**
+     * Returns the list of failures found during validation
+     *
+     * @return array
+     */
+    public function getFailures(): array;
 }
