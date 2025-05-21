@@ -1967,39 +1967,92 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         $this->is_initializing_source = true;
+        $this->is_loading             = true;
         $this->source                 = [];
 
         if ($source) {
-            if (($source instanceof DataEntryInterface) or ($source instanceof IteratorInterface)) {
-                $source = $source->getSource(false, false);
-
-            } elseif ($source instanceof PDOStatement) {
-                $source = sql()->list($source, $execute);
-
-            } elseif (is_string($source)) {
-                // Source string, must be JSON or SQL query
-                try {
-                    $source = Json::decode($source);
-
-                } catch (Throwable) {
-                    // This is not JSON, is it an SQL query?
-                    $source = sql()->list($source, $execute);
-                }
-            }
-
-            $this->is_loading = true;
-
             if (!$filter_meta) {
                 // Load meta data too
                 $this->setMetaData($source);
             }
 
             // Load data with object init
-            $this->copyValuesToSource($source, false);
+            $this->copyValuesToSource($this->prepareSource($source, $execute, $filter_meta), false);
         }
 
         // Done!
         return $this->ready();
+    }
+
+
+    /**
+     * Loads the specified data into this DataEntry object directly, circumventing the definitions
+     *
+     * @warning THIS IS CONSIDERED DANGEROUS. You can load any type of data and column into this dataentry, wheter its
+     *          supported or not!
+     *
+     * @param DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null                                                          $execute
+     * @param bool                                                                $filter_meta
+     *
+     * @return static
+     */
+    public function setSourceDirect(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, bool $filter_meta = false): static
+    {
+        // Initialize the object
+        if (!$this->is_initialized) {
+            $this->initialize(false);
+        }
+
+        $this->is_initializing_source = true;
+        $this->is_loading             = true;
+        $this->source                 = [];
+
+
+        if ($source) {
+            if (!$filter_meta) {
+                // Load meta data too
+                $this->setMetaData($source);
+            }
+
+            // Load data directly
+            $this->source = $this->prepareSource($source, $execute, $filter_meta) ?? [];
+        }
+
+        // Done!
+        return $this->ready();
+    }
+
+
+    /**
+     * Prepare the source for loading into this data entry
+     *
+     * @param DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null                                                          $execute
+     * @param bool                                                                $filter_meta
+     *
+     * @return array|null
+     */
+    protected function prepareSource(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, bool $filter_meta = false): ?array
+    {
+        if (($source instanceof DataEntryInterface) or ($source instanceof IteratorInterface)) {
+            $source = $source->getSource(false, false);
+
+        } elseif ($source instanceof PDOStatement) {
+            $source = sql()->list($source, $execute);
+
+        } elseif (is_string($source)) {
+            // Source string, must be JSON or SQL query
+            try {
+                $source = Json::decode($source);
+
+            } catch (Throwable) {
+                // This is not JSON, is it an SQL query?
+                $source = sql()->list($source, $execute);
+            }
+        }
+
+        return $source;
     }
 
 
