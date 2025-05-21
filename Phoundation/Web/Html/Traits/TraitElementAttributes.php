@@ -1183,7 +1183,7 @@ trait TraitElementAttributes
     public function addClasses(IteratorInterface|array|string|null $o_classes): static
     {
         foreach (Arrays::force($o_classes, ' ') as $class) {
-            $this->o_classes->add(true, $class, exception: false);
+            $this->o_classes->add($class, $class, exception: false);
         }
 
         return $this;
