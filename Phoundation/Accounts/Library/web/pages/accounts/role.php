@@ -47,7 +47,7 @@ $role = Role::new()->loadThis($get['id']);
 if (Request::isPostRequestMethod()) {
     try {
         switch (PostValidator::new()->getSubmitButton()) {
-            case 'save':
+            case tr('Save'):
                 // Validate rights
                 $post = PostValidator::new()
                                      ->select('rights_id')->isOptional()->isArray()->forEachField()->isOptional()->isDbId()
@@ -65,12 +65,12 @@ if (Request::isPostRequestMethod()) {
                 Response::getFlashMessagesObject()->addSuccess(tr('Role ":role" has been saved', [':role' => $role->getName()]));
                 Response::redirect('accounts/role+' . $role->getId() . '.html');
 
-            case 'delete':
+            case tr('Delete'):
                 $role->delete();
                 Response::getFlashMessagesObject()->addSuccess(tr('The role ":role" has been deleted', [':role' => $role->getName()]));
                 Response::redirect();
 
-            case 'undelete':
+            case tr('Undelete'):
                 $role->undelete();
                 Response::getFlashMessagesObject()->addSuccess(tr('The role ":role" has been undeleted', [':role' => $role->getName()]));
                 Response::redirect();
@@ -91,7 +91,6 @@ if ($role->isNotNew()) {
                    ->setMode(EnumDisplayMode::information)
                    ->setAnchorUrl('/audit/meta+' . $role->getMetaId() . '.html')
                    ->setFloatRight(true)
-                   ->setValue('audit')
                    ->setContent(tr('Audit'));
 
     if ($role->isDeleted()) {
@@ -99,7 +98,6 @@ if ($role->isNotNew()) {
                         ->setFloatRight(true)
                         ->setMode(EnumDisplayMode::warning)
                         ->setOutlined(true)
-                        ->setValue('undelete')
                         ->setContent(tr('Undelete'));
 
     } else {
@@ -107,7 +105,6 @@ if ($role->isNotNew()) {
                         ->setFloatRight(true)
                         ->setMode(EnumDisplayMode::warning)
                         ->setOutlined(true)
-                        ->setValue('delete')
                         ->setContent(tr('Delete'));
     }
 

@@ -38,6 +38,8 @@ $get = GetValidator::new()
                    ->select('id')->isDbId()
                    ->validate();
 
+
+// Load user and get password
 $user     = User::new()->load($get['id']);
 $password = $user->getPasswordObject();
 

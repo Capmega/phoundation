@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Validator;
 
 use Phoundation\Data\Traits\TraitDataStaticArrayBackup;
+use Phoundation\Data\Traits\TraitDataStaticArrayUnclean;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Utils\Strings;
@@ -26,6 +27,7 @@ class CookieValidator extends Validator
 {
     use TraitDataStaticArrayBackup;
     use TraitStaticMethodNew;
+    use TraitDataStaticArrayUnclean;
 
 
     /**
@@ -97,16 +99,24 @@ class CookieValidator extends Validator
         foreach ($post as $field) {
             if (!in_array($field, $this->selected_fields)) {
                 $fields[]   = $field;
-                $messages[] = tr('Unknown field ":field" encountered', [
-                    ':field' => $field,
-                ]);
+                $messages[] = [
+                    'hard'      => false,
+                    'label'     => $field,
+                    'column'    => $field,
+                    'value'     => $this->selected_value,
+                    'message'   => tr('Unknown field ":field" encountered', [
+                        ':field' => $field,
+                    ])
+                ];
             }
         }
 
         throw ValidationFailedException::new(tr('Unknown COOKIE fields ":fields" encountered', [
             ':fields' => Strings::force($fields, ', '),
         ]))
-        ->addData($messages)
+        ->addData([
+            'failures' => $messages,
+        ])
         ->makeWarning()
         ->log();
     }

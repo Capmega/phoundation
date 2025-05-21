@@ -14,8 +14,13 @@
 
 declare(strict_types=1);
 
+use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Html\Components\Widgets\NotificationsDropDown;
 use Phoundation\Web\Requests\JsonPage;
+
+
+// This JSON call accepts NO GET parameters
+GetValidator::new()->validate();
 
 
 // Gets the notification dropdown
@@ -29,6 +34,7 @@ $dropdown = NotificationsDropDown::new()
 $ping = $dropdown->getNotifications()
                  ->linkHash();
 
+
 // Reply
 $reply = [
     'html'  => '<li class="nav-item dropdown notifications">' . $dropdown->render() . '</li>',
@@ -37,4 +43,6 @@ $reply = [
     'ping'  => $ping,
 ];
 
+
+// Done!
 JsonPage::new()->reply($reply);

@@ -220,7 +220,7 @@ class Phone extends DataEntry implements PhoneInterface
 
                       ->add(DefinitionFactory::newPhone()
                                            ->setSize(4)
-                                           ->setOptional(false)
+                                           ->setOptional(true)
                                            ->setHelpText(tr('An extra phone for the user')))
 
                     ->add(Definition::new('account_type')

@@ -18,6 +18,7 @@ use Phoundation\Accounts\Users\FilterForm;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
@@ -30,6 +31,10 @@ use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
+
+
+// This page does not accept GET parameters
+GetValidator::new()->validate();
 
 
 // Build the "filters" card

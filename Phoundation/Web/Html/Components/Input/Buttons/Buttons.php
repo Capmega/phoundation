@@ -103,7 +103,7 @@ class Buttons extends ElementsBlock implements ButtonsInterface
                             ->addClasses($this->o_classes)
                             ->setOutlined($outline)
                             ->setContent($button)
-                            ->setValue($button)
+                            ->setValue($value ?? $button)
                             ->setFloatRight($right)
                             ->setMode($mode)
                             ->setName('submit-button');

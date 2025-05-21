@@ -21,7 +21,7 @@ use Phoundation\Web\Requests\JsonPage;
 
 
 // Ensure we'll have auto suggest data
-AutoSuggestRequest::init(true);
+AutoSuggestRequest::init(true, false);
 
 
 // Validate

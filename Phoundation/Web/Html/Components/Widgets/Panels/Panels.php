@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Panels class
+ * Class Panels
  *
  *
  *
@@ -33,13 +33,14 @@ class Panels extends Iterator implements PanelsInterface
         if (($value === null) or ($value instanceof PanelInterface)) {
             return parent::add($value, $key, $skip_null_values, $exception);
         }
+
         throw OutOfBoundsException::new(tr('Cannot add specified value type ":value" with key ":key", the value must be a PanelInterface type object', [
             ':key'   => $key,
             ':value' =>  get_datatype_or_class($value),
         ]))
-                                  ->setData([
-                                      'value' => $value,
-                                  ]);
+        ->setData([
+            'value' => $value,
+        ]);
     }
 
 

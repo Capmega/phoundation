@@ -2074,7 +2074,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      */
     public function getCacheKeySeed(?String $append_string = null): ?string
     {
-        return static::class . '-' . Request::getTarget()->getRootname() . ($this->parent ? '-' . $this->parent::class . '-' . $this->parent->getId() : '') . $append_string;
+        return static::class . '-' . Request::getTargetObject()->getRootname() . ($this->parent ? '-' . $this->parent::class . '-' . $this->parent->getId() : '') . $append_string;
     }
 
 

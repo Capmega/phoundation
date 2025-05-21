@@ -19,6 +19,7 @@ use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Accounts\Users\FilterForm;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
@@ -31,6 +32,10 @@ use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
+
+
+// This page does not accept GET parameters
+GetValidator::new()->validate();
 
 
 // Build filter card

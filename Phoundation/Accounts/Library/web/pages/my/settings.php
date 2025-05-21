@@ -27,10 +27,13 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
+
 // No get parameters allowed
+GetValidator::new()->validate();
+
+
+// Get the user
 $user = Session::getUserObject();
-$get  = GetValidator::new()
-                    ->validate();
 
 
 // Apply and save the changes

@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Validator;
 
 use Phoundation\Data\Traits\TraitDataStaticArrayBackup;
+use Phoundation\Data\Traits\TraitDataStaticArrayUnclean;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Data\Validator\Exception\CsrfValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -35,6 +36,7 @@ class PostValidator extends Validator
 {
     use TraitDataStaticArrayBackup;
     use TraitStaticMethodNew;
+    use TraitDataStaticArrayUnclean;
 
 
     /**
@@ -383,15 +385,22 @@ class PostValidator extends Validator
         foreach ($post as $field) {
             if (!in_array($field, $this->selected_fields)) {
                 $fields[]   = $field;
-                $messages[] = tr('Unknown field ":field" encountered', [
-                    ':field' => $field,
-                ]);
+                $messages[] = [
+                    'hard'      => false,
+                    'label'     => $field,
+                    'column'    => $field,
+                    'value'     => $this->selected_value,
+                    'message'   => tr('Unknown field ":field" encountered', [
+                        ':field' => $field,
+                    ])
+                ];
             }
         }
 
         throw ValidationFailedException::new(tr('Unknown POST fields ":fields" encountered', [
             ':fields'  => Strings::force($fields, ', '),
-        ]))->addData([
+        ]))
+        ->addData([
             'failures' => $messages,
         ])
        ->makeWarning()

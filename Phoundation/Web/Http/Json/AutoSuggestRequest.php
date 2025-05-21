@@ -40,7 +40,7 @@ class AutoSuggestRequest
      *
      * @return void
      */
-    public static function init(bool $term_optional = false, bool $require_clean_source = false): void
+    public static function init(bool $term_optional = false, bool $require_clean_source = true): void
     {
         static::ensureGet($term_optional, $require_clean_source);
     }
@@ -52,7 +52,7 @@ class AutoSuggestRequest
      * @param bool $term_optional
      * @param bool $require_clean_source
      */
-    protected static function ensureGet(bool $term_optional = false, bool $require_clean_source = false): void
+    protected static function ensureGet(bool $term_optional = false, bool $require_clean_source = true): void
     {
         if (isset(static::$get)) {
             return;
@@ -73,13 +73,14 @@ class AutoSuggestRequest
     /**
      * Returns the search term
      *
-     * @param int $max_size
+     * @param bool $require_clean_source
+     * @param int  $max_size
      *
      * @return string
      */
-    public static function getTerm(int $max_size = 255): string
+    public static function getTerm(bool $require_clean_source = true, int $max_size = 255): string
     {
-        static::ensureGet();
+        static::ensureGet($require_clean_source);
 
         if (strlen(static::$get['term']) > $max_size) {
             throw new ValidationFailedException(tr('The field term must have ":count" characters or less', [

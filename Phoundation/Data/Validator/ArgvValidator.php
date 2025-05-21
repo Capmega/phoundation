@@ -22,6 +22,7 @@ use Phoundation\Cli\Exception\CliInvalidArgumentsException;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataStaticArrayBackup;
+use Phoundation\Data\Traits\TraitDataStaticArrayUnclean;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\MissingArgumentValueException;
@@ -37,6 +38,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 {
     use TraitDataStaticArrayBackup;
     use TraitStaticMethodNew;
+    use TraitDataStaticArrayUnclean;
 
 
     /**
@@ -984,6 +986,8 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
             Log::error('WARNING: SKIPPED FIELDS VALIDATION DUE TO "security.validation.enabled" = false CONFIGURATION! SYSTEM DATA MAY BE IN UNKNOWN STATE!');
         }
+
+        static::$has_been_validated = true;
 
         return Arrays::extract($this->source, $this->selected_fields);
     }

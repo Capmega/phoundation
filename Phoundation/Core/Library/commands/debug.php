@@ -17,6 +17,6 @@ declare(strict_types=1);
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Debug\Debug;
 
-if (Debug::isEnabled()) {
-    Log::cli('1');
-}
+
+// Show if debug is enabled or not
+Log::cli(Debug::isEnabled() ? 1 : 0);

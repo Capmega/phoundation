@@ -204,7 +204,7 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
     {
         return Definitions::new()->add(Definition::new('timezones_name')
 // TODO Implement with new GEO library
-->setRender(false)
+                                                 ->setRender(false)
                                                  ->setOptional(true, 'auto')
                                                  ->setSize(6)
                                                  ->setElement(EnumElement::select)
@@ -224,10 +224,10 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->setInputType(EnumInputType::select)
                                                  ->setSize(6)
                                                  ->addProperty('getInteger'                               , 'configuration_method')
-                                                 ->addProperty('web.security.sessions.auto.sign-out.value', 'configuration_path')
+                                                 ->addProperty('security.web.sessions.auto.sign-out.value', 'configuration_path')
                                                  ->setLabel(tr('Automatically sign-out'))
                                                  ->setHelpText(tr('Here you can specify if you wish the system to sign you out automatically after X amount of seconds. Specify 0 to never automatically sign out'))
-                                                 ->setDataSource(Arrays::convertToTimeDifference(config()->getArray('web.security.sessions.auto.sign-out.list', [
+                                                 ->setDataSource(Arrays::convertToTimeDifference(config()->getArray('security.web.sessions.auto.sign-out.list', [
                                                      0, 300, 600, 900, 1800, 3600, 7200, 14400, 28800, 43200, 86400,
                                                  ]), tr('Off'))))
 
