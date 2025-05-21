@@ -1890,35 +1890,6 @@ throw new ObsoleteException();
     /**
      * Validates the datatype for the selected field
      *
-     * This method ensures that the specified array key is negative
-     *
-     * @param bool $allow_zero
-     *
-     * @return static
-     */
-    public function isNegative(bool $allow_zero = false): static
-    {
-        $this->test_count++;
-        $this->content_test_count++;
-
-        return $this->validateValues(function (&$value) use ($allow_zero) {
-            $this->isNumeric();
-
-            if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
-                return;
-            }
-
-            if (($allow_zero and ($value > 0)) or (!$allow_zero and ($value >= 0))) {
-                $this->addSoftFailure(tr('must have a negative value'));
-            }
-        });
-    }
-
-
-    /**
-     * Validates the datatype for the selected field
-     *
      * This method ensures that the specified array key is positive
      *
      * @param bool $allow_zero
