@@ -1526,7 +1526,7 @@ class Log implements LogInterface
         }
 
         if ($echo_header) {
-            static::logDebugHeader('DEBUG', 1, $threshold, echo_screen: $echo_screen);
+            static::logDebugHeader('DEBUG', get_datatype_or_class($messages), 1, $threshold, echo_screen: $echo_screen);
         }
 
         if (empty($messages) and (!is_numeric($messages))) {
@@ -1567,7 +1567,7 @@ class Log implements LogInterface
      *
      * @return bool
      */
-    protected static function logDebugHeader(string $keyword, int $trace = 4, int $threshold = 10, bool $echo_screen = true, string|bool $echo_prefix = true): bool
+    protected static function logDebugHeader(string $keyword, string $datatype, int $trace = 4, int $threshold = 10, bool $echo_screen = true, string|bool $echo_prefix = true): bool
     {
         // Get the class, method, file and line data.
         $class    = Debug::currentClass($trace);
@@ -1580,12 +1580,13 @@ class Log implements LogInterface
             $class .= '::';
         }
 
-        return static::write(tr('Showing debug data with :keyword :class:function() in :file@:line', [
+        return static::write(tr('Showing debug ":datatype" data with ":keyword" ":class:function()" in ":file@:line"', [
             ':keyword'  => $keyword,
             ':class'    => $class,
             ':function' => $function,
             ':file'     => $file,
             ':line'     => $line,
+            ':datatype' => $datatype,
         ]), 'debug', $threshold, echo_prefix: $echo_prefix, echo_screen: $echo_screen);
     }
 
@@ -1600,7 +1601,7 @@ class Log implements LogInterface
      */
     public static function deprecated(int $threshold = 8, bool $echo_screen = true): bool
     {
-        return static::logDebugHeader('DEPRECATED', 1, $threshold, echo_screen: $echo_screen);
+        return static::logDebugHeader('DEPRECATED', 'N/A', 1, $threshold, echo_screen: $echo_screen);
     }
 
 
@@ -1621,7 +1622,7 @@ class Log implements LogInterface
     public static function hex(mixed $messages = null, int $threshold = 10, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true, bool $echo_header = true): bool
     {
         if ($echo_header) {
-            static::logDebugHeader('HEX', 1, $threshold, echo_screen: $echo_screen);
+            static::logDebugHeader('HEX', get_datatype_or_class($messages), 1, $threshold, echo_screen: $echo_screen);
         }
 
         $messages = Strings::force($messages, PHP_EOL);
@@ -1689,7 +1690,7 @@ class Log implements LogInterface
     public static function vardump(mixed $messages = null, int $threshold = 10, bool $echo_screen = true, bool $echo_header = true): bool
     {
         if ($echo_header) {
-            static::logDebugHeader('VARDUMP', 1, $threshold, echo_screen: $echo_screen);
+            static::logDebugHeader('VARDUMP', get_datatype_or_class($messages), 1, $threshold, echo_screen: $echo_screen);
         }
 
         return static::write(Debug::dump($messages, 100), 'debug', $threshold, false, echo_screen: $echo_screen);
@@ -1718,7 +1719,7 @@ class Log implements LogInterface
         }
 
         if ($echo_header) {
-            static::logDebugHeader('BACKTRACE', 1, $threshold, echo_screen: $echo_screen, echo_prefix: $echo_prefix);
+            static::logDebugHeader('BACKTRACE', 'N/A', 1, $threshold, echo_screen: $echo_screen, echo_prefix: $echo_prefix);
         }
 
         static::writeTrace($backtrace, $threshold, $display, echo_screen: $echo_screen, echo_prefix: $echo_prefix);
@@ -1753,7 +1754,7 @@ class Log implements LogInterface
     public static function printr(mixed $messages = null, int $threshold = 10, string|bool $echo_prefix = true, bool $echo_screen = true, bool $echo_header = true): bool
     {
         if ($echo_header) {
-            static::logDebugHeader('PRINTR', 1, $threshold, echo_screen: $echo_screen);
+            static::logDebugHeader('PRINTR', get_datatype_or_class($messages), 1, $threshold, echo_screen: $echo_screen);
         }
 
         if (empty($messages)) {
@@ -1764,7 +1765,7 @@ class Log implements LogInterface
                 if ($messages === null) {
                     $messages = 'NULL';
 
-                } else {
+                } elseif (!is_array($messages)) {
                     $messages = '>>> EMPTY <<<';
                 }
             }
