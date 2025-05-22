@@ -383,6 +383,10 @@ class Script extends Element implements ScriptInterface
                     ':hash' => $this->getHash()
                 ]), 2);
 
+                if (Log::getThreshold() < 2) {
+                    Log::printr($this->content, 1);
+                }
+
                 return false;
             }
         }
