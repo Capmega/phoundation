@@ -235,7 +235,7 @@ class Incident extends DataEntryCore implements IncidentInterface
                      ->setBody($e->getMessage())
                      ->setDetails([
                          'exception' => Poad::generateString(['message'   => $e->getMessage(), 'backtrace' => $e->getTrace()], PhoException::class, EnumPoadTypes::object, null, true),
-                         'details'   => Core::getProcessDetails()
+                         'details'   => Core::getProcessDetails(),
                      ]);
             }
         }
@@ -328,7 +328,7 @@ class Incident extends DataEntryCore implements IncidentInterface
         // Default details added to security incidents medium or higher
         if ($this->severityIsEqualOrHigherThan(EnumSeverity::medium)) {
             $this->addDetails([
-                'process' => Core::getProcessDetails()
+                'process' => Core::getProcessDetails(),
             ]);
         }
 
@@ -510,7 +510,7 @@ class Incident extends DataEntryCore implements IncidentInterface
         }
 
         throw new OutOfBoundsException(tr('Unknown severity ":severity" specified', [
-            ':severity' => $severity
+            ':severity' => $severity,
         ]));
     }
 
@@ -543,11 +543,11 @@ class Incident extends DataEntryCore implements IncidentInterface
             Incident::new()
                     ->setSeverity(EnumSeverity::severe)
                     ->setTitle(tr('Invalid exception class ":class" specified', [
-                        ':class' => $exception
+                        ':class' => $exception,
                     ]))
                     ->setBody(tr('The specified exception class ":class" is not a throwable exception that extends the PHP ":throwable" class', [
                         ':class'     => $exception,
-                        ':throwable' => Throwable::class
+                        ':throwable' => Throwable::class,
                     ]))
                     ->save()
                     ->throw(OutOfBoundsException::class);
@@ -620,6 +620,9 @@ class Incident extends DataEntryCore implements IncidentInterface
                                     ->setSize(12)
                                     ->setRows(15)
                                     ->setMaxlength(16_777_200)
+                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                        $validator->sanitizeEncodeJson();
+                                    })
                                     ->setDisplayCallback(function (mixed $details, array $source) {
                                         // Since the details almost always have an array encoded in JSON, decode it and
                                         // display it using print_r
