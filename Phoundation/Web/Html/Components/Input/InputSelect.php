@@ -618,13 +618,15 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
             return $this;
         }
 
-        throw ValidationFailedException::new(tr('The selected keys(s) ":values" do not exist in the InputSelect source', [
+        throw ValidationFailedException::new(tr('The selected keys(s) ":values" in ":class" object ":name" do not exist in the InputSelect source', [
+            ':class'  => static::class,
+            ':name'   => $this->getName() ?? ('id: ' . $this->getId()),
             ':values' => array_keys($diff),
         ]))->addData([
-                         ':selected' => $this->selected,
-                         ':source'   => $this->source,
-                         ':diff'     => $diff,
-                     ]);
+            ':selected' => $this->selected,
+            ':source'   => $this->source,
+            ':diff'     => $diff,
+        ]);
     }
 
 
