@@ -18,6 +18,7 @@ namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -588,8 +589,42 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
     public function addOptionClass(string $option_class): static
     {
         $this->option_classes[] = $option_class;
-
         return $this;
+    }
+
+
+    /**
+     * Validates that the specified selected entries exist in the source data
+     *
+     * @return static
+     * @throws ValidationFailedException
+     */
+    public function validateSelected(): static
+    {
+        if (empty($this->selected)) {
+            // No validation required, there is nothing selected
+            return $this;
+        }
+
+        if (config()->getBoolean('security.validation.select.disabled', false)) {
+            // Validation of <select> component source is disabled
+            return $this;
+        }
+
+        $results = array_intersect_key($this->selected, $this->source);
+        $diff    = array_diff($this->selected, $results);
+
+        if (empty($diff)) {
+            return $this;
+        }
+
+        throw ValidationFailedException::new(tr('The selected keys(s) ":values" do not exist in the InputSelect source', [
+            ':values' => array_keys($diff),
+        ]))->addData([
+                         ':selected' => $this->selected,
+                         ':source'   => $this->source,
+                         ':diff'     => $diff,
+                     ]);
     }
 
 
@@ -598,6 +633,8 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      */
     public function render(): ?string
     {
+        $this->validateSelected();
+
         if ($this->render_checkboxes) {
             if ($this->getMultiple()) {
                 // Render checkboxes instead of a <select> component
