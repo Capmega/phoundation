@@ -2096,6 +2096,20 @@ function implode_with_quotes(array $source, string $separator = ','): string
 
 
 /**
+ * Returns true if the specified source contains HTML
+ *
+ * @param Stringable|string $source
+ *
+ * @return bool
+ */
+function containsHtml(Stringable|string $source): bool
+{
+    $source = (string) $source;
+    return ($source != strip_tags($source));
+}
+
+
+/**
  * Returns true if the specified datatype is an object or class datatype, false if it is a standard PHP datatype
  *
  * Data type "object" and any datatype that is a class path will always return true
