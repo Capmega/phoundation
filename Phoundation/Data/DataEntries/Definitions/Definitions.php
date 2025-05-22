@@ -118,9 +118,9 @@ class Definitions extends IteratorCore implements DefinitionsInterface
     {
         if (!$value instanceof DefinitionInterface) {
             throw new OutOfBoundsException(tr('Cannot add the specified value ":value" to the Definitions list for DataEntry class ":class", it must be a DefinitionInterface object but is a ":type" instead', [
-                ':class' => get_datatype_or_class($this->o_data_entry),
+                ':class' => get_class_or_datatype($this->o_data_entry),
                 ':value' => $value,
-                ':type'  => get_datatype_or_class($value)
+                ':type'  => get_class_or_datatype($value)
             ]));
         }
 

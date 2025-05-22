@@ -1312,7 +1312,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
         foreach ($values as $value) {
             if (($value !== null) and !($value instanceof DataEntryInterface)) {
                 throw OutOfBoundsException::new(tr('Cannot unshift value ":value" to this iterator, the value must be an DataEntryInterface object', [
-                    ':value' =>  get_datatype_or_class($value)
+                    ':value' =>  get_class_or_datatype($value)
                 ]))->setData([
                     'value' => $value
                 ]);

@@ -938,7 +938,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                     Log::printr($this->selected_value->__toString(), 6, echo_header: false);
 
                 } else {
-                    Log::printr(get_datatype_or_class($this->selected_value), 6, echo_header: false);
+                    Log::printr(get_class_or_datatype($this->selected_value), 6, echo_header: false);
                 }
 
             } else {

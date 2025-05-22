@@ -301,11 +301,13 @@ interface DefinitionInterface extends BeforeAfterContentInterface
 
 
     /**
-     * @param ScriptInterface $script
+     * Adds the specified Script object to this DataEntry Definition
+     *
+     * @param callable|null $script
      *
      * @return static
      */
-    public function addScriptObject(ScriptInterface $script): static;
+    public function addScriptObjectCallback(?callable $script): static;
 
 
     /**

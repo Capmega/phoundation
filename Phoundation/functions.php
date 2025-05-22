@@ -1897,7 +1897,7 @@ function render(RenderInterface|callable|string|float|int|null $content): ?strin
  *
  * @return string
  */
-function  get_datatype_or_class(mixed $value): string
+function  get_class_or_datatype(mixed $value): string
 {
     $type = gettype($value);
 

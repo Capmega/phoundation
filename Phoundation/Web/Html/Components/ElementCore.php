@@ -155,10 +155,13 @@ abstract class ElementCore implements ElementInterface
                                                     }           
                                                 });' . isset_get($auto_suggest_auto_submit) . isset_get($clear_button_auto_submit))->setJavascriptWrapper(EnumJavascriptWrappers::window);
             }
+
             // Add JavaScript code to automatically submit on change
             // NOTE: This method uses the WINDOW JavaScript wrapper because it fires AFTER the event
             // document.addEventListener('DOMContentLoaded') which could cause accidental change events right on load
-            $this->addScriptObject($auto_submit);
+            $this->addScriptObjectCallback(function () use ($auto_submit) {
+                return $auto_submit;
+            });
         }
 
         $this->o_attributes->removeKeys('auto_submit');

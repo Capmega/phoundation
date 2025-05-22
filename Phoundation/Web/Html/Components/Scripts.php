@@ -20,6 +20,7 @@ use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitMethodHasRendered;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Components\Interfaces\ScriptsInterface;
 
@@ -37,7 +38,30 @@ class Scripts extends Iterator implements ScriptsInterface
     public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
     {
         parent::__construct($source);
-        $this->setAcceptedDataTypes(ScriptInterface::class);
+        $this->setAcceptedDataTypes(ScriptInterface::class . '|closure');
+    }
+
+
+    /**
+     * Ensure that returned callbacks are executed first so that they can return the script object inside
+     *
+     * @return mixed
+     */
+    public function current(): mixed
+    {
+        $o_script = parent::current();
+
+        if (is_callable($o_script)) {
+            $o_script = $o_script();
+        }
+
+        if ($o_script instanceof ScriptInterface) {
+            return $o_script;
+        }
+
+        throw new OutOfBoundsException(tr('Script is neither callable or ScriptInterface but ":class"', [
+            ':class' => get_class_or_datatype($o_script)
+        ]));
     }
 
 
