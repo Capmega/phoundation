@@ -548,6 +548,33 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
 
     /**
+     * Checks if the specified field exists in the currently selected array value
+     *
+     * @param string $field
+     *
+     * @return static
+     * @see DataValidator::select()
+     * @see DataValidator::self()
+     */
+    public function hasField(string $field): static
+    {
+        // This very obviously only works on arrays
+        $this->isArray();
+
+        if (!$this->process_value_failed) {
+            // Check if the specified field exists
+            if (!array_key_exists($field, $this->selected_value)) {
+                $this->addFailure(tr('field ":field" is missing', [
+                    ':field' => $field
+                ]));
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
      * This method will allow the currently selected key to pass without performing any validation Tests
      *
      * @return static
@@ -5721,15 +5748,17 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
         $this->test_count++;
 
         return $this->validateValues(function (&$value) use ($array) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
-
-            if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
-                return;
-            }
-
             try {
-                $value = Json::decode($value);
+                if (is_string($value)) {
+                    $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
+
+                    if ($this->process_value_failed or $this->selected_is_default) {
+                        // Validation already failed or defaulted, don't test anything more
+                        return;
+                    }
+
+                    $value = Json::decode($value);
+                }
 
             } catch (JsonException) {
                 $this->addSoftFailure(tr('must contain a valid JSON string'));

@@ -1365,26 +1365,29 @@ class Definition implements DefinitionInterface
     /**
      * Sets the HTML element to be used for this column
      *
-     * @param EnumElement|null $value
+     * @param EnumElement|null $value           The element type for this field
+     * @param bool             $add_validations If true will add basic text validations
      *
      * @return static
      */
-    public function setElement(EnumElement|null $value): static
+    public function setElement(EnumElement|null $value, bool $add_validations = true): static
     {
-        switch ($value) {
-            case EnumElement::textarea:
-                $this->addValidationFunction(function (ValidatorInterface $validator) {
-                    $validator->sanitizeTrim();
-                    // Validate textarea strings
+        if ($add_validations) {
+            switch ($value) {
+                case EnumElement::textarea:
+                    $this->addValidationFunction(function (ValidatorInterface $validator) {
+                        $validator->sanitizeTrim();
+                        // Validate textarea strings
 
-                    if ($this->getMinlength()) {
-                        $validator->hasMinCharacters($this->getMinlength());
-                    }
+                        if ($this->getMinlength()) {
+                            $validator->hasMinCharacters($this->getMinlength());
+                        }
 
-                    if ($this->getMaxlength()) {
-                        $validator->hasMaxCharacters($this->getMaxlength());
-                    }
-                });
+                        if ($this->getMaxlength()) {
+                            $validator->hasMaxCharacters($this->getMaxlength());
+                        }
+                    });
+            }
         }
 
         return $this->setKey($value, 'element');
@@ -1934,7 +1937,7 @@ class Definition implements DefinitionInterface
                 break;
 
             case EnumInputType::array_json:
-                $this->setElement(EnumElement::textarea)
+                $this->setElement(EnumElement::textarea, false)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->sanitizeForceArray(',')
                                    ->sanitizeEncodeJson();

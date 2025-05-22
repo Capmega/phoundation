@@ -1714,7 +1714,7 @@ class DefinitionFactory
     {
         return Definition::new($column)
                          ->setOptional(true)
-                         ->setElement(EnumElement::textarea)
+                         ->setElement(EnumElement::textarea, false)
                          ->setInputType(EnumInputType::array_json)
                          ->setSize(12)
                          ->setRows(5)

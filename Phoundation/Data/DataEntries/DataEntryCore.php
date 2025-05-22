@@ -2004,8 +2004,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             $this->initialize(false);
         }
 
+        // Mark the data in this object as unvalidated because this loading bypassed validation!
         $this->is_initializing_source = true;
         $this->is_loading             = true;
+        $this->is_validated           = false;
         $this->source                 = [];
 
 
