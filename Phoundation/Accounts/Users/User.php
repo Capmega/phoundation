@@ -488,7 +488,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     {
         $hook           = Hook::new('phoundation/accounts/authentication');
         $authentication = Authentication::new()
-                                        ->setAccount(Json::encode($identifier, JSON_OBJECT_AS_ARRAY))
+                                        ->setAccount($identifier)
                                         ->setAction($action);
 
         // Try authentication through hook
@@ -594,7 +594,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     {
         $authentication = Authentication::new()
                                         ->setAction($action)
-                                        ->setAccount(Json::encode($identifier, JSON_OBJECT_AS_ARRAY));
+                                        ->setAccount($identifier);
 
         return static::doAuthenticate($identifier, $password, $authentication, $domain);
     }

@@ -27,7 +27,6 @@ use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryAlreadySavedException;
-use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryCity;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryCountry;
@@ -39,10 +38,13 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryPlatform;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryState;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryTimezone;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUserAgent;
+use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Geo\GeoIp\Exception\GeoIpException;
 use Phoundation\Geo\GeoIp\GeoIp;
+use Phoundation\Utils\Json;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
+
 
 class Authentication extends DataEntry implements AuthenticationInterface
 {
@@ -155,20 +157,24 @@ class Authentication extends DataEntry implements AuthenticationInterface
      */
     public function getAccount(): ?string
     {
-        return $this->getTypesafe('string', 'account');
+        return Json::encode($this->getTypesafe('array', 'account'));
     }
 
 
     /**
      * Sets the account for this authentication
      *
-     * @param string|null $user_agent
+     * @param array|string|null $account
      *
      * @return static
      */
-    public function setAccount(?string $user_agent): static
+    public function setAccount(array|string|null $account): static
     {
-        return $this->set($user_agent, 'account');
+        if (is_string($account)) {
+            $account = Json::decode($account);
+        }
+
+        return $this->set($account, 'account');
     }
 
 
@@ -270,7 +276,7 @@ class Authentication extends DataEntry implements AuthenticationInterface
             return parent::save($force, $skip_validation, $comments);
 
         } catch (CoreReadonlyException) {
-            // Core is readonly we cannot write to the database!
+            // Core is readonly we can't write to the database!
             Log::warning(ts('Cannot save Authentication object for Session ":session" for user ":user" from IP ":ip", core is readonly', [
                 ':session' => Session::getId(),
                 ':user'    => Session::getUserObject()->getLogId(),
@@ -462,102 +468,105 @@ class Authentication extends DataEntry implements AuthenticationInterface
 
                       ->add(DefinitionFactory::newDivider('new-divider'))
 
-                    ->add(DefinitionFactory::newEmail('account')
-                                           ->setLabel(tr('Used user account'))
-                                           ->setOptional(true)
-                                           ->setDisabled(true)
-                                           ->setMaxlength(128)
-                                           ->setSize(3))
+                      ->add(DefinitionFactory::newData('account')
+                                             ->setLabel(tr('Used user account'))
+                                             ->setOptional(true)
+                                             ->setDisabled(true)
+                                             ->setMaxlength(128)
+                                             ->setSize(3)
+                                             ->addValidationFunction(function (ValidatorInterface $validator) {
+                                                 $validator->sanitizeDecodeJson()->hasField('email')->forEachField()->isEmail();
+                                             }))
 
-                    ->add(DefinitionFactory::newNumber('ip_address_binary')
-                                           ->setRender(false))
+                      ->add(DefinitionFactory::newNumber('ip_address_binary')
+                                             ->setRender(false))
 
-                    ->add(DefinitionFactory::newNumber('net_len')
-                                           ->setDefault(0)
-                                           ->setRender(false))
+                      ->add(DefinitionFactory::newNumber('net_len')
+                                             ->setDefault(0)
+                                             ->setRender(false))
 
-                    ->add(DefinitionFactory::newIpAddress('ip_address')
-                                           ->setLabel(tr('IP address'))
-                                           ->setDisabled(true)
-                                           ->setOptional(true)
-                                           ->setSize(3))
+                      ->add(DefinitionFactory::newIpAddress('ip_address')
+                                             ->setLabel(tr('IP address'))
+                                             ->setDisabled(true)
+                                             ->setOptional(true)
+                                             ->setSize(3))
 
-                    ->add(Definition::new('user_agent')
-                                    ->setLabel(tr('User agent'))
-                                    ->setDisabled(true)
-                                    ->setOptional(true)
-                                    ->setMaxlength(2040)
-                                    ->setSize(6))
+                      ->add(Definition::new('user_agent')
+                                      ->setLabel(tr('User agent'))
+                                      ->setDisabled(true)
+                                      ->setOptional(true)
+                                      ->setMaxlength(2040)
+                                      ->setSize(6))
 
-                    ->add(Definition::new('action')
-                                    ->setLabel(tr('Action'))
-                                    ->setDisabled(true)
-                                    ->setOptional(true)
-                                    ->setSize(4)
-                                    ->setDataSource(static::getActions()))
+                      ->add(Definition::new('action')
+                                      ->setLabel(tr('Action'))
+                                      ->setDisabled(true)
+                                      ->setOptional(true)
+                                      ->setSize(4)
+                                      ->setDataSource(static::getActions()))
 
-                    ->add(Definition::new('platform')
-                                    ->setLabel(tr('Platform'))
-                                    ->setDisabled(true)
-                                    ->setOptional(true)
-                                    ->setSize(4)
-                                    ->setDataSource(static::getPlatforms()))
+                      ->add(Definition::new('platform')
+                                      ->setLabel(tr('Platform'))
+                                      ->setDisabled(true)
+                                      ->setOptional(true)
+                                      ->setSize(4)
+                                      ->setDataSource(static::getPlatforms()))
 
-                    ->add(Definition::new('method')
-                                    ->setLabel(tr('Method'))
-                                    ->setDisabled(true)
-                                    ->setOptional(true)
-                                    ->setSize(4)
-                                    ->setDataSource(static::getMethods()))
+                      ->add(Definition::new('method')
+                                      ->setLabel(tr('Method'))
+                                      ->setDisabled(true)
+                                      ->setOptional(true)
+                                      ->setSize(4)
+                                      ->setDataSource(static::getMethods()))
 
-                    ->add(DefinitionFactory::newDatabaseId('timezones_id')
-                                           ->setLabel(tr('Timezone'))
-                                           ->setDisabled(true)
-                                           ->setOptional(true)
-                                           ->setSize(3))
+                      ->add(DefinitionFactory::newDatabaseId('timezones_id')
+                                             ->setLabel(tr('Timezone'))
+                                             ->setDisabled(true)
+                                             ->setOptional(true)
+                                             ->setSize(3))
 
-                    ->add(DefinitionFactory::newDatabaseId('countries_id')
-                                           ->setLabel(tr('Country'))
-                                           ->setDisabled(true)
-                                           ->setOptional(true)
-                                           ->setSize(3))
+                      ->add(DefinitionFactory::newDatabaseId('countries_id')
+                                             ->setLabel(tr('Country'))
+                                             ->setDisabled(true)
+                                             ->setOptional(true)
+                                             ->setSize(3))
 
-                    ->add(DefinitionFactory::newDatabaseId('states_id')
-                                           ->setLabel(tr('State'))
-                                           ->setDisabled(true)
-                                           ->setOptional(true)
-                                           ->setSize(3))
+                      ->add(DefinitionFactory::newDatabaseId('states_id')
+                                             ->setLabel(tr('State'))
+                                             ->setDisabled(true)
+                                             ->setOptional(true)
+                                             ->setSize(3))
 
-                    ->add(DefinitionFactory::newDatabaseId('cities_id')
-                                           ->setLabel(tr('City'))
-                                           ->setDisabled(true)
-                                           ->setOptional(true)
-                                           ->setSize(3))
+                      ->add(DefinitionFactory::newDatabaseId('cities_id')
+                                             ->setLabel(tr('City'))
+                                             ->setDisabled(true)
+                                             ->setOptional(true)
+                                             ->setSize(3))
 
-                    ->add(DefinitionFactory::newNumber('latitude')
-                                           ->setLabel(tr('Latitude'))
-                                           ->setDisabled(true)
-                                           ->setOptional(true)
-                                           ->setSize(3))
+                      ->add(DefinitionFactory::newNumber('latitude')
+                                             ->setLabel(tr('Latitude'))
+                                             ->setDisabled(true)
+                                             ->setOptional(true)
+                                             ->setSize(3))
 
-                    ->add(DefinitionFactory::newNumber('longitude')
-                                           ->setLabel(tr('Longitude'))
-                                           ->setDisabled(true)
-                                           ->setOptional(true)
-                                           ->setSize(3))
+                      ->add(DefinitionFactory::newNumber('longitude')
+                                             ->setLabel(tr('Longitude'))
+                                             ->setDisabled(true)
+                                             ->setOptional(true)
+                                             ->setSize(3))
 
-                    ->add(DefinitionFactory::newBoolean('captcha_required')
-                                           ->setLabel(tr('Required CAPTCHA'))
-                                           ->setDisabled(true)
-                                           ->setOptional(true, false)
-                                           ->setSize(2))
+                      ->add(DefinitionFactory::newBoolean('captcha_required')
+                                             ->setLabel(tr('Required CAPTCHA'))
+                                             ->setDisabled(true)
+                                             ->setOptional(true, false)
+                                             ->setSize(2))
 
-                    ->add(Definition::new('failed_reason')
-                                    ->setLabel(tr('Reason why failed'))
-                                    ->setDisabled(true)
-                                    ->setOptional(true)
-                                    ->setMaxlength(4090)
-                                    ->setSize(4));
+                      ->add(Definition::new('failed_reason')
+                                      ->setLabel(tr('Reason why failed'))
+                                      ->setDisabled(true)
+                                      ->setOptional(true)
+                                      ->setMaxlength(4090)
+                                      ->setSize(4));
         return $this;
     }
 }

@@ -18,11 +18,11 @@ interface AuthenticationInterface extends DataEntryInterface
     /**
      * Sets the account for this authentication
      *
-     * @param string|null $user_agent
+     * @param array|string|null $account
      *
      * @return static
      */
-    public function setAccount(?string $user_agent): static;
+    public function setAccount(array|string|null $account): static;
 
 
     /**
