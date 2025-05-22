@@ -462,12 +462,12 @@ class Authentication extends DataEntry implements AuthenticationInterface
 
                       ->add(DefinitionFactory::newDivider('new-divider'))
 
-                    ->add(Definition::new('account')
-                                    ->setLabel(tr('Used user account'))
-                                    ->setOptional(true)
-                                    ->setDisabled(true)
-                                    ->setMaxlength(128)
-                                    ->setSize(3))
+                    ->add(DefinitionFactory::newEmail('account')
+                                           ->setLabel(tr('Used user account'))
+                                           ->setOptional(true)
+                                           ->setDisabled(true)
+                                           ->setMaxlength(128)
+                                           ->setSize(3))
 
                     ->add(DefinitionFactory::newNumber('ip_address_binary')
                                            ->setRender(false))
