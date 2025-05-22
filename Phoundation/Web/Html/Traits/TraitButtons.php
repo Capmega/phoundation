@@ -19,6 +19,7 @@ namespace Phoundation\Web\Html\Traits;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\DropdownButtonInterface;
 
 
 trait TraitButtons
@@ -98,11 +99,11 @@ trait TraitButtons
     /**
      * Sets the modal buttons
      *
-     * @param ButtonInterface|null $button
+     * @param DropdownButtonInterface|ButtonInterface|null $button
      *
      * @return static
      */
-    public function addButton(?ButtonInterface $button): static
+    public function addButton(DropdownButtonInterface|ButtonInterface|null $button): static
     {
         if ($button) {
             $this->getButtons()->addButton($button);

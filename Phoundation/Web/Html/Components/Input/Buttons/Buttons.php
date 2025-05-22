@@ -22,6 +22,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\DropdownButtonInterface;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumInputType;
@@ -33,7 +34,6 @@ use Stringable;
 class Buttons extends ElementsBlock implements ButtonsInterface
 {
     use TraitButtonProperties;
-
 
 
     /**
@@ -79,15 +79,15 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     /**
      * Adds a single button to button list
      *
-     * @param ButtonInterface|string|null      $button
-     * @param EnumDisplayMode                  $mode
-     * @param EnumButtonType|Stringable|string $type_or_url
-     * @param bool                             $outline
-     * @param bool                             $right
+     * @param ButtonInterface|DropdownButtonInterface|string|null $button
+     * @param EnumDisplayMode                                     $mode
+     * @param EnumButtonType|Stringable|string                    $type_or_url
+     * @param bool                                                $outline
+     * @param bool                                                $right
      *
      * @return static
      */
-    public function addButton(ButtonInterface|string|null $button, EnumDisplayMode $mode = EnumDisplayMode::primary, EnumButtonType|Stringable|string $type_or_url = EnumButtonType::submit, bool $outline = false, bool $right = false): static
+    public function addButton(ButtonInterface|DropdownButtonInterface|string|null $button, EnumDisplayMode $mode = EnumDisplayMode::primary, EnumButtonType|Stringable|string $type_or_url = EnumButtonType::submit, bool $outline = false, bool $right = false): static
     {
         if (!$button) {
             // Don't add anything
