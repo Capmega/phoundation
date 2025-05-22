@@ -60,10 +60,10 @@ class AutoSuggestRequest
 
         // Validate request data
         if ($term_optional) {
-            $validator = GetValidator::new()->select('term')->isOptional('')->sanitizeTrim()->hasMaxCharacters(255)->isPrintable();
+            $validator = GetValidator::new()->select('term')->isOptional('')->sanitizeTrim()->hasMaxCharacters(255)->matchesRegex('/[0-9a-z-, ]+/i');
 
         } else {
-            $validator = GetValidator::new()->select('term')->sanitizeTrim()->hasMaxCharacters(255)->isPrintable();
+            $validator = GetValidator::new()->select('term')->sanitizeTrim()->hasMaxCharacters(255)->matchesRegex('/[0-9a-z-, ]+/i');
         }
 
         static::$get = $validator->validate($require_clean_source);
