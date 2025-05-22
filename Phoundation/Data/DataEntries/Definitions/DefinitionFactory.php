@@ -61,7 +61,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column categories_id
+     * Returns a Definition object for the column "categories_id"
      *
      * @param string|null $column
      * @param array|null  $filters
@@ -70,34 +70,33 @@ class DefinitionFactory
      */
     public static function newCategoriesId(?string $column = 'categories_id', ?array $filters = null): DefinitionInterface
     {
-        return Definition::new($column)
-                         ->setOptional(true)
-                         ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
-                             return Categories::new()
-                                              ->getHtmlSelectOld()
-                                              ->setName($key)
-                                              ->setReadonly($definition->getReadonly())
-                                              ->setDisabled($definition->getDisabled())
-                                              ->setSelected(isset_get($source[$key]));
-                         })
-                         ->setSize(6)
-                         ->setLabel(tr('Category'))
-                         ->addValidationFunction(function (ValidatorInterface $validator) {
-                             // Ensure categories id exists and that it's or category
-                             $validator->orColumn('categories_name')
-                                       ->isDbId()
-                                       ->isQueryResult('SELECT `id` 
-                                                        FROM   `categories` 
-                                                        WHERE  `id` = :id 
-                                                          AND  `status` IS NULL', [
-                                                              ':id' => '$categories_id'
-                                       ]);
-                         });
+        return DefinitionFactory::newDatabaseId($column)
+                                ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
+                                    return Categories::new()
+                                                     ->getHtmlSelectOld()
+                                                     ->setName($key)
+                                                     ->setReadonly($definition->getReadonly())
+                                                     ->setDisabled($definition->getDisabled())
+                                                     ->setSelected(isset_get($source[$key]));
+                                })
+                                ->setSize(6)
+                                ->setLabel(tr('Category'))
+                                ->addValidationFunction(function (ValidatorInterface $validator) {
+                                    // Ensure categories id exists and that it's or category
+                                    $validator->orColumn('categories_name')
+                                              ->isDbId()
+                                              ->isQueryResult('SELECT `id` 
+                                                               FROM   `categories` 
+                                                               WHERE  `id` = :id 
+                                                                 AND  `status` IS NULL', [
+                                                                     ':id' => '$categories_id'
+                                              ]);
+                                });
     }
 
 
     /**
-     * Returns a Definition object for column categories_name
+     * Returns a Definition object for the column "categories_name"
      *
      * @param string|null $column
      *
@@ -134,7 +133,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column servers_id
+     * Returns a Definition object for the column "servers_id"
      *
      * @param string|null $column
      * @param array|null  $filters
@@ -143,34 +142,33 @@ class DefinitionFactory
      */
     public static function newServersId(?string $column = 'servers_id', ?array $filters = null): DefinitionInterface
     {
-        return Definition::new($column)
-                         ->setOptional(true)
-                         ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
-                             return Servers::new()
-                                           ->getHtmlSelectOld()
-                                           ->setName($key)
-                                           ->setReadonly($definition->getReadonly())
-                                           ->setDisabled($definition->getDisabled())
-                                           ->setSelected(isset_get($source[$key]));
-                         })
-                         ->setSize(6)
-                         ->setLabel(tr('Server'))
-                         ->addValidationFunction(function (ValidatorInterface $validator) {
-                             // Ensure servers id exists, either
-                             $validator->orColumn('servers_name')
-                                       ->isDbId()
-                                       ->isQueryResult('SELECT `id` 
-                                                        FROM   `servers` 
-                                                        WHERE  `id` = :id
-                                                          AND  `status` IS NULL', [
-                                                              ':id' => '$servers_id'
-                                       ]);
-                         });
+        return DefinitionFactory::newDatabaseId($column)
+                                ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
+                                    return Servers::new()
+                                                  ->getHtmlSelectOld()
+                                                  ->setName($key)
+                                                  ->setReadonly($definition->getReadonly())
+                                                  ->setDisabled($definition->getDisabled())
+                                                  ->setSelected(isset_get($source[$key]));
+                                })
+                                ->setSize(6)
+                                ->setLabel(tr('Server'))
+                                ->addValidationFunction(function (ValidatorInterface $validator) {
+                                    // Ensure servers id exists, either
+                                    $validator->orColumn('servers_name')
+                                              ->isDbId()
+                                              ->isQueryResult('SELECT `id` 
+                                                               FROM   `servers` 
+                                                               WHERE  `id` = :id
+                                                                 AND  `status` IS NULL', [
+                                                                     ':id' => '$servers_id'
+                                              ]);
+                                });
     }
 
 
     /**
-     * Returns a Definition object for column servers_name
+     * Returns a Definition object for the column "servers_name"
      *
      * @param string|null $column
      *
@@ -207,7 +205,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column parents_id
+     * Returns a Definition object for the column "parents_id"
      *
      * @param string|null $column
      *
@@ -215,15 +213,14 @@ class DefinitionFactory
      */
     public static function newParentsId(?string $column = 'parents_id'): DefinitionInterface
     {
-        return Definition::new($column)
-                         ->setOptional(true)
-                         ->setSize(6)
-                         ->setLabel(tr('Parent'));
+        return DefinitionFactory::newDatabaseId($column)
+                                ->setSize(6)
+                                ->setLabel(tr('Parent'));
     }
 
 
     /**
-     * Returns a Definition object for column parents_name
+     * Returns a Definition object for the column "parents_name"
      *
      * @param string|null $column
      *
@@ -241,7 +238,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column companies_id
+     * Returns a Definition object for the column "companies_id"
      *
      * @param string|null $column
      * @param array|null  $filters
@@ -250,34 +247,34 @@ class DefinitionFactory
      */
     public static function newCompaniesId(?string $column = 'companies_id', ?array $filters = null): DefinitionInterface
     {
-        return Definition::new($column)
-                         ->setOptional(true)
-                         ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
-                             return Companies::new()
-                                             ->getHtmlSelectOld()
-                                             ->setName($key)
-                                             ->setReadonly($definition->getReadonly())
-                                             ->setDisabled($definition->getDisabled())
-                                             ->setSelected(isset_get($source[$key]));
-                         })
-                         ->setSize(6)
-                         ->setLabel(tr('Company'))
-                         ->addValidationFunction(function (ValidatorInterface $validator) {
-                             // Ensure companies id exists and that it's or company
-                             $validator->orColumn('companies_name')
-                                       ->isDbId()
-                                       ->isQueryResult('SELECT `id` 
-                                                        FROM   `business_companies` 
-                                                        WHERE  `id` = :id 
-                                                          AND  `status` IS NULL', [
-                                                              ':id' => '$companies_id'
-                                       ]);
-                         });
+        return DefinitionFactory::newDatabaseId($column)
+                                ->setOptional(true)
+                                ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
+                                    return Companies::new()
+                                                    ->getHtmlSelectOld()
+                                                    ->setName($key)
+                                                    ->setReadonly($definition->getReadonly())
+                                                    ->setDisabled($definition->getDisabled())
+                                                    ->setSelected(isset_get($source[$key]));
+                                })
+                                ->setSize(6)
+                                ->setLabel(tr('Company'))
+                                ->addValidationFunction(function (ValidatorInterface $validator) {
+                                    // Ensure companies id exists and that it's or company
+                                    $validator->orColumn('companies_name')
+                                              ->isDbId()
+                                              ->isQueryResult('SELECT `id` 
+                                                               FROM   `business_companies` 
+                                                               WHERE  `id` = :id 
+                                                                 AND  `status` IS NULL', [
+                                                                     ':id' => '$companies_id'
+                                              ]);
+                                });
     }
 
 
     /**
-     * Returns a Definition object for column company
+     * Returns a Definition object for the column ""company""
      *
      * @param string|null $column
      *
@@ -300,7 +297,7 @@ class DefinitionFactory
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $validator) {
-                             // Ensure company exists and that it's or company
+                             // Ensure the company exists and that it's or company
                              $validator->orColumn('companies_id')
                                        ->isName()
                                        ->setColumnFromQuery('companies_id', 'SELECT `id` 
@@ -314,7 +311,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column languages_id
+     * Returns a Definition object for the column "languages_id"
      *
      * @param string|null $column
      * @param array|null  $filters
@@ -323,33 +320,32 @@ class DefinitionFactory
      */
     public static function newLanguagesId(?string $column = 'languages_id', ?array $filters = null): DefinitionInterface
     {
-        return Definition::new($column)
-                         ->setOptional(true)
-                         ->setInputType(EnumInputType::number)
-                         ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
-                             return Languages::new()
-                                             ->getHtmlSelectOld(key_column: 'id')
-                                             ->setName($key)
-                                             ->setReadonly($definition->getReadonly())
-                                             ->setDisabled($definition->getDisabled())
-                                             ->setSelected(isset_get($source[$key]));
-                         })
-                         ->setSize(3)
-                         ->setCliColumn('--languages-id')
-                         ->setCliAutoComplete(true)
-                         ->setLabel(tr('Language'))
-                         ->setHelpGroup(tr('Location information'))
-                         ->setHelpText(tr('The language in which the site will be displayed to the user'))
-                         ->addValidationFunction(function (ValidatorInterface $validator) {
-                             $validator->orColumn('languages_name')
-                                       ->isDbId()
-                                       ->isQueryResult('SELECT `id` FROM `core_languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id']);
-                         });
+        return DefinitionFactory::newDatabaseId($column)
+                                ->setInputType(EnumInputType::number)
+                                ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
+                                    return Languages::new()
+                                                    ->getHtmlSelectOld(key_column: 'id')
+                                                    ->setName($key)
+                                                    ->setReadonly($definition->getReadonly())
+                                                    ->setDisabled($definition->getDisabled())
+                                                    ->setSelected(isset_get($source[$key]));
+                                })
+                                ->setSize(3)
+                                ->setCliColumn('--languages-id')
+                                ->setCliAutoComplete(true)
+                                ->setLabel(tr('Language'))
+                                ->setHelpGroup(tr('Location information'))
+                                ->setHelpText(tr('The language in which the site will be displayed to the user'))
+                                ->addValidationFunction(function (ValidatorInterface $validator) {
+                                    $validator->orColumn('languages_name')
+                                              ->isDbId()
+                                              ->isQueryResult('SELECT `id` FROM `core_languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id']);
+                                });
     }
 
 
     /**
-     * Returns a Definition object for column language
+     * Returns a Definition object for the column "language"
      *
      * @param string|null $column
      *
@@ -388,7 +384,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column language
+     * Returns a Definition object for the column "language"
      *
      * @param string|null $column
      *
@@ -427,7 +423,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column providers_id
+     * Returns a Definition object for the column "providers_id"
      *
      * @param string|null $column
      * @param array|null  $filters
@@ -436,34 +432,34 @@ class DefinitionFactory
      */
     public static function newProvidersId(?string $column = 'providers_id', ?array $filters = null): DefinitionInterface
     {
-        return Definition::new($column)
-                         ->setOptional(true)
-                         ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
-                             return Providers::new()
-                                             ->getHtmlSelectOld()
-                                             ->setName($key)
-                                             ->setReadonly($definition->getReadonly())
-                                             ->setDisabled($definition->getDisabled())
-                                             ->setSelected(isset_get($source[$key]));
-                         })
-                         ->setSize(6)
-                         ->setLabel(tr('Provider'))
-                         ->addValidationFunction(function (ValidatorInterface $validator) {
-                             // Ensure providers id exists and that it's or provider
-                             $validator->orColumn('providers_name')
-                                       ->isDbId()
-                                       ->isQueryResult('SELECT `id` 
-                                                        FROM   `business_providers` 
-                                                        WHERE  `id` = :id 
-                                                          AND  `status` IS NULL', [
-                                                              ':id' => '$providers_id'
-                                       ]);
-                         });
+        return DefinitionFactory::newDatabaseId($column)
+                                ->setOptional(true)
+                                ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
+                                    return Providers::new()
+                                                    ->getHtmlSelectOld()
+                                                    ->setName($key)
+                                                    ->setReadonly($definition->getReadonly())
+                                                    ->setDisabled($definition->getDisabled())
+                                                    ->setSelected(isset_get($source[$key]));
+                                })
+                                ->setSize(6)
+                                ->setLabel(tr('Provider'))
+                                ->addValidationFunction(function (ValidatorInterface $validator) {
+                                    // Ensure providers id exists and that it's or provider
+                                    $validator->orColumn('providers_name')
+                                              ->isDbId()
+                                              ->isQueryResult('SELECT `id` 
+                                                               FROM   `business_providers` 
+                                                               WHERE  `id` = :id 
+                                                                 AND  `status` IS NULL', [
+                                                                     ':id' => '$providers_id'
+                                              ]);
+                                });
     }
 
 
     /**
-     * Returns a Definition object for column provider
+     * Returns a Definition object for the column "provider"
      *
      * @param string|null $column
      *
@@ -499,7 +495,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column customers_id
+     * Returns a Definition object for the column "customers_id"
      *
      * @param string|null $column
      * @param array|null  $filters
@@ -508,34 +504,34 @@ class DefinitionFactory
      */
     public static function newCustomersId(?string $column = 'customers_id', ?array $filters = null): DefinitionInterface
     {
-        return Definition::new($column)
-                         ->setOptional(true)
-                         ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
-                             return Customers::new()
-                                             ->getHtmlSelectOld()
-                                             ->setName($key)
-                                             ->setReadonly($definition->getReadonly())
-                                             ->setDisabled($definition->getDisabled())
-                                             ->setSelected(isset_get($source[$key]));
-                         })
-                         ->setSize(6)
-                         ->setLabel(tr('Customer'))
-                         ->addValidationFunction(function (ValidatorInterface $validator) {
-                             // Ensure customers id exists and that it's or customer
-                             $validator->orColumn('customers_name')
-                                       ->isDbId()
-                                       ->isQueryResult('SELECT `id` 
-                                                        FROM   `business_customers` 
-                                                        WHERE  `id` = :id 
-                                                          AND  `status` IS NULL', [
-                                                              ':id' => '$customers_id'
-                                       ]);
-                         });
+        return DefinitionFactory::newDatabaseId($column)
+                                ->setOptional(true)
+                                ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
+                                    return Customers::new()
+                                                    ->getHtmlSelectOld()
+                                                    ->setName($key)
+                                                    ->setReadonly($definition->getReadonly())
+                                                    ->setDisabled($definition->getDisabled())
+                                                    ->setSelected(isset_get($source[$key]));
+                                })
+                                ->setSize(6)
+                                ->setLabel(tr('Customer'))
+                                ->addValidationFunction(function (ValidatorInterface $validator) {
+                                    // Ensure customers id exists and that it's or customer
+                                    $validator->orColumn('customers_name')
+                                              ->isDbId()
+                                              ->isQueryResult('SELECT `id` 
+                                                               FROM   `business_customers` 
+                                                               WHERE  `id` = :id 
+                                                                 AND  `status` IS NULL', [
+                                                                     ':id' => '$customers_id'
+                                              ]);
+                                });
     }
 
 
     /**
-     * Returns a Definition object for column customer
+     * Returns a Definition object for the column "customer"
      *
      * @param string|null $column
      *
@@ -571,7 +567,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column timezones_id
+     * Returns a Definition object for the column "timezones_id"
      *
      * @param string|null $column
      * @param array|null  $filters
@@ -580,34 +576,33 @@ class DefinitionFactory
      */
     public static function newTimezonesId(?string $column = 'timezones_id', ?array $filters = null): DefinitionInterface
     {
-        return Definition::new($column)
-                         ->setOptional(true)
-                         ->setInputType(EnumInputType::number)
-                         ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
-                             return Timezones::new()->getHtmlSelectObject()
-                                                    ->setName($key)
-                                                    ->setReadonly($definition->getReadonly())
-                                                    ->setDisabled($definition->getDisabled())
-                                                    ->setSelected(isset_get($source[$key]));
-                         })
-                         ->setCliColumn('--timezones-id TIMEZONE-DATABASE-ID')
-                         ->setCliAutoComplete(true)
-                         ->setSize(3)
-                         ->setLabel(tr('Timezone'))
-                         ->addValidationFunction(function (ValidatorInterface $validator) {
-                             $validator->orColumn('timezones_name')
-                                       ->orColumn('timezones_code')
-                                       ->isDbId()
-                                       ->isTrue(function ($value) {
-                                           // This timezone must exist.
-                                           return Timezone::exists(['name' => $value]);
-                                       }, tr('The specified timezone does not exist'));
-                         });
+        return DefinitionFactory::newDatabaseId($column)
+                                ->setInputType(EnumInputType::number)
+                                ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
+                                    return Timezones::new()->getHtmlSelectObject()
+                                                           ->setName($key)
+                                                           ->setReadonly($definition->getReadonly())
+                                                           ->setDisabled($definition->getDisabled())
+                                                           ->setSelected(isset_get($source[$key]));
+                                })
+                                ->setCliColumn('--timezones-id TIMEZONE-DATABASE-ID')
+                                ->setCliAutoComplete(true)
+                                ->setSize(3)
+                                ->setLabel(tr('Timezone'))
+                                ->addValidationFunction(function (ValidatorInterface $validator) {
+                                    $validator->orColumn('timezones_name')
+                                              ->orColumn('timezones_code')
+                                              ->isDbId()
+                                              ->isTrue(function ($value) {
+                                                  // This timezone must exist.
+                                                  return Timezone::exists(['name' => $value]);
+                                              }, tr('The specified timezone does not exist'));
+                                });
     }
 
 
     /**
-     * Returns a Definition object for column timezones_name
+     * Returns a Definition object for the column "timezones_name"
      *
      * @param string|null $column
      *
@@ -646,7 +641,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column timezones_code
+     * Returns a Definition object for the column "timezones_code"
      *
      * @param string|null $column
      *
@@ -684,7 +679,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column countries_id
+     * Returns a Definition object for the column "countries_id"
      *
      * @param string|null $column
      * @param array|null  $filters
@@ -693,37 +688,37 @@ class DefinitionFactory
      */
     public static function newCountriesId(?string $column = 'countries_id', ?array $filters = null): DefinitionInterface
     {
-        return Definition::new($column)
-                         ->setOptional(true)
-                         ->setElement(EnumElement::select)
-                         ->setInputType(EnumInputType::number)
-                         ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
-                             return Countries::new()->getHtmlSelectObject()
-                                                    ->setName($key)
-                                                    ->setReadonly($definition->getReadonly())
-                                                    ->setDisabled($definition->getDisabled())
-                                                    ->setSelected(isset_get($source[$key]));
-                         })
-                         ->setSize(3)
-                         ->setCliColumn('--countries-id COUNTRY-DATABASE-ID')
-                         ->setCliAutoComplete(true)
-                         ->setLabel(tr('Country'))
-                         ->addValidationFunction(function (ValidatorInterface $validator) {
-                             $validator->orColumn('countries_name')
-                                       ->orColumn('countries_code')
-                                       ->isDbId()
-                                       ->isQueryResult('SELECT `id` 
-                                                        FROM   `geo_countries` 
-                                                        WHERE  `id` = :id 
-                                                          AND  `status` IS NULL', [
-                                                              ':id' => '$countries_id'
-                                       ]);
-                         });
+        return DefinitionFactory::newDatabaseId($column)
+                                ->setOptional(true)
+                                ->setElement(EnumElement::select)
+                                ->setInputType(EnumInputType::number)
+                                ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
+                                    return Countries::new()->getHtmlSelectObject()
+                                                           ->setName($key)
+                                                           ->setReadonly($definition->getReadonly())
+                                                           ->setDisabled($definition->getDisabled())
+                                                           ->setSelected(isset_get($source[$key]));
+                                })
+                                ->setSize(3)
+                                ->setCliColumn('--countries-id COUNTRY-DATABASE-ID')
+                                ->setCliAutoComplete(true)
+                                ->setLabel(tr('Country'))
+                                ->addValidationFunction(function (ValidatorInterface $validator) {
+                                    $validator->orColumn('countries_name')
+                                              ->orColumn('countries_code')
+                                              ->isDbId()
+                                              ->isQueryResult('SELECT `id` 
+                                                               FROM   `geo_countries` 
+                                                               WHERE  `id` = :id 
+                                                                 AND  `status` IS NULL', [
+                                                                     ':id' => '$countries_id'
+                                              ]);
+                                });
     }
 
 
     /**
-     * Returns a Definition object for column countries_name
+     * Returns a Definition object for the column "countries_name"
      *
      * @param string|null $column
      *
@@ -749,6 +744,7 @@ class DefinitionFactory
                              // Ensure country exists and that it's or countries_id
                              $validator->orColumn('countries_id')
                                        ->orColumn('countries_code')
+                                       ->isName()
                                        ->setColumnFromQuery('countries_id', 'SELECT `id` 
                                                                              FROM   `geo_countries` 
                                                                              WHERE  `name` = :name 
@@ -760,7 +756,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column countries_code
+     * Returns a Definition object for the column "countries_code"
      *
      * @param string|null $column
      *
@@ -786,6 +782,7 @@ class DefinitionFactory
                              // Ensure country exists and that it's or countries_id
                              $validator->orColumn('countries_id')
                                        ->orColumn('countries_name')
+                                       ->isCode()
                                        ->setColumnFromQuery('countries_id', 'SELECT `id` 
                                                                              FROM   `geo_countries` 
                                                                              WHERE  `code` = :code 
@@ -797,7 +794,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column states_id
+     * Returns a Definition object for the column "states_id"
      *
      * @param string|null $column
      * @param array|null  $filters
@@ -806,39 +803,38 @@ class DefinitionFactory
      */
     public static function newStatesId(?string $column = 'states_id', ?array $filters = null): DefinitionInterface
     {
-        return Definition::new($column)
-                         ->setOptional(true)
-                         ->setInputType(EnumInputType::number)
-                         ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
-                             return Country::new($source['countries_id'])
-                                           ->getHtmlStatesSelect($key)
-                                           ->setName($key)
-                                           ->setReadonly($definition->getReadonly())
-                                           ->setDisabled($definition->getDisabled())
-                                           ->setSelected(isset_get($source[$key]));
-                         })
-                         ->setSize(3)
-                         ->setCliColumn('--states-id STATE-DATABASE-ID')
-                         ->setCliAutoComplete(true)
-                         ->setLabel(tr('State'))
-                         ->addValidationFunction(function (ValidatorInterface $validator) {
-                             $validator->orColumn('states_name')
-                                       ->orColumn('states_code')
-                                       ->isDbId()
-                                       ->isQueryResult('SELECT `id` 
-                                                        FROM   `geo_states` 
-                                                        WHERE  `id`           = :id 
-                                                          AND  `countries_id` = :countries_id 
-                                                          AND  `status` IS NULL', [
-                                                              ':id'           => '$states_id',
-                                                              ':countries_id' => '$countries_id',
-                                       ]);
-                         });
+        return DefinitionFactory::newDatabaseId($column)
+                                ->setInputType(EnumInputType::number)
+                                ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
+                                    return Country::new($source['countries_id'])
+                                                  ->getHtmlStatesSelect($key)
+                                                  ->setName($key)
+                                                  ->setReadonly($definition->getReadonly())
+                                                  ->setDisabled($definition->getDisabled())
+                                                  ->setSelected(isset_get($source[$key]));
+                                })
+                                ->setSize(3)
+                                ->setCliColumn('--states-id STATE-DATABASE-ID')
+                                ->setCliAutoComplete(true)
+                                ->setLabel(tr('State'))
+                                ->addValidationFunction(function (ValidatorInterface $validator) {
+                                    $validator->orColumn('states_name')
+                                              ->orColumn('states_code')
+                                              ->isDbId()
+                                              ->isQueryResult('SELECT `id` 
+                                                               FROM   `geo_states` 
+                                                               WHERE  `id`           = :id 
+                                                                 AND  `countries_id` = :countries_id 
+                                                                 AND  `status` IS NULL', [
+                                                                     ':id'           => '$states_id',
+                                                                     ':countries_id' => '$countries_id',
+                                              ]);
+                                });
     }
 
 
     /**
-     * Returns a Definition object for column states_name
+     * Returns a Definition object for the column "states_name"
      *
      * @param string|null $column
      *
@@ -878,7 +874,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column states_code
+     * Returns a Definition object for the column "states_code"
      *
      * @param string|null $column
      *
@@ -918,7 +914,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column cities_id
+     * Returns a Definition object for the column "cities_id"
      *
      * @param string|null $column
      * @param array|null  $filters
@@ -927,34 +923,33 @@ class DefinitionFactory
      */
     public static function newCitiesId(?string $column = 'cities_id', ?array $filters = null): DefinitionInterface
     {
-        return Definition::new($column)
-                         ->setOptional(true)
-                         ->setInputType(EnumInputType::number)
-                         ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
-                             return State::new($source['states_id'])
-                                         ->getHtmlCitiesSelect($key)
-                                         ->setName($key)
-                                         ->setReadonly($definition->getReadonly())
-                                         ->setDisabled($definition->getDisabled())
-                                         ->setSelected(isset_get($source[$key]));
-                         })
-                         ->setSize(3)
-                         ->setCliColumn('--cities-id CITY-DATABASE-ID')
-                         ->setCliAutoComplete(true)
-                         ->setLabel(tr('City'))
-                         ->addValidationFunction(function (ValidatorInterface $validator) {
-                             $validator->orColumn('cities_name')
-                                       ->orColumn('cities_code')
-                                       ->isDbId()
-                                       ->isQueryResult('SELECT `id` 
-                                                        FROM   `geo_cities` 
-                                                        WHERE  `id` = :id 
-                                                          AND  `states_id`  = :states_id    
-                                                          AND  `status` IS NULL', [
-                                                              ':id'        => '$cities_id',
-                                                              ':states_id' => '$states_id',
-                                       ]);
-                         });
+        return DefinitionFactory::newDatabaseId($column)
+                                ->setInputType(EnumInputType::number)
+                                ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters) {
+                                    return State::new($source['states_id'])
+                                                ->getHtmlCitiesSelect($key)
+                                                ->setName($key)
+                                                ->setReadonly($definition->getReadonly())
+                                                ->setDisabled($definition->getDisabled())
+                                                ->setSelected(isset_get($source[$key]));
+                                })
+                                ->setSize(3)
+                                ->setCliColumn('--cities-id CITY-DATABASE-ID')
+                                ->setCliAutoComplete(true)
+                                ->setLabel(tr('City'))
+                                ->addValidationFunction(function (ValidatorInterface $validator) {
+                                    $validator->orColumn('cities_name')
+                                              ->orColumn('cities_code')
+                                              ->isDbId()
+                                              ->isQueryResult('SELECT `id` 
+                                                               FROM   `geo_cities` 
+                                                               WHERE  `id` = :id 
+                                                                 AND  `states_id`  = :states_id    
+                                                                 AND  `status` IS NULL', [
+                                                                     ':id'        => '$cities_id',
+                                                                     ':states_id' => '$states_id',
+                                              ]);
+                                });
     }
 
 
@@ -1037,7 +1032,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column users_id
+     * Returns a Definition object for the column "users_id"
      *
      * @param string|null $column
      * @param array|null  $filters
@@ -1046,53 +1041,50 @@ class DefinitionFactory
      */
     public static function newUsersId(?string $column = 'users_id', ?array $filters = null): DefinitionInterface
     {
-        return Definition::new($column)
-                         ->setOptional(true)
-                         ->setRender(false)
-                         ->setInputType(EnumInputType::dbid)
-                         ->setSize(3)
-                         ->setCliAutoComplete(true)
-                         ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters, $column) {
-                             return Users::new()
-                                         ->getHtmlSelectOld()
-                                         ->setId($column)
-                                         ->setName($column)
-                                         ->setReadonly($definition->getReadonly())
-                                         ->setDisabled($definition->getDisabled())
-                                         ->setSelected(isset_get($source[$key]));
-                         })
-                         ->addValidationFunction(function (ValidatorInterface $validator) use ($column) {
-                             $validator->isDbId()
-                                       ->isQueryResult('SELECT `id` 
-                                                        FROM   `accounts_users` 
-                                                        WHERE  `id` = :id 
-                                                          AND  ((`status` IS NULL) or (`status` != "deleted"))', [
-                                                              ':id' => '$' . $column
-                                       ]);
-                         });
+        return DefinitionFactory::newDatabaseId($column)
+                                ->setRender(false)
+                                ->setInputType(EnumInputType::dbid)
+                                ->setSize(3)
+                                ->setCliAutoComplete(true)
+                                ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters, $column) {
+                                    return Users::new()
+                                                ->getHtmlSelectOld()
+                                                ->setId($column)
+                                                ->setName($column)
+                                                ->setReadonly($definition->getReadonly())
+                                                ->setDisabled($definition->getDisabled())
+                                                ->setSelected(isset_get($source[$key]));
+                                })
+                                ->addValidationFunction(function (ValidatorInterface $validator) use ($column) {
+                                    $validator->isDbId()
+                                              ->isQueryResult('SELECT `id` 
+                                                               FROM   `accounts_users` 
+                                                               WHERE  `id` = :id 
+                                                                 AND  ((`status` IS NULL) or (`status` != "deleted"))', [
+                                                                     ':id' => '$' . $column
+                                              ]);
+                                });
     }
 
 
     /**
-     * Returns a Definition object for column id
+     * Returns a Definition object for the column "id"
      *
-     * @param string                  $column
+     * @param string $column
      *
      * @return DefinitionInterface
      */
     public static function newId(string $column): DefinitionInterface
     {
-        return Definition::new($column)
-                         ->setOptional(true)
-                         ->setRender(false)
-                         ->setInputType(EnumInputType::dbid)
-                         ->setSize(3)
-                         ->setCliAutoComplete(true);
+        return DefinitionFactory::newDatabaseId($column)
+                                ->setRender(false)
+                                ->setSize(3)
+                                ->setCliAutoComplete(true);
     }
 
 
     /**
-     * Returns a Definition object for column users_id
+     * Returns a Definition object for the column "users_id"
      *
      * @param string|null $column
      *
@@ -1127,7 +1119,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column users_id
+     * Returns a Definition object for the column "users_id"
      *
      * @param string|null $column
      *
@@ -1146,7 +1138,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column roles_id
+     * Returns a Definition object for the column "roles_id"
      *
      * @param string|null $column
      * @param array|null  $filters
@@ -1155,34 +1147,33 @@ class DefinitionFactory
      */
     public static function newRolesId(?string $column = 'roles_id', ?array $filters = null): DefinitionInterface
     {
-        return Definition::new($column)
-                         ->setOptional(true)
-                         ->setInputType(EnumInputType::dbid)
-                         ->setSize(3)
-                         ->setCliAutoComplete(true)
-                         ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters, $column) {
-                             return Roles::new()
-                                         ->getHtmlSelectOld()
-                                         ->setId($column)
-                                         ->setName($column)
-                                         ->setReadonly($definition->getReadonly())
-                                         ->setDisabled($definition->getDisabled())
-                                         ->setSelected(isset_get($source[$key]));
-                         })
-                         ->addValidationFunction(function (ValidatorInterface $validator) use ($column) {
-                             $validator->isDbId()
-                                       ->isQueryResult('SELECT `id` 
-                                                        FROM   `accounts_roles` 
-                                                        WHERE  `id` = :id 
-                                                          AND `status` IS NULL', [
-                                                              ':id' => '$' . $column
-                                       ]);
-                         });
+        return DefinitionFactory::newDatabaseId($column)
+                                ->setInputType(EnumInputType::dbid)
+                                ->setSize(3)
+                                ->setCliAutoComplete(true)
+                                ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) use ($filters, $column) {
+                                    return Roles::new()
+                                                ->getHtmlSelectOld()
+                                                ->setId($column)
+                                                ->setName($column)
+                                                ->setReadonly($definition->getReadonly())
+                                                ->setDisabled($definition->getDisabled())
+                                                ->setSelected(isset_get($source[$key]));
+                                })
+                                ->addValidationFunction(function (ValidatorInterface $validator) use ($column) {
+                                    $validator->isDbId()
+                                              ->isQueryResult('SELECT `id` 
+                                                               FROM   `accounts_roles` 
+                                                               WHERE  `id` = :id 
+                                                                 AND `status` IS NULL', [
+                                                                     ':id' => '$' . $column
+                                              ]);
+                                });
     }
 
 
     /**
-     * Returns a Definition object for column roles_id
+     * Returns a Definition object for the column "roles_id"
      *
      * @param string|null $column
      *
@@ -1217,7 +1208,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column code
+     * Returns a Definition object for the column "code"
      *
      * @param string|null $column
      *
@@ -1238,7 +1229,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column hash
+     * Returns a Definition object for the column "hash"
      *
      * @param string|null $column
      *
@@ -1259,7 +1250,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column datetime
+     * Returns a Definition object for the column "datetime"
      *
      * @param string|null $column
      *
@@ -1277,7 +1268,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column date
+     * Returns a Definition object for the column "date"
      *
      * @param string|null $column
      *
@@ -1377,7 +1368,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column password
+     * Returns a Definition object for the column "password"
      *
      * @param string|null $column
      *
@@ -1392,13 +1383,13 @@ class DefinitionFactory
                          ->setInputType(EnumInputType::password)
                          ->setCliAutoComplete(true)
                          ->addValidationFunction(function (ValidatorInterface $validator) {
-                             $validator->isVariable();
+                             $validator->isPassword();
                          });
     }
 
 
     /**
-     * Returns a Definition object for column date
+     * Returns a Definition object for the column "date"
      *
      * @param string|null $column
      *
@@ -1416,7 +1407,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column title
+     * Returns a Definition object for the column "title"
      *
      * @param string|null $column
      *
@@ -1427,6 +1418,7 @@ class DefinitionFactory
         return Definition::new($column)
                          ->setOptional(true)
                          ->setMaxLength(24)
+                         ->setInputType(EnumInputType::name)
                          ->setSize(3)
                          ->setCliColumn('-t,--title TITLE')
                          ->setCliAutoComplete(true)
@@ -1438,7 +1430,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column name
+     * Returns a Definition object for the column "name"
      *
      * @param string|null $column
      *
@@ -1453,15 +1445,12 @@ class DefinitionFactory
                          ->setLabel(tr('Name'))
                          ->setCliColumn(tr('[-n,--name NAME]'))
                          ->setInputType(EnumInputType::name)
-                         ->setCliAutoComplete(true)
-                         ->addValidationFunction(function (ValidatorInterface $validator) {
-                             $validator->isName();
-                         });
+                         ->setCliAutoComplete(true);
     }
 
 
     /**
-     * Returns a Definition object for column file
+     * Returns a Definition object for the column "file"
      *
      * @param PhoDirectoryInterface|null $exists_in_directory
      * @param string|null                $column
@@ -1487,7 +1476,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column filename
+     * Returns a Definition object for the column "filename"
      *
      * @param string|null $column
      *
@@ -1510,7 +1499,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column email
+     * Returns a Definition object for the column "email"
      *
      * @param string|null $column
      *
@@ -1521,7 +1510,6 @@ class DefinitionFactory
         return Definition::new($column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::email)
-                         ->setMaxlength(128)
                          ->setCliColumn('-e,--email EMAIL')
                          ->setCliAutoComplete(true)
                          ->setLabel(tr('Email address'));
@@ -1529,7 +1517,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column url
+     * Returns a Definition object for the column "url"
      *
      * @param string|null $column
      *
@@ -1540,7 +1528,6 @@ class DefinitionFactory
         return Definition::new($column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::url)
-                         ->setMaxlength(2048)
                          ->setCliAutoComplete(true)
                          ->setCliColumn('-w,--website WEBSITE-URL')
                          ->setLabel(tr('Website URL'))
@@ -1552,7 +1539,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column ip_address
+     * Returns a Definition object for the column "ip_address"
      *
      * @param string|null $column
      *
@@ -1566,12 +1553,15 @@ class DefinitionFactory
                          ->setSize(6)
                          ->setMaxlength(48)
                          ->setCliAutoComplete(true)
-                         ->setLabel(tr('IP Address'));
+                         ->setLabel(tr('IP Address'))
+                         ->addValidationFunction(function (ValidatorInterface $validator) {
+                             $validator->isIpAddress();
+                         });
     }
 
 
     /**
-     * Returns a Definition object for column domain
+     * Returns a Definition object for the column "domain"
      *
      * @param string|null $column
      *
@@ -1585,12 +1575,15 @@ class DefinitionFactory
                          ->setSize(6)
                          ->setMaxlength(255)
                          ->setCliAutoComplete(true)
-                         ->setLabel(tr('Domain name'));
+                         ->setLabel(tr('Domain name'))
+                         ->addValidationFunction(function (ValidatorInterface $validator) {
+                             $validator->isDomain();
+                         });
     }
 
 
     /**
-     * Returns a Definition object for column phone
+     * Returns a Definition object for the column "phone"
      *
      * @param string|null $column
      *
@@ -1603,7 +1596,9 @@ class DefinitionFactory
                          ->setInputType(EnumInputType::phone)
                          ->setLabel(tr('Phone number'))
                          ->setCliColumn(tr('-p,--phone-number PHONE-NUMBER'))
-                         ->setMaxlength(22)
+                         ->addValidationFunction(function (ValidatorInterface $validator) {
+                             $validator->isPhoneNumber();
+                         })
                          ->setDisplayCallback(function (mixed $value, array $source) {
                              return CoreLocale::formatPhoneNumber($value);
                          });
@@ -1611,7 +1606,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column phones
+     * Returns a Definition object for the column "phones"
      *
      * @param string|null $column
      *
@@ -1637,7 +1632,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column seo_name
+     * Returns a Definition object for the column "seo_name"
      *
      * @param string|null $column
      *
@@ -1645,16 +1640,15 @@ class DefinitionFactory
      */
     public static function newSeoName(?string $column = 'seo_name'): DefinitionInterface
     {
-        return Definition::new($column)
-                         ->setMaxlength(128)
-                         ->setOptional(true)
-                         ->setRender(false)
-                         ->setReadonly(true);
+        return DefinitionFactory::newName($column)
+                                ->setOptional(true)
+                                ->setRender(false)
+                                ->setReadonly(true);
     }
 
 
     /**
-     * Returns a Definition object for column description
+     * Returns a Definition object for the column "description"
      *
      * @param string|null $column
      *
@@ -1685,10 +1679,7 @@ class DefinitionFactory
                          ->setOptional(true)
                          ->setDefault(false)
                          ->setInputType(EnumInputType::checkbox)
-                         ->setSize(2)
-                         ->addValidationFunction(function (ValidatorInterface $validator) {
-                             $validator->isBoolean();
-                         });
+                         ->setSize(2);
     }
 
 
@@ -1734,7 +1725,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column description
+     * Returns a Definition object for the column "description"
      *
      * @param string|null $column
      *
@@ -1755,7 +1746,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column body
+     * Returns a Definition object for the column "body"
      *
      * @param string|null $column
      *
@@ -1776,7 +1767,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column content
+     * Returns a Definition object for the column "content"
      *
      * @param string|null $column
      *
@@ -1796,7 +1787,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for column comments
+     * Returns a Definition object for the column "comments"
      *
      * @param string|null $column
      *
@@ -1868,38 +1859,37 @@ class DefinitionFactory
      */
     public static function newCreatedBy(?string $column = 'created_by'): DefinitionInterface
     {
-        return Definition::new($column)
-                         ->setDisabled(true)
-                         ->setOptional(true)
-                         ->setSize(3)
-                         ->setLabel(tr('Created by'))
-                         ->setTooltip(tr('This column contains the user who created this object. Other users may have made further edits to this object, that information may be found in the object\'s meta data'))
-                         ->setInputType(EnumInputType::dbid)
-                         ->addValidationFunction(function (ValidatorInterface $validator) {
-                             $validator->columnExists(tr('must be an existing user'), table: 'accounts_users');
-                         })
-                         ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) {
-                             if ($definition->getDataEntryObject()->isNew()) {
-                                 // This is a new DataEntry object, so the creator is.. Well, you!
-                                 return InputText::new()
-                                                 ->setDisabled(true)
-                                                 ->addClasses('text-center')
-                                                 ->setValue(Session::getUserObject()->getDisplayName());
-                             } else {
-                                 // This is created by a user or by the system user
-                                 if ($source[$key]) {
-                                     return InputText::new()
-                                                     ->setDisabled(true)
-                                                     ->addClasses('text-center')
-                                                     ->setValue(User::new()->load($source[$key])->getDisplayName());
-                                 } else {
-                                     return InputText::new()
-                                                     ->setDisabled(true)
-                                                     ->addClasses('text-center')
-                                                     ->setContent(tr('System'));
-                                 }
-                             }
-                         });
+        return DefinitionFactory::newDatabaseId($column)
+                                ->setDisabled(true)
+                                ->setSize(3)
+                                ->setLabel(tr('Created by'))
+                                ->setTooltip(tr('This column contains the user who created this object. Other users may have made further edits to this object, that information may be found in the object\'s meta data'))
+                                ->setInputType(EnumInputType::dbid)
+                                ->addValidationFunction(function (ValidatorInterface $validator) {
+                                    $validator->columnExists(tr('must be an existing user'), table: 'accounts_users');
+                                })
+                                ->setContent(function (DefinitionInterface $definition, string $key, string $column_name, array $source) {
+                                    if ($definition->getDataEntryObject()->isNew()) {
+                                        // This is a new DataEntry object, so the creator is.. Well, you!
+                                        return InputText::new()
+                                                        ->setDisabled(true)
+                                                        ->addClasses('text-center')
+                                                        ->setValue(Session::getUserObject()->getDisplayName());
+                                    }
+
+                                    // This is created by a user or by the system user
+                                    if ($source[$key]) {
+                                        return InputText::new()
+                                                        ->setDisabled(true)
+                                                        ->addClasses('text-center')
+                                                        ->setValue(User::new()->load($source[$key])->getDisplayName());
+                                    }
+
+                                    return InputText::new()
+                                                    ->setDisabled(true)
+                                                    ->addClasses('text-center')
+                                                    ->setContent(tr('System'));
+                                });
     }
 
 
@@ -1933,13 +1923,13 @@ class DefinitionFactory
      */
     public static function newMetaId(?string $column = 'meta_id'): DefinitionInterface
     {
-        return Definition::new($column)
-                         ->setDisabled(true)
-                         ->setRender(false)
-                         ->setInputType(EnumInputType::dbid)
-                         ->setDbNullInputType(EnumInputType::text)
-                         ->setTooltip(tr('This column contains the identifier for this object\'s audit history'))
-                         ->setLabel(tr('Meta ID'));
+        return DefinitionFactory::newDatabaseId($column)
+                                ->setDisabled(true)
+                                ->setRender(false)
+                                ->setInputType(EnumInputType::dbid)
+                                ->setDbNullInputType(EnumInputType::text)
+                                ->setTooltip(tr('This column contains the identifier for this object\'s audit history'))
+                                ->setLabel(tr('Meta ID'));
     }
 
 

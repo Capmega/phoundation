@@ -825,7 +825,7 @@ interface ValidatorInterface extends IteratorBaseInterface
      *
      * @return static
      */
-    public function isIp(): static;
+    public function isIpAddress(): static;
 
     /**
      * Validates if the selected field is a valid JSON string

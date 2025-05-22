@@ -1297,24 +1297,26 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     {
         // Check if there is still a field selected that has no test applied.
         // If so, fail, because all fields must be tested
-        if ($this->selected_field and empty($this->test_count)) {
-            if (!config()->getBoolean('security.validation.disabled', false)) {
-                throw new ValidatorException(tr('Cannot validate because the last selected field ":field" has no validations performed yet', [
-                    ':field' => $this->selected_field,
-                ]));
+        if (!$this->process_value_failed and !$this->selected_is_default) {
+            if ($this->selected_field and empty($this->test_count)) {
+                if (!config()->getBoolean('security.validation.disabled', false)) {
+                    throw new ValidatorException(tr('Cannot validate because the last selected field ":field" has no validations performed yet', [
+                        ':field' => $this->selected_field,
+                    ]));
+                }
+
+                Log::error(ts('WARNING: SKIPPED VALIDATION DUE TO security.validation.disabled = false CONFIGURATION! SYSTEM MAY BE IN UNKNOWN STATE!'));
             }
 
-            Log::error(ts('WARNING: SKIPPED VALIDATION DUE TO security.validation.disabled = false CONFIGURATION! SYSTEM MAY BE IN UNKNOWN STATE!'));
-        }
+            if ($this->selected_field and empty($this->content_test_count)) {
+                if (!config()->getBoolean('security.validation.content.disabled', false)) {
+                    throw new ValidatorException(tr('Cannot validate because the last selected field ":field" has no content validations performed yet', [
+                        ':field' => $this->selected_field,
+                    ]));
+                }
 
-        if ($this->selected_field and empty($this->content_test_count)) {
-            if (!config()->getBoolean('security.validation.content.disabled', false)) {
-                throw new ValidatorException(tr('Cannot validate because the last selected field ":field" has no content validations performed yet', [
-                    ':field' => $this->selected_field,
-                ]));
+                Log::error(ts('WARNING: SKIPPED CONTENT VALIDATION DUE TO security.validation.content.disabled = false CONFIGURATION! SYSTEM MAY BE IN UNKNOWN STATE!'));
             }
-
-            Log::error(ts('WARNING: SKIPPED CONTENT VALIDATION DUE TO security.validation.content.disabled = false CONFIGURATION! SYSTEM MAY BE IN UNKNOWN STATE!'));
         }
 
         $unclean = $this->getExtraFields($require_clean_source);
@@ -1899,6 +1901,7 @@ throw new ObsoleteException();
     public function isPositive(bool $allow_zero = true): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($allow_zero) {
             $this->isNumeric();
@@ -2580,6 +2583,76 @@ throw new ObsoleteException();
 
             if (!preg_match('/^[\p{L}\p{N}\p{P}\p{M}\p{S}\p{Z}\t\r\n]+$/u', $value)) {
                 $this->addSoftFailure(tr('must contain only printable characters'));
+            }
+        });
+    }
+
+
+    /**
+     * Strips HTML from the value
+     *
+     * @return static
+     */
+    public function sanitizeStripHtml(): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) {
+            $this->isString()->hasMaxCharacters();
+
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
+            }
+
+            $value = strip_tags($value);
+        });
+    }
+
+
+    /**
+     * Validates that the selected field contains HTML
+     *
+     * @return static
+     */
+    public function containsHtml(): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) {
+            $this->isString()->hasMaxCharacters();
+
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
+            }
+
+            if (!containsHtml($value)) {
+                $this->addSoftFailure(tr('must contain HTML'));
+            }
+        });
+    }
+
+
+    /**
+     * Validates that the selected field contains no HTML
+     *
+     * @return static
+     */
+    public function containsNoHtml(): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) {
+            $this->isString()->hasMaxCharacters();
+
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
+            }
+
+            if (containsHtml($value)) {
+                $this->addSoftFailure(tr('must not contain HTML'));
             }
         });
     }
@@ -4573,7 +4646,7 @@ throw new ObsoleteException();
                 return;
             }
 
-            $this->isPrintable();
+            $this->isPrintable()->containsNoHtml();
         });
     }
 
@@ -4817,7 +4890,7 @@ throw new ObsoleteException();
      *
      * @return static
      */
-    public function isIp(): static
+    public function isIpAddress(): static
     {
         $this->test_count++;
         $this->content_test_count++;
@@ -5683,7 +5756,12 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
             }
 
             try {
-                $value = Json::encode($value);
+                if (is_string($value)) {
+                    $this->isJson();
+
+                } else {
+                    $value = Json::encode($value);
+                }
 
             } catch (JsonException) {
                 $this->addSoftFailure(tr('could not be processed'));
@@ -6218,28 +6296,30 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
             throw new OutOfBoundsException(tr('No field specified'));
         }
 
-        if ($this->selected_field and empty($this->test_count)) {
-            if (!config()->getBoolean('security.validation.content.disabled', false)) {
-                throw new ValidatorException(tr('Cannot select field ":field" for object ":object", the previously selected field ":previous" has no validations performed yet', [
-                    ':object'   => ($this->o_definitions?->getDataEntryObject() ? get_class($this->o_definitions->getDataEntryObject()) : '-'),
-                    ':field'    => $field,
-                    ':previous' => $this->selected_field,
-                ]));
+        if (!$this->selected_field or (!$this->process_value_failed and !$this->selected_is_default)) {
+            if ($this->selected_field and empty($this->test_count)) {
+                if (!config()->getBoolean('security.validation.content.disabled', false)) {
+                    throw new ValidatorException(tr('Cannot select field ":field" for object ":object", the previously selected field ":previous" has no validations performed yet', [
+                        ':object'   => ($this->o_definitions?->getDataEntryObject() ? get_class($this->o_definitions->getDataEntryObject()) : '-'),
+                        ':field'    => $field,
+                        ':previous' => $this->selected_field,
+                    ]));
+                }
+
+                Log::error(ts('WARNING: SKIPPED VALIDATION DUE TO security.validation.disabled = false CONFIGURATION! SYSTEM MAY BE IN UNKNOWN STATE!'));
             }
 
-            Log::error(ts('WARNING: SKIPPED VALIDATION DUE TO security.validation.disabled = false CONFIGURATION! SYSTEM MAY BE IN UNKNOWN STATE!'));
-        }
+            if ($this->selected_field and empty($this->content_test_count)) {
+                if (!config()->getBoolean('security.validation.content.disabled', false)) {
+                    throw new ValidatorException(tr('Cannot select field ":field" for class ":class", the previously selected field ":previous" has no content validations performed yet', [
+                        ':class'    => ($this->o_definitions?->getDataEntryObject() ? get_class($this->o_definitions->getDataEntryObject()) : 'N/A'),
+                        ':field'    => $field,
+                        ':previous' => $this->selected_field,
+                    ]));
+                }
 
-        if ($this->selected_field and empty($this->content_test_count)) {
-            if (!config()->getBoolean('security.validation.content.disabled', false)) {
-                throw new ValidatorException(tr('Cannot select field ":field" for class ":class", the previously selected field ":previous" has no content validations performed yet', [
-                    ':class'    => ($this->o_definitions?->getDataEntryObject() ? get_class($this->o_definitions->getDataEntryObject()) : 'N/A'),
-                    ':field'    => $field,
-                    ':previous' => $this->selected_field,
-                ]));
+                Log::error(ts('WARNING: SKIPPED CONTENT VALIDATION DUE TO security.validation.content.disabled = false CONFIGURATION! SYSTEM MAY BE IN UNKNOWN STATE!'));
             }
-
-            Log::error(ts('WARNING: SKIPPED CONTENT VALIDATION DUE TO security.validation.content.disabled = false CONFIGURATION! SYSTEM MAY BE IN UNKNOWN STATE!'));
         }
 
         // Unset various values first to ensure the byref link is broken
@@ -6257,12 +6337,6 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
         if (in_array($field, $this->selected_fields)) {
             throw new KeyAlreadySelectedException(tr('The specified key ":key" has already been selected before', [
                 ':key' => $field,
-            ]));
-        }
-
-        if ($this->source === null) {
-            throw new OutOfBoundsException(tr('Cannot select field ":field", no source array specified', [
-                ':field' => $field,
             ]));
         }
 

@@ -1822,6 +1822,7 @@ class Definition implements DefinitionInterface
                 $value = EnumInputType::text;
 
                 $this->setElement(EnumElement::input)
+                     ->setMaxlength(2048)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isUrl();
                      });
@@ -1914,6 +1915,8 @@ class Definition implements DefinitionInterface
                         if ($this->getMaxlength()) {
                             $validator->hasMaxCharacters($this->getMaxlength());
                         }
+
+                        $validator->isDescription();
                      });
 
                 // Don't set the value
@@ -1952,7 +1955,7 @@ class Definition implements DefinitionInterface
             case EnumInputType::submit:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
-                         $validator->hasMaxCharacters(255);
+                         $validator->hasMaxCharacters(255)->isVariable();
                      });
                 break;
 
@@ -1996,6 +1999,8 @@ class Definition implements DefinitionInterface
                         if ($this->getMaxlength()) {
                             $validator->hasMaxCharacters($this->getMaxlength());
                         }
+
+                         $validator->isDescription();
                      });
                 break;
 
@@ -3239,6 +3244,12 @@ class Definition implements DefinitionInterface
 
         // Select the column to validate
         $validator->select($column, !$bool);
+
+        if (!$this->getRender()) {
+            // This column renders so we're fine validating it
+            $validator->doNotValidate();
+            return false;
+        }
 
         // Process empty values
         $this->validateProcessEmptyValues($validator, $column);

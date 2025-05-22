@@ -50,7 +50,7 @@ OPTIONAL ARGUMENTS
 $argv = ArgvValidator::new()
                      ->select('-u,--user')->isOptional()->orColumn('users_id,ip')->isEmail()->requiresValueEmpty(ALL, tr('cannot be used in combination with -A,--all'))
                      ->select('-i,--users-id')->isOptional()->orColumn('user,ip')->isDbId()->requiresValueEmpty(ALL, tr('cannot be used in combination with -A,--all'))
-                     ->select('--ip')->isOptional()->orColumn('user,users_id')->isIp()->requiresValueEmpty(ALL, tr('cannot be used in combination with -A,--all'))
+                     ->select('--ip')->isOptional()->orColumn('user,users_id')->isIpAddress()->requiresValueEmpty(ALL, tr('cannot be used in combination with -A,--all'))
                      ->validate();
 
 
