@@ -36,7 +36,7 @@ class Panels extends Iterator implements PanelsInterface
 
         throw OutOfBoundsException::new(tr('Cannot add specified value type ":value" with key ":key", the value must be a PanelInterface type object', [
             ':key'   => $key,
-            ':value' =>  get_datatype_or_class($value),
+            ':value' =>  get_class_or_datatype($value),
         ]))
         ->setData([
             'value' => $value,

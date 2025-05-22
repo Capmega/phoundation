@@ -1050,7 +1050,7 @@ class Definition implements DefinitionInterface
 
         if ($return === null) {
             if ($auto_initialize) {
-                // Initialize the scripts object
+                // Initialize the Scripts object
                 return $this->setScriptsObject(new Scripts())
                             ->getScriptsObject();
             }
@@ -1074,16 +1074,35 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Adds the specified Script object to this DataEntry Definition
+     * Adds the specified Script object callbacks to this DataEntry Definition
      *
-     * @param ScriptInterface|null $script
+     * @param callable|null $script
      *
      * @return static
      */
-    public function addScriptObject(?ScriptInterface $script): static
+    public function addScriptObjectCallback(?callable $script): static
     {
-        if ($script) {
-            $this->getScriptsObject(true)->add($script);
+        $this->getScriptsObject(true)->add($script);
+        return $this;
+    }
+
+
+    /**
+     * Adds the specified script(s) to this class
+     *
+     * @param ScriptInterface|ScriptsInterface $o_scripts
+     *
+     * @return static
+     */
+    public function addScriptObject(ScriptInterface|ScriptsInterface $o_scripts): static
+    {
+        if ($o_scripts instanceof ScriptsInterface) {
+            foreach ($o_scripts as $o_script) {
+                $this->addScriptObject($o_script);
+            }
+
+        } else {
+            $this->getScriptsObject(true)->add($o_scripts);
         }
 
         return $this;

@@ -514,7 +514,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
                 $this->addSelected($selected, $value);
             }
 
-        } else {
+        } elseif ($selected !== null) {
             // Add each selected to the list
             $this->selected[$selected] = $value;
         }

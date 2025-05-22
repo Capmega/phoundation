@@ -295,16 +295,18 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                         ->addProperty('web.pages.default', 'configuration_path')
                                                         ->setLabel(tr('Default page'))
                                                         ->setHelpText(tr('Here you can specify the default page you wish to see when you sign in'))
-                                                        ->addScriptObject(Script::new('$(".trailing.clear").on("click", function (e) {
-                                                                       e.preventDefault();
-                                                                       var $self = $(this);
-                                                                       $.post("' . Url::new('my/profile/default-url/clear.json')->makeAjax() . '")
-                                                                       .done(function (response) {
-                                                                           $self.siblings("input.form-control").val("");
-                                                                           $self.remove();
-                                                                       });                                                                    
-                                                                       return false;
-                                                                    });')));
+                                                        ->addScriptObjectCallback(function () {
+                                                            return Script::new('$(".trailing.clear").on("click", function (e) {
+                                                                                   e.preventDefault();
+                                                                                   var $self = $(this);
+                                                                                   $.post("' . Url::new('my/profile/default-url/clear.json')->makeAjax() . '")
+                                                                                   .done(function (response) {
+                                                                                       $self.siblings("input.form-control").val("");
+                                                                                       $self.remove();
+                                                                                   });                                                                    
+                                                                                   return false;
+                                                                                });');
+                                                        }));
     }
 
 
