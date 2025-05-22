@@ -239,6 +239,7 @@ class Config implements ConfigInterface
                 if (!static::$allow_empty_environment) {
                     throw ConfigException::new('Cannot set empty environment, this is currently not allowed');
                 }
+
                 // Environment was specified as "", use no environment!
                 $this->environment = null;
             }
