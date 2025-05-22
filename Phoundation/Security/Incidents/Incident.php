@@ -60,6 +60,7 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\Routing\Route;
 use Throwable;
 
+
 class Incident extends DataEntryCore implements IncidentInterface
 {
     use TraitDataEntryBody;
@@ -603,14 +604,9 @@ class Incident extends DataEntryCore implements IncidentInterface
                                     ->setMinlength(4)
                                     ->setMaxlength(255))
 
-                    ->add(Definition::new('body')
-                                    ->setElement(EnumElement::textarea)
+                    ->add(DefinitionFactory::newDescription('body')
                                     ->setLabel(tr('Body'))
-                                    ->setReadonly(true)
-                                    ->setOptional(true)
-                                    ->setSize(12)
-                                    ->setRows(10)
-                                    ->setMaxlength(65_535))
+                                    ->setReadonly(true))
 
                     ->add(Definition::new('details')
                                     ->setElement(EnumElement::textarea)
@@ -640,7 +636,7 @@ class Incident extends DataEntryCore implements IncidentInterface
                                             $lines   = [];
                                             $largest = Arrays::getLongestKeyLength($details);
 
-                                            // Reformat the details into a human readable table string
+                                            // Reformat the details into a human-readable table string
                                             foreach ($details as $key => $value) {
                                                 if (!is_data_scalar($value)) {
                                                     $value = Strings::log($value);
@@ -655,7 +651,7 @@ class Incident extends DataEntryCore implements IncidentInterface
                                             // We couldn't decode it! Why? Let's move on, it's not THAT important... yet
                                             Log::warning($e);
 
-                                            return $value;
+                                            return isset_get($value);
                                         }
                                     }))
 
@@ -666,17 +662,11 @@ class Incident extends DataEntryCore implements IncidentInterface
                                     ->setSize(12)
                                     ->setMaxlength(2048))
 
-                    ->add(Definition::new('exception')
-                                    ->setElement(EnumElement::textarea)
-                                    ->setOptional(true)
-                                    ->setReadonly(true)
-                                    ->setLabel('Exception')
-                                    ->setSize(12)
-                                    ->setRows(15)
-                                    ->setMaxlength(16_777_200)
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isPrintable();
-                                    }))
+                    ->add(DefinitionFactory::newData('exception')
+                                           ->setReadonly(true)
+                                           ->setLabel('Exception')
+                                           ->setRows(15)
+                                           ->setNoValidation(true))
 
                     ->add(Definition::new('data')
                                     ->setOptional(true)
