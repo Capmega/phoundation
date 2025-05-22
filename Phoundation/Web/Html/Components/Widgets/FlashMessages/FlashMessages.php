@@ -280,8 +280,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
     public function render(EnumAttachJavascript $attach_javascript = EnumAttachJavascript::footer): ?string
     {
         $return = parent::render();
-//showbacktrace();
-//showdie($return);
+
         // Clear the flash messages object content so that it won't ever render again
         $this->clear();
 
