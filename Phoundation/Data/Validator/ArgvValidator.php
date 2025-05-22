@@ -81,6 +81,8 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      */
     public function __construct()
     {
+        parent::__construct();
+
         // ArgValidator does NOT pass $argv to the parent, the $argv values are manually copied to the object source.
         $this->construct();
     }

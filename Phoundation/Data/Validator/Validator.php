@@ -272,6 +272,20 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     protected bool $debug = false;
 
     /**
+     * Tracks if datatypes should be validated
+     * 
+     * @var bool 
+     */
+    protected bool $datatype_validation_enabled = true;
+
+    /**
+     * Tracks if content should be validated
+     * 
+     * @var bool 
+     */
+    protected bool $content_validation_enabled = true;
+    
+    /**
      * Tracks if the validator has been executed
      *
      * @var bool $has_been_validated
@@ -284,6 +298,18 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      * @var array|null $unclean
      */
     protected static ?array $unclean = null;
+
+
+    /**
+     * Validator constructor
+     */
+    public function __construct() {
+        // Initialize validation configuration
+        if (Core::isReady()) {
+            $this->setDatatypeValidationEnabled(!config()->getBoolean('security.validation.disabled', false))
+                 ->setContentValidationEnabled(!config()->getBoolean('security.validation.content.disabled', false));
+        }
+    }
 
 
     /**
@@ -1326,7 +1352,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         // If so, fail, because all fields must be tested
         if (!$this->process_value_failed and !$this->selected_is_default) {
             if ($this->selected_field and empty($this->test_count)) {
-                if (!config()->getBoolean('security.validation.disabled', false)) {
+                if ($this->getDatatypeValidationEnabled()) {
                     throw new ValidatorException(tr('Cannot validate because the last selected field ":field" has no validations performed yet', [
                         ':field' => $this->selected_field,
                     ]));
@@ -1336,7 +1362,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             }
 
             if ($this->selected_field and empty($this->content_test_count)) {
-                if (!config()->getBoolean('security.validation.content.disabled', false)) {
+                if ($this->getContentValidationEnabled()) {
                     throw new ValidatorException(tr('Cannot validate because the last selected field ":field" has no content validations performed yet', [
                         ':field' => $this->selected_field,
                     ]));
@@ -3021,8 +3047,10 @@ throw new ObsoleteException();
             if ($regex) {
                 try {
                     if ($not xor preg_match($string, (string) $value)) {
-                        $this->addSoftFailure(tr('must match regex ":value"', [':value' => $string]));
+                        return;
                     }
+
+                    $this->addSoftFailure(tr('must match regex ":value"', [':value' => $string]));
 
                 } catch (Throwable $e) {
                     if (str_contains($e->getMessage(), 'preg_match')) {
@@ -5459,9 +5487,11 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
         $this->test_count++;
 
         if (empty($this->content_test_count)) {
-            throw new ValidatorException(tr('Cannot sanitize column ":column" to DataEntry, no content tests have been executed yet', [
-                ':column' => $this->selected_field,
-            ]));
+            if ($this->getContentValidationEnabled()) {
+                throw new ValidatorException(tr('Cannot sanitize column ":column" to DataEntry, no content tests have been executed yet', [
+                    ':column' => $this->selected_field,
+                ]));
+            }
         }
 
         return $this->validateValues(function (&$value) use ($class, $identifier, $method) {
@@ -6239,6 +6269,56 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
 
 
     /**
+     * Returns the field datatype_validation_enabled property value
+     *
+     * @return bool
+     */
+    public function getDatatypeValidationEnabled(): bool
+    {
+        return $this->datatype_validation_enabled;
+    }
+
+
+    /**
+     * Sets the field datatype_validation_enabled property value
+     *
+     * @param bool $value
+     *
+     * @return static
+     */
+    public function setDatatypeValidationEnabled(bool $value): static
+    {
+        $this->datatype_validation_enabled = $value;
+        return $this;
+    }
+
+
+    /**
+     * Returns the field content_validation_enabled property value
+     *
+     * @return bool
+     */
+    public function getContentValidationEnabled(): bool
+    {
+        return $this->content_validation_enabled;
+    }
+
+
+    /**
+     * Sets the field content_validation_enabled property value
+     *
+     * @param bool $value
+     *
+     * @return static
+     */
+    public function setContentValidationEnabled(bool $value): static
+    {
+        $this->content_validation_enabled = $value;
+        return $this;
+    }
+
+
+    /**
      * Returns the table value
      *
      * @return string|null
@@ -6327,7 +6407,7 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
 
         if (!$this->selected_field or (!$this->process_value_failed and !$this->selected_is_default)) {
             if ($this->selected_field and empty($this->test_count)) {
-                if (!config()->getBoolean('security.validation.content.disabled', false)) {
+                if ($this->getDatatypeValidationEnabled()) {
                     throw new ValidatorException(tr('Cannot select field ":field" for object ":object", the previously selected field ":previous" has no validations performed yet', [
                         ':object'   => ($this->o_definitions?->getDataEntryObject() ? get_class($this->o_definitions->getDataEntryObject()) : '-'),
                         ':field'    => $field,
@@ -6339,7 +6419,7 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
             }
 
             if ($this->selected_field and empty($this->content_test_count)) {
-                if (!config()->getBoolean('security.validation.content.disabled', false)) {
+                if ($this->getContentValidationEnabled()) {
                     throw new ValidatorException(tr('Cannot select field ":field" for class ":class", the previously selected field ":previous" has no content validations performed yet', [
                         ':class'    => ($this->o_definitions?->getDataEntryObject() ? get_class($this->o_definitions->getDataEntryObject()) : 'N/A'),
                         ':field'    => $field,

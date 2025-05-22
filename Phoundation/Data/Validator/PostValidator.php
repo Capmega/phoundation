@@ -86,6 +86,7 @@ class PostValidator extends Validator
      */
     public function __construct()
     {
+        parent::__construct();
         $this->construct(null, static::$post);
 
         // If the program accesses the PostValidator object, we can safely assume that post is at least allowed
