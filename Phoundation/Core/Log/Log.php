@@ -1526,7 +1526,7 @@ class Log implements LogInterface
         }
 
         if ($echo_header) {
-            static::logDebugHeader('DEBUG', get_datatype_or_class($messages), 1, $threshold, echo_screen: $echo_screen);
+            static::logDebugHeader('DEBUG', get_class_or_datatype($messages), 1, $threshold, echo_screen: $echo_screen);
         }
 
         if (empty($messages) and (!is_numeric($messages))) {
@@ -1622,7 +1622,7 @@ class Log implements LogInterface
     public static function hex(mixed $messages = null, int $threshold = 10, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true, bool $echo_header = true): bool
     {
         if ($echo_header) {
-            static::logDebugHeader('HEX', get_datatype_or_class($messages), 1, $threshold, echo_screen: $echo_screen);
+            static::logDebugHeader('HEX', get_class_or_datatype($messages), 1, $threshold, echo_screen: $echo_screen);
         }
 
         $messages = Strings::force($messages, PHP_EOL);
@@ -1690,7 +1690,7 @@ class Log implements LogInterface
     public static function vardump(mixed $messages = null, int $threshold = 10, bool $echo_screen = true, bool $echo_header = true): bool
     {
         if ($echo_header) {
-            static::logDebugHeader('VARDUMP', get_datatype_or_class($messages), 1, $threshold, echo_screen: $echo_screen);
+            static::logDebugHeader('VARDUMP', get_class_or_datatype($messages), 1, $threshold, echo_screen: $echo_screen);
         }
 
         return static::write(Debug::dump($messages, 100), 'debug', $threshold, false, echo_screen: $echo_screen);
@@ -1754,7 +1754,7 @@ class Log implements LogInterface
     public static function printr(mixed $messages = null, int $threshold = 10, string|bool $echo_prefix = true, bool $echo_screen = true, bool $echo_header = true): bool
     {
         if ($echo_header) {
-            static::logDebugHeader('PRINTR', get_datatype_or_class($messages), 1, $threshold, echo_screen: $echo_screen);
+            static::logDebugHeader('PRINTR', get_class_or_datatype($messages), 1, $threshold, echo_screen: $echo_screen);
         }
 
         if (empty($messages)) {
