@@ -49,6 +49,7 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Throwable;
 
+
 class Debug
 {
     /**
@@ -231,6 +232,16 @@ class Debug
      */
     #[NoReturn] public static function showDie(mixed $value = null, bool $sort = true, int $trace_offset = 0, bool $quiet = false, bool $var_dump = false): void
     {
+        static $busy = false;
+
+        if ($busy) {
+            // Detected an endless loop in showdie() call. This can happen when showdie() is used inside the Validator
+            // class, for example, and is not directly indicative of a serious problem
+            return;
+        }
+
+        $busy = true;
+
         if (static::isEnabled()) {
             try {
                 static::show($value, $sort, $trace_offset, $quiet, var_dump: $var_dump);
