@@ -161,9 +161,9 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     /**
      * Tracks if DataEntry objects should be created using normal setSource() or setSourceDirectly()
      *
-     * @var bool $ensure_object_direct
+     * @var bool $inject_source_directly
      */
-    protected bool $ensure_object_direct = false;
+    protected bool $inject_source_directly = false;
 
 
     /**
@@ -451,22 +451,22 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      *
      * @return bool
      */
-    public function getEnsureObjectDirect(): bool
+    public function getInjectSourceDirectly(): bool
     {
-        return $this->ensure_object_direct;
+        return $this->inject_source_directly;
     }
 
 
     /**
      * Sets if DataEntry objects should be created using normal setSource() or setSourceDirectly()
      *
-     * @param bool $ensure_object_direct
+     * @param bool $inject_source_directly
      *
      * @return static
      */
-    public function setEnsureObjectDirect(bool $ensure_object_direct): static
+    public function setInjectSourceDirectly(bool $inject_source_directly): static
     {
-        $this->ensure_object_direct = $ensure_object_direct;
+        $this->inject_source_directly = $inject_source_directly;
         return $this;
     }
 
@@ -1232,31 +1232,21 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     {
         // Ensure the source key is of DataEntryInterface
         if (!$this->source[$key] instanceof DataEntryInterface) {
-            // Okay, interesting problem! When we loaded entries through QueryBuilder, we allowed to use whatever hell
-            // columns we wanted with whatever hell datatype. For example, a column that normally would be an integer
-            // now might be a string which will make the DataEntry setValue methods crash. To avoid this, we cannot rely
-            // on the data available in the datalist, we'll have to load the DataEntry manually
-            if (isset($this->query_builder)) {
-                // Load the DataEntry separately from the database (will require an extra query)
-                $entry = $this->loadObject($key);
-
-            } else {
-                if (is_array($this->source[$key])) {
-                    // Source is stored as an array. Create a new DataEntry and copy the source array into the entry
-                    if ($this->ensure_object_direct) {
-                        $entry = $this->getAcceptedDataType()::newFromSourceDirect($this->source[$key]);
-
-                    } else {
-                        $entry = $this->getAcceptedDataType()::newFromSource($this->source[$key]);
-                    }
-
-                } elseif ($this->source[$key] === null) {
-                    return null;
+            if (is_array($this->source[$key])) {
+                // Source is stored as an array. Create a new DataEntry and copy the source array into the entry
+                if ($this->inject_source_directly) {
+                    $entry = $this->getAcceptedDataType()::newFromSourceDirect($this->source[$key]);
 
                 } else {
-                    // Load the entry manually from DB. REQUIRES the DataEntry object to have a unique column specified!
-                    $entry = $this->loadObject($this->source[$key]);
+                    $entry = $this->getAcceptedDataType()::newFromSource($this->source[$key]);
                 }
+
+            } elseif ($this->source[$key] === null) {
+                return null;
+
+            } else {
+                // Load the entry manually from DB. REQUIRES the DataEntry object to have a unique column specified!
+                $entry = $this->loadObject($this->source[$key]);
             }
 
             $this->source[$key] = $entry;
