@@ -41,6 +41,7 @@ class ArrayValidator extends Validator
      */
     public function __construct(array &$source = [], ?ValidatorInterface $parent = null)
     {
+        parent::__construct();
         $this->construct($parent, $source);
     }
 

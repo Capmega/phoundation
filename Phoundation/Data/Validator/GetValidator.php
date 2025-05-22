@@ -51,6 +51,7 @@ class GetValidator extends Validator
      */
     public function __construct()
     {
+        parent::__construct();
         $this->construct(null, static::$get);
     }
 

@@ -49,6 +49,7 @@ class CookieValidator extends Validator
      */
     protected function __construct()
     {
+        parent::__construct();
         $this->construct(null, static::$cookies);
     }
 
