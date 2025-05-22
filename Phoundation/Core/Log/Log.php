@@ -502,6 +502,19 @@ class Log implements LogInterface
 
 
     /**
+     * Returns true if the log threshold is the specified value
+     *
+     * @param int $threshold
+     *
+     * @return bool
+     */
+    public static function hasThreshold(int $threshold): bool
+    {
+        return static::$threshold === $threshold;
+    }
+
+
+    /**
      * Sets the log threshold level to the newly specified level and will return the previous level.
      *
      * @param int $threshold
