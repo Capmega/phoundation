@@ -381,7 +381,7 @@ class Script extends Element implements ScriptInterface
                 // The script in this object has already been loaded, render nothing.
                 Log::warning(tr('Not loading script ":hash" to client because it has already been loaded', [
                     ':hash' => $this->getHash()
-                ]), 3);
+                ]), 2);
 
                 return false;
             }
