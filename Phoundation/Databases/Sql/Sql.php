@@ -5,6 +5,8 @@
  *
  * This class is the main SQL database access class
  *
+ * @note      [E2] PHP ERROR: Packets out of order. Expected 1 received 0. Packet size=145 means ????
+ * @note      [E2] PHP ERROR: Packets out of order. Expected 1 received 0. Packet size=32  means SQL query was too heavy, MySQL rejected it or something
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
