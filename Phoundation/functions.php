@@ -42,6 +42,7 @@ use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeZoneInterface;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Developer\Debug\FunctionCall;
+use Phoundation\Exception\DatatypeNotPermittedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhoException;
 use Phoundation\Exception\PhpException;
@@ -418,6 +419,7 @@ function array_get_safe(?array $source, string|float|int|null $key, mixed $defau
  *                                does not match the specified types
  *
  * @return mixed
+ * @throws DatatypeNotPermittedException
  */
 function isset_get_typed(array|string $types, mixed &$variable, mixed $default = null, bool $exception = true): mixed
 {
@@ -573,7 +575,7 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
 
         if ($exception) {
             if (is_object($variable)) {
-                throw OutOfBoundsException::new(tr('Specified variable value ":variable" is an object of the class ":class" but it should be one of ":types"', [
+                throw DatatypeNotPermittedException::new(tr('Specified variable value ":variable" is an object of the class ":class" but it should be one of ":types"', [
                     ':variable' => $variable,
                     ':class'    => get_class($variable),
                     ':types'    => $types,
@@ -583,7 +585,7 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
                 ]);
             }
 
-            throw OutOfBoundsException::new(tr('Specified variable value ":variable" has datatype ":has" but it should be one of ":types"', [
+            throw DatatypeNotPermittedException::new(tr('Specified variable value ":variable" has datatype ":has" but it should be one of ":types"', [
                 ':variable' => $variable,
                 ':has'      => gettype($variable),
                 ':types'    => $types,
@@ -605,7 +607,7 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
     }
 
     // Return the default variable after validating datatype. This WILL throw an exception, no matter what, if the data
-    // type does not match
+    // type doesn't match
     return isset_get_typed($types, $default);
 }
 
@@ -631,6 +633,7 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
  *                                    value does not match the specified types
  *
  * @return mixed
+ * @throws DatatypeNotPermittedException
  */
 function get_safe_typed(array|string $types, array $source, string|float|int $key, mixed $default = null, bool $exception = true): mixed
 {
@@ -787,19 +790,10 @@ function get_safe_typed(array|string $types, array $source, string|float|int $ke
         }
 
         if ($exception) {
-            if (is_object($variable)) {
-                throw OutOfBoundsException::new(tr('Specified variable ":variable" is an object of the class ":class" but it should be one of ":types"', [
-                    ':variable' => $variable,
-                    ':class'    => get_class($variable),
-                    ':types'    => $types,
-                ]))->addData([
-                    'variable' => $variable
-                ]);
-            }
-
-            throw OutOfBoundsException::new(tr('Specified variable ":variable" has datatype ":has" but it should be one of ":types"', [
+            throw DatatypeNotPermittedException::new(tr('Specified variable ":key" with value ":variable" has datatype ":has" but it should be one of ":types"', [
+                ':key'      => $key,
                 ':variable' => $variable,
-                ':has'      => gettype($variable),
+                ':has'      => get_class_or_datatype($variable),
                 ':types'    => $types,
             ]))->addData([
                 'variable' => $variable
@@ -814,9 +808,21 @@ function get_safe_typed(array|string $types, array $source, string|float|int $ke
         return null;
     }
 
-    // Return the default variable after validating datatype. This WILL throw an exception, no matter what, if the data
-    // type does not match
-    return isset_get_typed($types, $default);
+    try {
+        // Return the default variable after validating datatype. This WILL throw an exception, no matter what, if the data
+        // type doesn't match
+        return isset_get_typed($types, $default);
+
+    } catch (DatatypeNotPermittedException $e) {
+        throw DatatypeNotPermittedException::new(tr('Specified default for variable ":key" with value ":variable" has datatype ":has" but it should be one of ":types"', [
+            ':key'      => $key,
+            ':variable' => $default,
+            ':has'      => get_class_or_datatype($default),
+            ':types'    => $types,
+        ]), $e)->addData([
+            'variable' => $default
+        ]);
+    }
 }
 
 
@@ -833,6 +839,7 @@ function get_safe_typed(array|string $types, array $source, string|float|int $ke
  * @param mixed        $variable  The variable to test
  *
  * @return bool
+ * @throws DatatypeNotPermittedException
  */
 function is_datatype_or_class(array|string $types, mixed &$variable): bool
 {
@@ -1528,7 +1535,7 @@ function quote(string|int $value): string|int
  */
 function ensure_value(string|int $value, array $array, mixed $default): mixed
 {
-    if (in_array($value, $array)) {
+    if (in_array($value, $array, true)) {
         return $value;
     }
 
@@ -1737,7 +1744,7 @@ function has_trait(string $trait, object|string $class): bool
     while ($class) {
         $traits = class_uses($class);
 
-        if (in_array($trait, $traits)) {
+        if (in_array($trait, $traits, true)) {
             return true;
         }
 
