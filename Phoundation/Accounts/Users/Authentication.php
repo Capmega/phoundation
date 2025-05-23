@@ -472,7 +472,7 @@ class Authentication extends DataEntry implements AuthenticationInterface
                                              ->setLabel(tr('Used user account'))
                                              ->setOptional(true)
                                              ->setDisabled(true)
-                                             ->setMaxlength(128)
+                                             ->setMaxLength(128)
                                              ->setSize(3)
                                              ->addValidationFunction(function (ValidatorInterface $validator) {
                                                  $validator->sanitizeDecodeJson()->hasField('email')->forEachField()->isEmail();
@@ -495,7 +495,7 @@ class Authentication extends DataEntry implements AuthenticationInterface
                                       ->setLabel(tr('User agent'))
                                       ->setDisabled(true)
                                       ->setOptional(true)
-                                      ->setMaxlength(2040)
+                                      ->setMaxLength(2040)
                                       ->setSize(6))
 
                       ->add(Definition::new('action')
@@ -565,7 +565,7 @@ class Authentication extends DataEntry implements AuthenticationInterface
                                       ->setLabel(tr('Reason why failed'))
                                       ->setDisabled(true)
                                       ->setOptional(true)
-                                      ->setMaxlength(4090)
+                                      ->setMaxLength(4090)
                                       ->setSize(4));
         return $this;
     }

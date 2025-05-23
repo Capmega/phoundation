@@ -454,7 +454,7 @@ class Password extends DataEntry implements PasswordInterface
                                       ->setRender(true)
                                       ->setVirtual(true)
                                       ->setInputType(EnumInputType::password)
-                                      ->setMaxlength(128)
+                                      ->setMaxLength(128)
                                       ->setLabel(tr('Current password'))
                                       ->setHelpText(tr('Your current password'))
                                       ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -467,7 +467,7 @@ class Password extends DataEntry implements PasswordInterface
                                     ->setRender(true)
                                     ->setVirtual(true)
                                     ->setInputType(EnumInputType::password)
-                                    ->setMaxlength(128)
+                                    ->setMaxLength(128)
                                     ->setLabel(tr('New password'))
                                     ->setHelpText(tr('The new password for this user'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -478,7 +478,7 @@ class Password extends DataEntry implements PasswordInterface
                                     ->setRender(true)
                                     ->setVirtual(true)
                                     ->setInputType(EnumInputType::password)
-                                    ->setMaxlength(128)
+                                    ->setMaxLength(128)
                                     ->setLabel(tr('Validate password'))
                                     ->setHelpText(tr('Validate the new password for this user'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {

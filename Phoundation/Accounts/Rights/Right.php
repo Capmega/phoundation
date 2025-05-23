@@ -207,7 +207,7 @@ class Right extends DataEntry implements RightInterface
         $o_definitions->add(DefinitionFactory::newName()
                                              ->setInputType(EnumInputType::name)
                                              ->setSize(12)
-                                             ->setMaxlength(64)
+                                             ->setMaxLength(64)
                                              ->setHelpText(tr('The name for this right'))
                                              ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isUnique();
