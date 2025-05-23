@@ -1310,7 +1310,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      * @return bool|null
      * @see  Definition::getVirtual()
      */
-    public function getForcedProcessing(): ?bool;
+    public function getForceValidations(): ?bool;
 
     /**
      * Sets if this column is forced processed or not
@@ -1322,7 +1322,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      * @return static
      * @see  Definition::setVirtual()
      */
-    public function setForcedProcessing(?bool $value): static;
+    public function setForceValidations(?bool $value): static;
 
     /**
      * Returns if this definition is for the specified column

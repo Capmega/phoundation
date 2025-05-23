@@ -645,9 +645,9 @@ class Definition implements DefinitionInterface
      *
      * @see    Definition::getVirtual()
      */
-    public function getForcedProcessing(): ?bool
+    public function getForceValidations(): ?bool
     {
-        return get_safe_typed('bool', $this->source, 'forced_processing', false);
+        return get_safe_typed('bool', $this->source, 'force_validations', false);
     }
 
 
@@ -661,14 +661,14 @@ class Definition implements DefinitionInterface
      * @return static
      * @see  Definition::setVirtual()
      */
-    public function setForcedProcessing(?bool $value): static
+    public function setForceValidations(?bool $value): static
     {
         if ($value === null) {
             // Default
             $value = false;
         }
 
-        return $this->setKey($value, 'forced_processing');
+        return $this->setKey($value, 'force_validations');
     }
 
 
@@ -3268,9 +3268,11 @@ class Definition implements DefinitionInterface
         $validator->select($column, !$bool);
 
         if (!$this->getRender()) {
-            // This column renders so we're fine validating it
-            $validator->doNotValidate();
-            return false;
+            if (!$this->getForceValidations()) {
+                // This column renders so we're fine validating it
+                $validator->doNotValidate();
+                return false;
+            }
         }
 
         // Process empty values
@@ -3413,7 +3415,7 @@ class Definition implements DefinitionInterface
         // If the user submitted it, they're messing around, don't allow it!
         if ($validator->get($column, false)) {
             // This column isn't rendered and shouldn't have a value whilst applying unless forced processing.
-            if (!$this->getForcedProcessing()) {
+            if (!$this->getForceValidations()) {
                 // Frack...
                 Incident::new()
                         ->setSeverity(EnumSeverity::high)

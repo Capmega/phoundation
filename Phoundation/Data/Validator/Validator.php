@@ -2883,7 +2883,7 @@ throw new ObsoleteException();
             $this->source[$this->field_prefix . $column] = $result;
 
             // Mark the column entry for forced processing, in case it was marked as not rendering to avoid validation issues
-            $this->o_definitions?->get($column)->setForcedProcessing(true);
+            $this->o_definitions?->get($column)->setForceValidations(true);
         });
     }
 
@@ -2926,7 +2926,7 @@ throw new ObsoleteException();
             $this->source[$this->field_prefix . $column] = $result;
 
             // Mark the column entry for forced processing, in case it was marked as not rendering to avoid validation issues
-            $this->o_definitions?->get($column)->setForcedProcessing(true);
+            $this->o_definitions?->get($column)->setForceValidations(true);
         });
     }
 

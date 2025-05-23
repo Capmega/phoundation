@@ -2352,7 +2352,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
             if ($this->is_applying and !$force) {
                 if ($definition->getReadonly() or $definition->getDisabled() or !$definition->getRender()) {
-                    if (!$definition->getForcedProcessing()) {
+                    if (!$definition->getForceValidations()) {
                         // Apply can't update readonly or disabled columns
                         continue;
                     }
