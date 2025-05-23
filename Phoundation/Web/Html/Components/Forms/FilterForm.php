@@ -160,6 +160,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
                                           ->add(Definition::new('date_range_split')
                                                           ->setRender(false)
+                                                          ->setForceValidations(true)
                                                           ->addValidationFunction(function (ValidatorInterface $validator) {
                                                               $validator->isOptional($this->getDateRangeDefault())->sanitizeForceArray('-')->forEachField()->sanitizeTrim()->isDate();
                                                           }))
