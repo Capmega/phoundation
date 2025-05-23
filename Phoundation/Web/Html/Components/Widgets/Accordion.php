@@ -69,6 +69,13 @@ class Accordion extends Widget implements AccordionInterface
      */
     protected array $header_classes = [];
 
+    /**
+     * Display an entry to indicate there are no results
+     *
+     * @var bool
+     */
+    protected bool $no_results_entry = true;
+
 
     /**
      * Accordion class constructor
@@ -167,6 +174,32 @@ class Accordion extends Widget implements AccordionInterface
     public function setSelectors(bool $selectors): static
     {
         $this->selectors = $selectors;
+        return $this;
+    }
+
+
+
+    /**
+     * Returns if this accordion should display an entry when there are no results or not
+     *
+     * @return bool
+     */
+    public function getNoResultsEntry(): bool
+    {
+        return $this->no_results_entry;
+    }
+
+
+    /**
+     * Sets if this accordion should display an entry when there are no results or not
+     *
+     * @param bool $value
+     *
+     * @return static
+     */
+    public function setNoResultsEntry(bool $value): static
+    {
+        $this->no_results_entry = $value;
         return $this;
     }
 
@@ -350,7 +383,20 @@ class Accordion extends Widget implements AccordionInterface
                                 </div>';
         }
 
-        $this->render .= $return . '  </div>';
+        if ($this->getNoResultsEntry()) {
+            $return .= '        <div class="accordion-item no-results-item d-none-4">
+                                    <h2 class="accordion-header no-results-header" id="accordion-heading-no-results">
+                                        <button data-mdb-collapse-init class="accordion-button no-results" type="button">
+                                            ' . tr('No Results Found') . '
+                                        </button>
+                                    </h2>
+                                   
+                                </div>';
+        }
+
+        $return .= '        </div>';
+
+        $this->render = $return;
 
         if ($this->selectors) {
             $this->render .= Script::new('
