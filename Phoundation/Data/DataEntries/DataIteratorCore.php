@@ -1225,31 +1225,34 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      * Ensure the entry we're going to return is from DataEntryInterface interface
      *
      * @param string|float|int $key
+     * @param bool             $force
      *
      * @return DataEntryInterface|null
      */
-    #[ReturnTypeWillChange] protected function ensureObject(string|float|int $key): ?DataEntryInterface
+    #[ReturnTypeWillChange] protected function ensureObject(string|float|int $key, bool $force = false): mixed
     {
-        // Ensure the source key is of DataEntryInterface
-        if (!$this->source[$key] instanceof DataEntryInterface) {
-            if (is_array($this->source[$key])) {
-                // Source is stored as an array. Create a new DataEntry and copy the source array into the entry
-                if ($this->inject_source_directly) {
-                    $entry = $this->getAcceptedDataType()::newFromSourceDirect($this->source[$key]);
+        if ($this->ensure_objects) {
+            // Ensure the source key is of DataEntryInterface
+            if (!$this->source[$key] instanceof DataEntryInterface) {
+                if (is_array($this->source[$key])) {
+                    // Source is stored as an array. Create a new DataEntry and copy the source array into the entry
+                    if ($this->inject_source_directly) {
+                        $entry = $this->getAcceptedDataType()::newFromSourceDirect($this->source[$key]);
+
+                    } else {
+                        $entry = $this->getAcceptedDataType()::newFromSource($this->source[$key]);
+                    }
+
+                } elseif ($this->source[$key] === null) {
+                    return null;
 
                 } else {
-                    $entry = $this->getAcceptedDataType()::newFromSource($this->source[$key]);
+                    // Load the entry manually from DB. REQUIRES the DataEntry object to have a unique column specified!
+                    $entry = $this->loadObject($this->source[$key]);
                 }
 
-            } elseif ($this->source[$key] === null) {
-                return null;
-
-            } else {
-                // Load the entry manually from DB. REQUIRES the DataEntry object to have a unique column specified!
-                $entry = $this->loadObject($this->source[$key]);
+                $this->source[$key] = $entry;
             }
-
-            $this->source[$key] = $entry;
         }
 
         return $this->source[$key];

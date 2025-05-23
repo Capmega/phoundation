@@ -891,4 +891,20 @@ interface IteratorInterface extends IteratorBaseInterface
      * @return bool
      */
     public function hasKey(Stringable|string|float|int|null $key): bool;
+
+    /**
+     * Returns if values in this Iterator should be automatically converted into objects, or not
+     *
+     * @return bool
+     */
+    public function getEnsureObjects(): bool;
+
+    /**
+     * Sets if values in this Iterator should be automatically converted into objects, or not
+     *
+     * @param bool $ensure_objects
+     *
+     * @return $this
+     */
+    public function setEnsureObjects(bool $ensure_objects): static;
 }

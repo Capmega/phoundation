@@ -120,6 +120,13 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     protected string $input_select_class = InputSelect::class;
 
     /**
+     * Tracks if values in this Iterator should be automatically converted into objects, or not
+     *
+     * @var bool $ensure_objects
+     */
+    protected bool $ensure_objects = true;
+
+    /**
      * Tracks validators that are required to pass to add values to this Iterator
      *
      * @var IteratorInterface $validators
@@ -297,6 +304,31 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         }
 
         return $this->__setDisabled($disabled);
+    }
+
+
+    /**
+     * Returns if values in this Iterator should be automatically converted into objects, or not
+     *
+     * @return bool
+     */
+    public function getEnsureObjects(): bool
+    {
+        return $this->ensure_objects;
+    }
+
+
+    /**
+     * Sets if values in this Iterator should be automatically converted into objects, or not
+     *
+     * @param bool $ensure_objects
+     *
+     * @return $this
+     */
+    public function setEnsureObjects(bool $ensure_objects): static
+    {
+        $this->ensure_objects = $ensure_objects;
+        return $this;
     }
 
 
@@ -2290,22 +2322,6 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
-     * Ensures that all iterator entries are arrays
-     *
-     * @return static
-     */
-    public function ensureObjects(): static
-    {
-        foreach ($this->source as $key => &$value) {
-            $value = $this->ensureObject($key);
-        }
-
-        unset($value);
-        return $this;
-    }
-
-
-    /**
      * Limit the number of source entries to the specified count
      *
      * @param int|bool $count
@@ -2330,30 +2346,49 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
+     * Ensures that all iterator entries are arrays
+     *
+     * @return static
+     */
+    public function ensureObjects(): static
+    {
+        foreach ($this->source as $key => &$value) {
+            $value = $this->ensureObject($key, true);
+        }
+
+        unset($value);
+        return $this;
+    }
+
+
+    /**
      * Ensure the entry we're going to return is from DataEntryInterface interface
      *
      * @param string|float|int $key
+     * @param bool             $force
      *
      * @return mixed
      */
-    #[ReturnTypeWillChange] protected function ensureObject(string|float|int $key): mixed
+    #[ReturnTypeWillChange] protected function ensureObject(string|float|int $key, bool $force = false): mixed
     {
-        if (is_object($this->source[$key])) {
-            // Already object, assume it's the right type
-            return $this->source[$key];
-        }
+        if ($this->ensure_objects or $force) {
+            if (is_object($this->source[$key])) {
+                // Already object, assume it's the right type
+                return $this->source[$key];
+            }
 
-        if (!is_a($this->getAcceptedDataType(), ArraySourceInterface::class, true)) {
-            // Can only do this for objects that have ArraySourceInterface so that we can dump array sources in them.
-            return $this->source[$key];
-        }
+            if (!is_a($this->getAcceptedDataType(), ArraySourceInterface::class, true)) {
+                // Can only do this for objects that have ArraySourceInterface so that we can dump array sources in them.
+                return $this->source[$key];
+            }
 
-        if (!is_array($this->source[$key])) {
-            // Can only do this with arrays!
-            return $this->source[$key];
-        }
+            if (!is_array($this->source[$key])) {
+                // Can only do this with arrays!
+                return $this->source[$key];
+            }
 
-        $this->source[$key] = $this->getAcceptedDataType()::new()->setSource($this->source[$key]);
+            $this->source[$key] = $this->getAcceptedDataType()::new()->setSource($this->source[$key]);
+        }
 
         return $this->source[$key];
     }
