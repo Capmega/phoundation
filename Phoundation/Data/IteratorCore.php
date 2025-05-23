@@ -190,7 +190,6 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
     {
         $this->source = Arrays::extractSourceArray($source, $execute);
-
         return $this;
     }
 

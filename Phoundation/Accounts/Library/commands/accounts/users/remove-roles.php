@@ -54,7 +54,7 @@ try {
         unset($role);
     }
 
-    // Get role and remove rights
+    // Get the role and remove rights
     $user  = User::new()->load($argv['user']);
     $roles = $user->getRolesObject();
 

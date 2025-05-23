@@ -1671,29 +1671,29 @@ class Sql implements SqlInterface
      *
      * @param string|PDOStatement $query
      * @param array|null          $execute
-     * @param string|null         $column
+     * @param string|null         $id_column
      *
      * @return array
      */
-    public function listKeyValues(string|PDOStatement $query, ?array $execute = null, ?string $column = null): array
+    public function listKeyValues(string|PDOStatement $query, ?array $execute = null, ?string $id_column = null): array
     {
         $return    = [];
         $statement = $this->getPdoStatement($query, $execute);
 
         while ($row = $this->fetch($statement)) {
             try {
-                if (!$column) {
+                if (!$id_column) {
                     $key = $row[array_key_first($row)];
 
                 } else {
-                    $key = $row[$column];
+                    $key = $row[$id_column];
                 }
 
             } catch (Throwable $e) {
                 throw OutOfBoundsException::new(tr('Specified column ":column" does not exist in result row', [
-                    ':column' => $column,
+                    ':column' => $id_column,
                 ]), $e)->addData([
-                    'column' => $column,
+                    'column' => $id_column,
                     'row'    => $row,
                 ]);
             }

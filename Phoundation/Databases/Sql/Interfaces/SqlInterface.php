@@ -346,7 +346,7 @@ interface SqlInterface extends DatabaseInterface
      *
      * @return array
      */
-    public function listKeyValues(string|PDOStatement $query, ?array $execute = null, ?string $column = null): array;
+    public function listKeyValues(string|PDOStatement $query, ?array $execute = null, ?string $id_column = null): array;
 
 
     /**

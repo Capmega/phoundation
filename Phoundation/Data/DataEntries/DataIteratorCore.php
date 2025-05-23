@@ -1352,7 +1352,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
         cache('dataentries')->get($this->getCacheKey(), function ()  use ($identifiers, $only_if_empty) {
             if (empty($this->source)) {
                 $this->source = sql($this->getConnectorObject())->setDebug($this->debug)
-                                                                ->listKeyValues($this->query, $this->execute);
+                                                                ->listKeyValues($this->query, $this->execute, $this->keys_are_unique_column ? $this->getUniqueColumn() : $this->getIdColumn());
 
                 if (static::getConfigurationPath()) {
                     $this->source = array_merge($this->source, $this->loadFromConfiguration());

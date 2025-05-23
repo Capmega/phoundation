@@ -149,7 +149,7 @@ class Role extends DataEntry implements RoleInterface
             ]));
         }
 
-        if (!$this->list) {
+        if (empty($this->list)) {
             $this->list = RightsBySeoName::new()
                                          ->setParentObject($this)
                                          ->load();

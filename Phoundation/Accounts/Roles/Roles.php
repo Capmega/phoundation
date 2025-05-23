@@ -39,7 +39,8 @@ class Roles extends DataIterator implements RolesInterface
      */
     public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
     {
-        $this->getQueryBuilder()->addSelect('`accounts_roles`.`' . ($this->keys_are_unique_column ? 'seo_name' : 'id') . '` AS `id`, 
+        $this->getQueryBuilder()->addSelect('`accounts_roles`.`id`, 
+                                             `accounts_roles`.`seo_name`, 
                                              `accounts_roles`.`description`,
                                              CONCAT(
                                                 UPPER(LEFT(`accounts_roles`.`name`, 1)), 
@@ -264,6 +265,7 @@ class Roles extends DataIterator implements RolesInterface
      * Remove the specified role from the roles list
      *
      * @param Stringable|array|string|int $keys
+     * @param bool                        $strict
      *
      * @return static
      * @todo Move saving part to ->save(). ->removeKeys() should NOT immediately save to database!

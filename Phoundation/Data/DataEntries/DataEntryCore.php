@@ -58,6 +58,7 @@ use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotSavedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntries\Exception\DataEntryStateMismatchException;
+use Phoundation\Data\DataEntries\Exception\DataEntryTypeException;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
@@ -1135,10 +1136,20 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         if (is_array($identifier)) {
             // Initialize all columns that are NOT the ID column for this DataEntry object
-            foreach($identifier as $column => $value) {
-                if ($column !== static::getIdColumn()) {
-                    $this->setColumnValueWithObjectSetter($column, $value, false, $this->getDefinitionsObject()->get($column));
+            try {
+                foreach($identifier as $column => $value) {
+                    if ($column !== static::getIdColumn()) {
+                        $this->setColumnValueWithObjectSetter($column, $value, false, $this->getDefinitionsObject()->get($column));
+                    }
                 }
+
+            } catch (TypeError | DataEntryException | DataEntryTypeException $e) {
+                throw DataEntryTypeException::new(tr('Failed to load data from identifier for class ":class"', [
+                    ':class'  => static::class,
+                ]), $e)
+                ->setData([
+                    'source' => $identifier
+                ]);
             }
 
         } elseif ($identifier instanceof DataIteratorInterface) {
@@ -2407,19 +2418,19 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             try {
                 $this->setColumnValueWithObjectSetter($key, $value, $directly, $definition);
 
-            } catch (TypeError | DataEntryException $e) {
+            } catch (TypeError | DataEntryException | DataEntryTypeException $e) {
                 if (!is_string($key)) {
                     throw DataEntryColumnDefinitionInvalidException::new(tr('Detected invalid column definition while copying new source data, Definition column name ":column" of ":class" DataEntry class is invalid, it should be a string', [
                         ':class'  => $this::class,
                         ':column' => $key,
                     ]), $e)->setData([
-                                         'class'        => $this::class,
-                                         'failed_key'   => $key,
-                                         'failed_value' => $value,
-                                         'new_source'   => $source,
-                                         'definitions'  => $this->getDefinitionsObject()
-                                                                ->getSourceKeys()
-                                     ]);
+                        'class'        => $this::class,
+                        'failed_key'   => $key,
+                        'failed_value' => $value,
+                        'new_source'   => $source,
+                        'definitions'  => $this->getDefinitionsObject()
+                                               ->getSourceKeys()
+                    ]);
                 }
 
                 throw DataEntryException::new(tr('Failed to copy new source into internal source for ":class" class', [
@@ -2497,7 +2508,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                     if (str_contains($e->getMessage(), 'must be of type')) {
                         // There is no method accepting this data. This might be because it is a virtual column that gets
                         // resolved at validation time. Check this with the "definitions" object
-                        throw DataEntryException::new(tr('Failed to set DataEntry class ":class" source key ":key" with method ":short:::method()" because of a datatype mismatch. Check the column definition and validation rules.', [
+                        throw DataEntryTypeException::new(tr('Failed to set DataEntry class ":class" source key ":key" with method ":short:::method()" because of a datatype mismatch. Check the column definition and validation rules.', [
                             ':key'    => $column,
                             ':method' => $method,
                             ':class'  => get_class($this),
@@ -2572,9 +2583,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * Sets all meta-data for this data entry at once with an array of information
      *
      * @param ?array $data
+     * @param bool   $directly
      *
      * @return static
-     * @throws OutOfBoundsException
      */
     protected function setMetaData(?array $data = null, bool $directly = false): static
     {
@@ -2586,8 +2597,18 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         } else {
             // Reset meta columns
-            foreach ($this->meta_columns as $column) {
-                $this->setColumnValueWithObjectSetter($column, array_get_safe($data, $column), $directly, $this->getDefinitionsObject()->get($column));
+            try {
+                foreach ($this->meta_columns as $column) {
+                    $this->setColumnValueWithObjectSetter($column, array_get_safe($data, $column), $directly, $this->getDefinitionsObject()->get($column));
+                }
+
+            } catch (TypeError | DataEntryException | DataEntryTypeException $e) {
+                throw DataEntryTypeException::new(tr('Failed to load meta data for class ":class"', [
+                    ':class'  => static::class,
+                ]), $e)
+                ->setData([
+                    'source' => $data
+                ]);
             }
         }
 
