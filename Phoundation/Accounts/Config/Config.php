@@ -923,20 +923,22 @@ class Config implements ConfigInterface
      *
      * @note Will throw an exception if a non-string non-array value is returned!
      *
-     * @param string|array $path                     The configuration path for which the value should be returned
-     * @param string|null  $default                  The default value to return if the configuration path doesn't
-     *                                               exist. If not specified, or NULL, an exception will be thrown when
-     *                                               the path doesn't exist
-     * @param bool         $allow_user_configuration If true will allow user configuration to override system
-     *                                               configuration
-     * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
-     *                                               cache
+     * @param string|array      $path                     The configuration path for which the value should be returned
+     * @param array|string|null $default                  The default value to return if the configuration path doesn't
+     *                                                    exist. If not specified, or NULL, an exception will be thrown
+     *                                                    when the path doesn't exist
+     * @param bool              $allow_user_configuration If true will allow user configuration to override system
+     *                                                    configuration
+     * @param bool              $use_cache                If true will attempt to use cached configuration paths
      *
-     * @return array|string                          The value for the requested path
+     * @return array|string                               The value for the requested path
      *
-     * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
+     * @throws ConfigFailedException
+     * @throws ConfigPathDoesNotExistsException
+     * @throws ConfigException
+     * @throws ConfigDataTypeException
      */
-    public function getArrayString(string|array $path, string|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): array|string
+    public function getArrayString(string|array $path, array|string|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): array|string
     {
         $return = $this->get($path, $default, $allow_user_configuration, $use_cache);
 
@@ -949,6 +951,46 @@ class Config implements ConfigInterface
         }
 
         throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold an array or a string but has value ":value"', [
+            ':path'  => $path,
+            ':value' => $return,
+        ]))->addData([
+            'value'      => $return,
+            'value_type' => gettype($return)
+        ]);
+    }
+
+
+    /**
+     * Return configuration ARRAY or BOOLEAN for the specified key path
+     *
+     * @note Will throw an exception if a non-string non-array value is returned!
+     *
+     * @param string|array    $path                     The configuration path for which the value should be returned
+     * @param array|bool|null $default                  The default value to return if the configuration path doesn't
+     *                                                  exist. If not specified, or NULL, an exception will be thrown
+     *                                                  when the path doesn't exist
+     * @param bool            $allow_user_configuration If true will allow user configuration to override system
+     *                                                  configuration
+     * @param bool            $use_cache                If true will allow user configuration to be stored in and read
+     *                                                  from cache
+     *
+     * @return array|bool                               The value for the requested path
+     *
+     * @throws ConfigFailedException | ConfigPathDoesNotExistsException | ConfigException | ConfigDataTypeException
+     */
+    public function getArrayBoolean(string|array $path, array|bool|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): array|bool
+    {
+        $return = $this->get($path, $default, $allow_user_configuration, $use_cache);
+
+        if (is_bool($return)) {
+            return $return;
+        }
+
+        if (is_array($return)) {
+            return $return;
+        }
+
+        throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold an array or a boolean but has value ":value"', [
             ':path'  => $path,
             ':value' => $return,
         ]))->addData([
