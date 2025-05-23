@@ -113,7 +113,6 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
-use Plugins\Medinet\Encounters\EncounterRole;
 use Stringable;
 use Throwable;
 use TypeError;

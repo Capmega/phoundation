@@ -852,7 +852,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return int|null
      */
-    public function getMinlength(): ?int;
+    public function getMinLength(): ?int;
 
 
     /**
@@ -862,7 +862,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return static
      */
-    public function setMinlength(?int $value): static;
+    public function setMinLength(?int $value): static;
 
 
     /**
@@ -870,7 +870,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return int|null
      */
-    public function getMaxlength(): ?int;
+    public function getMaxLength(): ?int;
 
 
     /**
@@ -880,7 +880,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return static
      */
-    public function setMaxlength(?int $value): static;
+    public function setMaxLength(?int $value): static;
 
 
     /**
@@ -931,10 +931,11 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      * Set the minimum value for number input elements
      *
      * @param float|int|null $value
+     * @param bool           $equal
      *
      * @return static
      */
-    public function setMin(float|int|null $value): static;
+    public function setMin(float|int|null $value, bool $equal = false): static;
 
 
     /**
@@ -949,10 +950,11 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      * Set the maximum value for number input elements
      *
      * @param float|int|null $value
+     * @param bool           $equal
      *
      * @return static
      */
-    public function setMax(float|int|null $value): static;
+    public function setMax(float|int|null $value, bool $equal = false): static;
 
 
     /**

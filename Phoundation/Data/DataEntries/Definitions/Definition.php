@@ -27,8 +27,10 @@ use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ArgvValidatorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
+use Phoundation\Exception\DatatypeNotPermittedException;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -197,6 +199,7 @@ class Definition implements DefinitionInterface
      *
      * @param PhoDirectoryInterface|array|null $in_directories
      *
+     * @todo Add validations!
      * @return static
      */
     public function setInDirectories(PhoDirectoryInterface|array|null $in_directories): static
@@ -433,24 +436,41 @@ class Definition implements DefinitionInterface
     /**
      * Returns if this column should have unique entries or not
      *
-     * @return bool
+     * @return string|null
      */
-    public function getUnique(): bool
+    public function getUnique(): ?string
     {
-        return get_safe_typed('bool', $this->source, 'unique', false);
+        return get_safe_typed('string', $this->source, 'unique');
+    }
+
+
+    /**
+     * Returns the connector used to check for unique columns
+     *
+     * @return ConnectorInterface|null
+     */
+    public function getUniqueConnector(): ?ConnectorInterface
+    {
+        return get_safe_typed(ConnectorInterface::class, $this->source, 'unique_connector');
     }
 
 
     /**
      * Sets if this column should have unique entries or not
      *
-     * @param bool $prefix
+     * @param string|null             $failure
+     * @param ConnectorInterface|null $o_connector
      *
      * @return static
      */
-    public function setUnique(bool $prefix): static
+    public function setUnique(?string $failure = null, ?ConnectorInterface $o_connector = null): static
     {
-        return $this->setKey($prefix, 'unique');
+        $this->addValidationFunction(function (ValidatorInterface $validator) use ($failure, $o_connector) {
+            $validator->isUnique($failure, $o_connector);
+        });
+
+        return $this->setKey($failure    , 'unique');
+        return $this->setKey($o_connector, 'unique_connector');
     }
 
 
@@ -474,7 +494,15 @@ class Definition implements DefinitionInterface
      */
     public function setNoValidation(int|bool $no_validation): static
     {
-        return $this->setKey((bool) $no_validation, 'no_validation');
+        $no_validation = (bool) $no_validation;
+
+        if ($no_validation) {
+            $this->addValidationFunction(function (ValidatorInterface $validator) {
+                $validator->doNotValidate();
+            });
+        }
+
+        return $this->setKey($no_validation, 'no_validation');
     }
 
 
@@ -1027,11 +1055,15 @@ class Definition implements DefinitionInterface
      *
      * @return static
      */
-    public function setData(IteratorInterface|array $value): static
+    public function setData(IteratorInterface|array $value, bool $strict = true): static
     {
         if ($value instanceof IteratorInterface) {
             $value = $value->getSource();
         }
+
+        $this->addValidationFunction(function (ValidatorInterface $validator) use ($value, $strict) {
+            $validator->isInArray($value, $strict);
+        });
 
         return $this->setKey($value, 'data');
     }
@@ -1398,12 +1430,12 @@ class Definition implements DefinitionInterface
                         $validator->sanitizeTrim();
                         // Validate textarea strings
 
-                        if ($this->getMinlength()) {
-                            $validator->hasMinCharacters($this->getMinlength());
+                        if ($this->getMinLength()) {
+                            $validator->hasMinCharacters($this->getMinLength());
                         }
 
-                        if ($this->getMaxlength()) {
-                            $validator->hasMaxCharacters($this->getMaxlength());
+                        if ($this->getMaxLength()) {
+                            $validator->hasMaxCharacters($this->getMaxLength());
                         }
                     });
             }
@@ -1668,7 +1700,7 @@ class Definition implements DefinitionInterface
         switch ($value) {
             case EnumInputType::number:
                 // Numbers should never be longer than 24 digits
-                $this->setMaxlength(24)
+                $this->setMaxLength(24)
                      ->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                         if ($this->getMin()) {
@@ -1827,7 +1859,7 @@ class Definition implements DefinitionInterface
 
             case EnumInputType::email:
                 $this->setElement(EnumElement::input)
-                     ->setMaxlength(128)
+                     ->setMaxLength(128)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isEmail();
                      });
@@ -1844,7 +1876,7 @@ class Definition implements DefinitionInterface
                 $value = EnumInputType::text;
 
                 $this->setElement(EnumElement::input)
-                     ->setMaxlength(2048)
+                     ->setMaxLength(2048)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
                          $validator->isUrl();
                      });
@@ -1930,12 +1962,12 @@ class Definition implements DefinitionInterface
                         $validator->sanitizeTrim();
                         // Validate textarea strings
 
-                        if ($this->getMinlength()) {
-                            $validator->hasMinCharacters($this->getMinlength());
+                        if ($this->getMinLength()) {
+                            $validator->hasMinCharacters($this->getMinLength());
                         }
 
-                        if ($this->getMaxlength()) {
-                            $validator->hasMaxCharacters($this->getMaxlength());
+                        if ($this->getMaxLength()) {
+                            $validator->hasMaxCharacters($this->getMaxLength());
                         }
 
                         $validator->isDescription();
@@ -1987,12 +2019,12 @@ class Definition implements DefinitionInterface
                         // Validate input text strings
                         $validator->sanitizeTrim();
 
-                        if ($this->getMinlength() ?? 4) {
-                            $validator->hasMinCharacters($this->getMinlength() ?? 4);
+                        if ($this->getMinLength() ?? 4) {
+                            $validator->hasMinCharacters($this->getMinLength() ?? 4);
                         }
 
-                        if ($this->getMaxlength() ?? 8192) {
-                            $validator->hasMaxCharacters($this->getMaxlength() ?? 8192);
+                        if ($this->getMaxLength() ?? 8192) {
+                            $validator->hasMaxCharacters($this->getMaxLength() ?? 8192);
                         }
                      });
                 break;
@@ -2014,12 +2046,12 @@ class Definition implements DefinitionInterface
                         // Validate input text strings
                         $validator->sanitizeTrim();
 
-                        if ($this->getMinlength()) {
-                            $validator->hasMinCharacters($this->getMinlength());
+                        if ($this->getMinLength()) {
+                            $validator->hasMinCharacters($this->getMinLength());
                         }
 
-                        if ($this->getMaxlength()) {
-                            $validator->hasMaxCharacters($this->getMaxlength());
+                        if ($this->getMaxLength()) {
+                            $validator->hasMaxCharacters($this->getMaxLength());
                         }
 
                          $validator->isDescription();
@@ -2089,20 +2121,6 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Sets the maxlength for this textarea or text input column
-     *
-     * @param int|null $value
-     *
-     * @return static
-     */
-    public function setMaxlength(?int $value): static
-    {
-        $this->ensureInputType(EnumInputType::text);
-        return $this->setKey($value, 'maxlength');
-    }
-
-
-    /**
      * Returns the minimum value for number input elements
      *
      * @return float|int|null
@@ -2110,6 +2128,27 @@ class Definition implements DefinitionInterface
     public function getMin(): float|int|null
     {
         return get_safe_typed('float|int', $this->source, 'min');
+    }
+
+
+    /**
+     * Set the minimum value for number input elements
+     *
+     * @param float|int|null $value
+     * @param bool           $equal
+     *
+     * @return static
+     */
+    public function setMin(float|int|null $value, bool $equal = false): static
+    {
+        $this->ensureInputType(EnumInputType::number);
+        $this->validateNumberTypeInput('min', $value);
+
+        $this->addValidationFunction(function (ValidatorInterface $validator) use ($value, $equal) {
+            $validator->isMoreThan($value, $equal);
+        });
+
+        return $this->setKey($value, 'min');
     }
 
 
@@ -2126,18 +2165,23 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Set the minimum value for number input elements
+     * Set the maximum value for number input elements
      *
      * @param float|int|null $value
+     * @param bool           $equal
      *
      * @return static
      */
-    public function setMin(float|int|null $value): static
+    public function setMax(float|int|null $value, bool $equal = false): static
     {
         $this->ensureInputType(EnumInputType::number);
-        $this->validateNumberTypeInput('min', $value);
+        $this->validateNumberTypeInput('max', $value);
 
-        return $this->setKey($value, 'min');
+        $this->addValidationFunction(function (ValidatorInterface $validator) use ($value, $equal) {
+            $validator->isLessThan($value, $equal);
+        });
+
+        return $this->setKey($value, 'max');
     }
 
 
@@ -2200,9 +2244,28 @@ class Definition implements DefinitionInterface
      *
      * @return int|null
      */
-    public function getMinlength(): ?int
+    public function getMinLength(): ?int
     {
         return get_safe_typed('int', $this->source, 'minlength');
+    }
+
+
+    /**
+     * Sets the minlength for this textarea or text input column
+     *
+     * @param int|null $value
+     *
+     * @return static
+     */
+    public function setMinLength(?int $value): static
+    {
+        $this->ensureInputType(EnumInputType::text)
+             ->validateTextTypeElement('minlength', $value)
+             ->addValidationFunction(function (ValidatorInterface $validator) use ($value) {
+                 $validator->hasMinCharacters($value);
+             });
+
+        return $this->setKey($value, 'minlength');
     }
 
 
@@ -2211,9 +2274,27 @@ class Definition implements DefinitionInterface
      *
      * @return int|null
      */
-    public function getMaxlength(): ?int
+    public function getMaxLength(): ?int
     {
         return get_safe_typed('int', $this->source, 'maxlength');
+    }
+
+
+    /**
+     * Sets the maxlength for this textarea or text input column
+     *
+     * @param int|null $value
+     *
+     * @return static
+     */
+    public function setMaxLength(?int $value): static
+    {
+        $this->ensureInputType(EnumInputType::text)
+             ->addValidationFunction(function (ValidatorInterface $validator) use ($value) {
+                 $validator->hasMaxCharacters($value);
+             });
+
+        return $this->setKey($value, 'maxlength');
     }
 
 
@@ -2742,13 +2823,13 @@ class Definition implements DefinitionInterface
      * @param string                $key
      * @param string|float|int|null $value
      *
-     * @return void
+     * @return static
      */
-    protected function validateTextTypeElement(string $key, string|float|int|null $value): void
+    protected function validateTextTypeElement(string $key, string|float|int|null $value): static
     {
         if (is_callable(isset_get($this->source['element']))) {
             // We can't validate data types for this since it's a callback function
-            return;
+            return $this;
         }
 
         switch (isset_get($this->source['element'])) {
@@ -2790,6 +2871,8 @@ class Definition implements DefinitionInterface
                     ':value'     => $value,
                 ]));
         }
+
+        return $this;
     }
 
 
@@ -2814,22 +2897,6 @@ class Definition implements DefinitionInterface
     public function setDisplayCallback(?callable $value): static
     {
         return $this->setKey($value, 'display_callback');
-    }
-
-
-    /**
-     * Sets the minlength for this textarea or text input column
-     *
-     * @param int|null $value
-     *
-     * @return static
-     */
-    public function setMinlength(?int $value): static
-    {
-        $this->ensureInputType(EnumInputType::text);
-        $this->validateTextTypeElement('minlength', $value);
-
-        return $this->setKey($value, 'minlength');
     }
 
 
@@ -2867,22 +2934,6 @@ class Definition implements DefinitionInterface
     public function getTooltip(): ?string
     {
         return get_safe_typed('string', $this->source, 'tooltip');
-    }
-
-
-    /**
-     * Set the maximum value for number input elements
-     *
-     * @param float|int|null $value
-     *
-     * @return static
-     */
-    public function setMax(float|int|null $value): static
-    {
-        $this->ensureInputType(EnumInputType::number);
-        $this->validateNumberTypeInput('max', $value);
-
-        return $this->setKey($value, 'max');
     }
 
 
@@ -3252,7 +3303,7 @@ class Definition implements DefinitionInterface
     public function validate(ValidatorInterface $validator): bool
     {
         if ($this->isMeta()) {
-            // This column is metadata and should not be modified or validated, plain ignore it.
+            // This column is metadata and shouldn't be modified or validated, plain ignore it.
             return false;
         }
 

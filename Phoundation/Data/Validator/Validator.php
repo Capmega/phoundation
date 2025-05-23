@@ -273,18 +273,18 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
     /**
      * Tracks if datatypes should be validated
-     * 
-     * @var bool 
+     *
+     * @var bool
      */
     protected bool $datatype_validation_enabled = true;
 
     /**
      * Tracks if content should be validated
-     * 
-     * @var bool 
+     *
+     * @var bool
      */
     protected bool $content_validation_enabled = true;
-    
+
     /**
      * Tracks if the validator has been executed
      *
@@ -1043,7 +1043,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
         if ($this->getDefinitionsObject()) {
             $failure['datatype']  = $this->getDefinitionsObject()->get($field)->getDatatype();
-            $failure['maxlength'] = $this->getDefinitionsObject()->get($field)->getMaxlength();
+            $failure['maxlength'] = $this->getDefinitionsObject()->get($field)->getMaxLength();
 
         }
 
@@ -3180,12 +3180,12 @@ throw new ObsoleteException();
      *
      * @return static
      */
-    public function isInArray(IteratorInterface|array $array): static
+    public function isInArray(IteratorInterface|array $array, bool $strict = true): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($array) {
+        return $this->validateValues(function (&$value) use ($array, $strict) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
 
@@ -3206,7 +3206,7 @@ throw new ObsoleteException();
                 return;
             }
 
-            $failed = !in_array($value, $array);
+            $failed = !in_array($value, $array, $strict);
 
             if ($failed) {
                 $this->addSoftFailure(tr('must be one of ":list"', [':list' => $array]));

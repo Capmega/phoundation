@@ -880,7 +880,7 @@ FILES variables:
                                     ->setOptional(true, EnumDisplayMode::notice->value)
                                     ->addClasses('text-center')
                                     ->setSize(3)
-                                    ->setMaxlength(16)
+                                    ->setMaxLength(16)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isDisplayMode();
                                     }))
@@ -896,7 +896,7 @@ FILES variables:
                                     ->setLabel(tr('Priority'))
                                     ->setDefault(5)
                                     ->addClasses('text-center')
-                                    ->setMin(1)
+                                    ->setMin(1, true)
                                     ->setMax(9)
                                     ->setSize(3))
 
@@ -906,7 +906,7 @@ FILES variables:
                                     ->setMaxlength(255)
                                     ->setSize(12)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isPrintable();
+                                        $validator->isDescription();
                                     }))
 
                     ->add(Definition::new('message')
@@ -916,7 +916,7 @@ FILES variables:
                                     ->setMaxlength(16_777_215)
                                     ->setSize(12)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isPrintable();
+                                        $validator->isDescription();
                                     }))
 
                     ->add(Definition::new('url')

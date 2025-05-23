@@ -472,11 +472,11 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
     protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
         $o_definitions->add(DefinitionFactory::newCode('global_id')
-                                             ->setMaxlength(32)
+                                             ->setMaxLength(32)
                                              ->setLabel('Global request identifier'))
 
                       ->add(DefinitionFactory::newCode('hash')
-                                           ->setMaxlength(64)
+                                           ->setMaxLength(64)
                                            ->setLabel('Message digest'))
 
                       ->add(DefinitionFactory::newData()

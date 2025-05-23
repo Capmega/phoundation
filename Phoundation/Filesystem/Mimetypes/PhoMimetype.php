@@ -353,7 +353,7 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
                                              ->setOptional(false)
                                              ->setInputType(EnumInputType::name)
                                              ->setSize(6)
-                                             ->setMaxlength(128)
+                                             ->setMaxLength(128)
                                              ->setHelpText(tr('The name for this mimetype')))
 
                       ->add(DefinitionFactory::newSeoName())
@@ -362,7 +362,7 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
                                            ->setOptional(false)
                                            ->setInputType(EnumInputType::code)
                                            ->setSize(2)
-                                           ->setMaxlength(16)
+                                           ->setMaxLength(16)
                                            ->setLabel('Extension')
                                            ->setHelpText(tr('The extension for this mimetype')))
 
@@ -371,20 +371,20 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
                                            ->setDisabled(true)
                                            ->setOptional(true)
                                            ->setLabel('Primary part')
-                                           ->setMaxlength(32))
+                                           ->setMaxLength(32))
 
                     ->add(DefinitionFactory::newCode('secondary_part')
                                            ->setRender(false)
                                            ->setDisabled(true)
                                            ->setOptional(true)
                                            ->setLabel('Secondary part')
-                                           ->setMaxlength(96))
+                                           ->setMaxLength(96))
 
                     ->add(DefinitionFactory::newCode('mimetype')
                                            ->setOptional(false)
                                            ->setInputType(EnumInputType::code)
                                            ->setSize(4)
-                                           ->setMaxlength(128)
+                                           ->setMaxLength(128)
                                            ->setLabel('Mimetype')
                                            ->setHelpText(tr('The mimetype for this extension'))
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -396,7 +396,7 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
                                            ->setSize(2)
                                            ->setMin(0)
                                            ->setMax(9)
-                                           ->setMaxlength(1)
+                                           ->setMaxLength(1)
                                            ->setLabel('Priority')
                                            ->setHelpText(tr('The priority for this mimetype / extension')))
 

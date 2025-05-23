@@ -1282,7 +1282,7 @@ class Core implements CoreInterface
                 $url      = Strings::ensureStartsNotWith($url, '/');
                 $language = Strings::until($url, '/');
 
-                if (!in_array($language, $supported)) {
+                if (!in_array($language, $supported, true)) {
                     $language = config()->get('languages.default', 'en');
                     Log::warning(ts('Detected language ":language" is not supported, falling back to default. See configuration path "language.supported"', [
                         ':language' => $language,

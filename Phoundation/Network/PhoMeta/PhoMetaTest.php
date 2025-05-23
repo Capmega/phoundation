@@ -271,20 +271,20 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
     protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
         $o_definitions->add(DefinitionFactory::newVariable('component')
-                                             ->setMaxlength(32)
+                                             ->setMaxLength(32)
                                              ->setLabel('Tested component'))
 
                       ->add(DefinitionFactory::newVariable('connector_name')
-                                           ->setMaxlength(64)
+                                           ->setMaxLength(64)
                                            ->setLabel('Connector'))
 
                       ->add(DefinitionFactory::newCode('database_name')
-                                           ->setMinlength(1)
-                                           ->setMaxlength(64)
+                                           ->setMinLength(1)
+                                           ->setMaxLength(64)
                                            ->setLabel('Database'))
 
                     ->add(DefinitionFactory::newCode('key')
-                                           ->setMaxlength(64)
+                                           ->setMaxLength(64)
                                            ->setLabel('Test UUID'))
 
                     ->add(DefinitionFactory::newNumber('duration')

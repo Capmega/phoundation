@@ -180,7 +180,7 @@ class Language extends DataEntry implements LanguageInterface
                                     ->setLabel(tr('ISO 639-1 code'))
                                     ->setCliColumn(tr('--iso-691-1 CODE'))
                                     ->setSize(12)
-                                    ->setMaxlength(2)
+                                    ->setMaxLength(2)
                                     ->setHelpText(tr('The ISO 639-1 code for this language')))
 
                     ->add(Definition::new('code_639_2_t')
@@ -189,7 +189,7 @@ class Language extends DataEntry implements LanguageInterface
                                     ->setLabel(tr('ISO 639-2/T code'))
                                     ->setCliColumn(tr('--iso-691-2-t CODE'))
                                     ->setSize(12)
-                                    ->setMaxlength(3)
+                                    ->setMaxLength(3)
                                     ->setHelpText(tr('The ISO 639-2/T code for this language')))
 
                     ->add(Definition::new('code_639_2_b')
@@ -198,7 +198,7 @@ class Language extends DataEntry implements LanguageInterface
                                     ->setLabel(tr('ISO 639-2/B code'))
                                     ->setCliColumn(tr('--iso-691-2-b CODE'))
                                     ->setSize(12)
-                                    ->setMaxlength(3)
+                                    ->setMaxLength(3)
                                     ->setHelpText(tr('The ISO 639-2/B code for this language')))
 
                     ->add(Definition::new('code_639_3')
@@ -207,7 +207,7 @@ class Language extends DataEntry implements LanguageInterface
                                     ->setLabel(tr('ISO 639-3 code'))
                                     ->setCliColumn(tr('--iso-691-2-b CODE'))
                                     ->setSize(12)
-                                    ->setMaxlength(3)
+                                    ->setMaxLength(3)
                                     ->setHelpText(tr('The ISO 639-3 code for this language')))
 
                     ->add(DefinitionFactory::newDescription()

@@ -326,10 +326,11 @@ interface IteratorInterface extends IteratorBaseInterface
      * @note Wrapper for IteratorCore::exists()
      *
      * @param mixed $value
+     * @param bool  $strict
      *
      * @return bool
      */
-    public function valueExists(mixed $value): bool;
+    public function valueExists(mixed $value, bool $strict = true): bool;
 
     /**
      * Returns the length of the longest value

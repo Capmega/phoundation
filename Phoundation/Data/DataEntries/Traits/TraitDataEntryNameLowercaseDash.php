@@ -62,7 +62,7 @@ trait TraitDataEntryNameLowercaseDash
             // the entry if it does!
             $name     = static::convertNameIdentifierToLowerCaseDash($name);
             $seo_name = Seo::unique(
-                substr($name, 0, $this->getDefinitionsObject()->get('name')->getMaxlength()),
+                substr($name, 0, $this->getDefinitionsObject()->get('name')->getMaxLength()),
                 static::getTable(),
                 $this->getId(false),
                 'seo_name'

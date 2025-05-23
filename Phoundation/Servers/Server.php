@@ -528,7 +528,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setOptional(true)
                                     ->setVirtual(true)
                                     ->setInputType(EnumInputType::text)
-                                    ->setMaxlength(200)
+                                    ->setMaxLength(200)
                                     ->setCliColumn('--country COUNTRY-NAME')
                                     ->setCliAutoComplete([
                                         'word'   => function ($word) { return Countries::new()->keepMatchingKeys($word); },
@@ -543,7 +543,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setOptional(true)
                                     ->setVirtual(true)
                                     ->setInputType(EnumInputType::text)
-                                    ->setMaxlength(200)
+                                    ->setMaxLength(200)
                                     ->setCliColumn('--state STATE-NAME')
                                     ->setCliAutoComplete([
                                         'word'   => function ($word) { return States::new()->keepMatchingKeys($word); },
@@ -558,7 +558,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setOptional(true)
                                     ->setVirtual(true)
                                     ->setInputType(EnumInputType::text)
-                                    ->setMaxlength(200)
+                                    ->setMaxLength(200)
                                     ->setCliColumn('--city STATE-NAME')
                                     ->setCliAutoComplete([
                                         'word'   => function ($word) { return Cities::new()->keepMatchingKeys($word); },
@@ -573,7 +573,7 @@ class Server extends DataEntry implements ServerInterface
                                            ->setOptional(false)
                                            ->setInputType(EnumInputType::name)
                                            ->setSize(12)
-                                           ->setMaxlength(64)
+                                           ->setMaxLength(64)
                                            ->setHelpText(tr('The name for this role'))
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isUnique();
@@ -583,7 +583,7 @@ class Server extends DataEntry implements ServerInterface
 
                     ->add(Definition::new('hostname')
                                     ->setInputType(EnumInputType::text)
-                                    ->setMaxlength(128)
+                                    ->setMaxLength(128)
                                     ->setSize(4)
                                     ->setLabel(tr('Hostname'))
                                     ->setCliColumn('-h,--hostname HOSTNAME')
@@ -636,7 +636,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::text)
                                     ->setSize(2)
-                                    ->setMaxlength(16)
+                                    ->setMaxLength(16)
                                     ->setLabel(tr('Code'))
                                     ->setCliColumn('-c,--code CODE')
                                     ->setHelpGroup(tr('Identification and network'))
@@ -813,8 +813,8 @@ class Server extends DataEntry implements ServerInterface
                     ->add(Definition::new('os_version')
                                     ->setOptional(true)
                                     ->setInputType(EnumInputType::text)
-                                    ->setMinlength(9)
-                                    ->setMaxlength(16)
+                                    ->setMinLength(9)
+                                    ->setMaxLength(16)
                                     ->setLabel(tr('Operating system version'))
                                     ->setCliColumn('-v,--os-version VERSION')
                                     ->setHelpText(tr('The current version of the installed operating system')))

@@ -150,7 +150,7 @@ trait TraitDataEntryPriority
         if (is_numeric($priority)) {
             if (($priority < $this->min_priority) or ($priority > $this->max_priority)) {
                 throw new OutOfBoundsException(tr('Specified ":class" class priority ":priority" is invalid, it should be a number from ":min" to ":max"', [
-                    'class'     => static::class,
+                    ':class'    => static::class,
                     ':priority' => $priority,
                     ':min'      => $this->min_priority,
                     ':max'      => $this->max_priority
