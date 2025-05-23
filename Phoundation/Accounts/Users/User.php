@@ -2981,7 +2981,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
                     ->add(Definition::new('domain')
                                     ->setOptional(true)
-                                    ->setMaxlength(128)
+                                    ->setMaxLength(128)
                                     ->setSize(3)
                                     ->setCliColumn('--domain')
                                     ->setCliAutoComplete(true)
@@ -3144,7 +3144,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
                     ->add(Definition::new('address')
                                     ->setOptional(true)
-                                    ->setMaxlength(255)
+                                    ->setMaxLength(255)
                                     ->setSize(3)
                                     ->setCliColumn('-a,--address')
                                     ->setCliAutoComplete(true)
@@ -3157,8 +3157,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
                     ->add(Definition::new('zipcode')
                                     ->setOptional(true)
-                                    ->setMinlength(4)
-                                    ->setMaxlength(8)
+                                    ->setMinLength(4)
+                                    ->setMaxLength(8)
                                     ->setSize(1)
                                     ->setCliColumn('-z,--zipcode')
                                     ->setCliAutoComplete(true)
@@ -3287,7 +3287,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
                     ->add(Definition::new('keywords')
                                     ->setOptional(true)
-                                    ->setMaxlength(255)
+                                    ->setMaxLength(255)
                                     ->setSize(3)
                                     ->setCliColumn('-k,--keywords')
                                     ->setCliAutoComplete(true)
@@ -3314,7 +3314,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                     ->add(Definition::new('url')
                                     ->setSize(4)
                                     ->setOptional(true)
-                                    ->setMaxlength(2048)
+                                    ->setMaxLength(2048)
                                     ->setCliColumn('--url')
                                     ->setLabel(tr('Website URL'))
                                     ->setHelpGroup(tr('Account information'))
@@ -3364,7 +3364,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setOptional(true)
                                     ->setCliAutoComplete(true)
                                     ->setInputType(EnumInputType::password)
-                                    ->setMaxlength(64)
+                                    ->setMaxLength(64)
                                     ->setNullDisplay(false)
                                     ->setHelpText(tr('The password for this user'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -3377,7 +3377,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setOptional(true)
                                     ->setCliAutoComplete(true)
                                     ->setInputType(EnumInputType::password)
-                                    ->setMaxlength(64)
+                                    ->setMaxLength(64)
                                     ->setHelpText(tr('The MFA code for this user'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isCode(max_characters: 64);

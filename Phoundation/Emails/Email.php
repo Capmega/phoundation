@@ -187,12 +187,12 @@ class Email extends DataEntry
 
                     ->add(Definition::new('subject')
                                     ->setSize(3)
-                                    ->setMaxlength(255))
+                                    ->setMaxLength(255))
 
                     ->add(Definition::new('body')
                                     ->setSize(3)
                                     ->setSize(12)
-                                    ->setMaxlength(16_777_215));
+                                    ->setMaxLength(16_777_215));
 
         return $this;
     }

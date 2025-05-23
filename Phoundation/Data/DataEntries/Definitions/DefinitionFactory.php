@@ -357,7 +357,7 @@ class DefinitionFactory
                          ->setOptional(true)
                          ->setRender(false)
                          ->setVirtual(true)
-                         ->setMaxlength(32)
+                         ->setMaxLength(32)
                          ->setCliColumn('--language-name LANGUAGE-NAME')
                          ->setLabel(tr('Language'))
                          ->setCliAutoComplete([
@@ -396,7 +396,7 @@ class DefinitionFactory
                          ->setOptional(true)
                          ->setRender(false)
                          ->setVirtual(true)
-                         ->setMaxlength(32)
+                         ->setMaxLength(32)
                          ->setCliColumn('-l,--language-code LANGUAGE-CODE')
                          ->setLabel(tr('Language'))
                          ->setCliAutoComplete([
@@ -616,7 +616,7 @@ class DefinitionFactory
                          ->setVirtual(true)
                          ->setCliColumn('-t,--timezone TIMEZONE-NAME')
                          ->setLabel(tr('Timezone'))
-                         ->setMaxlength(64)
+                         ->setMaxLength(64)
                          ->setCliAutoComplete([
                              'word'   => function ($word) {
                                  return Timezones::new()->keepMatchingKeys($word);
@@ -1220,8 +1220,8 @@ class DefinitionFactory
                          ->setOptional(true)
                          ->setInputType(EnumInputType::code)
                          ->setSize(3)
-                         ->setMaxlength(64)
-                         ->setMinlength(1)
+                         ->setMaxLength(64)
+                         ->setMinLength(1)
                          ->setCliColumn('-c,--code CODE')
                          ->setCliAutoComplete(true)
                          ->setLabel(tr('Code'));
@@ -1242,8 +1242,8 @@ class DefinitionFactory
                          ->setReadonly(true)
                          ->setInputType(EnumInputType::code)
                          ->setSize(3)
-                         ->setMaxlength(128)
-                         ->setMinlength(1)
+                         ->setMaxLength(128)
+                         ->setMinLength(1)
                          ->setCliAutoComplete(true)
                          ->setLabel(tr('Hash'));
     }
@@ -1262,7 +1262,7 @@ class DefinitionFactory
                          ->setOptional(true)
                          ->setInputType(EnumInputType::datetime_local)
                          ->setSize(3)
-                         ->setMaxlength(20)
+                         ->setMaxLength(20)
                          ->setLabel(tr('Date time'));
     }
 
@@ -1280,7 +1280,7 @@ class DefinitionFactory
                          ->setOptional(true)
                          ->setInputType(EnumInputType::date)
                          ->setSize(3)
-                         ->setMaxlength(8)
+                         ->setMaxLength(10)
                          ->setCliAutoComplete(true)
                          ->setLabel(tr('Date'));
     }
@@ -1551,7 +1551,7 @@ class DefinitionFactory
                          ->setReadonly(true)
                          ->setInputType(EnumInputType::text)
                          ->setSize(6)
-                         ->setMaxlength(48)
+                         ->setMaxLength(48)
                          ->setCliAutoComplete(true)
                          ->setLabel(tr('IP Address'))
                          ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -1573,7 +1573,7 @@ class DefinitionFactory
                          ->setReadonly(true)
                          ->setInputType(EnumInputType::text)
                          ->setSize(6)
-                         ->setMaxlength(255)
+                         ->setMaxLength(255)
                          ->setCliAutoComplete(true)
                          ->setLabel(tr('Domain name'))
                          ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -1616,7 +1616,7 @@ class DefinitionFactory
     {
         return Definition::new($column)
                          ->setOptional(true)
-                         ->setMinlength(10)
+                         ->setMinLength(10)
                          ->setMaxLength(64)
                          ->setSize(3)
                          ->setCliColumn(tr('-p,--phone-numbers "PHONE-NUMBER,PHONE-NUMBER,..."'))
@@ -1660,7 +1660,7 @@ class DefinitionFactory
                          ->setReadonly(true)
                          ->setInputType(EnumInputType::text)
                          ->setSize(6)
-                         ->setMaxlength(36)
+                         ->setMaxLength(36)
                          ->setCliAutoComplete(true)
                          ->setLabel(tr('UUID'));
     }
@@ -1718,7 +1718,7 @@ class DefinitionFactory
                          ->setInputType(EnumInputType::array_json)
                          ->setSize(12)
                          ->setRows(5)
-                         ->setMaxlength(16_777_200)
+                         ->setMaxLength(16_777_200)
                          ->setLabel(tr('Data'))
                          ->setCliAutoComplete(true);
     }
@@ -1738,7 +1738,7 @@ class DefinitionFactory
                          ->setInputType(EnumInputType::description)
                          ->setSize(12)
                          ->setRows(5)
-                         ->setMaxlength(65_535)
+                         ->setMaxLength(65_535)
                          ->setCliColumn('-d,--description "DESCRIPTION"')
                          ->setCliAutoComplete(true)
                          ->setLabel(tr('Description'));
@@ -1759,7 +1759,7 @@ class DefinitionFactory
                          ->setInputType(EnumInputType::description)
                          ->setSize(12)
                          ->setRows(5)
-                         ->setMaxlength(16_777_215)
+                         ->setMaxLength(16_777_215)
                          ->setCliColumn('-b,--body "BODY"')
                          ->setCliAutoComplete(true)
                          ->setLabel(tr('Body'));
@@ -1779,7 +1779,7 @@ class DefinitionFactory
                          ->setOptional(true)
                          ->setInputType(EnumInputType::text)
                          ->setSize(12)
-                         ->setMaxlength(16_777_215)
+                         ->setMaxLength(16_777_215)
                          ->setCliColumn('--content "CONTENT"')
                          ->setCliAutoComplete(true)
                          ->setLabel(tr('Content'));
@@ -1800,7 +1800,7 @@ class DefinitionFactory
                          ->setInputType(EnumInputType::description)
                          ->setSize(12)
                          ->setRows(5)
-                         ->setMaxlength(65_535)
+                         ->setMaxLength(65_535)
                          ->setCliColumn('--comments "COMMENTS"')
                          ->setCliAutoComplete(true)
                          ->setLabel(tr('Comments'));
@@ -1908,7 +1908,7 @@ class DefinitionFactory
                          ->setDbNullInputType(EnumInputType::text)
                          ->addClasses('text-center')
                          ->setSize(3)
-                         ->setMaxlength(20)
+                         ->setMaxLength(20)
                          ->setTooltip(tr('This column contains the exact date / time when this object was created'))
                          ->setLabel(tr('Created on'));
     }
@@ -1949,7 +1949,7 @@ class DefinitionFactory
                          ->setTooltip(tr('This column contains the current status of this object. A typical status is "Ok", but objects may also be "Deleted" or "In process", for example. Depending on their status, objects may be visible in tables, or not'))
                          ->addClasses('text-center')
                          ->setSize(3)
-                         ->setMaxlength(32)
+                         ->setMaxLength(32)
                          ->setLabel(tr('Status'));
     }
 

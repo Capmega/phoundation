@@ -1278,7 +1278,7 @@ class Arrays extends Utils
     public static function copyClean(array $target, array $source, array $skip = ['id']): array
     {
         foreach ($source as $key => $value) {
-            if (in_array($key, $skip)) {
+            if (in_array($key, $skip, true)) {
                 continue;
             }
 
@@ -2091,7 +2091,7 @@ class Arrays extends Utils
                                           ]);
             }
 
-            if (in_array($value, $source2)) {
+            if (in_array($value, $source2, true)) {
                 $keep_list[$key] = $value;
 
             } else {
@@ -2109,7 +2109,7 @@ class Arrays extends Utils
                                           ]);
             }
 
-            if (!in_array($value, $source1)) {
+            if (!in_array($value, $source1, true)) {
                 // Key doesn't exist in source1, add it and next
                 $return['add'][$key] = $value;
             }

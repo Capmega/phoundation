@@ -81,7 +81,7 @@ class Requirement extends DataEntry
         $o_definitions->add(DefinitionFactory::newName()
                                              ->setInputType(EnumInputType::name)
                                              ->setSize(12)
-                                             ->setMaxlength(128)
+                                             ->setMaxLength(128)
                                              ->setLabel(tr('Name'))
                                              ->setHelpText(tr('The unique identifier name for this requirement'))
                                              ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -91,7 +91,7 @@ class Requirement extends DataEntry
                     ->add(Definition::new('path')
                                     ->setInputType(EnumInputType::name)
                                     ->setSize(6)
-                                    ->setMaxlength(255)
+                                    ->setMaxLength(255)
                                     ->setLabel(tr('Path'))
                                     ->setHelpText(tr('The path that these requirements apply to'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -124,7 +124,7 @@ class Requirement extends DataEntry
                                         'iso9660:1999' => 'ISO 9660:1999',
                                     ])
                                     ->setSize(3)
-                                    ->setMaxlength(16)
+                                    ->setMaxLength(16)
                                     ->setLabel(tr('Filesystem'))
                                     ->setHelpText(tr('The filesystem this should use')))
                     ->add(Definition::new('file_type')
@@ -139,7 +139,7 @@ class Requirement extends DataEntry
                                         'socket file'      => tr('Socket file'),
                                     ])
                                     ->setSize(3)
-                                    ->setMaxlength(16)
+                                    ->setMaxLength(16)
                                     ->setLabel(tr('File type'))
                                     ->setHelpText(tr('The type of file this should be')))
                     ->add(DefinitionFactory::newDescription()

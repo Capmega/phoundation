@@ -303,7 +303,7 @@ class Role extends DataEntry implements RoleInterface
                                              ->setOptional(false)
                                              ->setInputType(EnumInputType::name)
                                              ->setSize(12)
-                                             ->setMaxlength(64)
+                                             ->setMaxLength(64)
                                              ->setHelpText(tr('The name for this role'))
                                              ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isUnique();

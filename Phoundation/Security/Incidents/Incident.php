@@ -580,14 +580,14 @@ class Incident extends DataEntryCore implements IncidentInterface
                                     ->setReadonly(true)
                                     ->setDefault(tr('Unknown'))
                                     ->setSize(6)
-                                    ->setMaxlength(64))
+                                    ->setMaxLength(64))
 
                     ->add(Definition::new('severity')
                                     ->setElement(EnumElement::select)
                                     ->setLabel(tr('Severity'))
                                     ->setReadonly(true)
                                     ->setSize(6)
-                                    ->setMaxlength(6)
+                                    ->setMaxLength(6)
                                     ->setDataSource([
                                         EnumSeverity::notice->value  => tr('Notice'),
                                         EnumSeverity::low->value     => tr('Low'),
@@ -601,8 +601,8 @@ class Incident extends DataEntryCore implements IncidentInterface
                                     ->setLabel(tr('Title'))
                                     ->setReadonly(true)
                                     ->setSize(12)
-                                    ->setMinlength(4)
-                                    ->setMaxlength(255))
+                                    ->setMinLength(4)
+                                    ->setMaxLength(255))
 
                     ->add(DefinitionFactory::newDescription('body')
                                     ->setLabel(tr('Body'))
@@ -615,7 +615,7 @@ class Incident extends DataEntryCore implements IncidentInterface
                                     ->setReadonly(true)
                                     ->setSize(12)
                                     ->setRows(15)
-                                    ->setMaxlength(16_777_200)
+                                    ->setMaxLength(16_777_200)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->sanitizeEncodeJson();
                                     })
@@ -660,7 +660,7 @@ class Incident extends DataEntryCore implements IncidentInterface
                                     ->setReadonly(true)
                                     ->setLabel('URL')
                                     ->setSize(12)
-                                    ->setMaxlength(2048))
+                                    ->setMaxLength(2048))
 
                     ->add(DefinitionFactory::newData('exception')
                                            ->setReadonly(true)
@@ -675,7 +675,7 @@ class Incident extends DataEntryCore implements IncidentInterface
                                     ->setLabel('Data')
                                     ->setSize(12)
                                     ->setRows(15)
-                                    ->setMaxlength(16_777_200));
+                                    ->setMaxLength(16_777_200));
 
         return $this;
     }

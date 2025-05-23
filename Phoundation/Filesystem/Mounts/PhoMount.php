@@ -480,7 +480,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
         $o_definitions->add(DefinitionFactory::newName()
                                              ->setInputType(EnumInputType::name)
                                              ->setSize(12)
-                                             ->setMaxlength(64)
+                                             ->setMaxLength(64)
                                              ->setLabel(tr('Name'))
                                              ->setHelpText(tr('The unique identifier name for this mount'))
                                              ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -492,7 +492,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
                     ->add(Definition::new('source_path')
                                     ->setInputType(EnumInputType::name)
                                     ->setSize(4)
-                                    ->setMaxlength(255)
+                                    ->setMaxLength(255)
                                     ->setLabel(tr('Source'))
                                     ->setHelpText(tr('The source file for this mount'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -502,7 +502,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
                     ->add(Definition::new('target_path')
                                     ->setInputType(EnumInputType::name)
                                     ->setSize(4)
-                                    ->setMaxlength(255)
+                                    ->setMaxLength(255)
                                     ->setLabel(tr('Target'))
                                     ->setHelpText(tr('The target file for this mount'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -543,7 +543,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
                                     ->setOptional(true)
                                     ->setSize(6)
                                     ->setDefault('defaults')
-                                    ->setMaxlength(508)
+                                    ->setMaxLength(508)
                                     ->setLabel(tr('Options'))
                                     ->setHelpText(tr('The options for this mount')))
 

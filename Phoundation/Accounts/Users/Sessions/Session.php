@@ -381,7 +381,7 @@ class Session implements SessionInterface
                 default:
                     if (is_array(config()->get('web.domains.whitelabels', false))) {
                         // Domain must be specified in one of the array entries
-                        if (!in_array(static::$domain, config()->get('web.domains.whitelabels', false))) {
+                        if (!in_array(static::$domain, config()->getArrayBoolean('web.domains.whitelabels', false), true)) {
                             Log::warning(ts('Whitelabel check failed because domain was not found in configured array, redirecting domain ":source" to ":target"', [
                                 ':source' => $_SERVER['HTTP_HOST'],
                                 ':target' => Request::getDomain(),
@@ -1652,7 +1652,7 @@ class Session implements SessionInterface
         $requested_languages = Request::acceptsLanguages();
 
         foreach ($requested_languages as $requested_language) {
-            if (in_array($requested_language['language'], $supported_languages)) {
+            if (in_array($requested_language['language'], $supported_languages, true)) {
                 static::$language = $requested_language['language'];
 
                 return static::$language;

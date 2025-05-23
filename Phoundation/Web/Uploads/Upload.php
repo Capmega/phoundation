@@ -368,22 +368,22 @@ class Upload extends DataEntry implements UploadInterface
     {
         $o_definitions->add(DefinitionFactory::newFilename('name')
                                              ->setLabel(tr('File name'))
-                                             ->setMaxlength(2048)
+                                             ->setMaxLength(2048)
                                              ->setReadonly(true))
 
                       ->add(DefinitionFactory::newFilename('full_path')
                                            ->setLabel(tr('Full file path'))
-                                           ->setMaxlength(2048)
+                                           ->setMaxLength(2048)
                                            ->setReadonly(true))
 
                     ->add(DefinitionFactory::newFile(new PhoDirectory('/tmp/', PhoRestrictions::newWritableObject('/tmp/')), 'tmp_name')
                                            ->setLabel(tr('Temporary file name'))
-                                           ->setMaxlength(255)
+                                           ->setMaxLength(255)
                                            ->setReadonly(true))
 
                     ->add(DefinitionFactory::newCode('type')
                                            ->setLabel(tr('File mimetype'))
-                                           ->setMaxlength(128)
+                                           ->setMaxLength(128)
                                            ->setReadonly(true))
 
                     ->add(DefinitionFactory::newNumber('size')
@@ -399,7 +399,7 @@ class Upload extends DataEntry implements UploadInterface
 
                     ->add(DefinitionFactory::newCode('hash')
                                            ->setLabel(tr('File hash'))
-                                           ->setMaxlength(128)
+                                           ->setMaxLength(128)
                                            ->setReadonly(true))
 
                     ->add(DefinitionFactory::newComments());

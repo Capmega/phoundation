@@ -1150,12 +1150,13 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      * @note Wrapper for IteratorCore::exists()
      *
      * @param mixed $value
+     * @param bool  $strict
      *
      * @return bool
      */
-    public function valueExists(mixed $value): bool
+    public function valueExists(mixed $value, bool $strict = true): bool
     {
-        return in_array($value, $this->source);
+        return in_array($value, $this->source, $strict);
     }
 
 

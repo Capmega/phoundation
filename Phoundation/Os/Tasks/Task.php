@@ -1293,7 +1293,7 @@ class Task extends DataEntry implements TaskInterface
                                              ->setOptional(true)
                                              ->setLabel(tr('Code'))
                                              ->setSize(4)
-                                             ->setMaxlength(36)
+                                             ->setMaxLength(36)
                                              ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isCode();
                                            }))
@@ -1308,7 +1308,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setLabel('Parent task')
                                     ->setDataSource('SELECT `id` FROM `os_tasks` WHERE (`status` IS NULL OR `status` NOT IN ("deleted"))')
                                     ->setSize(4)
-                                    ->setMaxlength(17)
+                                    ->setMaxLength(17)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isDbId();
                                     }))
@@ -1319,7 +1319,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setLabel('Execute after')
                                     ->setCliColumn('[--execute-after DATETIME]')
                                     ->setSize(4)
-                                    ->setMaxlength(17)
+                                    ->setMaxLength(17)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isDateTime();
                                     }))
@@ -1330,7 +1330,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setInputType(EnumInputType::datetime_local)
                                     ->setLabel('Execution started on')
                                     ->setSize(4)
-                                    ->setMaxlength(17)
+                                    ->setMaxLength(17)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isDateTime();
                                     }))
@@ -1341,7 +1341,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setInputType(EnumInputType::datetime_local)
                                     ->setLabel('Execution finished on')
                                     ->setSize(4)
-                                    ->setMaxlength(17)
+                                    ->setMaxLength(17)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isDateTime();
                                     }))
@@ -1360,7 +1360,7 @@ class Task extends DataEntry implements TaskInterface
                     ->add(Definition::new('send_to')
                                     ->setOptional(true)
                                     ->setVirtual(true)
-                                    ->setMaxlength(128)
+                                    ->setMaxLength(128)
                                     ->setLabel('Send to user')
                                     ->setCliColumn('[--send-to EMAIL]')
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
@@ -1373,7 +1373,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setInputType(EnumInputType::select)
                                     ->setDataSource('SELECT `id`, CONCAT(`email`, " <", `first_names`, " ", `last_names`, ">") FROM `accounts_users` WHERE `status` IS NULL')
                                     ->setSize(4)
-                                    ->setMaxlength(17)
+                                    ->setMaxLength(17)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isDbId();
                                     }))
@@ -1381,7 +1381,7 @@ class Task extends DataEntry implements TaskInterface
                     ->add(Definition::new('server')
                                     ->setOptional(true)
                                     ->setVirtual(true)
-                                    ->setMaxlength(255)
+                                    ->setMaxLength(255)
                                     ->setLabel('Execute on server')
                                     ->setCliColumn('[-s,--server HOSTNAME]')
                                     ->setSize(4)
@@ -1409,7 +1409,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setCliColumn('[-r,--roles "ROLE,ROLE,..."]')
                                     ->setDataSource('SELECT `id` FROM `accounts_roles` WHERE `status` IS NULL')
                                     ->setSize(4)
-                                    ->setMaxlength(17)
+                                    ->setMaxLength(17)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->isDbId();
                                     }))
@@ -1562,56 +1562,56 @@ class Task extends DataEntry implements TaskInterface
                                     ->setLabel('Sudo required / command')
                                     ->setCliColumn('[-s,--sudo "string"]')
                                     ->setSize(6)
-                                    ->setMaxlength(32))
+                                    ->setMaxLength(32))
 
                     ->add(Definition::new('term')
                                     ->setOptional(true)
                                     ->setLabel('Terminal command')
                                     ->setCliColumn('[-t,--term "command"]')
                                     ->setSize(6)
-                                    ->setMaxlength(32))
+                                    ->setMaxLength(32))
 
                     ->add(Definition::new('pipe')
                                     ->setOptional(true)
                                     ->setLabel('Pipe to')
                                     ->setSize(6)
-                                    ->setMaxlength(510))
+                                    ->setMaxLength(510))
 
                     ->add(Definition::new('input_redirect')
                                     ->setOptional(true)
                                     ->setLabel('Input redirect')
                                     ->setSize(6)
-                                    ->setMaxlength(64))
+                                    ->setMaxLength(64))
 
                     ->add(Definition::new('output_redirect')
                                     ->setOptional(true)
                                     ->setLabel('Output redirect')
                                     ->setSize(6)
-                                    ->setMaxlength(510))
+                                    ->setMaxLength(510))
 
                     ->add(Definition::new('restrictions')
                                     ->setOptional(true)
                                     ->setLabel('FsRestrictions')
                                     ->setSize(6)
-                                    ->setMaxlength(510))
+                                    ->setMaxLength(510))
 
                     ->add(Definition::new('packages')
                                     ->setOptional(true)
                                     ->setLabel('Packages')
                                     ->setSize(6)
-                                    ->setMaxlength(510))
+                                    ->setMaxLength(510))
 
                     ->add(Definition::new('pre_exec')
                                     ->setOptional(true)
                                     ->setLabel('Pre execute')
                                     ->setSize(6)
-                                    ->setMaxlength(510))
+                                    ->setMaxLength(510))
 
                     ->add(Definition::new('post_exec')
                                     ->setOptional(true)
                                     ->setLabel('Post execute')
                                     ->setSize(6)
-                                    ->setMaxlength(510))
+                                    ->setMaxLength(510))
 
                     ->add(Definition::new('accepted_exit_codes')
                                     ->setOptional(true, [0])
@@ -1619,7 +1619,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setElement(EnumElement::textarea)
                                     ->setInputType(EnumInputType::array_json)
                                     ->setSize(6)
-                                    ->setMaxlength(64))
+                                    ->setMaxLength(64))
 
                     ->add(Definition::new('results')
                                     ->setOptional(true)
@@ -1627,7 +1627,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setLabel('Results')
                                     ->setElement(EnumElement::textarea)
                                     ->setSize(12)
-                                    ->setMaxlength(16_777_215)
+                                    ->setMaxLength(16_777_215)
                                     ->setReadonly(true))
 
                     ->add(Definition::new('pid')

@@ -106,7 +106,7 @@ class UserFile extends DataEntry
                         ->setOptional(false)
                         ->setInputType(EnumInputType::code)
                         ->setSize(2)
-                        ->setMaxlength(16)
+                        ->setMaxLength(16)
                         ->setLabel('Extension')
                         ->setHelpText(tr('The extension for this file')))
 
@@ -115,20 +115,20 @@ class UserFile extends DataEntry
                         ->setOptional(true)
                         ->setSize(4)
                         ->setLabel('Primary mimetype')
-                        ->setMaxlength(32))
+                        ->setMaxLength(32))
 
                     ->add(DefinitionFactory::newVariable('secondary_part')
                         ->setReadonly(true)
                         ->setOptional(true)
                         ->setSize(4)
                         ->setLabel('Secondary mimetype')
-                        ->setMaxlength(96))
+                        ->setMaxLength(96))
 
                     ->add(DefinitionFactory::newVariable('mimetype')
                         ->setOptional(false)
                         ->setReadonly(true)
                         ->setSize(4)
-                        ->setMaxlength(128)
+                        ->setMaxLength(128)
                         ->setLabel('Mimetype')
                         ->setHelpText(tr('The mimetype for this file'))
                         ->addValidationFunction(function (ValidatorInterface $validator) {

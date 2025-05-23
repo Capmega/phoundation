@@ -92,7 +92,7 @@ class TestDataEntry extends DataEntry
                                              ->setOptional(false)
                                              ->setInputType(EnumInputType::name)
                                              ->setSize(12)
-                                             ->setMaxlength(64)
+                                             ->setMaxLength(64)
                                              ->setHelpText(tr('The name for this TestDataEntry'))
                                              ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isUnique();

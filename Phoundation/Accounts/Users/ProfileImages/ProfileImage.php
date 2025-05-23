@@ -371,7 +371,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                       ->add(DefinitionFactory::newId('uploads_id'))
 
                       ->add(DefinitionFactory::newFile()
-                                           ->setMaxlength(2048)
+                                           ->setMaxLength(2048)
                                            ->setRender(false)
                                            ->addValidationFunction(function (ValidatorInterface $validator) {
                                                $validator->isFile([

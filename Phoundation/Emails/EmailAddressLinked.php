@@ -94,7 +94,7 @@ class EmailAddressLinked extends DataEntry
                                         'cc'   => tr('Cc'),
                                         'bcc'  => tr('Bcc'),
                                     ])
-                                    ->setMaxlength(4))
+                                    ->setMaxLength(4))
 
                     ->add(DefinitionFactory::newEmail())
 

@@ -179,7 +179,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
     {
         $o_definitions->add(DefinitionFactory::newName()
                                              ->setSize(6)
-                                             ->setUnique(true)
+                                             ->setUnique()
                                              ->setHelpGroup(tr('Identification'))
                                              ->setHelpText(tr('The name for this account')))
 
@@ -193,7 +193,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
                                     ->setCliColumn(tr('-u,--username NAME'))
                                     ->setCliAutoComplete(true)
                                     ->setSize(6)
-                                    ->setMaxlength(64)
+                                    ->setMaxLength(64)
                                     ->setHelpText(tr('The username on the server for this account')))
 
                     ->add(DefinitionFactory::newDescription()
@@ -212,7 +212,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
                                     ->setCliColumn(tr('-k,--ssh-key "KEY"'))
                                     ->setCliAutoComplete(true)
                                     ->setSize(12)
-                                    ->setMaxlength(65_535)
+                                    ->setMaxLength(65_535)
                                     ->setHelpText(tr('The SSH private key associated with this username'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->matchesRegex('/-----BEGIN .+? PRIVATE KEY-----.+?-----END .+? PRIVATE KEY-----/s');

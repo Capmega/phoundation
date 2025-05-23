@@ -127,7 +127,7 @@ class Non200Url extends DataEntry
                                     ->setReadonly(true)
                                     ->setInputType(EnumInputType::variable)
                                     ->setSize(4)
-                                    ->setMaxlength(12)
+                                    ->setMaxLength(12)
                                     ->setHelpText(tr('The HTTP method used for this request'))
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
                                         $validator->sanitizeLowercase()
@@ -156,7 +156,7 @@ class Non200Url extends DataEntry
                                            ->setOptional(true)
                                            ->setReadonly(true)
                                            ->setSize(12)
-                                           ->setMaxlength(255)
+                                           ->setMaxLength(255)
                                            ->setHelpText(tr('Reason why this request failed')))
 
                     ->add(DefinitionFactory::newUrl()
