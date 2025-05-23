@@ -59,6 +59,10 @@ class Scripts extends Iterator implements ScriptsInterface
             return $o_script;
         }
 
+        if (!$o_script) {
+            return null;
+        }
+
         throw new OutOfBoundsException(tr('Script is neither callable or ScriptInterface but ":class"', [
             ':class' => get_class_or_datatype($o_script)
         ]));
@@ -79,7 +83,7 @@ class Scripts extends Iterator implements ScriptsInterface
 
         if ($this->count()) {
             foreach ($this as $o_script) {
-                $return .= $o_script->render();
+                $return .= $o_script?->render();
             }
 
             return $return;
