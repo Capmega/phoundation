@@ -2537,10 +2537,11 @@ class Definition implements DefinitionInterface
      * The data source may be specified as a query string or a key => value array
      *
      * @param array|PDOStatement|Stringable|string|null $source
+     * @param bool                                      $strict
      *
      * @return static
      */
-    public function setDataSource(array|PDOStatement|Stringable|string|null $source): static
+    public function setDataSource(array|PDOStatement|Stringable|string|null $source, bool $strict = false): static
     {
         $this->setKey($source, 'source');
 
@@ -2556,8 +2557,8 @@ class Definition implements DefinitionInterface
 
             if (is_array($source)) {
                 // The submitted user data value must be in the definition source
-                $this->addValidationFunction(function (ValidatorInterface $validator) use ($source) {
-                    $validator->isInArray(array_keys($source));
+                $this->addValidationFunction(function (ValidatorInterface $validator) use ($source, $strict) {
+                    $validator->isInArray(array_keys($source), $strict);
                 });
             }
         }

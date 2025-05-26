@@ -702,10 +702,11 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      * The data source may be specified as a query string or a key => value array
      *
      * @param array|PDOStatement|Stringable|string|null $source
+     * @param bool                                      $strict
      *
      * @return static
      */
-    public function setDataSource(array|PDOStatement|Stringable|string|null $source): static;
+    public function setDataSource(array|PDOStatement|Stringable|string|null $source, bool $strict = false): static;
 
 
     /**
