@@ -2054,7 +2054,7 @@ class Definition implements DefinitionInterface
                             $validator->hasMaxCharacters($this->getMaxLength());
                         }
 
-                         $validator->isDescription();
+                        $validator->isDescription();
                      });
                 break;
 
