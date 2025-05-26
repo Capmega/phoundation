@@ -262,10 +262,11 @@ interface ValidatorInterface extends IteratorBaseInterface
      * This method ensures that the specified array key is a scalar value
      *
      * @param IteratorInterface|array $array
+     * @param bool                    $strict
      *
      * @return static
      */
-    public function isInArray(IteratorInterface|array $array): static;
+    public function isInArray(IteratorInterface|array $array, bool $strict = true): static;
 
     /**
      * Validates the datatype for the selected field
