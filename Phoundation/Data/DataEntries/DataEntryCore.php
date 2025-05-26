@@ -55,6 +55,7 @@ use Phoundation\Data\DataEntries\Exception\DataEntryIsNewException;
 use Phoundation\Data\DataEntries\Exception\DataEntryMetaException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNoIdentifierSpecifiedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntries\Exception\DataEntryNotInitializedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotSavedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntries\Exception\DataEntryStateMismatchException;
@@ -102,6 +103,7 @@ use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhoException;
+use Phoundation\Exception\PhpException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\ReadOnlyModeException;
 use Phoundation\Notifications\Notification;
@@ -2809,7 +2811,18 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         //
         // When in force mode we will NOT clear the failed columns so that they can be sent back to the user for
         // corrections
-        $data_source = Validator::pick($source)->setDefinitionsObject($this->definitions);
+        try {
+            $data_source = Validator::pick($source)->setDefinitionsObject($this->definitions);
+
+        } catch (TypeError $e) {
+            if ($this->isInitialized()) {
+                throw $e;
+            }
+
+            throw new DataEntryNotInitializedException(tr('Cannot apply data to this ":class" object, the object has not yet been initialized', [
+                ':class' => static::getEntryName(),
+            ]), $e);
+        }
 
         if ($this->debug) {
             Log::debug('APPLY ' . static::getEntryName() . ' (' . get_class($this) . ')', 10, echo_header: false);
