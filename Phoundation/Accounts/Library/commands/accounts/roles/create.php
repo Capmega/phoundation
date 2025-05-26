@@ -60,9 +60,7 @@ if ($argv['rights']) {
 
 
 // Create role and save it
-show($argv);
-$role = Role::new()->apply(false, $argv)->save();
-show($role);
+$role = Role::new(null)->apply(false, $argv)->save();
 
 
 // Set the rights for this role
