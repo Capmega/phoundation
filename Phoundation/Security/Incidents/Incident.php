@@ -56,6 +56,7 @@ use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumElement;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Routing\Route;
 use Throwable;
@@ -668,14 +669,17 @@ class Incident extends DataEntryCore implements IncidentInterface
                                            ->setRows(15)
                                            ->setNoValidation(true))
 
+                    // This column requires no validation because the content is too complex and unpredictable to
+                    // validate, and the source is trusted because it comes from ourselves
                     ->add(Definition::new('data')
                                     ->setOptional(true)
                                     ->setReadonly(true)
-                                    ->setElement(EnumElement::textarea)
+                                    ->setInputType(EnumInputType::array_json)
                                     ->setLabel('Data')
                                     ->setSize(12)
                                     ->setRows(15)
-                                    ->setMaxLength(16_777_200));
+                                    ->setMaxLength(16_777_200)
+                                    ->setNoValidation(true));
 
         return $this;
     }
