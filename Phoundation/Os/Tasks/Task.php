@@ -874,7 +874,7 @@ class Task extends DataEntry implements TaskInterface
         if ($variables) {
             foreach ($variables as $key => $value) {
                 if (!preg_match('/^:[A-Z0-9]+[A-Z0-9-]*[A-Z0-9]+$/', $key)) {
-                    throw new OutOfBoundsException(tr('Specified variable key ":key" is invalid, it should match regex "/^:[A-Z0-9]+[A-Z0-9-]*[A-Z0-9]+$/", so a : symbol, and then at least 2 characters that can be only uppercase letters, or numbers, or dash, and cannot begin or end with a dash', [
+                    throw new OutOfBoundsException(tr('Specified variable key ":key" is invalid, it should match pattern "/^:[A-Z0-9]+[A-Z0-9-]*[A-Z0-9]+$/", so a : symbol, and then at least 2 characters that can be only uppercase letters, or numbers, or dash, and cannot begin or end with a dash', [
                         ':key' => $key,
                     ]));
                 }
