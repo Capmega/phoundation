@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Json;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 
@@ -60,10 +61,16 @@ class AutoSuggestRequest
 
         // Validate request data
         if ($term_optional) {
-            $validator = GetValidator::new()->select('term')->isOptional('')->sanitizeTrim()->hasMaxCharacters(255)->matchesRegex('/[0-9a-z-, ]+/i');
+            $validator = GetValidator::new()->select('term')->isOptional('')
+                                                            ->sanitizeTrim()
+                                                            ->hasMaxCharacters(255)
+                                                            ->containsNoHtml()
+                                                            ->matchesRegex('/[0-9a-z-,\'"() ]+/i', message: tr('is not a valid character'));
 
         } else {
-            $validator = GetValidator::new()->select('term')->sanitizeTrim()->hasMaxCharacters(255)->matchesRegex('/[0-9a-z-, ]+/i');
+            $validator = GetValidator::new()->select('term')->sanitizeTrim()
+                                                            ->hasMaxCharacters(255)
+                                                            ->matchesRegex('/[0-9a-z-,\'"() ]+/i', message: tr('is not a valid character'));
         }
 
         static::$get = $validator->validate($require_clean_source);
