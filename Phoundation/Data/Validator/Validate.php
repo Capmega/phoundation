@@ -382,7 +382,7 @@ class Validate
 
         if ($regex) {
             if (!preg_match($string, $this->source)) {
-                throw new ValidationFailedException(tr('The specified value must match regex ":value"', [
+                throw new ValidationFailedException(tr('The specified value must match pattern ":value"', [
                     ':value' => $string,
                 ]));
             }

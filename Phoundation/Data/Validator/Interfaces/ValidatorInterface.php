@@ -283,13 +283,14 @@ interface ValidatorInterface extends IteratorBaseInterface
      *
      * This method ensures that the specified array key contains the specified string
      *
-     * @param string $string
-     * @param bool   $regex
-     * @param bool   $not
+     * @param string      $string
+     * @param bool        $regex
+     * @param bool        $not
+     * @param string|null $message
      *
      * @return static
      */
-    public function contains(string $string, bool $regex = false, bool $not = false): static;
+    public function contains(string $string, bool $regex = false, bool $not = false, ?string $message = null): static;
 
     /**
      * Ensures that the value has the specified string
@@ -399,12 +400,13 @@ interface ValidatorInterface extends IteratorBaseInterface
     /**
      * Validates that the selected field matches the specified regex
      *
-     * @param string $regex
-     * @param bool   $not
+     * @param string      $regex
+     * @param bool        $not
+     * @param string|null $message
      *
      * @return static
      */
-    public function matchesRegex(string $regex, bool $not = false): static;
+    public function matchesRegex(string $regex, bool $not = false, ?string $message = null): static;
 
     /**
      * Validates that the selected field NOT matches the specified regex
