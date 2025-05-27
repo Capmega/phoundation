@@ -3024,18 +3024,19 @@ throw new ObsoleteException();
      *
      * This method ensures that the specified array key contains the specified string
      *
-     * @param string $string
-     * @param bool   $regex
-     * @param bool   $not
+     * @param string      $string
+     * @param bool        $regex
+     * @param bool        $not
+     * @param string|null $message
      *
      * @return static
      */
-    public function contains(string $string, bool $regex = false, bool $not = false): static
+    public function contains(string $string, bool $regex = false, bool $not = false, ?string $message = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($string, $regex, $not) {
+        return $this->validateValues(function (&$value) use ($string, $regex, $not, $message) {
             // This value must be scalar
             $this->isScalar();
 
@@ -3050,11 +3051,11 @@ throw new ObsoleteException();
                         return;
                     }
 
-                    $this->addSoftFailure(tr('must match regex ":value"', [':value' => $string]));
+                    $this->addSoftFailure($message ?? tr('must match pattern ":value"', [':value' => $string]));
 
                 } catch (Throwable $e) {
                     if (str_contains($e->getMessage(), 'preg_match')) {
-                        throw new ValidatorException(tr('Specified regex ":regex" is invalid', [
+                        throw new ValidatorException(tr('Specified regular expression pattern ":regex" is invalid', [
                             ':regex' => $string
                         ]), $e);
                     }
@@ -3064,7 +3065,7 @@ throw new ObsoleteException();
 
             } else {
                 if ($not xor !str_contains((string) $value, $string)) {
-                    $this->addSoftFailure(tr('must contain ":value"', [':value' => $string]));
+                    $this->addSoftFailure($message ?? tr('must contain ":value"', [':value' => $string]));
                 }
             }
         });
@@ -3113,14 +3114,15 @@ throw new ObsoleteException();
     /**
      * Validates that the selected field matches the specified regex
      *
-     * @param string $regex
-     * @param bool   $not
+     * @param string      $regex
+     * @param bool        $not
+     * @param string|null $message
      *
      * @return static
      */
-    public function matchesRegex(string $regex, bool $not = false): static
+    public function matchesRegex(string $regex, bool $not = false, ?string $message = null): static
     {
-        return $this->contains($regex, true, $not);
+        return $this->contains($regex, true, $not, $message);
     }
 
 

@@ -933,8 +933,6 @@ class Connector extends DataEntry implements ConnectorInterface
                                                $validator->isUnique();
                                            }))
 
-                      ->add(DefinitionFactory::newSeoName())
-
                     ->add(Definition::new('environment')
                                     ->setSize(4)
                                     ->setOptional(true)

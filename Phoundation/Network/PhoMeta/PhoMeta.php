@@ -299,7 +299,7 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
      */
     public function getTest(): ?PhoMetaTestInterface
     {
-        $data = $this->getData();
+        $data = $this->getData(true);
         $test = array_get_safe($data,'test');
 
         if ($test) {
@@ -339,7 +339,7 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
      */
     public function addData(string $key, string|array $data, bool $data_is_sub_array = false): static
     {
-        $this_data = $this->getData() ?? [];
+        $this_data = $this->getData(true) ?? [];
 
         if (is_string($data)) {
             $this_data[$key] = $data;
@@ -476,11 +476,13 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
                                              ->setLabel('Global request identifier'))
 
                       ->add(DefinitionFactory::newCode('hash')
-                                           ->setMaxLength(64)
-                                           ->setLabel('Message digest'))
+                                             ->setMaxLength(64)
+                                             ->setLabel('Message digest'))
 
                       ->add(DefinitionFactory::newData()
-                                           ->setLabel('Message meta data'));
+                                             ->setLabel('Message meta data')
+// No validation for now until we can figure out how to validate the contents properly
+->setNoValidation(true));
 
         return $this;
     }

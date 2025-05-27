@@ -2106,13 +2106,44 @@ function implode_with_quotes(array $source, string $separator = ','): string
  * Returns true if the specified source contains HTML
  *
  * @param Stringable|string $source
+ * @param array|null        $tags
  *
  * @return bool
  */
-function containsHtml(Stringable|string $source): bool
+function containsHtml(Stringable|string $source, ?array $tags = null): bool
 {
-    $source = (string) $source;
-    return ($source != strip_tags($source));
+    $tags = $tags ?? [
+        'div',
+        'p',
+        'span',
+        'b',
+        'a',
+        'strong',
+        'center',
+        'br',
+        'h1',
+        'h2',
+        'h3',
+        'h4',
+        'h5',
+        'h6',
+        'hr',
+        'script',
+        'meta',
+        'link'
+    ];
+
+    $pattern = '#</?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>#';
+
+    if (preg_match_all($pattern, (string)$source, $matches)) {
+        foreach ($matches[1] as $tag) {
+            if (in_array(strtolower($tag), $tags, true)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 

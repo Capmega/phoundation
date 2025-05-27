@@ -3421,7 +3421,10 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                                }
                                            }))
 
-                    ->add(DefinitionFactory::newData('data'));
+                    // ???
+                    ->add(DefinitionFactory::newData('data')
+// No validation for now until we can figure out what this column does, and how to validate it
+->setNoValidation(true));
 
         return $this;
     }
