@@ -26,6 +26,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Requests\Request;
 use Stringable;
 
 class GetValidator extends Validator
@@ -90,6 +91,22 @@ class GetValidator extends Validator
 
         $_GET     = null;
         $_REQUEST = null;
+    }
+
+
+    /**
+     * Sets the specified GET submit data value
+     *
+     * @param array|string                $value
+     * @param float|Stringable|int|string $key
+     * @param bool                        $skip_null_values
+     *
+     * @return static
+     */
+    public function set(mixed $value, float|Stringable|int|string $key, bool $skip_null_values = true): static {
+        Request::checkGetRequestMethod('set GET value');
+        static::$get[$key] = $value;
+        return $this;
     }
 
 

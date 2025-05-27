@@ -32,6 +32,8 @@ use Phoundation\Data\Validator\Interfaces\ArgvValidatorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Requests\Request;
+use Stringable;
 
 
 class ArgvValidator extends Validator implements ArgvValidatorInterface
@@ -114,6 +116,22 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     {
         $this->test = $test;
 
+        return $this;
+    }
+
+
+    /**
+     * Sets the specified ARGV submit data value
+     *
+     * @param array|string                $value
+     * @param float|Stringable|int|string $key
+     * @param bool                        $skip_null_values
+     *
+     * @return static
+     */
+    public function set(mixed $value, float|Stringable|int|string $key, bool $skip_null_values = true): static {
+        Request::checkPostRequestMethod('set ARGV value');
+        static::$argv[$key] = $value;
         return $this;
     }
 

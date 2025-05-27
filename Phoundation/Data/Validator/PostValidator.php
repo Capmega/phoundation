@@ -158,6 +158,22 @@ class PostValidator extends Validator
 
 
     /**
+     * Sets the specified POST submit data value
+     *
+     * @param array|string                $value
+     * @param float|Stringable|int|string $key
+     * @param bool                        $skip_null_values
+     *
+     * @return static
+     */
+    public function set(mixed $value, float|Stringable|int|string $key, bool $skip_null_values = true): static {
+        Request::checkPostRequestMethod('set POST value');
+        static::$post[$key] = $value;
+        return $this;
+    }
+
+
+    /**
      * Returns the value for the specified submit button for POST requests
      *
      * This method will search for and -if found- return the value for the specified HTTP POST key. By default it will
