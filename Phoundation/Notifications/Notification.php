@@ -916,7 +916,8 @@ FILES variables:
                                     ->setMaxlength(16_777_215)
                                     ->setSize(12)
                                     ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isDescription();
+                                        // TODO ADD MORE VALIDATIONS HERE?!
+                                        $validator->isPrintable()->setContentTestDone();
                                     }))
 
                     ->add(Definition::new('url')
