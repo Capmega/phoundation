@@ -107,9 +107,9 @@ class Request implements RequestInterface
     /**
      * The file that is currently executed for this request
      *
-     * @var PhoFileInterface $target
+     * @var PhoFileInterface $o_target
      */
-    protected static PhoFileInterface $target;
+    protected static PhoFileInterface $o_target;
 
     /**
      * The file that is currently executed for this system page request
@@ -958,7 +958,7 @@ class Request implements RequestInterface
      */
     public static function getTargetObject(): PhoFileInterface
     {
-        return static::$target;
+        return static::$o_target;
     }
 
 
@@ -998,30 +998,30 @@ class Request implements RequestInterface
     /**
      * Sets the target for this request
      *
-     * @param PhoFileInterface|string|int $target
+     * @param PhoFileInterface|string|int $o_target
      *
      * @return void
      */
-    protected static function setTarget(PhoFileInterface|string|int $target): void
+    protected static function setTarget(PhoFileInterface|string|int $o_target): void
     {
         // Get a target string
-        if (is_integer($target)) {
-            $target = 'system/' . $target . '.php';
+        if (is_integer($o_target)) {
+            $o_target = 'system/' . $o_target . '.php';
 
-        } elseif ($target instanceof PhoFileInterface) {
-            $target = $target->getSource();
+        } elseif ($o_target instanceof PhoFileInterface) {
+            $o_target = $o_target->getSource();
         }
 
         // Determine the target request type
-        static::detectRequestType($target);
+        static::detectRequestType($o_target);
 
         // Determine the target file that is to be executed
-        $target         = static::ensureRequestPathPrefix($target);
-        static::$target = PhoFile::new($target, static::getRestrictions())->makeAbsolute(DIRECTORY_WEB);
+        $o_target         = static::ensureRequestPathPrefix($o_target);
+        static::$o_target = PhoFile::new($o_target, static::getRestrictions())->makeAbsolute(DIRECTORY_WEB);
 
-        static::$target->checkRestrictions(false);
-        static::getTargets()->add(static::$target);
-        static::addExecutedPath($target); // TODO We should get this from targets
+        static::$o_target->checkRestrictions(false);
+        static::getTargets()->add(static::$o_target);
+        static::addExecutedPath($o_target); // TODO We should get this from targets
 
         // Store request hash used for caching, store real / original target
         if (empty(static::$main_target)) {
@@ -1032,13 +1032,63 @@ class Request implements RequestInterface
                 static::$hash = sha1(Strings::force($_SERVER['argv']));
             }
 
-            static::$main_target = static::$target;
+            static::$main_target = static::$o_target;
 
             if (PLATFORM_WEB) {
                 // Start the main web target buffer
                 ob_start();
             }
         }
+    }
+
+
+    /**
+     * Checks if the current page request is a GET request, throws a RequestMethodRestrictionsException if not
+     *
+     * @param string $action
+     *
+     * @return void
+     * @throws RequestMethodRestrictionsException
+     */
+    public static function checkGetRequestMethod(string $action): void
+    {
+        if (!Request::isGetRequestMethod()) {
+            throw new RequestMethodRestrictionsException(tr('Cannot ":action", this is only allowed with a GET request', [
+                ':action' => $action,
+            ]));
+        }
+    }
+
+
+    /**
+     * Checks if the current page request is a POST request, throws a RequestMethodRestrictionsException if not
+     *
+     * @param string $action
+     *
+     * @return void
+     * @throws RequestMethodRestrictionsException
+     */
+    public static function checkPostRequestMethod(string $action): void
+    {
+        if (!Request::isPostRequestMethod()) {
+            throw new RequestMethodRestrictionsException(tr('Cannot ":action", this is only allowed with a POST request', [
+                ':action' => $action,
+            ]));
+        }
+    }
+
+
+    /**
+     * Returns if this request is a GET method
+     *
+     * @return bool
+     */
+    public static function isGetRequestMethod(): bool
+    {
+        // As soon as we inquire about the request method being GET, Phoundation will assume that GET is allowed
+        Request::getMethodRestrictionsObject()->allow(EnumHttpRequestMethod::get);
+
+        return static::isRequestMethod(EnumHttpRequestMethod::get);
     }
 
 
@@ -1159,7 +1209,7 @@ class Request implements RequestInterface
             }
 
             // Check sign-key restrictions and if those are okay, we are good to go
-            static::hasSignKeyRestrictions($rights, static::$target->getSource());
+            static::hasSignKeyRestrictions($rights, static::$o_target->getSource());
             return $return;
         }
 
@@ -1186,16 +1236,16 @@ class Request implements RequestInterface
                     ->setSeverity(EnumSeverity::low)
                     ->setTitle(tr('Guest user has no access to target page'))
                     ->setBody(tr('Guest user has no access to target page ":target" (real target ":real_target" requires rights ":rights"). Redirecting to ":redirect"', [
-                        ':target'      => static::$target->getSource('web'),
-                        ':real_target' => static::$target->getSource('web'),
+                        ':target'      => static::$o_target->getSource('web'),
+                        ':real_target' => static::$o_target->getSource('web'),
                         ':redirect'    => $guest_redirect,
                         ':rights'      => Strings::force($rights, ', '),
                     ]))
                     ->setDetails([
                         'user'        => 0,
                         'uri'         => static::getUri(),
-                        'target'      => static::$target->getSource('web'),
-                        'real_target' => static::$target->getSource('web'),
+                        'target'      => static::$o_target->getSource('web'),
+                        'real_target' => static::$o_target->getSource('web'),
                         'rights'      => $rights,
                     ])
                     ->save();
@@ -1231,14 +1281,14 @@ class Request implements RequestInterface
                     ]))
                     ->setBody(tr('The requested rights ":rights" for target page ":target" (real target ":real_target") do not exist on this system and was not automatically created. Redirecting to ":redirect"', [
                         ':rights'      => Strings::force(Rights::getNotExist($rights), ', '),
-                        ':target'      => static::$target->getSource('web'),
+                        ':target'      => static::$o_target->getSource('web'),
                         ':real_target' => static::$main_target->getSource('web'),
                         ':redirect'    => $rights_redirect,
                     ]))
                     ->setDetails([
                         'user'           => Session::getUserObject()->getLogId(),
                         'uri'            => static::getUri(),
-                        'target'         => static::$target->getSource('web'),
+                        'target'         => static::$o_target->getSource('web'),
                         'real_target'    => static::$main_target->getSource('web'),
                         'rights'         => $rights,
                         'missing_rights' => Rights::getNotExist($rights),
@@ -1258,14 +1308,14 @@ class Request implements RequestInterface
                     ->setBody(tr('User ":user" does not have the required rights ":rights" for target page ":target" (real target ":real_target"). Executing "system/:redirect" instead', [
                         ':user'        => Session::getUserObject()->getLogId(),
                         ':rights'      => Session::getUserObject()->getMissingRights($rights),
-                        ':target'      => static::$target->getSource('web'),
+                        ':target'      => static::$o_target->getSource('web'),
                         ':real_target' => static::$main_target->getSource('web'),
                         ':redirect'    => $rights_redirect,
                     ]))
                     ->setDetails([
                         'user'        => Session::getUserObject()->getLogId(),
                         'uri'         => static::getUri(),
-                        'target'      => static::$target->getSource('web'),
+                        'target'      => static::$o_target->getSource('web'),
                         'real_target' => static::$main_target->getSource('web'),
                         'rights'      => Session::getUserObject()->getMissingRights($rights),
                     ])
@@ -1301,7 +1351,7 @@ class Request implements RequestInterface
                     ->setDetails([
                         'user'         => $key->getUserObject()->getLogId(),
                         'uri'          => static::getUri(),
-                        'target'       => static::$target->getSource('web'),
+                        'target'       => static::$o_target->getSource('web'),
                         'real_target'  => Strings::from($target, DIRECTORY_ROOT),
                         'rights'       => $rights,
                         ':sign_in_key' => $key->getUuid(),
@@ -1389,7 +1439,7 @@ class Request implements RequestInterface
 
             if ($fail) {
                 throw new RequestTypeException(tr('Cannot process target ":target" it has request type ":current" while the current request type is ":new"', [
-                    ':target'  => static::$target,
+                    ':target'  => static::$o_target,
                     ':new'     => $request_type,
                     ':current' => static::$request_type,
                 ]));
@@ -1524,7 +1574,7 @@ class Request implements RequestInterface
         }
 
         if (PLATFORM_CLI) {
-            Log::action(ts('Executing program ":program"', [':program' => static::$target->getRootname()]));
+            Log::action(ts('Executing program ":program"', [':program' => static::$o_target->getRootname()]));
 
             if (static::$stack_level > 0) {
                 // This is a CLI sub command, execute it directly with output buffering and return the output
@@ -1548,7 +1598,7 @@ class Request implements RequestInterface
 
                     if (!static::getSystem()) {
                         // Check if the user has access to the requested page, then check if the user should be force redirected
-                        static::hasRightsOrRedirect(static::$o_parameters->getRequiredRights((string) static::$target));
+                        static::hasRightsOrRedirect(static::$o_parameters->getRequiredRights((string) static::$o_target));
                         Response::checkForceRedirect();
                     }
 
@@ -1557,7 +1607,7 @@ class Request implements RequestInterface
                 case EnumRequestTypes::ajax:
                     if (!static::getSystem()) {
                         // Check if the user has access to the requested page
-                        static::hasRightsOrRedirect(static::$o_parameters->getRequiredRights((string) static::$target));
+                        static::hasRightsOrRedirect(static::$o_parameters->getRequiredRights((string) static::$o_target));
                     }
 
                     break;
@@ -1736,7 +1786,7 @@ class Request implements RequestInterface
                 // static::$page should already be defined at this stage
                 if (empty(static::$page)) {
                     throw new OutOfBoundsException(tr('Cannot execute HTML page request for target ":target", no template specified', [
-                        ':target' => static::$target,
+                        ':target' => static::$o_target,
                     ]));
                 }
 
@@ -1825,7 +1875,7 @@ class Request implements RequestInterface
 
             Log::warning(ts('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
                 ':new'    => $new_target,
-                ':target' => static::$target->getRootname(),
+                ':target' => static::$o_target->getRootname(),
                 ':user'   => Session::getUserObject()->getDisplayId(),
             ]));
 

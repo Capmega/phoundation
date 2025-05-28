@@ -1773,22 +1773,29 @@ class Response implements ResponseInterface
      *
      * @return void
      * @throws ValidatorException
+     * @todo Rewrite this method, its a turdy mess
      */
     public static function send(bool $exit = true): void
     {
+        // Only send when on WEB platform
         if (PLATFORM_WEB) {
-            if (isset(static::$page_headers)) {
-                // Only cache if there are headers. If static::buildHeaders() returned null this means that the headers
-                // have already been sent before, probably by a debugging function like Debug::show(). DON'T CACHE!
-                $length = static::sendHttpHeaders();
-                Log::success(ts('Cached ":length" bytes of HTTP to client', [':length' => $length]), 3);
-            }
+            // Don't send data if we're going to sign-out when the session terminates, which will cause a HTTP redirect
+            if (!Session::getSignoutOnExit()) {
+                // ????
+                if (isset(static::$page_headers)) {
+                    // TODO All this here makes zero sense? We're sending HTTP headers, but caching? Go over this, fix!
+                    // Only cache if there are headers. If static::buildHeaders() returned null this means that the headers
+                    // have already been sent before, probably by a debugging function like Debug::show(). DON'T CACHE!
+                    $length = static::sendHttpHeaders();
+                    Log::success(ts('Cached ":length" bytes of HTTP to client', [':length' => $length]), 3);
+                }
 
-            // Filter output out for certain HTTP codes, then send headers & output
-            static::clearOutputForHttpCodesAndMethods();
-            static::generateHttpHeaders();
-            static::sendHttpHeaders();
-            static::sendOutput();
+                // Filter output out for certain HTTP codes, then send headers & output
+                static::clearOutputForHttpCodesAndMethods();
+                static::generateHttpHeaders();
+                static::sendHttpHeaders();
+                static::sendOutput();
+            }
         }
 
         if ($exit) {
