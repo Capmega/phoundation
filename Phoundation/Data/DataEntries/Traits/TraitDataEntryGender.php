@@ -27,7 +27,7 @@ trait TraitDataEntryGender
      * @var array $allowed_genders
      */
     protected array $allowed_genders = [
-        ''        => 'unknown',
+        ''        => null,
         'male'    => 'male',
         'female'  => 'female',
         'Male'    => 'male',
@@ -39,7 +39,7 @@ trait TraitDataEntryGender
         'F'       => 'female',
         'o'       => 'other',
         'x'       => 'other',
-        'unknown' => 'unknown',
+        'unknown' => null,
     ];
 
 

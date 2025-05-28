@@ -1653,10 +1653,16 @@ throw new ObsoleteException();
                             // These fields were never selected, so we don't know them. Are they meta-columns? If so, ignore
                             // them because they will have been set manually (DataEntry::apply() will ignore meta columns)
                             if (empty($this->meta_columns) or !in_array($field, $this->meta_columns)) {
-                                $unclean[$field] = tr('The field ":field" with value ":value" is unknown', [
-                                    ':field' => $field,
-                                    ':value' => $value,
-                                ]);
+                                $unclean[$field] = [
+                                    'hard'      => false,
+                                    'label'     => $field,
+                                    'column'    => $field,
+                                    'value'     => $value,
+                                    'message'   => tr('The field ":field" with value ":value" is unknown', [
+                                        ':field' => $field,
+                                        ':value' => $value,
+                                    ])
+                                ];
 
                                 unset($this->source[$field]);
                                 continue 2;
