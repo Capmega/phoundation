@@ -1184,7 +1184,7 @@ trait TraitElementAttributes
     {
         if ($o_definition) {
             // Apply the definition rules to this element
-            $this->setName($o_definition->getColumn())
+            $this->setName($o_definition->getName())
                  ->setDisplay($o_definition->getDisplay())
                  ->setAfterContent($o_definition->getAfterContent())
                  ->setBeforeContent($o_definition->getBeforeContent())

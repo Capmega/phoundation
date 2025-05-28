@@ -599,7 +599,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                                              ->setValue(Strings::force($source[$column], ' - ')));
                             } else {
                                 $o_component = $o_definition->getContent()($o_definition, $column, $field_name, $source);
-                                $o_component->setDefinitionObject($o_definition);
 
                                 if ($o_component) {
                                     if (!is_string($o_component)) {
@@ -611,6 +610,8 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                 ':type'   => get_class_or_datatype($o_component),
                                             ]));
                                         }
+
+                                        $o_component->setDefinitionObject($o_definition);
                                     }
 
                                     $this->o_rows->add($o_definition, $o_component);
@@ -622,29 +623,29 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                             $this->o_rows->add($o_definition, $o_definition->getContent());
                         }
 
-                    } elseif (is_callable($o_definition->getContent())) {
-                        // Content has been specified with a callback
-                        if ($o_definition->getHidden()) {
-                            $this->o_rows->add($o_definition, InputHidden::new()
-                                                                         ->setName($field_name)
-                                                                         ->setValue(Strings::force($source[$column], ' - ')));
-
-                        } else {
-                            $o_component = $o_definition->getContent()($o_definition, $column, $field_name, $source);
-
-                            if ($o_component) {
-                                if (!$o_component instanceof RenderInterface) {
-                                    // The content function did NOT return a render object
-                                    throw new WebRenderException(tr('Failed to render DataEntryForm ":class", the column ":column" setContent method should return a RenderInterface object but returns a ":type" instead', [
-                                        ':class'  => get_class($this->o_data_entry),
-                                        ':column' => $column,
-                                        ':type'   => get_class_or_datatype($o_component),
-                                    ]));
-                                }
-
-                                $this->o_rows->add($o_definition, $o_component);
-                            }
-                        }
+//                    } elseif (is_callable($o_definition->getContent())) {
+//                        // Content has been specified with a callback
+//                        if ($o_definition->getHidden()) {
+//                            $this->o_rows->add($o_definition, InputHidden::new()
+//                                                                         ->setName($field_name)
+//                                                                         ->setValue(Strings::force($source[$column], ' - ')));
+//
+//                        } else {
+//                            $o_component = $o_definition->getContent()($o_definition, $column, $field_name, $source);
+//
+//                            if ($o_component) {
+//                                if (!$o_component instanceof RenderInterface) {
+//                                    // The content function did NOT return a render object
+//                                    throw new WebRenderException(tr('Failed to render DataEntryForm ":class", the column ":column" setContent method should return a RenderInterface object but returns a ":type" instead', [
+//                                        ':class'  => get_class($this->o_data_entry),
+//                                        ':column' => $column,
+//                                        ':type'   => get_class_or_datatype($o_component),
+//                                    ]));
+//                                }
+//
+//                                $this->o_rows->add($o_definition, $o_component);
+//                            }
+//                        }
 
                     } else {
                         // Content has already been rendered, display it
