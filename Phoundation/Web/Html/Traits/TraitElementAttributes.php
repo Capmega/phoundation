@@ -270,7 +270,7 @@ trait TraitElementAttributes
 
         // By default, name and id should be equal
         if ($name_too) {
-            if (empty($this->name)) {
+            if (!$this->getReadonly() and !$this->getDisabled()) {
                 $this->setName($id, false);
             }
         }
@@ -1012,14 +1012,17 @@ trait TraitElementAttributes
      */
     public function setName(?string $name, bool $id_too = true): static
     {
+        if ($this->getReadonly() or $this->getDisabled()) {
+            // Name is not allowed in readonly or disabled. Use ID instead
+            return $this->setId($name, false);
+        }
+
         $this->name      = $name;
         $this->real_name = Strings::until($name, '[');
 
         // By default, name and id should be equal
         if ($id_too) {
-            if (empty($this->id)) {
-                $this->setId($name, false);
-            }
+            $this->setId($name, false);
         }
 
         return $this;
@@ -1117,6 +1120,12 @@ trait TraitElementAttributes
             }
 
             $this->setName(null, false);
+
+        } else {
+            // In reverse, when not readonly or disabled and  name is empty, update name with id
+            if (empty($this->getName())) {
+                $this->setId($this->getId(), false);
+            }
         }
 
         return $this;

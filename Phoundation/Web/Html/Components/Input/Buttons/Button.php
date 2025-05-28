@@ -136,11 +136,18 @@ class Button extends Input implements ButtonInterface
 
         if (empty($this->getName()) and !$this->getReadonly() and !$this->getDisabled()) {
             // Content takes the value
-            throw new OutOfBoundsException(tr('Cannot render ":class" button object with value ":value" and content ":content", it has no name specified', [
+            throw OutOfBoundsException::new(tr('Cannot render ":class" button object with value ":value" and content ":content", it has no name specified', [
                 ':value'   => $this->getValue(),
                 ':content' => $this->getContent(),
                 ':class'   => static::class,
-            ]));
+            ]))->setData([
+                'id'       => $this->getId(),
+                'name'     => $this->getName(),
+                'readonly' => $this->getReadonly(),
+                'disabled' => $this->getDisabled(),
+                'value'    => $this->getValue(),
+                'content'  => $this->getContent(),
+            ]);
         }
 
         if (empty($this->getValue())) {
