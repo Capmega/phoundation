@@ -65,6 +65,7 @@ use Phoundation\Utils\Json;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Http\Url;
 use Plugins\Medinet\Utils\Exception\InvalidPhnException;
 use Plugins\Medinet\Utils\Exception\PhnRequiredException;
@@ -1505,6 +1506,8 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         // Modify to fix all values that have validation issues. SOFT failures require no
         // modifications, HARD failures do
         foreach ($failures as $column => $failure) {
+            $o_definition = $this->getDataEntryObject()?->getDefinitionsObject()?->get($column);
+
             if ($failure['hard']) {
                 if (array_key_exists('datatype', $failure)) {
                     // Force datatype
@@ -1521,6 +1524,13 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
                         case 'int':
                             $this->source[$column] = (int) $this->source[$column];
+
+                            // We're forcing numbers to be 0 but that might cause problems with database id's
+                            if (empty($this->source[$column]) and $o_definition->hasRealInputType(EnumInputType::dbid)) {
+                                // Database ID's CANNOT be zero
+                                $this->source[$column] = null;
+                            }
+
                             break;
 
                         case 'float':
@@ -1756,7 +1766,7 @@ throw new ObsoleteException();
             if (!is_numeric($value)) {
                 if (!$this->selected_is_optional) {
                     // At this point we know we MUST have a value, so we're bad here
-                    $this->addSoftFailure(tr('is required'));
+                    $this->addFailure(tr('is required'));
                     return true;
                 }
 
@@ -1764,7 +1774,6 @@ throw new ObsoleteException();
                 $value                      = $this->selected_optional;
                 $this->selected_is_default  = true;
                 $this->process_value_failed = true;
-
                 return true;
             }
         }
@@ -1925,16 +1934,12 @@ throw new ObsoleteException();
         return $this->validateValues(function (&$value) {
             if (!$this->hasOptionalValue($value)) {
                 if (!is_integer($value)) {
-                    if (is_string($value) and (((int) $value) == $value)) {
+                    if (((int) $value) == $value) {
                         // This integer value was specified as a numeric string
                         $value = (int) $value;
 
                     } else {
-                        if ($value !== null) {
-                            $this->addFailure(tr('must have an integer value'));
-                        }
-
-                        $value = 0;
+                        $this->addFailure(tr('must have an integer value'));
                     }
                 }
             }
@@ -2303,7 +2308,7 @@ throw new ObsoleteException();
         $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($allow_zero, $allow_negative) {
-            $this->isInteger();
+            $this->isNatural();
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more

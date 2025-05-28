@@ -116,6 +116,7 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
+use Plugins\Medinet\Encounters\EncounterClaim;
 use Stringable;
 use Throwable;
 use TypeError;
@@ -2787,16 +2788,16 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         if ($this->isNew()) {
             if (!$this->allow_create) {
                 // auto create is not allowed, sorry!
-                throw new ValidationFailedException(tr('Cannot create new :entry', [
-                    ':entry' => static::getEntryName(),
+                throw new ValidationFailedException(tr('Now allowed to create new :entry', [
+                    ':entry' => strtolower(static::getEntryName()),
                 ]));
             }
 
         } else {
             if (!$this->allow_modify) {
                 // auto modify is not allowed, sorry!
-                throw new ValidationFailedException(tr('Cannot modify :entry', [
-                    ':entry' => static::getEntryName(),
+                throw new ValidationFailedException(tr('Now allowed to modify :entry', [
+                    ':entry' => strtolower(static::getEntryName()),
                 ]));
             }
         }

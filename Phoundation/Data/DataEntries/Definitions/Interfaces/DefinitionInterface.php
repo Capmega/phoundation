@@ -1469,4 +1469,13 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      * @return static
      */
     public function setNullDisplay(string|float|int|bool|null $value = null): static;
+
+    /**
+     * Returns true if this definition has the specified input type
+     *
+     * @param EnumInputType $type
+     *
+     * @return bool
+     */
+    public function hasInputType(EnumInputType $type): bool;
 }

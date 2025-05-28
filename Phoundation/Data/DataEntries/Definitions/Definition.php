@@ -1584,6 +1584,32 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns true if this definition has the specified input type
+     *
+     * @param EnumInputType $type
+     *
+     * @return bool
+     */
+    public function hasInputType(EnumInputType $type): bool
+    {
+        return $this->getInputType() === $type;
+    }
+
+
+    /**
+     * Returns true if this definition has the specified real input type
+     *
+     * @param EnumInputType $type
+     *
+     * @return bool
+     */
+    public function hasRealInputType(EnumInputType $type): bool
+    {
+        return $this->getRealInputType() === $type;
+    }
+
+
+    /**
      * Sets the type of input element.
      *
      * @return EnumInputType
@@ -1696,6 +1722,8 @@ class Definition implements DefinitionInterface
                         ->setKey(null, 'type');
         }
 
+        $this->setRealInputType($value);
+
         // Apply default definitions for this input type
         switch ($value) {
             case EnumInputType::number:
@@ -1792,7 +1820,7 @@ class Definition implements DefinitionInterface
 
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $validator) {
-                         $validator->isNatural();
+                         $validator->isDbId();
                      });
                 break;
 
@@ -1825,6 +1853,7 @@ class Definition implements DefinitionInterface
                                    ->isMoreThan(0, true);
                      });
                 break;
+
             case EnumInputType::negativeInteger:
                 $value = EnumInputType::number;
 
@@ -2087,6 +2116,30 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Sets the real input type
+     *
+     * @param EnumInputType $value
+     *
+     * @return static
+     */
+    protected function setRealInputType(EnumInputType $value): static
+    {
+        return $this->setKey($value->value, 'real_type');
+    }
+
+
+    /**
+     * Sets the real input type
+     *
+     * @return EnumInputType
+     */
+    protected function getRealInputType(): EnumInputType
+    {
+        return get_safe_typed('string', $this->source, 'real_type');
+    }
+
+
+    /**
      * Clears all currently existing validation functions for this definition
      *
      * @return static
@@ -2102,6 +2155,7 @@ class Definition implements DefinitionInterface
      * Adds the specified validation function to the validation functions list for this definition
      *
      * @param callable $function
+     * @param bool     $set_content_test_done
      *
      * @return static
      */
