@@ -599,6 +599,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                                              ->setValue(Strings::force($source[$column], ' - ')));
                             } else {
                                 $o_component = $o_definition->getContent()($o_definition, $column, $field_name, $source);
+                                $o_component->setDefinitionObject($o_definition);
 
                                 if ($o_component) {
                                     if (!is_string($o_component)) {

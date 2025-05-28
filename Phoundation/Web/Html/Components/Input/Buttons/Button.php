@@ -27,7 +27,7 @@ use Stringable;
 
 class Button extends Input implements ButtonInterface
 {
-    use TraitButtonProperties{
+    use TraitButtonProperties {
         render as protected __render;
     }
 
@@ -78,6 +78,22 @@ class Button extends Input implements ButtonInterface
 
 
     /**
+     * @inheritDoc
+     */
+    public function setReadonly(bool $readonly, ?bool $set_disabled = null): static {
+        return parent::setReadonly($readonly, $set_disabled);
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function setDisabled(bool $disabled, ?bool $set_readonly = null): static {
+        return parent::setDisabled($disabled, $set_readonly);
+    }
+
+
+    /**
      * Set the content for this button
      *
      * @param Stringable|string|float|int|null $content
@@ -118,7 +134,7 @@ class Button extends Input implements ButtonInterface
             ]));
         }
 
-        if (empty($this->getName())) {
+        if (empty($this->getName()) and !$this->getReadonly() and !$this->getDisabled()) {
             // Content takes the value
             throw new OutOfBoundsException(tr('Cannot render ":class" button object with value ":value" and content ":content", it has no name specified', [
                 ':value'   => $this->getValue(),

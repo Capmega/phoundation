@@ -54,7 +54,6 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     public function setButtons(ArrayableInterface|array $buttons): static
     {
         $this->source = [];
-
         return $this->addButtons($buttons);
     }
 

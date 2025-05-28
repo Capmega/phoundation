@@ -16,8 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Traits;
 
-use Phoundation\Data\Traits\TraitDataDisabled;
-use Phoundation\Data\Traits\TraitDataReadonly;
 use Phoundation\Data\Traits\TraitDataTarget;
 use Phoundation\Web\Html\Components\Icons\Icons;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
@@ -31,8 +29,6 @@ trait TraitButtonProperties
     use TraitMode;
     use TraitUsesSize;
     use TraitDataTarget;
-    use TraitDataReadonly;
-    use TraitDataDisabled;
 
 
     /**

@@ -53,34 +53,6 @@ class InputCheckbox extends Input
 
 
     /**
-     * Sets the HTML readonly AND disabled element attribute
-     *
-     * @param bool $readonly
-     *
-     * @return static
-     */
-    public function setReadonly(bool $readonly): static
-    {
-        parent::setReadonly($readonly)->disabled = $readonly;
-        return $this;
-    }
-
-
-    /**
-     * Sets the HTML readonly AND disabled element attribute
-     *
-     * @param bool $disabled
-     *
-     * @return static
-     */
-    public function setDisabled(bool $disabled): static
-    {
-        parent::setDisabled($disabled)->readonly = $disabled;
-        return $this;
-    }
-
-
-    /**
      * Returns if labels are rendered before the control
      *
      * @return bool

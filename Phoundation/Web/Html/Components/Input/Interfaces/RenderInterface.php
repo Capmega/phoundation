@@ -6,8 +6,6 @@ namespace Phoundation\Web\Html\Components\Input\Interfaces;
 
 use Phoundation\Data\DataEntries\Exception\DataEntryDisabledException;
 use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
-use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
-use Phoundation\Utils\Strings;
 use Stringable;
 
 

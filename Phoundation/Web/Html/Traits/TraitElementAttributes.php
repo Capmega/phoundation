@@ -633,14 +633,21 @@ trait TraitElementAttributes
             $this->class = implode(' ', $this->o_classes->getSourceKeys());
 
             if ($add_definition_name_to_class) {
-                if ($this->name) {
-                    if (preg_match('/^\d+_/', $this->name)) {
-                        // Add the name attribute from the definition
-                        $this->class .= ' ' . Strings::from($this->name, '_');
+                if ($this->getName()) {
+                    $identifier = $this->getName();
+
+                } elseif ($this->getId()) {
+                    $identifier = $this->getId();
+                }
+
+                if (isset($identifier)) {
+                    if (preg_match('/^\d+_/', $identifier)) {
+                        // Add the name attribute from the definition minus the prefixed identifier
+                        $this->class .= ' ' . Strings::from($identifier, '_');
 
                     } else {
                         // Add the name attribute from the definition
-                        $this->class .= ' ' . $this->name;
+                        $this->class .= ' ' . $identifier;
                     }
                 }
             }
@@ -1003,14 +1010,14 @@ trait TraitElementAttributes
      *
      * @return static
      */
-    public function setName(?string $name, bool $id_too = false): static
+    public function setName(?string $name, bool $id_too = true): static
     {
         $this->name      = $name;
         $this->real_name = Strings::until($name, '[');
 
         // By default, name and id should be equal
         if ($id_too) {
-            if (empty($this->id_too)) {
+            if (empty($this->id)) {
                 $this->setId($name, false);
             }
         }
@@ -1033,22 +1040,28 @@ trait TraitElementAttributes
     /**
      * Set the HTML disabled element attribute
      *
-     * @param bool $disabled
+     * @param bool      $disabled
+     * @param bool|null $set_readonly
      *
      * @return static
      */
-    public function setDisabled(bool $disabled): static
+    public function setDisabled(bool $disabled, ?bool $set_readonly = null): static
     {
         if ($disabled) {
-            $this->o_classes->add(true, 'disabled', exception: false);
+            $this->o_classes->add('disabled', 'disabled', exception: false);
 
         } else {
             $this->o_classes->removeKeys('disabled');
         }
 
         $this->disabled = $disabled;
+        $set_readonly   = $set_readonly ?? config()->getBoolean('web.elements.readonly.auto.disabled', false);
 
-        return $this;
+        if ($set_readonly ) {
+            return $this->setReadonly($disabled, false);
+        }
+
+        return $this->updateReadonlyDisabledName();
     }
 
 
@@ -1066,20 +1079,45 @@ trait TraitElementAttributes
     /**
      * Set the HTML readonly element attribute
      *
-     * @param bool $readonly
+     * @param bool      $readonly
+     * @param bool|null $set_disabled
      *
      * @return static
      */
-    public function setReadonly(bool $readonly): static
+    public function setReadonly(bool $readonly, ?bool $set_disabled = null): static
     {
         if ($readonly) {
-            $this->o_classes->add(true, 'readonly', exception: false);
+            $this->o_classes->add('readonly', 'readonly', exception: false);
 
         } else {
             $this->o_classes->removeKeys('readonly');
         }
 
         $this->readonly = $readonly;
+        $set_disabled   = $set_disabled ?? config()->getBoolean('web.elements.readonly.auto.disabled', false);
+
+        if ($set_disabled) {
+            return $this->setDisabled($readonly, false);
+        }
+
+        return $this->updateReadonlyDisabledName();
+    }
+
+
+    /**
+     * Updates the element's name if the object is readonly or disabled
+     *
+     * @return static
+     */
+    protected function updateReadonlyDisabledName(): static
+    {
+        if ($this->getReadonly() or $this->getDisabled()) {
+            if (empty($this->getId())) {
+                $this->setId($this->getName(), false);
+            }
+
+            $this->setName(null, false);
+        }
 
         return $this;
     }

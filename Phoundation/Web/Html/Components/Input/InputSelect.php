@@ -175,84 +175,32 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
 
 
     /**
-     * Returns the HTML readonly element attribute
-     *
-     * Enabling readonly on a select element will also enable disabled!
-     *
-     * @return bool
-     */
-    public function getReadonly(): bool
-    {
-        return $this->readonly;
-    }
-
-
-    /**
      * Set the HTML readonly element attribute
      *
      * Enabling readonly on a select element will also enable disabled!
      *
-     * @param bool $readonly
+     * @param bool      $readonly
+     * @param bool|null $set_disabled
      *
      * @return static
      */
-    public function setReadonly(bool $readonly): static
+    public function setReadonly(bool $readonly, ?bool $set_disabled = true): static
     {
-        if ($readonly) {
-            if (!$this->readonly) {
-                $this->addClasses('readonly');
-            }
-
-            if (!$this->disabled) {
-                $this->addClasses('disabled');
-            }
-
-            $this->readonly = true;
-            $this->disabled = true;
-
-        } else {
-            $this->removeClasses('readonly');
-            $this->readonly = false;
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Returns  the HTML disabled element attribute
-     *
-     * Enabling readonly on a select element will also enable disabled!
-     *
-     * @return bool
-     */
-    public function getDisabled(): bool
-    {
-        return $this->disabled;
+        return parent::setReadonly($readonly, $set_disabled);
     }
 
 
     /**
      * Set the HTML disabled element attribute
      *
-     * @param bool $disabled
+     * @param bool      $disabled
+     * @param bool|null $set_readonly
      *
      * @return static
      */
-    public function setDisabled(bool $disabled): static
+    public function setDisabled(bool $disabled, ?bool $set_readonly = true): static
     {
-        if ($disabled) {
-            $this->addClasses('disabled');
-            $this->disabled = true;
-
-        } else {
-            if (!$this->readonly) {
-                $this->removeClasses('disabled');
-                $this->disabled = false;
-            }
-        }
-
-        return $this;
+        return parent::setDisabled($disabled, $set_readonly);
     }
 
 

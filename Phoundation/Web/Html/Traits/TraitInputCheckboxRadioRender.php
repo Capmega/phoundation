@@ -21,6 +21,7 @@ trait TraitInputCheckboxRadioRender
 {
     use TraitInputLabel;
 
+
     /**
      * Render the HTML for this checkbox
      *
