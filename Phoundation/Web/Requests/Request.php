@@ -1088,7 +1088,7 @@ class Request implements RequestInterface
         // As soon as we inquire about the request method being GET, Phoundation will assume that GET is allowed
         Request::getMethodRestrictionsObject()->allow(EnumHttpRequestMethod::get);
 
-        return static::isRequestMethod(EnumHttpRequestMethod::get);
+        return static::isRequestMethod(EnumHttpRequestMethod::get) or static::isRequestMethod(EnumHttpRequestMethod::post);
     }
 
 
