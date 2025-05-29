@@ -1848,7 +1848,9 @@ class Request implements RequestInterface
                 return execute();
             }
 
-            Response::addHeadDataAttribute(Url::getBase(), 'base-url');
+            if (!Request::isSystemPage()) {
+                Response::addHeadDataAttribute(Url::getBase(), 'base-url');
+            }
 
             // Execute the entire page and return the output
             $results = static::$page->execute();
