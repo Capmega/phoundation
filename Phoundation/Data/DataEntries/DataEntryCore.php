@@ -74,6 +74,7 @@ use Phoundation\Data\Traits\TraitDataColumns;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Data\Traits\TraitDataDisabled;
+use Phoundation\Data\Traits\TraitDataEventHandler;
 use Phoundation\Data\Traits\TraitDataIdentifier;
 use Phoundation\Data\Traits\TraitDataIgnoreDeleted;
 use Phoundation\Data\Traits\TraitDataInsertUpdate;
@@ -132,6 +133,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     use TraitDataDebug;
     use TraitDataDisabled;
     use TraitDataDefinitions;
+    use TraitDataEventHandler;
     use TraitDataIdentifier;
     use TraitDataIgnoreDeleted;
     use TraitDataInsertUpdate;
