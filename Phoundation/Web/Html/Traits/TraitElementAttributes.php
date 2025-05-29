@@ -44,6 +44,7 @@ use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
 
+
 trait TraitElementAttributes
 {
     use TraitMethodHasRendered;
@@ -1115,11 +1116,8 @@ trait TraitElementAttributes
     protected function updateReadonlyDisabledName(): static
     {
         if ($this->getReadonly() or $this->getDisabled()) {
-            if (empty($this->getId())) {
-                $this->setId($this->getName(), false);
-            }
-
-            $this->setName(null, false);
+            $this->setId($this->getName(), false)
+                 ->setName(null, false);
 
         } else {
             // In reverse, when not readonly or disabled and  name is empty, update name with id
@@ -1186,7 +1184,7 @@ trait TraitElementAttributes
     {
         if ($o_definition) {
             // Apply the definition rules to this element
-            $this->setName($o_definition->getColumn())
+            $this->setName($o_definition->getName())
                  ->setDisplay($o_definition->getDisplay())
                  ->setAfterContent($o_definition->getAfterContent())
                  ->setBeforeContent($o_definition->getBeforeContent())

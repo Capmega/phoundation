@@ -586,14 +586,14 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
         $this->validateSelected();
 
         if ($this->render_checkboxes) {
+            $render = '';
+
             if ($this->getMultiple()) {
                 // Render checkboxes instead of a <select> component
-                $render = '';
-
                 foreach ($this->source as $key => $value) {
                     $render .= InputCheckbox::new()
                                             ->setName($this->name)
-                                            ->setId($this->name . '_' . strtolower((string) $key))
+                                            ->setId($this->name . '_' . strtolower((string) $key), false)
                                             ->setValue($key)
                                             ->setLabel($value)
                                             ->setInline(false)
@@ -602,16 +602,12 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
                                             ->render();
                 }
 
-                return '<div>' . $render . '</div>';
-
             } else {
                 // Render radiobuttons instead of a <select> component
-                $render = '';
-
                 foreach ($this->source as $key => $value) {
                     $input_radio = InputRadio::new()
                                              ->setName($this->name)
-                                             ->setId($this->name . '_' . strtolower((string) $key))
+                                             ->setId($this->name . '_' . strtolower((string) $key), false)
                                              ->setValue($key)
                                              ->setLabel($value)
                                              ->setReadonly($this->getReadonly())
@@ -624,9 +620,9 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
 
                     $render .= $input_radio->render();
                 }
-
-                return '<div>' . $render . '</div>';
             }
+
+            return '<div>' . $render . '</div>';
         }
 
         return parent::render();

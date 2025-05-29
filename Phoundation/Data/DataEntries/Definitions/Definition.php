@@ -930,6 +930,17 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Sets the full element name for this definition
+     *
+     * @return string|null
+     */
+    public function getName(): ?string
+    {
+        return $this->getPrefix() . $this->getColumn();
+    }
+
+
+    /**
      * Sets specified HTML classes to the DataEntryForm object
      *
      * @note When specifying multiple classes in a string, make sure they are space separated!
