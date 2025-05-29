@@ -237,4 +237,15 @@ interface DefinitionsInterface extends IteratorInterface
      * @return static
      */
     public function setDefinitionReadonly(Stringable|string|float|int $key, bool $readonly, bool $exception = true): static;
+
+    /**
+     * Direct method to make entries disabled
+     *
+     * @param Stringable|string|float|int $key
+     * @param bool                        $disabled
+     * @param bool                        $exception
+     *
+     * @return static
+     */
+    public function setDefinitionDisabled(Stringable|string|float|int $key, bool $disabled, bool $exception = true): static;
 }
