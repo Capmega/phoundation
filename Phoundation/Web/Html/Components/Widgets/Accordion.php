@@ -70,6 +70,13 @@ class Accordion extends Widget implements AccordionInterface
     protected array $header_classes = [];
 
     /**
+     * Tracks headers for each key
+     *
+     * @var array $item_headers
+     */
+    protected array $item_headers = [];
+
+    /**
      * Display an entry to indicate there are no results
      *
      * @var bool
@@ -249,12 +256,12 @@ class Accordion extends Widget implements AccordionInterface
     /**
      * Sets whether a key should be displayed or not
      *
-     * @param string $key
-     * @param bool   $display
+     * @param string|int $key
+     * @param bool       $display
      *
      * @return static
      */
-    public function setDisplayKey(string $key, bool $display): static
+    public function setDisplayKey(string|int $key, bool $display): static
     {
         if ($display) {
             $this->item_classes[$key] = null;
@@ -305,6 +312,50 @@ class Accordion extends Widget implements AccordionInterface
     {
         $current_classes          = array_get_safe($this->item_classes, $key);
         $this->item_classes[$key] = $current_classes . ' ' . $class;
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the item headers
+     *
+     * @return array
+     */
+    public function getItemHeaders(): array
+    {
+        return $this->item_headers;
+    }
+
+
+    /**
+     * Adds headers to the header
+     *
+     * @param string|int  $key
+     * @param string|null $header
+     *
+     * @return static
+     */
+    public function setItemHeader(string|int $key, string|null $header): static
+    {
+        $this->item_headers[$key] = ' ' . $header;
+
+        return $this;
+    }
+
+
+    /**
+     * Adds headers to the header
+     *
+     * @param string|int  $key
+     * @param string|null $header
+     *
+     * @return static
+     */
+    public function addItemHeader(string|int $key, string|null $header): static
+    {
+        $current_headers          = array_get_safe($this->item_headers, $key);
+        $this->item_headers[$key] = $current_headers . ' ' . $header;
 
         return $this;
     }
@@ -367,12 +418,13 @@ class Accordion extends Widget implements AccordionInterface
 
         foreach ($this->source as $key => $value) {
             $seo_key = Seo::string($key);
+            $header  = array_get_safe($this->item_headers, $key);
             $data    = $this->renderDataKey($key);
             $return .= '        <div class="accordion-item' . array_get_safe($this->item_classes, $key) . '"' . $data . '>
                                     <h2 class="accordion-header' . array_get_safe($this->header_classes, $key) . ($this->selectors ? ' accordion-header-selectors' : null) . '" id="accordion-heading-' . $seo_key . '">
                                         ' . $this->getSelector($seo_key) . '
                                         <button data-mdb-collapse-init class="accordion-button text-dark' . (($key === $this->open) ? ' collapsed' : '') . '" type="button" data-mdb-toggle="collapse" data-mdb-target="#accordion-collapse-' . $seo_key . '" aria-expanded="' . (($key === $this->open) ? 'true' : 'false') . '" aria-controls="accordion-collapse-' . $seo_key . '">
-                                            ' . $key . '
+                                            ' . $header . '
                                         </button>
                                     </h2>
                                     <div id="accordion-collapse-' . $seo_key . '" class="accordion-collapse collapse' . (($key === $this->open) ? ' show' : '') . '" aria-labelledby="accordion-heading' . $seo_key . '" data-mdb-parent="#' . $this->getId() . '">

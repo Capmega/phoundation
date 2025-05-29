@@ -411,11 +411,11 @@ trait TraitElementAttributes
      * Adds a data-KEY(=VALUE) attribute
      *
      * @param array|string|float|int|null $value
-     * @param string                      $key
+     * @param string|int                  $key
      *
      * @return static
      */
-    public function addData(array|string|float|int|null $value, string $key): static
+    public function addData(array|string|float|int|null $value, string|int $key): static
     {
         $this->getDataObject()->add($value, $key, false, false);
 
@@ -426,11 +426,11 @@ trait TraitElementAttributes
     /**
      * Returns the data attributers for the specified key
      *
-     * @param string $key
+     * @param string|int $key
      *
      * @return array|string|float|int|null
      */
-    public function getDataKey(string $key): array|string|float|int|null
+    public function getDataKey(string|int $key): array|string|float|int|null
     {
         return $this->getDataObject()->get($key, false);
     }
