@@ -2146,7 +2146,26 @@ class Definition implements DefinitionInterface
      */
     protected function getRealInputType(): EnumInputType
     {
-        return get_safe_typed('string', $this->source, 'real_type');
+        $return = get_safe_typed('string', $this->source, 'real_type');
+
+        if ($return === null) {
+            return EnumInputType::text;
+        }
+
+        try {
+            return EnumInputType::from($return);
+
+        } catch (Throwable $e) {
+            if (str_contains($e->getMessage(), 'is not a valid backing value for enum')) {
+                // So the input type is not from InputTypeInterface, it must be from EnumInputType
+                return EnumInputType::from($return);
+            }
+
+            // WTF else could possibly have happened?
+            throw new DefinitionException(tr('Encountered invalid EnumInputType ":value"', [
+                'value' => $return
+            ]), $e);
+        }
     }
 
 

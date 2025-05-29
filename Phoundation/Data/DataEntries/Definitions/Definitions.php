@@ -485,14 +485,14 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      * Direct method to make entries readonly
      *
      * @param Stringable|string|float|int $key
-     * @param bool                        $render
+     * @param bool                        $readonly
      * @param bool                        $exception
      *
      * @return static
      */
-    public function setDefinitionReadonly(Stringable|string|float|int $key, bool $render, bool $exception = true): static
+    public function setDefinitionReadonly(Stringable|string|float|int $key, bool $readonly, bool $exception = true): static
     {
-        $this->get($key, $exception)->setReadonly($render);
+        $this->get($key, $exception)->setReadonly($readonly);
         return $this;
     }
 
@@ -501,14 +501,14 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      * Direct method to make entries disabled
      *
      * @param Stringable|string|float|int $key
-     * @param bool                        $render
+     * @param bool                        $disabled
      * @param bool                        $exception
      *
      * @return static
      */
-    public function setDefinitionDisabled(Stringable|string|float|int $key, bool $render, bool $exception = true): static
+    public function setDefinitionDisabled(Stringable|string|float|int $key, bool $disabled, bool $exception = true): static
     {
-        $this->get($key, $exception)->setDisabled($render);
+        $this->get($key, $exception)->setDisabled($disabled);
         return $this;
     }
 
