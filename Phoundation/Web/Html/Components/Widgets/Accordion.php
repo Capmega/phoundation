@@ -369,7 +369,7 @@ class Accordion extends Widget implements AccordionInterface
      *
      * @return static
      */
-    public function setHeaderClass(string $key, string|null $class): static
+    public function setHeaderClass(string|int $key, string|null $class): static
     {
         $this->header_classes[$key] = ' ' . $class;
 
