@@ -287,12 +287,12 @@ class Accordion extends Widget implements AccordionInterface
     /**
      * Adds classes to the header
      *
-     * @param string      $key
+     * @param string|int  $key
      * @param string|null $class
      *
      * @return static
      */
-    public function setItemClass(string $key, string|null $class): static
+    public function setItemClass(string|int $key, string|null $class): static
     {
         $this->item_classes[$key] = ' ' . $class;
 
@@ -303,12 +303,12 @@ class Accordion extends Widget implements AccordionInterface
     /**
      * Adds classes to the header
      *
-     * @param string      $key
+     * @param string|int  $key
      * @param string|null $class
      *
      * @return static
      */
-    public function addItemClass(string $key, string|null $class): static
+    public function addItemClass(string|int $key, string|null $class): static
     {
         $current_classes          = array_get_safe($this->item_classes, $key);
         $this->item_classes[$key] = $current_classes . ' ' . $class;
@@ -391,12 +391,12 @@ class Accordion extends Widget implements AccordionInterface
     /**
      * Adds classes to the header
      *
-     * @param string      $key
+     * @param string|int  $key
      * @param string|null $class
      *
      * @return static
      */
-    public function addHeaderClass(string $key, string|null $class): static
+    public function addHeaderClass(string|int $key, string|null $class): static
     {
         $current_classes            = array_get_safe($this->header_classes, $key);
         $this->header_classes[$key] = $current_classes . ' ' . $class;
