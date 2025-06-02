@@ -3,7 +3,12 @@
 /**
  * Class InputDate
  *
- *
+ * @see       https://www.daterangepicker.com/
+ * @see       https://getdatepicker.com/
+ * @see       https://flatpickr.js.org/
+ * @see       https://github.com/eureka2/ab-datepicker
+ * @see       https://datebox.jtsage.dev/
+ * @see       https://preview.keenthemes.com/html/metronic/docs/forms/daterangepicker
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -46,7 +51,7 @@ class InputDate extends InputText
      */
     public function setValue(PhoDateTimeInterface|Stringable|string|float|int|null $value, bool $make_safe = true): static
     {
-        if ($value instanceof PhoDateTime) {
+        if ($value instanceof PhoDateTimeInterface) {
             $value = $value->format('Y-m-d');
         }
 
@@ -74,7 +79,7 @@ class InputDate extends InputText
      */
     public function setMax(PhoDateTimeInterface|Stringable|string|null $max): static
     {
-        if ($max instanceof PhoDateTime) {
+        if ($max instanceof PhoDateTimeInterface) {
             $max = $max->format('Y-m-d');
         }
 
@@ -102,7 +107,7 @@ class InputDate extends InputText
      */
     public function setMin(PhoDateTimeInterface|Stringable|string|null $min): static
     {
-        if ($min instanceof PhoDateTime) {
+        if ($min instanceof PhoDateTimeInterface) {
             $min = $min->format('Y-m-d');
         }
 
