@@ -28,7 +28,7 @@ $post = PostValidator::new()
 
 // Update the user configuration
 Session::getUserObject()
-       ->getConfigurationsObject()->set($post['url']->clearQueries(), 'default_page')
+       ->getConfigurationsObject()->set($post['url']->removeQueryKeys(['date', 'date_range']), 'default_page')
                                   ->save();
 
 
