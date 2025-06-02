@@ -1041,34 +1041,29 @@ class Url implements UrlInterface
     /**
      * Remove specified queries from the specified URL and return
      *
-     * @param IteratorInterface|array|string|null ...$keys
+     * @param IteratorInterface|array|string|null $keys
      *
      * @return static
      */
-    public function removeQueryKeys(IteratorInterface|array|string|null ...$keys): static
+    public function removeQueryKeys(IteratorInterface|array|string|null $keys): static
     {
         if (!$keys) {
             return $this;
         }
 
-        // Remove all specified keys
-        foreach ($keys as $sub_keys) {
-            if (!$sub_keys) {
-                continue;
-            }
+        $keys    = Arrays::force($keys);
+        $queries = Strings::from($this->source, '?');
+        $queries = Arrays::force($queries, '&');
 
-            // Keys may have been specified as string, Iterator, etc... Ensure we have an array
-            $sub_keys = Arrays::force($sub_keys);
-
-            foreach ($sub_keys as $key) {
-                $this->source .= '&';
-                $this->source  = preg_replace('/&'  . $key . '=.+?&/', '' , $this->source);
-                $this->source  = preg_replace('/\?' . $key . '=.+?&/', '?', $this->source);
-                $this->source  = Strings::ensureEndsNotWith($this->source, '&');
-                $this->source  = Strings::ensureEndsNotWith($this->source, '?');
+        foreach ($keys as $key) {
+            foreach ($queries as $id => $query) {
+                if (str_starts_with($query, $key . '=')) {
+                    unset($queries[$id]);
+                }
             }
         }
 
+        $this->source = Strings::until($this->source, '?') . '?' . implode('&', $queries);
         return $this;
     }
 
