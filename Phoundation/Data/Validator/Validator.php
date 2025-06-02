@@ -5196,7 +5196,9 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a valid version number
      *
-     * @param int|null $max_characters
+     * @see    https://semver.org/
+     *
+     * @param  int|null $max_characters
      *
      * @return static
      */

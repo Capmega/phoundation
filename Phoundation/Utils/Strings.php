@@ -455,7 +455,9 @@ class Strings extends Utils
     /**
      * Return if the specified source is a valid version or not
      *
-     * @param Stringable|string $source
+     * @see    https://semver.org/
+     *
+     * @param  Stringable|string $source
      *
      * @return bool True if the specified string is a version format string matching "/^\d{1,3}\.\d{1,3}\.\d{1,3}$/".
      *              False if not
