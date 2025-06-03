@@ -99,7 +99,7 @@ class TreeViewer extends Widget implements TreeViewerInterface
                       ->setId($this->getId())
                       ->setContent($this->renderHtml($this->source))
                       ->addClasses('treeview')
-                      ->addData(null, 'mdb-treeview-init')
+                      ->addData('', 'mdb-treeview-init')
                       ->render() . Script::new('$("#' . $this->getId() . '").treeview()')
                                          ->render();
         }
