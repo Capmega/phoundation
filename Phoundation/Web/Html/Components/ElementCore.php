@@ -192,7 +192,7 @@ abstract class ElementCore implements ElementInterface
             // NOTE: Class methods are rendered by the Template libraries rendering for the correct template and these
             // already add the "before content" and "after content". Do NOT add before and after content here!
             $render = $renderer_class::new($this)
-                                     ->setParentRenderFunction($render_function)
+                                     ->setRenderFunction($render_function)
                                      ->render() . $this->o_scripts?->render();
 
         } else {

@@ -36,7 +36,7 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\SqlQueries;
-use Phoundation\Date\PhoDateFormats;
+use Phoundation\Date\PhoDateTimeFormats;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
@@ -115,7 +115,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
         $this->setUseForm(true)
              ->defaultRequestMethod()
-             ->setFormat(PhoDateFormats::getDefaultPhp());
+             ->setFormat(PhoDateTimeFormats::getDefaultDateFormatPhp());
 
         // Define possible record states
         if (empty($this->states)) {
@@ -162,7 +162,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                           ->setRender(false)
                                                           ->setForceValidations(true)
                                                           ->addValidationFunction(function (ValidatorInterface $validator) {
-                                                              $validator->isOptional($this->getDateRangeDefault())->sanitizeForceArray('-')->forEachField()->sanitizeTrim()->isDate();
+                                                              $validator->isOptional()->sanitizeForceArray('-')->forEachField()->sanitizeTrim()->isDate();
                                                           }))
 
                                           ->add(Definition::new('users_id')
@@ -356,8 +356,8 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
         // Set default date range
         if (empty($this->date_range_default)) {
             $this->date_range_default = [
-                PhoDateTime::new('-6 day')->format(PhoDateFormats::getDefaultPhp()),
-                PhoDateTime::new()->format(PhoDateFormats::getDefaultPhp())
+                PhoDateTime::new('-6 day')->format(PhoDateTimeFormats::getDefaultDateFormatPhp()),
+                PhoDateTime::new()->format(PhoDateTimeFormats::getDefaultDateFormatPhp())
             ];
         }
 

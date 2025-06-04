@@ -262,7 +262,6 @@ trait TraitInputElement
             $source['required'] = '';
         }
 
-        return Iterator::new()
-                       ->setSource($source);
+        return Iterator::new()->setSource($source);
     }
 }

@@ -23,7 +23,7 @@ namespace Phoundation\Web\Html\Components\Tables;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Date\Exception\DateTimeException;
-use Phoundation\Date\PhoDateFormats;
+use Phoundation\Date\PhoDateTimeFormats;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Security\Incidents\Incident;
@@ -33,7 +33,6 @@ use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
-use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Html\Enums\EnumPagingType;
 use Phoundation\Web\Html\Enums\EnumTableRowType;
 use Phoundation\Web\Html\Html;
@@ -428,7 +427,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      * @see https://momentjs.com/docs/#/displaying/format/
      * @return string|null
      */
-    public function getJsDateFormat(): ?string
+    public function getDateFormatJavascript(): ?string
     {
         return $this->js_date_format;
     }
@@ -517,7 +516,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setJsDateFormat(?string $date_format): static
     {
         $this->js_date_format  = $date_format;
-        $this->php_date_format = PhoDateFormats::convertJsToPhp($date_format);
+        $this->php_date_format = PhoDateTimeFormats::convertJsToPhp($date_format);
 
         return $this;
     }
@@ -547,7 +546,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function setPhpDateFormat(?string $php_date_format): static
     {
         $this->php_date_format = $php_date_format;
-        $this->js_date_format  = PhoDateFormats::convertPhpToJs($php_date_format);
+        $this->js_date_format  = PhoDateTimeFormats::convertPhpToJs($php_date_format);
 
         return $this;
     }

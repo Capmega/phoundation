@@ -17,12 +17,12 @@ declare(strict_types=1);
 namespace Phoundation\Web\Requests;
 
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Accounts\Users\Locale\Language\Interfaces\LanguageInterface;
+use Phoundation\Accounts\Users\Locale\Language\Language;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Cache\Cache;
 use Phoundation\Cache\InstanceCache;
 use Phoundation\Core\Core;
-use Phoundation\Core\Locale\Language\Interfaces\LanguageInterface;
-use Phoundation\Core\Locale\Language\Language;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
@@ -31,8 +31,6 @@ use Phoundation\Data\Traits\TraitDataStaticExecuted;
 use Phoundation\Data\Traits\TraitDataStaticFlashMessages;
 use Phoundation\Data\Traits\TraitGetInstance;
 use Phoundation\Data\Validator\Exception\ValidatorException;
-use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Date\PhoDate;
 use Phoundation\Date\PhoTime;
@@ -51,7 +49,6 @@ use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Interfaces\BreadCrumbsInterface;
 use Phoundation\Web\Html\Enums\EnumAttachJavascript;
-use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
@@ -1780,7 +1777,7 @@ class Response implements ResponseInterface
         // Only send when on WEB platform
         if (PLATFORM_WEB) {
             // Don't send data if we're going to sign-out when the session terminates, which will cause a HTTP redirect
-            if (!Session::getSignoutOnExit()) {
+            if (!Session::getSignOutOnExit()) {
                 // ????
                 if (isset(static::$page_headers)) {
                     // TODO All this here makes zero sense? We're sending HTTP headers, but caching? Go over this, fix!

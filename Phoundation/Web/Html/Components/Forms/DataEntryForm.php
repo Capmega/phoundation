@@ -182,8 +182,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                 $is_array = str_ends_with((string) $prefix, '[');
 
-            }
-            else {
+            } else {
                 $is_array = false;
             }
 

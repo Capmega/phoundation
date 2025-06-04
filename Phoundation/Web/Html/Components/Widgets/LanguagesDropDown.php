@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets;
 
-use Phoundation\Core\Locale\Language\Languages;
+use Phoundation\Accounts\Users\Locale\Language\Languages;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Http\Url;
 use Stringable;

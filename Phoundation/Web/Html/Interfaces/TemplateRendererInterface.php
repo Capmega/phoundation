@@ -16,7 +16,7 @@ interface TemplateRendererInterface
      *
      * @return static
      */
-    public function setParentRenderFunction(callable $render_function): static;
+    public function setRenderFunction(callable $render_function): static;
 
 
     /**
@@ -24,7 +24,7 @@ interface TemplateRendererInterface
      *
      * @return callable
      */
-    public function getParentRenderFunction(): callable;
+    public function getRenderFunction(): callable;
 
 
     /**

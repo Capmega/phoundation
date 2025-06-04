@@ -19,6 +19,7 @@ namespace Phoundation\Web\Html\Template;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Interfaces\ComponentInterface;
 use Phoundation\Web\Html\Interfaces\TemplateRendererInterface;
+use Phoundation\Web\Html\Template\Exception\TemplateException;
 use Phoundation\Web\Traits\TraitDataComponent;
 
 
@@ -93,7 +94,7 @@ class TemplateRenderer implements TemplateRendererInterface
      *
      * @return static
      */
-    public function setParentRenderFunction(callable $render_function): static
+    public function setRenderFunction(callable $render_function): static
     {
         $this->render_function = $render_function;
         return $this;
@@ -105,7 +106,7 @@ class TemplateRenderer implements TemplateRendererInterface
      *
      * @return callable
      */
-    public function getParentRenderFunction(): callable
+    public function getRenderFunction(): callable
     {
         return $this->render_function;
     }
@@ -118,6 +119,10 @@ class TemplateRenderer implements TemplateRendererInterface
      */
     public function render(): ?string
     {
+        if (empty($this->render_function)) {
+            throw new TemplateException(ts('Cannot render because no template render function specified'));
+        }
+
         // Use the supplied render function
         return ($this->render_function)($this->render);
     }

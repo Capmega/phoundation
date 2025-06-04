@@ -127,7 +127,7 @@ abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockIn
             TemplateRenderer::ensureClass($renderer_class, $this);
 
             return $renderer_class::new($this)
-                                  ->setParentRenderFunction($render_function)
+                                  ->setRenderFunction($render_function)
                                   ->render() . $scripts;
         }
 

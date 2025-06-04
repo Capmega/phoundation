@@ -138,4 +138,20 @@ interface ElementsBlockInterface extends ComponentInterface, IteratorInterface
      * @return static
      */
     public function setFormAction(Stringable|string|null $action): static;
+
+    /**
+     * Returns if the contents of the element should be selectable by a user, or not
+     *
+     * @return bool
+     */
+    public function getSelectable(): bool;
+
+    /**
+     * Sets if the contents of the element should be selectable by a user, or not
+     *
+     * @param bool $selectable
+     *
+     * @return static
+     */
+    public function setSelectable(bool $selectable): static;
 }

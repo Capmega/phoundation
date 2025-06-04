@@ -139,4 +139,20 @@ interface ElementInterface extends ComponentInterface
      * @return string|null
      */
     public function getName(): ?string;
+
+    /**
+     * Returns if the contents of the element should be selectable by a user, or not
+     *
+     * @return bool
+     */
+    public function getSelectable(): bool;
+
+    /**
+     * Sets if the contents of the element should be selectable by a user, or not
+     *
+     * @param bool $selectable
+     *
+     * @return static
+     */
+    public function setSelectable(bool $selectable): static;
 }

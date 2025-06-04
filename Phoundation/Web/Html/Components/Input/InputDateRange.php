@@ -16,10 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Data\Traits\TraitDataDateFormat;
 use Phoundation\Data\Traits\TraitDataStartDate;
 use Phoundation\Data\Traits\TraitDataStopDate;
-use Phoundation\Date\PhoDateFormats;
+use Phoundation\Date\PhoDateTimeFormats;
 use Phoundation\Date\PhoDateRangePickerRanges;
 use Phoundation\Date\Interfaces\PhoDateRangePickerRangesInterface;
 use Phoundation\Exception\OutOfBoundsException;
@@ -27,17 +26,18 @@ use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Requests\Response;
+use Phoundation\Web\Traits\TraitDataDate;
 
 
 class InputDateRange extends InputText
 {
+    use TraitDataDate;
     use TraitDataStartDate;
     use TraitDataStopDate;
-    use TraitDataDateFormat;
 
 
     /**
-     * The HTML selector to which the daterange will respond
+     * The HTML selector to which the date range will respond
      *
      * @var string|null $parent_selector
      */
@@ -58,7 +58,7 @@ class InputDateRange extends InputText
      */
     public function __construct(?string $content = null)
     {
-        $this->setFormat(PhoDateFormats::getDefaultJavascript())
+        $this->setFormat(PhoDateTimeFormats::getDefaultDateFormatJavascript())
              ->input_type = EnumInputType::text;
 
         parent::__construct($content);

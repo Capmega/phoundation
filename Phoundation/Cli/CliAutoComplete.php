@@ -73,9 +73,9 @@ declare(strict_types=1);
 namespace Phoundation\Cli;
 
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Accounts\Users\Locale\Language\Languages;
 use Phoundation\Cli\Exception\CliAutoCompleteException;
 use Phoundation\Core\Core;
-use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;

@@ -77,4 +77,20 @@ interface InputTextInterface extends InputInterface
      * @return static
      */
     public function setPlaceholder(?string $placeholder): static;
+
+    /**
+     * Returns input_mask for this input control
+     *
+     * @return string|null
+     */
+    public function getInputMask(): ?string;
+
+    /**
+     * Sets input_mask for this input control
+     *
+     * @param string|null $mask
+     *
+     * @return static
+     */
+    public function setInputMask(?string $mask): static;
 }

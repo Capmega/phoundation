@@ -95,7 +95,7 @@ class PhoDate
     }
 
 
-    public static function convert(int|float|DateTime|null $date = null, $requested_format = 'human_datetime', $to_timezone = null, $from_timezone = null)
+    public static function convert(int|float|DateTime|null $date = null, $requested_format = 'user_datetime', $to_timezone = null, $from_timezone = null)
     {
         // Ensure we have some valid date string
         if ($date === null) {
@@ -123,19 +123,19 @@ class PhoDate
         switch ($requested_format) {
             case 'ISO8601':
                 // no break
-            case 'human_datetime_timezone':
+            case 'user_datetime_timezone':
                 // Use mysql format
                 $format = DateTimeInterface::ATOM;
                 break;
             case 'mysql':
                 // no break
-            case 'human_datetime':
+            case 'user_datetime':
                 // Use mysql format
                 $format = 'Y-m-d H:i:s';
                 break;
             case 'iso_date':
                 // no break
-            case 'human_date':
+            case 'user_date':
                 $format = 'Y-m-d';
                 break;
             default:

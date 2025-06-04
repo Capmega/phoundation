@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Enum EnumTableIdColumn
+ * Enum EnumDatePickerView
  *
  *
  *
@@ -14,11 +14,11 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Enums;
+namespace Phoundation\Web\Enums;
 
-enum EnumTableIdColumn: string
+enum EnumDatePickerView: string
 {
-    case hidden   = 'hidden';
-    case checkbox = 'checkbox';
-    case visible  = 'visible';
+    case days   = 'days';
+    case months = 'months';
+    case years  = 'years';
 }

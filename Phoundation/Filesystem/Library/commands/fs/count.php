@@ -48,7 +48,7 @@ $argv = ArgvValidator::new()
     ->select('-h,--human-readable')->isOptional(false)->isBoolean()
     ->validate();
 
-if ($argv['human_readable']) {
+if ($argv['user_readable']) {
     CliCommand::echo(number_format(PhoDirectory::newExisting($argv['path'], PhoRestrictions::new('/'))->getCount()));
 
 } else {

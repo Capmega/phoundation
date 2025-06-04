@@ -527,7 +527,7 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      * @see https://momentjs.com/docs/#/displaying/format/
      * @return string|null
      */
-    public function getJsDateFormat(): ?string;
+    public function getDateFormatJavascript(): ?string;
 
 
     /**

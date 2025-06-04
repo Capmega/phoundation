@@ -58,7 +58,7 @@ $argv = ArgvValidator::new()
 
 
 // Get size for the specified path
-if ($argv['human_readable']) {
+if ($argv['user_readable']) {
     CliCommand::echo(
         Numbers::getHumanReadableBytes(PhoPath::newExisting($argv['path'], PhoRestrictions::new('/'))->getSize())
     );

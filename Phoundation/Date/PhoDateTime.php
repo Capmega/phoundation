@@ -22,6 +22,7 @@ use DateTime;
 use DateTimeInterface;
 use DateTimeZone;
 use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Date\Enums\DateTimeSegment;
 use Phoundation\Date\Exception\DateIntervalException;
 use Phoundation\Date\Exception\DateTimeException;
@@ -63,7 +64,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
                 parent::__construct($datetime->format('Y-m-d H:i:s.u'), $timezone ?? $datetime->getTimezone());
 
             } else {
-                $normalized = PhoDateFormats::normalizeDate($datetime, '-');
+                $normalized = PhoDateTimeFormats::normalizeDate($datetime, '-');
                 parent::__construct($normalized, $timezone);
             }
 
@@ -410,6 +411,8 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
     /**
      * Applies specific format strings
      *
+     * @todo Currently the human_* formats come from configuration, maybe this is better coming from locale?
+     *
      * @param string|null $format
      *
      * @return string
@@ -417,31 +420,48 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
     protected static function parseFormat(?string $format = null): string
     {
         switch (strtolower($format)) {
+            case 'user_time':
+                return Session::getUserObject()->getLocaleObject()->getTimeFormatPhp();
+
+            case 'user_date':
+                return Session::getUserObject()->getLocaleObject()->getDateFormatPhp();
+
+            case 'user_datetime':
+                return Session::getUserObject()->getLocaleObject()->getDateTimeFormatPhp();
+
             case 'human_time':
-                return config()->getString('locale.dates.formats.human.time', 'H:i:s', true);
+                return config()->getString('locale.dates.formats.human.time', PhoDateTimeFormats::getDefaultTimeFormatPhp(), true);
 
             case 'human_date':
-                return config()->getString('locale.dates.formats.human.date', PhoDateFormats::getDefaultPhp(), true);
+                return config()->getString('locale.dates.formats.human.date', PhoDateTimeFormats::getDefaultDateFormatPhp(), true);
 
             case 'human_datetime':
                 // no break
 
-            case 'human_date_time':
-                return config()->getString('locale.dates.formats.human.datetime', PhoDateTimeFormats::getDefaultPhp(), true);
+            case 'user_date_time':
+                return config()->getString('locale.dates.formats.human.datetime', PhoDateTimeFormats::getDefaultDateFormatPhp(), true);
 
             case 'iso_date':
                 return 'd-m-Y';
 
+            case 'system_date':
+                // no break
+
+            case 'mysql_date':
+                return 'Y-m-d';
+
             case 'iso_date_time':
-                return 'Y-m-d H:i:s';
+                // no break
 
             case 'mysql':
-                $format = 'Y-m-d H:i:s';
-                break;
+                // no break
+
+            case 'mysql_datetime':
+                return 'Y-m-d H:i:s';
 
             case 'file':
-                $format = 'ymd-His';
-                break;
+                return 'ymd-His';
+
         }
 
         return $format;
@@ -476,7 +496,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public function getHumanReadableDate(): string
     {
-        return $this->format('human_date');
+        return $this->format('user_date');
     }
 
 
@@ -487,7 +507,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public function getHumanReadableDateTime(): string
     {
-        return $this->format('human_date_time');
+        return $this->format('user_date_time');
     }
 
 

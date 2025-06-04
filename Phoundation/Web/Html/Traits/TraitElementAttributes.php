@@ -37,6 +37,7 @@ use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\AInterface;
 use Phoundation\Web\Html\Components\Interfaces\DivInterface;
+use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Html\Components\Span;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Interfaces\TooltipInterface;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Tooltip;
@@ -424,7 +425,7 @@ trait TraitElementAttributes
 
 
     /**
-     * Returns the data attributers for the specified key
+     * Returns the data attributes for the specified key
      *
      * @param string|int $key
      *
@@ -1131,6 +1132,43 @@ trait TraitElementAttributes
 
 
     /**
+     * Returns if the contents of the element should be selectable by a user, or not
+     *
+     * @see https://duckduckgo.com/?t=ffab&q=make+text+unselectable+in+html&atb=v446-1&ia=web&iax=qa
+     *
+     * @return bool
+     */
+    public function getSelectable(): bool
+    {
+        return !$this->o_classes->hasKey('unselectable');
+    }
+
+
+    /**
+     * Sets if the contents of the element should be selectable by a user, or not
+     *
+     * @see https://duckduckgo.com/?t=ffab&q=make+text+unselectable+in+html&atb=v446-1&ia=web&iax=qa
+     *
+     *
+     * @param bool $selectable
+     *
+     * @return static
+     */
+    public function setSelectable(bool $selectable): static
+    {
+        if ($selectable) {
+            // Being selectable is the default state, so remove "unselectable"
+            $this->o_classes->removeKeys('unselectable');
+
+        } else {
+            $this->o_classes->add('unselectable', 'unselectable');
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Returns the HTML class element attribute
      *
      * @note Returns true if the static autofocus variable was set and is equal to the ID of this specific element
@@ -1166,6 +1204,7 @@ trait TraitElementAttributes
                                                    ->setAutoFocus($this->getAutoFocus())
                                                    ->setNullDisplay($this->getNullDisplay())
                                                    ->setProperties($this->getProperties())
+                                                   ->setSelectable($this->getSelectable())
                                                    ->setScriptsObject($this->getScriptsObject()));
         }
 
@@ -1198,6 +1237,7 @@ trait TraitElementAttributes
                  ->setAutoFocus($o_definition->getAutoFocus())
                  ->setNullDisplay($o_definition->getNullDisplay())
                  ->setProperties($o_definition->getProperties())
+                 ->setSelectable($o_definition->getSelectable())
                  ->setScriptsObject($o_definition->getScriptsObject());
         }
 

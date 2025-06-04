@@ -132,6 +132,30 @@ class InputText extends Input implements InputTextInterface
 
 
     /**
+     * Returns input_mask for this input control
+     *
+     * @return string|null
+     */
+    public function getInputMask(): ?string
+    {
+        return $this->o_attributes->get('input_mask', false);
+    }
+
+
+    /**
+     * Sets input_mask for this input control
+     *
+     * @param string|null $mask
+     *
+     * @return static
+     */
+    public function setInputMask(?string $mask): static
+    {
+        return $this->setAttribute($mask, 'input_mask');
+    }
+
+
+    /**
      * Set the DataEntry Definition on this element
      *
      * @param DefinitionInterface|null $o_definition
@@ -143,6 +167,7 @@ class InputText extends Input implements InputTextInterface
         // Copy data used for input controls
         return parent::setDefinitionObject($o_definition)
                      ->setClearButton($o_definition->getClearButton())
+                     ->setInputMask($o_definition->getInputMask())
                      ->setPlaceholder($o_definition->getPlaceholder());
     }
 }
