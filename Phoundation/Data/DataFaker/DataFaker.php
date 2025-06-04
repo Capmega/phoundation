@@ -22,8 +22,8 @@ namespace Phoundation\Data\DataFaker;
 
 use Faker\Factory;
 use Faker\Generator;
-use Phoundation\Core\Locale\PhoLocale;
-
+use Phoundation\Accounts\Users\Locale\PhoLocale;
+use Phoundation\Accounts\Users\Sessions\Session;
 
 class DataFaker
 {
@@ -87,7 +87,7 @@ class DataFaker
     public function setLocale(?string $locale): static
     {
         if (empty($locale) or empty(trim($locale))) {
-            $locale = PhoLocale::getDefault();
+            $locale = Session::getUserObject()->getLocaleObject()->getDefault();
         }
 
         $this->locale = $locale;

@@ -16,9 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries\Traits;
 
-use Phoundation\Core\Locale\Language\Interfaces\LanguageInterface;
-use Phoundation\Core\Locale\Language\Language;
-
+use Phoundation\Accounts\Users\Locale\Language\Interfaces\LanguageInterface;
+use Phoundation\Accounts\Users\Locale\Language\Language;
 
 trait TraitDataEntryLanguage
 {

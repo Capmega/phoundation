@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries\Definitions;
 
+use DateTimeZone;
 use PDOStatement;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Definitions\Exception\DefinitionException;
@@ -30,6 +31,7 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -2269,6 +2271,72 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns the minimum_date object for date input elements
+     *
+     * @param DateTimeZone|string|null $timezone
+     *
+     * @return PhoDateTimeInterface|null
+     */
+    public function getMinimumDateObject(DateTimeZone|string|null $timezone = null): PhoDateTimeInterface|null
+    {
+        return get_safe_typed(PhoDateTimeInterface::class, $this->source, 'minimum_date');
+    }
+
+
+    /**
+     * Set the minimum_date object for date input elements
+     *
+     * @param PhoDateTimeInterface|null $value
+     * @param bool                      $equal
+     *
+     * @return static
+     */
+    public function setMinimumDateObject(PhoDateTimeInterface|null $value, bool $equal = false): static
+    {
+        $this->ensureInputType(EnumInputType::date);
+
+        $this->addValidationFunction(function (ValidatorInterface $validator) use ($value, $equal) {
+            $validator->isAfter($value, $equal);
+        });
+
+        return $this->setKey($value, 'minimum_date');
+    }
+
+
+    /**
+     * Returns the maximum_date object for date input elements
+     *
+     * @param DateTimeZone|string|null $timezone
+     *
+     * @return PhoDateTimeInterface|null
+     */
+    public function getMaximumDateObject(DateTimeZone|string|null $timezone = null): PhoDateTimeInterface|null
+    {
+        return get_safe_typed(PhoDateTimeInterface::class, $this->source, 'maximum_date');
+    }
+
+
+    /**
+     * Set the maximum_date object for date input elements
+     *
+     * @param PhoDateTimeInterface|null $value
+     * @param bool                      $equal
+     *
+     * @return static
+     */
+    public function setMaximumDateObject(PhoDateTimeInterface|null $value, bool $equal = false): static
+    {
+        $this->ensureInputType(EnumInputType::date);
+
+        $this->addValidationFunction(function (ValidatorInterface $validator) use ($value, $equal) {
+            $validator->isBefore($value, $equal);
+        });
+
+        return $this->setKey($value, 'maximum_date');
+    }
+
+
+    /**
      * Ensures that the current column uses a number type input element
      *
      * @note This method considers number the following input types: number, range, date, datetime-local, time, week,
@@ -2378,21 +2446,6 @@ class Definition implements DefinitionInterface
              });
 
         return $this->setKey($value, 'maxlength');
-    }
-
-
-    /**
-     * If true, the value cannot be modified and this element will be shown as disabled on HTML clients
-     *
-     * @note Defaults to false
-     *
-     * @param bool|null $value
-     *
-     * @return static
-     */
-    public function setReadonly(?bool $value): static
-    {
-        return $this->setKey((bool) $value, 'readonly');
     }
 
 
@@ -2898,6 +2951,31 @@ class Definition implements DefinitionInterface
         $this->validateTextTypeElement('placeholder', $value);
 
         return $this->setKey($value, 'placeholder');
+    }
+
+
+    /**
+     * Returns the input_mask for this column
+     *
+     * @return string|null
+     */
+    public function getInputMask(): ?string
+    {
+        return get_safe_typed('string', $this->source, 'input_mask');
+    }
+
+
+    /**
+     * Sets the input_mask for this column
+     *
+     * @param string|null $value
+     *
+     * @return static
+     */
+    public function setInputMask(?string $value): static
+    {
+        $this->validateTextTypeElement('input_mask', $value);
+        return $this->setKey($value, 'input_mask');
     }
 
 
@@ -3699,6 +3777,48 @@ class Definition implements DefinitionInterface
     public function getReadonly(): ?bool
     {
         return in_array($this->getColumn(), static::getMetaColumns()) or get_safe_typed('bool', $this->source, 'readonly', false);
+    }
+
+
+    /**
+     * If true, the value cannot be modified and this element will be shown as disabled on HTML clients
+     *
+     * @note Defaults to false
+     *
+     * @param bool|null $value
+     *
+     * @return static
+     */
+    public function setReadonly(?bool $value): static
+    {
+        return $this->setKey((bool) $value, 'readonly');
+    }
+
+
+    /**
+     * Returns if the contents of the element should be selectable by a user, or not
+     *
+     * @note Defaults to false
+     * @return bool|null
+     */
+    public function getSelectable(): ?bool
+    {
+        return get_safe_typed('bool', $this->source, 'selectable', true);
+    }
+
+
+    /**
+     * Sets if the contents of the element should be selectable by a user, or not
+     *
+     * @note Defaults to false
+     *
+     * @param bool|null $value
+     *
+     * @return static
+     */
+    public function setSelectable(?bool $value): static
+    {
+        return $this->setKey((bool) $value, 'selectable');
     }
 
 

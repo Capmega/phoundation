@@ -557,19 +557,21 @@ interface ValidatorInterface extends IteratorBaseInterface
      * Validates that the selected field is in the past
      *
      * @param PhoDateTimeInterface|null $before
+     * @param bool                      $equal
      *
      * @return static
      */
-    public function isBefore(?PhoDateTimeInterface $before): static;
+    public function isBefore(?PhoDateTimeInterface $before, bool $equal = false): static;
 
     /**
      * Validates that the selected field is in the past
      *
      * @param PhoDateTimeInterface|null $after
+     * @param bool                      $equal
      *
      * @return static
      */
-    public function isAfter(?PhoDateTimeInterface $after): static;
+    public function isAfter(?PhoDateTimeInterface $after, bool $equal = false): static;
 
     /**
      * Validates that the selected field is a credit card

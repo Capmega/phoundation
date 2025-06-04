@@ -16,12 +16,15 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries\Definitions\Interfaces;
 
+use DateTimeZone;
 use PDOStatement;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
+use Phoundation\Date\Interfaces\PhoDateTimeInterface;
+use Phoundation\Date\PhoDateTime;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\BeforeAfterContentInterface;
@@ -1478,4 +1481,61 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      * @return bool
      */
     public function hasInputType(EnumInputType $type): bool;
+
+    /**
+     * Returns if the contents of the element should be selectable by a user, or not
+     *
+     * @note Defaults to false
+     * @return bool|null
+     */
+    public function getSelectable(): ?bool;
+
+    /**
+     * Sets if the contents of the element should be selectable by a user, or not
+     *
+     * @note Defaults to false
+     *
+     * @param bool|null $value
+     *
+     * @return static
+     */
+    public function setSelectable(?bool $value): static;
+
+    /**
+     * Returns the minimum_date object for date input elements
+     *
+     * @param DateTimeZone|string|null $timezone
+     *
+     * @return PhoDateTimeInterface|null
+     */
+    public function getMinimumDateObject(DateTimeZone|string|null $timezone = null): PhoDateTimeInterface|null;
+
+    /**
+     * Set the minimum_date object for date input elements
+     *
+     * @param PhoDateTimeInterface|null $value
+     * @param bool                      $equal
+     *
+     * @return static
+     */
+    public function setMinimumDateObject(PhoDateTimeInterface|null $value, bool $equal = false): static;
+
+    /**
+     * Returns the maximum_date object for date input elements
+     *
+     * @param DateTimeZone|string|null $timezone
+     *
+     * @return PhoDateTimeInterface|null
+     */
+    public function getMaximumDateObject(DateTimeZone|string|null $timezone = null): PhoDateTimeInterface|null;
+
+    /**
+     * Set the maximum_date object for date input elements
+     *
+     * @param PhoDateTimeInterface|null $value
+     * @param bool                      $equal
+     *
+     * @return static
+     */
+    public function setMaximumDateObject(PhoDateTimeInterface|null $value, bool $equal = false): static;
 }

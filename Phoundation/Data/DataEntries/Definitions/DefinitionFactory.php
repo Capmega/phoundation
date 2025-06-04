@@ -17,14 +17,15 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntries\Definitions;
 
 use Phoundation\Accounts\Roles\Roles;
+use Phoundation\Accounts\Users\Locale\Language\Languages;
+use Phoundation\Accounts\Users\Locale\PhoLocale;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Business\Companies\Companies;
 use Phoundation\Business\Customers\Customers;
 use Phoundation\Business\Providers\Providers;
-use Phoundation\Core\CoreLocale;
-use Phoundation\Core\Locale\Language\Languages;
+use Phoundation\Core\Locale;
 use Phoundation\Data\Categories\Categories;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
@@ -1600,7 +1601,7 @@ class DefinitionFactory
                              $validator->isPhoneNumber();
                          })
                          ->setDisplayCallback(function (mixed $value, array $source) {
-                             return CoreLocale::formatPhoneNumber($value);
+                             return Session::getUserObject()->getLocaleObject()->formatPhoneNumber($value);
                          });
     }
 

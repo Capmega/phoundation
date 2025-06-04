@@ -46,7 +46,6 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDate;
-use Phoundation\Date\PhoDateFormats;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\PhoDateTimeFormats;
 use Phoundation\Date\Exception\UnsupportedDateFormatException;
@@ -3567,7 +3566,7 @@ throw new ObsoleteException();
             }
 
             // Ensure we have formats to work with, default to a number of acceptable formats
-            $formats = $formats ?? PhoDateFormats::getSupportedPhp();
+            $formats = $formats ?? PhoDateTimeFormats::getSupportedPhp();
             $formats = Arrays::force($formats, null);
 
             // We must be able to create a date object using the given formats without failure, and the resulting date
@@ -3627,7 +3626,7 @@ throw new ObsoleteException();
 
                 foreach ($dates as $date) {
                     // Ensure we have formats to work with, default to a number of acceptable formats
-                    $formats = $formats ?? PhoDateFormats::getSupportedPhp();
+                    $formats = $formats ?? PhoDateTimeFormats::getSupportedPhp();
                     $formats = Arrays::force($formats, null);
 
                     // We must be able to create a date object using the given formats without failure, and the resulting date
@@ -3659,17 +3658,17 @@ throw new ObsoleteException();
     {
         // We must be able to create a date object using the given formats without failure, and the resulting date
         // must be the same as the specified date
-        $given = PhoDateFormats::normalizeDate($date);
+        $given = PhoDateTimeFormats::normalizeDate($date);
 
         foreach ($formats as $format) {
             try {
                 // Create DateTime object
-                $format = PhoDateFormats::normalizeDateFormat($format);
+                $format = PhoDateTimeFormats::normalizeDateFormat($format);
                 $value  = PhoDateTime::createFromFormat($format, $given);
 
                 if ($value) {
                     // DateTime object created successfully! Now get a dateformat, and normalize it
-                    $test = PhoDateFormats::normalizeDate($value->format($format));
+                    $test = PhoDateTimeFormats::normalizeDate($value->format($format));
 
                     // Test the normalized test DateTime against the specified normalized date time string
                     if ($test === $given) {
@@ -3822,16 +3821,16 @@ throw new ObsoleteException();
      * Validates that the selected field is in the past
      *
      * @param PhoDateTimeInterface|null $before
-     * @param bool                      $include_this_date
+     * @param bool                      $equal
      *
      * @return static
      */
-    public function isBefore(?PhoDateTimeInterface $before, bool $include_this_date = false): static
+    public function isBefore(?PhoDateTimeInterface $before, bool $equal = false): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($before, $include_this_date) {
+        return $this->validateValues(function (&$value) use ($before, $equal) {
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
             $this->sanitizeTrim()
                  ->hasMaxCharacters(32);
@@ -3843,7 +3842,7 @@ throw new ObsoleteException();
 
             $value = new PhoDateTime($value);
 
-            if ($include_this_date) {
+            if ($equal) {
                 if ($value > $before) {
                     $this->addSoftFailure(tr('must be a valid date on or before ":date"', [
                         ':date' => $before->getHumanReadableDateTime(),
@@ -3863,16 +3862,16 @@ throw new ObsoleteException();
      * Validates that the selected field is in the past
      *
      * @param PhoDateTimeInterface|null $after
-     * @param bool                      $include_this_date
+     * @param bool                      $equal
      *
      * @return static
      */
-    public function isAfter(?PhoDateTimeInterface $after, bool $include_this_date = false): static
+    public function isAfter(?PhoDateTimeInterface $after, bool $equal = false): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($after, $include_this_date) {
+        return $this->validateValues(function (&$value) use ($after, $equal) {
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
             $this->sanitizeTrim()->hasMaxCharacters(32);
 
@@ -3883,7 +3882,7 @@ throw new ObsoleteException();
 
             $value = new PhoDateTime($value);
 
-            if ($include_this_date) {
+            if ($equal) {
                 if ($value < $after) {
                     $this->addSoftFailure(tr('must be a valid date on or after ":date"', [
                         ':date' => $after->getHumanReadableDateTime(),
@@ -5791,6 +5790,7 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
     public function sanitizeDecodeJson(bool $array = true): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($array) {
             try {
@@ -5863,6 +5863,7 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
     public function sanitizeDecodeCsv(string $separator = ',', string $enclosure = "\"", string $escape = "\\"): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($separator, $enclosure, $escape) {
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -5896,6 +5897,7 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
     public function sanitizeDecodeSerialized(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -5981,6 +5983,7 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
     public function sanitizeDecodeBase58(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -6012,6 +6015,7 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
     public function sanitizeDecodeBase64(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -6043,6 +6047,7 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
     public function sanitizeDecodeUrl(): static
     {
         $this->test_count++;
+        $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
             $this->isUrl();
