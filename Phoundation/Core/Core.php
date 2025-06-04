@@ -2667,12 +2667,125 @@ class Core implements CoreInterface
      *
      * @return string
      */
+    public static function getProjectName(): string
+    {
+        return PROJECT;
+    }
+
+
+    /**
+     * Returns the SEO optimized version of the project name
+     *
+     * @return string
+     */
     public static function getProjectSeoName(): string
     {
         static $return;
 
         if (empty($return)) {
             $return = str_replace('_', '-', strtolower(PROJECT));
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the SEO optimized version of the project name
+     *
+     * @return string
+     */
+    public static function getProjectShortName(): string
+    {
+        static $return;
+
+        if (empty($return)) {
+            $return = config()->getString('project.short-name');
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the SEO optimized version of the project name
+     *
+     * @return string
+     */
+    public static function getProjectShortSeoName(): string
+    {
+        static $return;
+
+        if (empty($return)) {
+            $return = str_replace('_', '-', strtolower(Core::getProjectShortName()));
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the SEO optimized version of the project name
+     *
+     * @return string
+     */
+    public static function getClientName(): string
+    {
+        static $return;
+
+        if (empty($return)) {
+            $return = config()->getString('project.owner.name');
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the SEO optimized version of the project name
+     *
+     * @return string
+     */
+    public static function getClientSeoName(): string
+    {
+        static $return;
+
+        if (empty($return)) {
+            $return = str_replace('_', '-', strtolower(Core::getClientName()));
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the SEO optimized version of the project name
+     *
+     * @return string
+     */
+    public static function getClientShortName(): string
+    {
+        static $return;
+
+        if (empty($return)) {
+            $return = config()->getString('project.owner.short-name');
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the SEO optimized version of the project name
+     *
+     * @return string
+     */
+    public static function getClientShortSeoName(): string
+    {
+        static $return;
+
+        if (empty($return)) {
+            $return = str_replace('_', '-', strtolower(Core::getClientShortName()));
         }
 
         return $return;
