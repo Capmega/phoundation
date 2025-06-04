@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Core\Locale\Language;
+namespace Phoundation\Accounts\Users\Locale\Language;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Filesystem\Enums\EnumFileOpenMode;

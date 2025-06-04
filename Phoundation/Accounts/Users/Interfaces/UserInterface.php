@@ -8,6 +8,7 @@ use DateTimeInterface;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
 use Phoundation\Accounts\Users\Configuration\Interfaces\ConfigurationsInterface;
+use Phoundation\Accounts\Users\Locale\Language\Interfaces\PhoLocaleInterface;
 use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImageInterface;
 use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImagesInterface;
 use Phoundation\Accounts\Users\Sessions\Interfaces\SessionInterface;
@@ -883,4 +884,11 @@ interface UserInterface extends DataEntryInterface
      * @return ConfigurationsInterface
      */
     public function getConfigurationsObject(): ConfigurationsInterface;
+
+    /**
+     * Returns a Locale object for this user
+     *
+     * @return PhoLocaleInterface
+     */
+    public function getLocaleObject(): PhoLocaleInterface;
 }

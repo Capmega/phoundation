@@ -37,6 +37,8 @@ use Phoundation\Accounts\Users\Interfaces\PasswordInterface;
 use Phoundation\Accounts\Users\Interfaces\PhonesInterface;
 use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Accounts\Users\Locale\Language\Interfaces\PhoLocaleInterface;
+use Phoundation\Accounts\Users\Locale\PhoLocale;
 use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImageInterface;
 use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImagesInterface;
 use Phoundation\Accounts\Users\ProfileImages\ProfileImage;
@@ -175,6 +177,14 @@ class User extends DataEntry implements UserInterface
         'id',
         'password',
     ];
+
+    /**
+     * Cache of a PhoLocale object for this user
+     *
+     * @var PhoLocaleInterface
+     */
+    protected PhoLocaleInterface $o_locale;
+
 
     /**
      * User from a different authentication system
@@ -2892,6 +2902,21 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     public function getMultiFactorAuthenticationObject(): MultiFactorAuthenticationInterface
     {
         return MultiFactorAuthentication::new($this);
+    }
+
+
+    /**
+     * Returns a Locale object for this user
+     *
+     * @return PhoLocaleInterface
+     */
+    public function getLocaleObject(): PhoLocaleInterface
+    {
+        if (empty($this->o_locale)) {
+            $this->o_locale = new PhoLocale($this);
+        }
+
+        return new PhoLocale($this);
     }
 
 

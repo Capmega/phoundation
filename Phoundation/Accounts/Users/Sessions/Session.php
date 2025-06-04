@@ -15,10 +15,11 @@
  * @see       https://www.php.net/manual/en/function.session-set-save-handler.php
  * @see       https://jennifersoft.com/en/blog/tech/2019-04-08/
  * @see       https://stackoverflow.com/questions/3512507/proper-way-to-logout-from-a-session-in-php
+ *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Core
+ * @package   Phoundation\Accounts
  */
 
 
@@ -96,7 +97,6 @@ class Session implements SessionInterface
      */
     protected static ?string $ip_address = null;
 
-
     /**
      * Singleton
      *
@@ -163,9 +163,9 @@ class Session implements SessionInterface
     /**
      * Tracks if the session should sign out when Session::exit() is called
      *
-     * @var int|null $signout_on_exit
+     * @var int|null $sign_out_on_exit
      */
-    protected static ?int $signout_on_exit = null;
+    protected static ?int $sign_out_on_exit = null;
 
 
     /**
@@ -1517,8 +1517,8 @@ class Session implements SessionInterface
     public static function exit(): void
     {
         if (PLATFORM_WEB) {
-            if (static::$signout_on_exit) {
-                Session::autoSignOut(static::$signout_on_exit);
+            if (static::$sign_out_on_exit) {
+                Session::autoSignOut(static::$sign_out_on_exit);
             }
 
             // If this page has flash messages that haven't yet been displayed, then store them in the session variable so that they can be displayed on the
@@ -2395,7 +2395,7 @@ class Session implements SessionInterface
 
         // Yay, we're cleared for submission! Clear the submit-and-signout codes so they won't be used again
         Session::clearAutoSignoutSubmit();
-        Session::setSignoutOnExit($auto_sign_out);
+        Session::setSignOutOnExit($auto_sign_out);
     }
 
 
@@ -2474,6 +2474,28 @@ class Session implements SessionInterface
 
 
     /**
+     * Returns the display mode for this session
+     *
+     * @return string
+     */
+    public static function getDisplayMode(): string
+    {
+        return Session::get('display', 'display_mode') ?? config()->getString('web.display.mode', 'light', true);
+    }
+
+
+    /**
+     * Returns the compact mode for this session
+     *
+     * @return bool
+     */
+    public static function getCompactMode(): bool
+    {
+        return Session::get('display', 'compact_mode') ?? config()->getBoolean('web.display.compact', false, true);
+    }
+
+
+    /**
      * Adds data to the specified sessions list
      *
      * @param array $session
@@ -2499,21 +2521,21 @@ class Session implements SessionInterface
      *
      * @return int|null
      */
-    public static function getSignoutOnExit(): ?int
+    public static function getSignOutOnExit(): ?int
     {
-        return static::$signout_on_exit;
+        return static::$sign_out_on_exit;
     }
 
 
     /**
      * Sets if the session should sign out when Session::exit() is called
      *
-     * @param int|null $signout_on_exit
+     * @param int|null $sign_out_on_exit
      *
      * @return void
      */
-    public static function setSignoutOnExit(?int $signout_on_exit): void
+    public static function setSignOutOnExit(?int $sign_out_on_exit): void
     {
-        static::$signout_on_exit = $signout_on_exit;
+        static::$sign_out_on_exit = $sign_out_on_exit;
     }
 }

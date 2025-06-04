@@ -17,9 +17,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Library;
 
+use Phoundation\Accounts\Users\Locale\Language\Import;
 use Phoundation\Core\Libraries;
 use Phoundation\Core\Libraries\Exception\LibraryNotFoundException;
-use Phoundation\Core\Locale\Language\Import;
 use Phoundation\Core\Log\Log;
 
 

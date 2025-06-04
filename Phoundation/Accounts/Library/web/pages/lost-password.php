@@ -121,7 +121,7 @@ if (Request::isPostRequestMethod()) {
                     ':user' => $user->getLogId(),
                 ]))
                 ->setDetails([
-                    ':user' => $user->getLogId(),
+                    'user'  => $user->getLogId(),
                 ])
                 ->setNotifyRoles('security')
                 ->save();

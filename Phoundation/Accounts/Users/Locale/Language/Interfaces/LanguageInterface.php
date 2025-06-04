@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Core\Locale\Language\Interfaces;
+namespace Phoundation\Accounts\Users\Locale\Language\Interfaces;
 
 interface LanguageInterface
 {

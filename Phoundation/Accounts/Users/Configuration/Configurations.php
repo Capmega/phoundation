@@ -176,7 +176,7 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
     {
         // Store display data in the SESSION object
         switch ($column) {
-            case 'dark_mode':
+            case 'display_mode':
                 // no break
 
             case 'compact_mode':
@@ -231,18 +231,18 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                      0, 300, 600, 900, 1800, 3600, 7200, 14400, 28800, 43200, 86400,
                                                  ]), tr('Off'))))
 
-                                 ->add(Definition::new('dark_mode')
-                                                 ->setOptional(true, false)
+                                 ->add(Definition::new('display_mode')
+                                                 ->setOptional(true, 'light')
                                                  ->setInputType(EnumInputType::select)
                                                  ->setSize(6)
-                                                 ->addProperty('getBoolean'            , 'configuration_method')
-                                                 ->addProperty('web.display.modes.dark', 'configuration_path')
-                                                 ->setLabel(tr('Dark mode'))
+                                                 ->addProperty('getString'       , 'configuration_method')
+                                                 ->addProperty('web.display.mode', 'configuration_path')
+                                                 ->setLabel(tr('Display mode'))
                                                  ->setHelpText(tr('Here you can specify if you wish the user interface to be in dark mode, light mode, or use whatever your system uses'))
                                                  ->setDataSource([
-                                                     'on'   => tr('On'),
-//                                                     'auto' => tr('System'),
-                                                     'off'  => tr('Off'),
+                                                     'dark'  => tr('Dark'),
+//                                                     'auto'  => tr('System'),
+                                                     'light' => tr('Light'),
                                                  ]))
 
                                  ->add(Definition::new('compact_mode')

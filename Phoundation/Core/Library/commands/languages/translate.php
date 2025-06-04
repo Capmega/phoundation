@@ -14,8 +14,8 @@
 
 declare(strict_types=1);
 
+use Phoundation\Accounts\Users\Locale\Language\Languages;
 use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Locale\Language\Languages;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
