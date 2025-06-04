@@ -3605,8 +3605,8 @@ throw new ObsoleteException();
 
             // First check if the date range format is correct, then we can check the content
             $range_formats = [
-                '/^(\d{2}[-\/\s]?\d{2}[-\/\s]?\d{4})\s?-?\s?(\d{2}[-\/\s]?\d{2}[-\/\s]?\d{4})$/',
-                '/^(\d{4}[-\/\s]?\d{2}[-\/\s]?\d{2})\s?-?\s?(\d{4}[-\/\s]?\d{2}[-\/\s]?\d{2})$/',
+                '/^(\d{2}\s*[-\/]?\s*\d{2}\s*[-\/]?\s*\d{4})\s*-?\s*(\d{2}\s*[-\/]?\s*\d{2}\s*[-\/]?\s*\d{4})$/',
+                '/^(\d{4}\s*[-\/]?\s*\d{2}\s*[-\/]?\s*\d{2})\s*-?\s*(\d{4}\s*[-\/]?\s*\d{2}\s*[-\/]?\s*\d{2})$/',
             ];
 
             foreach ($range_formats as $range_format) {
