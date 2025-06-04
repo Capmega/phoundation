@@ -413,12 +413,13 @@ trait TraitElementAttributes
      *
      * @param array|string|float|int|null $value
      * @param string|int                  $key
+     * @param bool                        $skip_null_values
      *
      * @return static
      */
-    public function addData(array|string|float|int|null $value, string|int $key): static
+    public function addData(array|string|float|int|null $value, string|int $key, bool $skip_null_values = true): static
     {
-        $this->getDataObject()->add($value, $key, false, false);
+        $this->getDataObject()->add($value, $key, $skip_null_values, false);
 
         return $this;
     }

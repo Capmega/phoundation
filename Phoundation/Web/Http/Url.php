@@ -1052,8 +1052,12 @@ class Url implements UrlInterface
         }
 
         $keys    = Arrays::force($keys);
-        $queries = Strings::from($this->source, '?');
+        $queries = Strings::from($this->source, '?', needle_required: true);
         $queries = Arrays::force($queries, '&');
+
+        if (!$queries) {
+            return $this;
+        }
 
         foreach ($keys as $key) {
             foreach ($queries as $id => $query) {
@@ -1064,6 +1068,7 @@ class Url implements UrlInterface
         }
 
         $this->source = Strings::until($this->source, '?') . '?' . implode('&', $queries);
+
         return $this;
     }
 
