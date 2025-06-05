@@ -564,7 +564,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Sets the URL that applies to each row
      *
-     * @param \Stringable|array|null $row_queries
+     * @param Stringable|array|null $row_queries
      *
      * @return static
      */

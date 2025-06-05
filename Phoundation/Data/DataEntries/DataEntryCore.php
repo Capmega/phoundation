@@ -100,6 +100,7 @@ use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\SqlDataEntry;
+use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\OutOfBoundsException;
@@ -4187,7 +4188,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     protected function setCreatedOn(string|int|null $created_on): static
     {
         if (is_int($created_on)) {
-            $created_on = PhoDateTime::new($created_on)->format('mysql');
+            $created_on = PhoDateTime::new($created_on)->format(EnumDateFormat::mysql);
         }
 
         return $this->set($created_on, 'created_by');

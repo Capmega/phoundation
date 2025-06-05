@@ -41,6 +41,7 @@ use Phoundation\Databases\Connectors\Exception\InvalidConnectorTypeException;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Databases;
 use Phoundation\Databases\Interfaces\DatabaseInterface;
+use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
@@ -890,7 +891,7 @@ class Connector extends DataEntry implements ConnectorInterface
     {
         return [
             'type'            => 'sql',
-            'driver'          => 'mysql',
+            'driver'          => EnumDateFormat::mysql,
             'hostname'        => '127.0.0.1',
             'port'            => null,
             'database'        => '',

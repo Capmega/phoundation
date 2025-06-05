@@ -20,6 +20,7 @@ use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -137,7 +138,7 @@ class Sessions
             }
 
             // Register all sessions as closed
-            sql()->update('accounts_user_sessions', ['stop' => PhoDateTime::new()->format('mysql')], ['users_id' => $users_id]);
+            sql()->update('accounts_user_sessions', ['stop' => PhoDateTime::new()->format(EnumDateFormat::mysql)], ['users_id' => $users_id]);
         }
 
         return $count;
@@ -168,7 +169,7 @@ class Sessions
             }
 
             // Register all sessions as closed
-            sql()->update('accounts_user_sessions', ['stop' => PhoDateTime::new()->format('mysql')], ['ip' => $ip]);
+            sql()->update('accounts_user_sessions', ['stop' => PhoDateTime::new()->format(EnumDateFormat::mysql)], ['ip' => $ip]);
         }
 
         return $count;

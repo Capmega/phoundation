@@ -413,6 +413,7 @@ class Export
                 ]));
 
                 return $file;
+
             default:
                 throw new UnderConstructionException();
         }

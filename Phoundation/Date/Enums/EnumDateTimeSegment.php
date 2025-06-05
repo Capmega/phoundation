@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Date\Enums;
 
-enum DateTimeSegment: string
+enum EnumDateTimeSegment: string
 {
     case millennium  = 'millennium';
     case century     = 'century';

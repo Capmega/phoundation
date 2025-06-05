@@ -48,9 +48,11 @@ class PhoDateTimeFormats
     /**
      * Returns the default PHP date format string
      *
+     * @param bool $compact
+     *
      * @return string
      */
-    public static function getDefaultDateFormatPhp(): string
+    public static function getDefaultDateFormatPhp(bool $compact = false): string
     {
         $default = static::getSupportedPhp()->get('date');
 
@@ -58,6 +60,10 @@ class PhoDateTimeFormats
             throw new ConfigurationInvalidException(tr('The default configuration value ":value" for the path "locale.formats.date" must be a string', [
                 ':value' => $default
             ]));
+        }
+
+        if ($compact) {
+            $default = str_replace(' ', '', $default);
         }
 
         return $default;
@@ -68,12 +74,13 @@ class PhoDateTimeFormats
      * Returns the default JavaScript date format string
      *
      * @param bool $lowercase
+     * @param bool $compact
      *
      * @return string
      */
-    public static function getDefaultDateFormatJavascript(bool $lowercase = false): string
+    public static function getDefaultDateFormatJavascript(bool $lowercase = false, bool $compact = false): string
     {
-        $default = static::getDefaultDateFormatPhp();
+        $default = static::getDefaultDateFormatPhp($compact);
         $default = static::convertPhpToJs($default);
 
         if ($lowercase) {
@@ -87,9 +94,11 @@ class PhoDateTimeFormats
     /**
      * Returns the default PHP time format string
      *
+     * @param bool $compact
+     *
      * @return string
      */
-    public static function getDefaultTimeFormatPhp(): string
+    public static function getDefaultTimeFormatPhp(bool $compact = false): string
     {
         $default = static::getSupportedPhp()->get('time');
 
@@ -97,6 +106,10 @@ class PhoDateTimeFormats
             throw new ConfigurationInvalidException(tr('The default configuration value ":value" for the path "locale.formats.time" must be a string', [
                 ':value' => $default
             ]));
+        }
+
+        if ($compact) {
+            $default = str_replace(' ', '', $default);
         }
 
         return $default;
@@ -107,12 +120,13 @@ class PhoDateTimeFormats
      * Returns the default JavaScript time format string
      *
      * @param bool $lowercase
+     * @param bool $compact
      *
      * @return string
      */
-    public static function getDefaultTimeFormatJavascript(bool $lowercase = false): string
+    public static function getDefaultTimeFormatJavascript(bool $lowercase = false, bool $compact = false): string
     {
-        $default = static::getDefaultTimeFormatPhp();
+        $default = static::getDefaultTimeFormatPhp($compact);
         $default = static::convertPhpToJs($default);
 
         if ($lowercase) {
@@ -126,9 +140,11 @@ class PhoDateTimeFormats
     /**
      * Returns the default PHP date format string
      *
+     * @param bool $compact
+     *
      * @return string
      */
-    public static function getDefaultDateTimeFormatPhp(): string
+    public static function getDefaultDateTimeFormatPhp(bool $compact = false): string
     {
         $default = static::getSupportedPhp()->get('datetime');
 
@@ -136,6 +152,10 @@ class PhoDateTimeFormats
             throw new ConfigurationInvalidException(tr('The default configuration value ":value" for the path "locale.formats.date" must be a string', [
                 ':value' => $default
             ]));
+        }
+
+        if ($compact) {
+            $default = str_replace(' ', '', $default);
         }
 
         return $default;
@@ -146,12 +166,13 @@ class PhoDateTimeFormats
      * Returns the default JavaScript date format string
      *
      * @param bool $lowercase
+     * @param bool $compact
      *
      * @return string
      */
-    public static function getDefaultDateTimeFormatJavascript(bool $lowercase = false): string
+    public static function getDefaultDateTimeFormatJavascript(bool $lowercase = false, bool $compact = false): string
     {
-        $default = static::getDefaultDateTimeFormatPhp();
+        $default = static::getDefaultDateTimeFormatPhp($compact);
         $default = static::convertPhpToJs($default);
 
         if ($lowercase) {
@@ -512,8 +533,7 @@ class PhoDateTimeFormats
      * @param string            $date_replace        The character to use between date component sections
      * @param string            $time_replace        The character to use between time component sections
      * @param string            $date_time_replace   The character to use between a date component and a time component
-     * @param string            $microsecond_replace The character to use between a time component and a microseconds
-     *                                               component
+     * @param string            $microsecond_replace The character to use between a time component and a micro-seconds component
      *
      * @return string
      */

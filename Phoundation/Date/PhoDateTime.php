@@ -23,7 +23,8 @@ use DateTimeInterface;
 use DateTimeZone;
 use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
 use Phoundation\Accounts\Users\Sessions\Session;
-use Phoundation\Date\Enums\DateTimeSegment;
+use Phoundation\Date\Enums\EnumDateFormat;
+use Phoundation\Date\Enums\EnumDateTimeSegment;
 use Phoundation\Date\Exception\DateIntervalException;
 use Phoundation\Date\Exception\DateTimeException;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
@@ -385,7 +386,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      *
      * Timezone    ---    ---
      * e    Timezone identifier    Examples: UTC, GMT, Atlantic/Azores
-     * I (capital i)    Whether or not the date is in daylight saving time    1 if Daylight Saving Time, 0 otherwise.
+     * I    (capital i) Whether or not the date is in daylight saving time.      1 if Daylight Saving Time, 0 otherwise.
      * O    Difference to Greenwich time (GMT) without colon between hours and minutes    Example: +0200
      * P    Difference to Greenwich time (GMT) with colon between hours and minutes    Example: +02:00
      * p    The same as P, but returns Z instead of +00:00 (available as of PHP 8.0.0)    Examples: Z or +02:00
@@ -396,75 +397,50 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      * Full Date/Time    ---    ---
      * c    ISO 8601 date    2004-02-12T15:19:21+00:00
      * r    » RFC 2822/» RFC 5322 formatted date    Example: Thu, 21 Dec 2000 16:01:07 +0200
-     * U    Seconds since the Unix Epoch (January 1 1970 00:00:00 GMT)    See also time()
+     * U    Seconds since the Unix Epoch (January 1, 1970 00:00:00 GMT)    See also time()
      *
-     * @param string|null $format
+     * @param EnumDateFormat|string|null $format
+     * @param bool                       $compact
      *
      * @return string
      */
-    public function format(?string $format = null): string
+    public function format(EnumDateFormat|string|null $format = null, bool $compact = false): string
     {
-        return parent::format(static::parseFormat($format));
+        return parent::format(static::parseFormat($format, $compact));
     }
 
 
     /**
      * Applies specific format strings
      *
-     * @todo Currently the human_* formats come from configuration, maybe this is better coming from locale?
-     *
-     * @param string|null $format
+     * @param EnumDateFormat|string|null $format
+     * @param bool                       $compact
      *
      * @return string
+     * @todo Currently the human_* formats come from configuration, maybe this is better coming from locale?
+     *
      */
-    protected static function parseFormat(?string $format = null): string
+    protected static function parseFormat(EnumDateFormat|string|null $format = null, bool $compact = false): string
     {
-        switch (strtolower($format)) {
-            case 'user_time':
-                return Session::getUserObject()->getLocaleObject()->getTimeFormatPhp();
+        $format = match ($format) {
+            EnumDateFormat::user_time       => Session::getLocaleObject()->getTimeFormatPhp(),
+            EnumDateFormat::user_date       => Session::getLocaleObject()->getDateFormatPhp(),
+            EnumDateFormat::user_datetime   => Session::getLocaleObject()->getDateTimeFormatPhp(),
+            EnumDateFormat::human_time      => config()->getString('locale.dates.formats.human.time', PhoDateTimeFormats::getDefaultTimeFormatPhp(), true),
+            EnumDateFormat::human_date      => config()->getString('locale.dates.formats.human.date', PhoDateTimeFormats::getDefaultDateFormatPhp(), true),
+            EnumDateFormat::human_datetime,
+            EnumDateFormat::user_date_time  => config()->getString('locale.dates.formats.human.datetime', PhoDateTimeFormats::getDefaultDateFormatPhp(), true),
+            EnumDateFormat::iso_date,
+            EnumDateFormat::system_date,
+            EnumDateFormat::mysql_date      => 'Y-m-d',
+            EnumDateFormat::iso_date_time,
+            EnumDateFormat::mysql,
+            EnumDateFormat::mysql_datetime  => 'Y-m-d H:i:s',
+            EnumDateFormat::file            => 'ymd-His',
+            default                         => $format,
+        };
 
-            case 'user_date':
-                return Session::getUserObject()->getLocaleObject()->getDateFormatPhp();
-
-            case 'user_datetime':
-                return Session::getUserObject()->getLocaleObject()->getDateTimeFormatPhp();
-
-            case 'human_time':
-                return config()->getString('locale.dates.formats.human.time', PhoDateTimeFormats::getDefaultTimeFormatPhp(), true);
-
-            case 'human_date':
-                return config()->getString('locale.dates.formats.human.date', PhoDateTimeFormats::getDefaultDateFormatPhp(), true);
-
-            case 'human_datetime':
-                // no break
-
-            case 'user_date_time':
-                return config()->getString('locale.dates.formats.human.datetime', PhoDateTimeFormats::getDefaultDateFormatPhp(), true);
-
-            case 'iso_date':
-                return 'd-m-Y';
-
-            case 'system_date':
-                // no break
-
-            case 'mysql_date':
-                return 'Y-m-d';
-
-            case 'iso_date_time':
-                // no break
-
-            case 'mysql':
-                // no break
-
-            case 'mysql_datetime':
-                return 'Y-m-d H:i:s';
-
-            case 'file':
-                return 'ymd-His';
-
-        }
-
-        return $format;
+        return $compact ? str_replace(' ', '', $format) : $format;
     }
 
 
@@ -496,7 +472,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public function getHumanReadableDate(): string
     {
-        return $this->format('user_date');
+        return $this->format(EnumDateFormat::user_date);
     }
 
 
@@ -507,7 +483,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public function getHumanReadableDateTime(): string
     {
-        return $this->format('user_date_time');
+        return $this->format(EnumDateFormat::user_date_time);
     }
 
 
@@ -972,58 +948,58 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
     /**
      * Round the current date time object contents to the specified segment
      *
-     * @param DateTimeSegment $segment
+     * @param EnumDateTimeSegment $segment
      *
      * @return static
      */
-    public function round(DateTimeSegment $segment): static
+    public function round(EnumDateTimeSegment $segment): static
     {
         $date = $this->format('Y m d H i s v u');
         $date = explode(' ', $date);
 
         switch ($segment) {
-            case DateTimeSegment::millennium:
+            case EnumDateTimeSegment::millennium:
                 // no break
 
-            case DateTimeSegment::decennium:
+            case EnumDateTimeSegment::decennium:
                 // no break
 
-            case DateTimeSegment::century:
+            case EnumDateTimeSegment::century:
                 // no break
 
-            case DateTimeSegment::week:
+            case EnumDateTimeSegment::week:
                 // no break
 
-            case DateTimeSegment::microsecond:
+            case EnumDateTimeSegment::microsecond:
                 throw new OutOfBoundsException(tr('Cannot round date to requested segment ":segment"', [
                     ':segment' => $segment,
                 ]));
 
-            case DateTimeSegment::year:
+            case EnumDateTimeSegment::year:
                 $date[1] = 0;
                 // no break
 
-            case DateTimeSegment::month:
+            case EnumDateTimeSegment::month:
                 $date[2] = 0;
                 // no break
 
-            case DateTimeSegment::day:
+            case EnumDateTimeSegment::day:
                 $date[3] = 0;
                 // no break
 
-            case DateTimeSegment::hour:
+            case EnumDateTimeSegment::hour:
                 $date[4] = 0;
                 // no break
 
-            case DateTimeSegment::minute:
+            case EnumDateTimeSegment::minute:
                 $date[5] = 0;
                 // no break
 
-            case DateTimeSegment::second:
+            case EnumDateTimeSegment::second:
                 $date[6] = 0;
                 // no break
 
-            case DateTimeSegment::millisecond:
+            case EnumDateTimeSegment::millisecond:
                 $date[7] = 0;
         }
 

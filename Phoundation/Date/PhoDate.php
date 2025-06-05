@@ -19,6 +19,7 @@ use DateTimeInterface;
 use DateTimeZone;
 use Exception;
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\Exception\DateException;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
@@ -82,6 +83,7 @@ class PhoDate
         } else {
             $min = 1;
         }
+
         if ($max) {
             $max = new DateTime(PhoDate::convert($max, 'y-m-d'));
             $max = $max->getTimestamp();
@@ -89,13 +91,12 @@ class PhoDate
         } else {
             $max = 2147483647;
         }
-        $timestamp = random_int($min, $max);
 
-        return date("Y-m-d", $timestamp);
+        return date('Y-m-d', random_int($min, $max));
     }
 
 
-    public static function convert(int|float|DateTime|null $date = null, $requested_format = 'user_datetime', $to_timezone = null, $from_timezone = null)
+    public static function convert(int|float|DateTime|null $date = null, $requested_format = EnumDateFormat::user_datetime, $to_timezone = null, $from_timezone = null)
     {
         // Ensure we have some valid date string
         if ($date === null) {
@@ -127,27 +128,32 @@ class PhoDate
                 // Use mysql format
                 $format = DateTimeInterface::ATOM;
                 break;
-            case 'mysql':
+
+            case EnumDateFormat::mysql:
                 // no break
-            case 'user_datetime':
+            case EnumDateFormat::user_datetime:
                 // Use mysql format
                 $format = 'Y-m-d H:i:s';
                 break;
-            case 'iso_date':
+
+            case EnumDateFormat::iso_date:
                 // no break
-            case 'user_date':
+            case EnumDateFormat::user_date:
                 $format = 'Y-m-d';
                 break;
+
             default:
                 if (config()->get('formats.date.' . $requested_format, false)) {
                     // Use predefined format
                     $format = config()->get('formats.date.' . $requested_format, false);
+
                 } else {
                     // Use custom format
                     $format = $requested_format;
                 }
         }
-        // Force 12 or 24 hour format?
+
+        // Force 12 or 24-hour format?
         if ($requested_format == 'object') {
             // Return a PHP DateTime object
             $format = $requested_format;
@@ -156,25 +162,29 @@ class PhoDate
             switch (config()->get('formats.date.force1224', '24')) {
                 case false:
                     break;
+
                 case '12':
-                    // Only add AM/PM in case original spec has 24H and no AM/PM
-                    if (($requested_format != 'mysql') and str_contains($format, 'g')) {
+                    // Only add AM/PM in case the original spec has 24H and no AM/PM
+                    if (($requested_format != EnumDateFormat::mysql) and str_contains($format, 'g')) {
                         $format = str_replace('H', 'g', $format);
                         if (!str_contains($format, 'a')) {
                             $format .= ' a';
                         }
                     }
                     break;
+
                 case '24':
                     $format = str_replace('g', 'H', $format);
                     $format = trim(str_replace('a', '', $format));
                     break;
+
                 default:
                     throw new OutOfBoundsException(tr('Invalid force1224 hour format ":format" specified. Must be either false, "12", or "24". See configuration formats.date.force1224', [
                         ':format' => config()->get('formats.date.' . $requested_format, '24'),
                     ]));
             }
         }
+
         /*
          * Create date in specified timezone (if specifed)
          * Return formatted date

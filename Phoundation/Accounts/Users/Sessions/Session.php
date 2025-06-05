@@ -34,6 +34,7 @@ use Phoundation\Accounts\Users\Authentication;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Accounts\Users\Locale\Language\Interfaces\PhoLocaleInterface;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionPostAndSignoutException;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionStartFailedException;
@@ -1223,6 +1224,17 @@ class Session implements SessionInterface
         Client::detect();
 
         return true;
+    }
+
+
+    /**
+     * Returns the PhoLocale object for this session
+     *
+     * @return PhoLocaleInterface
+     */
+    public static function getLocaleObject(): PhoLocaleInterface
+    {
+        return Session::getUserObject()->getLocaleObject();
     }
 
 

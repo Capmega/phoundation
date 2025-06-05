@@ -84,6 +84,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Developer\Project\Configuration;
 use Phoundation\Exception\OutOfBoundsException;
@@ -1462,7 +1463,7 @@ class Config implements ConfigInterface
                     'debug'     => (static::$default_environment === 'production'),
                     'instances' => [
                         'system' => [
-                            'type'   => 'mysql',
+                            'type'   => EnumDateFormat::mysql,
                             'server' => $configuration->getDatabase()
                                                       ->getHost(),
                             'name'   => $configuration->getDatabase()

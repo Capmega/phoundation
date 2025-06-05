@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Traits;
 
+use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
@@ -939,11 +940,11 @@ trait TraitDataDate
         }
 
         if ($this->getMinimumDateObject()) {
-            $options['min'] = $this->getMinimumDateObject()->format('mysql');
+            $options['min'] = $this->getMinimumDateObject()->format(EnumDateFormat::mysql);
         }
 
         if ($this->getMaximumDateObject()) {
-            $options['max'] = $this->getMaximumDateObject()->format('mysql');
+            $options['max'] = $this->getMaximumDateObject()->format(EnumDateFormat::mysql);
         }
 
         if ($this->getConfirmDateOnSelect()) {

@@ -23,6 +23,7 @@ use Phoundation\Accounts\Users\Sessions\Interfaces\UserSessionInterface;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Data\Traits\TraitDataArraySource;
 use Phoundation\Databases\Sql\Exception\SqlContstraintDuplicateEntryException;
+use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\NotExistsException;
@@ -418,7 +419,7 @@ class UserSession implements UserSessionInterface
     public static function stop(int $users_id, string $domain, string $ip, string $identifier): void
     {
         sql()->setDebug(true)->update('accounts_user_sessions', [
-            'stop' => PhoDateTime::new()->format('mysql')
+            'stop' => PhoDateTime::new()->format(EnumDateFormat::mysql)
         ], [
             'users_id'   => $users_id,
             'domain'     => $domain,

@@ -25,6 +25,7 @@ use Phoundation\Data\Traits\TraitDataSelector;
 use Phoundation\Data\Traits\TraitDataStaticArrayBackup;
 use Phoundation\Data\Traits\TraitMethodProcess;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -756,7 +757,7 @@ throw new UnderConstructionException(tr('IMPLEMENT FILE VALIDATIONS'));
     {
         $directory = new PhoDirectory(DIRECTORY_DATA . 'quarantine', PhoRestrictions::newDataObject());
         $directory = $directory->addDirectory(Session::getUserObject()->getId());
-        $directory = $directory->addDirectory(PhoDateTime::new()->format('file'));
+        $directory = $directory->addDirectory(PhoDateTime::new()->format(EnumDateFormat::file));
 
         foreach (static::$files as $file) {
             $file->move($directory);

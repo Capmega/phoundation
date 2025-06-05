@@ -18,6 +18,7 @@ use Phoundation\Accounts\Users\Authentication;
 use Phoundation\Accounts\Users\Authentications;
 use Phoundation\Accounts\Users\AuthenticationsFilterForm;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -66,7 +67,7 @@ $authentications_card = Card::new()
                                                          ->setRowUrl(Url::new('/security/authentication+:ROW.html')->makeWww()->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : ''))
                                                          ->addRowCallback(function (IteratorInterface|array &$row, EnumTableRowType $type, &$params) {
                                                              // Adjust date to correct timezone and format
-                                                             $row['created_on'] = PhoDateTime::new($row['created_on'], 'user')->format('user_datetime');
+                                                             $row['created_on'] = PhoDateTime::new($row['created_on'], 'user')->format(EnumDateFormat::user_datetime);
                                                              $row['status']     = Authentication::getHumanReadableStatus($row['status']);
                                                          }))
                             ->useForm(true);

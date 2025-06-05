@@ -36,6 +36,7 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\SqlQueries;
+use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\PhoDateTimeFormats;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
@@ -138,12 +139,13 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                           ->setLabel(tr('Date range'))
                                                           ->setSize(4)
                                                           ->setOptional(true)
+                                                          ->setAutoSubmit(true)
                                                           ->setElement(EnumElement::select)
                                                           ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
                                                               if (empty($this->source[$key])) {
                                                                   if (empty($this->source['date_range'])) {
                                                                       $source = $this->getDateRangeDefault();
-                                                                      $this->source[$key] = $source[0] . ' - ' . $source[1];
+                                                                      $this->source[$key] = PhoDateTime::new($source[0])->format(EnumDateFormat::user_date, true) . ' - ' . PhoDateTime::new($source[1])->format(EnumDateFormat::user_date, true);
                                                                   }
                                                               }
 
@@ -151,6 +153,8 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                                                    ->setName($field_name)
                                                                                    ->useRanges('default')
                                                                                    ->setAutoSubmit(true)
+                                                                                   ->setMinimumDateObject(PhoDateTime::new('-1 year'))
+                                                                                   ->setMaximumDateObject(PhoDateTime::newToday())
                                                                                    ->setParentSelector($this->date_range_selector)
                                                                                    ->setValue($this->source[$key]);
                                                           })
@@ -651,13 +655,13 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
         if ($this->apply_filters->keyExists('date_range') and $this->o_definitions->isRendered('date_range', false)) {
             if ($this->getStartDate()) {
                 $builder->addWhere(
-                    '`' . $builder->getFromTable() . '`.`created_on` >= :start', [':start' => $this->getStartDate()->format('mysql')]
+                    '`' . $builder->getFromTable() . '`.`created_on` >= :start', [':start' => $this->getStartDate()->format(EnumDateFormat::mysql)]
                 );
             }
 
             if ($this->getStopDate()) {
                 $builder->addWhere(
-                    '`' . $builder->getFromTable() . '`.`created_on` <= :stop', [':stop' => $this->getStopDate()->format('mysql')]
+                    '`' . $builder->getFromTable() . '`.`created_on` <= :stop', [':stop' => $this->getStopDate()->format(EnumDateFormat::mysql)]
                 );
             }
         }

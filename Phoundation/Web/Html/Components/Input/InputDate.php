@@ -24,6 +24,7 @@ namespace Phoundation\Web\Html\Components\Input;
 
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
+use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Web\Html\Enums\EnumInputType;
@@ -48,7 +49,7 @@ class InputDate extends InputText
         parent::__construct($content);
 
         $this->setConfirmDateOnSelect(true)
-             ->setFormat(Session::getUserObject()->getLocaleObject()->getDateFormatJavascript(true));
+             ->setFormat(Session::getLocaleObject()->getDateFormatJavascript(true));
     }
 
 
@@ -64,10 +65,10 @@ class InputDate extends InputText
     {
 
         if ($value instanceof PhoDateTimeInterface) {
-            $value = $value->format(Session::getUserObject()->getLocaleObject()->getDateFormatPhp());
+            $value = $value->format(Session::getLocaleObject()->getDateFormatPhp());
 
         } else {
-            $value = PhoDateTime::new($value)->format('user_date');
+            $value = PhoDateTime::new($value)->format(EnumDateFormat::user_date);
         }
 
         return parent::setValue($value, $make_safe);

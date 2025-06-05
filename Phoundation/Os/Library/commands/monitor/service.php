@@ -36,13 +36,13 @@ CliDocumentation::setHelp('This command will monitor the specified service (by n
 // Get the arguments
 $argv = ArgvValidator::new()
                      ->select('service')->isVariable()->sanitizeTrim()->sanitizeLowercase()->isInArray([
-                                                                                                           'apache',
-                                                                                                           'mysql',
-                                                                                                           'php',
-                                                                                                           'redis',
-                                                                                                           'mongo',
-                                                                                                           'memcached',
-                                                                                                       ])
+                         'apache',
+                         'mysql',
+                         'php',
+                         'redis',
+                         'mongo',
+                         'memcached',
+                     ])
                      ->select('-m,--minimum', true)->isOptional()->isNatural()
                      ->validate();
 

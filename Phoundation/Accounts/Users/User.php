@@ -87,6 +87,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
+use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -1721,7 +1722,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     public function setLockedUntil(DateTimeInterface|string|null $locked_until): static
     {
         if ($locked_until instanceof DateTimeInterface) {
-            $locked_until = $locked_until->format('mysql');
+            $locked_until = $locked_until->format(EnumDateFormat::mysql);
         }
 
         return $this->set($locked_until, 'locked_until');

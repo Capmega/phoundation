@@ -30,6 +30,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\Validate;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\SqlQueries;
+use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -242,7 +243,7 @@ class Meta implements MetaInterface
     {
         Validate::new($limit)->isMoreThan(0);
 
-        $before = PhoDateTime::new($before)->format('mysql');
+        $before = PhoDateTime::new($before)->format(EnumDateFormat::mysql);
 
         sql()->list('DELETE FROM `meta_history` WHERE `created_on` < :created_on' . ($limit ? ' LIMIT ' . $limit : null), [
             ':created_on' => $before,

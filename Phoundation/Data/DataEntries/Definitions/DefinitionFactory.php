@@ -1601,7 +1601,7 @@ class DefinitionFactory
                              $validator->isPhoneNumber();
                          })
                          ->setDisplayCallback(function (mixed $value, array $source) {
-                             return Session::getUserObject()->getLocaleObject()->formatPhoneNumber($value);
+                             return Session::getLocaleObject()->formatPhoneNumber($value);
                          });
     }
 

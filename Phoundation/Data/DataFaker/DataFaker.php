@@ -87,7 +87,7 @@ class DataFaker
     public function setLocale(?string $locale): static
     {
         if (empty($locale) or empty(trim($locale))) {
-            $locale = Session::getUserObject()->getLocaleObject()->getDefault();
+            $locale = Session::getLocaleObject()->getDefault();
         }
 
         $this->locale = $locale;

@@ -22,6 +22,7 @@ use Phoundation\Data\Interfaces\ArraySourceInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\IteratorCore;
 use Phoundation\Data\Traits\TraitMethodHasRendered;
+use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -140,8 +141,8 @@ class Activities extends IteratorCore
                                                       AND  `created_on` >= :start
                                                       AND  `created_on` <= :stop', [
                                                           ':users_id' => $user->getId(),
-                                                          ':start'    => $start->format('mysql'),
-                                                          ':stop'     => $start->format('mysql')
+                                                          ':start'    => $start->format(EnumDateFormat::mysql),
+                                                          ':stop'     => $start->format(EnumDateFormat::mysql)
                         ]);
 
         return $this;
@@ -185,11 +186,11 @@ class Activities extends IteratorCore
         ];
 
         if ($start) {
-            $execute[':start'] = $start->format('mysql');
+            $execute[':start'] = $start->format(EnumDateFormat::mysql);
         }
 
         if ($stop) {
-            $execute[':stop'] = $stop->format('mysql');
+            $execute[':stop'] = $stop->format(EnumDateFormat::mysql);
         }
 
         $this->source = sql()->listKeyValues('SELECT   `id`,

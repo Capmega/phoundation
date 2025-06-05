@@ -19,6 +19,7 @@ namespace Phoundation\Date;
 use DateTimeInterface;
 use DateTimeZone;
 use Exception;
+use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -77,7 +78,7 @@ class PhoDateTimeImmutable extends \DateTimeImmutable implements Stringable, Int
     public function format(?string $format = null): string
     {
         switch (strtolower($format)) {
-            case 'mysql':
+            case EnumDateFormat::mysql:
                 $format = 'Y-m-d H:i:s';
                 break;
         }
