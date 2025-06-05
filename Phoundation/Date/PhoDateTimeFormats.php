@@ -39,9 +39,9 @@ class PhoDateTimeFormats
      * @todo Make these defaults configurable, requires object to be non static
      */
     protected static array $defaults = [
-        'date'     => 'Y - m - d',
+        'date'     => 'Y / m / d',
         'time'     => 'H : i : s',
-        'datetime' => 'Y - m - d H : i : s',
+        'datetime' => 'Y / m / d H : i : s',
     ];
 
 
@@ -522,7 +522,7 @@ class PhoDateTimeFormats
         $date = trim((string) $date);
 
         // Do we have a datetime or date? Try matching something like DD-MM-YYYY HH:MM:II (and maybe microseconds)
-        if (preg_match_all('/^(\d+)\D+(\d+)\D+(\d+)\s*\D++\s*(\d{2})\D+(\d{2})\D+(\d{2})(?:\D+(\d+))?$/', $date, $matches)) {
+        if (preg_match_all('/^(\d+)\D+(\d+)\D+(\d+)\D+(\d{2})\D+(\d{2})\D+(\d{2})(?:\D+(\d+))?$/', $date, $matches)) {
             if (array_get_safe(array_get_safe($matches, 7), 0)) {
                 $microseconds = $microsecond_replace . $matches[7][0];
             }
