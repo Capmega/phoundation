@@ -1281,7 +1281,7 @@ class DefinitionFactory
                          ->setOptional(true)
                          ->setInputType(EnumInputType::date)
                          ->setSize(3)
-                         ->setMaxLength(10)
+                         ->setMaxLength(14)
                          ->setCliAutoComplete(true)
                          ->setLabel(tr('Date'));
     }

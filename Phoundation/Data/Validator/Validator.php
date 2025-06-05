@@ -6556,7 +6556,6 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
             if (!$this->hasOptionalValue($value)) {
                 try {
                     $value = Phn::checkSanitizeAndValidate($value);
-
                 } catch (InvalidPhnException | PhnRequiredException) {
                     $this->addSoftFailure(tr('must be a valid PHN'));
                 }
