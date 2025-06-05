@@ -3565,15 +3565,7 @@ throw new ObsoleteException();
                 return;
             }
 
-            // Ensure we have formats to work with, default to a number of acceptable formats
-            $formats = $formats ?? PhoDateTimeFormats::getSupportedPhp();
-            $formats = Arrays::force($formats, null);
-
-            // We must be able to create a date object using the given formats without failure, and the resulting date
-            // must be the same as the specified date
-            if (!static::dateMatchesFormats($value, $formats)) {
-                $this->addSoftFailure(tr('must be a valid date'));
-            }
+            $this->validateDate($value);
         });
     }
 
@@ -3603,6 +3595,7 @@ throw new ObsoleteException();
                 return;
             }
 
+            // TODO Expand on this to allow user locale formatted dates in ranges!
             // First check if the date range format is correct, then we can check the content
             $range_formats = [
                 '/^(\d{2}\s*[-\/]?\s*\d{2}\s*[-\/]?\s*\d{4})\s*-?\s*(\d{2}\s*[-\/]?\s*\d{2}\s*[-\/]?\s*\d{4})$/',
@@ -3625,16 +3618,7 @@ throw new ObsoleteException();
                 ];
 
                 foreach ($dates as $date) {
-                    // Ensure we have formats to work with, default to a number of acceptable formats
-                    $formats = $formats ?? PhoDateTimeFormats::getSupportedPhp();
-                    $formats = Arrays::force($formats, null);
-
-                    // We must be able to create a date object using the given formats without failure, and the resulting date
-                    // must be the same as the specified date
-                    if (!static::dateMatchesFormats($date, $formats)) {
-                        $this->addSoftFailure(tr('must be a valid date'));
-                        return;
-                    }
+                    $this->validateDate($date);
                 }
 
                 // Yay, valid!
@@ -3643,6 +3627,30 @@ throw new ObsoleteException();
 
             $this->addSoftFailure(tr('must be a valid date range'));
         });
+    }
+
+
+    /**
+     * Returns true if the specified date is valid
+     *
+     * @param string $date
+     *
+     * @return bool
+     */
+    protected function validateDate(string $date): bool
+    {
+        // Ensure we have formats to work with, default to a number of acceptable formats
+        $date = PhoDateTimeFormats::normalizeDate($date);
+
+        try {
+            PhoDateTime::new($date);
+            return true;
+
+        } catch (Throwable) {
+            $this->addSoftFailure(tr('must be a valid date'));
+        }
+
+        return false;
     }
 
 
