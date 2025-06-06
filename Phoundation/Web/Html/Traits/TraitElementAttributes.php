@@ -1349,6 +1349,11 @@ trait TraitElementAttributes
     {
         $return = null;
 
+        if (is_callable($content)) {
+            // Content was specified as a callback; Execute the callback to get the actual content.
+            $content = $content();
+        }
+
         if (is_array($content)) {
             // This is a list of content items. Render them one by one, and return them all together
             foreach ($content as $item) {

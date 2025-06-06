@@ -539,7 +539,9 @@ class Definition implements DefinitionInterface
     public function setBeforeContent(IteratorInterface|RenderInterface|array|callable|string|null $before_content): static
     {
         return $this->setKey([], 'before_content', false)
-                    ->addBeforeContent($before_content);
+                    ->addBeforeContent(function () use ($before_content) {
+                        return $before_content;
+                    });
     }
 
 
@@ -591,7 +593,9 @@ class Definition implements DefinitionInterface
     public function setAfterContent(RenderInterface|array|callable|string|null $after_content): static
     {
         return $this->setKey([], 'after_content', false)
-                    ->addAfterContent($after_content);
+                    ->addAfterContent(function () use ($after_content) {
+                        return $after_content;
+                    });
     }
 
 

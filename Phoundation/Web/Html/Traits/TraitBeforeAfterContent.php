@@ -69,7 +69,10 @@ trait TraitBeforeAfterContent
     public function setAfterContent(RenderInterface|array|callable|string|null $after_content): static
     {
         $this->after_content = [];
-        return $this->addAfterContent($after_content);
+
+        return $this->addAfterContent(function () use ($after_content) {
+            return $after_content;
+        });
     }
 
 
@@ -84,7 +87,9 @@ trait TraitBeforeAfterContent
     {
         if (is_array($after_content)) {
             foreach ($after_content as $content) {
-                $this->addAfterContent($content);
+                $this->addAfterContent(function () use ($content) {
+                    return $content;
+                });
             }
 
             return $this;
@@ -127,7 +132,10 @@ trait TraitBeforeAfterContent
     public function setBeforeContent(RenderInterface|array|callable|string|null $before_content): static
     {
         $this->before_content = [];
-        return $this->addBeforeContent($before_content);
+
+        return $this->addBeforeContent(function () use ($before_content) {
+            return $before_content;
+        });
     }
 
 
@@ -142,7 +150,9 @@ trait TraitBeforeAfterContent
     {
         if (is_array($before_content)) {
             foreach ($before_content as $content) {
-                $this->addBeforeContent($content);
+                $this->addBeforeContent(function () use ($content) {
+                    return $content;
+                });
             }
 
             return $this;
