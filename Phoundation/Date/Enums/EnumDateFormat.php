@@ -22,10 +22,9 @@ enum EnumDateFormat: string
     case user_time      = 'user_time';
     case user_date      = 'user_date';
     case user_datetime  = 'user_datetime';
-    case human_time     = 'human_time'; // DEPRECATED
-    case human_date     = 'human_date'; // DEPRECATED
+    case human_time     = 'human_time';     // DEPRECATED
+    case human_date     = 'human_date';     // DEPRECATED
     case human_datetime = 'human_datetime'; // DEPRECATED
-    case user_date_time = 'user_date_time'; // DEPRECATED
     case iso_date       = 'iso_date';
     case system_date    = 'system_date';
     case mysql_date     = 'mysql_date';

@@ -428,8 +428,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
             EnumDateFormat::user_datetime   => Session::getLocaleObject()->getDateTimeFormatPhp(),
             EnumDateFormat::human_time      => config()->getString('locale.dates.formats.human.time', PhoDateTimeFormats::getDefaultTimeFormatPhp(), true),
             EnumDateFormat::human_date      => config()->getString('locale.dates.formats.human.date', PhoDateTimeFormats::getDefaultDateFormatPhp(), true),
-            EnumDateFormat::human_datetime,
-            EnumDateFormat::user_date_time  => config()->getString('locale.dates.formats.human.datetime', PhoDateTimeFormats::getDefaultDateFormatPhp(), true),
+            EnumDateFormat::human_datetime  => config()->getString('locale.dates.formats.human.datetime', PhoDateTimeFormats::getDefaultDateFormatPhp(), true),
             EnumDateFormat::iso_date,
             EnumDateFormat::system_date,
             EnumDateFormat::mysql_date      => 'Y-m-d',
@@ -483,7 +482,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public function getHumanReadableDateTime(): string
     {
-        return $this->format(EnumDateFormat::user_date_time);
+        return $this->format(EnumDateFormat::user_datetime);
     }
 
 
