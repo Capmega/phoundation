@@ -169,6 +169,7 @@ class Activity implements ActivityInterface, RenderInterface
                 return Json::decode($data);
 
             } catch (JsonException) {
+                // TODO DO NOT IGNORE EXCEPTIONS! THIS MEANS THE JSON IS INVALID, GENERATE AN INCIDENT FOR THIS!
                 // Fall through
             }
         }
