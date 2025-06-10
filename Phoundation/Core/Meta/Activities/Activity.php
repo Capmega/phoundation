@@ -24,6 +24,7 @@ use Phoundation\Data\Traits\TraitDataArraySource;
 use Phoundation\Data\Traits\TraitMethodHasRendered;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
@@ -168,9 +169,16 @@ class Activity implements ActivityInterface, RenderInterface
             try {
                 return Json::decode($data);
 
-            } catch (JsonException) {
-                // TODO DO NOT IGNORE EXCEPTIONS! THIS MEANS THE JSON IS INVALID, GENERATE AN INCIDENT FOR THIS!
-                // Fall through
+            } catch (JsonException $e) {
+                Incident::new()
+                        ->setTitle(ts('Failed to decode details because of following exception'))
+                        ->setBody(ts('NOTE: This is due to DataEntry::setDetails() JSON encoding incoming arrays automatically, but when reading from DB, it reads strings, it gets messy and a better solution must be found'))
+                        ->setException($e)
+                        ->setLog(ENVIRONMENT === 'production' ? 10 : 4)
+                        ->setNotifyRoles('developer')
+                        ->save();
+
+                // Continue
             }
         }
 
