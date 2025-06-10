@@ -10,9 +10,9 @@ interface AuthenticationInterface extends DataEntryInterface
     /**
      * Returns the account for this authentication
      *
-     * @return string|null
+     * @return array|string|null
      */
-    public function getAccount(): ?string;
+    public function getAccount(): array|string|null;
 
 
     /**

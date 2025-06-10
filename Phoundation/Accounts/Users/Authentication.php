@@ -41,6 +41,8 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryUserAgent;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Geo\GeoIp\Exception\GeoIpException;
 use Phoundation\Geo\GeoIp\GeoIp;
+use Phoundation\Security\Incidents\Incident;
+use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
@@ -153,11 +155,24 @@ class Authentication extends DataEntry implements AuthenticationInterface
     /**
      * Returns the account for this authentication
      *
-     * @return string|null
+     * @return array|string|null
      */
-    public function getAccount(): ?string
+    public function getAccount(): array|string|null
     {
-        return Json::encode($this->getTypesafe('array', 'account'));
+        try {
+            return Json::decode($this->getTypesafe('string', 'account'));
+
+        } catch (JsonException $e) {
+            Incident::new()
+                    ->setTitle(ts('Failed to decode details because of following exception'))
+                    ->setBody(ts('NOTE: This is due to DataEntry::setDetails() JSON encoding incoming arrays automatically, but when reading from DB, it reads strings, it gets messy and a better solution must be found'))
+                    ->setException($e)
+                    ->setLog(ENVIRONMENT === 'production' ? 10 : 4)
+                    ->setNotifyRoles('developer')
+                    ->save();
+
+            return [$this->getTypesafe('string', 'account')];
+        }
     }
 
 
@@ -170,11 +185,15 @@ class Authentication extends DataEntry implements AuthenticationInterface
      */
     public function setAccount(array|string|null $account): static
     {
-        if (is_string($account)) {
-            $account = Json::decode($account);
+        if ($account) {
+            if (!is_array($account)) {
+                $account = [$account];
+            }
+
+            $account = Json::encode($account);
         }
 
-        return $this->set($account, 'account');
+        return $this->set(get_null($account), 'account');
     }
 
 
