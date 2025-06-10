@@ -1342,6 +1342,8 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     /**
      * Load the id list from the database
      *
+     * @todo Add support for specifying which column should be the identifier column instead of only id_column or unique_column
+     *
      * @param array|string|int|null $identifiers
      * @param bool                  $only_if_empty Will only load if the current DataIterator source is empty
      *

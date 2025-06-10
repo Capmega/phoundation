@@ -138,9 +138,9 @@ class Emails extends DataIterator implements EmailsInterface
     {
         // Add extra entry with nothing selected
         $email       = Email::new()
-                            ->setPrefix($name)
+                            ->setPrefix($name) // TODO What is this? Name is used as prefix, WHY?
                             ->getHtmlDataEntryFormObject()
-                            ->setRenderMeta($meta_visible);
+                                ->setRenderMeta($meta_visible);
 
         $definitions = $email->getDefinitionsObject();
         $definitions->get('email')->setSize(6);
