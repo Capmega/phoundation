@@ -2228,7 +2228,7 @@ class Definition implements DefinitionInterface
      *
      * @return static
      */
-    public function setMin(float|int|null $value, bool $equal = false): static
+    public function setMin(float|int|null $value, bool $equal = true): static
     {
         $this->ensureInputType(EnumInputType::number);
         $this->validateNumberTypeInput('min', $value);
@@ -2261,7 +2261,7 @@ class Definition implements DefinitionInterface
      *
      * @return static
      */
-    public function setMax(float|int|null $value, bool $equal = false): static
+    public function setMax(float|int|null $value, bool $equal = true): static
     {
         $this->ensureInputType(EnumInputType::number);
         $this->validateNumberTypeInput('max', $value);
