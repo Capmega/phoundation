@@ -159,20 +159,7 @@ class Authentication extends DataEntry implements AuthenticationInterface
      */
     public function getAccount(): array|string|null
     {
-        try {
-            return Json::decode($this->getTypesafe('string', 'account'));
-
-        } catch (JsonException $e) {
-            Incident::new()
-                    ->setTitle(ts('Failed to decode details because of following exception'))
-                    ->setBody(ts('NOTE: This is due to DataEntry::setDetails() JSON encoding incoming arrays automatically, but when reading from DB, it reads strings, it gets messy and a better solution must be found'))
-                    ->setException($e)
-                    ->setLog(ENVIRONMENT === 'production' ? 10 : 4)
-                    ->setNotifyRoles('developer')
-                    ->save();
-
-            return [$this->getTypesafe('string', 'account')];
-        }
+        return Json::encode($this->getTypesafe('array', 'account'));
     }
 
 
@@ -185,15 +172,11 @@ class Authentication extends DataEntry implements AuthenticationInterface
      */
     public function setAccount(array|string|null $account): static
     {
-        if ($account) {
-            if (!is_array($account)) {
-                $account = [$account];
-            }
-
-            $account = Json::encode($account);
+        if (is_string($account)) {
+            $account = Json::decode($account);
         }
 
-        return $this->set(get_null($account), 'account');
+        return $this->set($account, 'account');
     }
 
 
