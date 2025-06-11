@@ -368,7 +368,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                     }
 
                     // Build the form elements unless a component or content was specified manually
-                    if (!$o_definition->getContent() and !$o_definition->getContent()) {
+                    if (!$o_definition->getContent()) {
                         switch ($o_definition->getElement()) {
                             case EnumElement::input:
                                 if (!$o_definition->getInputType()) {
