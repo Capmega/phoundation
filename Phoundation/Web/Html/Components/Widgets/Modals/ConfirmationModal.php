@@ -21,9 +21,7 @@ use Phoundation\Web\Html\Enums\EnumButtonType;
 class ConfirmationModal extends Modal
 {
     /**
-     * DeleteConfirmationModal class constructor
-     *
-     * @return void
+     * ConfirmationModal class constructor
      */
     public function __construct()
     {
