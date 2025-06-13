@@ -9,6 +9,9 @@
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
+ *
+ * @todo Split this into different Definition classes for different input types. Each input type (textarea, input text, input select, you name it) should have its own Definitions class and input controls should be generated from the Definition class type. Each Definition class should ONLY have methods relevant to their input control
+ * @todo Input control attributes must be updated so that their internal source also is managed with source arrays. This way, setDefinition() could literally dump the definition source array into an input control source array
  */
 
 
@@ -383,6 +386,79 @@ class Definition implements DefinitionInterface
     public function setProperties(?array $properties): static
     {
         return $this->setKey($properties, 'properties', false);
+    }
+
+
+    /**
+     * Returns the value for the requested event key, or NULL if it doesn't exist
+     *
+     * @param string|float|int $key
+     *
+     * @return mixed
+     */
+    public function getEventHandler(string|float|int $key): mixed
+    {
+        if (array_key_exists('event_handlers', $this->source)) {
+            if (array_key_exists($key, $this->source['event_handlers'])) {
+                $return = $this->source['event_handlers'][$key];
+
+                if (is_callable($return)) {
+                    return $return($this);
+                }
+
+                return $return;
+            }
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Sets the value for the requested property key
+     *
+     * @param mixed            $value
+     * @param string|float|int $key
+     *
+     * @return mixed
+     */
+    public function addEventHandler(mixed $value, string|float|int $key): static
+    {
+        if (!array_key_exists('event_handlers', $this->source)) {
+            $this->source['event_handlers'] = [];
+        }
+
+        $this->source['event_handlers'][$key] = $value;
+        return $this;
+    }
+
+
+    /**
+     * Returns all event handlers for this object
+     *
+     * @return array|null
+     */
+    public function getEventHandlers(): ?array
+    {
+        if (array_key_exists('event_handlers', $this->source)) {
+            return $this->source['event_handlers'];
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Sets all event handlers for this object
+     *
+     * @param array|null $handlers
+     *
+     * @return Definition
+     */
+    public function setEventHandlers(?array $handlers): static
+    {
+        $this->source['event_handlers'] = $handlers;
+        return $this;
     }
 
 
@@ -865,17 +941,22 @@ class Definition implements DefinitionInterface
      *
      * @note When specifying multiple classes in a string, make sure they are space separated!
      *
-     * @param array|string $value
+     * @param IteratorInterface|callable|array|string|null $value
+     * @param bool                                         $skip_null_values
      *
      * @return static
      * @see  Definition::setVirtual()
      */
-    public function addClasses(array|string $value): static
+    public function addClasses(IteratorInterface|callable|array|string|null $value, bool $skip_null_values = true): static
     {
-        $value = Arrays::force($value, ' ');
-        $value = array_merge($this->getClasses(), $value);
+        if (($value !== null) or !$skip_null_values) {
+            $value = Arrays::force($value, ' ');
+            $value = array_merge($this->getClasses(), $value);
 
-        return $this->setKey($value, 'classes');
+            return $this->setKey($value, 'classes');
+        }
+
+        return $this;
     }
 
 
@@ -950,12 +1031,12 @@ class Definition implements DefinitionInterface
      *
      * @note When specifying multiple classes in a string, make sure they are space separated!
      *
-     * @param IteratorInterface|array|string $value
+     * @param IteratorInterface|callable|array|string $value
      *
      * @return static
      * @see  Definition::setVirtual()
      */
-    public function setClasses(IteratorInterface|array|string $value): static
+    public function setClasses(IteratorInterface|callable|array|string $value): static
     {
         if ($value instanceof IteratorInterface) {
             $value = $value->getSource();
@@ -1047,18 +1128,21 @@ class Definition implements DefinitionInterface
     /**
      * Adds the specified HTML data to the DataEntryForm object
      *
-     * @param array|string $value
-     * @param string       $key
+     * @param callable|array|string|null $value
+     * @param string                     $key
+     * @param bool                       $skip_null_values
      *
      * @return static
      */
-    public function addData(array|string $value, string $key): static
+    public function addData(callable|array|string|null $value, string $key, bool $skip_null_values = true): static
     {
-        if (!isset($this->source['data'])) {
-            $this->source['data'] = [];
-        }
+        if (($value !== null) or !$skip_null_values) {
+            if (!isset($this->source['data'])) {
+                $this->source['data'] = [];
+            }
 
-        $this->source['data'][$key] = $value;
+            $this->source['data'][$key] = $value;
+        }
 
         return $this;
     }
@@ -1067,11 +1151,12 @@ class Definition implements DefinitionInterface
     /**
      * Sets specified HTML data to the DataEntryForm object
      *
-     * @param IteratorInterface|array $value
+     * @param IteratorInterface|callable|array $value
+     * @param bool                             $strict
      *
      * @return static
      */
-    public function setData(IteratorInterface|array $value, bool $strict = true): static
+    public function setData(IteratorInterface|callable|array $value, bool $strict = true): static
     {
         if ($value instanceof IteratorInterface) {
             $value = $value->getSource();
@@ -1138,11 +1223,11 @@ class Definition implements DefinitionInterface
     /**
      * Adds the specified script(s) to this class
      *
-     * @param ScriptInterface|ScriptsInterface $o_scripts
+     * @param ScriptInterface|ScriptsInterface|callable|null $o_scripts
      *
      * @return static
      */
-    public function addScriptObject(ScriptInterface|ScriptsInterface $o_scripts): static
+    public function addScriptObject(ScriptsInterface|ScriptInterface|callable|null $o_scripts): static
     {
         if ($o_scripts instanceof ScriptsInterface) {
             foreach ($o_scripts as $o_script) {
@@ -1171,17 +1256,21 @@ class Definition implements DefinitionInterface
     /**
      * Adds the specified HTML aria to the DataEntryForm object
      *
-     * @param array|string $value
-     * @param string       $key
+     * @param callable|array|string|null $value
+     * @param string                     $key
+     * @param bool                       $skip_null_values
      *
      * @return static
      */
-    public function addAria(array|string $value, string $key): static
+    public function addAria(callable|array|string|null $value, string $key, bool $skip_null_values = true): static
     {
-        if (!isset($this->source[$key])) {
-            $this->source['aria'] = [];
+        if (($value !== null) or !$skip_null_values) {
+            if (!isset($this->source[$key])) {
+                $this->source['aria'] = [];
+            }
+
+            $this->source['aria'][$key] = $value;
         }
-        $this->source['aria'][$key] = $value;
 
         return $this;
     }
@@ -1190,11 +1279,11 @@ class Definition implements DefinitionInterface
     /**
      * Sets specified HTML aria to the DataEntryForm object
      *
-     * @param IteratorInterface|array $value
+     * @param IteratorInterface|callable|array $value
      *
      * @return static
      */
-    public function setAria(IteratorInterface|array $value): static
+    public function setAria(IteratorInterface|callable|array $value): static
     {
         if ($value instanceof IteratorInterface) {
             $value = $value->getSource();

@@ -79,7 +79,7 @@ class EntryCore implements EntryInterface
 
 
     /**
-     * Returns all data for this data entry at once with an array of information
+     * Returns all source data for this Entry object
      *
      * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
      *       will not become available outside this object

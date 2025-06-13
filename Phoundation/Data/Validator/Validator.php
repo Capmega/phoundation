@@ -65,6 +65,8 @@ use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Http\Domains;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
 use Plugins\Medinet\Utils\Exception\InvalidPhnException;
 use Plugins\Medinet\Utils\Exception\PhnRequiredException;
@@ -4890,22 +4892,50 @@ throw new ObsoleteException();
                 return;
             }
 
-            if (!Url::new($value)->isValid()) {
+            $url = Url::new($value);
+
+            if (!$url->isValid()) {
                 if (str_contains($value, ' ')) {
                     // Spaces in URL's are common but will make the URL fail, auto replace with + and retry
                     $value = str_replace(' ', '+', $value);
-                    $url   = Url::new($value);
-
-                    if ($url->isValid()) {
-                        if ($url->hasDomain($domain)) {
-                            // Now we're good!
-                            return;
-                        }
-                    }
+                    $url = Url::new($value);
                 }
-
-                $this->addSoftFailure(tr('must contain a valid URL'));
             }
+
+            if ($url->isValid()) {
+                if ($url->hasDomain($domain)) {
+                    // Now we're good!
+                    return;
+
+                } else {
+                    $this->addSoftFailure(tr('must match the specified domain ":domain"', [
+                        ':domain' => $domain
+                    ]));
+
+                    return;
+                }
+            }
+
+            $this->addSoftFailure(tr('must contain a valid URL'));
+
+        });
+    }
+
+
+    /**
+     * Validates if the selected field matches the current project domain
+     *
+     * @param int|null $max_characters
+     *
+     * @return static
+     */
+    public function hasCurrentDomain(?int $max_characters = 2048): static
+    {
+        $this->test_count++;
+        $this->content_test_count++;
+
+        return $this->validateValues(function (&$value) use ($max_characters) {
+            $this->isUrl(Domains::getCurrent(), $max_characters);
         });
     }
 

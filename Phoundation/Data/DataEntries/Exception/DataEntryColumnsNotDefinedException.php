@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class EventException
+ * Class DataEntryColumnNotDefinedException
  *
- * This is the default exception for Data events
+ *
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -14,11 +14,8 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Data\Exception;
+namespace Phoundation\Data\DataEntries\Exception;
 
-use Phoundation\Exception\PhoException;
-
-
-class EventException extends DataException
+class DataEntryColumnsNotDefinedException extends DataEntryException
 {
 }
