@@ -68,15 +68,16 @@ class PhoClient
     /**
      * Returns a new static object
      *
+     * @param string $config_name
      * @param string $configuration_path
      *
      * @return static
      */
-    public static function newFromConfiguration(string $configuration_path): static
+    public static function newFromConfiguration(string $config_name, string $configuration_path): static
     {
-        $configuration = config()->getArray($configuration_path, require_keys: ['address', 'port', 'listen_port']);
+        $configuration = config($config_name)->getArray($configuration_path, require_keys: ['address', 'port']);
 
-        return new static($configuration['address'], $configuration['port'] ?? $configuration['listen_port']);
+        return new static($configuration['address'], $configuration['port']);
     }
 
 

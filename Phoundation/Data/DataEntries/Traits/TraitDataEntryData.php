@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries\Traits;
 
-use Phoundation\Core\Log\Log;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 
@@ -32,18 +32,23 @@ trait TraitDataEntryData
      */
     public function getData(bool $keep_array_format = false): array|string|null
     {
-        if ($keep_array_format) {
-            return $this->getTypesafe('array', 'data');
+        if (!$keep_array_format) {
+            return $this->getTypesafe('string', 'data');
         }
 
         try {
-            return Json::encode($this->getTypesafe('array', 'data'));
+            return Json::decode($this->getTypesafe('string', 'data'));
 
         } catch (JsonException $e) {
-            Log::warning(ts('Failed to encode data because of following exception'));
-            Log::error($e);
+            Incident::new()
+                    ->setTitle(ts('Failed to decode details because of following exception'))
+                    ->setBody(ts('NOTE: This is due to DataEntry::setDetails() JSON encoding incoming arrays automatically, but when reading from DB, it reads strings, it gets messy and a better solution must be found'))
+                    ->setException($e)
+                    ->setLog(ENVIRONMENT === 'production' ? 10 : 4)
+                    ->setNotifyRoles('developer')
+                    ->save();
 
-            return $this->getTypesafe('string', 'data');
+            return [$this->getTypesafe('string', 'data')];
         }
     }
 
@@ -58,16 +63,11 @@ trait TraitDataEntryData
     public function setData(array|string|null $data): static
     {
         if ($data) {
-            if (is_string($data)) {
-                try {
-                    $data = Json::decode($data);
-
-                } catch (JsonException $e) {
-                    Log::warning(ts('Failed to decode data because of following exception'));
-                    Log::error($e);
-                    throw $e;
-                }
+            if (!is_array($data)) {
+                $data = [$data];
             }
+
+            $data = Json::encode($data);
         }
 
         return $this->set(get_null($data), 'data');

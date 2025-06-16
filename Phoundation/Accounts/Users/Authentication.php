@@ -41,6 +41,8 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryUserAgent;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Geo\GeoIp\Exception\GeoIpException;
 use Phoundation\Geo\GeoIp\GeoIp;
+use Phoundation\Security\Incidents\Incident;
+use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
@@ -153,9 +155,9 @@ class Authentication extends DataEntry implements AuthenticationInterface
     /**
      * Returns the account for this authentication
      *
-     * @return string|null
+     * @return array|string|null
      */
-    public function getAccount(): ?string
+    public function getAccount(): array|string|null
     {
         return Json::encode($this->getTypesafe('array', 'account'));
     }
@@ -460,13 +462,13 @@ class Authentication extends DataEntry implements AuthenticationInterface
     protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
         // Ensure status will be limited to the defined possible states
-        $o_definitions->removeKeys('new-divider')
+        $o_definitions->removeKeys('meta-divider')
                       ->get('status')->setDataSource(static::getStatuses());
 
         $o_definitions->add(DefinitionFactory::newCreatedBy()
                                              ->setOptional(true))
 
-                      ->add(DefinitionFactory::newDivider('new-divider'))
+                      ->add(DefinitionFactory::newDivider('meta-divider'))
 
                       ->add(DefinitionFactory::newData('account')
                                              ->setLabel(tr('Used user account'))

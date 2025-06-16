@@ -41,7 +41,7 @@ class PhoDateTimeFormats
     protected static array $defaults = [
         'date'     => 'Y / m / d',
         'time'     => 'H : i : s',
-        'datetime' => 'Y / m / d H : i : s',
+        'datetime' => 'Y / m / d>>SEPARATOR<<H : i : s',
     ];
 
 
@@ -66,7 +66,7 @@ class PhoDateTimeFormats
             $default = str_replace(' ', '', $default);
         }
 
-        return $default;
+        return str_replace('>>SEPARATOR<<', ' ', $default);
     }
 
 
@@ -614,6 +614,7 @@ class PhoDateTimeFormats
     public static function normalizeDateFormat(Stringable|string $format, string $date_replace = '-', string $time_replace = ':', string $date_time_replace = ' ', string $microsecond_replace = '.'): string
     {
         $format = trim((string) $format);
+        $format = str_replace('>>SEPARATOR<<', ' ', $format);
 
         // Do we have a datetime or date? Try matching something like DD-MM-YYYY HH:MM:II (and maybe microseconds)
         if (preg_match_all('/^([a-z]+)[^a-z]+([a-z]+)[^a-z]+([a-z]+)[^a-z]+([a-z]+)[^a-z]+([a-z]+)[^a-z]+([a-z]+)(?:[^a-z]+([a-z]+))?$/i', $format, $matches)) {

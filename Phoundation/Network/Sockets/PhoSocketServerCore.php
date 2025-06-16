@@ -565,7 +565,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     protected function triggerConnectionHooks(PhoSocketInterface $client): bool
     {
         try {
-            Log::action(ts('Service ":name" received connection on local address ":local_ip::local_port" from remote address ":remote_ip::remote_port"', [
+            Log::success(ts('Service ":name" received connection on local address ":local_ip::local_port" from remote address ":remote_ip::remote_port"', [
                 ':name'        => $this->getName(),
                 ':local_ip'    => $client->getLocalAddress(),
                 ':local_port'  => $client->getLocalPort(),
