@@ -46,7 +46,7 @@ $filters_card = Card::new()
 
 // Get a new "notifications" object
 $notifications = Notifications::new()->markSeverityColumn();
-$builder       = $notifications->getQueryBuilder();
+$builder       = $notifications->getQueryBuilderObject();
 
 $builder->addSelect('`id`, `title`, `status`, `mode` AS `severity`, `priority`, `created_on`')
         ->addWhere('`users_id` = :users_id', [':users_id' => Session::getUserObject()->getId()])

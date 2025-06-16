@@ -60,7 +60,7 @@ $argv  = ArgvValidator::new()
 
 // Load the pending emails
 $emails = Emails::new();
-$emails->getQueryBuilder()
+$emails->getQueryBuilderObject()
        ->addSelect('*')
        ->addWhere('`status` IS NOT NULL AND `status` = "PENDING-SEND"')
        ->setLimit($argv['limit']);

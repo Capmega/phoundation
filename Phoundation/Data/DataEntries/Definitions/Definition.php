@@ -254,7 +254,7 @@ class Definition implements DefinitionInterface
      *
      * @return QueryBuilderInterface
      */
-    public function getQueryBuilder(): QueryBuilderInterface
+    public function getQueryBuilderObject(): QueryBuilderInterface
     {
         return $this->o_data_entry->getQueryBuilderObject();
     }

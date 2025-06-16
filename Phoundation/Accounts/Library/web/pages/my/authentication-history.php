@@ -44,7 +44,7 @@ $filters_card = Card::new()
 
 // Build the authentication table
 $authentications = Authentications::new()->setFilterFormObject($filters);
-$authentications->getQueryBuilder()->addJoin('LEFT JOIN `accounts_users` ON `accounts_authentications`.`created_by` = `accounts_users`.`id`')
+$authentications->getQueryBuilderObject()->addJoin('LEFT JOIN `accounts_users` ON `accounts_authentications`.`created_by` = `accounts_users`.`id`')
                                    ->addSelect('`accounts_authentications`.`id`')
                                    ->addSelect('`accounts_authentications`.`created_on`')
                                    ->addSelect('IFNULL(`accounts_authentications`.`status`, "Ok") AS `status`')

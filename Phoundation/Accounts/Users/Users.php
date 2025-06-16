@@ -515,7 +515,7 @@ class Users extends DataIterator implements UsersInterface
     {
         $role = Role::new()->load($role);
 
-        $this->getQueryBuilder()
+        $this->getQueryBuilderObject()
              ->addSelect('`accounts_users`.`id` AS `key`,
                           COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `accounts_users`.`first_names`, `accounts_users`.`last_names`)), ""), `accounts_users`.`nickname`, `accounts_users`.`username`, `accounts_users`.`email`, "System") AS `display_name`,
                           `accounts_users`.*')
@@ -526,7 +526,7 @@ class Users extends DataIterator implements UsersInterface
 
         if (!Debug::isEnabled()) {
             // Filter out test, developer, and demo users
-            $this->getQueryBuilder()
+            $this->getQueryBuilderObject()
                  ->addJoin('LEFT JOIN `accounts_users_rights`
                             ON        `accounts_users_rights`.`name` IN ("developer", "test", "demo")
                               AND     `accounts_users_rights`.`users_id` = `accounts_users`.`id`')

@@ -110,7 +110,7 @@ if ($role->isNotNew()) {
 
     $users = $role->getUsersObject();
 // :TODO: Fix Users class first, make sure that Users::load() uses query builder instead of direct queries!
-//    $users->getQueryBuilder()->addSelect('        `accounts_users`.`id`,
+//    $users->getQueryBuilderObject()->addSelect('        `accounts_users`.`id`,
 //                                                  TRIM(CONCAT(`first_names`, " ", `last_names`)) AS `name`,
 //                                                  `accounts_users`.`email`,
 //                                                  `accounts_users`.`status`,

@@ -48,7 +48,7 @@ $argv = ArgvValidator::new()
 
 
 $user  = Users::new();
-$query = $user->getQueryBuilder()
+$query = $user->getQueryBuilderObject()
               ->addSelect(' 
                  `accounts_users`.`id`,
                  `accounts_users`.`id` AS `key`,

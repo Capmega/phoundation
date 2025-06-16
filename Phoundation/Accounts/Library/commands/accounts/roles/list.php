@@ -43,7 +43,7 @@ $argv = ArgvValidator::new()
 
 // Load the roles
 $roles   = Roles::new();
-$builder = $roles->getQueryBuilder();
+$builder = $roles->getQueryBuilderObject();
 
 
 // Apply rights filter

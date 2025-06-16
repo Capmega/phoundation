@@ -48,7 +48,7 @@ class Rights extends DataIterator implements RightsInterface
      */
     public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
     {
-        $this->getQueryBuilder()->addSelect('`accounts_rights`.`id`, 
+        $this->getQueryBuilderObject()->addSelect('`accounts_rights`.`id`, 
                                              `accounts_rights`.`seo_name`, 
                                              `accounts_rights`.`description`,
                                              CONCAT(UPPER(LEFT(`accounts_rights`.`name`, 1)), SUBSTRING(`accounts_rights`.`name`, 2)) AS `right`, 

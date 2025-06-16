@@ -42,7 +42,7 @@ $argv = ArgvValidator::new()
 
 
 $rights  = Rights::new();
-$builder = $rights->getQueryBuilder();
+$builder = $rights->getQueryBuilderObject();
 
 if ($argv['roles']) {
     $roles = SqlQueries::in($argv['roles']);

@@ -52,7 +52,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return QueryBuilderInterface
      */
-    public function getQueryBuilder(): QueryBuilderInterface;
+    public function getQueryBuilderObject(): QueryBuilderInterface;
 
 
     /**

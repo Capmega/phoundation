@@ -300,7 +300,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      *
      * @return QueryBuilderInterface
      */
-    public function getQueryBuilder(): QueryBuilderInterface
+    public function getQueryBuilderObject(): QueryBuilderInterface
     {
         $this->useQueryBuilder();
         return $this->query_builder;
@@ -374,7 +374,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      *
      * @return static
      */
-    public function setQueryBuilder(QueryBuilderInterface $query_builder): static
+    public function setQueryBuilderObject(QueryBuilderInterface $query_builder): static
     {
         $this->query_builder = $query_builder;
         return $this;

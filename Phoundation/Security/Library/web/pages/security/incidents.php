@@ -36,7 +36,7 @@ $filters_card = Card::new()
 
 // Build the incident table
 $incidents = Incidents::new()->setFilterFormObject($filters);
-$builder   = $incidents->getQueryBuilder()
+$builder   = $incidents->getQueryBuilderObject()
                        ->addSelect('`security_incidents`.`id`')
                        ->addSelect('`security_incidents`.`type`')
                        ->addSelect('`security_incidents`.`created_on`')

@@ -91,7 +91,7 @@ interface DataIteratorInterface extends IteratorInterface
      *
      * @return QueryBuilderInterface
      */
-    public function getQueryBuilder(): QueryBuilderInterface;
+    public function getQueryBuilderObject(): QueryBuilderInterface;
 
 
     /**
@@ -354,7 +354,7 @@ interface DataIteratorInterface extends IteratorInterface
      *
      * @return static
      */
-    public function setQueryBuilder(QueryBuilderInterface $query_builder): static;
+    public function setQueryBuilderObject(QueryBuilderInterface $query_builder): static;
 
     /**
      * Shift an entry off the beginning of this Iterator

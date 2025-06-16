@@ -75,7 +75,7 @@ if (Request::isPostRequestMethod()) {
 
 // Get the connectors list and apply filters
 $connectors = Connectors::new();
-$builder    = $connectors->getQueryBuilder()
+$builder    = $connectors->getQueryBuilderObject()
                          ->addSelect('`databases_connectors`.`id`,
                  `databases_connectors`.`name`,
                  `databases_connectors`.`hostname`,
