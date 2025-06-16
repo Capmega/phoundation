@@ -29,6 +29,7 @@ namespace Phoundation\Accounts\Users\Sessions;
 
 use DateTimeZone;
 use Exception;
+use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Enums\EnumAuthenticationAction;
 use Phoundation\Accounts\Users\Authentication;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
@@ -71,6 +72,7 @@ use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Http\Http;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
@@ -1074,8 +1076,9 @@ class Session implements SessionInterface
         ]));
 
         Response::getFlashMessagesObject()->addWarning(tr('You were signed out automatically because your session timed out'));
+        Session::setAutoSignedOut();
         Session::signOut(true);
-        Response::redirect('signin');
+        Response::redirect(Url::new('signin')->makeWww()->addRedirect(Url::newCurrent()));
     }
 
 
@@ -1407,6 +1410,46 @@ class Session implements SessionInterface
 
 
     /**
+     * Redirects the user after they have signed in
+     *
+     * @param string|null $redirect
+     * @param string|null $email
+     *
+     * @return void
+     */
+    #[NoReturn] public static function redirectAfterSignIn(string|null $redirect, ?string $email = null): void
+    {
+        // Try to redirect the user back where they were. If the email is different (new, different user) do not do
+        // this as we would redirect the new user to what the previous user was doing
+        if (empty($email) or (static::getUserObject()->getEmail() === $email)) {
+            // First try the specified URL (likely from GET)
+            $redirect_urls[] = $redirect;
+
+            // Next try the URL from session
+            $redirect_urls[] = Session::getPreviousPage();
+
+            // Next try the accounts_users "previous_page" column
+//            $redirect_urls[] = Session::getUserObject()->getPreviousPage();
+
+            // Next try the user default page
+            $redirect_urls[] = Session::getUserObject()->getConfigurationsObject()->get('default_page');
+
+            foreach ($redirect_urls as $redirect_url) {
+                $redirect_url = Url::filter($redirect_url, ['sign-out', 'sign-in']);
+
+                if ($redirect_url) {
+                    $redirect_url = Url::newRedirect($redirect_url);
+                    Response::redirect($redirect_url);
+                }
+            }
+        }
+
+        // GET email didn't match or wasn't specified, redirect the default page for this user
+        Response::redirect(Url::new('index')->makeWww());
+    }
+
+
+    /**
      * Authenticate a user with the specified password
      *
      * @param UserInterface $user
@@ -1434,6 +1477,7 @@ class Session implements SessionInterface
 
             $_SESSION['first_visit'] = 1;
             $_SESSION['user']['id']  = static::$user->getId();
+
             return static::$user;
 
         } catch (DataEntryNotExistsException $e) {
@@ -1481,10 +1525,11 @@ class Session implements SessionInterface
             $display  = array_get_safe($_SESSION, 'display');
 
             $_SESSION = [
-                'domain'       => array_get_safe($_SESSION, 'domain'),
-                'init'         => array_get_safe($_SESSION, 'init'),
-                'first_ip'     => array_get_safe($_SESSION, 'first_ip'),
-                'first_domain' => array_get_safe($_SESSION, 'first_domain'),
+                'domain'        => array_get_safe($_SESSION, 'domain'),
+                'init'          => array_get_safe($_SESSION, 'init'),
+                'first_ip'      => array_get_safe($_SESSION, 'first_ip'),
+                'first_domain'  => array_get_safe($_SESSION, 'first_domain'),
+                'previous_page' => array_get_safe($_SESSION, 'previous_page'),
             ];
 
             if ($messages) {
@@ -1543,6 +1588,7 @@ class Session implements SessionInterface
             }
         }
 
+        Session::setPreviousPage();
         Session::release();
     }
 
@@ -2549,5 +2595,72 @@ class Session implements SessionInterface
     public static function setSignOutOnExit(?int $sign_out_on_exit): void
     {
         static::$sign_out_on_exit = $sign_out_on_exit;
+    }
+
+
+    /**
+     * Returns the value stored in the "previous_page" key
+     *
+     * @return string|null
+     */
+    public static function getPreviousPage(): ?string
+    {
+        return Session::get('previous_page');
+    }
+
+
+    /**
+     * Sets the value for the "previous_page" key
+     *
+     * @param UrlInterface|string|null $url
+     *
+     * @return void
+     */
+    protected static function setPreviousPage(UrlInterface|string|null $url = null): void
+    {
+        $url = $url ?? Request::getUrl();
+
+        if (is_string($url)) {
+            $url = Url::new($url);
+        }
+
+        Log::printr(Request::getRequestType());
+
+        if (!Request::isRequestType(EnumRequestTypes::html)) {
+            return;
+        }
+
+        Log::printr($url);
+
+        // Check if this is from the sign-in/sign-out page. If so, do not reset the session previous page
+        if (empty(Url::filter($url, ['sign-out', 'sign-in', 'auto-sign-out']))) {
+            return;
+        }
+
+        Log::printr('passed');
+
+        Session::set($url->getSource(), 'previous_page');
+    }
+
+
+    /**
+     * Returns the auto sign out value for this user, in seconds, if available, null otherwise
+     *
+     * @return ?int
+     */
+    public static function getAutoSignedOut(): ?int
+    {
+        return array_get_safe($_SESSION, 'auto_signed_out');
+    }
+
+
+    /**
+     * Sets the auto sign out value for this user, in seconds, if available, null otherwise
+     *
+     * @return void
+     */
+    protected static function setAutoSignedOut(): void
+    {
+        $_SESSION['auto_signed_out'] = time();
     }
 }
