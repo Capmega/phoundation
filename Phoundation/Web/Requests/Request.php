@@ -109,7 +109,7 @@ class Request implements RequestInterface
      *
      * @var PhoFileInterface $o_target
      */
-    protected static PhoFileInterface $o_target;
+    public static PhoFileInterface $o_target;
 
     /**
      * The file that is currently executed for this system page request
@@ -1159,7 +1159,7 @@ class Request implements RequestInterface
             $request_type = EnumRequestTypes::cli;
 
         } else {
-            $uri = Strings::from($target, 'web/pages/');
+            $uri = Strings::from($target, 'web/');
 
             if (str_starts_with($uri, 'ajax/')) {
                 $request_type = EnumRequestTypes::ajax;
@@ -1248,20 +1248,8 @@ class Request implements RequestInterface
                         'real_target' => static::$o_target->getSource('web'),
                         'rights'      => $rights,
                     ])
-                    ->save();
-
-            if (static::isRequestType(EnumRequestTypes::api)) {
-                // This method will exit
-                JsonPage::new()->replyWithHttpCode('sign-in');
-            }
-
-            if (static::isRequestType(EnumRequestTypes::ajax)) {
-                // This method will exit
-                JsonPage::new()->replyWithHttpCode('sign-in');
-            }
-
-            // This method will exit
-            Response::redirect($guest_redirect);
+                    ->save()
+                    ->throw();
         }
 
         // This user is missing rights
@@ -1294,7 +1282,8 @@ class Request implements RequestInterface
                         'missing_rights' => Rights::getNotExist($rights),
                     ])
                     ->setNotifyRoles('security')
-                    ->save();
+                    ->save()
+                    ->throw(AccessDeniedException::class);
 
         } else {
             // Registered user doesn't have the required rights
@@ -1320,11 +1309,9 @@ class Request implements RequestInterface
                         'rights'      => Session::getUserObject()->getMissingRights($rights),
                     ])
                     ->setNotifyRoles('security')
-                    ->save();
+                    ->save()
+                    ->throw();
         }
-
-        // This method will exit
-        static::executeSystem($rights_redirect);
     }
 
 
@@ -1356,9 +1343,8 @@ class Request implements RequestInterface
                         'rights'       => $rights,
                         ':sign_in_key' => $key->getUuid(),
                     ])
-                    ->save();
-
-            static::executeSystem(401);
+                    ->save()
+                    ->throw(AccessDeniedException::class);
         }
 
         if (!$key->signKeyAllowsUrl(Url::newCurrent(), $target)) {
@@ -1376,10 +1362,8 @@ class Request implements RequestInterface
                         ':allow'    => $key->getRedirect(),
                         ':uuid'     => $key->getUuid(),
                     ])
-                    ->save();
-
-            // This method will exit
-            static::executeSystem(401);
+                    ->save()
+                    ->throw(AccessDeniedException::class);
         }
     }
 
@@ -1494,22 +1478,6 @@ class Request implements RequestInterface
         if (!Session::hasStartedUp()) {
             // Start session here because the reply will need it
             Session::start();
-        }
-
-        switch (static::getRequestType()) {
-            case EnumRequestTypes::ajax:
-                // no break
-
-            case EnumRequestTypes::api:
-                // These are JSON type requests, reply with JSON instead of HTML
-                if ($e) {
-                    Incident::new()
-                            ->setException($e)
-                            ->setLog(true)
-                            ->save();
-                }
-
-                JsonPage::new()->replyWithHttpCode($http_code);
         }
 
         SystemRequest::new()->execute($http_code, $e, $message);
@@ -1694,7 +1662,9 @@ class Request implements RequestInterface
             ':target' => $target,
         ]));
 
-        Request::executeSystem(404);
+        throw Http404Exception::new(tr('The requested system page ":page" does not exist', [
+            ':page' => $target,
+        ]));
     }
 
 
@@ -1810,92 +1780,56 @@ class Request implements RequestInterface
     protected static function executeWebTarget(bool $flush): ?string
     {
         // Execute the specified target file
-        try {
-            switch (static::getRequestType()) {
-                case EnumRequestTypes::api:
-                    Log::action(ts('Executing API page ":target" on stack level ":level" with in language ":language" and sending output as API page', [
-                        ':target'   => Strings::from(static::getTargetObject(), '/web/'),
-                        ':level'    => static::$stack_level,
-                        ':language' => LANGUAGE,
-                    ]), (static::$stack_level ? 5 : 7));
-                    break;
+        switch (static::getRequestType()) {
+            case EnumRequestTypes::api:
+                Log::action(ts('Executing API page ":target" on stack level ":level" with in language ":language" and sending output as API page', [
+                    ':target'   => Strings::from(static::getTargetObject(), '/web/'),
+                    ':level'    => static::$stack_level,
+                    ':language' => LANGUAGE,
+                ]), (static::$stack_level ? 5 : 7));
+                break;
 
-                case EnumRequestTypes::ajax:
-                    Log::action(ts('Executing AJAX page ":target" on stack level ":level" with in language ":language" and sending output as AJAX API page', [
-                        ':target'   => Strings::from(static::getTargetObject(), '/web/'),
-                        ':level'    => static::$stack_level,
-                        ':language' => LANGUAGE,
-                    ]), (static::$stack_level ? 5 : 7));
-                    break;
+            case EnumRequestTypes::ajax:
+                Log::action(ts('Executing AJAX page ":target" on stack level ":level" with in language ":language" and sending output as AJAX API page', [
+                    ':target'   => Strings::from(static::getTargetObject(), '/web/'),
+                    ':level'    => static::$stack_level,
+                    ':language' => LANGUAGE,
+                ]), (static::$stack_level ? 5 : 7));
+                break;
 
-                default:
-                    Log::action(ts('Executing program ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
-                        ':target'   => Strings::from(static::getTargetObject(), '/web/'),
-                        ':template' => static::$template->getName(),
-                        ':level'    => static::$stack_level,
-                        ':language' => LANGUAGE,
-                    ]), (static::$stack_level ? 5 : 7));
-            }
-
-            // Hide $_FILES data in case files were uploaded
-            if (count($_FILES)) {
-                UploadHandlers::hideData();
-            }
-
-            // Prepare page, increase the stack counter, and execute the target
-            if (!$flush and static::$stack_level) {
-                // Execute only the file and return the output
-                return execute();
-            }
-
-            if (!Request::isSystemPage()) {
-                Response::addHeadDataAttribute(Url::getBase(), 'base-url');
-            }
-
-            // Execute the entire page and return the output
-            $results = static::$page->execute();
-
-            // Are all request method restrictions satisfied? Only check non-system pages, system pages will allow all
-            if (!static::$is_system) {
-                Request::getMethodRestrictionsObject()->checkRestrictions();
-            }
-
-            return $results;
-
-        } catch (ValidationFailedException $e) {
-            static::executeSystem(400, $e, tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
-
-        } catch (AuthenticationException $e) {
-            static::executeSystem(401, $e, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
-
-        } catch (IncidentsException $e) {
-            $new_target = $e->getNewTarget();
-
-            if (!$new_target) {
-                static::executeSystem(403, $e, tr('Page did not catch the following "IncidentsException or AccessDeniedException" warning. Executing "system/403" instead'));
-            }
-
-            Log::warning(ts('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
-                ':new'    => $new_target,
-                ':target' => static::$o_target->getRootname(),
-                ':user'   => Session::getUserObject()->getDisplayId(),
-            ]));
-
-            // Execute the new system page target instead
-            static::executeSystem($new_target, $e, $e->getMessage());
-
-        } catch (Http404Exception | DataEntryNotExistsException | DataEntryDeletedException $e) {
-            static::executeSystem(404, $e, tr('Page did not catch the following "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
-
-        } catch (Http405Exception | DataEntryReadonlyException | RequestMethodRestrictionsException $e) {
-            static::executeSystem(405, $e, tr('Page did not catch the following "Http405Exception or DataEntryReadonlyException or CoreReadonlyException" warning. Executing "system/405" instead'));
-
-        } catch (Http409Exception | DataEntryAlreadyExistsException $e) {
-            static::executeSystem(409, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
-
-        } catch (Http503Exception | CoreReadonlyException $e) {
-            static::executeSystem(503, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
+            default:
+                Log::action(ts('Executing program ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
+                    ':target'   => Strings::from(static::getTargetObject(), '/web/'),
+                    ':template' => static::$template->getName(),
+                    ':level'    => static::$stack_level,
+                    ':language' => LANGUAGE,
+                ]), (static::$stack_level ? 5 : 7));
         }
+
+        // Hide $_FILES data in case files were uploaded
+        if (count($_FILES)) {
+            UploadHandlers::hideData();
+        }
+
+        // Prepare page, increase the stack counter, and execute the target
+        if (!$flush and static::$stack_level) {
+            // Execute only the file and return the output
+            return execute();
+        }
+
+        if (!Request::isSystemPage()) {
+            Response::addHeadDataAttribute(Url::getBase(), 'base-url');
+        }
+
+        // Execute the entire page and return the output
+        $results = static::$page->execute();
+
+        // Are all request method restrictions satisfied? Only check non-system pages, system pages will allow all
+        if (!static::$is_system) {
+            Request::getMethodRestrictionsObject()->checkRestrictions();
+        }
+
+        return $results;
     }
 
 

@@ -17,7 +17,9 @@ declare(strict_types=1);
 namespace Phoundation\Web\Requests;
 
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Core;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\OutOfBoundsException;
@@ -28,6 +30,7 @@ use Phoundation\Utils\Enums\EnumJsonResponse;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderJsonInterface;
+use Phoundation\Web\Html\Components\Widgets\FlashMessages\FlashMessage;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessageInterface;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessagesInterface;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -459,7 +462,6 @@ class JsonPage implements JsonPageInterface
         // Clean up the data array and create a message
         $data = static::createMessage($data);
 
-        Response::setHttpCode(200);
         Response::setContentType('application/json');
         Response::setOutput($data);
         Response::send(false);
