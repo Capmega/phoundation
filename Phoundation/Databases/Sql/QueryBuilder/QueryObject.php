@@ -47,30 +47,30 @@ class QueryObject implements QueryObjectInterface
     /**
      * Select part of query
      *
-     * @var array $select
+     * @var array $selects
      */
-    protected array $select = [];
+    protected array $selects = [];
 
     /**
-     * Delete part of query
+     * Delete query
      *
-     * @var array $delete
+     * @var bool $delete
      */
-    protected array $delete = [];
+    protected bool $delete = false;
 
     /**
      * Update part of query
      *
-     * @var array $update
+     * @var array $updates
      */
-    protected array $update = [];
+    protected array $updates = [];
 
     /**
      * From part of query
      *
-     * @var array $from
+     * @var array $froms
      */
-    protected array $from = [];
+    protected array $froms = [];
 
     /**
      * Join part of query
@@ -89,23 +89,23 @@ class QueryObject implements QueryObjectInterface
     /**
      * Groupby part of query
      *
-     * @var array $group_by
+     * @var array $group_bys
      */
-    protected array $group_by = [];
+    protected array $group_bys = [];
 
     /**
      * Having part of query
      *
-     * @var array $having
+     * @var array $havings
      */
-    protected array $having = [];
+    protected array $havings = [];
 
     /**
      * Orderby part of query
      *
-     * @var array $order_by
+     * @var array $order_bys
      */
-    protected array $order_by = [];
+    protected array $order_bys = [];
 
     /**
      * Predefined columns
@@ -117,16 +117,9 @@ class QueryObject implements QueryObjectInterface
     /**
      * The build variables
      *
-     * @var array|null $execute
+     * @var array|null $executes
      */
-    protected ?array $execute = null;
-
-    /**
-     * The principle table from which we're selecting
-     *
-     * @var string|null $from_table
-     */
-    protected ?string $from_table = null;
+    protected ?array $executes = null;
 
 
     /**
@@ -148,7 +141,7 @@ class QueryObject implements QueryObjectInterface
 
         if ($this->parent) {
             // The first from will be the table from the parent class
-            $this->setFromTable($parent->getTable());
+            $this->setFrom($parent->getTable());
         }
     }
 
@@ -173,15 +166,62 @@ class QueryObject implements QueryObjectInterface
      */
     public function reset(): static
     {
-        $this->select     = [];
-        $this->from       = [];
+        $this->selects    = [];
+        $this->froms      = [];
         $this->wheres     = [];
         $this->joins      = [];
-        $this->group_by   = [];
-        $this->execute    = [];
-        $this->delete     = [];
+        $this->group_bys  = [];
+        $this->executes   = [];
         $this->predefines = [];
-        $this->order_by   = [];
+        $this->order_bys  = [];
+        $this->delete     = false;
+
+        return $this;
+    }
+
+
+    /**
+     * Updates the source data from this QueryObject with the specified data
+     *
+     * @param array $source
+     *
+     * @return $this
+     */
+    public function addSource(array $source): static
+    {
+        $this->selects    = array_merge($this->selects    ?? [], array_get_safe($source, 'selects'   , []));
+        $this->froms      = array_merge($this->froms      ?? [], array_get_safe($source, 'froms'     , []));
+        $this->wheres     = array_merge($this->wheres     ?? [], array_get_safe($source, 'wheres'    , []));
+        $this->joins      = array_merge($this->joins      ?? [], array_get_safe($source, 'joins'     , []));
+        $this->group_bys  = array_merge($this->group_bys  ?? [], array_get_safe($source, 'group_bys' , []));
+        $this->executes   = array_merge($this->executes   ?? [], array_get_safe($source, 'executes'  , []));
+        $this->updates    = array_merge($this->updates    ?? [], array_get_safe($source, 'updates'   , []));
+        $this->predefines = array_merge($this->predefines ?? [], array_get_safe($source, 'predefines', []));
+        $this->order_bys  = array_merge($this->order_bys  ?? [], array_get_safe($source, 'order_bys' , []));
+
+        return $this;
+    }
+
+
+    /**
+     * Updates the source data from this QueryObject with the specified data
+     *
+     * @param array $source
+     *
+     * @return $this
+     */
+    public function setSource(array $source): static
+    {
+        $this->selects    = array_get_safe($source, 'selects');
+        $this->froms      = array_get_safe($source, 'froms');
+        $this->wheres     = array_get_safe($source, 'wheres');
+        $this->joins      = array_get_safe($source, 'joins');
+        $this->group_bys  = array_get_safe($source, 'group_bys');
+        $this->executes   = array_get_safe($source, 'executes');
+        $this->delete     = array_get_safe($source, 'delete');
+        $this->updates    = array_get_safe($source, 'updates');
+        $this->predefines = array_get_safe($source, 'predefines');
+        $this->order_bys  = array_get_safe($source, 'order_bys');
 
         return $this;
     }
@@ -196,70 +236,29 @@ class QueryObject implements QueryObjectInterface
      */
     public function getSource(): array
     {
-        $return = [];
-
-        if ($this->select) {
-            $return['select'] = $this->select;
-        }
-
-        if ($this->from) {
-            $return['from'] = $this->from;
-        }
-
-        if ($this->wheres) {
-            $return['wheres'] = $this->wheres;
-        }
-
-        if ($this->joins) {
-            $return['joins'] = $this->joins;
-        }
-
-        if ($this->group_by) {
-            $return['group_by'] = $this->group_by;
-        }
-
-        if ($this->execute) {
-            $return['execute'] = $this->execute;
-        }
-
-        if ($this->delete) {
-            $return['delete'] = $this->delete;
-        }
-
-        if ($this->predefines) {
-            $return['predefines'] = $this->predefines;
-        }
-
-        if ($this->order_by) {
-            $return['order_by'] = $this->order_by;
-        }
-
-        return $return;
+        return [
+            'selects'    => $this->selects,
+            'froms'      => $this->froms,
+            'wheres'     => $this->wheres,
+            'joins'      => $this->joins,
+            'group_bys'  => $this->group_bys,
+            'executes'   => $this->executes,
+            'delete'     => $this->delete,
+            'updates'    => $this->updates,
+            'predefines' => $this->predefines,
+            'order_bys'  => $this->order_bys
+        ];
     }
 
 
     /**
-     * Returns the principle "FROM" table
+     * Returns the WHERE parts of the query
      *
-     * @return string|null
+     * @return array
      */
-    public function getFromTable(): ?string
+    public function getFroms(): array
     {
-        return $this->from_table;
-    }
-
-
-    /**
-     * Sets the principle "FROM" table
-     *
-     * @param string|null $from_table
-     *
-     * @return static
-     */
-    public function setFromTable(?string $from_table): static
-    {
-        $this->from_table = $from_table;
-        return $this->setFrom($from_table);
+        return $this->froms;
     }
 
 
@@ -273,7 +272,7 @@ class QueryObject implements QueryObjectInterface
      */
     public function setFrom(?string $from, ?array $execute = null): static
     {
-        $this->from = [];
+        $this->froms = [];
         return $this->addFrom($from, $execute);
     }
 
@@ -288,8 +287,7 @@ class QueryObject implements QueryObjectInterface
      */
     public function addFrom(?string $from, ?array $execute = null): static
     {
-        $this->from[] = $from;
-
+        $this->froms[] = $from;
         return $this->addExecuteArray($execute);
     }
 
@@ -316,13 +314,13 @@ class QueryObject implements QueryObjectInterface
     /**
      * Sets bound execution variables
      *
-     * @param array $execute
+     * @param array $executes
      *
      * @return static
      */
-    public function setExecute(array $execute): static
+    public function setExecutes(array $executes): static
     {
-        $this->execute = $execute;
+        $this->executes = $executes;
 
         return $this;
     }
@@ -338,13 +336,24 @@ class QueryObject implements QueryObjectInterface
      */
     public function addExecute(string $column, string|float|int|null $value): static
     {
-        if (!$this->execute) {
-            $this->execute = [];
+        if (!$this->executes) {
+            $this->executes = [];
         }
 
-        $this->execute[Strings::ensureStartsWith($column, ':')] = $value;
+        $this->executes[Strings::ensureStartsWith($column, ':')] = $value;
 
         return $this;
+    }
+
+
+    /**
+     * Returns the WHERE parts of the query
+     *
+     * @return array
+     */
+    public function getSelects(): array
+    {
+        return $this->selects;
     }
 
 
@@ -356,9 +365,9 @@ class QueryObject implements QueryObjectInterface
      *
      * @return static
      */
-    public function setSelect(?string $select, ?array $execute = null): static
+    public function setSelects(?string $select, ?array $execute = null): static
     {
-        $this->select = [];
+        $this->selects = [];
 
         return $this->addSelect($select, $execute);
     }
@@ -375,19 +384,15 @@ class QueryObject implements QueryObjectInterface
     public function addSelect(?string $select, ?array $execute = null): static
     {
         if ($this->delete) {
-            throw new OutOfBoundsException(tr('DELETE part of query has already been added, cannot add SELECT'));
+            throw new OutOfBoundsException(tr('Cannot add SELECT to a DELETE query', []));
         }
 
-        if ($this->update) {
-            throw new OutOfBoundsException(tr('UPDATE part of query has already been added, cannot add SELECT'));
+        if ($this->updates) {
+            throw new OutOfBoundsException(tr('UPDATE part of query has already been added, cannot add SELECT', []));
         }
 
         if ($select) {
-            if (!$this->select) {
-                $select = 'SELECT ' . $select;
-            }
-
-            $this->select[] = $select;
+            $this->selects[] = $select;
         }
 
         return $this->addExecuteArray($execute);
@@ -397,30 +402,22 @@ class QueryObject implements QueryObjectInterface
     /**
      * Make this a DELETE query by adding the select clause here
      *
-     * @param string|null $delete
-     * @param array|null  $execute
+     * @param bool $delete
      *
      * @return static
      */
-    public function addDelete(?string $delete, ?array $execute = null): static
+    public function setDelete(bool $delete): static
     {
-        if ($this->select) {
-            throw new OutOfBoundsException(tr('SELECT part of query has already been added, cannot add DELETE'));
+        if ($this->selects) {
+            throw new OutOfBoundsException(tr('SELECT part of query has already been added, cannot add DELETE', []));
         }
 
-        if ($this->update) {
-            throw new OutOfBoundsException(tr('UPDATE part of query has already been added, cannot add DELETE'));
+        if ($this->updates) {
+            throw new OutOfBoundsException(tr('UPDATE part of query has already been added, cannot add DELETE', []));
         }
 
-        if ($delete) {
-            if (!$this->delete) {
-                $delete = 'DELETE ' . $delete;
-            }
-
-            $this->delete[] = $delete;
-        }
-
-        return $this->addExecuteArray($execute);
+        $this->delete = $delete;
+        return $this;
     }
 
 
@@ -434,16 +431,16 @@ class QueryObject implements QueryObjectInterface
      */
     public function addUpdate(?string $update, ?array $execute = null): static
     {
-        if ($this->select) {
-            throw new OutOfBoundsException(tr('SELECT part of query has already been added, cannot add UPDATE'));
+        if ($this->selects) {
+            throw new OutOfBoundsException(tr('SELECT part of query has already been added, cannot add UPDATE', []));
         }
 
         if ($this->delete) {
-            throw new OutOfBoundsException(tr('DELETE part of query has already been added, cannot add UPDATE'));
+            throw new OutOfBoundsException(tr('DELETE part of query has already been added, cannot add UPDATE', []));
         }
 
         if ($update) {
-            $this->update[] = $update;
+            $this->updates[] = $update;
         }
 
         return $this->addExecuteArray($execute);
@@ -525,6 +522,17 @@ class QueryObject implements QueryObjectInterface
 
 
     /**
+     * Returns the GROUP BY parts of the query
+     *
+     * @return array
+     */
+    public function getGroupBys(): array
+    {
+        return $this->group_bys;
+    }
+
+
+    /**
      * Add a GROUP BY part of the query
      *
      * @param string|null $group_by
@@ -535,10 +543,21 @@ class QueryObject implements QueryObjectInterface
     public function addGroupBy(?string $group_by, ?array $execute = null): static
     {
         if ($group_by) {
-            $this->group_by[] = $group_by;
+            $this->group_bys[] = $group_by;
         }
 
         return $this->addExecuteArray($execute);
+    }
+
+
+    /**
+     * Returns the HAVING parts of the query
+     *
+     * @return array
+     */
+    public function getHavings(): array
+    {
+        return $this->havings;
     }
 
 
@@ -553,10 +572,21 @@ class QueryObject implements QueryObjectInterface
     public function addHaving(?string $having, ?array $execute = null): static
     {
         if ($having) {
-            $this->having[] = $having;
+            $this->havings[] = $having;
         }
 
         return $this->addExecuteArray($execute);
+    }
+
+
+    /**
+     * Returns the ORDER BY parts of the query
+     *
+     * @return array
+     */
+    public function getOrderBys(): array
+    {
+        return $this->order_bys;
     }
 
 
@@ -568,9 +598,9 @@ class QueryObject implements QueryObjectInterface
      *
      * @return static
      */
-    public function setOrderBy(?string $order_by, ?array $execute = null): static
+    public function setOrderBys(?string $order_by, ?array $execute = null): static
     {
-        $this->order_by = [];
+        $this->order_bys = [];
 
         return $this->addOrderBy($order_by, $execute);
     }
@@ -587,7 +617,7 @@ class QueryObject implements QueryObjectInterface
     public function addOrderBy(?string $order_by, ?array $execute = null): static
     {
         if ($order_by) {
-            $this->order_by[] = $order_by;
+            $this->order_bys[] = $order_by;
         }
 
         return $this->addExecuteArray($execute);
@@ -629,7 +659,7 @@ class QueryObject implements QueryObjectInterface
                 return $this->compareQuery($column, (string) $value);
 
             case 'string':
-                $this->execute[Strings::ensureStartsWith($column, ':')] = $value;
+                $this->executes[Strings::ensureStartsWith($column, ':')] = $value;
                 return ' = :' . $column . ' ';
 
             case 'array':
@@ -647,7 +677,7 @@ class QueryObject implements QueryObjectInterface
                 $columns = [];
 
                 foreach ($value as $scalar) {
-                    $this->execute[$column . $count++] = $scalar;
+                    $this->executes[$column . $count++] = $scalar;
                     $columns[]                         = $column . ($count++);
                 }
 

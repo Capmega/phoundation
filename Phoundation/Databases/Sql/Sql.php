@@ -717,7 +717,7 @@ class Sql implements SqlInterface
             return null;
         }
 
-        return Strings::toBoolean($result);
+        return Strings::toBoolean($result, false);
     }
 
 
@@ -1343,24 +1343,22 @@ class Sql implements SqlInterface
     {
         Core::checkReadonly('sql insert');
 
-        $columns = SqlQueries::getPrefixedColumns($data);
-        $values  = SqlQueries::getBoundValues($data);
+        $columns       = SqlQueries::getPrefixedColumns($data);
+        $values        = SqlQueries::getBoundValues($data);
+        $update_values = SqlQueries::getBoundValues($update, 'update_');
 
         if ($update) {
             // Build bound variables for the query
-            if (is_array($update)) {
-                $data = array_merge($data, $update);
-            }
-
+            $values = array_merge($values, $update_values);
             $keys   = SqlQueries::getBoundKeys($data);
-            $update = SqlQueries::getUpdateKeyValues($update);
+            $update = SqlQueries::getUpdateKeyValues($update, 'update_');
 
             $this->query('INSERT INTO            `' . $table . '` (' . $columns . ') 
                           VALUES                                  (' . $keys . ') 
                           ON DUPLICATE KEY UPDATE ' . $update, $values);
 
         } else {
-            // Build bound variables for query
+            // Build bound variables for the query
             $keys = SqlQueries::getBoundKeys($data);
             $this->query('INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . $keys . ')', $values);
         }

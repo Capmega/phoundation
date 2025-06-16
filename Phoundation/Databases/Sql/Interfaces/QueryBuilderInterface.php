@@ -25,12 +25,11 @@ interface QueryBuilderInterface extends QueryObjectInterface
     /**
      * Make this a DELETE query by adding the select clause here
      *
-     * @param string|null $delete
-     * @param array|null  $execute
+     * @param bool $delete
      *
      * @return static
      */
-    public function addDelete(?string $delete, ?array $execute = null): static;
+    public function setDelete(bool $delete): static;
 
 
     /**
