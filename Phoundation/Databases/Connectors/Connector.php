@@ -87,9 +87,8 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false, ?string $database = null)
     {
-        $this->initializeVirtualConfiguration([
-            'timezones' => ['name'],
-        ]);
+        $this->initializeVirtualConfiguration(['timezones' => ['name']])
+             ->setPermittedColumns('pdo_attributes');
 
         $this->supports_seo_name     = false;
         $this->supports_seo_hostname = false;

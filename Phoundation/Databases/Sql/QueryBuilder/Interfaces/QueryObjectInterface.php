@@ -19,12 +19,11 @@ interface QueryObjectInterface
     /**
      * Make this a DELETE query by adding the select clause here
      *
-     * @param string     $delete
-     * @param array|null $execute
+     * @param bool $delete
      *
      * @return static
      */
-    public function addDelete(string $delete, ?array $execute = null): static;
+    public function setDelete(bool $delete): static;
 
     /**
      * Make this a UPDATE query by adding the select clause here
@@ -94,7 +93,7 @@ interface QueryObjectInterface
      *
      * @return static
      */
-    public function setOrderBy(?string $order_by, ?array $execute = null): static;
+    public function setOrderBys(?string $order_by, ?array $execute = null): static;
 
     /**
      * Add a ORDER BY part of the query
@@ -163,23 +162,7 @@ interface QueryObjectInterface
      *
      * @return static
      */
-    public function setSelect(string $select, ?array $execute = null): static;
-
-    /**
-     * Returns the principle "FROM" table
-     *
-     * @return string|null
-     */
-    public function getFromTable(): ?string;
-
-    /**
-     * Sets the principle "FROM" table
-     *
-     * @param string|null $from_table
-     *
-     * @return static
-     */
-    public function setFromTable(?string $from_table): static;
+    public function setSelects(string $select, ?array $execute = null): static;
 
     /**
      * Sets the "FROM" part of the query

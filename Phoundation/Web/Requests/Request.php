@@ -1862,7 +1862,7 @@ class Request implements RequestInterface
 
             return $results;
 
-        } catch (ValidationFailedException | RequestMethodRestrictionsException $e) {
+        } catch (ValidationFailedException $e) {
             static::executeSystem(400, $e, tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
 
         } catch (AuthenticationException $e) {
@@ -1887,7 +1887,7 @@ class Request implements RequestInterface
         } catch (Http404Exception | DataEntryNotExistsException | DataEntryDeletedException $e) {
             static::executeSystem(404, $e, tr('Page did not catch the following "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
 
-        } catch (Http405Exception | DataEntryReadonlyException $e) {
+        } catch (Http405Exception | DataEntryReadonlyException | RequestMethodRestrictionsException $e) {
             static::executeSystem(405, $e, tr('Page did not catch the following "Http405Exception or DataEntryReadonlyException or CoreReadonlyException" warning. Executing "system/405" instead'));
 
         } catch (Http409Exception | DataEntryAlreadyExistsException $e) {

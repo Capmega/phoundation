@@ -9,6 +9,8 @@
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Web
+ *
+ * @todo Input control attributes must be updated so that their internal source also is managed with source arrays. This way, setDefinition() could literally dump the definition source array into an input control source array
  */
 
 
@@ -37,7 +39,6 @@ use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\AInterface;
 use Phoundation\Web\Html\Components\Interfaces\DivInterface;
-use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Html\Components\Span;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Interfaces\TooltipInterface;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Tooltip;
@@ -468,12 +469,19 @@ trait TraitElementAttributes
     /**
      * Returns the HTML element data-* attribute store
      *
+     * @param bool $resolve_callbacks
+     *
      * @return IteratorInterface
      */
-    public function getDataObject(): IteratorInterface
+    public function getDataObject(bool $resolve_callbacks = true): IteratorInterface
     {
         if (empty($this->o_data)) {
             $this->o_data = new Iterator();
+        }
+
+        if ($resolve_callbacks) {
+            // Resolve any value that is a callback instead of a normal value
+            $this->o_data = Arrays::resolveCallbacks($this->o_data);
         }
 
         return $this->o_data;
@@ -589,12 +597,19 @@ trait TraitElementAttributes
     /**
      * Returns the HTML element aria-* attribute store
      *
+     * @param bool $resolve_callbacks
+     *
      * @return IteratorInterface
      */
-    public function getAriaObject(): IteratorInterface
+    public function getAriaObject(bool $resolve_callbacks = true): IteratorInterface
     {
         if (empty($this->o_aria)) {
             $this->o_aria = new Iterator();
+        }
+
+        if ($resolve_callbacks) {
+            // Resolve any value that is a callback instead of a normal value
+            $this->o_aria = Arrays::resolveCallbacks($this->o_aria);
         }
 
         return $this->o_aria;
@@ -633,7 +648,7 @@ trait TraitElementAttributes
     public function getClass(?string $prefix = null, bool $add_definition_name_to_class = true): ?string
     {
         if (empty($this->class)) {
-            $this->class = implode(' ', $this->o_classes->getSourceKeys());
+            $this->class = implode(' ', Arrays::resolveCallbacks($this->o_classes->getSource()));
 
             if ($add_definition_name_to_class) {
                 if ($this->getName()) {
@@ -904,10 +919,10 @@ trait TraitElementAttributes
     public function setFloatRight(bool $right): static
     {
         if ($right) {
-            $this->o_classes->add(true, 'float-right', exception: false);
+            $this->addClass('float-right');
 
         } else {
-            $this->o_classes->removeKeys('float-right');
+            $this->removeClass('float-right');
         }
 
         return $this;
@@ -1054,10 +1069,10 @@ trait TraitElementAttributes
     public function setDisabled(bool $disabled, ?bool $set_readonly = null): static
     {
         if ($disabled) {
-            $this->o_classes->add('disabled', 'disabled', exception: false);
+            $this->addClass('disabled');
 
         } else {
-            $this->o_classes->removeKeys('disabled');
+            $this->removeClass('disabled');
         }
 
         $this->disabled = $disabled;
@@ -1093,10 +1108,10 @@ trait TraitElementAttributes
     public function setReadonly(bool $readonly, ?bool $set_disabled = null): static
     {
         if ($readonly) {
-            $this->o_classes->add('readonly', 'readonly', exception: false);
+            $this->addClass('readonly');
 
         } else {
-            $this->o_classes->removeKeys('readonly');
+            $this->removeClass('readonly');
         }
 
         $this->readonly = $readonly;
@@ -1159,10 +1174,10 @@ trait TraitElementAttributes
     {
         if ($selectable) {
             // Being selectable is the default state, so remove "unselectable"
-            $this->o_classes->removeKeys('unselectable');
+            $this->removeClass('unselectable');
 
         } else {
-            $this->o_classes->add('unselectable', 'unselectable');
+            $this->addClass('unselectable');
         }
 
         return $this;
@@ -1249,11 +1264,11 @@ trait TraitElementAttributes
     /**
      * Adds the specified class to the HTML element class attribute
      *
-     * @param IteratorInterface|array|string|null $o_class
+     * @param IteratorInterface|callable|array|string|null $o_class
      *
      * @return static
      */
-    public function addClass(IteratorInterface|array|string|null $o_class): static
+    public function addClass(IteratorInterface|callable|array|string|null $o_class): static
     {
         return $this->addClasses($o_class);
     }
@@ -1262,11 +1277,11 @@ trait TraitElementAttributes
     /**
      * Adds the specified classes to the HTML element class attribute
      *
-     * @param IteratorInterface|array|string|null $o_classes
+     * @param IteratorInterface|callable|array|string|null $o_classes
      *
      * @return static
      */
-    public function addClasses(IteratorInterface|array|string|null $o_classes): static
+    public function addClasses(IteratorInterface|callable|array|string|null $o_classes): static
     {
         foreach (Arrays::force($o_classes, ' ') as $class) {
             $this->o_classes->add($class, $class, exception: false);
@@ -1401,10 +1416,10 @@ trait TraitElementAttributes
     {
         if ($parent_only) {
             if ($visible) {
-                $this->o_classes->removeKeys('invisible');
+                $this->removeClass('invisible');
 
             } else {
-                $this->o_classes->add(true, 'invisible', exception: false);
+                $this->addClass('invisible');
             }
         }
 
@@ -1437,10 +1452,10 @@ trait TraitElementAttributes
     {
         if ($parent_only) {
             if ($display) {
-                $this->o_classes->removeKeys('d-none');
+                $this->removeClass('d-none');
 
             } else {
-                $this->o_classes->add(true, 'd-none', exception: false);
+                $this->addClass('d-none');
             }
         }
 
@@ -1471,10 +1486,10 @@ trait TraitElementAttributes
     public function setRequired(bool $required): static
     {
         if ($required) {
-            $this->o_classes->add('required', 'required', exception: false);
+            $this->addClass('required');
 
         } else {
-            $this->o_classes->removeKeys('required');
+            $this->removeClass('required');
         }
 
         $this->required = $required;

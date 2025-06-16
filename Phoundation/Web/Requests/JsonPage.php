@@ -423,21 +423,23 @@ class JsonPage implements JsonPageInterface
     /**
      * Adds HTML flash message sections to the JSON reply
      *
-     * @param FlashMessagesInterface|FlashMessageInterface $messages
+     * @param FlashMessagesInterface|FlashMessageInterface|null $messages
      *
      * @return static
      */
-    public function addFlashMessageSections(FlashMessagesInterface|FlashMessageInterface $messages): static
+    public function addFlashMessageSections(FlashMessagesInterface|FlashMessageInterface|null $messages): static
     {
-        if ($messages instanceof FlashMessagesInterface) {
-            // Multiple HTML sections, add each one individually
-            foreach ($messages as $message) {
-                $this->addFlashMessageSections($message);
-            }
+        if ($messages) {
+            if ($messages instanceof FlashMessagesInterface) {
+                // Multiple HTML sections, add each one individually
+                foreach ($messages as $message) {
+                    $this->addFlashMessageSections($message);
+                }
 
-        } else {
-            // This is just a single HTML section, make a list out of it
-            static::$flash[] = $messages->renderArray();
+            } else {
+                // This is just a single HTML section, make a list out of it
+                static::$flash[] = $messages->renderArray();
+            }
         }
 
         return $this;

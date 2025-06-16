@@ -68,11 +68,11 @@ trait TraitDataScripts
     /**
      * Adds the specified script(s) to this class
      *
-     * @param ScriptInterface|ScriptsInterface $o_scripts
+     * @param ScriptsInterface|ScriptInterface|callable|null $o_scripts
      *
      * @return static
      */
-    public function addScriptObject(ScriptInterface|ScriptsInterface $o_scripts): static
+    public function addScriptObject(ScriptsInterface|ScriptInterface|callable|null $o_scripts): static
     {
         if ($o_scripts instanceof ScriptsInterface) {
             foreach ($o_scripts as $o_script) {

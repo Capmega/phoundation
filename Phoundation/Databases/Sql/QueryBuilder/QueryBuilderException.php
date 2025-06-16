@@ -1,24 +1,24 @@
 <?php
 
 /**
- * Class EventException
+ * Class QueryBuilderException
  *
- * This is the default exception for Data events
+ *
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Data
+ * @package   Phoundation\Databases
  */
 
 
 declare(strict_types=1);
 
-namespace Phoundation\Data\Exception;
+namespace Phoundation\Databases\Sql\QueryBuilder;
 
-use Phoundation\Exception\PhoException;
+use Phoundation\Databases\Exception\DatabasesException;
 
 
-class EventException extends DataException
+class QueryBuilderException extends DatabasesException
 {
 }

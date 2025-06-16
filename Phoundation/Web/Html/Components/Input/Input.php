@@ -69,9 +69,10 @@ abstract class Input extends Element implements InputInterface, ValueInterface
     public function getDefinitionObject(): ?DefinitionInterface
     {
         // Copy data used for input controls
-        return parent::getDefinitionObject()->setHidden($this->getHidden())
-                                            ->setPlaceholder($this->getPlaceholder())
-                                            ->setAutoSubmit($this->getAutoSubmit());
+        return parent::getDefinitionObject()
+                     ->setHidden($this->getHidden())
+                     ->setPlaceholder($this->getPlaceholder())
+                     ->setAutoSubmit($this->getAutoSubmit());
     }
 
 

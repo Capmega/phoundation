@@ -457,14 +457,32 @@ class Strings extends Utils
      *
      * @see    https://semver.org/
      *
-     * @param  Stringable|string $source
+     * @param Stringable|string $source
+     * @param bool              $phoundation_version
      *
      * @return bool True if the specified string is a version format string matching "/^\d{1,3}\.\d{1,3}\.\d{1,3}$/".
      *              False if not
      */
-    public static function isVersion(Stringable|string $source): bool
+    public static function isVersion(Stringable|string $source, bool $phoundation_version = false): bool
     {
-        $result = preg_match('/^\d{1,4}\.\d{1,4}\.\d{1,4}$/', (string) $source);
+        if ($phoundation_version) {
+            switch ($source) {
+                case 'post_once':
+                    // no break
+
+                case 'post_always':
+                    // These are fake versions
+                    return true;
+            }
+
+            // Phoundation also allows negative versions for post init version control
+            $regex = '/^-?\d{1,4}\.\d{1,4}\.\d{1,4}$/';
+
+        } else {
+            $regex = '/^\d{1,4}\.\d{1,4}\.\d{1,4}$/';
+        }
+
+        $result = preg_match($regex, (string) $source);
 
         if ($result === false) {
             throw new CoreException(tr('Failed version detection for specified source ":source"', [
@@ -1869,7 +1887,8 @@ class Strings extends Utils
                     ]));
                 }
 
-                return null;
+                // Hard cast to boolean, and pray for the best!
+                return (bool) $source;
         }
     }
 
@@ -2013,12 +2032,13 @@ class Strings extends Utils
      * Returns an array with
      *
      * @param Stringable|string $source
+     * @param array             $previous
      *
      * @return array
      */
-    public static function countCharacters(Stringable|string $source): array
+    public static function countCharacters(Stringable|string $source, array $previous = []): array
     {
-        $return = [];
+        $return = $previous;
         $source = (string) $source;
         $length = strlen($source);
 
@@ -2028,8 +2048,7 @@ class Strings extends Utils
             }
         }
 
-        sort($return);
-
+        ksort($return);
         return $return;
     }
 
@@ -2767,5 +2786,51 @@ class Strings extends Utils
         }
 
         return $source;
+    }
+
+
+    /**
+     * Returns the specified source value with a prefix, unless the source is empty, in which case $default is returned
+     *
+     * @param Stringable|string|float|int|null $source
+     * @param Stringable|string|null           $prefix
+     * @param string|null                      $default
+     *
+     * @return Stringable|string|float|int|null
+     */
+    public static function getWithPrefix(Stringable|string|float|int|null $source, Stringable|string|null $prefix, ?string $default = null): Stringable|string|float|int|null
+    {
+        if ($source) {
+            if ($prefix) {
+                return $prefix . $source;
+            }
+
+            return $source;
+        }
+
+        return $default;
+    }
+
+
+    /**
+     * Returns the specified source value with a suffix, unless the source is empty, in which case $default is returned
+     *
+     * @param Stringable|string|float|int|null $source
+     * @param Stringable|string|null           $suffix
+     * @param string|null                      $default
+     *
+     * @return Stringable|string|float|int|null
+     */
+    public static function getWithSuffix(Stringable|string|float|int|null $source, Stringable|string|null $suffix, ?string $default = null): Stringable|string|float|int|null
+    {
+        if ($source) {
+            if ($suffix) {
+                return $source . $suffix;
+            }
+
+            return $source;
+        }
+
+        return $default;
     }
 }

@@ -156,6 +156,22 @@ class InputText extends Input implements InputTextInterface
 
 
     /**
+     * Returns the DataEntry Definition on this element
+     *
+     * If no Definition object was set, one will be created using the data in this object
+     *
+     * @return DefinitionInterface|null
+     */
+    public function getDefinitionObject(): ?DefinitionInterface
+    {
+        // Copy data used for input controls
+        return parent::getDefinitionObject()
+                     ->setClearButton($this->getClearButton())
+                     ->setInputMask($this->getInputMask());
+    }
+
+
+    /**
      * Set the DataEntry Definition on this element
      *
      * @param DefinitionInterface|null $o_definition
@@ -167,7 +183,6 @@ class InputText extends Input implements InputTextInterface
         // Copy data used for input controls
         return parent::setDefinitionObject($o_definition)
                      ->setClearButton($o_definition->getClearButton())
-                     ->setInputMask($o_definition->getInputMask())
-                     ->setPlaceholder($o_definition->getPlaceholder());
+                     ->setInputMask($o_definition->getInputMask());
     }
 }

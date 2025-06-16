@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils;
 
+use Closure;
 use JetBrains\PhpStorm\ExpectedValues;
 use PDOStatement;
 use Phoundation\Core\Interfaces\ArrayableInterface;
@@ -3977,5 +3978,42 @@ class Arrays extends Utils
         }
 
         return $return;
+    }
+
+
+    /**
+     * Executes all callback values in the specified source and replaces the callback with the result of the callback
+     *
+     * @param IteratorInterface|array $source       The source array to process
+     * @param array                   ...$arguments The arguments to pass to each encountered callback function
+     *
+     * @return IteratorInterface|array
+     */
+    public static function resolveCallbacks(IteratorInterface|array $source, array ...$arguments): IteratorInterface|array
+    {
+        $class  = (($source instanceof IteratorInterface) ? get_class($source) : null);
+        $source = Arrays::force($source);
+
+        if ($arguments) {
+            foreach ($source as &$value) {
+                if ($value instanceof Closure) {
+                    $value = call_user_func_array($value, $arguments);
+                }
+            }
+
+        } else {
+            foreach ($source as &$value) {
+                if ($value instanceof Closure) {
+                    $value = $value();
+                }
+            }
+        }
+
+        if ($class) {
+            $source = new $class($source);
+        }
+
+        unset($value);
+        return $source;
     }
 }

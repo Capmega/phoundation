@@ -393,20 +393,17 @@ abstract class ProcessCore implements ProcessInterface
                 if ($background) {
                     $this->cached_command_line = '(' . $nohup . "bash -c 'set -o pipefail; " . $this->cached_command_line . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . ($this->getLogFile() ?? '/dev/null') . " 2>&1 & echo \$! >&3) 3> " . ($this->getRunFile() ?? '/dev/null');
 
-                }
-                elseif ($this->register_run_file) {
+                } elseif ($this->register_run_file) {
                     // Make sure the PID will be registered in the run file
                     $this->cached_command_line = "bash -c 'set -o pipefail; " . $this->cached_command_line . "; exit \$?'; EXIT=\$?; echo \$\$ > " . ($this->getRunFile() ?? '/dev/null') . "; exit \$EXIT;";
                 }
 
-            }
-            else {
+            } else {
                 // Create command line without run-file
                 if ($background) {
                     $this->cached_command_line = '(' . $nohup . "bash -c 'set -o pipefail; " . $this->cached_command_line . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . ($this->getLogFile() ?? '/dev/null') . " 2>&1 & echo \$!)";
 
-                }
-                elseif ($this->register_run_file) {
+                } elseif ($this->register_run_file) {
                     // Make sure the PID will be registered in the run file
                     $this->cached_command_line = "bash -c 'set -o pipefail; " . $this->cached_command_line . "; exit \$?';";
                 }

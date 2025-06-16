@@ -26,15 +26,12 @@ class ConfirmationModal extends Modal
     public function __construct()
     {
         parent::__construct();
-        $this->setTitle(tr('Are you sure?'));
-
-        $close_button = Button::new()
-                              ->setButtonType(EnumButtonType::button)
-                              ->addClass('btn-close')
-                              ->addData('modal', 'mdb-dismiss')
-                              ->setOutlined(true)
-                              ->setContent(tr('Close'));
-
-        $this->addButton($close_button);
+        $this->setTitle(tr('Are you sure?'))
+             ->addButton(Button::new()
+                               ->setButtonType(EnumButtonType::button)
+                               ->addClass('btn-close')
+                               ->addData('modal', 'mdb-dismiss')
+                               ->setOutlined(true)
+                               ->setContent(tr('Close')));
     }
 }

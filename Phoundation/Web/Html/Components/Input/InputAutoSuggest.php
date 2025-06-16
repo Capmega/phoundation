@@ -17,14 +17,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
+use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Traits\TraitDataEventHandler;
 use Phoundation\Data\Traits\TraitDataSelector;
 use Phoundation\Data\Traits\TraitDataWidth;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Arrays;
-use Phoundation\Web\Html\Components\Script;
-use Phoundation\Web\Requests\Response;
 use Stringable;
 
 
@@ -34,6 +33,7 @@ class InputAutoSuggest extends InputText
     use TraitDataSelector {
         getSelector as __getSelector;
     }
+    use TraitDataEventHandler;
 
 
     /**
@@ -77,12 +77,14 @@ class InputAutoSuggest extends InputText
     public function __construct(?string $content = null)
     {
         parent::__construct($content);
-        $this->width = 300;
+
+        $this->addAllowedEvent('onselect')
+             ->width = 300;
     }
 
 
     /**
-     * Returns the internal source URL for this auto suggest component
+     * Returns the internal source URL for this auto-suggest component
      *
      * @return string
      */
@@ -93,7 +95,7 @@ class InputAutoSuggest extends InputText
 
 
     /**
-     * Sets the internal source URL for this auto suggest component
+     * Sets the internal source URL for this auto-suggest component
      *
      * @param Stringable|string|null $source_url
      *
@@ -167,9 +169,7 @@ class InputAutoSuggest extends InputText
      */
     public function setVariables(IteratorInterface|array|null $variables): static
     {
-        $this->variables = Iterator::new()
-                                   ->setSource($variables);
-
+        $this->variables = Iterator::new()->setSource($variables);
         return $this;
     }
 
@@ -235,5 +235,35 @@ class InputAutoSuggest extends InputText
                                    ->appendSource($this->o_attributes);
 
         return parent::render();
+    }
+
+
+    /**
+     * Returns the DataEntry Definition on this element
+     *
+     * If no Definition object was set, one will be created using the data in this object
+     *
+     * @return DefinitionInterface|null
+     */
+    public function getDefinitionObject(): ?DefinitionInterface
+    {
+        // Copy data used for input controls
+        return parent::getDefinitionObject()
+                     ->setEventHandlers($this->getEventHandlers());
+    }
+
+
+    /**
+     * Set the DataEntry Definition on this element
+     *
+     * @param DefinitionInterface|null $o_definition
+     *
+     * @return static
+     */
+    public function setDefinitionObject(?DefinitionInterface $o_definition): static
+    {
+        // Copy data used for input controls
+        return parent::setDefinitionObject($o_definition)
+                     ->setEventHandlers($o_definition->getEventHandlers());
     }
 }

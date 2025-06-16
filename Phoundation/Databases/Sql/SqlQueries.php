@@ -175,35 +175,37 @@ class SqlQueries
     /**
      * Converts the specified row data into a PDO bound variables compatible key > values array
      *
-     * @param array       $source
+     * @param array|null  $source
      * @param string|null $prefix
      * @param bool        $insert
      * @param array|null  $skip
      *
      * @return array
      */
-    public static function getBoundValues(array $source, ?string $prefix = null, bool $insert = false, ?array $skip = null): array
+    public static function getBoundValues(?array $source, ?string $prefix = null, bool $insert = false, ?array $skip = null): array
     {
         $return = [];
 
-        foreach ($source as $key => $value) {
-            if (($key === 'meta_id') and !$insert) {
-                // Only process meta_id on insert operations
-                continue;
-            }
-
-            if ($skip and in_array($key, $skip)) {
-                // Don't make a bound variable for this one
-                continue;
-            }
-
-            if (is_array($value)) {
-                foreach ($value as $subkey => $subvalue) {
-                    $return[':' . $prefix . $key . $subkey] = $subvalue;
+        if ($source) {
+            foreach ($source as $key => $value) {
+                if (($key === 'meta_id') and !$insert) {
+                    // Only process meta_id on insert operations
+                    continue;
                 }
 
-            } else {
-                $return[':' . $prefix . $key] = $value;
+                if ($skip and in_array($key, $skip)) {
+                    // Don't make a bound variable for this one
+                    continue;
+                }
+
+                if (is_array($value)) {
+                    foreach ($value as $subkey => $subvalue) {
+                        $return[':' . $prefix . $key . $subkey] = $subvalue;
+                    }
+
+                } else {
+                    $return[':' . $prefix . $key] = $value;
+                }
             }
         }
 
