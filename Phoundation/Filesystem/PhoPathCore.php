@@ -257,8 +257,7 @@ class PhoPathCore implements PhoPathInterface
                 return PhoFile::new($source, $restrictions);
             }
 
-        }
-        else {
+        } else {
             $source = (string)$source;
 
             if (is_dir($source)) {
