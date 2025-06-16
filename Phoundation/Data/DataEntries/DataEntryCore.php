@@ -419,7 +419,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         // Set up the definitions for this object and initialize meta-data
         $this->setMetaDefinitions()
-             ->setDefinitionsObject($this->definitions)
+             ->setDefinitionsObject($this->o_definitions)
              ->setMetaData()
             ->columns_filter_on_insert = [static::getIdColumn()];
 
@@ -824,7 +824,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
         }
 
-        $this->definitions = $o_definitions->add(DefinitionFactory::newDivider('meta-divider')
+        $this->o_definitions = $o_definitions->add(DefinitionFactory::newDivider('meta-divider')
                                                                 ->addPreRenderFunctions(function(DefinitionInterface $o_definition, array $source, mixed $value) {
                                                                     // Only render this when displaying meta-elements
                                                                     $o_definition->setRender(!$this->isNew() and $this->getDefinitionsObject()->getRenderMeta() and $o_definition->getRender());
@@ -1027,7 +1027,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         // Make sure that definitions are available or give a clear error on what is going on
-        if (empty($this->definitions)) {
+        if (empty($this->o_definitions)) {
             if ($this->is_initialized) {
                 throw new DataEntryException(tr('The ":class" class has been initialized but has no definitions object', [
                     ':class' => get_class($this),
@@ -1958,8 +1958,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         $source = [];
 
-        if ($this->definitions) {
-            foreach ($this->definitions as $column => $o_definition) {
+        if ($this->o_definitions) {
+            foreach ($this->o_definitions as $column => $o_definition) {
                 if (!$o_definition->getContainsData()) {
                     // Don't process data-less columns
                     continue;
@@ -2545,7 +2545,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         // Setting columns will make $this->is_validated false, so store the current value;
         $validated = $this->is_validated;
 
-        foreach ($this->definitions as $key => $o_definition) {
+        foreach ($this->o_definitions as $key => $o_definition) {
             if (!$this->mustCopyKeyToSource($o_definition, $key, $force)) {
                 // This key shouldn't be copied to the object's source
                 unset($source[$key]);
@@ -3081,7 +3081,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         // When in force mode we will NOT clear the failed columns so that they can be sent back to the user for
         // corrections
         try {
-            $data_source = Validator::pick($source)->setDefinitionsObject($this->definitions);
+            $data_source = Validator::pick($source)->setDefinitionsObject($this->o_definitions);
 
         } catch (TypeError $e) {
             if ($this->isInitialized()) {
@@ -3184,13 +3184,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         // Tell the validator what table this DataEntry is using and get the column prefix so that the validator knows
         // what columns to select
         $o_validator->setDataEntryObject($this)
-                  ->setDefinitionsObject($this->definitions)
+                  ->setDefinitionsObject($this->o_definitions)
                   ->setPrefix($prefix)
                   ->setMetaColumns($this->getMetaColumns())
                   ->setTable(static::getTable());
 
         // Go over each column and let the column definition do the validation since it knows the specs
-        foreach ($this->definitions as $column => $o_definition) {
+        foreach ($this->o_definitions as $column => $o_definition) {
             if ($o_definition->isMeta()) {
                 // This column is metadata and shouldn't be validated. Only apply static values
                 if ($o_definition->getValue()) {
@@ -3319,7 +3319,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 ];
 
                 // Check all keys and register changes
-                foreach ($this->definitions as $key => $o_definition) {
+                foreach ($this->o_definitions as $key => $o_definition) {
                     if ($o_definition->getReadonly() or $o_definition->getDisabled() or $o_definition->isMeta()) {
                         continue;
                     }
@@ -3779,7 +3779,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $data_entry   = clone $data_entry;
         $this->source = array_merge($this->source, ($strip_meta ? Arrays::removeKeys($data_entry->getSource(false, false), static::getDefaultMetaColumns()) : $data_entry->getSource(false, false)));
 
-        $this->definitions
+        $this->o_definitions
              ->appendSource($data_entry->getDefinitionsObject()
                                        ->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null));
 
@@ -3803,7 +3803,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $this->source = array_merge(($strip_meta ? Arrays::removeKeys($data_entry->getSource(false, false), static::getDefaultMetaColumns()) : $data_entry->getSource(false, false)), $this->source);
 
         $data_entry->getDefinitionsObject()->removeKeys($strip_meta ? static::getDefaultMetaColumns() : null)
-                                           ->appendSource($this->definitions)
+                                           ->appendSource($this->o_definitions)
                                            ->setDataEntryObject($this);
 
         return $this;
@@ -3928,7 +3928,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function cleanSourceFromDefinitions(): static
     {
-        $o_definitions = $this->definitions;
+        $o_definitions = $this->o_definitions;
 
         foreach ($this->source as $key => $value) {
             if (!$o_definitions->keyExists($key)) {
@@ -4145,7 +4145,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         $return = [];
 
-        foreach ($this->definitions as $column => $o_definitions) {
+        foreach ($this->o_definitions as $column => $o_definitions) {
             if ($o_definitions->getCliColumn()) {
                 $return[$column] = $o_definitions->getCliColumn();
             }
@@ -4731,7 +4731,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $return = [];
 
         // Run over all definitions and generate a data column
-        foreach ($this->definitions as $column => $o_definition) {
+        foreach ($this->o_definitions as $column => $o_definition) {
             if ($insert) {
                 // We're about to insert
                 if (in_array($column, $this->columns_filter_on_insert)) {

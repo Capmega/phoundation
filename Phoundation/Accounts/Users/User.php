@@ -2989,10 +2989,10 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
                     ->add(DefinitionFactory::newDivider()
                                            ->setRender(function() {
-                                               return $this->definitions->getDefinitionRender('last_sign_in')
-                                                  and $this->definitions->getDefinitionRender('sign_in_count')
-                                                  and $this->definitions->getDefinitionRender('authentication_failures')
-                                                  and $this->definitions->getDefinitionRender('locked_until');
+                                               return $this->o_definitions->getDefinitionRender('last_sign_in')
+                                                  and $this->o_definitions->getDefinitionRender('sign_in_count')
+                                                  and $this->o_definitions->getDefinitionRender('authentication_failures')
+                                                  and $this->o_definitions->getDefinitionRender('locked_until');
                                            }))
 
                     ->add(DefinitionFactory::newEmail()
