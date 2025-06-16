@@ -1441,8 +1441,11 @@ class Response implements ResponseInterface
      */
     public static function signOut(?callable $callback_after_signout = null, UrlInterface|string|false|null $redirect = null): void
     {
+        $session_redirect   = Session::getPreviousPage();
+
         // Sign out and get the user that just signed out
-        $user = Session::signOut();
+        $user     = Session::signOut();
+        $previous = null;
 
         if ($callback_after_signout) {
             // Execute the post-sign-out callback
@@ -1455,12 +1458,14 @@ class Response implements ResponseInterface
         }
 
         // Get a redirect URL and sign the user out
-        $previous = Url::newPrevious('/');
-        $test     = clone $previous;
+        if (config()->getBoolean('web.sign-out.redirect-back', true)) {
+            $previous = Url::new($session_redirect);
+            $test     = clone $previous;
 
-        // Redirect URL is NOT allowed to be sign-out type URL
-        if ($test->removeAllQueries()->getSource() === Url::new('signout')->makeWww()->removeAllQueries()->getSource()) {
-            $previous = null;
+            // Redirect URL is NOT allowed to be sign-out type URL
+            if ($test->removeAllQueries()->getSource() === Url::new('signout')->makeWww()->removeAllQueries()->getSource()) {
+                $previous = null;
+            }
         }
 
         // Redirect to the requested page, or default to the sign-in page
@@ -1469,7 +1474,7 @@ class Response implements ResponseInterface
                                     ->addRedirect($previous)
                                     ->addQueries('email=' . $user->getEmail());
 
-        static::redirect($redirect ?? 'signin');
+        static::redirect($redirect);
     }
 
 
