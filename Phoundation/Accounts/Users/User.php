@@ -1722,7 +1722,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     public function setLockedUntil(DateTimeInterface|string|null $locked_until): static
     {
         if ($locked_until instanceof DateTimeInterface) {
-            $locked_until = $locked_until->format(EnumDateFormat::mysql);
+            $locked_until = $locked_until->format(EnumDateFormat::mysql_datetime);
         }
 
         return $this->set($locked_until, 'locked_until');

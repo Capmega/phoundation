@@ -1463,7 +1463,7 @@ class Config implements ConfigInterface
                     'debug'     => (static::$default_environment === 'production'),
                     'instances' => [
                         'system' => [
-                            'type'   => EnumDateFormat::mysql,
+                            'type'   => EnumDateFormat::mysql_datetime,
                             'server' => $configuration->getDatabase()
                                                       ->getHost(),
                             'name'   => $configuration->getDatabase()

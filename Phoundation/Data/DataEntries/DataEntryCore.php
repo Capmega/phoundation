@@ -4188,7 +4188,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     protected function setCreatedOn(string|int|null $created_on): static
     {
         if (is_int($created_on)) {
-            $created_on = PhoDateTime::new($created_on)->format(EnumDateFormat::mysql);
+            $created_on = PhoDateTime::new($created_on)->format(EnumDateFormat::mysql_datetime);
         }
 
         return $this->set($created_on, 'created_by');

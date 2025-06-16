@@ -891,7 +891,7 @@ class Connector extends DataEntry implements ConnectorInterface
     {
         return [
             'type'            => 'sql',
-            'driver'          => EnumDateFormat::mysql,
+            'driver'          => EnumDateFormat::mysql_datetime,
             'hostname'        => '127.0.0.1',
             'port'            => null,
             'database'        => '',
