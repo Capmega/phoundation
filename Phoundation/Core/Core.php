@@ -21,6 +21,7 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Config\Config;
 use Phoundation\Accounts\Config\Exception\ConfigException;
 use Phoundation\Accounts\Config\Exception\ConfigurationInvalidException;
+use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Audio\Audio;
 use Phoundation\Cli\CliAutoComplete;
@@ -40,6 +41,9 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Modes\Interfaces\ModeInterface;
 use Phoundation\Core\Modes\Mode;
+use Phoundation\Data\DataEntries\Exception\DataEntryAlreadyExistsException;
+use Phoundation\Data\DataEntries\Exception\DataEntryDeletedException;
+use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
 use Phoundation\Data\Traits\TraitDataStaticIsExecutedPath;
 use Phoundation\Data\Traits\TraitDataStaticReadonly;
@@ -62,16 +66,22 @@ use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Os\Processes\Commands\Free;
 use Phoundation\Security\Incidents\EnumSeverity;
+use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\FlashMessage;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Http\Exception\Http404Exception;
+use Phoundation\Web\Http\Exception\Http405Exception;
+use Phoundation\Web\Http\Exception\Http409Exception;
+use Phoundation\Web\Http\Exception\Http503Exception;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\JsonPage;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
+use Phoundation\Web\Requests\Restrictions\Exception\RequestMethodRestrictionsException;
 use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Uploads\UploadHandlers;
 use Throwable;
@@ -2911,49 +2921,46 @@ class Core implements CoreInterface
      */
     protected static function registerUncaughtExceptionIncident(Throwable $e): void
     {
-        // We can only register exceptions when Core is ready
-        if (Core::isReady()) {
-            // Don't register warning exceptions
-            if (!$e->isWarning()) {
-                if (Core::getReadonly()) {
-                    Log::error('Not attempting to register the following uncaught exception incident in the database, system is in readonly mode');
+        // Don't register warning exceptions
+        if (!$e->isWarning()) {
+            if (Core::getReadonly()) {
+                Log::error('Not attempting to register the following uncaught exception incident in the database, system is in readonly mode');
 
-                } else {
-                    if (defined('ENVIRONMENT')) {
-                        if ($e instanceof EnvironmentNotExistsException) {
-                            // Don't register the uncaught exception incident, the exception is the environment does not exist
-                            Log::error(ts('Not attempting to register the following uncaught exception incident in the database, environment ":environment" does not exist', [
-                                ':environment' => ENVIRONMENT
-                            ]));
+            } else {
+                if (defined('ENVIRONMENT')) {
+                    if ($e instanceof EnvironmentNotExistsException) {
+                        // Don't register the uncaught exception incident, the exception is the environment does not exist
+                        Log::error(ts('Not attempting to register the following uncaught exception incident in the database, environment ":environment" does not exist', [
+                            ':environment' => ENVIRONMENT
+                        ]));
 
-                        } else {
-                            // Only notify and register developer incident if we're on production
-                            if (Core::isProductionEnvironment()) {
-                                // We CAN only notify if Core is ready
-                                if (Core::isReady()) {
-                                    try {
-                                        $e->registerIncident(EnumSeverity::severe);
+                    } else {
+                        // Only notify and register developer incident if we're on production
+                        if (Core::isProductionEnvironment()) {
+                            // We CAN only notify if Core is ready
+                            if (Core::isReady()) {
+                                try {
+                                    $e->registerIncident(EnumSeverity::severe);
 
-                                    } catch (Throwable $f) {
-                                        Log::error(ts('Failed to register uncaught exception because of the following exception'));
-                                        Log::error($f);
-                                    }
+                                } catch (Throwable $f) {
+                                    Log::error(ts('Failed to register uncaught exception because of the following exception'));
+                                    Log::error($f);
+                                }
 
-                                    try {
-                                        $e->getNotificationObject()
-                                          ->send(false);
+                                try {
+                                    $e->getNotificationObject()
+                                      ->send(false);
 
-                                    } catch (Throwable $f) {
-                                        Log::error(ts('Failed to notify developers of uncaught exception because of the following exception'));
-                                        Log::error($f);
-                                    }
+                                } catch (Throwable $f) {
+                                    Log::error(ts('Failed to notify developers of uncaught exception because of the following exception'));
+                                    Log::error($f);
                                 }
                             }
                         }
-
-                    } else {
-                        Log::error('Not attempting to register the following uncaught exception incident, environment has not yet been defined');
                     }
+
+                } else {
+                    Log::error('Not attempting to register the following uncaught exception incident, environment has not yet been defined');
                 }
             }
         }
@@ -3120,21 +3127,53 @@ class Core implements CoreInterface
      */
     #[NoReturn] protected static function processUncaughtWebException(Throwable $e, string $state): never
     {
-        if ($e instanceof ValidationFailedException) {
-            // This is just a simple validation warning, show warning messages in the exception data
-            Log::warning($e->getMessage());
+        // Rethrow exception to avoid lots of "if" statements - this way, we can just catch the right one
+        try {
+            throw $e;
 
-            if ($e->hasData()) {
-                Log::warning($e->getData());
+        } catch (ValidationFailedException $e) {
+            static::executeUncaughtExceptionSystemPage(400, $e, tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
+
+        } catch (AuthenticationException $e) {
+            static::executeUncaughtExceptionSystemPage(401, $e, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
+
+        } catch (IncidentsException $e) {
+            $new_target = $e->getNewTarget();
+
+            if (!$new_target) {
+                static::executeUncaughtExceptionSystemPage(403, $e, tr('Page did not catch the following "IncidentsException or AccessDeniedException" warning. Executing "system/403" instead'));
             }
 
-            Core::executeUncaughtExceptionSystemPage(400, $e);
+            Log::warning(ts('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
+                ':new'    => $new_target,
+                ':target' => Request::$o_target->getRootname(),
+                ':user'   => Session::getUserObject()->getDisplayId(),
+            ]));
 
-        } elseif (($e instanceof PhoException) and ($e->isWarning())) {
-            // This is just a simple general warning, no backtrace and such needed, only show the principal message
-            Log::warning('Warning: ' . $e->getMessage(), 10);
+            // Execute the new system page target instead
+            static::executeUncaughtExceptionSystemPage($new_target, $e, $e->getMessage());
 
-        } else {
+        } catch (Http404Exception | DataEntryNotExistsException | DataEntryDeletedException $e) {
+            static::executeUncaughtExceptionSystemPage(404, $e, tr('Page did not catch the following "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
+
+        } catch (Http405Exception | DataEntryReadonlyException | RequestMethodRestrictionsException $e) {
+            static::executeUncaughtExceptionSystemPage(405, $e, tr('Page did not catch the following "Http405Exception or DataEntryReadonlyException or CoreReadonlyException" warning. Executing "system/405" instead'));
+
+        } catch (Http409Exception | DataEntryAlreadyExistsException $e) {
+            static::executeUncaughtExceptionSystemPage(409, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
+
+        } catch (Http503Exception | CoreReadonlyException $e) {
+            static::executeUncaughtExceptionSystemPage(503, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
+
+        } catch (PhoException $e) {
+            if ($e->isWarning()) {
+                // This is just a simple general warning, no backtrace and such needed, only show the principal message
+                Log::warning('Warning: ' . $e->getMessage(), 10);
+            } else {
+                throw $e;
+            }
+
+        } catch (Throwable) {
             // Log full exception data
             Log::error(ts('*** UNCAUGHT EXCEPTION ":class" IN ":type" WEB PAGE ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
                 ':class'       => get_class($e),
@@ -3443,7 +3482,7 @@ class Core implements CoreInterface
      *
      * @return void
      */
-    protected static function executeUncaughtExceptionSystemPage(int $page, Throwable $e): void
+    protected static function executeUncaughtExceptionSystemPage(int $page, Throwable $e, ?string $message = null): void
     {
         // Any of these exceptions will be too severe to show a pretty error page
         $classes = [
@@ -3460,7 +3499,7 @@ class Core implements CoreInterface
             }
 
             // Try to show a pretty error page
-            Request::executeSystem($page, $e);
+            Request::executeSystem($page, $e, $message);
         }
     }
 
