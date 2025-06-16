@@ -1076,9 +1076,9 @@ class Session implements SessionInterface
         ]));
 
         Response::getFlashMessagesObject()->addWarning(tr('You were signed out automatically because your session timed out'));
-        Session::setAutoSignedOut();
         Session::signOut(true);
-        Response::redirect(Url::new('signin')->makeWww()->addRedirect(Url::newCurrent()));
+        Session::setAutoSignedOut();
+        Response::redirect(Url::new('signin')->makeWww()->addRedirect(Session::getPreviousPage()));
     }
 
 
@@ -1422,6 +1422,24 @@ class Session implements SessionInterface
         // Try to redirect the user back where they were. If the email is different (new, different user) do not do
         // this as we would redirect the new user to what the previous user was doing
         if (empty($email) or (static::getUserObject()->getEmail() === $email)) {
+
+            // If auto-signed-out, check if it has been more than 12 hours (in which case do not redirect back to previous page)
+            if (Session::getAutoSignedOut()) {
+                $auto_sign_out_time      = PhoDateTime::new(Session::getAutoSignedOut());
+                $auto_sign_out_hours_ago = $auto_sign_out_time->diff(PhoDateTime::new())->getTotalHours();
+
+                // If auto-sign-out was more than 12 hours ago, redirect back to default page
+                if ($auto_sign_out_hours_ago >= config()->getPositiveInteger('medinet.billing.restore-page.timeout.hours', 12)) {
+                    $default_page = Session::getUserObject()->getConfigurationsObject()->get('default_page');
+                    if ($default_page) {
+                        Response::redirect($default_page);
+
+                    } else {
+                        Response::redirect(Url::new('index')->makeWww());
+                    }
+                }
+            }
+
             // First try the specified URL (likely from GET)
             $redirect_urls[] = $redirect;
 
@@ -1435,7 +1453,7 @@ class Session implements SessionInterface
             $redirect_urls[] = Session::getUserObject()->getConfigurationsObject()->get('default_page');
 
             foreach ($redirect_urls as $redirect_url) {
-                $redirect_url = Url::filter($redirect_url, ['sign-out', 'sign-in']);
+                $redirect_url = Url::filter($redirect_url, ['sign-out', 'sign-in', 'auto-sign-out']);
 
                 if ($redirect_url) {
                     $redirect_url = Url::newRedirect($redirect_url);
@@ -1462,10 +1480,15 @@ class Session implements SessionInterface
             // Update the users sign-in and last sign-in information
             static::$user         = $user;
             static::$user_changed = true;
+            $auto_sign_out_time   = Session::getAutoSignedOut();
 
             Session::clear();
             Session::updateSignInTracking();
             Session::clearSignInKey();
+
+            if ($auto_sign_out_time) {
+                Session::setAutoSignedOut($auto_sign_out_time);
+            }
 
             Incident::new()
                     ->setType(tr('User sign in'))
@@ -1525,11 +1548,11 @@ class Session implements SessionInterface
             $display  = array_get_safe($_SESSION, 'display');
 
             $_SESSION = [
-                'domain'        => array_get_safe($_SESSION, 'domain'),
-                'init'          => array_get_safe($_SESSION, 'init'),
-                'first_ip'      => array_get_safe($_SESSION, 'first_ip'),
-                'first_domain'  => array_get_safe($_SESSION, 'first_domain'),
-                'previous_page' => array_get_safe($_SESSION, 'previous_page'),
+                'domain'          => array_get_safe($_SESSION, 'domain'),
+                'init'            => array_get_safe($_SESSION, 'init'),
+                'first_ip'        => array_get_safe($_SESSION, 'first_ip'),
+                'first_domain'    => array_get_safe($_SESSION, 'first_domain'),
+                'previous_page'   => array_get_safe($_SESSION, 'previous_page'),
             ];
 
             if ($messages) {
@@ -2624,20 +2647,14 @@ class Session implements SessionInterface
             $url = Url::new($url);
         }
 
-        Log::printr(Request::getRequestType());
-
         if (!Request::isRequestType(EnumRequestTypes::html)) {
             return;
         }
-
-        Log::printr($url);
 
         // Check if this is from the sign-in/sign-out page. If so, do not reset the session previous page
         if (empty(Url::filter($url, ['sign-out', 'sign-in', 'auto-sign-out']))) {
             return;
         }
-
-        Log::printr('passed');
 
         Session::set($url->getSource(), 'previous_page');
     }
@@ -2657,10 +2674,16 @@ class Session implements SessionInterface
     /**
      * Sets the auto sign out value for this user, in seconds, if available, null otherwise
      *
+     * @param int|null $time
+     *
      * @return void
      */
-    protected static function setAutoSignedOut(): void
+    protected static function setAutoSignedOut(?int $time = null): void
     {
-        $_SESSION['auto_signed_out'] = time();
+        if ($time) {
+            $_SESSION['auto_signed_out'] = $time;
+        } else {
+            $_SESSION['auto_signed_out'] = time();
+        }
     }
 }
