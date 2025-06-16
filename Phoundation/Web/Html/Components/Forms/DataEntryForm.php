@@ -315,8 +315,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                             // TODO CHECK THIS! WHAT IF SOURCE IS A SINGLE STRING?
                             $o_definition->setElement(EnumElement::select);
 
-                        }
-                        else {
+                        } else {
                             // Default element for form items "text input"
                             $o_definition->setElement(EnumElement::input);
                         }

@@ -655,13 +655,13 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
         if ($this->apply_filters->keyExists('date_range') and $this->o_definitions->isRendered('date_range', false)) {
             if ($this->getStartDate()) {
                 $builder->addWhere(
-                    '`' . $builder->getFromTable() . '`.`created_on` >= :start', [':start' => $this->getStartDate()->format(EnumDateFormat::mysql)]
+                    '`' . $builder->getFromTable() . '`.`created_on` >= :start', [':start' => $this->getStartDate()->format(EnumDateFormat::mysql_datetime)]
                 );
             }
 
             if ($this->getStopDate()) {
                 $builder->addWhere(
-                    '`' . $builder->getFromTable() . '`.`created_on` <= :stop', [':stop' => $this->getStopDate()->format(EnumDateFormat::mysql)]
+                    '`' . $builder->getFromTable() . '`.`created_on` <= :stop', [':stop' => $this->getStopDate()->format(EnumDateFormat::mysql_datetime)]
                 );
             }
         }

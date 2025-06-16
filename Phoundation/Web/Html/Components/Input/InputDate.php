@@ -132,6 +132,22 @@ class InputDate extends InputText
 
 
     /**
+     * Returns the DataEntry Definition on this element
+     *
+     * If no Definition object was set, one will be created using the data in this object
+     *
+     * @return DefinitionInterface|null
+     */
+    public function getDefinitionObject(): ?DefinitionInterface
+    {
+        // Copy data used for input controls
+        return parent::getDefinitionObject()
+                     ->setMinimumDateObject($this->getMinimumDateObject())
+                     ->setMaximumDateObject($this->getMaximumDateObject());
+    }
+
+
+    /**
      * Set the DataEntry Definition on this element
      *
      * @param DefinitionInterface|null $o_definition
