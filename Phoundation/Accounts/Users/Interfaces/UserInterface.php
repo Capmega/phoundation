@@ -152,16 +152,6 @@ interface UserInterface extends DataEntryInterface
 
 
     /**
-     * Sets the update_password for this user
-     *
-     * @param DateTimeInterface|true|null $date_time
-     *
-     * @return static
-     */
-    public function setUpdatePassword(DateTimeInterface|bool|null $date_time): static;
-
-
-    /**
      * Returns the authentication_failures for this user
      *
      * @return int|null

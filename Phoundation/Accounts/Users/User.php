@@ -388,9 +388,9 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             if ((static::getDefaultConnector() === 'system') and (static::getTable() === 'accounts_users')) {
                 // Try to find the user by alternative email address
                 $user = sql()->getRow('SELECT `users_id`, `verified_on`
-                                    FROM   `accounts_emails` 
-                                    WHERE  `email` = :email 
-                                      AND  `status` IS NULL', [
+                                       FROM   `accounts_emails` 
+                                       WHERE  `email` = :email 
+                                         AND  `status` IS NULL', [
                     ':email' => $this->identifier['email'],
                 ]);
 
@@ -434,12 +434,12 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     /**
      * Returns id for this database entry
      *
-     * @param bool $exception
+     * @param bool        $exception
+     * @param string|null $suffix
      *
-     * @return int|null
-     * @throws DataEntryNotSavedException
+     * @return string|int|null
      */
-    public function getId(bool $exception = true): int|null
+    public function getId(bool $exception = true, ?string $suffix = null): string|int|null
     {
         if ($this->isSystem()) {
             // System user always returns NULL
@@ -1659,11 +1659,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     /**
      * Sets the update_password for this user
      *
-     * @param DateTimeInterface|true|null $date_time
+     * @param DateTimeInterface|string|null $date_time
      *
      * @return static
      */
-    public function setUpdatePassword(DateTimeInterface|bool|null $date_time): static
+    protected function setUpdatePassword(DateTimeInterface|string|null $date_time): static
     {
         if (is_bool($date_time)) {
             // Update password immediately
@@ -1722,7 +1722,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     public function setLockedUntil(DateTimeInterface|string|null $locked_until): static
     {
         if ($locked_until instanceof DateTimeInterface) {
-            $locked_until = $locked_until->format(EnumDateFormat::mysql);
+            $locked_until = $locked_until->format(EnumDateFormat::mysql_datetime);
         }
 
         return $this->set($locked_until, 'locked_until');
@@ -2313,10 +2313,13 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             throw new UsersException(tr('Cannot save password, this user does not have an id'));
         }
 
+        $this->setUpdatePassword(PhoDateTime::new());
+
         sql()->setDebug($this->debug)
-             ->query('UPDATE `accounts_users` SET `password` = :password WHERE `id` = :id', [
-            ':id'       => $this->source['id'],
-            ':password' => $this->source['password'],
+             ->query('UPDATE `accounts_users` SET `password` = :password, `update_password` = :update_password WHERE `id` = :id', [
+            ':id'              => $this->source['id'],
+            ':password'        => $this->source['password'],
+            ':update_password' => $this->source['update_password'],
         ]);
 
         return $this;
@@ -2445,13 +2448,13 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         // Build up the roles select object
         $roles = Roles::new();
         $roles->setQueryBuilder(QueryBuilder::new($roles)
-                                            ->setSelect('`accounts_roles`.`id`, 
+                                            ->setSelects('`accounts_roles`.`id`, 
                                                          CONCAT(
                                                              UPPER(LEFT(`accounts_roles`.`name`, 1)), 
                                                              SUBSTRING(`accounts_roles`.`name`, 2)
                                                          ) AS `name`')
                                             ->setWhere('`accounts_roles`.`status` IS NULL')
-                                            ->setOrderBy('`name`'))
+                                            ->setOrderBys('`name`'))
                                             ->load();
 
         $entry  = DataEntryForm::new()->setRenderContentsOnly(true);
@@ -2974,6 +2977,15 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->addClasses('text-center')
                                     ->setSize(3)
                                     ->setLabel(tr('Locked until')))
+
+                    ->add(Definition::new('update_password')
+                                    ->setOptional(true)
+                                    ->setDisabled(true)
+                                    ->setRender(function() { return !$this->isNew(); })
+                                    ->setInputType(EnumInputType::datetime_local)
+                                    ->addClasses('text-center')
+                                    ->setSize(3)
+                                    ->setLabel(tr('Password last updated on')))
 
                     ->add(DefinitionFactory::newDivider()
                                            ->setRender(function() {
