@@ -305,8 +305,8 @@ class Role extends DataEntry implements RoleInterface
                                              ->setSize(12)
                                              ->setMaxLength(64)
                                              ->setHelpText(tr('The name for this role'))
-                                             ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isUnique();
+                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->isUnique();
                                            }))
 
                     ->add(DefinitionFactory::newSeoName())

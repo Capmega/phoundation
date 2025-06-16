@@ -1179,11 +1179,11 @@ interface DefinitionInterface extends BeforeAfterContentInterface
     /**
      * Validate this column according to the column definitions
      *
-     * @param ValidatorInterface $validator
+     * @param ValidatorInterface $o_validator
      *
      * @return bool
      */
-    public function validate(ValidatorInterface $validator): bool;
+    public function validate(ValidatorInterface $o_validator): bool;
 
 
     /**

@@ -876,12 +876,12 @@ interface IteratorInterface extends IteratorBaseInterface
     /**
      * Adds a validator callback that must be passed for data to be added to this Iterator object
      *
-     * @param callable    $validator
+     * @param callable    $o_validator
      * @param string|null $name
      *
      * @return static
      */
-    public function addValidator(callable $validator, ?string $name = null): static;
+    public function addValidator(callable $o_validator, ?string $name = null): static;
 
     /**
      * Returns true if the specified key exists in the array source

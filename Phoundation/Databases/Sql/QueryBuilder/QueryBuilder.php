@@ -42,9 +42,9 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
     /**
      * The pre-defined query sections
      *
-     * @var QueryDefinitionsInterface $definitions
+     * @var QueryDefinitionsInterface $o_definitions
      */
-    protected QueryDefinitionsInterface $definitions;
+    protected QueryDefinitionsInterface $o_definitions;
 
     /**
      * Caches the executed query

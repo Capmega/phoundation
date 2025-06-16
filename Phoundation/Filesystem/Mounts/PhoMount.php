@@ -483,8 +483,8 @@ class PhoMount extends DataEntry implements PhoMountInterface
                                              ->setMaxLength(64)
                                              ->setLabel(tr('Name'))
                                              ->setHelpText(tr('The unique identifier name for this mount'))
-                                             ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isUnique();
+                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->isUnique();
                                            }))
 
                     ->add(DefinitionFactory::newSeoName())
@@ -495,8 +495,8 @@ class PhoMount extends DataEntry implements PhoMountInterface
                                     ->setMaxLength(255)
                                     ->setLabel(tr('Source'))
                                     ->setHelpText(tr('The source file for this mount'))
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isFile([PhoDirectory::newFilesystemRootObject(), PhoDirectory::newDomainObject('*')]);
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isFile([PhoDirectory::newFilesystemRootObject(), PhoDirectory::newDomainObject('*')]);
                                     }))
 
                     ->add(Definition::new('target_path')
@@ -505,8 +505,8 @@ class PhoMount extends DataEntry implements PhoMountInterface
                                     ->setMaxLength(255)
                                     ->setLabel(tr('Target'))
                                     ->setHelpText(tr('The target file for this mount'))
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isDirectory(PhoDirectory::newFilesystemRootObject());
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isDirectory(PhoDirectory::newFilesystemRootObject());
                                     }))
 
                     ->add(Definition::new('filesystem')

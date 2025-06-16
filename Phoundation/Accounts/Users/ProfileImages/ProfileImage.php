@@ -373,8 +373,8 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                       ->add(DefinitionFactory::newFile()
                                            ->setMaxLength(2048)
                                            ->setRender(false)
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isFile([
+                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->isFile([
                                                    PhoDirectory::newDataTmpObject(),
                                                    ($this->getUserObject() ? PhoDirectory::newCdnObject(true, 'img/files/profile/' . $this->getUserObject()?->getId() . '/') : null)
                                                ]);

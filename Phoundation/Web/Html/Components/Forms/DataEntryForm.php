@@ -692,17 +692,17 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     /**
      * Applies pre-render functions if defined and adds the specified component to the DataEntryFormRow
      *
-     * @param DefinitionInterface $definition
+     * @param DefinitionInterface $o_definition
      * @param array               $source
      * @param mixed               $value
      *
      * @return mixed
      */
-    protected function executePreRenderFunctions(DefinitionInterface $definition, array $source, mixed $value): mixed
+    protected function executePreRenderFunctions(DefinitionInterface $o_definition, array $source, mixed $value): mixed
     {
         // Execute all available pre-render functions
-        foreach ($definition->getPreRenderFunctions() as $function) {
-            $value = $function ($definition, $source, $value);
+        foreach ($o_definition->getPreRenderFunctions() as $function) {
+            $value = $function ($o_definition, $source, $value);
         }
 
         return $value;

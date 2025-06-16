@@ -476,8 +476,8 @@ class Authentication extends DataEntry implements AuthenticationInterface
                                              ->setDisabled(true)
                                              ->setMaxLength(128)
                                              ->setSize(3)
-                                             ->addValidationFunction(function (ValidatorInterface $validator) {
-                                                 $validator->sanitizeDecodeJson()->hasField('email')->forEachField()->isEmail();
+                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                                 $o_validator->sanitizeDecodeJson()->hasField('email')->forEachField()->isEmail();
                                              }))
 
                       ->add(DefinitionFactory::newNumber('ip_address_binary')

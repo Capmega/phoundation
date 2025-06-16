@@ -380,10 +380,10 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function modifyDefinition(Stringable|string|float|int $key, array $key_values, bool $exception = true): static
     {
-        $definition = $this->get($key, $exception);
+        $o_definition = $this->get($key, $exception);
 
         foreach ($key_values as $key => $value) {
-            $definition->set($value, $key);
+            $o_definition->set($value, $key);
         }
 
         return $this;

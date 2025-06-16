@@ -144,9 +144,9 @@ class Email extends DataEntry
                       ->add(Definition::new('parents_id')
                                     ->setRender(false)
                                     ->setInputType(EnumInputType::dbid)
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         // Ensure the specified parents_id exists
-                                        $validator->isOptional()
+                                        $o_validator->isOptional()
                                                   ->isQueryResult('SELECT `id` FROM `emails` WHERE `id` = :id', [
                                                       ':id' => '$parents_id',
                                                   ]);
@@ -163,9 +163,9 @@ class Email extends DataEntry
                     ->add(Definition::new('categories_id')
                                     ->setRender(false)
                                     ->setInputType(EnumInputType::dbid)
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         // Ensure the specified parents_id exists
-                                        $validator->isOptional()
+                                        $o_validator->isOptional()
                                                   ->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id', [
                                                       ':id' => '$categories',
                                                   ]);
@@ -174,9 +174,9 @@ class Email extends DataEntry
                     ->add(Definition::new('templates_id')
                                     ->setRender(false)
                                     ->setInputType(EnumInputType::dbid)
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         // Ensure the specified parents_id exists
-                                        $validator->isOptional()
+                                        $o_validator->isOptional()
                                                   ->isQueryResult('SELECT `id` FROM `storage_pages` WHERE `id` = :id AND `template` = 1', [
                                                       ':id' => '$templates_id',
                                                   ]);

@@ -293,7 +293,7 @@ class CliAutoComplete
                     // This is a system modifier argument, show the system modifier arguments instead.
                     $data['commands'] = [];
 
-                    foreach (static::$system_arguments as $arguments => $definitions) {
+                    foreach (static::$system_arguments as $arguments => $o_definitions) {
                         $arguments = explode(',', $arguments);
 
                         foreach ($arguments as $argument) {
@@ -457,21 +457,21 @@ class CliAutoComplete
      * Process the specified definition
      *
      * @param string      $name
-     * @param mixed       $definition
+     * @param mixed       $o_definition
      * @param string|null $word
      *
      * @return IteratorInterface|array|string|null
      */
-    protected static function processDefinition(string $name, mixed $definition, ?string $word): IteratorInterface|array|string|null
+    protected static function processDefinition(string $name, mixed $o_definition, ?string $word): IteratorInterface|array|string|null
     {
         // If no definitions were given, we're done
-        if (is_null($definition)) {
+        if (is_null($o_definition)) {
             return null;
         }
 
         // If the given definition was a function, we can just return the result
-        if (is_callable($definition)) {
-            $results = $definition((string) $word, ArgvValidator::getArguments());
+        if (is_callable($o_definition)) {
+            $results = $o_definition((string) $word, ArgvValidator::getArguments());
 
             if (is_array($results)) {
                 // Limit the number of results
@@ -490,26 +490,26 @@ class CliAutoComplete
             return $results;
         }
 
-        if (is_string($definition)) {
-            if (str_starts_with(trim($definition), 'SELECT ')) {
+        if (is_string($o_definition)) {
+            if (str_starts_with(trim($o_definition), 'SELECT ')) {
                 if ($word) {
                     // Execute the query filtering on the specified word and limit the results
-                    return static::limit(sql()->listScalar($definition, [':word' => '%' . $word . '%']));
+                    return static::limit(sql()->listScalar($o_definition, [':word' => '%' . $word . '%']));
                 }
 
                 // Execute the query completely and limit the results
-                return static::limit(sql()->listScalar($definition));
+                return static::limit(sql()->listScalar($o_definition));
             }
 
-            return $definition;
+            return $o_definition;
         }
 
         // Process an array, return all entries that have partial match
-        if (is_array($definition)) {
-            $definition = static::limit($definition);
+        if (is_array($o_definition)) {
+            $o_definition = static::limit($o_definition);
             $results    = [];
 
-            foreach ($definition as $value) {
+            foreach ($o_definition as $value) {
                 if (!$word or str_contains(strtolower(trim($value)), $word)) {
                     $results[] = $value;
                 }
@@ -520,7 +520,7 @@ class CliAutoComplete
 
         throw new CliAutoCompleteException(tr('Failed to process auto complete definition ":definition" for command ":command"', [
             ':command'    => static::$command,
-            ':definition' => $definition,
+            ':definition' => $o_definition,
         ]));
     }
 
@@ -575,19 +575,19 @@ class CliAutoComplete
     /**
      * Process auto complete for this command from the definitions specified by the command
      *
-     * @param IteratorInterface|array|null $definitions
+     * @param IteratorInterface|array|null $o_definitions
      *
      * @return void
      */
-    public static function processCommandPositions(IteratorInterface|array|null $definitions)
+    public static function processCommandPositions(IteratorInterface|array|null $o_definitions)
     {
-        if (!$definitions) {
+        if (!$o_definitions) {
             return;
         }
 
-        if ($definitions instanceof IteratorInterface) {
+        if ($o_definitions instanceof IteratorInterface) {
             // From here use array
-            $definitions = $definitions->getSource();
+            $o_definitions = $o_definitions->getSource();
         }
 
         // Get the word where we're <TAB>bing on
@@ -595,27 +595,27 @@ class CliAutoComplete
         $word = trim((string) $word);
 
         // First check position!
-        static::processCommandPosition($definitions, $word, static::$position);
+        static::processCommandPosition($o_definitions, $word, static::$position);
 
         // Do we have an "all other positions" entry?
-        static::processCommandPosition($definitions, $word, -1);
+        static::processCommandPosition($o_definitions, $word, -1);
     }
 
 
     /**
      * Process auto complete for this command from the definitions specified by the command
      *
-     * @param array  $definitions
+     * @param array  $o_definitions
      * @param string $word
      * @param int    $position
      *
      * @return void
      */
-    protected static function processCommandPosition(array $definitions, string $word, int $position): void
+    protected static function processCommandPosition(array $o_definitions, string $word, int $position): void
     {
-        if (array_key_exists($position, isset_get($definitions))) {
+        if (array_key_exists($position, isset_get($o_definitions))) {
             // Get position specific data
-            $position_data = $definitions[$position];
+            $position_data = $o_definitions[$position];
 
             if ($position_data === true) {
                 // Argument is required but we cannot autocomplete it
@@ -646,19 +646,19 @@ class CliAutoComplete
     /**
      * Process command arguments
      *
-     * @param IteratorInterface|array|null $definitions
+     * @param IteratorInterface|array|null $o_definitions
      *
      * @return void
      */
-    public static function processCommandArguments(IteratorInterface|array|null $definitions): void
+    public static function processCommandArguments(IteratorInterface|array|null $o_definitions): void
     {
-        if ($definitions) {
-            if ($definitions instanceof IteratorInterface) {
+        if ($o_definitions) {
+            if ($o_definitions instanceof IteratorInterface) {
                 // From here use array
-                $definitions = $definitions->getSource();
+                $o_definitions = $o_definitions->getSource();
             }
 
-            static::processArguments(array_merge($definitions, static::$system_arguments));
+            static::processArguments(array_merge($o_definitions, static::$system_arguments));
 
         } else {
             static::processArguments(static::$system_arguments);

@@ -617,8 +617,8 @@ class Incident extends DataEntryCore implements IncidentInterface
                                     ->setSize(12)
                                     ->setRows(15)
                                     ->setMaxLength(16_777_200)
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->sanitizeEncodeJson();
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->sanitizeEncodeJson();
                                     })
                                     ->setDisplayCallback(function (mixed $details, array $source) {
                                         // Since the details almost always have an array encoded in JSON, decode it and

@@ -45,8 +45,8 @@ $password = $user->getPasswordObject();
 
 
 // Hide the "current" field as its not required for password updates by admin
-$definitions = $password->getDefinitionsObject();
-$definitions->get('current')->setRender(false);
+$o_definitions = $password->getDefinitionsObject();
+$o_definitions->get('current')->setRender(false);
 
 
 // Validate POST and submit

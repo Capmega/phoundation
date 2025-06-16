@@ -383,13 +383,13 @@ class Project implements ProjectInterface
     /**
      * Validate the specified project information
      *
-     * @param ValidatorInterface $validator
+     * @param ValidatorInterface $o_validator
      *
      * @return array
      */
-    public static function validate(ValidatorInterface $validator): array
+    public static function validate(ValidatorInterface $o_validator): array
     {
-        return $validator->select('admin_email')->isEmail()
+        return $o_validator->select('admin_email')->isEmail()
                          ->select('admin_pass1')->isPassword()
                          ->select('admin_pass2')->isPassword()
                          ->isEqualTo('admin_pass1')->select('domain')->isDomain()

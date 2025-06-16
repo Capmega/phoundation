@@ -27,9 +27,9 @@ trait TraitDataDefinitions
     /**
      * Meta-information about the keys in this DataEntry
      *
-     * @var DefinitionsInterface|null $definitions
+     * @var DefinitionsInterface|null $o_definitions
      */
-    protected ?DefinitionsInterface $definitions = null;
+    protected ?DefinitionsInterface $o_definitions = null;
 
 
     /**

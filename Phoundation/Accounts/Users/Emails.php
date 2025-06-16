@@ -142,11 +142,11 @@ class Emails extends DataIterator implements EmailsInterface
                             ->getHtmlDataEntryFormObject()
                                 ->setRenderMeta($meta_visible);
 
-        $definitions = $email->getDefinitionsObject();
-        $definitions->get('email')->setSize(6);
-        $definitions->get('account_type')->setSize(6);
-        $definitions->get('verified_on')->setRender(false);
-        $definitions->get('delete')->setRender(false);
+        $o_definitions = $email->getDefinitionsObject();
+        $o_definitions->get('email')->setSize(6);
+        $o_definitions->get('account_type')->setSize(6);
+        $o_definitions->get('verified_on')->setRender(false);
+        $o_definitions->get('delete')->setRender(false);
 
         $content[] = $email->render();
 

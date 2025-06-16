@@ -43,13 +43,13 @@ trait TraitDataDefinitions
     /**
      * Sets the DataEntry / DataForm definitions object
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    public function setDefinitionsObject(DefinitionsInterface $definitions): static
+    public function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $this->o_definitions = $definitions;
+        $this->o_definitions = $o_definitions;
         return $this;
     }
 }

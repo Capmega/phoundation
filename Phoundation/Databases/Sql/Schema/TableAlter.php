@@ -296,13 +296,13 @@ class TableAlter extends SchemaAbstract
      */
     public function renameIndex(string $from_name, string $to_name): static
     {
-        $definition = $this->getDefinition($from_name, 'KEY');
-        $definition = str_replace($to_name    , '##########', $definition);
-        $definition = str_replace($from_name  , $to_name    , $definition);
-        $definition = str_replace('##########', $to_name    , $definition);
+        $o_definition = $this->getDefinition($from_name, 'KEY');
+        $o_definition = str_replace($to_name    , '##########', $o_definition);
+        $o_definition = str_replace($from_name  , $to_name    , $o_definition);
+        $o_definition = str_replace('##########', $to_name    , $o_definition);
 
         $this->sql->query('ALTER TABLE ' . $this->name . ' DROP KEY `' . $from_name . '`');
-        $this->sql->query('ALTER TABLE ' . $this->name . ' ADD ' . $definition);
+        $this->sql->query('ALTER TABLE ' . $this->name . ' ADD ' . $o_definition);
 
         return $this;
     }

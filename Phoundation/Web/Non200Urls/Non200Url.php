@@ -129,8 +129,8 @@ class Non200Url extends DataEntry
                                     ->setSize(4)
                                     ->setMaxLength(12)
                                     ->setHelpText(tr('The HTTP method used for this request'))
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->sanitizeLowercase()
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->sanitizeLowercase()
                                                   ->isInArray([
                                                       'get',
                                                       'head',

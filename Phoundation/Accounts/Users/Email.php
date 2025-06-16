@@ -178,16 +178,16 @@ class Email extends DataEntry implements EmailInterface
                                            ->setSize(4)
                                            ->setOptional(true)
                                            ->setHelpText(tr('The extra email address for the user'))
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                                // Email cannot exist in accounts_users or accounts_emails!
-                                               $validator->isUnique(tr('already exists as an additional email address'));
+                                               $o_validator->isUnique(tr('already exists as an additional email address'));
 
                                                $exists = sql()->getRow('SELECT `id` FROM `accounts_users` WHERE `email` = :email', [
-                                                   ':email' => $validator->getSelectedValue(),
+                                                   ':email' => $o_validator->getSelectedValue(),
                                                ]);
 
                                                if ($exists) {
-                                                   $validator->addSoftFailure(tr('value ":email" already exists as a primary email address', [':email' => $validator->getSelectedValue()]));
+                                                   $o_validator->addSoftFailure(tr('value ":email" already exists as a primary email address', [':email' => $o_validator->getSelectedValue()]));
                                                }
                                            }))
 

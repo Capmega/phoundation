@@ -493,8 +493,8 @@ class Server extends DataEntry implements ServerInterface
                                         'word'   => function ($word) { return Categories::new()->keepMatchingKeys($word); },
                                         'noword' => function ($word) { return Categories::new()->getSource(); },
                                     ])
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->xorColumn('categories_id')
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->xorColumn('categories_id')
                                                   ->setColumnFromQuery('categories_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$categories_name']);
                                     }))
 
@@ -506,8 +506,8 @@ class Server extends DataEntry implements ServerInterface
                                         'word'   => function ($word) { return Providers::new()->keepMatchingKeys($word); },
                                         'noword' => function ($word) { return Providers::new()->getSource(); },
                                     ])
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->xorColumn('providers_id')
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->xorColumn('providers_id')
                                                   ->setColumnFromQuery('providers_id', 'SELECT `id` FROM `business_providers` WHERE `name` = :name AND `status` IS NULL', [':name' => '$providers_name']);
                                     }))
 
@@ -519,8 +519,8 @@ class Server extends DataEntry implements ServerInterface
                                         'word'   => function ($word) { return Customers::new()->keepMatchingKeys($word); },
                                         'noword' => function ($word) { return Customers::new()->getSource(); },
                                     ])
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->xorColumn('customers_id')
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->xorColumn('customers_id')
                                                   ->setColumnFromQuery('customers_id', 'SELECT `id` FROM `business_customers` WHERE `name` = :name AND `status` IS NULL', [':name' => '$customers_name']);
                                     }))
 
@@ -534,8 +534,8 @@ class Server extends DataEntry implements ServerInterface
                                         'word'   => function ($word) { return Countries::new()->keepMatchingKeys($word); },
                                         'noword' => function ($word) { return Countries::new()->getSource(); },
                                     ])
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->xorColumn('countries_id')
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->xorColumn('countries_id')
                                                   ->setColumnFromQuery('countries_id', 'SELECT `id` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$countries_name']);
                                     }))
 
@@ -549,8 +549,8 @@ class Server extends DataEntry implements ServerInterface
                                         'word'   => function ($word) { return States::new()->keepMatchingKeys($word); },
                                         'noword' => function ($word) { return States::new()->getSource(); },
                                     ])
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->xorColumn('states_id')
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->xorColumn('states_id')
                                                   ->setColumnFromQuery('states_id', 'SELECT `id` FROM `geo_states` WHERE `name` = :name AND `status` IS NULL', [':name' => '$states_name']);
                                     }))
 
@@ -564,8 +564,8 @@ class Server extends DataEntry implements ServerInterface
                                         'word'   => function ($word) { return Cities::new()->keepMatchingKeys($word); },
                                         'noword' => function ($word) { return Cities::new()->getSource(); },
                                     ])
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->xorColumn('cities_id')
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->xorColumn('cities_id')
                                                   ->setColumnFromQuery('cities_id', 'SELECT `id` FROM `geo_cities` WHERE `name` = :name AND `status` IS NULL', [':name' => '$cities_name']);
                                     }))
 
@@ -575,8 +575,8 @@ class Server extends DataEntry implements ServerInterface
                                            ->setSize(12)
                                            ->setMaxLength(64)
                                            ->setHelpText(tr('The name for this role'))
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isUnique();
+                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->isUnique();
                                            }))
 
                     ->add(DefinitionFactory::newSeoName())
@@ -603,8 +603,8 @@ class Server extends DataEntry implements ServerInterface
                                         'word'   => function ($word) { return SshAccounts::new()->keepMatchingKeys($word); },
                                         'noword' => function ($word) { return SshAccounts::new()->getSource(); },
                                     ])
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->xorColumn('ssh_accounts_id')
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->xorColumn('ssh_accounts_id')
                                                   ->setColumnFromQuery('ssh_accounts_id', 'SELECT `id` FROM `ssh_accounts` WHERE `name` = :name AND `status` IS NULL', [':name' => '$ssh_account']);
                                     }))
 
@@ -617,8 +617,8 @@ class Server extends DataEntry implements ServerInterface
                                         'word'   => function ($word) { return SshAccounts::new()->keepMatchingKeys($word);},
                                         'noword' => function ($word) { return SshAccounts::new()->getSource(); },
                                     ])
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isQueryResult('SELECT `id` FROM `ssh_accounts` WHERE `id` = :id AND `status` IS NULL', [':id' => '$ssh_accounts_id']);
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isQueryResult('SELECT `id` FROM `ssh_accounts` WHERE `id` = :id AND `status` IS NULL', [':id' => '$ssh_accounts_id']);
                                     }))
 
                     ->add(Definition::new('port')
@@ -641,8 +641,8 @@ class Server extends DataEntry implements ServerInterface
                                     ->setCliColumn('-c,--code CODE')
                                     ->setHelpGroup(tr('Identification and network'))
                                     ->setHelpText(tr('A unique identifying code for this server'))
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isAlphaNumeric();
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isAlphaNumeric();
                                     }))
 
                     ->add(Definition::new('cost')
@@ -692,14 +692,14 @@ class Server extends DataEntry implements ServerInterface
                                     ->setInputType(EnumInputType::dbid)
                                     ->setHelpText(tr('The category for this server'))
                                     ->setElement(EnumElement::select)
-                                    ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                                    ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
                                                          ->setSelected(isset_get($source['categories_id']));
                                     })
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->xorColumn('categories_name')
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->xorColumn('categories_name')
                                                   ->isColumnFromQuery('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':name' => '$categories_id']);
                                     }))
 
@@ -709,14 +709,14 @@ class Server extends DataEntry implements ServerInterface
                                     ->setHelpText(tr('The service provider where this server is hosted'))
                                     ->setInputType(EnumInputType::dbid)
                                     ->setElement(EnumElement::select)
-                                    ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                                    ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
                                                          ->setSelected(isset_get($source['providers_id']));
                                     })
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->xorColumn('providers_name')
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->xorColumn('providers_name')
                                                   ->isColumnFromQuery('SELECT `id` FROM `business_providers` WHERE `id` = :id AND `status` IS NULL', [':name' => '$providers_id']);
                                     }))
 
@@ -726,14 +726,14 @@ class Server extends DataEntry implements ServerInterface
                                     ->setInputType(EnumInputType::dbid)
                                     ->setHelpText(tr('The customer using this server'))
                                     ->setElement(EnumElement::select)
-                                    ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                                    ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
                                                          ->setSelected(isset_get($source['customers_id']));
                                     })
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->xorColumn('customers_name')
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->xorColumn('customers_name')
                                                   ->isColumnFromQuery('SELECT `id` FROM `business_customers` WHERE `id` = :id AND `status` IS NULL', [':name' => '$customers_id']);
                                     }))
 
@@ -744,14 +744,14 @@ class Server extends DataEntry implements ServerInterface
                                     ->setElement(EnumElement::select)
                                     ->setHelpGroup(tr('Location'))
                                     ->setHelpText(tr('The country where this server is hosted'))
-                                    ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                                    ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
                                                          ->setSelected(isset_get($source['countries_id']));
                                     })
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->xorColumn('countries_name')
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->xorColumn('countries_name')
                                                   ->isColumnFromQuery('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':name' => '$countries_id']);
                                     }))
 
@@ -762,14 +762,14 @@ class Server extends DataEntry implements ServerInterface
                                     ->setElement(EnumElement::select)
                                     ->setHelpGroup(tr('Location'))
                                     ->setHelpText(tr('The state where this server is hosted'))
-                                    ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                                    ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
                                                          ->setSelected(isset_get($source['states_id']));
                                     })
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->xorColumn('states_name')
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->xorColumn('states_name')
                                                   ->isColumnFromQuery('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `status` IS NULL', [':name' => '$states_id']);
                                     }))
 
@@ -778,14 +778,14 @@ class Server extends DataEntry implements ServerInterface
                                     ->setCliColumn('--cities-id CITIES-ID')
                                     ->setInputType(EnumInputType::dbid)
                                     ->setElement(EnumElement::select)
-                                    ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                                    ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
                                                          ->setSelected(isset_get($source['cities_id']));
                                     })
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->xorColumn('cities_name')
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->xorColumn('cities_name')
                                                   ->isColumnFromQuery('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `status` IS NULL', [':name' => '$cities_id']);
                                     }))
 

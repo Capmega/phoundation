@@ -929,8 +929,8 @@ class Connector extends DataEntry implements ConnectorInterface
         $o_definitions->add(DefinitionFactory::newName()
                                              ->setOptional(false)
                                              ->setSize(4)
-                                             ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isUnique();
+                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->isUnique();
                                            }))
 
                     ->add(Definition::new('environment')
@@ -975,8 +975,8 @@ class Connector extends DataEntry implements ConnectorInterface
                                            ->setOptional(true, 'localhost')
                                            ->setLabel(tr('Hostname'))
                                            ->setSize(8)
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isDomain();
+                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->isDomain();
                                            }))
 
                     ->add(DefinitionFactory::newNumber('port')
@@ -984,8 +984,8 @@ class Connector extends DataEntry implements ConnectorInterface
                                            ->setOptional(true)
                                            ->setLabel(tr('Port'))
                                            ->setSize(4)
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isInteger()
+                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->isInteger()
                                                          ->isBetween(0, 65535);
                                            }))
 
@@ -993,40 +993,40 @@ class Connector extends DataEntry implements ConnectorInterface
                                            ->setInputType(EnumInputType::text)
                                            ->setSize(4)
                                            ->setLabel(tr('Username'))
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isUsername();
+                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->isUsername();
                                            }))
 
                     ->add(DefinitionFactory::newPassword('password')
                                            ->setInputType(EnumInputType::password)
                                            ->setSize(4)
                                            ->setLabel(tr('Password'))
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isUsername();
+                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->isUsername();
                                            }))
 
                     ->add(DefinitionFactory::newVariable('database')
                                            ->setInputType(EnumInputType::variable)
                                            ->setSize(4)
                                            ->setLabel(tr('Database'))
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->hasMaxCharacters(64);
+                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->hasMaxCharacters(64);
                                            }))
 
                     ->add(DefinitionFactory::newNumber('connect_timeout')
                                            ->setInputType(EnumInputType::positiveInteger)
                                            ->setSize(2)
                                            ->setLabel(tr('Connect timeout'))
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isInteger()->isBetween(0, 120);
+                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->isInteger()->isBetween(0, 120);
                                            }))
 
                     ->add(DefinitionFactory::newNumber('query_timeout')
                                            ->setInputType(EnumInputType::positiveInteger)
                                            ->setSize(2)
                                            ->setLabel(tr('Query timeout'))
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isInteger()->isBetween(0, 3600);
+                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->isInteger()->isBetween(0, 3600);
                                            }))
 
                     ->add(Definition::new('mode')
@@ -1034,8 +1034,8 @@ class Connector extends DataEntry implements ConnectorInterface
                                     ->setOptional(true, 'PIPES_AS_CONCAT,IGNORE_SPACE')
                                     ->setLabel(tr('Mode'))
                                     ->setSize(3)
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->hasMaxCharacters(2048);
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->hasMaxCharacters(2048);
                                     }))
 
                     ->add(Definition::new('attributes')
@@ -1043,8 +1043,8 @@ class Connector extends DataEntry implements ConnectorInterface
                                     ->setOptional(true)
                                     ->setLabel(tr('Attributes'))
                                     ->setSize(3)
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->hasMaxCharacters(2048);
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->hasMaxCharacters(2048);
                                     }))
 
                     ->add(Definition::new('character_set')
@@ -1052,9 +1052,9 @@ class Connector extends DataEntry implements ConnectorInterface
                                     ->setLabel(tr('Character set'))
                                     ->setOptional(true, config()->getString('databases.mysql.character-set', 'utf8mb4'))
                                     ->setSize(3)
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
 // TODO Improve validation of this column
-                                        $validator->hasMaxCharacters(64);
+                                        $o_validator->hasMaxCharacters(64);
                                     }))
 
                     ->add(Definition::new('collate')
@@ -1062,9 +1062,9 @@ class Connector extends DataEntry implements ConnectorInterface
                                     ->setLabel(tr('Collate'))
                                     ->setSize(3)
                                     ->setOptional(true, config()->getString('databases.mysql.collate', 'utf8mb4_general_ci'))
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
 // TODO Improve validation of this column
-                                        $validator->hasMaxCharacters(64);
+                                        $o_validator->hasMaxCharacters(64);
                                     }))
 
                     ->add(DefinitionFactory::newTimezonesName()
@@ -1088,8 +1088,8 @@ class Connector extends DataEntry implements ConnectorInterface
                                            ->setLabel(tr('Maximum row limit'))
                                            ->setInputType(EnumInputType::positiveInteger)
                                            ->setSize(1)
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isLessThan(1_000_000_000);
+                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->isLessThan(1_000_000_000);
                                            }))
 
                     ->add(DefinitionFactory::newNumber('auto_increment')

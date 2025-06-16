@@ -67,14 +67,14 @@ trait TraitInputElement
     /**
      * Returns a new input element from the specified data entry field
      *
-     * @param DefinitionInterface $definition
+     * @param DefinitionInterface $o_definition
      *
      * @return static
      */
-    public static function newFromDataEntryDefinition(DefinitionInterface $definition): static
+    public static function newFromDataEntryDefinition(DefinitionInterface $o_definition): static
     {
         $element    = new static();
-        $attributes = $definition->getSource();
+        $attributes = $o_definition->getSource();
 
         // Set all attributes from the definition file
         foreach ($attributes as $key => $value) {

@@ -1580,15 +1580,15 @@ class Session implements SessionInterface
     /**
      * Validate sign in data
      *
-     * @param ValidatorInterface|null $validator
+     * @param ValidatorInterface|null $o_validator
      *
      * @return array
      */
-    public static function validateSignIn(?ValidatorInterface $validator = null): array
+    public static function validateSignIn(?ValidatorInterface $o_validator = null): array
     {
-        $validator = $validator ?? PostValidator::new();
+        $o_validator = $o_validator ?? PostValidator::new();
 
-        return $validator->select('email')->isEmail()
+        return $o_validator->select('email')->isEmail()
                          ->select('password')->isPassword()
                          ->validate();
     }
@@ -1597,17 +1597,17 @@ class Session implements SessionInterface
     /**
      * Validate sign up data
      *
-     * @param ValidatorInterface|null $validator
+     * @param ValidatorInterface|null $o_validator
      *
      * @return array
      */
-    public static function validateSignUp(?ValidatorInterface $validator = null): array
+    public static function validateSignUp(?ValidatorInterface $o_validator = null): array
     {
-        if (!$validator) {
-            $validator = PostValidator::new();
+        if (!$o_validator) {
+            $o_validator = PostValidator::new();
         }
 
-        return $validator->select('email')
+        return $o_validator->select('email')
                          ->isEmail()
                          ->select('password')
                          ->isPassword()

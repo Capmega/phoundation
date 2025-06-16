@@ -780,13 +780,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function setMetaDefinitions(): static
     {
-        $definitions = Definitions::new($this)
+        $o_definitions = Definitions::new($this)
                                   ->setTable(static::getTable());
 
         foreach ($this->meta_columns as $meta_column) {
             switch ($meta_column) {
                 case 'id':
-                    $definitions->add(Definition::new('id')
+                    $o_definitions->add(Definition::new('id')
                                                 ->setDisabled(true)
                                                 ->setInputType(EnumInputType::dbid)
                                                 ->addClasses('text-center')
@@ -797,24 +797,24 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                     break;
 
                 case 'created_on':
-                    $definitions->add(DefinitionFactory::newCreatedOn());
+                    $o_definitions->add(DefinitionFactory::newCreatedOn());
                     break;
 
                 case 'created_by':
-                    $definitions->add(DefinitionFactory::newCreatedBy());
+                    $o_definitions->add(DefinitionFactory::newCreatedBy());
                     break;
 
                 case 'meta_id':
-                    $definitions->add(DefinitionFactory::newMetaId());
+                    $o_definitions->add(DefinitionFactory::newMetaId());
                     break;
 
                 case 'status':
-                    $definitions->add(DefinitionFactory::newStatus()
+                    $o_definitions->add(DefinitionFactory::newStatus()
                                                        ->setNullDisplay(tr('Ok')));
                     break;
 
                 case 'meta_state':
-                    $definitions->add(DefinitionFactory::newMetaState());
+                    $o_definitions->add(DefinitionFactory::newMetaState());
                     break;
 
                 default:
@@ -824,10 +824,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
         }
 
-        $this->definitions = $definitions->add(DefinitionFactory::newDivider('meta-divider')
-                                                                ->addPreRenderFunctions(function(DefinitionInterface $definition, array $source, mixed $value) {
+        $this->definitions = $o_definitions->add(DefinitionFactory::newDivider('meta-divider')
+                                                                ->addPreRenderFunctions(function(DefinitionInterface $o_definition, array $source, mixed $value) {
                                                                     // Only render this when displaying meta-elements
-                                                                    $definition->setRender(!$this->isNew() and $this->getDefinitionsObject()->getRenderMeta() and $definition->getRender());
+                                                                    $o_definition->setRender(!$this->isNew() and $this->getDefinitionsObject()->getRenderMeta() and $o_definition->getRender());
                                                                 }));
 
         return $this;
@@ -1061,11 +1061,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         // If the key is defined as readonly or disabled, it cannot be updated unless it's a new object or a
         // static value.
-        $definition = $this->getDefinitionsObject()
+        $o_definition = $this->getDefinitionsObject()
                            ->get($key);
 
         // If a column is ignored, we won't update anything
-        if ($definition->getIgnored()) {
+        if ($o_definition->getIgnored()) {
             Log::warning(ts('Not updating DataEntry object ":object" column ":column" because it has the "ignored" flag set', [
                 ':column' => $key,
                 ':object' => get_class($this),
@@ -1077,10 +1077,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         if ($value === null) {
             // Apply default values
             if ($this->isNew()) {
-                $value = $definition->getInitialDefault() ?? $definition->getDefault();
+                $value = $o_definition->getInitialDefault() ?? $o_definition->getDefault();
 
             } else {
-                $value = $definition->getDefault();
+                $value = $o_definition->getDefault();
             }
 
             if ($value === null) {
@@ -1099,7 +1099,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         if (array_get_safe($this->source, $key) !== $value) {
-            if (!$this->is_modified and !$definition->getIgnoreModify()) {
+            if (!$this->is_modified and !$o_definition->getIgnoreModify()) {
                 $this->is_modified = true;
                 $this->is_saved = false;
             }
@@ -1807,15 +1807,15 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 //     *
 //     * @param string $at_key
 //     * @param mixed $value
-//     * @param DefinitionInterface $definition
+//     * @param DefinitionInterface $o_definition
 //     * @param bool $after
 //     * @return static
 //     * @todo Improve by first splitting meta data off the new data entry and then ALWAYS prepending it to ensure its at the front
 //     */
-//    public function injectDataEntryValue(string $at_key, string|float|int|null $value, DefinitionInterface $definition, bool $after = true): static
+//    public function injectDataEntryValue(string $at_key, string|float|int|null $value, DefinitionInterface $o_definition, bool $after = true): static
 //    {
-//        $this->source[$definition->getColumn()] = $value;
-//        $this->getDefinitionsObject()->spliceByKey($at_key, 0, [$definition->getColumn() => $definition], $after);
+//        $this->source[$o_definition->getColumn()] = $value;
+//        $this->getDefinitionsObject()->spliceByKey($at_key, 0, [$o_definition->getColumn() => $o_definition], $after);
 //        return $this;
 //    }
 
@@ -1959,14 +1959,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $source = [];
 
         if ($this->definitions) {
-            foreach ($this->definitions as $column => $definition) {
-                if (!$definition->getContainsData()) {
+            foreach ($this->definitions as $column => $o_definition) {
+                if (!$o_definition->getContainsData()) {
                     // Don't process data-less columns
                     continue;
                 }
 
                 // Get the value from the source, ensure to apply default or initial default values
-                $value = array_get_safe($this->source, $column, $this->isNew() ? ($definition->getInitialDefault() ?? $definition->getDefault()) : $definition->getDefault());
+                $value = array_get_safe($this->source, $column, $this->isNew() ? ($o_definition->getInitialDefault() ?? $o_definition->getDefault()) : $o_definition->getDefault());
 
                 // If the value is null, apply the get method for the column IF IT EXISTS. If the get method doesn't exist,
                 // just copy the NULL value as-is
@@ -2716,11 +2716,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * @param string              $column
      * @param mixed               $value
      * @param bool                $directly
-     * @param DefinitionInterface $definition
+     * @param DefinitionInterface $o_definition
      *
      * @return static
      */
-    protected function setColumnValueWithObjectSetter(mixed $value, string $column, bool $directly, DefinitionInterface $definition): static
+    protected function setColumnValueWithObjectSetter(mixed $value, string $column, bool $directly, DefinitionInterface $o_definition): static
     {
         /*
          * Update columns directly if:
@@ -2737,7 +2737,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // Store this data through the set method to ensure datatype and filtering is done correctly
             $method = $this->convertColumnToMethod($column, 'set');
 
-            if (!$definition->inputTypeIsScalar()) {
+            if (!$o_definition->inputTypeIsScalar()) {
                 // This input type is not scalar and as such has been stored as a JSON array
                 $value = Json::ensureDecoded($value);
             }
@@ -2910,9 +2910,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $arguments = [];
 
         // Extract auto complete for cli parameters from column definitions
-        foreach (static::new()->getDefinitionsObject() as $definitions) {
-            if ($definitions->getCliColumn() and $definitions->getCliAutoComplete()) {
-                $arguments[$definitions->getCliColumn()] = $definitions->getCliAutoComplete();
+        foreach (static::new()->getDefinitionsObject() as $o_definitions) {
+            if ($o_definitions->getCliColumn() and $o_definitions->getCliAutoComplete()) {
+                $arguments[$o_definitions->getCliColumn()] = $o_definitions->getCliAutoComplete();
             }
         }
 
@@ -2946,21 +2946,21 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $return  = PHP_EOL . PHP_EOL . PHP_EOL . CliColor::apply(strtoupper(tr('REQUIRED ARGUMENTS')), 'white');
 
         // Get the required columns and gather a list of available help groups
-        foreach ($columns as $id => $definitions) {
-            if ($definitions->isMeta()) {
+        foreach ($columns as $id => $o_definitions) {
+            if ($o_definitions->isMeta()) {
                 continue;
             }
 
-            if (!$definitions->getRender()) {
+            if (!$o_definitions->getRender()) {
                 continue;
             }
 
-            if (!$definitions->getOptional()) {
+            if (!$o_definitions->getOptional()) {
                 $columns->removeKeys($id);
-                $return .= PHP_EOL . PHP_EOL . Strings::size($definitions->getCliColumn(), 39) . ' ' . $definitions->getHelpText();
+                $return .= PHP_EOL . PHP_EOL . Strings::size($o_definitions->getCliColumn(), 39) . ' ' . $o_definitions->getHelpText();
             }
 
-            $groups[$definitions->getHelpGroup()] = true;
+            $groups[$o_definitions->getHelpGroup()] = true;
         }
 
         // Get the columns and group them by help_group
@@ -2974,14 +2974,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 $header = PHP_EOL . PHP_EOL . PHP_EOL . CliColor::apply(strtoupper(tr('Miscellaneous information')), 'white');
             }
 
-            foreach ($columns as $id => $definitions) {
-                if ($definitions->isMeta()) {
+            foreach ($columns as $id => $o_definitions) {
+                if ($o_definitions->isMeta()) {
                     continue;
                 }
 
-                if ($definitions->getHelpGroup() === $group) {
+                if ($o_definitions->getHelpGroup() === $group) {
                     $columns->removeKeys($id);
-                    $body .= PHP_EOL . PHP_EOL . Strings::size($definitions->getCliColumn(), 39) . ' ' . $definitions->getHelpText();
+                    $body .= PHP_EOL . PHP_EOL . Strings::size($o_definitions->getCliColumn(), 39) . ' ' . $o_definitions->getHelpText();
                 }
             }
 
@@ -3137,22 +3137,22 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Extracts the data from the validator without validating
      *
-     * @param ValidatorInterface $validator
+     * @param ValidatorInterface $o_validator
      * @param bool               $require_clean_source
      *
      * @return array
      */
-    protected function doNotValidate(ValidatorInterface $validator, bool $require_clean_source): array
+    protected function doNotValidate(ValidatorInterface $o_validator, bool $require_clean_source): array
     {
         $return = [];
-        $source = $validator->getSource();
+        $source = $o_validator->getSource();
         $prefix = $this->getDefinitionsObject()->getPrefix();
 
         foreach ($source as $key => $value) {
             $return[Strings::from($key, $prefix)] = $value;
 
             if ($require_clean_source) {
-                $validator->removeKeys($key);
+                $o_validator->removeKeys($key);
             }
         }
 
@@ -3165,17 +3165,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @note This method will also fix column names in case column prefix was specified
      *
-     * @param ValidatorInterface $validator
+     * @param ValidatorInterface $o_validator
      * @param bool               $require_clean_source
      * @param bool               $external
      *
      * @return array
      */
-    protected function validateSource(ValidatorInterface $validator, bool $require_clean_source, bool $external): array
+    protected function validateSource(ValidatorInterface $o_validator, bool $require_clean_source, bool $external): array
     {
         if (!$this->validate) {
             // This data entry won't validate data, just continue.
-            return $validator->getSource();
+            return $o_validator->getSource();
         }
 
         $prefix = $this->getDefinitionsObject()->getPrefix();
@@ -3183,24 +3183,24 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         // Set ID so that the array validator can do unique lookups, etc.
         // Tell the validator what table this DataEntry is using and get the column prefix so that the validator knows
         // what columns to select
-        $validator->setDataEntryObject($this)
+        $o_validator->setDataEntryObject($this)
                   ->setDefinitionsObject($this->definitions)
                   ->setPrefix($prefix)
                   ->setMetaColumns($this->getMetaColumns())
                   ->setTable(static::getTable());
 
         // Go over each column and let the column definition do the validation since it knows the specs
-        foreach ($this->definitions as $column => $definition) {
-            if ($definition->isMeta()) {
+        foreach ($this->definitions as $column => $o_definition) {
+            if ($o_definition->isMeta()) {
                 // This column is metadata and shouldn't be validated. Only apply static values
-                if ($definition->getValue()) {
-                    $this->source[$column] = $definition->getValue();
+                if ($o_definition->getValue()) {
+                    $this->source[$column] = $o_definition->getValue();
                 }
 
                 continue;
             }
 
-            if (!array_key_exists($column, $validator->getSource()) and $external) {
+            if (!array_key_exists($column, $o_validator->getSource()) and $external) {
                 // External data does not apply defaults, if the column doesn't exist, skip it
                 continue;
             }
@@ -3211,7 +3211,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
             try {
                 // Execute the validations for this single definition
-                $definition->validate($validator);
+                $o_definition->validate($o_validator);
 
             } catch (ValidationFailedException $e) {
                 throw $e;
@@ -3225,14 +3225,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         try {
             // Execute the validate method to get the results of the validation
-            $source             = $validator->setPermitValidationFailures($this->getPermitValidationFailures())
+            $source             = $o_validator->setPermitValidationFailures($this->getPermitValidationFailures())
                                             ->validate($require_clean_source);
             $this->is_validated = true;
 
             if (!$this->hasPermitValidationFailures(EnumSoftHard::none)) {
                 // The validator MIGHT have a failure that was permitted!
-                if ($validator->getFailures()) {
-                    $this->setException($validator->getException())
+                if ($o_validator->getFailures()) {
+                    $this->setException($o_validator->getException())
                          ->setStatus('failedvalidation', auto_save: false);
 
                 } elseif ($this->hasStatus('failedvalidation')) {
@@ -3319,8 +3319,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 ];
 
                 // Check all keys and register changes
-                foreach ($this->definitions as $key => $definition) {
-                    if ($definition->getReadonly() or $definition->getDisabled() or $definition->isMeta()) {
+                foreach ($this->definitions as $key => $o_definition) {
+                    if ($o_definition->getReadonly() or $o_definition->getDisabled() or $o_definition->isMeta()) {
                         continue;
                     }
 
@@ -3844,9 +3844,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Add the complete definitions and source from the specified data entry to this data entry
      *
-     * @note When $definition is specified as an object, it will completely overwrite the existing object.
+     * @note When $o_definition is specified as an object, it will completely overwrite the existing object.
      *
-     * @note When $definition is specified as an array, only the specified entries will overwrite the existing object's
+     * @note When $o_definition is specified as an array, only the specified entries will overwrite the existing object's
      *       entries
      *
      * @note The entries' name CANNOT be changed here!
@@ -3928,10 +3928,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function cleanSourceFromDefinitions(): static
     {
-        $definitions = $this->definitions;
+        $o_definitions = $this->definitions;
 
         foreach ($this->source as $key => $value) {
-            if (!$definitions->keyExists($key)) {
+            if (!$o_definitions->keyExists($key)) {
                 unset($this->source[$key]);
             }
         }
@@ -4145,9 +4145,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         $return = [];
 
-        foreach ($this->definitions as $column => $definitions) {
-            if ($definitions->getCliColumn()) {
-                $return[$column] = $definitions->getCliColumn();
+        foreach ($this->definitions as $column => $o_definitions) {
+            if ($o_definitions->getCliColumn()) {
+                $return[$column] = $o_definitions->getCliColumn();
             }
         }
 
@@ -4731,25 +4731,25 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $return = [];
 
         // Run over all definitions and generate a data column
-        foreach ($this->definitions as $column => $definition) {
+        foreach ($this->definitions as $column => $o_definition) {
             if ($insert) {
                 // We're about to insert
                 if (in_array($column, $this->columns_filter_on_insert)) {
-                    if ($definition->isMeta()) {
+                    if ($o_definition->isMeta()) {
                         continue;
                     }
                 }
             }
 
-            $column = $definition->getColumn();
+            $column = $o_definition->getColumn();
 
-            if ($definition->getVirtual()) {
+            if ($o_definition->getVirtual()) {
                 // This is a virtual column, ignore it.
                 continue;
             }
 
             // Apply definition default
-            $return[$column] = array_get_safe($this->source, $column) ?? $definition->getDefault();
+            $return[$column] = array_get_safe($this->source, $column) ?? $o_definition->getDefault();
 
             // Ensure value is string, float, int, or NULL
             if (($return[$column] !== null) and !is_scalar($return[$column])) {
@@ -4765,8 +4765,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
             // Apply definition prefix and postfix only if they are not empty
-            $prefix = $definition->getPrefix();
-            $suffix = $definition->getSuffix();
+            $prefix = $o_definition->getPrefix();
+            $suffix = $o_definition->getSuffix();
 
             if ($prefix) {
                 $return[$column] = $prefix . $return[$column];

@@ -1395,19 +1395,19 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
         $source      = config()->getArray(Strings::ensureEndsNotWith(static::getConfigurationPath(), '.'), []);
         $entry       = static::getDefaultContentDataType();
         $entry       = new $entry();
-        $definitions = $entry->getDefinitionsObject();
+        $o_definitions = $entry->getDefinitionsObject();
 
         // Ensure all entry definition columns are available, apply default values where they don't
         foreach ($source as &$value) {
             $value['status'] = 'configuration';
 
-            foreach ($definitions as $column => $definition) {
+            foreach ($o_definitions as $column => $o_definition) {
                 if (array_key_exists($column, $value)) {
                     continue;
                 }
 
                 // Apply the default value for this column
-                $value[$column] = $definition->getDefault();
+                $value[$column] = $o_definition->getDefault();
             }
         }
 
@@ -1572,8 +1572,8 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
         }
 
         // Place source in a validator
-        $validator = Validator::pick($source);
-        $source    = Arrays::groupByPrefix($validator->getSource(), non_prefix_action: Arrays::GROUP_BY_DROP);
+        $o_validator = Validator::pick($source);
+        $source    = Arrays::groupByPrefix($o_validator->getSource(), non_prefix_action: Arrays::GROUP_BY_DROP);
 
         // First, ensure we have all the entries specified by the source
         if ($require_clean_source) {
@@ -1596,7 +1596,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
 
         // Require clean source
         if ($require_clean_source) {
-            $validator->validate($require_clean_source);
+            $o_validator->validate($require_clean_source);
         }
 
         return $this;

@@ -387,8 +387,8 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
                                            ->setMaxLength(128)
                                            ->setLabel('Mimetype')
                                            ->setHelpText(tr('The mimetype for this extension'))
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->matchesRegex('/\w+\/[a-z0-9-.]+/');
+                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->matchesRegex('/\w+\/[a-z0-9-.]+/');
                                            }))
 
                     ->add(DefinitionFactory::newNumber('priority')

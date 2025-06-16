@@ -1294,8 +1294,8 @@ class Task extends DataEntry implements TaskInterface
                                              ->setLabel(tr('Code'))
                                              ->setSize(4)
                                              ->setMaxLength(36)
-                                             ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isCode();
+                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->isCode();
                                            }))
 
                     ->add(DefinitionFactory::newName())
@@ -1309,8 +1309,8 @@ class Task extends DataEntry implements TaskInterface
                                     ->setDataSource('SELECT `id` FROM `os_tasks` WHERE (`status` IS NULL OR `status` NOT IN ("deleted"))')
                                     ->setSize(4)
                                     ->setMaxLength(17)
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isDbId();
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isDbId();
                                     }))
 
                     ->add(Definition::new('execute_after')
@@ -1320,8 +1320,8 @@ class Task extends DataEntry implements TaskInterface
                                     ->setCliColumn('[--execute-after DATETIME]')
                                     ->setSize(4)
                                     ->setMaxLength(17)
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isDateTime();
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isDateTime();
                                     }))
 
                     ->add(Definition::new('start')
@@ -1331,8 +1331,8 @@ class Task extends DataEntry implements TaskInterface
                                     ->setLabel('Execution started on')
                                     ->setSize(4)
                                     ->setMaxLength(17)
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isDateTime();
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isDateTime();
                                     }))
 
                     ->add(Definition::new('stop')
@@ -1342,8 +1342,8 @@ class Task extends DataEntry implements TaskInterface
                                     ->setLabel('Execution finished on')
                                     ->setSize(4)
                                     ->setMaxLength(17)
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isDateTime();
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isDateTime();
                                     }))
 
                     ->add(Definition::new('spent')
@@ -1353,8 +1353,8 @@ class Task extends DataEntry implements TaskInterface
                                     ->setLabel('Time spent on task execution')
                                     ->setSize(4)
                                     ->setMin(0)
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isFloat();
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isFloat();
                                     }))
 
                     ->add(Definition::new('send_to')
@@ -1363,8 +1363,8 @@ class Task extends DataEntry implements TaskInterface
                                     ->setMaxLength(128)
                                     ->setLabel('Send to user')
                                     ->setCliColumn('[--send-to EMAIL]')
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isEmail();
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isEmail();
                                     }))
 
                     ->add(Definition::new('send_to_id')
@@ -1374,8 +1374,8 @@ class Task extends DataEntry implements TaskInterface
                                     ->setDataSource('SELECT `id`, CONCAT(`email`, " <", `first_names`, " ", `last_names`, ">") FROM `accounts_users` WHERE `status` IS NULL')
                                     ->setSize(4)
                                     ->setMaxLength(17)
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isDbId();
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isDbId();
                                     }))
 
                     ->add(Definition::new('server')
@@ -1385,8 +1385,8 @@ class Task extends DataEntry implements TaskInterface
                                     ->setLabel('Execute on server')
                                     ->setCliColumn('[-s,--server HOSTNAME]')
                                     ->setSize(4)
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->orColumn('servers_id')
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->orColumn('servers_id')
                                                   ->isName()
                                                   ->setColumnFromQuery('servers_id', 'SELECT `id` FROM `servers` WHERE `hostname` = :hostname AND `status` IS NULL', [':hostname' => '$server']);
                                     }))
@@ -1396,8 +1396,8 @@ class Task extends DataEntry implements TaskInterface
                                     ->setRender(false)
                                     ->setInputType(EnumInputType::select)
                                     ->setDataSource('SELECT `id` FROM `servers` WHERE `status` IS NULL')
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->orColumn('server')
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->orColumn('server')
                                                   ->isDbId()
                                                   ->isQueryResult('SELECT `id` FROM `servers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$servers_id']);
                                     }))
@@ -1410,8 +1410,8 @@ class Task extends DataEntry implements TaskInterface
                                     ->setDataSource('SELECT `id` FROM `accounts_roles` WHERE `status` IS NULL')
                                     ->setSize(4)
                                     ->setMaxLength(17)
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isDbId();
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isDbId();
                                     }))
 
                     ->add(Definition::new('execution_directory')
@@ -1420,8 +1420,8 @@ class Task extends DataEntry implements TaskInterface
                                     ->setLabel('Execution path')
                                     ->setCliColumn('[-d,--execution-directory PATH]')
                                     ->setSize(4)
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isDirectory(PhoDirectory::newFilesystemRootObject());
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isDirectory(PhoDirectory::newFilesystemRootObject());
                                     }))
 
                     ->add(Definition::new('command')
@@ -1466,8 +1466,8 @@ class Task extends DataEntry implements TaskInterface
                                     ->setInputType(EnumInputType::checkbox)
                                     ->setLabel('Clear logs')
                                     ->setSize(4)
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isBoolean();
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isBoolean();
                                     }))
 
                     ->add(Definition::new('escape_quotes')
@@ -1475,8 +1475,8 @@ class Task extends DataEntry implements TaskInterface
                                     ->setInputType(EnumInputType::checkbox)
                                     ->setLabel('Escape quotes')
                                     ->setSize(4)
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isBoolean();
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isBoolean();
                                     }))
 
                     ->add(Definition::new('nocache')
@@ -1485,7 +1485,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setLabel('No cache mode')
                                     ->setDataSource([])
                                     ->setSize(4)
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {}))
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {}))
 
                     ->add(Definition::new('ionice')
                                     ->setOptional(true)
@@ -1637,8 +1637,8 @@ class Task extends DataEntry implements TaskInterface
                                     ->setLabel('Process ID')
                                     ->setDisabled(true)
                                     ->setSize(4)
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isDbId();
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isDbId();
                                     }))
 
                     ->add(Definition::new('exit_code')

@@ -73,16 +73,16 @@ class UserFile extends DataEntry
                                              ->setOptional(false)
                                              ->setSize(12)
                                              ->setHelpText(tr('Filename'))
-                                             ->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->isUnique();
+                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                            $o_validator->isUnique();
                         }))
 
                       ->add(DefinitionFactory::newFile(PhoDirectory::newUserFilesObject(), 'seo_file')
                         ->setOptional(false)
                         ->setRender(false)
                         ->setSize(12)
-                        ->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->isUnique();
+                        ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                            $o_validator->isUnique();
                         }))
 
                     ->add(DefinitionFactory::newUsersId()
@@ -131,8 +131,8 @@ class UserFile extends DataEntry
                         ->setMaxLength(128)
                         ->setLabel('Mimetype')
                         ->setHelpText(tr('The mimetype for this file'))
-                        ->addValidationFunction(function (ValidatorInterface $validator) {
-                            $validator->matchesRegex('/\w+\/[a-z0-9-.]+/');
+                        ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                            $o_validator->matchesRegex('/\w+\/[a-z0-9-.]+/');
                         }))
 
                     ->add(DefinitionFactory::newHash())

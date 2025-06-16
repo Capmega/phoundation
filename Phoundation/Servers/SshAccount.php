@@ -203,8 +203,8 @@ class SshAccount extends DataEntry implements SshAccountInterface
                                            ->setLabel(tr('SSH key file'))
                                            ->setCliColumn(tr('-i,--ssh-key-file FILE'))
                                            ->setHelpText(tr('The SSH key file for this account'))
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isFile(PhoDirectory::newFilesystemRootObject());
+                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->isFile(PhoDirectory::newFilesystemRootObject());
                                            }))
 
                     ->add(Definition::new('ssh_key')
@@ -214,8 +214,8 @@ class SshAccount extends DataEntry implements SshAccountInterface
                                     ->setSize(12)
                                     ->setMaxLength(65_535)
                                     ->setHelpText(tr('The SSH private key associated with this username'))
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->matchesRegex('/-----BEGIN .+? PRIVATE KEY-----.+?-----END .+? PRIVATE KEY-----/s');
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->matchesRegex('/-----BEGIN .+? PRIVATE KEY-----.+?-----END .+? PRIVATE KEY-----/s');
                                     }));
 
         return $this;

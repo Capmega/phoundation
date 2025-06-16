@@ -84,8 +84,8 @@ class Requirement extends DataEntry
                                              ->setMaxLength(128)
                                              ->setLabel(tr('Name'))
                                              ->setHelpText(tr('The unique identifier name for this requirement'))
-                                             ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isUnique();
+                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->isUnique();
                                            }))
                     ->add(DefinitionFactory::newSeoName())
                     ->add(Definition::new('path')
@@ -94,8 +94,8 @@ class Requirement extends DataEntry
                                     ->setMaxLength(255)
                                     ->setLabel(tr('Path'))
                                     ->setHelpText(tr('The path that these requirements apply to'))
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isFile();
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isFile();
                                     }))
                     ->add(Definition::new('filesystem')
                                     ->setInputType(EnumInputType::select)

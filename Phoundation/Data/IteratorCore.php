@@ -129,9 +129,9 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Tracks validators that are required to pass to add values to this Iterator
      *
-     * @var IteratorInterface $validators
+     * @var IteratorInterface $o_validators
      */
-    protected IteratorInterface $validators;
+    protected IteratorInterface $o_validators;
 
 
     /**
@@ -455,8 +455,8 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
         // Apply validators as well? Only if datatype test hasn't failed yet
         if (isset($this->validators)) {
-            foreach ($this->validators as $name => $validator) {
-                if (!$validator($value)) {
+            foreach ($this->validators as $name => $o_validator) {
+                if (!$o_validator($value)) {
                     throw OutOfBoundsException::new(tr('Iterator value argument ":key" with value ":value" failed to pass validator ":validator"', [
                         ':key'       => $key,
                         ':value'     => $value,
@@ -493,14 +493,14 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Adds a validator callback that must be passed for data to be added to this Iterator object
      *
-     * @param callable    $validator
+     * @param callable    $o_validator
      * @param string|null $name
      *
      * @return static
      */
-    public function addValidator(callable $validator, ?string $name = null): static
+    public function addValidator(callable $o_validator, ?string $name = null): static
     {
-        $this->getValidatorsObject()->add($validator, $name);
+        $this->getValidatorsObject()->add($o_validator, $name);
         return $this;
     }
 
