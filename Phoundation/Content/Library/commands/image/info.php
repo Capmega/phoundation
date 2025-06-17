@@ -33,5 +33,5 @@ $argv = ArgvValidator::new()
 
 
 // Display image information
-Log::information(ts('Displaying image information for ":file"', [':file' => $argv['file']]));
+Log::information(ts('Displaying image information for ":file"', [':file' => $argv['file']]), 10);
 Cli::displayTable(ImageFile::new($argv['file'])->getInformation());

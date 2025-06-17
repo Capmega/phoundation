@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Command accounts roles add-email
+ * Command accounts roles add-roles
  *
  * This command will create a new role with the specified properties
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyemail Copyemail (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
  */
 
@@ -36,24 +36,25 @@ CliDocumentation::setAutoComplete([
                                       ],
                                   ]);
 
-CliDocumentation::setUsage('./pho accounts roles add-email NAME "EMAIL[,EMAIL,EMAIL,...]"
-./pho system accounts roles add-email -n test -d "This is a test role!"');
+CliDocumentation::setUsage('./pho accounts users add-roles NAME "ROLE[,ROLE,ROLE,...]"
+./pho system accounts users add-roles -n test -d "This is a test role!"');
 
-CliDocumentation::setHelp('This command allows you to add emails to the specified role
+CliDocumentation::setHelp('This command allows you to add roles to the specified user
 
 
 ARGUMENTS
 
 
-NAME                                    The identifier email of the user to which the emails should be added
+EMAIL                                   The identifier email of the user to which the roles should be added
 
-EMAIL[,EMAIL,EMAIL,...]                 The emails to add to the user');
+ROLE[,ROLE,ROLE,...]                    The roles linked with the role. Each user that gets this role assigned will 
+                                        also get these roles assigned');
 
 
 // Validate arguments
 $argv = ArgvValidator::new()
                      ->select('user', true)->isEmail()
-                     ->select('--emails', true)->isOptional()->sanitizeForceArray()->forEachField()->isEmail()
+                     ->select('roles', true)->isOptional(null)->sanitizeForceArray()->forEachField()->isName()
                      ->validate();
 
 
@@ -67,14 +68,23 @@ try {
         unset($role);
     }
 
-    // Get role and add emails
-    $user = User::getFromEmail($argv['user']);
-    $user->getEmails()->add($argv['roles']);
+    // Get user and add roles
+    $user  = User::new()->load($argv['user']);
+    $roles = $user->getRolesObject();
+
+    foreach ($argv['roles'] as $role) {
+        $roles->add(Role::new()->load($role));
+    }
+
+    if ($roles->save()) {
+        // Done!
+        Log::success(ts('Modified user ":user"', [':user' => $user->getDisplayName()]), 10);
+
+    } else {
+        // Done!
+        Log::warning(ts('User ":user" was not modified', [':user' => $user->getDisplayName()]), 10);
+    }
 
 } catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();
 }
-
-
-// Done!
-Log::success(ts('Modified user ":user"', [':user' => $user->getDisplayName()]));

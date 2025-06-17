@@ -301,6 +301,7 @@ class CliCommand
             $parameters = CliCommand::start();
 
         } catch (Throwable $e) {
+showdie($e);
             echo 'CLI startup failed with the following exception:' . PHP_EOL;
             throw $e;
         }
@@ -627,7 +628,7 @@ class CliCommand
         // As what user should we execute this? Build the sudo command to be executed
         $command = 'sudo -Esu ' . escapeshellarg($user) . ' ' . $command . ' ' . Strings::force($arguments, ' ');
 
-        if (!CliAutoComplete::isActive() and !QUIET) {
+        if (!CliAutoComplete::isActive() and VERBOSE) {
             if (VERBOSE) {
                 echo 'Re-executing ./pho command as user "' . $user . '" with command:' . $command . PHP_EOL;
 
@@ -1051,7 +1052,7 @@ class CliCommand
             // AutoComplete::getPosition() might become -1 if one were to <TAB> right at the end of the last command.
             // If this is the case, we actually have to expand the command, NOT yet the command parameters!
             if ((CliAutoComplete::getPosition() - count(CliCommand::$commands)) < 0) {
-                throw CliCommandNotExistsException::new(tr('The specified command file ":file" does exist but requires auto complete extension', [
+                throw CliCommandNotExistsException::new(tr('The specified command ":file" does exist but requires auto complete extension', [
                     ':file' => $command,
                 ]))
                 ->makeWarning()
@@ -1147,7 +1148,7 @@ class CliCommand
                 $previous = Arrays::replaceValuesWithCallbackReturn($previous, function ($key, $value) { return strip_extension($value); });
                 $previous = Arrays::removeMatchingValues($previous, '/^\./', flags: Utils::MATCH_REGEX);
 
-                throw CliCommandNotExistsException::new(tr('The specified command file ":file" does not exist', [
+                throw CliCommandNotExistsException::new(tr('The specified command ":file" does not exist', [
                     ':file' => $file,
                 ]))->makeWarning()
                    ->addData([
@@ -1213,7 +1214,7 @@ class CliCommand
 
         // We're stuck in a directory still, no command to execute.
         // Add the available files to display to help the user
-        throw CliCommandNotFoundException::new(tr('The specified command file ":file" was not found', [
+        throw CliCommandNotFoundException::new(tr('The specified command ":file" does not exist', [
             ':file' => Strings::from($file, DIRECTORY_COMMANDS)
         ]))
         ->makeWarning()
@@ -1707,12 +1708,12 @@ return 'under construction';
         // Hide all command line arguments
         ArgvValidator::hideData($argv);
 
-        // USe global $argv ONLY if CliCommand::PhoUidMatch() is true because if it isn't we're going to restart and
-        // we'll need the $argv as-is
+        // USe global $argv ONLY if CliCommand::PhoUidMatch() is true because if it isn't we're going to restart, and
+        // we will need the $argv as-is
         global $argv;
 
         // Validate system modifier arguments. Ensure that these variables get stored in the global $argv array because
-        // they may be used later down the line by (for example) Documenation class, for example!
+        // they may be used later down the line by (for example) the CliDocumentation class!
         try {
             $argv = ArgvValidator::new()
                                  ->select('-A,--all')->isOptional(false)->isBoolean()
@@ -1725,32 +1726,30 @@ return 'under construction';
                                  ->select('-I,--json-input', true)->isOptional()->hasMaxCharacters(8192)
                                  ->select('-J,--json-output')->isOptional()->isBoolean()
                                  ->select('-L,--log-level', true)->isOptional()->isInteger()->isBetween(1, 10)
-                                 ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
-                                 ->select('-P,--page', true)->isOptional(1)->isNatural(false)
-                                 ->select('-Q,--quiet')->isOptional(false)->isBoolean()
-                                 ->select('-R,--rebuild-commands')->isOptional(false)->isBoolean()
                                  ->select('-M,--timeout', true)->isOptional(false)->isInteger()
                                  ->select('-N,--no-audio')->isOptional(false)->isBoolean()
+                                 ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
+                                 ->select('-P,--page', true)->isOptional(1)->isNatural(false)
+                                 ->select('-Q,--verbose')->isOptional(false)->isBoolean()
+                                 ->select('-R,--rebuild-commands')->isOptional(false)->isBoolean()
                                  ->select('-S,--service', true)->isOptional()->hasMaxcharacters(2048)
                                  ->select('-T,--test')->isOptional(false)->isBoolean()
                                  ->select('-U,--usage')->isOptional(false)->isBoolean()
-                                 ->select('-V,--verbose')->isOptional(false)->isBoolean()
+                                 ->select('-V,--version')->isOptional(false)->isBoolean()
                                  ->select('-W,--no-warnings')->isOptional(false)->isBoolean()
                                  ->select('-X,--ignore-readonly')->isOptional(false)->isBoolean()
                                  ->select('-Y,--clear-tmp')->isOptional(false)->isBoolean()
                                  ->select('-Z,--clear-caches')->isOptional(false)->isBoolean()
-                                 ->select('--language', true)->isOptional()->isCode()
-                                 ->select('--deleted')->isOptional(false)->isBoolean()
-                                 ->select('--version')->isOptional(false)->isBoolean()
-                                 ->select('--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
-                                 ->select('--sudo')->isOptional(false)->isBoolean()
-                                 ->select('--very-quiet')->isOptional(false)->isBoolean()
-                                 ->select('--limit', true)->isOptional(0)->isNatural()
-                                 ->select('--timezone', true)->isOptional()->isString()
                                  ->select('--auto-complete', true)->isOptional()->hasMaxCharacters(1024)
-                                 ->select('--show-passwords')->isOptional(false)->isBoolean()
+                                 ->select('--deleted')->isOptional(false)->isBoolean()
+                                 ->select('--limit', true)->isOptional(0)->isNatural()
+                                 ->select('--locale', true)->isOptional()->hasCharacters(5)
                                  ->select('--no-validation')->isOptional(false)->isBoolean()
                                  ->select('--no-password-validation')->isOptional(false)->isBoolean()
+                                 ->select('--show-passwords')->isOptional(false)->isBoolean()
+                                 ->select('--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
+                                 ->select('--sudo')->isOptional(false)->isBoolean()
+                                 ->select('--timezone', true)->isOptional()->isString()
                                  ->validate(false);
 
         } catch (ValidationFailedException $e) {
@@ -1758,352 +1757,323 @@ return 'under construction';
             throw $e;
         }
 
-        Core::detectProject();
-
-// DEBUG CODE, uncomment these if manual $argv settings are required
-//        $argv = [
-//            'all'                    => false,
-//            'no_color'               => false,
-//            'debug'                  => false,
-//            'environment'            => null,
-//            'force'                  => false,
-//            'help'                   => false,
-//            'log_level'              => false,
-//            'order_by'               => false,
-//            'page'                   => 1,
-//            'quiet'                  => false,
-//            'very_quiet'             => false,
-//            'prefix'                 => false,
-//            'no_sound'               => false,
-//            'status'                 => false,
-//            'test'                   => false,
-//            'json_input'             => null,
-//            'json_output'            => null,
-//            'usage'                  => false,
-//            'verbose'                => false,
-//            'no_warnings'            => false,
-//            'language'               => false,
-//            'deleted'                => false,
-//            'version'                => false,
-//            'limit'                  => false,
-//            'timezone'               => null,
-//            'auto_complete'          => null,
-//            'show_passwords'         => false,
-//            'no_validation'          => false,
-//            'no_password_validation' => false
-//    ];
-
-        // Parse command line arguments in JSON format
-        if ($argv['json_input']) {
-            // We received arguments in JSON format
-            $argv = CliCommand::applyJsonArguments($argv);
-        }
-
-        // Initialize environment
-        if ($argv['environment']) {
-            // The Environment was manually specified on the command line
-            $environment = $argv['environment'];
-
-        } else {
-            // Get environment variable from the shell environment
-            $environment = getenv('PHOUNDATION_ENVIRONMENT_' . PROJECT);
-        }
-
-        if (empty($environment)) {
-            CliCommand::requireEnvironment((bool) $argv['auto_complete']);
-        }
-
-        // Set environment
-        Core::setEnvironment($environment);
-
-        // Set session configuration in case session data must be accessed
-        Session::initializePhpIni();
-
-        // Define basic platform constants
-        define('ADMIN'     , '');
-        define('PROTOCOL'  , config()->get('web.protocol', 'https://'));
-        define('PWD'       , Strings::slash(isset_get($_SERVER['PWD'])));
-        define('QUIET'     , ($argv['very_quiet'] or $argv['quiet']));
-        define('VERY_QUIET', $argv['very_quiet']);
-        define('VERBOSE'   , $argv['verbose']);
-        define('FORCE'     , $argv['force']);
-        define('NOCOLOR'   , $argv['no_color']);
-        define('TEST'      , $argv['test']);
-        define('DELETED'   , $argv['deleted']);
-        define('ALL'       , $argv['all']);
-        define('STATUS'    , $argv['status']);
-        define('PAGE'      , $argv['page']);
-        define('OUTPUT'    , $argv['json_output'] ? 'json' : 'normal');
-        define('NOAUDIO'   , $argv['no_audio'] or $argv['auto_complete']); // auto complete mode disables audio
-        define('LIMIT'     , get_null($argv['limit']) ?? config()->getNatural('paging.limit', 50));
-
-        // Set requested language
-        Core::writeRegister($argv['language'] ?? config()->getString('languages.default', 'en'), 'system', 'language');
-
-        if ($argv['auto_complete']) {
-            // We're in auto complete mode. Show only direct output, don't use any color, don't log to screen
-            Log::disableScreen();
-
-            $argv['no_color']      = true;
-            $argv['auto_complete'] = explode(' ', trim($argv['auto_complete']));
-
-            $location = array_shift($argv['auto_complete']);
-
-            if (!is_numeric_integer($location)) {
-                throw new CliAutoCompleteException(tr('Invalid location specified, must be an integer number'));
-            }
-
-            // Reset the $argv array to the auto complete data
-            ArgvValidator::hideData($argv['auto_complete']);
-            CliAutoComplete::setPosition($location - 1);
-            CliAutoComplete::initSystemArguments();
-        }
-
-        // Correct $_SERVER['PHP_SELF'], sometimes seems empty
-        if (empty($_SERVER['PHP_SELF'])) {
-            if (!isset($_SERVER['_'])) {
-                $e = new OutOfBoundsException('No $_SERVER[PHP_SELF] or $_SERVER[_] found');
-            }
-
-            $_SERVER['PHP_SELF'] = $_SERVER['_'];
-        }
-
-        // Set more system parameters
-        if ($argv['debug']) {
-            Debug::switch();
-        }
-
-        if ($argv['no_warnings']) {
-            define('NOWARNINGS', true);
-
-        } else {
-            define('NOWARNINGS', false);
-        }
-
-        if ($argv['show_passwords']) {
-            Cli::showPasswords(true);
-        }
-
-        if ($argv['no_validation']) {
-            Validator::disable();
-        }
-
-        if ($argv['no_password_validation']) {
-            Validator::disablePasswords();
-        }
-
-        // Set timeout
-        if ($argv['timeout']) {
-            // User set timeout
-            Core::setTimeout((int)$argv['timeout']);
-
-        } else {
-            // Use default timeout
-            Core::setTimeout();
-        }
-
-        if ($argv['log_level']) {
-            Log::setThreshold($argv['log_level']);
-        }
-
-        if ($argv['prefix']) {
-            Log::setEchoPrefix(true);
-        }
-
-        if (!CliCommand::phoUidMatch()) {
-            // The rest of the options will NOT be set because we'll try to restart soon!
-            return;
-        }
-
-        // Process command line system arguments if we have no exception so far
-        if ($argv['version']) {
-            Log::cli(ts('Phoundation framework version ":version"', [
-                ':version' => Core::PHOUNDATION_VERSION,
-            ]), 10);
-            Log::cli(ts('Phoundation database version ":version"', [
-                ':version' => Version::getString(Libraries::getMaximumVersion()),
-            ]), 10);
-            Log::cli(ts('Phoundation minimum PHP version ":version"', [
-                ':version' => Core::PHP_MINIMUM_VERSION,
-            ]), 10);
-
-            $exit = 0;
-        }
-
-        if ($argv['order_by']) {
-            define('ORDERBY', ' ORDER BY `' . Strings::until($argv['order_by'], ' ') . '` ' . Strings::from($argv['order_by'], ' ') . ' ');
-
-            $valid = preg_match('/^ ORDER BY `[a-z0-9_]+`(?:\s+(?:DESC|ASC))? $/', ORDERBY);
-
-            if (!$valid) {
-                // The specified column ordering is NOT valid
-                $e = new CoreException(tr('The specified orderby argument ":argument" is invalid', [':argument' => ORDERBY]));
-            }
-        }
-
-        // Something failed?
-        if (isset($e)) {
-            echo 'Command line parser failed with "' . $e->getMessage() . '"' . PHP_EOL;
-            CliCommand::setExitCode(1);
-            exit(1);
-        }
-
-        if (isset($exit)) {
-            Core::exit($exit);
-        }
-
-        // set terminal data
-        // TODO REWRITE TERMINAL SIZE DETECTION
-//        CliCommand::$register['cli'] = ['term' => Cli::getTerm()];
-//
-//        if (CliCommand::$register['cli']['term']) {
-//            CliCommand::$register['cli']['columns'] = Cli::getColumns();
-//            CliCommand::$register['cli']['lines']   = Cli::getLines();
-//
-//            if (!CliCommand::$register['cli']['columns']) {
-//                CliCommand::$register['cli']['size'] = 'unknown';
-//
-//            } elseif (CliCommand::$register['cli']['columns'] <= 80) {
-//                CliCommand::$register['cli']['size'] = 'small';
-//
-//            } elseif (CliCommand::$register['cli']['columns'] <= 160) {
-//                CliCommand::$register['cli']['size'] = 'medium';
-//
-//            } else {
-//                CliCommand::$register['cli']['size'] = 'large';
-//            }
-//        }
-
-        // Set security umask
-        umask(config()->get('filesystem.umask', 0007));
-
-        // Get required language.
         try {
-            $language = not_empty($argv['language'], config()->get('language.default', 'en'));
+            Core::detectProject();
 
-            if (config()->get('language.default', ['en']) and Config::exists('language.supported.' . $language)) {
-                throw new CoreException(tr('Unknown language ":language" specified', [':language' => $language]));
+            // DEBUG CODE, uncomment these if manual $argv settings are required
+            //        $argv = [
+            //            'all'                    => false,
+            //            'no_color'               => false,
+            //            'debug'                  => false,
+            //            'environment'            => null,
+            //            'force'                  => false,
+            //            'help'                   => false,
+            //            'log_level'              => false,
+            //            'order_by'               => false,
+            //            'page'                   => 1,
+            //            'quiet'                  => false,
+            //            'very_quiet'             => false,
+            //            'prefix'                 => false,
+            //            'no_sound'               => false,
+            //            'status'                 => false,
+            //            'test'                   => false,
+            //            'json_input'             => null,
+            //            'json_output'            => null,
+            //            'usage'                  => false,
+            //            'verbose'                => false,
+            //            'no_warnings'            => false,
+            //            'language'               => false,
+            //            'deleted'                => false,
+            //            'version'                => false,
+            //            'limit'                  => false,
+            //            'timezone'               => null,
+            //            'auto_complete'          => null,
+            //            'show_passwords'         => false,
+            //            'no_validation'          => false,
+            //            'no_password_validation' => false
+            //    ];
+
+            // Parse command line arguments in JSON format
+            if ($argv['json_input']) {
+                // We received arguments in JSON format
+                $argv = CliCommand::applyJsonArguments($argv);
             }
 
-            define('LANGUAGE', $language);
-            define('LOCALE'  , $language . (empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
+            // Initialize environment
+            if ($argv['environment']) {
+                // The Environment was manually specified on the command line
+                $environment = $argv['environment'];
 
-            $_SESSION['language'] = $language;
+            }
+            else {
+                // Get environment variable from the shell environment
+                $environment = getenv('PHOUNDATION_ENVIRONMENT_' . PROJECT);
+            }
+
+            if (empty($environment)) {
+                CliCommand::requireEnvironment((bool)$argv['auto_complete']);
+            }
+
+            // Set environment
+            Core::setEnvironment($environment);
+
+            // Set session configuration in case session data must be accessed
+            Session::initializePhpIni();
+
+            // Define basic platform constants
+            define('ADMIN', '');
+            define('ALL', $argv['all']);
+            define('DELETED', $argv['deleted']);
+            define('FORCE', $argv['force']);
+            define('LIMIT', get_null($argv['limit']) ?? config()->getNatural('paging.limit', 50));
+            define('NOAUDIO', $argv['no_audio'] or $argv['auto_complete']); // auto complete mode disables audio
+            define('NOCOLOR', $argv['no_color']);
+            define('NOWARNINGS', $argv['no_warnings']);
+            define('OUTPUT', $argv['json_output'] ? 'json' : 'normal');
+            define('PAGE', $argv['page']);
+            define('PROTOCOL', config()->get('web.protocol', 'https://'));
+            define('PWD', Strings::slash(isset_get($_SERVER['PWD'])));
+            define('STATUS', $argv['status']);
+            define('TEST', $argv['test']);
+            define('VERBOSE', $argv['verbose']);
+
+            // Set requested language
+            Core::writeRegister($argv['language'] ?? config()->getString('languages.default', 'en'), 'system', 'language');
+
+            if ($argv['auto_complete']) {
+                // We're in auto complete mode. Show only direct output, don't use any color, don't log to screen
+                Log::disableScreen();
+
+                $argv['no_color'] = true;
+                $argv['auto_complete'] = explode(' ', trim($argv['auto_complete']));
+
+                $location = array_shift($argv['auto_complete']);
+
+                if (!is_numeric_integer($location)) {
+                    throw new CliAutoCompleteException(tr('Invalid location specified, must be an integer number'));
+                }
+
+                // Reset the $argv array to the auto complete data
+                ArgvValidator::hideData($argv['auto_complete']);
+                CliAutoComplete::setPosition($location - 1);
+                CliAutoComplete::initSystemArguments();
+            }
+
+            // Correct $_SERVER['PHP_SELF'], sometimes seems empty
+            if (empty($_SERVER['PHP_SELF'])) {
+                if (!isset($_SERVER['_'])) {
+                    $e = new OutOfBoundsException('No $_SERVER[PHP_SELF] or $_SERVER[_] found');
+                }
+
+                $_SERVER['PHP_SELF'] = $_SERVER['_'];
+            }
+
+            // Set more system parameters
+            if ($argv['debug']) {
+                Debug::switch();
+            }
+
+            if ($argv['show_passwords']) {
+                Cli::showPasswords(true);
+            }
+
+            if ($argv['no_validation']) {
+                Validator::disable();
+            }
+
+            if ($argv['no_password_validation']) {
+                Validator::disablePasswords();
+            }
+
+            // Set timeout
+            if ($argv['timeout']) {
+                // User set timeout
+                Core::setTimeout((int)$argv['timeout']);
+
+            }
+            else {
+                // Use default timeout
+                Core::setTimeout();
+            }
+
+            if ($argv['log_level']) {
+                Log::setThreshold($argv['log_level']);
+            }
+
+            if ($argv['prefix']) {
+                Log::setEchoPrefix(true);
+            }
+
+            if (!CliCommand::phoUidMatch()) {
+                // The rest of the options will NOT be set because we'll try to restart soon!
+                return;
+            }
+
+            // Set security umask
+            umask(config()->get('filesystem.umask', 0007));
+
+            // Set required locale.
+            // Set language and locale
+            Core::setLanguage();
+            Core::setLocale($argv['locale'] ?? config()->getString('locale.default', 'en-ca'));
+
+            // Prepare for unicode usage
+            if (config()->get('languages.encoding.character-set', 'UTF-8') === 'UTF-8') {
+                // TODO Fix this godawful mess!
+                mb_init(not_empty(config()->get('locale.LC_CTYPE', ''), config()->get('locale.LC_ALL', '')));
+
+                if (function_exists('mb_internal_encoding')) {
+                    mb_internal_encoding('UTF-8');
+                }
+            }
+
+            Core::setTimeZone($argv['timezone']);
+
+            // Process command line system arguments if we have no exception so far
+            if ($argv['version']) {
+                Log::cli(Core::getProjectVersions(true));
+                Core::setScriptState();
+                $exit = 0;
+            }
+
+            if ($argv['order_by']) {
+                define('ORDERBY', ' ORDER BY `' . Strings::until($argv['order_by'], ' ') . '` ' . Strings::from($argv['order_by'], ' ') . ' ');
+
+                $valid = preg_match('/^ ORDER BY `[a-z0-9_]+`(?:\s+(?:DESC|ASC))? $/', ORDERBY);
+
+                if (!$valid) {
+                    // The specified column ordering is NOT valid
+                    $e = new CoreException(tr('The specified orderby argument ":argument" is invalid', [':argument' => ORDERBY]));
+                }
+            }
+
+            // Something failed?
+            if (isset($e)) {
+                echo 'Command line parser failed with "' . $e->getMessage() . '"' . PHP_EOL;
+                CliCommand::setExitCode(1);
+                exit(1);
+            }
+
+            if (isset($exit)) {
+                Core::exit($exit);
+            }
+
+            // set terminal data
+            // TODO REWRITE TERMINAL SIZE DETECTION
+            //        CliCommand::$register['cli'] = ['term' => Cli::getTerm()];
+            //
+            //        if (CliCommand::$register['cli']['term']) {
+            //            CliCommand::$register['cli']['columns'] = Cli::getColumns();
+            //            CliCommand::$register['cli']['lines']   = Cli::getLines();
+            //
+            //            if (!CliCommand::$register['cli']['columns']) {
+            //                CliCommand::$register['cli']['size'] = 'unknown';
+            //
+            //            } elseif (CliCommand::$register['cli']['columns'] <= 80) {
+            //                CliCommand::$register['cli']['size'] = 'small';
+            //
+            //            } elseif (CliCommand::$register['cli']['columns'] <= 160) {
+            //                CliCommand::$register['cli']['size'] = 'medium';
+            //
+            //            } else {
+            //                CliCommand::$register['cli']['size'] = 'large';
+            //            }
+            //        }
+
+            // Validate parameters and give some startup messages, if needed
+            if (Debug::isEnabled()) {
+                if (Debug::isEnabled()) {
+                    Log::warning(ts('Running in DEBUG mode, started @ ":datetime"', [
+                        ':datetime' => PhoDate::convert(STARTTIME, 'ISO8601'),
+                    ]),          8);
+
+                    // TODO Reimplement terminal size detection
+                    //                Log::notice(ts('Detected ":size" terminal with ":columns" columns and ":lines" lines', [
+                    //                    ':size'    => CliCommand::$register['cli']['size'],
+                    //                    ':columns' => CliCommand::$register['cli']['columns'],
+                    //                    ':lines'   => CliCommand::$register['cli']['lines'],
+                    //                ]));
+                }
+            }
+
+            if (FORCE) {
+                if (TEST) {
+                    throw new CoreException(tr('Both FORCE and TEST modes where specified, these modes are mutually exclusive'));
+                }
+
+                Log::warning(ts('Running in FORCE mode'));
+
+            }
+            elseif (TEST) {
+                Log::warning(ts('Running in TEST mode, various modifications may not be executed!'));
+            }
+
+            if (!is_natural(PAGE)) {
+                throw new CoreException(tr('Specified -P or --page ":page" is not a natural number', [
+                    ':page' => PAGE,
+                ]));
+            }
+
+            if (!is_natural(LIMIT)) {
+                throw new CoreException(tr('Specified --limit":limit" is not a natural number', [
+                    ':limit' => LIMIT,
+                ]));
+            }
+
+            if (ALL) {
+                if (PAGE > 1) {
+                    throw new CoreException(tr('Both -A or --all and -P or --page have been specified, these options are mutually exclusive'));
+                }
+
+                if (DELETED) {
+                    throw new CoreException(tr('Both -A or --all and -D or --deleted have been specified, these options are mutually exclusive'));
+                }
+
+                if (STATUS) {
+                    throw new CoreException(tr('Both -A or --all and -S or --status have been specified, these options are mutually exclusive'));
+                }
+            }
+
+            if ($argv['rebuild_commands']) {
+                // Rebuild only the "commands" cache
+                Core::enableInitState();
+                CliCommand::rebuildCache();
+                CliCommand::setRequireDefault(false);
+                Core::disableInitState();
+            }
+
+            if ($argv['clear_caches']) {
+                // Clear all caches
+                Core::enableInitState();
+                Cache::clearAll();
+                CliCommand::setRequireDefault(false);
+                Core::disableInitState();
+            }
+
+            if ($argv['clear_tmp']) {
+                // Clear all tmp data
+                Core::enableInitState();
+                Tmp::clear();
+                CliCommand::setRequireDefault(false);
+                Core::disableInitState();
+            }
+
+            Core::setIgnoreReadonly($argv['ignore_readonly']);
+
+            if ($argv['sudo']) {
+                // Try to execute the current command as root
+                CliCommand::restartAsRoot();
+            }
+
+            // Ensure any extra dashed arguments are "undashed"
+            ArgvValidator::unDoubleDash();
+
+            CliCommand::$service = $argv['service'];
 
         } catch (Throwable $e) {
-            // Language selection failed
-            if (!defined('LANGUAGE')) {
-                define('LANGUAGE', 'en');
-            }
-
-            $e = new CoreException('Language selection failed', $e);
+print_r($e);
+            throw new CliCommandException(ts('Failed to process system arguments'), $e);
         }
-
-        // Setup locale and character encoding
-        // TODO Check this mess!
-        ini_set('default_charset', config()->get('languages.encoding.character_set', 'UTF-8'));
-        Core::setLocale();
-
-        // Prepare for unicode usage
-        if (config()->get('languages.encoding.character-set', 'UTF-8') === 'UTF-8') {
-// TODO Fix this godawful mess!
-            mb_init(not_empty(config()->get('locale.LC_CTYPE', ''), config()->get('locale.LC_ALL', '')));
-
-            if (function_exists('mb_internal_encoding')) {
-                mb_internal_encoding('UTF-8');
-            }
-        }
-
-        Core::setTimeZone($argv['timezone']);
-
-        // Validate parameters and give some startup messages, if needed
-        if (Debug::isEnabled()) {
-            if (Debug::isEnabled()) {
-                Log::warning(ts('Running in DEBUG mode, started @ ":datetime"', [
-                    ':datetime' => PhoDate::convert(STARTTIME, 'ISO8601'),
-                ]), 8);
-
-// TODO Reimplement terminal size detection
-//                Log::notice(ts('Detected ":size" terminal with ":columns" columns and ":lines" lines', [
-//                    ':size'    => CliCommand::$register['cli']['size'],
-//                    ':columns' => CliCommand::$register['cli']['columns'],
-//                    ':lines'   => CliCommand::$register['cli']['lines'],
-//                ]));
-            }
-        }
-
-        if (FORCE) {
-            if (TEST) {
-                throw new CoreException(tr('Both FORCE and TEST modes where specified, these modes are mutually exclusive'));
-            }
-
-            Log::warning(ts('Running in FORCE mode'));
-
-        } elseif (TEST) {
-            Log::warning(ts('Running in TEST mode, various modifications may not be executed!'));
-        }
-
-        if (!is_natural(PAGE)) {
-            throw new CoreException(tr('Specified -P or --page ":page" is not a natural number', [
-                ':page' => PAGE,
-            ]));
-        }
-
-        if (!is_natural(LIMIT)) {
-            throw new CoreException(tr('Specified --limit":limit" is not a natural number', [
-                ':limit' => LIMIT,
-            ]));
-        }
-
-        if (ALL) {
-            if (PAGE > 1) {
-                throw new CoreException(tr('Both -A or --all and -P or --page have been specified, these options are mutually exclusive'));
-            }
-
-            if (DELETED) {
-                throw new CoreException(tr('Both -A or --all and -D or --deleted have been specified, these options are mutually exclusive'));
-            }
-
-            if (STATUS) {
-                throw new CoreException(tr('Both -A or --all and -S or --status have been specified, these options are mutually exclusive'));
-            }
-        }
-
-        if ($argv['rebuild_commands']) {
-            // Rebuild only the "commands" cache
-            Core::enableInitState();
-            CliCommand::rebuildCache();
-            CliCommand::setRequireDefault(false);
-            Core::disableInitState();
-        }
-
-        if ($argv['clear_caches']) {
-            // Clear all caches
-            Core::enableInitState();
-            Cache::clearAll();
-            CliCommand::setRequireDefault(false);
-            Core::disableInitState();
-        }
-
-        if ($argv['clear_tmp']) {
-            // Clear all tmp data
-            Core::enableInitState();
-            Tmp::clear();
-            CliCommand::setRequireDefault(false);
-            Core::disableInitState();
-        }
-
-        Core::setIgnoreReadonly($argv['ignore_readonly']);
-
-        if ($argv['sudo']) {
-            // Try to execute the current command as root
-            CliCommand::restartAsRoot();
-        }
-
-        // Ensure any extra dashed arguments are "undashed"
-        ArgvValidator::unDoubleDash();
-
-        CliCommand::$service = $argv['service'];
     }
 
 
@@ -2152,7 +2122,7 @@ return 'under construction';
 
 
     /**
-     * Returns the amount of time the current CLICommand has been running for
+     * Returns the number of time the current CLICommand has been running for
      *
      * @return float
      */
@@ -2269,7 +2239,7 @@ return 'under construction';
                                         restrictions. See --help for information on how specific commands deal with this
                                         flag
 
-[-G, --add-prefix]                      Will suppress the DATETIME - LOGLEVEL - PROCESS ID - GLOBAL PROCESS ID prefix
+[-G, --prefix]                          Will suppress the DATETIME - LOGLEVEL - PROCESS ID - GLOBAL PROCESS ID prefix
                                         that normally begins each log line output
 
 [-H, --help]                            If specified, will display the help page for the typed command
@@ -2285,6 +2255,11 @@ return 'under construction';
                                         Any message with a threshold level below the indicated amount will not appear in
                                         the logs. Defaults to 5.
 
+[-M, --timeout SECONDS]                 If specified will automatically timeout the command after the specified number  
+                                        of seconds      
+
+[-N, --no-audio]                        If specified will suppress all audio for this command 
+
 [-O, --order-by "COLUMN ASC|DESC"]      If specified, and used by the command (only commands that display tables) will
                                         order the table contents on the specified column in the specified direction.
                                         Defaults to nothing
@@ -2292,12 +2267,12 @@ return 'under construction';
 [-P, --page PAGE]                       If specified, and used by the command (only commands that display tables) will
                                         show the table on the specified page. Defaults to 1
 
-[-Q, --quiet]                           Will have the system run in quiet mode, suppressing log startup and shutdown
-                                        messages. NOTE: This will override DEBUG output; QUIET will suppress all debug
-                                        messages!
+[-Q, --verbose]                         Will print more output during log startup and shutdown
 
-[-S, --systemd COMMAND]                 If specified, will convert the specified command into a SystemD service and 
-                                        execute the specified systemctl command
+[-R, --rebuild-commands]                If specified will rebuild the cache for all CLI commands         
+
+[-S, --service COMMAND]                 If specified, will convert the specified command into a SystemD service and 
+                                        execute the specified systemd systemctl command
 
 [-T, --test]                            Will run the system in test mode. Different commands may change their behaviour
                                         depending on this flag, see their --help output for more information.
@@ -2307,38 +2282,43 @@ return 'under construction';
 
 [-U, --usage]                           Prints various command usage examples for the typed command
 
-[-V, --verbose]                         Will print more output during log startup and shutdown
-
+[-V, --version]                         Will display the current version for your Phoundation installation
+                                        
 [-W, --no-warnings]                     Will only use "error" type exceptions with backtrace and extra information,
                                         instead of displaying only the main exception message for warnings
 
-[-X, --ignore-readonly]                 Will make the core system ignore readonly modes, and continue writing to both 
-                                        disk and databases. Use with care!
+[--ignore-readonly]                     If specified will make the system ignore readonly mode that would normally 
+                                        prohibit it from writing to disk or database.
+                                        WARNING: When the system is in readonly mode, there usually is a good reason for 
+                                                 it (For example: The system is in the middle of an update or upgrade), 
+                                                 so use this option with care! Use this only when you know what you are 
+                                                 doing or when you are prepared to deal with the consequences! 
+
+
 
 [-Y, --clear-tmp]                       Will clear all temporary data in ROOT/data/tmp, and memcached
 
 [-Z, --clear-caches]                    Will clear all caches in ROOT/data/cache, and memcached
 
-[--system-language]                     Sets the system language for all output
-
 [--deleted]                             Will show deleted DataEntry records
-
-[--version]                             Will display the current version for your Phoundation installation
 
 [--limit NUMBER]                        Will limit table output to the number of specified fields
 
-[--timezone STRING]                     Sets the specified timezone for the command you are executing
-
-[--show-passwords]                      Will display passwords visibly on the command line. Both typed passwords and
-                                        data output will show passwords in the clear!
-
-[--no-validation]                       Will not validate any of the data input.
-
+[--no-validation]                       Will not validate any of the data input. 
                                         WARNING: This may result in invalid data in your database!
 
 [--no-password-validation]              Will not validate passwords.
                                         WARNING: This may result in weak and or compromised passwords in your database
                                         
+[--show-passwords]                      Will display passwords visibly on the command line. Both typed passwords and
+                                        data output will show passwords in the clear!
+
+[--status STRING]                       If specified the system will only display entries with the specified status
+
+[--sudo]                                If specified will make the system restart using "sudo" command
+
+[--timezone STRING]                     Sets the specified timezone for the command you are executing
+
 ', [':environment' => 'PHOUNDATION_' . PROJECT . '_ENVIRONMENT']);
     }
 }

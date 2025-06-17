@@ -72,4 +72,4 @@ $role->getRightsObject()->setRights($argv['rights']);
 
 
 // Done!
-Log::success(ts('Modified role ":role"', [':role' => $role->getName()]));
+Log::success(ts('Modified role ":role"', [':role' => $role->getName()]), 10);

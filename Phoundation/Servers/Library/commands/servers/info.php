@@ -43,10 +43,10 @@ try {
     // Display server data
     Server::get($argv['server'])->getCliForm();
 
-    Log::information('Roles assigned to this server:');
+    Log::information('Roles assigned to this server:', 10);
     Server::get($argv['server'])->roles()->displayCliTable();
 
-    Log::information('Roles assigned to this server through its roles:');
+    Log::information('Roles assigned to this server through its roles:', 10);
     Server::get($argv['server'])->rights()->displayCliTable();
 
 

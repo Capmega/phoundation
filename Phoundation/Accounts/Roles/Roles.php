@@ -40,25 +40,25 @@ class Roles extends DataIterator implements RolesInterface
     public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
     {
         $this->getQueryBuilderObject()->addSelect('`accounts_roles`.`id`, 
-                                             `accounts_roles`.`seo_name`, 
-                                             `accounts_roles`.`description`,
-                                             CONCAT(
-                                                UPPER(LEFT(`accounts_roles`.`name`, 1)), 
-                                                SUBSTRING(`accounts_roles`.`name`, 2)
-                                             ) AS `role`, 
-                                             GROUP_CONCAT(
-                                                CONCAT(UPPER(LEFT(`accounts_rights`.`name`, 1)), 
-                                                SUBSTRING(`accounts_rights`.`name`, 2)) 
-                                                ORDER BY `accounts_rights`.`name` ASC
-                                                SEPARATOR ", " 
-                                             ) AS `rights`')
-                                ->addJoin('JOIN `accounts_roles_rights`
-                                           ON   `accounts_roles_rights`.`roles_id` = `accounts_roles`.`id`')
-                                ->addJoin('JOIN `accounts_rights`
-                                           ON   `accounts_rights`.`id`             = `accounts_roles_rights`.`rights_id`')
-                                ->addWhere('`accounts_roles`.`status` IS NULL')
-                                ->addGroupBy('`accounts_roles`.`id`')
-                                ->addOrderBy('`accounts_roles`.`name`');
+                                                   `accounts_roles`.`seo_name`, 
+                                                   `accounts_roles`.`description`,
+                                                   CONCAT(
+                                                      UPPER(LEFT(`accounts_roles`.`name`, 1)), 
+                                                      SUBSTRING(`accounts_roles`.`name`, 2)
+                                                   ) AS `role`, 
+                                                   GROUP_CONCAT(
+                                                      CONCAT(UPPER(LEFT(`accounts_rights`.`name`, 1)), 
+                                                      SUBSTRING(`accounts_rights`.`name`, 2)) 
+                                                      ORDER BY `accounts_rights`.`name` ASC
+                                                      SEPARATOR ", " 
+                                                   ) AS `rights`')
+                                      ->addJoin('JOIN `accounts_roles_rights`
+                                                 ON   `accounts_roles_rights`.`roles_id` = `accounts_roles`.`id`')
+                                      ->addJoin('JOIN `accounts_rights`
+                                                 ON   `accounts_rights`.`id`             = `accounts_roles_rights`.`rights_id`')
+                                      ->addWhere('`accounts_roles`.`status` IS NULL')
+                                      ->addGroupBy('`accounts_roles`.`id`')
+                                      ->addOrderBy('`accounts_roles`.`name`');
 
         parent::__construct($source);
     }

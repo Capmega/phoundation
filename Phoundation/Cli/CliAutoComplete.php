@@ -138,8 +138,11 @@ class CliAutoComplete
             '-C,--no-color'            => false,
             '-D,--debug'               => false,
             '-E,--environment'         => true,
+            '-G,--prefix'              => false,
             '-F,--force'               => false,
             '-H,--help'                => false,
+            '-I,--json-input'          => false,
+            '-J,--json-output'         => false,
             '-L,--log-level'           => [
                 0,
                 1,
@@ -152,25 +155,27 @@ class CliAutoComplete
                 8,
                 9,
             ],
+            '-M,--timeout'             => true,
+            '-N,--no-audio'            => false,
             '-O,--order-by'            => true,
             '-P,--page'                => true,
-            '-Q,--quiet'               => false,
-            '-S,--status'              => true,
+            '-Q,--verbose'             => false,
+            '-R,--rebuild-commands'    => false,
+            '-S,--service'             => true,
             '-T,--test'                => false,
             '-U,--usage'               => false,
-            '-V,--verbose'             => false,
+            '-V,--version'             => false,
             '-W,--no-warnings'         => false,
-            '--system-language'        => [
-                'word'   => function ($word) {
-                    return Languages::new()->keepMatchingKeys($word);
-                },
-                'noword' => function ($word) {
-                    return Languages::new()->getSource();
-                },
-            ],
+            '-X,--ignore-readonly'     => false,
+            '-Y,--clear-tmp'           => false,
+            '-Z,--clear-caches'        => false,
             '--deleted'                => false,
-            '--version'                => false,
             '--limit'                  => true,
+            '--no-validation'          => false,
+            '--no-password-validation' => false,
+            '--show-passwords'         => false,
+            '--status'                 => true,
+            '--sudo'                   => false,
             '--timezone'               => [
                 'word'   => function ($word) {
                     return Timezones::new()->keepMatchingKeys($word);
@@ -179,9 +184,6 @@ class CliAutoComplete
                     return Timezones::new()->getSource();
                 },
             ],
-            '--show-passwords'         => false,
-            '--no-validation'          => false,
-            '--no-password-validation' => false,
         ];
     }
 

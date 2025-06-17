@@ -71,5 +71,5 @@ if ($files->getCount()) {
 } else {
     Log::warning(ts('Could not find command ":command"', [
         ':command' => $argv['command']
-    ]));
+    ]), 10);
 }

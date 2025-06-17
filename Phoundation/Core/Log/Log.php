@@ -202,30 +202,20 @@ class Log implements LogInterface
         try {
             // Determine log threshold
             if (!isset(static::$threshold)) {
-                if (defined('QUIET') and QUIET) {
-                    // Ssshhhhhhhh..
-                    $threshold = 9;
-
-                } elseif (defined('VERBOSE') and VERBOSE) {
-                    // BE LOUD!
-                    $threshold = 1;
+                if (Debug::isEnabled()) {
+                    // Debug shows a bit more
+                    $threshold = config()->getInteger('log.threshold', Core::errorState() ? 1 : 3);
 
                 } else {
-                    // Be... normal, I guess
-                    if (Debug::isEnabled()) {
-                        // Debug shows a bit more
-                        $threshold = config()->getInteger('log.threshold', Core::errorState() ? 1 : 3);
+                    $threshold = config()->getInteger('log.threshold', Core::errorState() ? 1 : 5);
+                }
 
-                    } else {
-                        $threshold = config()->getInteger('log.threshold', Core::errorState() ? 1 : 5);
-                    }
-
-                    if ($threshold === 1) {
-                        // Threshold is at lowest, this will log a LOT
-                        if (Core::isState('boot')) {
-                            // Boot time logging should not be too much
-                            $threshold = 5;
-                        }
+                if ($threshold === 1) {
+                    // Threshold is at lowest, this will log a LOT
+                    if (Core::isState('boot')) {
+                        // Boot time logging shouldn't be too much
+                        // TODO How will this be set back to 1 again? That should be commented at the very least
+                        $threshold = 5;
                     }
                 }
 
@@ -723,12 +713,6 @@ class Log implements LogInterface
      */
     public static function write(mixed $messages = null, ?string $class = null, int $threshold = 10, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
     {
-//        if (empty(static::$file)) {
-//            static::toAlternateLog('Log has not been opened yet');
-//            static::toAlternateLog($messages);
-//            return true;
-//        }
-
         if (!static::$enabled) {
             // Logging has been disabled, don't do anything
             return false;
@@ -866,8 +850,8 @@ class Log implements LogInterface
             }
 
             // Add coloring for easier reading
-            $messages    = CliColor::apply((string) $messages, $class);
-            $messages   .= ($echo_newline ? PHP_EOL : null);
+            $messages  = CliColor::apply((string) $messages, $class);
+            $messages .= ($echo_newline ? PHP_EOL : null);
 
             if (!static::$newline_done) {
                 $echo_prefix = false;
@@ -886,7 +870,7 @@ class Log implements LogInterface
             }
 
             // Write the log message to screen and file
-            static::writeMessage($prefix, $messages, $echo_prefix, $echo_screen);
+            static::writeMessage($prefix, $messages, $echo_prefix, $echo_screen, $threshold);
             static::$lock         = false;
             static::$newline_done = $echo_newline;
 
@@ -905,18 +889,22 @@ class Log implements LogInterface
      * @param string $message
      * @param bool   $echo_prefix
      * @param bool   $echo_screen
+     * @param int    $threshold
      *
      * @return void
      */
-    protected static function writeMessage(string $prefix, string $message, bool $echo_prefix, bool $echo_screen): void
+    protected static function writeMessage(string $prefix, string $message, bool $echo_prefix, bool $echo_screen, int $threshold): void
     {
         // Write the message to screen
         if ($echo_screen and (PHP_SAPI === 'cli') and static::getScreenEnabled()) {
-            if (static::$echo_prefix and $echo_prefix) {
-                echo $prefix, $message;
+            // Only show CLI messages on screen at threshold level in VERBOSE mode, or threshold 10
+            if (VERBOSE or (abs($threshold) === 10)) {
+                if (static::$echo_prefix and $echo_prefix) {
+                    echo $prefix, $message;
 
-            } else {
-                echo $message;
+                } else {
+                    echo $message;
+                }
             }
         }
 
@@ -946,7 +934,7 @@ class Log implements LogInterface
                 static::$instance = new static();
 
                 // Log class startup message
-                if (Debug::isEnabled()) {
+                if (Debug::isEnabled() and VERBOSE) {
                     static::information(tr('Logger started, threshold set to ":threshold"', [
                         ':threshold' => static::$threshold,
                     ]), 3);
@@ -954,7 +942,7 @@ class Log implements LogInterface
             }
 
         } catch (Throwable $e) {
-            // Crap, we could not get a Log instance
+            // Crap, we couldn't get a Log instance
             static::$failed = true;
         }
     }
@@ -974,7 +962,7 @@ class Log implements LogInterface
      */
     public static function information(mixed $messages = null, int $threshold = 7, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
     {
-        return static::write($messages, 'information', $threshold, $clean, $echo_newline, $echo_prefix, ($echo_screen and !VERY_QUIET));
+        return static::write($messages, 'information', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }
 
 
@@ -1838,7 +1826,7 @@ class Log implements LogInterface
      *
      * @see  Log::write()
      */
-    public static function dot(int|true $each = 10, string $color = 'green', string $dot = '.', bool $quiet = false): bool
+    public static function dot(int|true $each = 10, string $color = 'green', string $dot = '.', int $threshold = 10): bool
     {
         static $count = 0, $l_each = 0;
 
@@ -1846,15 +1834,10 @@ class Log implements LogInterface
             return false;
         }
 
-        if ($quiet and QUIET) {
-            // Don't show this in QUIET mode
-            return false;
-        }
-
         if (($each === 0) or ($each === true)) {
             if ($count) {
-                // Only show "Done" if we have shown any dot at all
-                Log::write(ts('Done'), $color, 10, false, true, false);
+                // Only show "Done" if we've shown any dot at all
+                Log::write(ts('Done'), $color, $threshold, false, true, false);
             }
 
             $l_each = 0;
@@ -1872,7 +1855,7 @@ class Log implements LogInterface
 
         if ($count >= $l_each) {
             $count = 0;
-            Log::write($dot, $color, 10, false, false, false);
+            Log::write($dot, $color, $threshold, false, false, false);
 
             return true;
         }

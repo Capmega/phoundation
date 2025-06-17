@@ -54,7 +54,7 @@ $argv = ArgvValidator::new()
 
 // Dump all keys
 try {
-    Log::printr(cache($argv['connector'])->getAllKeys(), echo_header: false);
+    Log::printr(cache($argv['connector'])->getAllKeys(), echo_header: false, 10);
 
 } catch (ConnectorNotExistsException $e) {
     throw $e->makeWarning();

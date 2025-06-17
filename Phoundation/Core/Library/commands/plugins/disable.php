@@ -60,7 +60,7 @@ if (ALL) {
     });
 
     // Done!
-    Log::success(ts('All plugins have been disabled'));
+    Log::success(ts('All plugins have been disabled'), 10);
 
 } else {
     // Get specified plugins
@@ -72,5 +72,5 @@ if (ALL) {
     // Done!
     Log::success(ts('Plugins ":plugins" have been disabled', [
         ':plugins' => Strings::force($argv['plugins'], ', '),
-    ]));
+    ]), 10);
 }

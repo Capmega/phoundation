@@ -85,30 +85,30 @@ $argv = ArgvValidator::new()
 
 Log::information(ts('Copying local changes in ":project" project back to your Phoundation installation', [
     ':project' => PROJECT,
-]));
+]), 10);
 
 try {
     if ($argv['no_phoundation']) {
-        Log::warning('Not patching Phoundation core libraries');
+        Log::warning('Not patching Phoundation core libraries', 10);
 
     } else {
-        Log::action('Patching Phoundation core libraries');
+        Log::action('Patching Phoundation core libraries', 10);
 
         if ($argv['no_update']) {
-            Log::warning('Not executing phoundation update');
+            Log::warning('Not executing phoundation update', 10);
         }
 
         Phoundation::new($argv['phoundation'])->patch($argv['branch'], $argv['message'], $argv['signed'], !$argv['no_checkout'], !$argv['no_update']);
     }
 
     if ($argv['no_plugins']) {
-        Log::warning('Not patching plugins');
+        Log::warning('Not patching plugins', 10);
 
     } else {
-        Log::action('Patching plugins');
+        Log::action('Patching plugins', 10);
 
         if ($argv['no_update']) {
-            Log::warning('Not executing plugins update');
+            Log::warning('Not executing plugins update', 10);
         }
 
         Plugins::new($argv['phoundation'])->patch($argv['branch'], $argv['message'], $argv['signed'], !$argv['no_checkout'], !$argv['no_update']);
@@ -118,10 +118,10 @@ try {
     $files = $e->getDataKey('files');
 
     if ($files) {
-        Log::warning(ts('Failed to merge the following files:'));
+        Log::warning(ts('Failed to merge the following files:'), 10);
 
         foreach (Arrays::force($files) as $file) {
-            Log::write($file, 'debug');
+            Log::write($file, 'debug', 10);
         }
     }
 

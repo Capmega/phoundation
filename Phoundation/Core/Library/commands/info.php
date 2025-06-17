@@ -18,6 +18,7 @@ use Phoundation\Cli\CliColor;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Core;
 use Phoundation\Core\Libraries\Libraries;
+use Phoundation\Core\Libraries\Version;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
@@ -68,28 +69,32 @@ $templates = Libraries::listLibraries(false, false, true);
 //$framework_status = version_compare(Core::FRAMEWORKCODEVERSION, Core::getVersion('framework'));
 //$project_status   = version_compare(config()->get('project.version')  , Core::getVersion('project'));
 
-Log::cli(CliColor::apply(Strings::size(tr('Framework:'), 28), 'white') . ' ' . 'PHOUNDATION');
-Log::cli(CliColor::apply(Strings::size(tr('Project name:'), 28), 'white') . ' ' . PROJECT);
-Log::cli(CliColor::apply(Strings::size(tr('Current platform:'), 28), 'white') . ' ' . PLATFORM);
-Log::cli(CliColor::apply(Strings::size(tr('Environment:'), 28), 'white') . ' ' . ENVIRONMENT);
-Log::cli(CliColor::apply(Strings::size(tr('Production:'), 28), 'white') . ' ' . Strings::fromBoolean(Core::isProductionEnvironment()));
-Log::cli(CliColor::apply(Strings::size(tr('Debug:'), 28), 'white') . ' ' . Strings::fromBoolean(Debug::isEnabled()));
-Log::cli(CliColor::apply(Strings::size(tr('Core database:'), 28), 'white') . ' ' . config()->get('databases.connectors.system.database', 'unknown') . ($no_db ? ' (' . CliColor::apply(tr('NOT CONNECTED BECAUSE ":reason"', [':reason' => $no_db]), 'red') . ')' : ''));
+Log::cli(CliColor::apply(Strings::size(tr('Framework name:'), 30), 'white') . ' ' . 'PHOUNDATION');
+Log::cli(CliColor::apply(Strings::size(tr('Framework version:'), 30), 'white') . ' ' . Core::PHOUNDATION_VERSION);
+Log::cli(CliColor::apply(Strings::size(tr('Database version:'), 30), 'white') . ' ' . Version::getString(Libraries::getMaximumVersion()));
+Log::cli(CliColor::apply(Strings::size(tr('Project name:'), 30), 'white') . ' ' . Core::getProjectName());
+Log::cli(CliColor::apply(Strings::size(tr('Project version:'), 30), 'white') . ' ' . Core::getProjectVersion());
+Log::cli(CliColor::apply(Strings::size(tr('PHP required minimum version:'), 30), 'white') . ' ' . Core::PHP_MINIMUM_VERSION);
+Log::cli(CliColor::apply(Strings::size(tr('Current platform:'), 30), 'white') . ' ' . PLATFORM);
+Log::cli(CliColor::apply(Strings::size(tr('Environment:'), 30), 'white') . ' ' . ENVIRONMENT);
+Log::cli(CliColor::apply(Strings::size(tr('Production:'), 30), 'white') . ' ' . Strings::fromBoolean(Core::isProductionEnvironment()));
+Log::cli(CliColor::apply(Strings::size(tr('Debug:'), 30), 'white') . ' ' . Strings::fromBoolean(Debug::isEnabled()));
+Log::cli(CliColor::apply(Strings::size(tr('Core database:'), 30), 'white') . ' ' . config()->get('databases.connectors.system.database', 'unknown') . ($no_db ? ' (' . CliColor::apply(tr('NOT CONNECTED BECAUSE ":reason"', [':reason' => $no_db]), 'red') . ')' : ''));
 
 Log::cli(' ');
-Log::cli(CliColor::apply(Strings::size(tr('System libraries:'), 28) . ' ' . Strings::size(tr('Code version'), 14) . Strings::size(tr('Database version'), 18) . Strings::size(tr('Size'), 14), 'white'));
+Log::cli(CliColor::apply(Strings::size(tr('System libraries:'), 30) . ' ' . Strings::size(tr('Code version'), 14) . Strings::size(tr('Database version'), 18) . Strings::size(tr('Size'), 14), 'white'));
 
 foreach ($system as $library) {
     $system_size += $library->getSize();
-    Log::cli(CliColor::apply(Strings::size($library->getName(), 28), 'white') . ' ' . Strings::size($library->getCodeVersion() ?? '-', 14) . Strings::size(($no_db ? '?' : $library->getDatabaseVersion() ?? '-'), 18) . Strings::size(Numbers::getHumanReadableBytes($library->getSize()) ?? '-', 14));
+    Log::cli(CliColor::apply(Strings::size($library->getName(), 30), 'white') . ' ' . Strings::size($library->getCodeVersion() ?? '-', 14) . Strings::size(($no_db ? '?' : $library->getDatabaseVersion() ?? '-'), 18) . Strings::size(Numbers::getHumanReadableBytes($library->getSize()) ?? '-', 14));
 }
 
 Log::cli(' ');
-Log::cli(CliColor::apply(Strings::size(tr('Plugin libraries:'), 28) . ' ' . Strings::size(tr('Code version'), 14) . Strings::size(tr('Database version'), 18) . Strings::size(tr('Size'), 14), 'white'));
+Log::cli(CliColor::apply(Strings::size(tr('Plugin libraries:'), 30) . ' ' . Strings::size(tr('Code version'), 14) . Strings::size(tr('Database version'), 18) . Strings::size(tr('Size'), 14), 'white'));
 
 foreach ($plugins as $library) {
     $plugins_size += $library->getSize();
-    Log::cli(CliColor::apply(Strings::size($library->getVendor() . '/' . $library->getName(), 28) . ' ' . Strings::size($library->getCodeVersion() ?? '-', 14) . Strings::size(($no_db ? '?' : $library->getDatabaseVersion() ?? '-'), 18) . Strings::size(Numbers::getHumanReadableBytes($library->getSize()) ?? '-', 14), 'white'));
+    Log::cli(CliColor::apply(Strings::size($library->getVendor() . '/' . $library->getName(), 30) . ' ' . Strings::size($library->getCodeVersion() ?? '-', 14) . Strings::size(($no_db ? '?' : $library->getDatabaseVersion() ?? '-'), 18) . Strings::size(Numbers::getHumanReadableBytes($library->getSize()) ?? '-', 14), 'white'));
 }
 
 Log::cli(' ');
@@ -97,20 +102,20 @@ Log::cli(CliColor::apply(Strings::size(tr('Template libraries:'), 61) . Strings:
 
 foreach ($templates as $library) {
     $templates_size += $library->getSize();
-    Log::cli(CliColor::apply(Strings::size($library->getName(), 28), 'white') . ' ' . Strings::size('-', 14) . Strings::size('-', 18) . Strings::size(Numbers::getHumanReadableBytes($library->getSize()) ?? '-', 14));
+    Log::cli(CliColor::apply(Strings::size($library->getName(), 30), 'white') . ' ' . Strings::size('-', 14) . Strings::size('-', 18) . Strings::size(Numbers::getHumanReadableBytes($library->getSize()) ?? '-', 14));
 }
 
 Log::cli(' ');
-Log::cli(CliColor::apply(Strings::size(tr('Statistics:'), 28), 'white'));
+Log::cli(CliColor::apply(Strings::size(tr('Statistics:'), 30), 'white'));
 
-Log::cli(CliColor::apply(Strings::size(tr('System libraries:'), 28), 'white') . ' ' . number_format(count($system)));
-Log::cli(CliColor::apply(Strings::size(tr('Plugin libraries:'), 28), 'white') . ' ' . number_format(count($plugins)));
-Log::cli(CliColor::apply(Strings::size(tr('Template libraries:'), 28), 'white') . ' ' . number_format(count($templates)));
-Log::cli(CliColor::apply(Strings::size(tr('Total libraries:'), 28), 'white') . ' ' . number_format(count($system) + count($plugins) + count($templates)));
+Log::cli(CliColor::apply(Strings::size(tr('System libraries:'), 30), 'white') . ' ' . number_format(count($system)));
+Log::cli(CliColor::apply(Strings::size(tr('Plugin libraries:'), 30), 'white') . ' ' . number_format(count($plugins)));
+Log::cli(CliColor::apply(Strings::size(tr('Template libraries:'), 30), 'white') . ' ' . number_format(count($templates)));
+Log::cli(CliColor::apply(Strings::size(tr('Total libraries:'), 30), 'white') . ' ' . number_format(count($system) + count($plugins) + count($templates)));
 Log::cli(' ');
-Log::cli(CliColor::apply(Strings::size(tr('Total library size:'), 28), 'white') . ' ' . Numbers::getHumanReadableBytes($system_size));
-Log::cli(CliColor::apply(Strings::size(tr('Plugins library size:'), 28), 'white') . ' ' . Numbers::getHumanReadableBytes($plugins_size));
-Log::cli(CliColor::apply(Strings::size(tr('Templates library size:'), 28), 'white') . ' ' . Numbers::getHumanReadableBytes($templates_size));
-Log::cli(CliColor::apply(Strings::size(tr('Total library size:'), 28), 'white') . ' ' . Numbers::getHumanReadableBytes($system_size + $plugins_size + $templates_size));
+Log::cli(CliColor::apply(Strings::size(tr('Total library size:'), 30), 'white') . ' ' . Numbers::getHumanReadableBytes($system_size));
+Log::cli(CliColor::apply(Strings::size(tr('Plugins library size:'), 30), 'white') . ' ' . Numbers::getHumanReadableBytes($plugins_size));
+Log::cli(CliColor::apply(Strings::size(tr('Templates library size:'), 30), 'white') . ' ' . Numbers::getHumanReadableBytes($templates_size));
+Log::cli(CliColor::apply(Strings::size(tr('Total library size:'), 30), 'white') . ' ' . Numbers::getHumanReadableBytes($system_size + $plugins_size + $templates_size));
 
 Log::cli();

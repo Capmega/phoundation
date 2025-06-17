@@ -39,5 +39,5 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Log::information('Checking your system. Please wait, this may take a few seconds...');
+Log::information('Checking your system. Please wait, this may take a few seconds...', 10);
 Project::check($argv['repair']);

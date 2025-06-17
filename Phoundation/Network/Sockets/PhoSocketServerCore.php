@@ -184,7 +184,7 @@ class PhoSocketServerCore implements PhoSocketServerInterface
     protected float $second_average = 0;
 
     /**
-     * Tracks the amount of seconds that this socket server has been listening
+     * Tracks the number of seconds that this socket server has been listening
      *
      * @var int $total_seconds
      */

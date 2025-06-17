@@ -31,8 +31,8 @@ $task = Task::new()->apply()->save();
 
 // Done!
 if ($task->isSaved()) {
-    Log::success(ts('Created new task ":task"', [':task' => $task->getLogId()]));
+    Log::success(ts('Created new task ":task"', [':task' => $task->getLogId()]), 10);
 
 } else {
-    Log::warning(ts('Did NOT creat new task'));
+    Log::warning(ts('Did NOT creat new task'), 10);
 }

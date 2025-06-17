@@ -1,9 +1,10 @@
 <?php
 
 /**
- * Command accounts roles add-right
+ * Command accounts roles rights add
  *
- * This command will create a new role with the specified properties
+ * This command will add the specified rights to the selected role, and update all users with said roles to now also
+ * have these rights
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -14,18 +15,30 @@
 
 declare(strict_types=1);
 
-use Phoundation\Accounts\Rights\Right;
+use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Roles\Role;
+use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
-CliDocumentation::setUsage('./pho accounts roles add-right NAME "RIGHT[,RIGHT,RIGHT,...]"
+CliDocumentation::setAutoComplete([
+    'positions' => [
+        0    => function ($word) { return Roles::new()->loadLike(['name' => $word]); },
+        null => function ($word) { return Rights::new()->loadLike(['name' => $word]); },
+    ],
+    'arguments' => [
+        '-a,--auto-create' => false
+    ]
+]);
+
+CliDocumentation::setUsage('./pho accounts roles rights add NAME "RIGHT[,RIGHT,RIGHT,...]"
 ./pho system accounts roles add-right -n test -d "This is a test role!"');
 
-CliDocumentation::setHelp('This command allows you to add rights to the specified role
+CliDocumentation::setHelp('This command will add the specified rights to the selected role, and update all users with 
+said roles to now also have these rights
 
 
 ARGUMENTS
@@ -52,8 +65,8 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
+// Check role exists, get a role, and add rights
 try {
-    // Check role exists, get a role, and add rights
     $role = Role::new()->load($argv['role']);
     $role->getRightsObject()->setAutoCreate($argv['auto_create'])->add($argv['rights']);
 
@@ -63,4 +76,4 @@ try {
 
 
 // Done!
-Log::success(ts('Modified role ":role"', [':role' => $role->getName()]));
+Log::success(ts('Modified role ":role"', [':role' => $role->getName()]), 10);

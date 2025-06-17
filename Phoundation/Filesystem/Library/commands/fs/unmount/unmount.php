@@ -51,12 +51,12 @@ try {
 } catch (NotMountedException) {
     Log::warning(ts('Cannot unmount ":path", it is not mounted', [
         ':path' => $argv['mount']
-    ]));
+    ]), 10);
 
 } catch (UnmountBusyException $e) {
     Log::warning(ts('Cannot unmount ":path", it is busy', [
         ':path' => $argv['mount']
-    ]));
+    ]), 10);
 
-    Log::printr($e->getDataKey('processes'));
+    Log::printr($e->getDataKey('processes'), 10);
 }

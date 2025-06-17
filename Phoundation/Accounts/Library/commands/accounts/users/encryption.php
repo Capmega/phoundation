@@ -39,5 +39,5 @@ $argv = ArgvValidator::new()->validate();
 
 // Display
 Core::setTimeout(60);
-Log::information(ts('Calculating best encryption cost, this may take a few seconds so be patient...'));
-Log::information(ts('Best encryption cost value is: " :value', [':value' => Password::findBestEncryptionCost()]));
+Log::information(ts('Calculating best encryption cost, this may take a few seconds so be patient...'), 10);
+Log::information(ts('Best encryption cost value is: " :value', [':value' => Password::findBestEncryptionCost()]), 10);

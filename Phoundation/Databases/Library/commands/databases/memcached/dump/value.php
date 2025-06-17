@@ -62,7 +62,7 @@ try {
     if ($value === false) {
         Log::warning(tr('The specified key ":key" does not exist', [
             ':key' => $argv['key']
-        ]));
+        ]), 10);
 
     } else {
         Log::printr(mc($argv['connector'])->get($argv['key']), echo_header: false);

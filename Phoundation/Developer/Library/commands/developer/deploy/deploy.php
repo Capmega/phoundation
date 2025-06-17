@@ -51,7 +51,7 @@ $argv = ArgvValidator::new()
 Log::information(ts('Deploying project ":project" to environment ":environment"', [
     ':project'     => PROJECT,
     ':environment' => $argv['target_environment'],
-]));
+]), 10);
 
 
 Project::deploy()

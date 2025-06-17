@@ -38,4 +38,4 @@ $argv = ArgvValidator::new()->validate();
 
 // Drop the core database
 sql()->drop();
-Log::warning(ts('WARNING: Dropped core database ":db"', [':db' => config()->get('databases.sql.instances.system.name')]));
+Log::warning(ts('WARNING: Dropped core database ":db"', [':db' => config()->get('databases.sql.instances.system.name')]), 10);

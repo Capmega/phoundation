@@ -922,7 +922,7 @@ class Sql implements SqlInterface
 
             Log::success(static::getConnectorLogPrefix() . ts('Connected to database with PDO connect string ":connect" in ":time"', [
                 ':connect' => $connect_string,
-                ':time'    => PhoTime::difference($start, microtime(true), 'auto', 5),
+                ':time'    => PhoTime::difference($start, microtime(true), 'auto', 4),
             ]), 4);
 
             Log::printr($this->configuration['attributes'], 2, echo_header: false);
@@ -2047,7 +2047,7 @@ class Sql implements SqlInterface
      */
     public static function logStatistics(): void
     {
-        if (Debug::isEnabled() and !QUIET) {
+        if (Debug::isEnabled() and VERBOSE) {
             Log::write(ts('STATISTIC SQL object executed ":count" queries in ":time" seconds', [
                 ':count' => Timers::getCount('sql'),
                 ':time'  => number_format(Timers::getTotal('sql'), 5),

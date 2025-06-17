@@ -79,11 +79,11 @@ if ($argv['no_password']) {
         throw new OutOfBoundsException(tr('--no-password option specified but received password through pipe'));
     }
 
-    Log::warning(ts('Setting password to empty due to "--no-password" flag'));
+    Log::warning(ts('Setting password to empty due to "--no-password" flag'), 10);
 
     // Update password to empty
     $user->clearPassword();
-    Log::success(ts('Successfully cleared password for user ":user"', [':user' => $user->getDisplayName()]));
+    Log::success(ts('Successfully cleared password for user ":user"', [':user' => $user->getDisplayName()]), 10);
 
 } else {
     // Read password from stdin stream?
@@ -105,7 +105,7 @@ if ($argv['no_password']) {
 
             if ($retries-- > 0) {
                 // Borked up, retry!
-                Log::warning(ts('Failed to set password, please try again'));
+                Log::warning(ts('Failed to set password, please try again'), 10);
                 continue;
             }
 
@@ -116,5 +116,5 @@ if ($argv['no_password']) {
 
     // Update password
     $user->changePassword($password, $password_validate);
-    Log::success(ts('Successfully set new password for user ":user"', [':user' => $user->getDisplayName()]));
+    Log::success(ts('Successfully set new password for user ":user"', [':user' => $user->getDisplayName()]), 10);
 }

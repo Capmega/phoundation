@@ -1386,6 +1386,52 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
 
 
     /**
+     * Load list from the database where the identifiers partially match
+     *
+     * @todo Add support for specifying which column should be the identifier column instead of only id_column or unique_column
+     *
+     * @param array|string|int|null $identifiers
+     * @param bool                  $only_if_empty Will only load if the current DataIterator source is empty
+     *
+     * @return static
+     */
+    public function loadLike(array|string|int|null $identifiers = null, bool $only_if_empty = true): static
+    {
+        $this->setIsLoading(true)
+             ->selectQuery($identifiers);
+
+        cache('dataentries')->get($this->getCacheKey('-like'), function ()  use ($identifiers, $only_if_empty) {
+            if (empty($this->source)) {
+                $this->source = sql($this->getConnectorObject())->setDebug($this->debug)
+                                                                ->listKeyValues($this->query, $this->execute, $this->keys_are_unique_column ? $this->getUniqueColumn() : $this->getIdColumn());
+
+                if (static::getConfigurationPath()) {
+                    $this->source = array_merge($this->source, $this->loadFromConfiguration());
+                }
+
+            } else {
+                if ($only_if_empty) {
+                    throw new DataIteratorNotCleanException(tr('Cannot load database data into DataIterator, source is not empty'));
+                }
+
+                $this->source = array_merge(
+                    $this->source,
+                    sql($this->getConnectorObject())->setDebug($this->debug)
+                                                    ->listKeyValues(
+                                                        $this->query,
+                                                        $this->execute,
+                                                        static::getUniqueColumn()));
+            }
+
+            $this->is_loaded  = true;
+            $this->is_loading = false;
+        });
+
+        return $this;
+    }
+
+
+    /**
      * Load configuration from the specified configuration path
      *
      * @return array

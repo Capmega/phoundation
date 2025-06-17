@@ -61,4 +61,4 @@ $provider = Provider::new()->apply(true, $argv)->save();
 
 
 // Done!
-Log::success(ts('Created new provider ":provider"', [':provider' => $provider->getName()]));
+Log::success(ts('Created new provider ":provider"', [':provider' => $provider->getName()]), 10);

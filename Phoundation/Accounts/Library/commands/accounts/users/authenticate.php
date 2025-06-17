@@ -51,4 +51,4 @@ try {
 
 
 // Done!
-Log::success(ts('User ":user" was authenticated successfully', [':user' => $user->getDisplayName()]));
+Log::success(ts('User ":user" was authenticated successfully', [':user' => $user->getDisplayName()]), 10);

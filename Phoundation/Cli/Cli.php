@@ -165,14 +165,12 @@ class Cli
                     }
 
                     // Display header?
-                    if (!VERY_QUIET) {
-                        foreach (Arrays::force($headers) as $column => $header) {
-                            $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
-                            Log::cli(CliColor::apply(Strings::size((string) $header, $column_sizes[$column]), 'blue') . Strings::size(' ', $column_spacing), 10, false, false);
-                        }
-
-                        Log::cli(' ');
+                    foreach (Arrays::force($headers) as $column => $header) {
+                        $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
+                        Log::cli(CliColor::apply(Strings::size((string) $header, $column_sizes[$column]), 'blue') . Strings::size(' ', $column_spacing), 10, false, false);
                     }
+
+                    Log::cli(' ');
 
                     // Display source
                     foreach ($source as $id => $row) {

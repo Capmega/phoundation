@@ -57,7 +57,7 @@ try {
 
     // Display extra email addresses
     Log::cli();
-    Log::information('Extra email addresses:', echo_prefix: false);
+    Log::information('Extra email addresses:', 10, echo_prefix: false);
 
     Log::cli();
     $user->getEmailsObject()->displayCliTable([
@@ -68,7 +68,7 @@ try {
 
     // Display extra phone numbers
     Log::cli();
-    Log::information('Extra phone numbers:', echo_prefix: false);
+    Log::information('Extra phone numbers:', 10, echo_prefix: false);
 
     Log::cli();
     $user->getPhonesObject()->displayCliTable([
@@ -86,6 +86,7 @@ try {
 
     // Display rights
     Log::cli();
+
     $user->getRightsObject()->displayCliTable([
         'right' => tr('Rights assigned to this user through its roles:'),
     ]);
@@ -93,5 +94,5 @@ try {
 } catch (DataEntryNotExistsException) {
     Log::warning(tr('Specified user ":user" does not exist', [
         ':user' => $argv['user']
-    ]));
+    ]), 10);
 }

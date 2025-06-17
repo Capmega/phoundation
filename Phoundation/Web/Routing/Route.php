@@ -286,21 +286,20 @@ class Route
 
             // Define basic platform constants
             define('ADMIN'     , '');
-            define('PROTOCOL'  , config()->get('web.protocol', 'https://'));
-            define('PWD'       , Strings::slash(isset_get($_SERVER['PWD'])));
-            define('PAGE'      , $_GET['page'] ?? 1);
-            define('QUIET'     , (get_null(getenv('QUIET')) or get_null(getenv('VERY_QUIET'))) ?? false);
             define('ALL'       , get_null(getenv('ALL'))        ?? false);
             define('DELETED'   , get_null(getenv('DELETED'))    ?? false);
             define('FORCE'     , get_null(getenv('FORCE'))      ?? false);
+            define('LIMIT'     , get_null(getenv('LIMIT'))      ?? config()->getNatural('paging.limit', 50));
+            define('NOAUDIO'   , get_null(getenv('NOAUDIO'))    ?? false);
+            define('NOWARNINGS', get_null(getenv('NOWARNINGS')) ?? false);
             define('ORDERBY'   , get_null(getenv('ORDERBY'))    ?? '');
+            define('OUTPUT'    , 'normal');
+            define('PAGE'      , $_GET['page'] ?? 1);
+            define('PROTOCOL'  , config()->get('web.protocol', 'https://'));
+            define('PWD'       , Strings::slash(isset_get($_SERVER['PWD'])));
             define('STATUS'    , get_null(getenv('STATUS'))     ?? '');
-            define('VERY_QUIET', get_null(getenv('VERY_QUIET')) ?? false);
             define('TEST'      , get_null(getenv('TEST'))       ?? false);
             define('VERBOSE'   , get_null(getenv('VERBOSE'))    ?? false);
-            define('NOAUDIO'   , get_null(getenv('NOAUDIO'))    ?? false);
-            define('LIMIT'     , get_null(getenv('LIMIT'))      ?? config()->getNatural('paging.limit', 50));
-            define('NOWARNINGS', get_null(getenv('NOWARNINGS')) ?? false);
 
             // Check HEAD and OPTIONS requests. If HEAD was requested, just return basic HTTP headers
 // :TODO: Should pages themselves not check for this and perhaps send other headers?
@@ -327,7 +326,7 @@ class Route
 
             // Check for configured maintenance mode
             if (config()->getBoolean('system.maintenance', false)) {
-                // We are in maintenance mode, have to show maintenance page.
+                // We're in maintenance mode, have to show maintenance page.
                 Request::executeSystem(503);
             }
 

@@ -1254,7 +1254,7 @@ class Url implements UrlInterface
          * Do language mapping, but only if routemap has been set
          */
         // :TODO: This will fail when using multiple CDN servers (WHY?)
-        if (!empty(config()->get('language.supported', [])) and ($this->url_params['domain'] !== $_CONFIG['cdn']['domain'] . '/')) {
+        if (!empty(config()->get('locale.language.supported', [])) and ($this->url_params['domain'] !== $_CONFIG['cdn']['domain'] . '/')) {
             if ($this->url_params['from_language'] !== 'en') {
                 /*
                  * Translate the current non-English URL to English first

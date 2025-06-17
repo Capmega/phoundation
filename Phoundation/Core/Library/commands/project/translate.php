@@ -56,7 +56,7 @@ if ($argv['clear']) {
         throw new OutOfBoundsException(tr('Cannot use --clear in conjunction with --all or -l / --languages'));
     }
 
-    Log::action(ts('Clearing all translated copies of this project'));
+    Log::action(ts('Clearing all translated copies of this project'), 10);
     Translations::new()->clean();
 
 } else {

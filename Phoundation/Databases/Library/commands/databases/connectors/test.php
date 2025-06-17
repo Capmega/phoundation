@@ -31,47 +31,47 @@ foreach (Connectors::new()->load() as $connector) {
                     ':connector' => $connector->getName(),
                     ':database'  => $connector->getDatabase(),
                     ':hostname'  => $connector->getHostname(),
-                ]));
+                ]), 10);
 
                 $connector->connect(true);
 
                 Log::success(ts('Successfully connected to ":type" database connector ":connector"', [
                     ':type'      => $connector->getType(),
                     ':connector' => $connector->getName(),
-                ]));
+                ]), 10);
                 break;
 
             default:
                 Log::warning(ts('Skipping ":type" type connector ":connector", it is not yet supported', [
                     ':type'      => $connector->getType(),
                     ':connector' => $connector->getDisplayName(),
-                ]));
+                ]), 10);
         }
 
     } catch (SqlAccessDeniedException $e) {
         Log::warning(ts('Failed to connect to ":type" database connector ":connector", access was denied', [
             ':type'      => $connector->getType(),
             ':connector' => $connector->getName(),
-        ]));
+        ]), 10);
 
     } catch (SqlUnknownDatabaseException $e) {
         Log::warning(ts('Failed to connect to ":type" database connector ":connector", the configured database ":database" does not exist', [
             ':type'      => $connector->getType(),
             ':connector' => $connector->getName(),
             ':database'  => $connector->getDatabase(),
-        ]));
+        ]), 10);
 
     } catch (SqlInvalidConfigurationException $e) {
         Log::warning(ts('Failed to connect to ":type" database connector ":connector", the connector has an invalid configuration', [
             ':type'      => $connector->getType(),
             ':connector' => $connector->getName(),
-        ]));
+        ]), 10);
 
     } catch (SqlConnectException $e) {
         Log::warning(ts('Failed to connect to ":type" database connector ":connector" because ":reason"', [
             ':type'      => $connector->getType(),
             ':connector' => $connector->getName(),
             ':reason'    => $e->getMessage(),
-        ]));
+        ]), 10);
     }
 }

@@ -97,7 +97,7 @@ $argv = ArgvValidator::new()
 
 Log::information(ts('Copying local changes in project ":project" back to your Phoundation repositories', [
     ':project' => PROJECT,
-]));
+]), 10);
 
 
 // First update Phoundation, if allowed
@@ -131,10 +131,10 @@ try {
     $files = $e->getDataKey('files');
 
     if ($files) {
-        Log::warning(ts('Failed to patch the following files:'));
+        Log::warning(ts('Failed to patch the following files:'), 10);
 
         foreach (Arrays::force($files) as $file) {
-            Log::write($file, 'debug');
+            Log::write($file, 'debug', 10);
         }
     }
 

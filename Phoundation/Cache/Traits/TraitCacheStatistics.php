@@ -104,7 +104,7 @@ trait TraitCacheStatistics
      */
     public static function logStatistics(): void
     {
-        if (Debug::isEnabled() and !QUIET) {
+        if (Debug::isEnabled() and VERBOSE) {
             Log::write(ts('STATISTIC ":class" object has ":count" cached object(s) with ":checks" checks, ":hits" hits, and ":percent" effectiveness', [
                 ':class'   => Strings::fromReverse(static::class, '\\'),
                 ':count'   => static::geSectionCount(),

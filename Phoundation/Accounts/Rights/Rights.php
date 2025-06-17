@@ -352,7 +352,10 @@ class Rights extends DataIterator implements RightsInterface
                 ]);
 
                 // Update all roles with this right to get the new right as well!
+show("Updating users");
                 foreach ($this->parent->getUsersObject() as $user) {
+showdie($user);
+
                     User::new()->load($user)
                         ->getRightsObject()
                         ->add($value);

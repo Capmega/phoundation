@@ -39,5 +39,5 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Log::information('Fixing your system. Please wait, this may take a few seconds...');
+Log::information('Fixing your system. Please wait, this may take a few seconds...', 10);
 Project::fixFileModes();

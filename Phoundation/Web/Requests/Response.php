@@ -1891,16 +1891,6 @@ class Response implements ResponseInterface
         header_remove('Expires');
         header_remove('Pragma');
 
-        /*
-         * Ensure that from this point on we have a language configuration available
-         *
-         * The startup systems already configures languages but if the startup itself fails, or if a show() or showdie()
-         * was issued before the startup finished, then this could leave the system without defined language
-         */
-        if (!defined('LANGUAGE')) {
-            define('LANGUAGE', config()->get('http.language.default', 'en'));
-        }
-
         // Create ETAG, possibly send out HTTP304 if the client sent matching ETAG
         static::cacheEtag();
 

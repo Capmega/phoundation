@@ -1271,22 +1271,27 @@ class Core implements CoreInterface
     public static function setLanguage(): void
     {
         try {
-            $supported = config()->get('language.supported', [
-                'en',
-                'es',
-            ]);
+            if (PLATFORM_WEB) {
+                $supported = config()->get('locale.language.supported', [
+                    'en',
+                    'es',
+                ]);
 
-            if ($supported) {
-                // Language is defined by the www/LANGUAGE dir that is used.
-                $url      = $_SERVER['REQUEST_URI'];
-                $url      = Strings::ensureStartsNotWith($url, '/');
-                $language = Strings::until($url, '/');
+                if ($supported) {
+                    // Language is defined by the www/LANGUAGE dir that is used.
+                    $url      = $_SERVER['REQUEST_URI'];
+                    $url      = Strings::ensureStartsNotWith($url, '/');
+                    $language = Strings::until($url, '/');
 
-                if (!in_array($language, $supported, true)) {
+                    if (!in_array($language, $supported, true)) {
+                        $language = config()->get('languages.default', 'en');
+                        Log::warning(ts('Detected language ":language" is not supported, falling back to default. See configuration path "language.supported"', [
+                            ':language' => $language,
+                        ]));
+                    }
+
+                } else {
                     $language = config()->get('languages.default', 'en');
-                    Log::warning(ts('Detected language ":language" is not supported, falling back to default. See configuration path "language.supported"', [
-                        ':language' => $language,
-                    ]));
                 }
 
             } else {
@@ -1294,12 +1299,13 @@ class Core implements CoreInterface
             }
 
             define('LANGUAGE', $language);
-            define('LOCALE', $language . (empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
+            define('LOCALE'  , $language . (empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
 
             // Ensure $_SESSION['language'] available
             if (empty($_SESSION['language'])) {
                 $_SESSION['language'] = LANGUAGE;
             }
+
         } catch (Throwable $e) {
             // Language selection failed
             if (!defined('LANGUAGE')) {
@@ -1314,11 +1320,37 @@ class Core implements CoreInterface
     /**
      * Apply the specified or configured locale
      *
+     * @param string|null $locale
+     *
      * @return void
-     * @todo what is this supposed to return anyway?
+     * @todo REWRITE THIS MESS!
+     * @todo MOVE THIS METHOD TO PHOLOCALE CLASS
      */
-    public static function setLocale(): void
+    public static function setLocale(?string $locale = null): void
     {
+        // Setup locale and character encoding
+        // TODO Check this mess!
+        try {
+            $language = not_empty($locale, config()->get('locale.language.default', 'en'));
+
+            if (config()->get('locale.language.default', ['en']) and config()->exists('locale.language.supported.' . $language)) {
+                throw new CoreException(tr('Unknown language ":language" specified', [':language' => $language]));
+            }
+
+            define('LANGUAGE', $language);
+            define('LOCALE'  , $language . (empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
+
+            $_SESSION['language'] = $language;
+
+        } catch (Throwable $e) {
+            // Language selection failed
+            if (!defined('LANGUAGE')) {
+                define('LANGUAGE', 'en');
+            }
+
+            $e = new CoreException('Language selection failed', $e);
+        }
+
         // Setup locale and character encoding
         // TODO Check this mess!
         ini_set('default_charset', config()->get('languages.encoding.character-set', 'UTF-8'));
@@ -1344,7 +1376,7 @@ class Core implements CoreInterface
             $language = LANGUAGE;
 
         } else {
-            $language = config()->get('language.default', 'en');
+            $language = config()->get('locale.language.default', 'en');
         }
 
         if (isset($_SESSION['location']['country']['code'])) {
@@ -1996,6 +2028,33 @@ class Core implements CoreInterface
         if (!$maintenance and !$readonly) {
             Log::success(ts('System was neither in maintenance or readonly mode'));
         }
+    }
+
+
+    /**
+     * Returns an array with project version information
+     *
+     * @param bool $string
+     *
+     * @return array|string
+     */
+    public static function getProjectVersions(bool $string = false): array|string
+    {
+        $return = [
+            'project name'                    => Core::getProjectName(),
+            'project version'                 => Core::getProjectVersion(),
+            'phoundation framework version'   => Core::PHOUNDATION_VERSION,
+            'phoundation database version'    => Version::getString(Libraries::getMaximumVersion()),
+            'phoundation minimum php version' => Core::PHP_MINIMUM_VERSION,
+        ];
+
+        if ($string) {
+            $return = Arrays::equalizeKeySizes($return);
+            $return = Arrays::capitalizeKeys($return);
+            $return = Arrays::implodeWithKeys($return, PHP_EOL, ': ');
+        }
+
+        return $return;
     }
 
 
@@ -3016,18 +3075,22 @@ class Core implements CoreInterface
         // Ensure that definitions exist
         $defines = [
             'ADMIN'      => '',
-            'PWD'        => Strings::slash(isset_get($_SERVER['PWD'])),
-            'FORCE'      => get_null(getenv('FORCE'))      ?? false,
-            'TEST'       => get_null(getenv('TEST'))       ?? false,
-            'QUIET'      => get_null(getenv('QUIET'))      ?? false,
-            'VERY_QUIET' => get_null(getenv('VERY_QUIET')) ?? false,
-            'LIMIT'      => get_null(getenv('LIMIT'))      ?? null,
-            'ORDERBY'    => get_null(getenv('ORDERBY'))    ?? null,
             'ALL'        => get_null(getenv('ALL'))        ?? false,
             'DELETED'    => get_null(getenv('DELETED'))    ?? false,
-            'STATUS'     => get_null(getenv('STATUS'))     ?? null,
-            'LOCALE'     => get_null(getenv('LOCALE'))     ?? 'en',
-            'LANGUAGE'   => get_null(getenv('LANGUAGE'))   ?? 'en-us'
+            'FORCE'      => get_null(getenv('FORCE'))      ?? false,
+            'LANGUAGE'   => get_null(getenv('LANGUAGE'))   ?? 'en',
+            'LIMIT'      => get_null(getenv('LIMIT'))      ?? null,
+            'LOCALE'     => get_null(getenv('LOCALE'))     ?? config()->getString('locale.default', 'en-ca'),
+            'NOWARNINGS' => get_null(getenv('NOWARNINGS')) ?? true,
+            'NOAUDIO'    => get_null(getenv('NOAUDIO'))    ?? false,
+            'ORDERBY'    => get_null(getenv('ORDERBY'))    ?? null,
+            'OUTPUT'     => 'normal',
+            'PAGE'       => 1,
+            'PROTOCOL'   => config()->get('web.protocol', 'https://'),
+            'PWD'        => Strings::slash(isset_get($_SERVER['PWD'])),
+            'STATUS'     => get_null(getenv('STATUS'))   ?? null,
+            'TEST'       => get_null(getenv('TEST'))     ?? false,
+            'VERBOSE'    => get_null(getenv('VERBOSE'))  ?? false,
         ];
 
         foreach ($defines as $key => $value) {
@@ -3078,7 +3141,7 @@ class Core implements CoreInterface
 
             } elseif ($e instanceof CliCommandNotFoundException) {
                 if ($data = $e->getData()) {
-                    Log::information('Available sub methods:', 9, echo_prefix: false);
+                    Log::information('Available sub-commands:', 9, echo_prefix: false);
                     foreach ($data['commands'] as $method) {
                         Log::notice($method, 10, echo_prefix: false);
                     }
