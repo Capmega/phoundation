@@ -69,24 +69,29 @@ class Utils
 
 
     /**
-     * If set, will filter NULL values
+     * If specified, will filter NULL values
      */
     const int FILTER_NULL = 1;
 
     /**
-     * If set, will filter all empty values
+     * If specified, will filter all empty values
      */
     const int FILTER_EMPTY = 2;
 
     /**
-     * If set, will quote all values
+     * If specified, will quote all values
      */
     const int QUOTE_ALWAYS = 4;
 
     /**
-     * If set, will only display key, not value
+     * If specified, will only display key, not value
      */
     const int HIDE_EMPTY_VALUES = 8;
+
+    /**
+     * If specified, will ensure all keys have the same size
+     */
+    const int EQUALIZE_KEY_SIZES = 16;
 
 
     /**

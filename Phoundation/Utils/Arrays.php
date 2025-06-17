@@ -602,11 +602,16 @@ class Arrays extends Utils
     public static function implodeWithKeys(IteratorInterface|array $source, string $row_separator, string $key_separator, ?string $quote_character = null, ?int $options = self::FILTER_NULL | self::QUOTE_ALWAYS): string
     {
         // Decode options
-        $return            = [];
-        $filter_null       = (bool) ($options & self::FILTER_NULL);
-        $filter_empty      = (bool) ($options & self::FILTER_EMPTY);
-        $quote_always      = (bool) ($options & self::QUOTE_ALWAYS);
-        $hide_empty_values = (bool) ($options & self::HIDE_EMPTY_VALUES);
+        $return             = [];
+        $filter_null        = (bool) ($options & self::FILTER_NULL);
+        $filter_empty       = (bool) ($options & self::FILTER_EMPTY);
+        $quote_always       = (bool) ($options & self::QUOTE_ALWAYS);
+        $hide_empty_values  = (bool) ($options & self::HIDE_EMPTY_VALUES);
+        $equalize_key_sizes = (bool) ($options & self::EQUALIZE_KEY_SIZES);
+
+        if ($equalize_key_sizes) {
+            Arrays::equalizeKeySizes($source);
+        }
 
         foreach ($source as $key => $value) {
             if (is_array($value)) {
@@ -4015,5 +4020,53 @@ class Arrays extends Utils
 
         unset($value);
         return $source;
+    }
+
+
+    /**
+     * Returns an array with all keys having the same size, being padded with the specified value.
+     *
+     * @param array  $source
+     * @param string $pad
+     * @param bool   $prefix
+     * @param int    $increase_size
+     *
+     * @return array
+     */
+    public static function equalizeKeySizes(array $source, string $pad = ' ', bool $prefix = false, int $increase_size = 0): array
+    {
+        $return = [];
+        $size   = Arrays::getLongestKeyLength($source) + $increase_size;
+
+        foreach ($source as $key => $value) {
+            $return[Strings::size($key, $size, $pad, $prefix)] = $value;
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns an array with all keys capitalized.
+     *
+     * @param array $source
+     * @param bool  $lowercase_rest
+     *
+     * @return array
+     */
+    public static function capitalizeKeys(array $source, bool $lowercase_rest = true): array
+    {
+        $return = [];
+
+        foreach ($source as $key => $value) {
+            if ($lowercase_rest) {
+                $return[strtoupper(substr($key, 0, 1)) . strtolower(substr($key, 1))] = $value;
+
+            } else {
+                $return[strtoupper(substr($key, 0, 1))] = $value;
+            }
+        }
+
+        return $return;
     }
 }
