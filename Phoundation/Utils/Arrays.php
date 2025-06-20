@@ -20,6 +20,7 @@ use Closure;
 use JetBrains\PhpStorm\ExpectedValues;
 use PDOStatement;
 use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Date\PhoTime;
@@ -1021,7 +1022,7 @@ class Arrays extends Utils
         $needles = Arrays::force($needles);
 
         foreach ($source as $key => $value) {
-            $value = static::getStringValue($value, $column);
+            $value = Strings::getStringValue($value, $column);
 
             if (in_array($value, $needles, $strict)) {
                 $return[$key] = $value;
@@ -1049,7 +1050,7 @@ class Arrays extends Utils
 
         foreach ($source as $key => $value) {
             if ($column) {
-                $test = static::getStringValue($value, $column);
+                $test = Strings::getStringValue($value, $column);
 
                 if (!in_array($test, $needles, $strict)) {
                     $return[$key] = $value;
@@ -4081,4 +4082,515 @@ class Arrays extends Utils
 
         return $return;
     }
+
+
+    /**
+     * Decodes and checks the match flags and returns array with all match options
+     *
+     * @param int  $options
+     * @param bool $allow_recurse
+     *
+     * Supported match flags are:
+     *
+     * Utils::MATCH_CASE_INSENSITIVE  Will match needles for entries in case-insensitive mode.
+     * Utils::MATCH_ALL               Will match needles for entries that contain all the specified needles.
+     * Utils::MATCH_ANY               Will match needles for entries that contain any of the specified needles.
+     * Utils::MATCH_STARTS_WITH       Will match needles for entries that start with the specified needles. Mutually
+     *                                exclusive with Utils::MATCH_ENDS_WITH, Utils::MATCH_CONTAINS,
+     *                                Utils::MATCH_FULL, and Utils::MATCH_REGEX.
+     * Utils::MATCH_ENDS_WITH         Will match needles for entries that end with the specified needles. Mutually
+     *                                exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_CONTAINS,
+     *                                Utils::MATCH_FULL, and Utils::MATCH_REGEX.
+     * Utils::MATCH_CONTAINS          Will match needles for entries that contain the specified needles anywhere.
+     *                                Mutually exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_ENDS_WITH,
+     *                                Utils::MATCH_FULL, and Utils::MATCH_REGEX.
+     * Utils::MATCH_RECURSE           Will recurse into arrays, if encountered.
+     * Utils::MATCH_NOT               Will match needles for entries that do NOT match the needle.
+     * Utils::MATCH_STRICT            Will match needles for entries that match the needle strict (so 0 does NOT match
+     *                                "0", "" does NOT match 0, etc.).
+     * Utils::MATCH_FULL              Will match needles for entries that fully match the needle. Mutually
+     *                                exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_ENDS_WITH,
+     *                                Utils::MATCH_CONTAINS, and Utils::MATCH_REGEX.
+     * Utils::MATCH_REGEX             Will match needles for entries that match the specified regular expression.
+     *                                Mutually exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_ENDS_WITH,
+     *                                Utils::MATCH_CONTAINS, and Utils::MATCH_FULL.
+     * Utils::MATCH_EMPTY             Will match empty values instead of ignoring them. NOTE: Empty values may be
+     *                                ignored while NULL values are still matched using the MATCH_NULL flag
+     * Utils::MATCH_NULL              Will match NULL values instead of ignoring them. NOTE: NULL values may be
+     *                                ignored while non-NULL empty values are still matched using the MATCH_EMPTY flag
+     * Utils::MATCH_REQUIRE           Requires at least one result
+     * Utils::MATCH_SINGLE            Will match only a single entry for the executed action (return, remove, etc.)
+     *
+     * @return array
+     */
+    protected static function decodeMatchFlags(int $options, bool $allow_recurse): array
+    {
+        // Decode options
+        $return             = [];
+        $return['no_case']  = (bool) ($options & Utils::MATCH_CASE_INSENSITIVE);
+        $return['all']      = (bool) ($options & Utils::MATCH_ALL);
+        $return['any']      = (bool) ($options & Utils::MATCH_ANY);
+        $return['require']  = (bool) ($options & Utils::MATCH_REQUIRE);
+        $return['start']    = (bool) ($options & Utils::MATCH_STARTS_WITH);
+        $return['end']      = (bool) ($options & Utils::MATCH_ENDS_WITH);
+        $return['contains'] = (bool) ($options & Utils::MATCH_CONTAINS);
+        $return['recurse']  = (bool) ($options & Utils::MATCH_RECURSE);
+        $return['not']      = (bool) ($options & Utils::MATCH_NOT);
+        $return['strict']   = (bool) ($options & Utils::MATCH_STRICT);
+        $return['full']     = (bool) ($options & Utils::MATCH_FULL);
+        $return['regex']    = (bool) ($options & Utils::MATCH_REGEX);
+        $return['empty']    = (bool) ($options & Utils::MATCH_EMPTY);
+        $return['null']     = (bool) ($options & Utils::MATCH_NULL);
+        $return['single']   = (bool) ($options & Utils::MATCH_SINGLE);
+        $return['trim']     = (bool) ($options & Utils::MATCH_TRIM);
+
+        // Validate options
+        if ($return['full']) {
+            $return['match_mode'] = 'full';
+
+            if ($return['start'] or $return['end'] or $return['contains'] or $return['regex']) {
+                $mutually = true;
+            }
+
+        } else {
+            if ($return['strict']) {
+                throw new OutOfBoundsException(tr('The MATCH_STRICT option can only be used with MATCH_FULL'));
+            }
+
+            if ($return['start']) {
+                $return['match_mode'] = 'start';
+
+                if ($return['end'] or $return['contains'] or $return['regex']) {
+                    $mutually = true;
+                }
+
+            } elseif ($return['end']) {
+                $return['match_mode'] = 'end';
+
+                if ($return['contains'] or $return['regex']) {
+                    $mutually = true;
+                }
+
+            } elseif ($return['contains']) {
+                $return['match_mode'] = 'contains';
+
+                if ($return['regex']) {
+                    $mutually = true;
+                }
+
+            } elseif ($return['regex']){
+                $return['match_mode'] = 'regex';
+
+            } else {
+                // Default to full matching
+                $return['full']       = true;
+                $return['match_mode'] = 'full';
+            }
+        }
+
+        if (isset($mutually)) {
+            throw new OutOfBoundsException(tr('Cannot mix location flags MATCH_STARTS_WITH, MATCH_ENDS_WITH, MATCH_CONTAINS, MATCH_FULL, or MATCH_REGEX, they are mutually exclusive'));
+        }
+
+        if ($return['all']) {
+            if ($return['any']) {
+                throw new OutOfBoundsException(tr('Cannot mix combination flags MATCH_ALL with MATCH_ANY, they are mutually exclusive'));
+            }
+
+        } elseif ($return['not']) {
+            if (!$return['any']) {
+                // MATCH_NOT defaults to MATCH_ALL
+                $return['all'] = true;
+            }
+
+        } else {
+            // Default to MATCH_ANY
+            $return['any'] = true;
+        }
+
+        if ($return['recurse'] and !$allow_recurse) {
+            throw new OutOfBoundsException(tr('Recursion matching not allowed'));
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Checks specified needles that they have content and will ensure they are specified as an array
+     *
+     * @param IteratorInterface|Stringable|array|string|int|null $needles
+     * @param array                                              $flags
+     *
+     * @return array
+     */
+    protected static function prepareNeedles(IteratorInterface|Stringable|array|string|int|null $needles, array $flags): array
+    {
+        if (really_empty($needles)) {
+            throw new OutOfBoundsException(tr('No needles specified'));
+        }
+
+        $needles = Arrays::force($needles);
+
+        if ($flags['no_case'] or $flags['trim']) {
+            // Trim and or make all needles lowercase strings?
+            foreach ($needles as &$needle) {
+                if ($flags['trim']) {
+                    $needle = trim((string) $needle);
+                }
+
+                if ($flags['no_case']) {
+                    $needle = strtolower((string) $needle);
+                }
+            }
+
+            unset($needle);
+        }
+
+        return $needles;
+    }
+
+
+    /**
+     * Process the given array and matches the specified needles with the source key and return the requested result
+     *
+     * @param int                                     $action
+     * @param DataIteratorInterface|array             $source
+     * @param DataIteratorInterface|array|string|null $needles
+     * @param int                                     $flags
+     *
+     * @return array
+     */
+    protected static function matchKeys(int $action, DataIteratorInterface|array $source, DataIteratorInterface|array|string|null $needles, int $flags): array
+    {
+        $flags   = static::decodeMatchFlags($flags, true);
+        $needles = static::prepareNeedles($needles, $flags);
+
+        if ($source instanceof DataIteratorInterface) {
+            $source = $source->getSource();
+        }
+
+        // Execute matching
+        return match ($flags['match_mode']) {
+            'full'     => static::matchKeysFunction($action, $source, $needles, $flags, function (mixed $key, mixed $needle, array $flags) {
+                return (($flags['strict'] and ($key === $needle)) or ($key == $needle));
+            }),
+
+            'regex'    => static::matchKeysFunction($action, $source, $needles, $flags, function (mixed $key, mixed $needle, array $flags) {
+                return preg_match($needle, $key);
+            }),
+
+            'contains' => static::matchKeysFunction($action, $source, $needles, $flags, function (mixed $key, mixed $needle, array $flags) {
+                return str_contains($key, $needle);
+            }),
+
+            'start'    => static::matchKeysFunction($action, $source, $needles, $flags, function (mixed $key, mixed $needle, array $flags) {
+                return str_starts_with($key, $needle);
+            }),
+
+            'end'      => static::matchKeysFunction($action, $source, $needles, $flags, function (mixed $key, mixed $needle, array $flags) {
+                return str_ends_with($key, $needle);
+            }),
+
+            default    => throw new OutOfBoundsException(tr('Unknown match mode ":mode" specified', [
+                ':mode' => $flags['match_mode']
+            ])),
+        };
+    }
+
+
+    /**
+     * Process the given array and matches the specified needles with the source values and return the requested result
+     *
+     * @param int                                                $action
+     * @param DataIteratorInterface|array                        $source
+     * @param IteratorInterface|Stringable|array|string|int|null $needles
+     * @param int                                                $flags
+     * @param string|null                                        $column
+     *
+     * @return array
+     */
+    protected static function matchValues(int $action, DataIteratorInterface|array $source, IteratorInterface|Stringable|array|string|int|null $needles, int $flags, ?string $column = null): array
+    {
+        $flags   = static::decodeMatchFlags($flags, true);
+        $needles = static::prepareNeedles($needles, $flags);
+
+        if ($source instanceof DataIteratorInterface) {
+            $source = $source->getSource();
+        }
+
+        // Execute matching
+        return match ($flags['match_mode']) {
+            'full'     => static::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
+                return (($flags['strict'] and ($value === $needle)) or ($value == $needle));
+            }),
+
+            'regex'    => static::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
+                return preg_match($needle, $value);
+            }),
+
+            'contains' => static::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
+                return str_contains($value, $needle);
+            }),
+
+            'start'    => static::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
+                return str_starts_with($value, $needle);
+            }),
+
+            'end'      => static::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
+                return str_ends_with($value, $needle);
+            }),
+
+            default    => throw new OutOfBoundsException(tr('Unknown match mode ":mode" specified', [
+                ':mode' => $flags['match_mode']
+            ])),
+        };
+    }
+
+
+    /**
+     * Cleans the specified value and returns true if the value should be used
+     *
+     * @param mixed $value
+     * @param array $flags
+     *
+     * @return bool
+     */
+    protected static function useCleanedHaystackValue(mixed &$value, array $flags): bool
+    {
+        if ($flags['trim']) {
+            $value = trim((string) $value);
+        }
+
+        if ($flags['no_case']) {
+            $value = strtolower((string) $value);
+        }
+
+        if (!$value) {
+            if (!$flags['empty']) {
+                if (($value !== null) or !$flags['null']) {
+                    // Ignore empty or null lines
+                    return false;
+                }
+
+            } elseif (($value === null) and !$flags['null']) {
+                // Ignore NULL lines
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Checks if there is a required match and throws an exception if not
+     *
+     * @param array $needles
+     * @param array $flags
+     * @param array $return
+     *
+     * @return array
+     */
+    protected static function checkMatch(array $needles, array $flags, array $return): array
+    {
+        if (empty($return) and $flags['require']) {
+            if ($flags['all']) {
+                throw new OutOfBoundsException(tr('The source contained no keys matching all of the required needles ":needles"', [
+                    ':needles' => $needles,
+                ]));
+            }
+
+            throw new OutOfBoundsException(tr('The source contained no keys matching any of the required needles ":needles"', [
+                ':needles' => $needles,
+            ]));
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Process the match
+     *
+     * @param bool  $matched
+     * @param int   $action
+     * @param array $return
+     * @param mixed $needle
+     * @param mixed $key
+     * @param mixed $value
+     * @param array $flags
+     *
+     * @return void
+     */
+    protected static function processMatch(bool $matched, int $action, array &$return, mixed &$needle, mixed &$key, mixed &$value, array $flags): void
+    {
+        if ($matched) {
+            switch ($action) {
+                case Utils::MATCH_ACTION_RETURN_VALUES:
+                    // no break
+
+                case Utils::MATCH_ACTION_RETURN_FULL_VALUES:
+                    $return[$key] = $value;
+                    break;
+
+                case Utils::MATCH_ACTION_RETURN_KEYS:
+                    $return[$key] = $key;
+                    break;
+
+                case Utils::MATCH_ACTION_RETURN_NEEDLES:
+                    $return[$key] = $needle;
+                    break;
+            }
+
+            return;
+        }
+
+        switch ($action) {
+            case Utils::MATCH_ACTION_RETURN_NOT_VALUES:
+                // no break
+
+            case Utils::MATCH_ACTION_RETURN_NOT_FULL_VALUES:
+                $return[$key] = $value;
+                break;
+
+            case Utils::MATCH_ACTION_RETURN_NOT_KEYS:
+                $return[$key] = $key;
+                break;
+
+            case Utils::MATCH_ACTION_RETURN_NOT_NEEDLES:
+                $return[$key] = $needle;
+                break;
+
+            case Utils::MATCH_ACTION_DELETE:
+                break;
+        }
+    }
+
+
+    /**
+     * Process the given array with the specified needles for full matching and return the requested result
+     *
+     * @param int      $action
+     * @param array    $source
+     * @param array    $needles
+     * @param array    $flags
+     * @param callable $function
+     *
+     * @return array
+     */
+    protected static function matchKeysFunction(int $action, array $source, array $needles, array $flags, callable $function): array
+    {
+        $return = [];
+
+        foreach ($source as $key => $value) {
+            $needles_match = false;
+
+            foreach ($needles as $needle) {
+                if (!static::useCleanedHaystackValue($key, $flags)) {
+                    continue;
+                }
+
+                $match = $function($key, $needle, $flags);
+
+                if ($flags['not']) {
+                    // Invert the match result
+                    $match = !$match;
+                }
+
+                if ($match) {
+                    // This needle matched, yay!
+                    $needles_match = true;
+
+                    if ($flags['any']) {
+                        // We're in "any" mode, and a single needle matched, so don't consider any other needles.
+                        break;
+                    }
+
+                    // Check the next needle
+                    continue;
+                }
+
+                // This needle didn't match
+
+                if ($flags['all']) {
+                    // We're in "all" mode, and a single needle failed, so don't consider any other needles.
+                    $needles_match = false;
+                    break;
+                }
+            }
+
+            static::processMatch($needles_match, $action, $return, $needle, $key, $value, $flags);
+        }
+
+        return static::checkMatch($needles, $flags, $return);
+    }
+
+
+    /**
+     * Process the given array with the specified needles for full matching and return the requested result
+     *
+     * @param int         $action
+     * @param array       $source
+     * @param array       $needles
+     * @param string|null $column
+     * @param array $flags
+     * @param callable    $function
+     *
+     * @return array
+     */
+    protected static function matchValuesFunction(int $action, array $source, array $needles, array $flags, ?string $column, callable $function): array
+    {
+        $return = [];
+
+        foreach ($source as $key => $value) {
+            $needles_match = false;
+
+            foreach ($needles as $needle) {
+                $string_value = Strings::getStringValue($value, $column);
+
+                if (!static::useCleanedHaystackValue($string_value, $flags)) {
+                    continue;
+                }
+
+                $match = $function($string_value, $needle, $flags);
+
+                if ($flags['not']) {
+                    // Invert the match result
+                    $match = !$match;
+                }
+
+                if ($match) {
+                    // This needle matched, yay!
+                    $needles_match = true;
+
+                    if ($flags['any']) {
+                        // We're in "any" mode, and a single needle matched, so don't consider any other needles.
+                        break;
+                    }
+
+                    // Check the next needle
+                    continue;
+                }
+
+                // This needle didn't match
+
+                if ($flags['all']) {
+                    // We're in "all" mode, and a single needle failed, so don't consider any other needles.
+                    $needles_match = false;
+                    break;
+                }
+            }
+
+            if ($action === static::MATCH_ACTION_RETURN_FULL_VALUES) {
+                static::processMatch($needles_match, $action, $return, $needle, $key, $value, $flags);
+
+            } else {
+                static::processMatch($needles_match, $action, $return, $needle, $key, $string_value, $flags);
+            }
+        }
+
+        return static::checkMatch($needles, $flags, $return);
+    }
 }
+

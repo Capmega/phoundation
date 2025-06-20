@@ -22,6 +22,7 @@ use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Interfaces\ArraySourceInterface;
+use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\IteratorBase;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
@@ -2832,5 +2833,57 @@ class Strings extends Utils
         }
 
         return $default;
+    }
+
+
+    /**
+     * Returns the source if it's a string, the key value if it's an array, or the object key value if it's a
+     * DataEntryInterface object
+     *
+     * @param mixed       $source
+     * @param string|null $key
+     *
+     * @return string|null
+     */
+    public static function getStringValue(mixed $source, ?string $key): ?string
+    {
+        if ($key) {
+            try {
+                if (is_array($source)) {
+                    return get_null((string)$source[$key]);
+                }
+
+                if ($source instanceof EntryInterface) {
+                    return get_null((string) $source->get($key));
+                }
+
+            } catch (Throwable $e) {
+                throw new OutOfBoundsException(tr('Specified column ":column" does not exist in the given value ":value"', [
+                    ':column' => $key,
+                    ':value'  => $source,
+                ]), $e);
+            }
+        }
+
+        if (is_string($source)) {
+            return get_null($source);
+        }
+
+        if (is_scalar($source)) {
+            return get_null(Strings::force($source));
+        }
+
+        if (is_array($source) or ($source instanceof EntryInterface)) {
+            throw OutOfBoundsException::new(tr('Cannot extract string value from specified source array or EntryInterface object, no column specified'))
+                                      ->addData([
+                                                    'source' => $source,
+                                                ]);
+        }
+
+        throw OutOfBoundsException::new(tr('Cannot extract string, specified source must be either scalar, or and array, or an ":class" type object with a column specified to extract a value from', [
+            ':class' => EntryInterface::class
+        ]))->addData([
+                         ':source' => $source,
+                     ]);
     }
 }
