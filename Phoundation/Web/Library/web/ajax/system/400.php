@@ -18,12 +18,9 @@ use Phoundation\Utils\Enums\EnumJsonResponse;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\FlashMessage;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Requests\JsonPage;
-use Phoundation\Web\Requests\Response;
 
 
-Response::setHttpCode(400);
-
-
+// Show a 400 - Bad request flash message on the desktop
 JsonPage::new()
         ->setResponse(EnumJsonResponse::error)
         ->addFlashMessageSections(FlashMessage::new()

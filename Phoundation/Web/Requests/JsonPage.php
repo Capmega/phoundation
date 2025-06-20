@@ -239,6 +239,19 @@ class JsonPage implements JsonPageInterface
     /**
      * Send a JSON message from an HTTP code
      *
+     * @param Throwable $e
+     *
+     * @return never
+     */
+    public function replyWithException(Throwable $e): never
+    {
+
+    }
+
+
+    /**
+     * Send a JSON message from an HTTP code
+     *
      * @param string|int|PhoException $code
      * @param mixed                   $data
      *
@@ -255,15 +268,13 @@ class JsonPage implements JsonPageInterface
             case 301:
                 $this->setResponse(EnumJsonResponse::redirect)
                      ->reply([
-                         'http_code' => 301,
-                         'location'  => $data
+                         'location' => $data
                      ]);
 
             case 302:
                 $this->setResponse(EnumJsonResponse::redirect)
                      ->reply([
-                         'http_code' => 301,
-                         'location'  => $data
+                         'location' => $data
                      ]);
 
             case 'signin':
@@ -271,14 +282,15 @@ class JsonPage implements JsonPageInterface
             case 'sign-in':
                 $this->setResponse(EnumJsonResponse::signin)
                      ->reply([
-                         'http_code' => 301,
-                         'location'  => Url::new('sign-in')->makeWww()
-                                           ->getSource()
+                         'location' => Url::new('sign-in')->makeWww()->getSource()
                      ]);
         }
 
+
         // Get valid HTTP code, as code here may also be code words
         $int_code = static::getHttpCode($code);
+
+        Response::setHttpCode($code);
 
         // Process HTTP code specific replies
         switch ($int_code) {
