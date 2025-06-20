@@ -1048,10 +1048,17 @@ class Arrays extends Utils
         $needles = Arrays::force($needles);
 
         foreach ($source as $key => $value) {
-            $test = static::getStringValue($value, $column);
+            if ($column) {
+                $test = static::getStringValue($value, $column);
 
-            if (!in_array($test, $needles, $strict)) {
-                $return[$key] = $value;
+                if (!in_array($test, $needles, $strict)) {
+                    $return[$key] = $value;
+                }
+
+            } else {
+                if (!in_array($value, $needles, $strict)) {
+                    $return[$key] = $value;
+                }
             }
         }
 

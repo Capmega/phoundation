@@ -616,48 +616,50 @@ class Utils
      * Returns the value if it's a scalar, the key value if it's an array, or the object value if it's a
      * DataEntryInterface object
      *
-     * @param mixed       $value
+     * @param mixed       $source
      * @param string|null $column
      *
      * @return string|null
      */
-    protected static function getStringValue(mixed $value, ?string $column): ?string
+    protected static function getStringValue(mixed $source, ?string $column): ?string
     {
         if ($column) {
             try {
-                if (is_array($value)) {
-                    return get_null((string) $value[$column]);
+                if (is_array($source)) {
+                    return get_null((string) $source[$column]);
                 }
 
-                if ($value instanceof EntryInterface) {
-                    return get_null((string) $value->get($column));
+                if ($source instanceof EntryInterface) {
+                    return get_null((string) $source->get($column));
                 }
 
             } catch (Throwable $e) {
                 throw new OutOfBoundsException(tr('Specified column ":column" does not exist in the given value ":value"', [
                     ':column' => $column,
-                    ':value'  => $value,
+                    ':value'  => $source,
                 ]), $e);
             }
         }
 
-        if (is_string($value)) {
-            return get_null($value);
+        if (is_string($source)) {
+            return get_null($source);
         }
 
-        if (is_scalar($value)) {
-            return get_null(Strings::force($value));
+        if (is_scalar($source)) {
+            return get_null(Strings::force($source));
         }
 
-        if (is_array($value) or ($value instanceof EntryInterface)) {
-            throw new OutOfBoundsException(tr('Cannot extract string value ":value" from array or EntryInterface object, no column specified', [
-                ':value' => $value,
-            ]));
+        if (is_array($source) or ($source instanceof EntryInterface)) {
+            throw OutOfBoundsException::new(tr('Cannot extract string value from specified source array or EntryInterface object, no column specified'))
+                                      ->addData([
+                                          'source' => $source,
+                                      ]);
         }
 
-        throw new OutOfBoundsException(tr('Specified value ":value" must be either scalar, array, or an ":class" type object', [
-            ':value' => $value,
+        throw OutOfBoundsException::new(tr('Cannot extract string, specified source must be either scalar, or and array, or an ":class" type object with a column specified to extract a value from', [
             ':class' => EntryInterface::class
-        ]));
+        ]))->addData([
+            ':source' => $source,
+        ]);
     }
 }
