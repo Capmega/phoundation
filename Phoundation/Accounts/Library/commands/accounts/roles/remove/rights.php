@@ -65,7 +65,7 @@ try {
 
     // Get the role and add rights
     $role = Role::new()->load($argv['role']);
-    $role->getRightsObject()->delete($argv['rights']);
+    $role->getRightsObject()->removeValues($argv['rights']);
 
 } catch (DataEntryNotExistsException $e) {
     throw $e->makeWarning();

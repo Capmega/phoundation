@@ -403,6 +403,20 @@ class Rights extends DataIterator implements RightsInterface
 
 
     /**
+     * Remove the specified data entry from the data list
+     *
+     * @param Stringable|array|string|int $keys
+     * @param bool                        $strict
+     *
+     * @return static
+     */
+    public function removeKeys(Stringable|array|string|int $keys, bool $strict = false): static
+    {
+        return $this->removeValues($keys, strict: $strict);
+    }
+
+
+    /**
      * Removes the specified Right from the parent's Rights list
      *
      * @param ArrayableInterface|int|Stringable|array|string|null $needles
@@ -423,64 +437,50 @@ class Rights extends DataIterator implements RightsInterface
         if (is_array($needles)) {
             // Add multiple rights
             foreach ($needles as $needle) {
-                $this->removeKeys($needle, $strict);
+                $this->removeValues($needle, $column, $strict);
             }
 
         } else {
             // Add single right. Since this is a Right object, the entry already exists in the database
-            $right = Right::new($needles);
+            $o_right = Right::new($needles);
 
             if ($this->o_parent instanceof UserInterface) {
                 Log::action(ts('Removing right ":right" from user ":user"', [
                     ':user'  => $this->o_parent->getLogId(),
-                    ':right' => $right->getLogId(),
+                    ':right' => $o_right->getLogId(),
                 ]), 3);
 
                 sql()->delete('accounts_users_rights', [
                     'users_id'  => $this->o_parent->getId(),
-                    'rights_id' => $right->getId(),
+                    'rights_id' => $o_right->getId(),
                 ]);
 
                 // Delete the right from the internal list
-                parent::removeKeys($right->getUniqueColumnValue(), strict: $strict);
+                parent::removeKeys($o_right->getUniqueColumnValue(), strict: $strict);
 
             } elseif ($this->o_parent instanceof RoleInterface) {
                 Log::action(ts('Removing right ":right" from role ":role"', [
                     ':role'  => $this->o_parent->getLogId(),
-                    ':right' => $right->getLogId(),
+                    ':right' => $o_right->getLogId(),
                 ]), 3);
 
                 sql()->delete('accounts_roles_rights', [
                     'roles_id'  => $this->o_parent->getId(),
-                    'rights_id' => $right->getId(),
+                    'rights_id' => $o_right->getId(),
                 ]);
 
                 // Update all users with this role to get the new right as well!
-                foreach ($this->o_parent->getUsersObject() as $user) {
-                    User::new($user)->getRightsObject()
-                                    ->removeKeys($right, $strict);
+                foreach ($this->o_parent->getUsersObject() as $o_user) {
+                    $o_user->getRightsObject()
+                           ->removeKeys($o_right, $strict);
                 }
 
                 // Delete the right from the internal list
-                parent::removeValues($right->getUniqueColumnValue(), strict: $strict);
+                parent::removeValues($o_right->getUniqueColumnValue(), strict: $strict);
             }
         }
 
         return $this;
-    }
-
-
-    /**
-     * Remove the specified data entry from the data list
-     *
-     * @param Stringable|array|string|int $keys
-     * @param bool                        $strict
-     *
-     * @return static
-     */
-    public function removeKeys(Stringable|array|string|int $keys, bool $strict = false): static
-    {
-        return $this->removeValues($keys, strict: $strict);
     }
 
 

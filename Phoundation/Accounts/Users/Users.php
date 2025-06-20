@@ -22,6 +22,7 @@ use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
 use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\Interfaces\UsersInterface;
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\DataEntries\Exception\DataEntryInvalidParentException;
@@ -242,50 +243,65 @@ class Users extends DataIterator implements UsersInterface
      */
     public function removeKeys(Stringable|array|string|int $keys, bool $strict = false): static
     {
+        return $this->removeValues($keys, strict: $strict);
+    }
+
+
+    /**
+     * Removes the specified User from the parent's Users list
+     *
+     * @param ArrayableInterface|int|Stringable|array|string|null $needles
+     * @param string|null                                         $column
+     * @param bool                                                $strict
+     *
+     * @return static
+     */
+    public function removeValues(ArrayableInterface|int|Stringable|array|string|null $needles, ?string $column = null, bool $strict = false): static
+    {
         $this->checkParent(tr('remove entry from parent'));
 
-        if (!$keys) {
+        if (!$needles) {
             // Nothing to do
             return $this;
         }
 
-        if (is_array($keys)) {
+        if (is_array($needles)) {
             // Add multiple rights
-            foreach ($keys as $key) {
-                $this->removeKeys($key, $strict);
+            foreach ($needles as $needle) {
+                $this->removeKeys($needle, $strict);
             }
 
         } else {
             // Add a single user. Since this is a User object, the entry already exists in the database
-            $user = User::new()->load($keys);
+            $o_user = User::new($needles);
 
             if ($this->o_parent instanceof RoleInterface) {
                 Log::action(ts('Removing user ":user" from role ":role"', [
                     ':role' => $this->o_parent->getLogId(),
-                    ':user' => $user->getLogId(),
+                    ':user' => $o_user->getLogId(),
                 ]), 3);
 
                 sql()->delete('accounts_users_rights', [
                     'roles_id' => $this->o_parent->getId(),
-                    'users_id' => $user->getId(),
+                    'users_id' => $o_user->getId(),
                 ]);
 
                 // Remove user from the internal list
-                parent::removeKeys($user->getUniqueColumnValue(), $strict);
+                parent::removeKeys($o_user->getUniqueColumnValue(), $strict);
 
             } elseif ($this->o_parent instanceof RightInterface) {
                 Log::action(ts('Removing user ":user" from right ":right"', [
                     ':right' => $this->o_parent->getLogId(),
-                    ':user'  => $user->getLogId(),
+                    ':user'  => $o_user->getLogId(),
                 ]), 3);
 
                 sql()->delete('accounts_users_rights', [
                     'rights_id' => $this->o_parent->getId(),
-                    'users_id'  => $user->getId(),
+                    'users_id'  => $o_user->getId(),
                 ]);
 
                 // Remove user from the internal list
-                parent::removeKeys($user->getUniqueColumnValue(), $strict);
+                parent::removeKeys($o_user->getUniqueColumnValue(), $strict);
             }
         }
 

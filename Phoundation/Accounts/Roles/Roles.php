@@ -23,6 +23,7 @@ use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\DataEntries\Exception\DataEntryInvalidParentException;
@@ -273,81 +274,95 @@ class Roles extends DataIterator implements RolesInterface
 
 
     /**
-     * Remove the specified role from the roles list
+     * Remove the specified data entry from the data list
      *
      * @param Stringable|array|string|int $keys
      * @param bool                        $strict
      *
      * @return static
-     * @todo Move saving part to ->save(). ->removeKeys() should NOT immediately save to database!
      */
     public function removeKeys(Stringable|array|string|int $keys, bool $strict = false): static
     {
+        return $this->removeValues($keys, strict: $strict);
+    }
+
+
+    /**
+     * Removes the specified Role from the parent's Roles list
+     *
+     * @param ArrayableInterface|int|Stringable|array|string|null $needles
+     * @param string|null                                         $column
+     * @param bool                                                $strict
+     *
+     * @return static
+     */
+    public function removeValues(ArrayableInterface|int|Stringable|array|string|null $needles, ?string $column = null, bool $strict = false): static
+    {
         $this->checkParent(tr('remove entry from parent'));
 
-        if (!$keys) {
+        if (!$needles) {
             // Nothing to do
             return $this;
         }
 
-        if (is_array($keys)) {
+        if (is_array($needles)) {
             // Add multiple rights
-            foreach ($keys as $key) {
-                $this->removeKeys($key, $strict);
+            foreach ($needles as $needle) {
+                $this->removeKeys($needle, $strict);
             }
 
         } else {
             // Delete a single role. Since this is a Role object, the entry already exists in the database
-            $role = Role::new()->load($keys);
+            $o_role = Role::new($needles);
 
             if ($this->o_parent instanceof UserInterface) {
                 Log::action(ts('Removing role ":role" from user ":user"', [
                     ':user' => $this->o_parent->getLogId(),
-                    ':role' => $role->getLogId(),
+                    ':role' => $o_role->getLogId(),
                 ]), 3);
 
                 sql()->delete('accounts_users_roles', [
                     'users_id' => $this->o_parent->getId(),
-                    'roles_id' => $role->getId(),
+                    'roles_id' => $o_role->getId(),
                 ]);
 
-                // Delete this role from the internal list
-                parent::removeKeys($role->getUniqueColumnValue(), $strict);
-
                 // Remove the rights related to this role
-                foreach ($role->getRightsObject() as $right) {
+                foreach ($o_role->getRightsObject() as $o_right) {
                     // Ensure this right isn't also given by another role
-                    foreach ($right->getRolesObject() as $check_role) {
+                    foreach ($o_right->getRolesObject() as $check_role) {
                         if ($this->hasRole($check_role)) {
                             // Don't remove this right, another role gives it too.
                             continue 2;
                         }
                     }
 
-                    $this->o_parent->getRightsObject()->removeKeys($right, $strict);
+                    $this->o_parent->getRightsObject()->removeKeys($o_right, $strict);
                 }
+
+                // Delete this role from the internal list
+                parent::removeKeys($o_role->getUniqueColumnValue(), $strict);
 
             } elseif ($this->o_parent instanceof RightInterface) {
                 Log::action(ts('Removing role ":role" from right ":right"', [
                     ':right' => $this->o_parent->getLogId(),
-                    ':role'  => $role->getLogId(),
+                    ':role'  => $o_role->getLogId(),
                 ]), 3);
 
                 sql()->delete('accounts_roles_rights', [
                     'rights_id' => $this->o_parent->getId(),
-                    'roles_id'  => $role->getId(),
+                    'roles_id'  => $o_role->getId(),
                 ]);
 
-                // Remove right from the internal list
-                parent::removeKeys($role->getUniqueColumnValue(), $strict);
-
                 // Update all users with this right to remove the new right as well!
-                foreach ($this->o_parent->getUsersObject() as $user) {
+                foreach ($this->o_parent->getUsersObject() as $o_user) {
                     User::new()
-                        ->load($user)
+                        ->load($o_user)
                         ->getRightsObject()
                         ->removeKeys($this->o_parent, $strict);
                 }
+
+                // Remove right from the internal list
+                parent::removeKeys($o_role->getUniqueColumnValue(), $strict);
             }
         }
 
