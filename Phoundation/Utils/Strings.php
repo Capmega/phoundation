@@ -196,7 +196,7 @@ class Strings extends Utils
     public static function isBase64(Stringable|string $source): bool
     {
         try {
-            static::fromBase64($source);
+            Strings::fromBase64($source);
 
             return true;
 
@@ -216,7 +216,7 @@ class Strings extends Utils
     public static function fromBase64(Stringable|string $source): string
     {
         $source = (string) $source;
-        $source = static::fixBase64($source);
+        $source = Strings::fixBase64($source);
 
         return base64_decode($source);
     }
@@ -262,7 +262,7 @@ class Strings extends Utils
     public static function isBase58(Stringable|string $source): bool
     {
         try {
-            static::fromBase58($source);
+            Strings::fromBase58($source);
 
             return true;
 
@@ -550,7 +550,7 @@ class Strings extends Utils
                 ]));
             }
 
-            if (static::searchKeyword($source, $keyword, $regex, $unicode)) {
+            if (Strings::searchKeyword($source, $keyword, $regex, $unicode)) {
                 return $keyword;
             }
         }
@@ -603,7 +603,7 @@ class Strings extends Utils
         $source = (string) $source;
 
         foreach ($keywords as $keyword) {
-            if (!static::searchKeyword($source, $keyword, $regex, $unicode)) {
+            if (!Strings::searchKeyword($source, $keyword, $regex, $unicode)) {
                 return false;
             }
         }
@@ -820,7 +820,7 @@ class Strings extends Utils
             } elseif (is_array($value)) {
                 if ($recurse) {
                     // Recurse
-                    $value = static::trimArray($value);
+                    $value = Strings::trimArray($value);
                 }
             }
         }
@@ -1015,7 +1015,7 @@ class Strings extends Utils
      */
     public static function cut(Stringable|string|int|null $source, Stringable|string|int $start, Stringable|string|int $stop, bool $needles_required = true, bool $case_insensitive = false): string
     {
-        return static::until(static::from($source, $start, needle_required: $needles_required, case_insensitive: $case_insensitive), $stop, needle_required: $needles_required, case_insensitive: $case_insensitive);
+        return Strings::until(Strings::from($source, $start, needle_required: $needles_required, case_insensitive: $case_insensitive), $stop, needle_required: $needles_required, case_insensitive: $case_insensitive);
     }
 
 
@@ -1318,7 +1318,7 @@ class Strings extends Utils
      *
      * @return string
      */
-    public static function ensureStartsWith(Stringable|string|null $source, Stringable|string $string): string
+    public static function ensureBeginsWith(Stringable|string|null $source, Stringable|string $string): string
     {
         $source = (string) $source;
         $string = (string) $string;
@@ -1343,7 +1343,7 @@ class Strings extends Utils
      *
      * @return string
      */
-    public static function ensureStartsNotWith(Stringable|string|null $source, Stringable|string $string): string
+    public static function ensureBeginsNotWith(Stringable|string|null $source, Stringable|string $string): string
     {
         $source = (string) $source;
         $string = (string) $string;
@@ -1369,7 +1369,7 @@ class Strings extends Utils
      */
     public static function slash(Stringable|string|null $string): string
     {
-        return static::ensureEndsWith((string) $string, '/');
+        return Strings::ensureEndsWith((string) $string, '/');
     }
 
 
@@ -1409,7 +1409,7 @@ class Strings extends Utils
      */
     public static function unslash(Stringable|string|null $string, bool $loop = true): string
     {
-        return static::ensureEndsNotWith((string) $string, '/', $loop);
+        return Strings::ensureEndsNotWith((string) $string, '/', $loop);
     }
 
 
@@ -1476,7 +1476,7 @@ class Strings extends Utils
      */
     public static function ensureSurroundedWith(Stringable|string|null $source, Stringable|string $string): string
     {
-        return static::ensureEndsWith(static::ensureStartsWith($source, $string), $string);
+        return Strings::ensureEndsWith(Strings::ensureBeginsWith($source, $string), $string);
     }
 
 
@@ -1491,7 +1491,7 @@ class Strings extends Utils
      */
     public static function ensureNotSurroundedWith(Stringable|string|null $source, Stringable|string $string, bool $loop = true): string
     {
-        return static::ensureEndsNotWith(static::ensureStartsNotWith($source, $string), $string, $loop);
+        return Strings::ensureEndsNotWith(Strings::ensureBeginsNotWith($source, $string), $string, $loop);
     }
 
 
@@ -1572,10 +1572,10 @@ class Strings extends Utils
         }
 
         if ($clean) {
-            return static::replaceDouble(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', str_replace('  ', ' ', str_replace("\n", ' ', static::truncate($source, $truncate, ' ... ', 'center')))), '\1', ' ');
+            return Strings::replaceDouble(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', str_replace('  ', ' ', str_replace("\n", ' ', Strings::truncate($source, $truncate, ' ... ', 'center')))), '\1', ' ');
         }
 
-        return static::truncate($source, $truncate, ' ... ', 'center');
+        return Strings::truncate($source, $truncate, ' ... ', 'center');
     }
 
 
@@ -1911,7 +1911,7 @@ class Strings extends Utils
     public static function isBoolean(Stringable|string|int|bool|null $source): bool
     {
         try {
-            static::toBoolean($source);
+            Strings::toBoolean($source);
             return true;
 
         } catch (OutOfBoundsException) {
@@ -2102,7 +2102,7 @@ class Strings extends Utils
                         ->setException($e)
                         ->send(true);
 
-            $data = static::getRandom(16);
+            $data = Strings::getRandom(16);
         }
 
         // Set version to 0100, set bits 6-7 to 10
@@ -2272,7 +2272,7 @@ class Strings extends Utils
         foreach ($source as $key => $value) {
             if (!is_string($value)) {
                 // Recurse
-                $value = static::getKeyValueTable($value, $eol, $separator, $indent + $indent_increase, $indent_increase);
+                $value = Strings::getKeyValueTable($value, $eol, $separator, $indent + $indent_increase, $indent_increase);
             }
 
             // Resize the call lines to all have the same size for easier reading
@@ -2344,7 +2344,7 @@ class Strings extends Utils
         $skip_symbols        = mb_str_split($skip_symbols, 1);
         $standard_delimiters = str_replace($skip_symbols, '', '\\()[]{}<>.?+*^$=!|:-');
 
-        return static::escape($string, $standard_delimiters . $delimiters);
+        return Strings::escape($string, $standard_delimiters . $delimiters);
     }
 
 
@@ -2445,7 +2445,7 @@ class Strings extends Utils
 
                 if (is_object($source)) {
                     if ($source instanceof IteratorBase) {
-                        return static::force($source->getSource(), $separator);
+                        return Strings::force($source->getSource(), $separator);
                     }
 
                     if ($source instanceof Stringable) {
@@ -2545,7 +2545,7 @@ class Strings extends Utils
      */
     public static function getMatchingNeedles(Stringable|string $haystack, array|string $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_RECURSE): Stringable|string|null
     {
-        if (static::matchValues(Utils::MATCH_ACTION_RETURN_NEEDLES, [$haystack], $needles, $flags)) {
+        if (Strings::matchValues(Utils::MATCH_ACTION_RETURN_NEEDLES, [$haystack], $needles, $flags)) {
             return $haystack;
         }
 
@@ -2595,7 +2595,7 @@ class Strings extends Utils
      */
     public static function getMatch(Stringable|string $haystack, array|string $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_CONTAINS): Stringable|string|null
     {
-        if (static::matchValues(Utils::MATCH_ACTION_RETURN_VALUES, [$haystack], $needles, $flags)) {
+        if (Strings::matchValues(Utils::MATCH_ACTION_RETURN_VALUES, [$haystack], $needles, $flags)) {
             return $haystack;
         }
 
@@ -2645,7 +2645,7 @@ class Strings extends Utils
      */
     public static function matches(Stringable|string $haystack, DataIteratorInterface|array|string|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_RECURSE): bool
     {
-        return (bool) static::matchValues(Utils::MATCH_ACTION_RETURN_VALUES, [$haystack], $needles, $flags);
+        return (bool) Strings::matchValues(Utils::MATCH_ACTION_RETURN_VALUES, [$haystack], $needles, $flags);
     }
 
 

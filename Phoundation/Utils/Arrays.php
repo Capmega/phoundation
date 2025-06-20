@@ -774,18 +774,23 @@ class Arrays extends Utils
     /**
      * Limit the specified array to the specified number of entries
      *
-     * @param array     $source
-     * @param int|false $count
-     * @param bool      $return_source
+     * @param IteratorInterface|array $source
+     * @param int|false               $count
+     * @param bool                    $return_source
      *
      * @return array
      * @todo This is cringy slow at large arrays (also at smaller ones, but eh...), find a more efficient way to do this
      */
-    public static function limit(array $source, int|false $count, bool $return_source = true): array
+    public static function limit(IteratorInterface|array $source, int|false $count, bool $return_source = true): array
     {
         if ($count === false) {
             // Don't filter anything
             return $source;
+        }
+
+        if ($source instanceof IteratorInterface) {
+            // Pull the source data out of the Iterator object
+            $source = $source->getSource();
         }
 
         if (!is_numeric($count) or ($count < 0)) {
