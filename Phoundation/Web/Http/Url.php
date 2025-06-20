@@ -32,7 +32,9 @@ use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Http\Exception\UrlConfiguredUrlNotFoundException;
+use Phoundation\Web\Http\Exception\UrlException;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
+use Phoundation\Web\Requests\Enums\EnumDomainAllowed;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Stringable;
@@ -1540,16 +1542,50 @@ class Url implements UrlInterface
     /**
      * Returns true if the current URL has the specified domain
      *
-     * @param string|null $domain
+     * @param EnumDomainAllowed|string|null $domain
      *
      * @return bool
      */
-    public function hasDomain(?string $domain = null): bool
+    public function hasDomain(EnumDomainAllowed|string|null $domain = null): bool
     {
         if ($domain === null) {
             return true;
         }
 
+        if ($domain instanceof EnumDomainAllowed) {
+            switch ($domain) {
+                case EnumDomainAllowed::any:
+                    break;
+
+                case EnumDomainAllowed::current:
+                    $domain = Url::newCurrentDomainRootUrl()->getDomain();
+                    break;
+
+                case EnumDomainAllowed::whitelist:
+                    throw UnderConstructionException::new();
+            }
+        }
+
         return $domain === parse_url($this->source, PHP_URL_HOST);
+    }
+
+
+    /**
+     * Returns static if the URL domain matches the specified domain. Throws an exception if URL does not match
+     *
+     * @param EnumDomainAllowed|string $domain
+     *
+     * @return static
+     */
+    public function checkDomain(EnumDomainAllowed|string $domain): static
+    {
+        if ($this->hasDomain($domain)) {
+            return $this;
+        }
+
+        throw UrlException::new(tr('The URL ":source" does not match the specified domain ":domain"', [
+            ':source' => $this->source,
+            ':domain' => $domain,
+        ]));
     }
 }

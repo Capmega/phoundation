@@ -64,7 +64,9 @@ use Phoundation\Web\Http\Exception\Http404Exception;
 use Phoundation\Web\Http\Exception\Http405Exception;
 use Phoundation\Web\Http\Exception\Http409Exception;
 use Phoundation\Web\Http\Exception\Http503Exception;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Requests\Enums\EnumDomainAllowed;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Exception\RequestTypeException;
 use Phoundation\Web\Requests\Exception\SystemPageNotFoundException;
@@ -614,29 +616,29 @@ class Request implements RequestInterface
     /**
      * Returns the request method for this page
      *
-     * @param bool $default If true, if no referer is available, the current page URL will be returned instead. If
-     *                      string, and no referer is available, the default string will be returned instead
+     * @param bool                     $default        If true, if no referer is available, the current page URL will be returned instead. If
+     *                                                 string, and no referer is available, the default string will be returned instead
      *
-     * @return string|null
+     * @param EnumDomainAllowed|string $allowed_domain The type of domain that is allowed to be redirected to
+     *
+     * @return UrlInterface|null
      */
-    public static function getReferer(string|bool $default = false): ?string
+    public static function getReferer(string|bool $default = false, EnumDomainAllowed|string $allowed_domain = EnumDomainAllowed::current): ?UrlInterface
     {
         $url = isset_get($_SERVER['HTTP_REFERER']);
 
         if ($url) {
-            return $url;
+            return Url::new($url)->checkDomain($allowed_domain);
         }
 
         if ($default) {
             if (is_bool($default)) {
                 // We don't have a referer, return the current URL instead
-                return Url::newCurrent()
-                          ->__toString();
+                return Url::newCurrent();
             }
 
             // Use the specified referrer
-            return Url::new($default)->makeWww()
-                      ->__toString();
+            return Url::new($default)->checkDomain($allowed_domain)->makeWww();
         }
 
         // We got nothing...
@@ -1573,9 +1575,6 @@ class Request implements RequestInterface
 
             switch (static::getRequestType()) {
                 case EnumRequestTypes::html:
-                    // Does the user have a default page configured? If so, ensure we're going there
-                    static::redirectToDefaultPage();
-
                     if (!static::getSystem()) {
                         // Check if the user has access to the requested page, then check if the user should be force redirected
                         static::hasRightsOrRedirect(static::$o_parameters->getRequiredRights((string) static::$o_target));
