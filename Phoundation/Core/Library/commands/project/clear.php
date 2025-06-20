@@ -81,4 +81,4 @@ if ($argv['date']) {
 
 
 // Done!
-Log::success('Cleared temporary and cache files');
+Log::success('Cleared temporary and cache files', 10);

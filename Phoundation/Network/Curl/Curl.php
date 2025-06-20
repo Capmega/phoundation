@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Network\Curl;
 
 use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataUrl;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\OutOfBoundsException;
@@ -281,7 +282,9 @@ abstract class Curl implements CurlInterface
         $this->retry = 0;
 
         // Setup new cURL request
-        $this->setLogDirectory(DIRECTORY_DATA . 'log/curl/');
+        $this->setLogDirectory(DIRECTORY_DATA . 'log/curl/')
+             ->setVerbose();
+
         $this->curl = curl_init();
     }
 
@@ -408,10 +411,9 @@ abstract class Curl implements CurlInterface
      *
      * @return static
      */
-    public function setVerbose(bool $verbose): static
+    public function setVerbose(?bool $verbose = null): static
     {
-        $this->verbose = $verbose;
-
+        $this->verbose = $verbose ?? Log::getVerbose();
         return $this;
     }
 

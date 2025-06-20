@@ -20,7 +20,7 @@ use Phoundation\Servers\Servers;
 
 
 CliDocumentation::setUsage('./pho servers list [OPTIONS]
-./pho system servers list -D');
+./pho servers list -D');
 
 CliDocumentation::setHelp('This command will list the configured servers on this system
 

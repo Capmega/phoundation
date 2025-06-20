@@ -77,11 +77,11 @@ class CliRunFile extends PhoFileCore implements CliRunFileInterface
     public function __construct(string $command)
     {
         $this->setAutoMount(false)
-             ->restrictions = PhoRestrictions::new(DIRECTORY_SYSTEM . 'run/', true);
+             ->o_restrictions = PhoRestrictions::new(DIRECTORY_SYSTEM . 'run/', true);
 
         static::$directory = PhoDirectory::new(
             DIRECTORY_SYSTEM . 'run/',
-            $this->restrictions
+            $this->o_restrictions
         )->setAutoMount(false);
 
         $this->setCommand(Strings::from($command, DIRECTORY_COMMANDS))
@@ -218,9 +218,9 @@ showdie($cmd);
 
                         if ($cmd !== $command) {
                             // The PID exists, but its a different command. Remove the runfile and all PID files
-                            PhoFile::new($runfile, static::$directory->getRestrictions())
+                            PhoFile::new($runfile, static::$directory->getRestrictionsObject())
                                   ->delete(DIRECTORY_SYSTEM . 'run/');
-                            PhoFile::new(static::$directory . 'pids/' . $pid, static::$directory->getRestrictions())
+                            PhoFile::new(static::$directory . 'pids/' . $pid, static::$directory->getRestrictionsObject())
                                   ->delete(DIRECTORY_SYSTEM . 'run/pids/');
                         }
                    });
@@ -254,7 +254,7 @@ showdie($cmd);
             ':pid' => $pid,
         ]));
 
-        PhoFile::new($file, static::$directory->getRestrictions())->delete(DIRECTORY_SYSTEM . 'run/');
+        PhoFile::new($file, static::$directory->getRestrictionsObject())->delete(DIRECTORY_SYSTEM . 'run/');
 
         return false;
     }

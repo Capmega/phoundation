@@ -37,4 +37,4 @@ $argv = ArgvValidator::new()->validate();
 
 // Generate default yaml configuration file
 $count = Config::generateDefaultYaml();
-Log::success(ts('Created config/default.yaml with ":count" configuration paths', [':count' => $count]));
+Log::success(ts('Created config/default.yaml with ":count" configuration paths', [':count' => $count]), 10);

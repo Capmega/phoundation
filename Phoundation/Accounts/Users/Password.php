@@ -294,10 +294,7 @@ class Password extends DataEntry implements PasswordInterface
         // Strength is a number 1 - 100;
         $strength = (int) floor(($strength > 99) ? 99 : floor(($strength < 0) ? 0 : $strength));
 
-        if (VERBOSE) {
-            Log::notice(ts('Password strength is ":strength"', [':strength' => $strength]));
-        }
-
+        Log::notice(ts('Password strength is ":strength"', [':strength' => $strength]));
         return $strength;
     }
 

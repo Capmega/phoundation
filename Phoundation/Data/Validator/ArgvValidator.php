@@ -71,6 +71,13 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      */
     protected bool $test = false;
 
+    /**
+     * Tracks if ArgvValidator::selectAll() has been used
+     *
+     * @var bool $select_all
+     */
+    protected static bool $select_all = false;
+
 
     /**
      * Validator constructor.
@@ -356,95 +363,20 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
 
     /**
-     * Selects all arguments
-     *
-     * @param string|int $fields The array key (or HTML form field) that needs to be validated / sanitized
-     *
-     * @return static
-     */
-    public function selectAll(string|int $fields): static
-    {
-        // Check if we can select
-        static::checkSelectAllowed(true);
-
-        // Initialize select
-        $fields      = static::initSelect($fields);
-        $clean_field = null;
-
-        // Determine the correct clean field name for the specified argument field
-        foreach (Arrays::force($fields, ',') as $field) {
-            // Clean the field by stripping parameter information
-            $field       = trim($field);
-            $clean_field = Strings::until($field, ' ');
-
-            if (str_starts_with($clean_field, '--')) {
-                // This is the long form argument
-                $clean_field = Strings::ensureStartsNotWith($clean_field, '-');
-                $clean_field = str_replace('-', '_', $clean_field);
-                break;
-            }
-
-            if (str_starts_with($clean_field, '-')) {
-                // This is the short form argument, won't be a variable name unless there is no alternative
-                $clean_field = Strings::ensureStartsNotWith($clean_field, '-');
-                $clean_field = str_replace('-', '_', $clean_field);
-                continue;
-            }
-
-            // This is not a modifier field but a command or value argument instead. Do not modify the field name
-            // Do change the field value to NULL, which will cause ArgvValidator::argument() to return the next
-            // available argument
-            $clean_field = $fields;
-            $fields      = null;
-        }
-
-        if (!$clean_field) {
-            throw new ValidatorException(tr('Failed to determine clean field name for ":field"', [
-                ':field' => $field,
-            ]));
-        }
-
-        // Get the value from the argument list
-        $value        = $this->source;
-        $this->source = [];
-
-        // Add the cleaned field to the source array
-        $this->source[$clean_field] = $value;
-
-        if (in_array($clean_field, $this->selected_fields)) {
-            throw new KeyAlreadySelectedException(tr('The specified key ":key" has already been selected before', [
-                ':key' => $clean_field,
-            ]));
-        }
-
-        // Select the field.
-        $this->selected_field    = $clean_field;
-        $this->selected_fields[] = $clean_field;
-        $this->selected_value    = &$this->source[$clean_field];
-        $this->process_values    = [null => &$this->selected_value];
-        $this->selected_optional = null;
-
-        return $this;
-    }
-
-
-    /**
      * Check if selecting is allowed
      *
-     * @param bool $selecting_all
+     * @param bool $select_all
      *
      * @return void
      */
-    protected function checkSelectAllowed(bool $selecting_all): void
+    protected function checkSelectAllowed(bool $select_all): void
     {
-        static $select_allowed = true;
-
-        if (!$select_allowed) {
-            throw new ValidatorException(tr('Cannot select another cli argument again after using ArgvValidator::selectAll()'));
+        if (static::$select_all) {
+            throw new ValidatorException(tr('Cannot select another cli argument again after using ArgvValidator::selectAll() as that method has selected all arguments, there is nothing left to select'));
         }
 
-        // Once ArgvValidator::selectAll() has been executed once, we cannot ever select anything else!
-        $select_allowed = !$selecting_all;
+        // Once ArgvValidator::selectAll() has been executed once, we can't ever select anything else!
+        static::$select_all = $select_all;
     }
 
 
@@ -520,14 +452,14 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
             if (str_starts_with($clean_field, '--')) {
                 // This is the long form argument
-                $clean_field = Strings::ensureStartsNotWith($clean_field, '-');
+                $clean_field = Strings::ensureBeginsNotWith($clean_field, '-');
                 $clean_field = str_replace('-', '_', $clean_field);
                 break;
             }
 
             if (str_starts_with($clean_field, '-')) {
                 // This is the short form argument, won't be a variable name unless there is no alternative
-                $clean_field = Strings::ensureStartsNotWith($clean_field, '-');
+                $clean_field = Strings::ensureBeginsNotWith($clean_field, '-');
                 $clean_field = str_replace('-', '_', $clean_field);
                 continue;
             }
@@ -550,7 +482,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             $value = $this->argument($fields, $next, $this->test);
 
         } catch (OutOfBoundsException) {
-            // The field was not specified
+            // The field wasn't specified
             $value = null;
         }
 
@@ -577,6 +509,76 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         $this->selected_value    = &$this->source[$clean_field];
         $this->process_values    = [null => &$this->selected_value];
         $this->selected_optional =  null;
+
+        return $this;
+    }
+
+
+    /**
+     * Selects all arguments
+     *
+     * @param string|int $fields The array key (or HTML form field) that needs to be validated / sanitized
+     *
+     * @return static
+     */
+    public function selectAll(string|int $fields): static
+    {
+        // Check if we can select
+        static::checkSelectAllowed(true);
+
+        // Initialize select
+        $fields      = static::initSelect($fields);
+        $clean_field = null;
+
+        // Determine the correct clean field name for the specified argument field
+        foreach (Arrays::force($fields, ',') as $field) {
+            // Clean the field by stripping parameter information
+            $field       = trim($field);
+            $clean_field = Strings::until($field, ' ');
+
+            if (str_starts_with($clean_field, '--')) {
+                // This is the long form argument
+                $clean_field = Strings::ensureBeginsNotWith($clean_field, '-');
+                $clean_field = str_replace('-', '_', $clean_field);
+                break;
+            }
+
+            if (str_starts_with($clean_field, '-')) {
+                // This is the short form argument, won't be a variable name unless there is no alternative
+                $clean_field = Strings::ensureBeginsNotWith($clean_field, '-');
+                $clean_field = str_replace('-', '_', $clean_field);
+                continue;
+            }
+
+            // This is not a modifier field but a command or value argument instead. Do not modify the field name
+            // Do change the field value to NULL, which will cause ArgvValidator::argument() to return the next
+            // available argument
+            $clean_field = $fields;
+            $fields      = null;
+        }
+
+        if (!$clean_field) {
+            throw new ValidatorException(tr('Failed to determine clean field name for ":field"', [
+                ':field' => $field,
+            ]));
+        }
+
+        // Add the cleaned field values to the source array
+        $this->source[$clean_field] = static::$argv;
+        static::$argv = [];
+
+        if (in_array($clean_field, $this->selected_fields)) {
+            throw new KeyAlreadySelectedException(tr('The specified key ":key" has already been selected before', [
+                ':key' => $clean_field,
+            ]));
+        }
+
+        // Select the field.
+        $this->selected_field    = $clean_field;
+        $this->selected_fields[] = $clean_field;
+        $this->selected_value    = &$this->source[$clean_field];
+        $this->process_values    = [null => &$this->selected_value];
+        $this->selected_optional = null;
 
         return $this;
     }
@@ -1062,6 +1064,17 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns true if ArgvValidator::selectAll() has been used
+     *
+     * @return bool
+     */
+    public function getSelectAll(): bool
+    {
+        return static::$select_all;
     }
 
 

@@ -64,7 +64,7 @@ $repositories = $repositories->getContentsAsIterator();
 
 Log::information(ts('About to sync ":count" repositories, this might take a while...', [
     ':count' => $repositories->getCount(),
-]));
+]), 10);
 
 
 // Sync each repository
@@ -76,14 +76,14 @@ foreach ($repositories as $repository) {
     if ($path->exists()) {
         Log::action(ts('Fetching all for MDB repository ":repository"', [
             ':repository' => $repository,
-        ]));
+        ]), 10);
 
         Git::new($path)->fetchAll();
 
     } else {
         Log::action(ts('Cloning MDB repository ":repository"', [
             ':repository' => $repository,
-        ]));
+        ]), 10);
 
         // Repo does not yet exist, clone it
         Git::new($path->getParentDirectory()->ensure())->clone($repository);
@@ -92,4 +92,4 @@ foreach ($repositories as $repository) {
 
 Log::success(ts('Finished MDB repository sync, MDB repositories size is now ":size"', [
     ':size' => Numbers::getHumanReadableBytes(PhoDirectory::new($argv['target'])->getSize()),
-]));
+]), 10);

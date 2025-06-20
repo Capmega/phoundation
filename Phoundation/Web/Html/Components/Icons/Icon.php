@@ -211,7 +211,7 @@ throw new UnderConstructionException(tr('Subset is not yet supported for icons')
      */
     public function setColor(?string $color): static
     {
-        return $this->addClass(Strings::ensureStartsWith($color, 'color-'));
+        return $this->addClass(Strings::ensureBeginsWith($color, 'color-'));
     }
 
 

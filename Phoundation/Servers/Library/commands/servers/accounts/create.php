@@ -28,7 +28,7 @@ use Phoundation\Servers\SshAccount;
 CliDocumentation::setAutoComplete(SshAccount::getAutoComplete());
 
 CliDocumentation::setUsage('./pho servers accounts create [OPTIONS]
-./pho system servers accounts create -u phoundation -k KEYFILE -d "This is a test account"');
+./pho servers accounts create -u phoundation -k KEYFILE -d "This is a test account"');
 
 CliDocumentation::setHelp('This command allows you to create SSH accounts.
 ' . SshAccount::getHelpText());
@@ -68,4 +68,4 @@ $account = SshAccount::new()->apply(source: $argv)->save();
 
 
 // Done!
-Log::success(ts('Created new SSH account ":account"', [':account' => $account->getName()]));
+Log::success(ts('Created new SSH account ":account"', [':account' => $account->getName()]), 10);

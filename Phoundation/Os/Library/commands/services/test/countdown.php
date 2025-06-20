@@ -59,7 +59,7 @@ $service = SystemDService::new()
                          ->setCycleSleep(5000)
                          ->execute(function(int $pid) use ($argv) {
     // This is the actual code for this service that will execute
-    Log::action(ts('Starting test service "countdown"'), 10);
+    Log::action(ts('Starting test service "countdown"'), 10, 10);
 
     while($argv['seconds'] > 0) {
         Log::cli($argv['seconds']);

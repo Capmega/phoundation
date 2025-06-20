@@ -21,7 +21,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 CliDocumentation::setUsage('./pho business companies create NAME [OPTIONS]
-./pho system business companies create test -d "This is a test company!"');
+./pho business companies create test -d "This is a test company!"');
 
 CliDocumentation::setHelp('This command allows you to create companies
 
@@ -61,4 +61,4 @@ $company = Company::new()->apply(true, $argv)->save();
 
 
 // Done!
-Log::success(ts('Created new company ":company"', [':company' => $company->getName()]));
+Log::success(ts('Created new company ":company"', [':company' => $company->getName()]), 10);

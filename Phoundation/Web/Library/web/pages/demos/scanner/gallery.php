@@ -12,6 +12,8 @@
  */
 
 
+declare(strict_types=1);
+
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;

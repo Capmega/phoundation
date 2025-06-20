@@ -17,9 +17,6 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Filesystem\PhoDirectory;
-use Phoundation\Os\Processes\Commands\Find;
-use Phoundation\Utils\Strings;
 
 
 CliDocumentation::setUsage('./pho echo TEXT');

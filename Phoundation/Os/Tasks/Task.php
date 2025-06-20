@@ -941,7 +941,7 @@ class Task extends DataEntry implements TaskInterface
         $directory = $this->getTypesafe('string', 'execution_directory');
 
         if ($directory) {
-            return new PhoDirectory($directory, $this->restrictions);
+            return new PhoDirectory($directory, $this->o_restrictions);
         }
 
         return null;

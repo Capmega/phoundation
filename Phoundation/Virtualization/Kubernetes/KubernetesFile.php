@@ -54,7 +54,7 @@ abstract class KubernetesFile
 //        $data = Strings::from($data, PHP_EOL);
 //        $data = Strings::untilReverse($data, PHP_EOL);
         PhoFile::new($this->file)
-            ->setRestrictions(DIRECTORY_ROOT . 'config/kubernetes/' . $this->kind . '/', true, 'kubernetes')
+            ->setRestrictionsObject(DIRECTORY_ROOT . 'config/kubernetes/' . $this->kind . '/', true, 'kubernetes')
             ->create($data);
 
         return $this;

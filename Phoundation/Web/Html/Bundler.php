@@ -71,10 +71,10 @@ class Bundler
      */
     public function __construct()
     {
-        $this->setRestrictions(PhoRestrictions::new([
+        $this->setRestrictionsObject(PhoRestrictions::new([
             DIRECTORY_CDN . 'js',
             DIRECTORY_CDN . 'css',
-        ], true, 'Bundler'));
+        ],                                                true, 'Bundler'));
     }
 
 
@@ -186,7 +186,7 @@ class Bundler
         if (!filesize($bundle_file)) {
             Log::warning(ts('Encountered empty bundle file ":file"', [':file' => $bundle_file]));
             Log::warning(ts('Deleting empty bundle file ":file"', [':file' => $bundle_file]));
-            PhoFile::new($bundle_file, $this->restrictions)
+            PhoFile::new($bundle_file, $this->o_restrictions)
                 ->delete();
 
             return false;
@@ -194,7 +194,7 @@ class Bundler
         // Bundle files are essentially cached files. Ensure the cache is not too old
         if (config()->get('cache.bundler.max-age', 3600) and (filemtime($bundle_file) + config()->get('cache.bundler.max-age', 3600)) < time()) {
             Log::warning(ts('Deleting expired cached bundle file ":file"', [':file' => $bundle_file]));
-            PhoFile::new($bundle_file, $this->restrictions)
+            PhoFile::new($bundle_file, $this->o_restrictions)
                 ->delete();
 
             return false;
@@ -214,7 +214,7 @@ class Bundler
     protected function bundleFiles(array $files): void
     {
         // Generate new bundle file. This requires the pub/$files path to be writable
-        PhoDirectory::new(dirname($this->bundle_file), $this->restrictions)
+        PhoDirectory::new(dirname($this->bundle_file), $this->o_restrictions)
                  ->execute()
                  ->setMode(0770)
                  ->onDirectoryOnly(function () use ($files) {
@@ -246,11 +246,11 @@ class Bundler
                              $data = $this->processCssData($file, $org_file, $data);
                          }
                          if (Debug::isEnabled()) {
-                             PhoFile::new($this->bundle_file, $this->restrictions)
+                             PhoFile::new($this->bundle_file, $this->o_restrictions)
                                  ->append("\n/* *** BUNDLER FILE \"" . $org_file . "\" *** */\n" . $data . (config()->get('web.minify', true) ? '' : "\n"));
 
                          } else {
-                             PhoFile::new($this->bundle_file, $this->restrictions)
+                             PhoFile::new($this->bundle_file, $this->o_restrictions)
                                  ->append($data . (config()->get('web.minify', true) ? '' : "\n"));
                          }
                          if ($this->count) {

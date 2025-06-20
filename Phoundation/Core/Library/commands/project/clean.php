@@ -96,4 +96,4 @@ foreach ($paths as $path) {
 
 
 // Done!
-Log::success('Cleaned old files');
+Log::success('Cleaned old files', 10);

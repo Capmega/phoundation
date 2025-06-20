@@ -47,4 +47,4 @@ try {
 
 
 // Done!
-Log::success('Finished rotating log file');
+Log::success('Finished rotating log file', 10);

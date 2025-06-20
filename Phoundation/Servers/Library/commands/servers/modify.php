@@ -31,7 +31,7 @@ CliDocumentation::setAutoComplete(Server::getAutoComplete([
                                                           ]));
 
 CliDocumentation::setUsage('./pho servers modify HOSTNAME [OPTIONS]
-./pho system servers modify HOSTNAME -l -i --to ENVIRONMENT');
+./pho servers modify HOSTNAME -l -i --to ENVIRONMENT');
 
 CliDocumentation::setHelp(Server::getHelpText('This command allows you to modify servers
 
@@ -53,4 +53,4 @@ $server = Server::new()->load($argv['hostname'])->apply()->save();
 
 
 // Done!
-Log::success(ts('Modified server ":server"', [':server' => $server->getHostname()]));
+Log::success(ts('Modified server ":server"', [':server' => $server->getHostname()]), 10);

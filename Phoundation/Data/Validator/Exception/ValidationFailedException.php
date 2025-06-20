@@ -40,13 +40,29 @@ class ValidationFailedException extends ValidatorException
     {
         parent::__construct($messages, $previous);
         $this->makeWarning();
+    }
 
-        if (!Core::inBootState() and config()->getBoolean('security.validation.failures.log', true) and !config()->getBoolean('debug.exceptions.log.auto.enabled', false)) {
+
+    public function addData(mixed $data, ?string $key = null): static
+    {
+        parent::addData($data, $key);
+
+        // Automatically log every validation exception IF:
+        // * The system is not in booting up state
+        //
+        // AND one of the following:
+        //
+        // * Verbose mode is on
+        // * Security configuration says to log validation exceptions
+        // * Debug configuration says to log all exceptions
+        if (!Core::inBootState() and (Log::getVerbose() or config()->getBoolean('security.validation.failures.log', true) or config()->getBoolean('debug.exceptions.log.auto.enabled', false))) {
             // Automatically log validation failures, but only once!
             if (empty($previous)) {
-                Log::warning($this);
+                Log::warning($this, PLATFORM_CLI ? 10 : Log::getThreshold());
             }
         }
+
+        return $this;
     }
 
 

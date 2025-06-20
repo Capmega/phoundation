@@ -169,41 +169,51 @@ class Libraries
         }
 
         // Wipe all temporary data and set the core in INIT mode
-        Core::enableInitState();
-        Tmp::clear();
-
-        // Ensure the system database exists
-        static::ensureSystemsDatabaseAccessible();
-
-        // Go over all system libraries and initialize them, then do the same for the plugins
-        static::initializeLibraries($system, $plugins, $templates, $comments, $libraries);
-
-        // Initialization done!
-        static::$initializing = false;
-
-        if (Core::isProductionEnvironment()) {
-            // Notification developers
-            Notification::new()
-                        ->setUrl(Url::new('/system/information.html')->makeWww())
-                        ->setMode(EnumDisplayMode::info)
-                        ->setRoles('developer')
-                        ->setTitle(tr('System initialization'))
-                        ->setMessage(tr('The system ran an initialization'))
-                        ->setDetails([
-                            'system'    => $system,
-                            'plugins'   => $plugins,
-                            'templates' => $templates,
-                            'comment'   => $comments,
-                        ])
-                        ->send();
-        }
-
         try {
-            // Wipe all cache data
-            Cache::clearAll();
+            Log::setVerbose(true);
+            Core::enableInitState();
+            Tmp::clear();
 
-        } catch (ConfigPathDoesNotExistsException $e) {
-            Log::warning($e->getMessage());
+            // Ensure the system database exists
+            static::ensureSystemsDatabaseAccessible();
+
+            // Go over all system libraries and initialize them, then do the same for the plugins
+            static::initializeLibraries($system, $plugins, $templates, $comments, $libraries);
+
+            // Initialization done!
+            static::$initializing = false;
+
+            if (Core::isProductionEnvironment()) {
+                // Notification developers
+                Notification::new()
+                            ->setUrl(Url::new('/system/information.html')->makeWww())
+                            ->setMode(EnumDisplayMode::info)
+                            ->setRoles('developer')
+                            ->setTitle(tr('System initialization'))
+                            ->setMessage(tr('The system ran an initialization'))
+                            ->setDetails([
+                                             'system'    => $system,
+                                             'plugins'   => $plugins,
+                                             'templates' => $templates,
+                                             'comment'   => $comments,
+                                         ])
+                            ->send();
+            }
+
+            try {
+                // Wipe all cache data
+                Cache::clearAll();
+
+            } catch (ConfigPathDoesNotExistsException $e) {
+                Log::warning($e->getMessage());
+            }
+
+            Log::setVerbose(VERBOSE);
+
+        } catch (Throwable $e) {
+            // Something went wrong. Disable Log VERBOSE to avoid spamming the output Exception with extra lines
+            Log::setVerbose(VERBOSE);
+            throw $e;
         }
     }
 

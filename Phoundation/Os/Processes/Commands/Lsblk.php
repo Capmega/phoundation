@@ -77,7 +77,7 @@ class Lsblk extends Command
     public function isStorageDevice(PhoFileInterface|string $device): bool
     {
         return $this->getStorageDevices()
-                    ->keyExists(Strings::ensureStartsNotWith($device, '/dev/'));
+                    ->keyExists(Strings::ensureBeginsNotWith($device, '/dev/'));
     }
 
 

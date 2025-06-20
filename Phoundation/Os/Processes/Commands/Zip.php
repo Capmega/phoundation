@@ -89,7 +89,7 @@ class Zip extends Command implements ZipInterface
         try {
             if (!$target) {
                 $parent = $this->source_path->getParentDirectory();
-                $target = new PhoFile($parent . $this->source_path->getBasename() . '.zip', $parent->getRestrictions());
+                $target = new PhoFile($parent . $this->source_path->getBasename() . '.zip', $parent->getRestrictionsObject());
             }
 
             $this->setCommand('zip')

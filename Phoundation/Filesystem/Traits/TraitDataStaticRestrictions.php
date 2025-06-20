@@ -25,9 +25,9 @@ trait TraitDataStaticRestrictions
     /**
      * Server object where the image conversion commands will be executed
      *
-     * @var PhoRestrictionsInterface $restrictions
+     * @var PhoRestrictionsInterface $o_restrictions
      */
-    protected static PhoRestrictionsInterface $restrictions;
+    protected static PhoRestrictionsInterface $o_restrictions;
 
 
     /**
@@ -35,52 +35,52 @@ trait TraitDataStaticRestrictions
      *
      * @return PhoRestrictionsInterface
      */
-    public static function getRestrictions(): PhoRestrictionsInterface
+    public static function getRestrictionsObject(): PhoRestrictionsInterface
     {
-        if (isset(static::$restrictions)) {
-            return static::$restrictions;
+        if (isset(static::$o_restrictions)) {
+            return static::$o_restrictions;
         }
 
-        return PhoRestrictions::getRestrictionsOrDefault();
+        return PhoRestrictions::getRestrictionsOrDefaultObject();
     }
 
 
     /**
      * Sets the server and filesystem restrictions for this object
      *
-     * @param PhoRestrictionsInterface|array|string|null $restrictions The file restrictions to apply to this object
-     * @param bool                                       $write        If $restrictions are not specified as a
-     *                                                                FsRestrictions class, but as a path string, or
-     *                                                                array of path strings, then this method will
-     *                                                                convert that into a FsRestrictions object and this
-     *                                                                is the $write modifier for that object
-     * @param string|null                                $label        If $restrictions are not specified as a
-     *                                                                FsRestrictions class, but as a path string, or
-     *                                                                array of path strings, then this method will
-     *                                                                convert that into a FsRestrictions object and this
-     *                                                                is the $label modifier for that object
+     * @param PhoRestrictionsInterface|array|string|null $o_restrictions The file restrictions to apply to this object
+     * @param bool                                       $write          If $restrictions aren't specified as a
+     *                                                                   FsRestrictions class, but as a path string, or
+     *                                                                   array of path strings, then this method will
+     *                                                                   convert that into a FsRestrictions object and
+     *                                                                   this is the $write modifier for that object
+     * @param string|null                                $label          If $restrictions aren't specified as a
+     *                                                                   FsRestrictions class, but as a path string, or
+     *                                                                   array of path strings, then this method will
+     *                                                                   convert that into a FsRestrictions object and
+     *                                                                   this is the $label modifier for that object
      *
      * @return void
      */
-    public static function setRestrictions(PhoRestrictionsInterface|array|string|null $restrictions, bool $write = false, ?string $label = null): void
+    public static function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions, bool $write = false, ?string $label = null): void
     {
-        static::$restrictions = PhoRestrictions::ensure($restrictions, $write, $label);
+        static::$o_restrictions = PhoRestrictions::ensureObject($o_restrictions, $write, $label);
     }
 
 
     /**
      * Returns either the specified restrictions, or this object's restrictions, or system default restrictions
      *
-     * @param PhoRestrictionsInterface|null $restrictions
+     * @param PhoRestrictionsInterface|null $o_restrictions
      *
      * @return PhoRestrictionsInterface
      */
-    public static function ensureRestrictions(?PhoRestrictionsInterface $restrictions): PhoRestrictionsInterface
+    public static function ensureRestrictionsObject(?PhoRestrictionsInterface $o_restrictions): PhoRestrictionsInterface
     {
-        if (static::$restrictions) {
-            return PhoRestrictions::getRestrictionsOrDefault($restrictions, static::$restrictions);
+        if (static::$o_restrictions) {
+            return PhoRestrictions::getRestrictionsOrDefaultObject($o_restrictions, static::$o_restrictions);
         }
 
-        return PhoRestrictions::getRestrictionsOrDefault($restrictions);
+        return PhoRestrictions::getRestrictionsOrDefaultObject($o_restrictions);
     }
 }

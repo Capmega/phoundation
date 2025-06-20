@@ -72,7 +72,7 @@ class Import
      */
     public function __construct(?PhoRestrictionsInterface $restrictions = null)
     {
-        $this->restrictions = PhoRestrictions::getRestrictionsOrDefault($restrictions, PhoRestrictions::newWritableObject('/'));
+        $this->o_restrictions = PhoRestrictions::getRestrictionsOrDefaultObject($restrictions, PhoRestrictions::newWritableObject('/'));
     }
 
 

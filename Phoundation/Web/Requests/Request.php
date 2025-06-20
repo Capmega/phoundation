@@ -40,6 +40,7 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\PhoFile;
@@ -69,7 +70,9 @@ use Phoundation\Web\Requests\Exception\RequestTypeException;
 use Phoundation\Web\Requests\Exception\SystemPageNotFoundException;
 use Phoundation\Web\Requests\Interfaces\JsonPageInterface;
 use Phoundation\Web\Requests\Interfaces\RequestInterface;
+use Phoundation\Web\Requests\Restrictions\Exception\RequestHasWrongEncodingException;
 use Phoundation\Web\Requests\Restrictions\Exception\RequestMethodRestrictionsException;
+use Phoundation\Web\Requests\Restrictions\Exception\RequestHasNoEncodingSpecifiedException;
 use Phoundation\Web\Requests\Restrictions\Interfaces\RequestMethodRestrictionsInterface;
 use Phoundation\Web\Requests\Restrictions\RequestMethodRestrictions;
 use Phoundation\Web\Requests\Traits\TraitDataStaticRouteParameters;
@@ -224,6 +227,13 @@ class Request implements RequestInterface
      * @var RequestMethodRestrictionsInterface $web_restrictions
      */
     protected static RequestMethodRestrictionsInterface $web_restrictions;
+
+    /**
+     * Tracks client request headers
+     *
+     * @var IteratorInterface $headers
+     */
+    protected static IteratorInterface $headers;
 
 
     /**
@@ -464,7 +474,7 @@ class Request implements RequestInterface
      */
     public static function detectRequestedLanguage(): string
     {
-        $languages = config()->getArray('language.supported', []);
+        $languages = config()->getArray('locale.language.supported', []);
 
         switch (count($languages)) {
             case 0:
@@ -561,7 +571,7 @@ class Request implements RequestInterface
                     'locale'   => (str_contains($requested, '-') ? Strings::from($requested, '-') : null),
                 ];
 
-                if (empty(config()->get('language.supported', [])[$requested['language']])) {
+                if (empty(config()->get('locale.language.supported', [])[$requested['language']])) {
                     continue;
                 }
 
@@ -1017,7 +1027,7 @@ class Request implements RequestInterface
 
         // Determine the target file that is to be executed
         $o_target         = static::ensureRequestPathPrefix($o_target);
-        static::$o_target = PhoFile::new($o_target, static::getRestrictions())->makeAbsolute(DIRECTORY_WEB);
+        static::$o_target = PhoFile::new($o_target, static::getRestrictionsObject())->makeAbsolute(DIRECTORY_WEB);
 
         static::$o_target->checkRestrictions(false);
         static::getTargets()->add(static::$o_target);
@@ -1542,7 +1552,9 @@ class Request implements RequestInterface
         }
 
         if (PLATFORM_CLI) {
-            Log::action(ts('Executing program ":program"', [':program' => static::$o_target->getRootname()]));
+            if (Log::getVerbose()) {
+                Log::action(ts('Executing program ":program"', [':program' => static::$o_target->getRootname()]));
+            }
 
             if (static::$stack_level > 0) {
                 // This is a CLI sub command, execute it directly with output buffering and return the output
@@ -1847,11 +1859,11 @@ class Request implements RequestInterface
         }
 
         return match (static::getRequestType()) {
-            EnumRequestTypes::api     => Strings::ensureStartsWith($target, 'api/'),
-            EnumRequestTypes::ajax    => Strings::ensureStartsWith($target, 'ajax/'),
-            EnumRequestTypes::file    => Strings::ensureStartsWith($target, 'files/'),
+            EnumRequestTypes::api     => Strings::ensureBeginsWith($target, 'api/'),
+            EnumRequestTypes::ajax    => Strings::ensureBeginsWith($target, 'ajax/'),
+            EnumRequestTypes::file    => Strings::ensureBeginsWith($target, 'files/'),
             EnumRequestTypes::html,
-            EnumRequestTypes::system  => Strings::ensureStartsWith($target, 'pages/'),
+            EnumRequestTypes::system  => Strings::ensureBeginsWith($target, 'pages/'),
             default                   => throw new OutOfBoundsException(tr('Unsupported request type ":request" for this process', [
                 ':request' => static::getRequestType(),
             ])),
@@ -1890,6 +1902,112 @@ class Request implements RequestInterface
 
 
     /**
+     * Returns all request headers
+     *
+     * @return IteratorInterface
+     */
+    public static function getHeaders(): IteratorInterface
+    {
+        if (empty(static::$headers)) {
+            static::$headers = Iterator::new(getallheaders());
+        }
+
+        return static::$headers;
+    }
+
+
+    /**
+     * Returns the value for the specified request header
+     *
+     * @param string $name      The header which should be returned
+     * @param bool   $exception If true will throw an exception if the header doesn't exist
+     *
+     * @return string|null
+     */
+    public static function getHeader(string $name, bool $exception = false): ?string
+    {
+        return Request::getHeaders()->get($name, $exception);
+    }
+
+
+    /**
+     * Returns the encoding for user data as specified by the client
+     *
+     * @return string|null
+     */
+    public static function getEncoding(): ?string
+    {
+        static $encoding = null;
+
+        if ($encoding === null) {
+            $encoding = static::getHeader('Content-Encoding');
+            $encoding = Strings::from((string) $encoding, 'charset=');
+        }
+
+        return get_null($encoding);
+    }
+
+
+    /**
+     * Returns the encoding for user data as specified by the client
+     *
+     * @param string|null $encoding
+     * @param bool|null   $strict
+     *
+     * @return bool
+     */
+    public static function hasEncoding(?string $encoding = null, ?bool $strict = null): bool
+    {
+        // Apply defaults to arguments
+        $encoding = $encoding ?? Request::getEncoding();
+        $strict   = $strict   ?? config()->getBoolean('security.validation.encoding.strict', false);
+
+        if ($encoding) {
+            return Response::getEncoding() === Request::getEncoding();
+        }
+
+        if ($strict) {
+            throw RequestHasNoEncodingSpecifiedException::new(tr('Cannot accept client request, encoding has not been specified'));
+        }
+
+        // Client specified no encoding, assume it is ok
+        return true;
+    }
+
+
+    /**
+     * Returns the encoding for user data as specified by the client
+     *
+     * @param bool|null $strict
+     *
+     * @return void
+     */
+    public static function checkEncoding(?bool $strict = null): void
+    {
+        if (Request::hasEncoding(Response::getEncoding(), $strict)) {
+            return;
+        }
+
+        throw RequestHasWrongEncodingException::new(tr('Cannot accept client request, client uses ":client" encoding while ":server" coding is required', [
+            ':client' => Request::getEncoding(),
+            ':server' => Response::getEncoding()
+        ]));
+    }
+
+
+    /**
+     * Returns the encoding for user data as specified by the client
+     *
+     * @return string|null
+     */
+    public static function detectEncoding(): ?string
+    {
+        throw new UnderConstructionException();
+        // iconv(mb_detect_encoding($text, mb_detect_order(), true), 'UTF-8', $text);
+    }
+
+
+    /**
      * Returns a validated useragent
      *
      * @todo Implement useragent validation
@@ -1897,6 +2015,6 @@ class Request implements RequestInterface
      */
     public static function getUserAgent(): ?string
     {
-        return isset_get($_SERVER['HTTP_USER_AGENT']);
+        return Request::getHeader('User-Agent');
     }
 }

@@ -2048,8 +2048,8 @@ class Definition implements DefinitionInterface
             case EnumInputType::path:
                 $value = EnumInputType::text;
 
-                if (empty($this->in_directories) and empty($this->restrictions)) {
-                    throw new DefinitionException(tr('Cannot use EnumInputType::path without having first specified either "Definition::setInDirectories()" or "Definition::setRestrictions()"', [
+                if (empty($this->in_directories) and empty($this->o_restrictions)) {
+                    throw new DefinitionException(tr('Cannot use EnumInputType::path without having first specified either "Definition::setInDirectories()" or "Definition::setRestrictionsObject()"', [
                         ':path'             => ':path',
                         ':setInDirectories' => ':setInDirectories',
                         ':setRestrictions'  => ':setRestrictions'
@@ -2058,7 +2058,7 @@ class Definition implements DefinitionInterface
 
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->setRestrictions($this->restrictions)
+                         $o_validator->setRestrictionsObject($this->o_restrictions)
                                    ->isDirectory($this->in_directories);
                      });
                 break;
@@ -2066,8 +2066,8 @@ class Definition implements DefinitionInterface
             case EnumInputType::file:
                 $value = EnumInputType::text;
 
-                if (empty($this->in_directories) and empty($this->restrictions)) {
-                    throw new DefinitionException(tr('Cannot use EnumInputType::path without having first specified either "Definition::setInDirectories()" or "Definition::setRestrictions()"', [
+                if (empty($this->in_directories) and empty($this->o_restrictions)) {
+                    throw new DefinitionException(tr('Cannot use EnumInputType::path without having first specified either "Definition::setInDirectories()" or "Definition::setRestrictionsObject()"', [
                         ':path'             => ':path',
                         ':setInDirectories' => ':setInDirectories',
                         ':setRestrictions'  => ':setRestrictions'
@@ -2076,7 +2076,7 @@ class Definition implements DefinitionInterface
 
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->setRestrictions($this->restrictions)
+                         $o_validator->setRestrictionsObject($this->o_restrictions)
                                    ->isFile($this->in_directories);
                      });
                 break;

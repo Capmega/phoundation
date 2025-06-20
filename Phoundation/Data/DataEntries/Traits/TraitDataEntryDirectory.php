@@ -67,7 +67,7 @@ trait TraitDataEntryDirectory
         $directory = $this->getDirectory();
 
         if ($directory) {
-            $directory = new PhoDirectory($directory, $this->restrictions);
+            $directory = new PhoDirectory($directory, $this->o_restrictions);
         }
 
         return $directory;

@@ -30,10 +30,4 @@ ARGUMENTS
 -');
 
 
-
-Log::cli(ts('Phoundation version ":version"', [
-    ':version' => Core::PHOUNDATION_VERSION
-]));
-Log::cli(ts('Project version ":version"', [
-    ':version' => Core::getProjectVersion()
-]));
+Log::cli(Core::getProjectVersions(true));

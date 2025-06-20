@@ -23,7 +23,7 @@ use Stringable;
 trait TraitPathNew
 {
     /**
-     * Returns a new Path object with the specified restrictions
+     * Returns a new class object with the specified restrictions
      *
      * @param Stringable|string                  $source
      * @param PhoRestrictionsInterface|bool|null $restrictions

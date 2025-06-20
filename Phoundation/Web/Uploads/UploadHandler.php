@@ -95,7 +95,7 @@ class UploadHandler implements UploadHandlerInterface
         if (empty($this->files)) {
             $this->files = new PhoFiles();
             $this->files->setAcceptedDataTypes(PhoUploadedFileInterface::class)
-                        ->getRestrictions()
+                        ->getRestrictionsObject()
                             ->addDirectory(DIRECTORY_TMP, true)
                             ->addDirectory('/tmp/', true);
         }

@@ -49,7 +49,7 @@ class Image extends Content implements ImageInterface
      */
     public function convert(): ConvertInterface
     {
-        $convert = new Convert($this->getRestrictions());
+        $convert = new Convert($this->getRestrictionsObject());
         $convert->setSource($this);
 
         return $convert;
@@ -99,7 +99,7 @@ class Image extends Content implements ImageInterface
         }
 
         if ($return['size']) {
-            $return['mimetype'] = PhoFile::new($this->source, $this->restrictions)->getMimetype();
+            $return['mimetype'] = PhoFile::new($this->source, $this->o_restrictions)->getMimetype();
         }
 
         if (Strings::until($return['mimetype'], '/') === 'image') {

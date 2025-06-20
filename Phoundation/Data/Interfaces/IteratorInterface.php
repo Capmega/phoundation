@@ -9,7 +9,7 @@ use Phoundation\Content\Documents\Interfaces\SpreadSheetInterface;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
-use Phoundation\Data\Iterator;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Forms\Interfaces\FilterFormInterface;
@@ -907,4 +907,36 @@ interface IteratorInterface extends IteratorBaseInterface
      * @return $this
      */
     public function setEnsureObjects(bool $ensure_objects): static;
+
+    /**
+     * Returns the DataEntryInterface parent object
+     *
+     * @return DataEntryInterface
+     */
+    #[ReturnTypeWillChange] public function getParentObject(): DataEntryInterface;
+
+    /**
+     * Sets the DataEntryInterface parent object
+     *
+     * @param DataEntryInterface $o_parent
+     *
+     * @return static
+     */
+    public function setParentObject(DataEntryInterface $o_parent): static;
+
+    /**
+     * Returns if this Iterator requires a parent or not
+     *
+     * @return bool
+     */
+    public function getRequireParent(): bool;
+
+    /**
+     * Sets if this Iterator requires a parent or not
+     *
+     * @param bool $require_parent
+     *
+     * @return static
+     */
+    public function setRequireParent(bool $require_parent): static;
 }

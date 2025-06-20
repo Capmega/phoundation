@@ -165,14 +165,12 @@ class Cli
                     }
 
                     // Display header?
-                    if (!VERY_QUIET) {
-                        foreach (Arrays::force($headers) as $column => $header) {
-                            $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
-                            Log::cli(CliColor::apply(Strings::size((string) $header, $column_sizes[$column]), 'blue') . Strings::size(' ', $column_spacing), 10, false, false);
-                        }
-
-                        Log::cli(' ');
+                    foreach (Arrays::force($headers) as $column => $header) {
+                        $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
+                        Log::cli(CliColor::apply(Strings::size((string) $header, $column_sizes[$column]), 'blue') . Strings::size(' ', $column_spacing), 10, false, false);
                     }
+
+                    Log::cli(' ');
 
                     // Display source
                     foreach ($source as $id => $row) {
@@ -413,11 +411,11 @@ class Cli
                     throw new OutOfBoundsException(tr('Empty argument specified'));
 
                 case 1:
-                    $test = Strings::ensureStartsWith($argument, '-');
+                    $test = Strings::ensureBeginsWith($argument, '-');
                     break;
 
                 default:
-                    $test = Strings::ensureStartsWith($argument, '--');
+                    $test = Strings::ensureBeginsWith($argument, '--');
             }
         }
 

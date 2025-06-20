@@ -111,23 +111,6 @@ class Servers extends DataIterator
     }
 
 
-    /**
-     * @inheritDoc
-     */
-    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false): static
-    {
-        throw new UnderConstructionException();
-        $this->source = sql()->list('SELECT `servers`.`id`, `servers`.`hostname`, `servers`.`created_on`, `servers`.`status` 
-                                   FROM     `servers` 
-                                   WHERE    `servers`.`status` IS NULL
-                                   ORDER BY `servers`.`hostname`' . sql()->getLimit());
-        // The keys contain the ids...
-        $this->source = array_flip($this->source);
-
-        return $this;
-    }
-
-
 //    /**
 //     * Load the data for this right list
 //     *

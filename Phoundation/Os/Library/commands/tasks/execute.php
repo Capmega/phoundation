@@ -67,6 +67,6 @@ if ($argv['task']) {
         Tasks::new()->load()->execute();
 
     } catch (NoTasksPendingExceptions $e) {
-        Log::warning($e->getMessage());
+        Log::warning($e->getMessage(), 10);
     }
 }

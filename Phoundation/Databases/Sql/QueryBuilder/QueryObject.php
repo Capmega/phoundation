@@ -252,6 +252,17 @@ class QueryObject implements QueryObjectInterface
 
 
     /**
+     * Returns the first FROM table
+     *
+     * @return string|null
+     */
+    public function getFrom(): ?string
+    {
+        return array_value_first($this->froms);
+    }
+
+
+    /**
      * Returns the WHERE parts of the query
      *
      * @return array
@@ -303,7 +314,7 @@ class QueryObject implements QueryObjectInterface
     {
         if ($execute) {
             foreach ($execute as $key => $value) {
-                $this->addExecute($key, $value);
+                $this->addExecute($value, $key);
             }
         }
 
@@ -329,18 +340,18 @@ class QueryObject implements QueryObjectInterface
     /**
      * Add bound execution variables
      *
-     * @param string                $column
      * @param string|float|int|null $value
+     * @param string                $column
      *
      * @return static
      */
-    public function addExecute(string $column, string|float|int|null $value): static
+    public function addExecute(string|float|int|null $value, string $column): static
     {
         if (!$this->executes) {
             $this->executes = [];
         }
 
-        $this->executes[Strings::ensureStartsWith($column, ':')] = $value;
+        $this->executes[Strings::ensureBeginsWith($column, ':')] = $value;
 
         return $this;
     }
@@ -522,6 +533,18 @@ class QueryObject implements QueryObjectInterface
 
 
     /**
+     * Clears the "WHERE" section
+     *
+     * @return static
+     */
+    public function clearWhere(): static
+    {
+        $this->wheres = [];
+        return $this;
+    }
+
+
+    /**
      * Returns the GROUP BY parts of the query
      *
      * @return array
@@ -659,7 +682,7 @@ class QueryObject implements QueryObjectInterface
                 return $this->compareQuery($column, (string) $value);
 
             case 'string':
-                $this->executes[Strings::ensureStartsWith($column, ':')] = $value;
+                $this->executes[Strings::ensureBeginsWith($column, ':')] = $value;
                 return ' = :' . $column . ' ';
 
             case 'array':

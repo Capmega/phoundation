@@ -1242,7 +1242,7 @@ class Config implements ConfigInterface
                      DIRECTORY_ROOT . 'garbage',
                  ])
                  ->setRecurse(true)
-                 ->setRestrictions(new PhoRestrictions(DIRECTORY_ROOT))
+                 ->setRestrictionsObject(new PhoRestrictions(DIRECTORY_ROOT))
                  ->onFiles(function (string $file) use (&$store) {
                      $files = PhoFile::new($file, PhoRestrictions::newReadonlyObject(DIRECTORY_ROOT))
                                      ->grep([

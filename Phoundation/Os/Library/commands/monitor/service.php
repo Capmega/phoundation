@@ -77,8 +77,8 @@ try {
 
 } catch (MonitorException $e) {
     // Oh crap, its down! Quick, say something funny!
-    Log::warning($e->getMessage());
-    Log::warning(ts('Trying to restart service'));
+    Log::warning($e->getMessage(), 10);
+    Log::warning(ts('Trying to restart service'), 10);
 
     $status = Service::new()->setServiceName($argv['service'])->restart()->status();
     $status = Arrays::keepMatchingValues($status, [

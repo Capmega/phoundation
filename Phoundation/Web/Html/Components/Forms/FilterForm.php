@@ -646,7 +646,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                 // Is the status filter not set to "All"?
                 if ($this->getStatus() !== 'all') {
                     $builder->addWhere(
-                        SqlQueries::is('`' . $builder->getFromTable() . '`.`status`', $this->getStatus(), ':from_status', $builder->getExecuteByReference())
+                        SqlQueries::is('`' . $builder->getFrom() . '`.`status`', $this->getStatus(), ':from_status', $builder->getExecuteByReference())
                     );
                 }
             }
@@ -655,13 +655,13 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
         if ($this->apply_filters->keyExists('date_range') and $this->o_definitions->isRendered('date_range', false)) {
             if ($this->getStartDate()) {
                 $builder->addWhere(
-                    '`' . $builder->getFromTable() . '`.`created_on` >= :start', [':start' => $this->getStartDate()->format(EnumDateFormat::mysql_datetime)]
+                    '`' . $builder->getFrom() . '`.`created_on` >= :start', [':start' => $this->getStartDate()->format(EnumDateFormat::mysql_datetime)]
                 );
             }
 
             if ($this->getStopDate()) {
                 $builder->addWhere(
-                    '`' . $builder->getFromTable() . '`.`created_on` <= :stop', [':stop' => $this->getStopDate()->format(EnumDateFormat::mysql_datetime)]
+                    '`' . $builder->getFrom() . '`.`created_on` <= :stop', [':stop' => $this->getStopDate()->format(EnumDateFormat::mysql_datetime)]
                 );
             }
         }
@@ -669,7 +669,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
         if ($this->apply_filters->keyExists('users_id') and $this->o_definitions->isRendered('users_id', false)) {
             if ($this->getUsersId()) {
                 $builder->addWhere(
-                    '`' . $builder->getFromTable() . '`.`created_by` = :created_by', [':created_by' => $this->getUsersId()]
+                    '`' . $builder->getFrom() . '`.`created_by` = :created_by', [':created_by' => $this->getUsersId()]
                 );
             }
         }

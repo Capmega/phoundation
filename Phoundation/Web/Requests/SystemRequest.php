@@ -20,6 +20,7 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Enums\EnumSoftHard;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -159,6 +160,7 @@ class SystemRequest implements SystemRequestInterface
                 if (!Core::getReadonly()) {
                     try {
                         Non200Url::new()
+                                 ->setPermitValidationFailures(EnumSoftHard::hard)
                                  ->generate($http_code)
                                  ->save();
 

@@ -40,4 +40,4 @@ $deployment = Deployment::new()
     ->setReplicas($argv['replicas'])
     ->save();
 
-Log::success(ts('Saved deployment file ":file"', [':file' => $deployment->getObjectFile()->getFileObject()]));
+Log::success(ts('Saved deployment file ":file"', [':file' => $deployment->getObjectFile()->getFileObject()]), 10);

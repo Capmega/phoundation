@@ -23,7 +23,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 CliDocumentation::setUsage('./pho accounts roles add-right NAME "RIGHT[,RIGHT,RIGHT,...]"
-./pho system accounts roles add-right -n test -d "This is a test role!"');
+./pho accounts roles add-right -n test -d "This is a test role!"');
 
 CliDocumentation::setHelp('This command allows you to add rights to the specified role
 
@@ -64,11 +64,11 @@ try {
 
     if ($roles->save()) {
         // Done!
-        Log::success(ts('Modified user ":user"', [':user' => $user->getDisplayName()]));
+        Log::success(ts('Modified user ":user"', [':user' => $user->getDisplayName()]), 10);
 
     } else {
         // Done!
-        Log::warning(ts('User ":user" was not modified', [':user' => $user->getDisplayName()]));
+        Log::warning(ts('User ":user" was not modified', [':user' => $user->getDisplayName()]), 10);
     }
 
 } catch (DataEntryNotExistsException $e) {

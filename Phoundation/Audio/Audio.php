@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Phoundation\Audio;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Traits\TraitDataLogLevel;
 use Phoundation\Data\Traits\TraitDataSignal;
 use Phoundation\Data\Traits\TraitDataTimeout;
 use Phoundation\Filesystem\Exception\FileNotExistException;
@@ -37,6 +38,7 @@ class Audio extends PhoFile
 {
     use TraitDataTimeout;
     use TraitDataSignal;
+    use TraitDataLogLevel;
 
 
     /**
@@ -54,7 +56,8 @@ class Audio extends PhoFile
 
         parent::__construct($source, $restrictions, $absolute_prefix);
 
-        $this->signal = EnumSignal::SIGKILL;
+        $this->setLogLevel(3)
+             ->signal = EnumSignal::SIGKILL;
     }
 
 
@@ -78,6 +81,7 @@ class Audio extends PhoFile
 
                 try {
                     Mpg123::new($directory)
+                          ->setLogLevel($this->log_level)
                           ->setTimeout($this->timeout)
                           ->setSignal($this->signal)
                           ->setFileObject($this->makeAbsolute(DIRECTORY_DATA . 'audio'))

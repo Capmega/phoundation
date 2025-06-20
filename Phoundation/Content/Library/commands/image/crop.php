@@ -40,4 +40,4 @@ ImageFile::new($argv['file'])
 
 
 // Display image information
-Log::information(ts('Displaying image information for ":file"', [':file' => $argv['file']]));
+Log::information(ts('Displaying image information for ":file"', [':file' => $argv['file']]), 10);

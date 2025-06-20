@@ -87,15 +87,16 @@ $argv = ArgvValidator::new()
 Log::action(ts('Creating client with on ":host::port"',[
     ':host' => $argv['host'],
     ':port' => $argv['port'],
-]));
+]), 10);
 
 $client = new PhoClient($argv['host'], $argv['port']);
-Log::success(ts('Opened connection'));
+Log::success(ts('Opened connection'), 10);
 
 
 // Check send single message or multiple messages from file
 if ($argv['message']) {
     $message = $argv['message'];
+
 } else {
     // Send from file
     $file = fopen($argv['file'], 'r');
@@ -109,7 +110,7 @@ for ($i = 1; $i <= $argv['repeat']; ++$i) {
     Log::action(ts('Sending message ":count", length: ":length"', [
         ':count'  => $i,
         ':length' => strlen($message)
-    ]));
+    ]), 10);
 
     $client->send($message);
 

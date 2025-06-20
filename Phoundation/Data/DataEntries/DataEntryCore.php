@@ -100,6 +100,7 @@ use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\SqlDataEntry;
+use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDateTime;
@@ -2276,14 +2277,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // Generate columns that will be selected
             if ($this->identifier) {
                 if ($this->columns) {
-                    // Add selects for each specified column
+                    // Add SQL SELECT for each specified column
                     foreach ($this->columns as $column) {
-                        $query->addSelect('`' . static::getTable() . '`.' . $column);
+                        $query->addSelect(SqlQueries::ensureQuotes(static::getTable()) . SqlQueries::ensureQuotes($column));
                     }
 
                 } else {
                     // Load all columns
-                    $query->addSelect('`' . static::getTable() . '`.*');
+                    $query->addSelect(SqlQueries::ensureQuotes(static::getTable()) . '.*');
                 }
             }
 
@@ -2573,17 +2574,15 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 continue;
             }
 
+            if (PLATFORM_CLI and ($value === null)) {
+                // NULL values on CLI platform will be ignored because they will always exist
+                continue;
+            }
             if ($o_definition->getVirtual()) {
                 // Virtual columns do nothing if they have no value
                 if ($value === null) {
                     continue;
                 }
-
-// TODO Remove the next few lines if no issues have been found with virtual columns. This was here to avoid virtual columns receiving input, but some virtual columns require the ability to be set during load time!
-//                // This is a virtual column, don't apply during load time
-//                if ($this->is_loading or $this->is_initializing_source) {
-//                    continue;
-//                }
             }
 
             if (!$modify) {

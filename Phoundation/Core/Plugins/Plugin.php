@@ -54,7 +54,7 @@ class Plugin extends DataEntry implements PluginInterface
 
     public function __construct(IdentifierInterface|false|array|int|string|null $identifier = false)
     {
-        $this->setRestrictions(PhoRestrictions::newReadonlyObject(DIRECTORY_ROOT . 'Plugins'));
+        $this->setRestrictionsObject(PhoRestrictions::newReadonlyObject(DIRECTORY_ROOT . 'Plugins'));
 
         parent::__construct($identifier);
     }

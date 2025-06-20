@@ -21,7 +21,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 CliDocumentation::setUsage('./pho business customers create NAME [OPTIONS]
-./pho system business customers create test -d "This is a test customer!"');
+./pho business customers create test -d "This is a test customer!"');
 
 CliDocumentation::setHelp('This command allows you to create customers
 
@@ -61,4 +61,4 @@ $customer = Customer::new()->apply(true, $argv)->save();
 
 
 // Done!
-Log::success(ts('Created new customer ":customer"', [':customer' => $customer->getName()]));
+Log::success(ts('Created new customer ":customer"', [':customer' => $customer->getName()]), 10);

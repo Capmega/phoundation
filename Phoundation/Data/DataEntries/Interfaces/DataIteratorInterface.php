@@ -19,15 +19,6 @@ use Stringable;
 interface DataIteratorInterface extends IteratorInterface
 {
     /**
-     * Sets what SQL columns will be used in loading data
-     *
-     * @param string|null $columns
-     *
-     * @return static
-     */
-    public function setSqlColumns(?string $columns): static;
-
-    /**
      * Returns if the specified data entry key exists in the data list
      *
      * @param DataEntryInterface|Stringable|string|float|int $key
@@ -235,12 +226,11 @@ interface DataIteratorInterface extends IteratorInterface
      * Load the id list from the database
      *
      * @param array|string|int|null $identifiers
-     * @param bool                  $clear
-     * @param bool                  $only_if_empty
+     * @param bool                  $like
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false): static;
+    public function load(array|string|int|null $identifiers = null, bool $like = false): static;
 
 
     /**
@@ -258,11 +248,11 @@ interface DataIteratorInterface extends IteratorInterface
     /**
      * Sets the parent
      *
-     * @param DataEntryInterface $parent
+     * @param DataEntryInterface $o_parent
      *
      * @return static
      */
-    public function setParentObject(DataEntryInterface $parent): static;
+    public function setParentObject(DataEntryInterface $o_parent): static;
 
 
     /**
@@ -413,4 +403,18 @@ interface DataIteratorInterface extends IteratorInterface
      * @return int
      */
     public function getSavedCount(): int;
+
+    /**
+     * Load the Iterator list data from the database for use with auto complete
+     *
+     * This method will load only the specified column and automatically like filter on identifier [name => word%]
+     *
+     * @param string|null $word   The word to filter on, if any. If no word is specified, all results will be returned
+     * @param string|null $column The column to filter on. If not specified, will default to the unique column for this
+     *                            DataIterator
+     *
+     * @return static
+     * @todo Add support for specifying which column should be the identifier column instead of only id_column or unique_column
+     */
+    public function loadForAutocomplete(?string $word = null, ?string $column = null): static;
 }

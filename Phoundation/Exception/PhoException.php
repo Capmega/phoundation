@@ -765,6 +765,11 @@ class PhoException extends RuntimeException implements PoadInterface
      */
     public function getWarning(): bool
     {
+        if (defined('NOWARNINGS') and NOWARNINGS) {
+            // No warnings allowed by the environment configuration
+            return false;
+        }
+
         return $this->warning;
     }
 
@@ -781,7 +786,7 @@ class PhoException extends RuntimeException implements PoadInterface
     public function setWarning(bool $warning): static
     {
         if (defined('NOWARNINGS') and NOWARNINGS) {
-            // No warnings allowed from the environment
+            // No warnings allowed by the environment configuration
             $warning = false;
         }
 

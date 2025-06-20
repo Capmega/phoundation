@@ -34,7 +34,7 @@ trait TraitMethodBuildManualQuery
      * @param string                $separator
      *
      * @return void
-     * @todo EXPAND AND IMPROVE
+     * @deprecated This method shouldn't be relied upon anymore as the QueryBuilder class will take over this job.
      */
     protected static function buildManualQuery(array|string|int|null $identifiers, ?string &$where, ?string &$joins, ?string &$group, ?string &$order, ?array &$execute, string $separator = ' AND '): void
     {

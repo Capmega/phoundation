@@ -74,10 +74,10 @@ for ($i = 1; $i <= $argv['count']; $i++) {
                                        ->loadRandom();
 
     if ($data_entry->isLoadedFromCache()) {
-        Log::dot(1);
+        Log::dot(1, 10);
 
     } else {
-        Log::dot(1, color: 'yellow');
+        Log::dot(1, 10, color: 'yellow');
     }
 }
 
@@ -85,4 +85,4 @@ Log::cli();
 Log::success(ts('Finished loading ":count" ":class" class DataEntry objects', [
     ':count' => $argv['count'],
     ':class' => $argv['class'],
-]));
+]), 10);

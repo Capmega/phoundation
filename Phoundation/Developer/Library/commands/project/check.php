@@ -21,7 +21,7 @@ use Phoundation\Developer\Project\Project;
 
 
 CliDocumentation::setUsage('./pho project check
-./pho system project check --repair
+./pho project check --repair
 ');
 
 CliDocumentation::setHelp('This command will check - and report - (and optionally fix) the project and its systems
@@ -39,5 +39,5 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Log::information('Checking your system. Please wait, this may take a few seconds...');
+Log::information('Checking your system. Please wait, this may take a few seconds...', 10);
 Project::check($argv['repair']);

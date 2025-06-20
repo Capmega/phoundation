@@ -73,11 +73,12 @@ class Languages extends DataIterator implements LanguagesInterface
      * Load the id list from the database
      *
      * @param array|string|int|null $identifiers
-     * @param bool $only_if_empty
+     * @param bool                  $like
      *
      * @return static
+     * @todo Rewrite this using the DataIterator::load() method
      */
-    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false): static
+    public function load(array|string|int|null $identifiers = null, bool $like = false): static
     {
         $this->source = sql()->list('SELECT `core_languages`.`id`, substring_index(substring_index(`core_languages`.`name`, "(", 1), ",", 1) AS `name`
                                    FROM     `core_languages`

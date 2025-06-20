@@ -36,7 +36,7 @@ class Mplayer extends Command
     {
         // Build the process parameters, then execute
         $this->clearArguments()
-             ->setRestrictions(PhoRestrictions::getRestrictionsOrDefault($this->restrictions, PhoRestrictions::new(DIRECTORY_DATA . 'mplayer', true, 'audio')))
+             ->setRestrictionsObject(PhoRestrictions::getRestrictionsOrDefaultObject($this->o_restrictions, PhoRestrictions::new(DIRECTORY_DATA . 'mplayer', true, 'audio')))
              ->setCommand('mplayer')
              ->addArgument($this->file)
              ->execute($background ? EnumExecuteMethod::background : EnumExecuteMethod::noReturn);

@@ -75,8 +75,8 @@ class Plugins extends Project
         ];
 
         if ($location) {
-            $directory          = realpath($location);
-            $this->restrictions = PhoRestrictions::new(dirname($directory));
+            $directory            = realpath($location);
+            $this->o_restrictions = PhoRestrictions::new(dirname($directory));
 
             if (!$directory) {
                 throw new FileNotExistException(tr('The specified Phoundation plugins location ":file" does not exist', [
@@ -121,8 +121,8 @@ class Plugins extends Project
 
             // The main phoundation directory should be called either phoundation or Phoundation.
             foreach ($names as $name) {
-                $test_path          = $directory . $name . '/';
-                $this->restrictions = PhoRestrictions::new(dirname($test_path));
+                $test_path            = $directory . $name . '/';
+                $this->o_restrictions = PhoRestrictions::new(dirname($test_path));
 
                 if (!file_exists($test_path)) {
                     Log::warning(ts('Ignoring directory ":directory", it does not exist', [
@@ -164,7 +164,7 @@ class Plugins extends Project
      */
     public function isPhoundationPlugins(string $directory): bool
     {
-        return PhoDirectory::new($directory . 'Plugins', $this->restrictions)->isReadable();
+        return PhoDirectory::new($directory . 'Plugins', $this->o_restrictions)->isReadable();
     }
 
 
@@ -485,7 +485,7 @@ class Plugins extends Project
      */
     public function getPhoundationPlugins(): IteratorInterface
     {
-        return PhoDirectory::new($this->directory . 'Plugins/', $this->directory->getRestrictions())
+        return PhoDirectory::new($this->directory . 'Plugins/', $this->directory->getRestrictionsObject())
                            ->scan()
                            ->forEachField(function (&$value, $key) {
                               $value = Strings::ensureEndsNotWith($value, '/');

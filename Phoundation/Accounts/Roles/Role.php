@@ -115,13 +115,13 @@ class Role extends DataEntry implements RoleInterface
         // Build up the rights select object
         $rights = Rights::new();
         $rights->setQueryBuilderObject(QueryBuilder::new($rights)
-                                             ->setSelects('`accounts_rights`.`id`, 
-                                                          CONCAT(
-                                                            UPPER(LEFT(`accounts_rights`.`name`, 1)), 
-                                                            SUBSTRING(`accounts_rights`.`name`, 2)
-                                                          ) AS `name`')
-                                             ->setWhere('`accounts_rights`.`status` IS NULL')
-                                             ->setOrderBys('`name`'))
+                                                   ->setSelects('`accounts_rights`.`id`, 
+                                                                 CONCAT(
+                                                                     UPPER(LEFT(`accounts_rights`.`name`, 1)), 
+                                                                     SUBSTRING(`accounts_rights`.`name`, 2)
+                                                                 ) AS `name`')
+                                                   ->setWhere('`accounts_rights`.`status` IS NULL')
+                                                   ->setOrderBys('`name`'))
                ->load();
 
         $entry  = DataEntryForm::new()->setRenderContentsOnly(true);
@@ -234,7 +234,8 @@ class Role extends DataEntry implements RoleInterface
         }
 
         return Users::new()
-                    ->setParentObject($this);
+                    ->setParentObject($this)
+                    ->load();
     }
 
 
