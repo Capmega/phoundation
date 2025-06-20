@@ -25,6 +25,8 @@ use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Exception\LogException;
 use Phoundation\Core\Log\Interfaces\LogInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\Traits\TraitDataStaticBoolVerbose;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Developer\Debug\Debug;
@@ -48,6 +50,9 @@ use Throwable;
 
 class Log implements LogInterface
 {
+    use TraitDataStaticBoolVerbose;
+
+
     /**
      * Used to display only classes and functions in backtraces
      */
@@ -520,10 +525,9 @@ class Log implements LogInterface
             ]))->makeWarning();
         }
 
-        $return            = $threshold;
         static::$threshold = $threshold;
 
-        return $return;
+        return $threshold;
     }
 
 
@@ -719,7 +723,7 @@ class Log implements LogInterface
         }
 
         if (static::$init) {
-            // Do not log anything while locked, initializing, or while dealing with a Log internal failure
+            // Don't log anything while locked, initializing, or while dealing with a Log internal failure
             if (static::$screen_enabled and static::$file_enabled) {
                 foreach (Arrays::force($messages, null) as $message) {
                     if ($message instanceof Throwable) {
@@ -805,7 +809,7 @@ class Log implements LogInterface
 
             // Make sure the log message is clean and readable.
             // Don't truncate as we might have huge log messages!
-            // If no or an empty class was specified, we do not clean
+            // If no or an empty class was specified, we don't clean
             if ($class and $clean) {
                 $messages = Strings::log($messages, 0);
             }
@@ -818,7 +822,7 @@ class Log implements LogInterface
 
             static::$last_message = $messages;
 
-            // If logging to the standard log output failed or we're initializing the log, then write to the system log
+            // If logging to the standard log output failed, or we're initializing the log, then write to the system log
             if (static::$failed) {
                 static::toAlternateLog(Strings::force($messages));
                 static::$lock = false;
@@ -834,7 +838,7 @@ class Log implements LogInterface
 
             if (!$messages) {
                 if (!is_numeric($messages)) {
-                    // Do not log empty messages
+                    // Don't log empty messages
                     static::$lock = false;
 
                     if (Debug::isEnabled()) {
@@ -865,6 +869,7 @@ class Log implements LogInterface
                           ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' .
                           Strings::size(getmypid(), 7, ' ', true) . ' ' .
                           Core::getGlobalId() . ' ' . (PLATFORM_CLI ? 'C' : 'W') . ' ' . Core::getLocalId() . (Core::isStateShutdown() ? '#' : ' ');
+
             } else {
                 $prefix = $echo_prefix;
             }
@@ -898,7 +903,7 @@ class Log implements LogInterface
         // Write the message to screen
         if ($echo_screen and (PHP_SAPI === 'cli') and static::getScreenEnabled()) {
             // Only show CLI messages on screen at threshold level in VERBOSE mode, or threshold 10
-            if (VERBOSE or (abs($threshold) === 10)) {
+            if (static::$verbose or (abs($threshold) === 10) or Core::getErrorState()) {
                 if (static::$echo_prefix and $echo_prefix) {
                     echo $prefix, $message;
 
@@ -934,7 +939,7 @@ class Log implements LogInterface
                 static::$instance = new static();
 
                 // Log class startup message
-                if (Debug::isEnabled() and VERBOSE) {
+                if (Debug::isEnabled() and static::$verbose) {
                     static::information(tr('Logger started, threshold set to ":threshold"', [
                         ':threshold' => static::$threshold,
                     ]), 3);
@@ -1064,16 +1069,16 @@ class Log implements LogInterface
             $has_logged = static::write(tr('Exception : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
 
             static::write(get_class($exception), $class, $threshold, true, true, false, $echo_screen);
-            static::write(tr('Message   : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
-            static::write('[E' . ($exception->getCode() ?? 'N/A') . '] ' . $exception->getMessage(), $class, $threshold, false, true, false, $echo_screen);
-            static::write(tr('Script    : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
+            static::write(tr('Command   : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
             static::write(Request::getExecutedPath(true), $class, $threshold, true, true, false, $echo_screen);
             static::write(tr('Location  : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
             static::write(Strings::from($exception->getFile(), DIRECTORY_ROOT) . '@' . $exception->getLine(), $class, $threshold, true, true, false, $echo_screen);
+            static::write(tr('Message   : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
+            static::write('[E' . ($exception->getCode() ?? 'N/A') . '] ' . $exception->getMessage(), $class, $threshold, false, true, false, $echo_screen);
 
             // Log the exception data, the trace, and previous exception, if any.
             static::logExceptionTrace($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
-            static::logExceptionData($exception, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+            static::logExceptionData($exception, $threshold, $clean, $echo_newline, $echo_screen);
             static::logPreviousException($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
 
             if ($exception instanceof PhoException) {
@@ -1118,7 +1123,7 @@ class Log implements LogInterface
         }
 
         if (static::$failed) {
-            // If the log is in failed mode, we cannot switch file
+            // If the log is in failed mode, we can't switch to a different file
             static::toAlternateLog(tr('Not switching log file to ":file", log is running in failed mode', [
                 ':file' => $file,
             ]));
@@ -1164,27 +1169,48 @@ class Log implements LogInterface
     /**
      * Logs the data section of an exception
      *
-     * @param Throwable   $exception
-     * @param int         $threshold
-     * @param bool        $clean
-     * @param bool        $echo_newline
-     * @param string|bool $echo_prefix
-     * @param bool        $echo_screen
+     * @param Throwable $exception
+     * @param int       $threshold
+     * @param bool      $clean
+     * @param bool      $echo_newline
+     * @param bool      $echo_screen
      *
      * @return void
      */
-    protected static function logExceptionData(Throwable $exception, int $threshold = 10, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): void
+    protected static function logExceptionData(Throwable $exception, int $threshold = 10, bool $clean = true, bool $echo_newline = true, bool $echo_screen = true): void
     {
         if ($exception instanceof PhoException) {
             $data = $exception->getData();
 
             if ($data) {
-                static::write(tr('Data      : '), 'information', $threshold, echo_screen: $echo_screen);
+                static::write(tr('Data      : '), 'information', $threshold, false, echo_screen: $echo_screen);
 
                 if ($exception->isWarning()) {
-                    // Log warning data as individual lines for easier read
-                    foreach (Arrays::force($data, null) as $line) {
-                        static::write(get_null(var_export($line, true)) ?? '-', 'debug', $threshold, false, $echo_newline, false, $echo_screen);
+                    if (($exception instanceof ValidationFailedException) or !static::$verbose) {
+                        // Log warning data as individual lines for easier read
+                        foreach (Arrays::force($data, null) as $line) {
+                            if (is_array($line)) {
+                                $columns = [];
+
+                                foreach ($line as $column) {
+                                    if (is_array($column)) {
+                                        $columns[] = array_get_safe($column, 'message');
+                                    }
+                                }
+
+                                $line = implode(', ', $columns);
+                            }
+
+                            if ($line) {
+                                static::warning($line, $threshold, false, $echo_newline, false, $echo_screen);
+                            }
+                        }
+
+                    } else {
+                        // Log warning data as individual lines for easier read
+                        foreach (Arrays::force($data, null) as $line) {
+                            static::write(get_null(var_export($line, true)) ?? '-', 'debug', $threshold, false, $echo_newline, false, $echo_screen);
+                        }
                     }
 
                 } else {
@@ -1205,8 +1231,8 @@ class Log implements LogInterface
                 }
 
             } else {
-                static::write(tr('Data      : '), 'information', $threshold, false, echo_newline: false, echo_screen: $echo_screen);
-                static::write('-', 'debug', $threshold, false, $echo_newline, false, $echo_screen);
+                static::write(tr('Data      : '), 'information', $threshold, false, false        , false, $echo_screen);
+                static::write('-'               , 'debug'      , $threshold, false, $echo_newline, false, $echo_screen);
             }
         }
     }

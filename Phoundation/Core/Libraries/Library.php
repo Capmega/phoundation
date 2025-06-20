@@ -330,7 +330,7 @@ class Library implements LibraryInterface
         }
 
         $file = str_replace('\\', '/', $class_path);
-        $file = Strings::ensureStartsNotWith($file, '/');
+        $file = Strings::ensureBeginsNotWith($file, '/');
         $file = DIRECTORY_ROOT . $file . '.php';
 
         if ($check_php) {

@@ -22,7 +22,8 @@ use Phoundation\Accounts\Config\Config;
 use Phoundation\Accounts\Config\Exception\ConfigException;
 use Phoundation\Accounts\Config\Exception\ConfigurationInvalidException;
 use Phoundation\Accounts\Users\Sessions\Session;
-use Phoundation\Audio\Audio;
+use Phoundation\Audio\Critical;
+use Phoundation\Audio\Warning;
 use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Cli\Exception\CliCommandNotFoundException;
@@ -75,6 +76,7 @@ use Phoundation\Web\Requests\Response;
 use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Uploads\UploadHandlers;
 use Throwable;
+
 
 class Core implements CoreInterface
 {
@@ -1021,7 +1023,6 @@ class Core implements CoreInterface
     {
         // Uncomment the following line in case the exception handler is not working correctly and does not display exceptions
         //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); exit();
-
         Core::uncaughtExceptionHandlerAvoidEndlessLoop($e);
 
         // Track state
@@ -1068,9 +1069,9 @@ class Core implements CoreInterface
                     ':class'   => get_class($e),
                     ':type'    => Request::getRequestType()->value,
                     ':command' => Strings::from(Core::getExecutedPath(), DIRECTORY_COMMANDS),
-                ]));
+                ]), 10);
 
-                Log::error($e);
+                Log::error($e, 10);
 
                 exit('exception before platform detection');
 
@@ -1086,7 +1087,7 @@ class Core implements CoreInterface
 
 
     /**
-     * Ensures that the uncaught exception handler does not cause an endless loop
+     * Ensures that the uncaught exception handler doesn't cause an endless loop
      *
      * @param Throwable $e
      *
@@ -1104,7 +1105,7 @@ class Core implements CoreInterface
             // which should be impossible as it catches Throwable for the entire method. This extra check is just added
             // to ensure we never get in an endless loop for some unforeseen reason
             if (CliAutoComplete::isActive()) {
-                exit('uncaught-exception-handler-loop-detected-please-check-logs' . PHP_EOL);
+                exit('uncaught_exception_handler_loop_detected_please_check_logs' . PHP_EOL);
             }
 
             if (Core::isPlatform('cli')) {
@@ -1280,7 +1281,7 @@ class Core implements CoreInterface
                 if ($supported) {
                     // Language is defined by the www/LANGUAGE dir that is used.
                     $url      = $_SERVER['REQUEST_URI'];
-                    $url      = Strings::ensureStartsNotWith($url, '/');
+                    $url      = Strings::ensureBeginsNotWith($url, '/');
                     $language = Strings::until($url, '/');
 
                     if (!in_array($language, $supported, true)) {
@@ -1353,7 +1354,7 @@ class Core implements CoreInterface
 
         // Setup locale and character encoding
         // TODO Check this mess!
-        ini_set('default_charset', config()->get('languages.encoding.character-set', 'UTF-8'));
+        ini_set('default_charset', Response::getCharset());
 
         $locale = config()->get('locale', [
             LC_ALL      => ':LANGUAGE_:COUNTRY.UTF8',
@@ -1830,7 +1831,7 @@ class Core implements CoreInterface
 
             $directory->ensure()->addFile(Session::getUserObject()->getEmail() ?? get_current_user())->touch();
 
-            Log::warning(ts('System has been placed in maintenance mode. All web requests will be blocked, all commands (except those under ./pho system ...) are blocked'));
+            Log::warning(ts('System has been placed in maintenance mode. All web requests will be blocked, all commands (except those under ./pho project ...) are blocked'));
 
             return;
         }
@@ -1890,7 +1891,7 @@ class Core implements CoreInterface
      *
      * @note This mode is global, and will immediately block all future web requests and block all future commands with
      * the exception to commands under ./pho system. Readonly mode will remain enabled until disabled either by this
-     * call or manually with ./pho system readonly disable
+     * call or manually with ./pho project modes readonly disable
      *
      * @param bool $enable
      *
@@ -1913,7 +1914,7 @@ class Core implements CoreInterface
 
             $directory->ensure()->addFile(Session::getUserObject()->getEmail() ?? get_current_user())->touch();
 
-            Log::warning(ts('System has been placed in readonly mode. All web requests will be blocked, all commands (except those under ./pho system ...) are blocked'));
+            Log::warning(ts('System has been placed in readonly mode. All web requests will be blocked, all commands (except those under ./pho project ...) are blocked'));
 
             return;
         }
@@ -3034,20 +3035,17 @@ class Core implements CoreInterface
                     if (defined('ENVIRONMENT')) {
                         if ($e instanceof PhoException) {
                             if ($e->isWarning()) {
-                                Audio::new('warning.mp3')
-                                     ->setTimeout(5)
-                                     ->playLocal(true);
+                                Warning::new()->setLogLevel(2)
+                                              ->playLocal(true);
 
                             } else {
-                                Audio::new('critical.mp3')
-                                     ->setTimeout(5)
-                                     ->playLocal(true);
+                                Critical::new()->setLogLevel(2)
+                                               ->playLocal(true);
                             }
 
                         } else {
-                            Audio::new('critical.mp3')
-                                 ->setTimeout(5)
-                                 ->playLocal(true);
+                            Critical::new()->setLogLevel(2)
+                                           ->playLocal(true);
                         }
 
                     } else {
@@ -3056,8 +3054,12 @@ class Core implements CoreInterface
 
                 } catch (Throwable $f) {
                     if (!CliAutoComplete::isActive()) {
-                        // Do NOT use tr() over here because we might be in failed mode where tr() is not available
+                        // Don't use tr() over here because we might be in failed mode where tr() is not available
                         Log::warning('Failed to play uncaught exception audio because "' . $f->getMessage() . '"');
+
+                        if (!($f instanceof PhoException) or !$f->isWarning()) {
+                            Log::warning(implode(PHP_EOL, Debug::formatBackTrace($f->getTrace())), clean: false);
+                        }
                     }
                 }
             }
@@ -3115,11 +3117,13 @@ class Core implements CoreInterface
         // If not using Debug::enabled() mode, then try to give nice error messages for known issues
         if (($e instanceof ValidationFailedException) and $e->isWarning()) {
             // This is just a simple validation warning, show warning messages in the exception data
-            Log::warning($e->getMessage(), 10);
+            if (!$e->hasBeenLogged()) {
+                Log::warning($e->getMessage(), 10);
 
-            if ($e->getDataKey('failures')) {
-                foreach ($e->getDataKey('failures') as $failure) {
-                    Log::printr($failure, 10, echo_header: false);
+                if ($e->getDataKey('failures')) {
+                    foreach ($e->getDataKey('failures') as $failure) {
+                        Log::printr($failure, 10, echo_header: false);
+                    }
                 }
             }
 
@@ -3133,7 +3137,8 @@ class Core implements CoreInterface
 
             if ($e instanceof CliNoCommandSpecifiedException) {
                 if ($data = $e->getData()) {
-                    Log::information('Available methods:', 9);
+                    Log::information('Available methods:', 10);
+
                     foreach ($data['commands'] as $file) {
                         Log::notice($file, 10);
                     }
@@ -3141,7 +3146,8 @@ class Core implements CoreInterface
 
             } elseif ($e instanceof CliCommandNotFoundException) {
                 if ($data = $e->getData()) {
-                    Log::information('Available sub-commands:', 9, echo_prefix: false);
+                    Log::information('Available sub-commands:', 10, echo_prefix: false);
+
                     foreach ($data['commands'] as $method) {
                         Log::notice($method, 10, echo_prefix: false);
                     }
@@ -3157,9 +3163,9 @@ class Core implements CoreInterface
             ':state'       => Core::$state,
             ':command'     => Strings::from(Core::getExecutedPath(), DIRECTORY_COMMANDS),
             ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null),
-        ]));
+        ]), 10);
 
-        Log::error($e);
+        Log::error($e, 10);
 
         //                        Log::error();
         //                        Log::write(ts('Extended trace:'), 'debug', 10, false);
@@ -3185,10 +3191,10 @@ class Core implements CoreInterface
     {
         if ($e instanceof ValidationFailedException) {
             // This is just a simple validation warning, show warning messages in the exception data
-            Log::warning($e->getMessage());
+            Log::warning($e->getMessage(), 10);
 
             if ($e->hasData()) {
-                Log::warning($e->getData());
+                Log::warning($e->getData(), 10);
             }
 
             Core::executeUncaughtExceptionSystemPage(400, $e);
@@ -3205,10 +3211,10 @@ class Core implements CoreInterface
                 ':state'       => Core::$state,
                 ':command'     => Strings::from(Core::getExecutedPath(), DIRECTORY_COMMANDS),
                 ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null),
-            ]));
+            ]), 10);
 
-            Log::error(ts('Exception data:'));
-            Log::error($e);
+            Log::error(ts('Exception data:'), 10);
+            Log::error($e, 10);
         }
 
         // Remove all caching headers
@@ -3231,11 +3237,11 @@ class Core implements CoreInterface
 
             } else {
                 // System database is not available, we cannot send or store notifications!
-                Log::error('Not sending notification for this uncaught exception, the system database is not available');
+                Log::error('Not sending notification for this uncaught exception, the system database is not available', 10);
             }
 
         } catch (OutOfBoundsException $f) {
-            Log::error('Failed to generate notification of uncaught exception, see following exception');
+            Log::error('Failed to generate notification of uncaught exception, see following exception', 10);
             Log::exception($f);
         }
 
@@ -3255,11 +3261,11 @@ class Core implements CoreInterface
 
                 if (method_exists($e, 'getMessages')) {
                     foreach ($e->getMessages() as $message) {
-                        Log::error($message);
+                        Log::error($message, 10);
                     }
 
                 } else {
-                    Log::error($e->getMessage());
+                    Log::error($e->getMessage(), 10);
                 }
 
                 Core::exit(1, tr('System startup exception. Please check your DIRECTORY_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
@@ -3441,23 +3447,23 @@ class Core implements CoreInterface
         if (!defined('PLATFORM') or Core::inStartupState($state)) {
             Log::error(ts('*** UNCAUGHT SYSTEM STARTUP EXCEPTION HANDLER CRASHED FOR COMMAND ":command" ***', [
                 ':command' => Strings::from(Core::getExecutedPath(), DIRECTORY_COMMANDS),
-            ]));
-            Log::error(ts('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
-            Log::exception($f);
+            ]), 10);
+            Log::error(ts('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'), 10);
+            Log::exception($f, 10);
 
             exit('System startup exception with handling failure. Please check your DIRECTORY_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information');
         }
 
-        Log::error('STARTUP-UNCAUGHT-EXCEPTION HANDLER CRASHED!');
-        Log::error($f);
+        Log::error('STARTUP-UNCAUGHT-EXCEPTION HANDLER CRASHED!', 10);
+        Log::error($f, 10);
 
         switch (PLATFORM) {
             case 'cli':
                 Log::error(ts('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR COMMAND ":command" ***', [
                     ':command' => Strings::from(Core::getExecutedPath(), DIRECTORY_COMMANDS),
-                ]));
+                ]), 10);
 
-                Log::error(ts('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
+                Log::error(ts('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'), 10);
 
                 Debug::setEnabled(true);
 
@@ -3480,7 +3486,7 @@ class Core implements CoreInterface
                             ->setException($e)
                             ->send();
                     } else {
-                        Log::error(ts('Not sending notifications for failed uncaught exception handling, the system database is not available'));
+                        Log::error(ts('Not sending notifications for failed uncaught exception handling, the system database is not available'), 10);
                     }
 
                     Core::executeUncaughtExceptionSystemPage(500, $e);

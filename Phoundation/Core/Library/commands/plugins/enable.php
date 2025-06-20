@@ -33,7 +33,7 @@ CliDocumentation::setAutoComplete([
 ]);
 
 CliDocumentation::setUsage('./pho plugins enable PLUGIN [PLUGIN, PLUGIN, ...]
-./pho system plugins disable -a');
+./pho plugins disable -a');
 
 CliDocumentation::setHelp('This command allows you to enable plugins
 
