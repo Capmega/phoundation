@@ -22,7 +22,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 CliDocumentation::setUsage('./pho accounts roles create -n NAME [OPTIONS]
-./pho system accounts roles create -n test -d "This is a test role!"');
+./pho accounts roles create -n test -d "This is a test role!"');
 
 CliDocumentation::setHelp('This command allows you to create roles
 

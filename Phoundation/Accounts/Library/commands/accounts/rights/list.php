@@ -21,7 +21,7 @@ use Phoundation\Databases\Sql\SqlQueries;
 
 
 CliDocumentation::setUsage('./pho accounts rights list [OPTIONS]
-./pho system accounts rights list -d -r god');
+./pho accounts rights list -d -r god');
 
 CliDocumentation::setHelp('This command will list the available rights on this system
 

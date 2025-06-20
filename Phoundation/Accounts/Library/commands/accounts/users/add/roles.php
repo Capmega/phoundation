@@ -24,20 +24,20 @@ use Phoundation\Databases\Sql\Limit;
 
 
 CliDocumentation::setAutoComplete([
-                                      'positions' => [
-                                          0  => [
-                                              'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
-                                              'noword' => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
-                                          ],
-                                          -1 => [
-                                              'word'   => 'SELECT `name` FROM `accounts_roles` WHERE `name` LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
-                                              'noword' => 'SELECT `name` FROM `accounts_roles` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
-                                          ],
-                                      ],
-                                  ]);
+    'positions' => [
+        0  => [
+            'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_roles` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+            'noword' => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_roles` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+        ],
+        null => [
+            'word'   => 'SELECT `name` FROM `accounts_roles` WHERE `name` LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+            'noword' => 'SELECT `name` FROM `accounts_roles` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+        ],
+    ],
+]);
 
 CliDocumentation::setUsage('./pho accounts users add-roles NAME "ROLE[,ROLE,ROLE,...]"
-./pho system accounts users add-roles -n test -d "This is a test role!"');
+./pho accounts users add-roles -n test -d "This is a test role!"');
 
 CliDocumentation::setHelp('This command allows you to add roles to the specified user
 

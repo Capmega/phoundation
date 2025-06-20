@@ -221,9 +221,9 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
         if ($o_file) {
             // This profile image object has a file set, process it
             $this->setReadonly(false)
-                 ->setRestrictions(PhoRestrictions::newWritableObject([DIRECTORY_TMP, DIRECTORY_CDN]));
+                 ->setRestrictionsObject(PhoRestrictions::newWritableObject([DIRECTORY_TMP, DIRECTORY_CDN]));
 
-            $o_file->setRestrictions($this->getRestrictions());
+            $o_file->setRestrictionsObject($this->getRestrictionsObject());
 
             if ($o_user) {
                 $cdn_directory = PhoDirectory::newCdnObject(true, 'img/files/profile/' . $o_user->getId())
@@ -344,12 +344,12 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
     protected function ensureFile(): static
     {
         if ($this->getFile()) {
-            $this->restrictions = PhoRestrictions::newWritableObject([DIRECTORY_TMP, DIRECTORY_CDN]);
+            $this->o_restrictions = PhoRestrictions::newWritableObject([DIRECTORY_TMP, DIRECTORY_CDN]);
 
         } else {
             // This profile image has no file, assign the default profile image file
             $this->setReadonly(true)
-                 ->setRestrictions(PhoRestrictions::newReadonlyObject(DIRECTORY_PROJECT_CDN))
+                 ->setRestrictionsObject(PhoRestrictions::newReadonlyObject(DIRECTORY_PROJECT_CDN))
                  ->setFile(DIRECTORY_PROJECT_CDN . 'img/profiles/default.png');
         }
 

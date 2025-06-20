@@ -21,7 +21,7 @@ use Phoundation\Databases\Sql\SqlQueries;
 
 
 CliDocumentation::setUsage('./pho accounts users list [OPTIONS]
-./pho system accounts users list -d -r god');
+./pho accounts users list -d -r god');
 
 CliDocumentation::setHelp('This command will list the available users on this system
 

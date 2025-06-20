@@ -31,7 +31,7 @@ CliDocumentation::setAutoComplete(User::getAutoComplete([
 ]));
 
 CliDocumentation::setUsage('./pho accounts users modify USER [OPTIONS]
-./pho system users modify USER -l -i --to ENVIRONMENT');
+./pho accounts users modify USER -l -i --to ENVIRONMENT');
 
 CliDocumentation::setHelp(User::getHelpText('This command allows you to modify users
 

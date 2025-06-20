@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command accounts roles rights add
+ * Command accounts roles add rights
  *
  * This command will add the specified rights to the selected role, and update all users with said roles to now also
  * have these rights
@@ -26,16 +26,16 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 CliDocumentation::setAutoComplete([
     'positions' => [
-        0    => function ($word) { return Roles::new()->loadLike(['name' => $word]); },
-        null => function ($word) { return Rights::new()->loadLike(['name' => $word]); },
+        0    => function ($word) { return Roles::new()->loadForAutocomplete($word, 'name'); },
+        null => function ($word) { return Rights::new()->loadForAutocomplete($word, 'name'); },
     ],
     'arguments' => [
         '-a,--auto-create' => false
     ]
 ]);
 
-CliDocumentation::setUsage('./pho accounts roles rights add NAME "RIGHT[,RIGHT,RIGHT,...]"
-./pho system accounts roles add-right -n test -d "This is a test role!"');
+CliDocumentation::setUsage('./pho accounts roles add rights ROLE "RIGHT[,RIGHT,RIGHT,...]"
+./pho accounts roles add rights role_name right1 right2 right3');
 
 CliDocumentation::setHelp('This command will add the specified rights to the selected role, and update all users with 
 said roles to now also have these rights
@@ -44,24 +44,24 @@ said roles to now also have these rights
 ARGUMENTS
 
 
-NAME                                    The identifier name of the role to which the rights shoudl be added
+NAME                                    The identifier name of the role to which the rights should be added
 
-RIGHT[,RIGHT,RIGHT,...]                 The rights linked with the role. Each user that gets this role assigned will 
+RIGHT[ RIGHT RIGHT ...]                 The rights linked with the role. Each user that gets this role assigned will 
                                         also get these rights assigned
 
                                         
 OPTIONAL ARGUMENTS                      
 
 
--a, --auto-create                       If specified will create the specified right automatically if it does not exist
-                                        yet.');
+-a, --auto-create                       If specified will create the specified right automatically if it does not yet 
+                                        exist');
 
 
 // Validate arguments
 $argv = ArgvValidator::new()
-                     ->select('role', true)->isName()
-                     ->select('rights', true)->isOptional(null)->sanitizeForceArray()->forEachField()->isName()
                      ->select('-a,--auto-create')->isOptional(false)->isBoolean()
+                     ->select('role', true)->isName()
+                     ->selectAll('rights')->sanitizeForceArray()->forEachField()->isName()
                      ->validate();
 
 

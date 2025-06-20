@@ -24,6 +24,8 @@ use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\Interfaces\UsersInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIterator;
+use Phoundation\Data\DataEntries\Exception\DataEntryInvalidParentException;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\SqlQueries;
@@ -88,7 +90,7 @@ class Users extends DataIterator implements UsersInterface
      */
     public function setUsers(?array $list, ?string $column = null): static
     {
-        $this->ensureParent(tr('save entries'));
+        $this->checkParent(tr('save entries'));
 
         if (is_array($list)) {
             // Convert the list to id's
@@ -136,16 +138,16 @@ class Users extends DataIterator implements UsersInterface
      */
     public function hasUser(UserInterface $user): bool
     {
-        if (!$this->parent) {
+        if (!$this->o_parent) {
             throw OutOfBoundsException::new('Cannot check if parent has the specified user, this users list has no parent specified');
         }
 
-        if ($this->parent instanceof RoleInterface) {
+        if ($this->o_parent instanceof RoleInterface) {
             return (bool) sql()->getRow('SELECT `id` 
                                             FROM   `accounts_users_roles` 
                                             WHERE  `users_id` = :users_id 
                                             AND    `roles_id` = :roles_id', [
-                ':roles_id' => $this->parent->getId(),
+                ':roles_id' => $this->o_parent->getId(),
                 ':users_id' => $user->getId(),
             ]);
         }
@@ -155,7 +157,7 @@ class Users extends DataIterator implements UsersInterface
                                         FROM   `accounts_users_rights` 
                                         WHERE  `users_id`  = :users_id 
                                         AND    `rights_id` = :rights_id', [
-            ':rights_id' => $this->parent->getId(),
+            ':rights_id' => $this->o_parent->getId(),
             ':users_id'  => $user->getId(),
         ]);
     }
@@ -174,11 +176,11 @@ class Users extends DataIterator implements UsersInterface
      */
     public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
-        $this->ensureParent(tr('add Role entry to parent ":parent"', [
-            ':parent' => $this->parent ? get_class($this->parent) : 'NULL'
+        $this->checkParent(tr('add Role entry to parent ":parent"', [
+            ':parent' => $this->o_parent ? get_class($this->o_parent) : 'NULL'
         ]));
 
-        if ($value and $this->parent) {
+        if ($value and $this->o_parent) {
             if (is_array($value)) {
                 // Add multiple rights
                 foreach ($value as $entry) {
@@ -198,28 +200,28 @@ class Users extends DataIterator implements UsersInterface
                 }
 
                 // Add entry to parent, Role or Right
-                if ($this->parent instanceof RoleInterface) {
+                if ($this->o_parent instanceof RoleInterface) {
                     Log::action(ts('Adding role ":role" to user ":user"', [
-                        ':role' => $this->parent->getLogId(),
+                        ':role' => $this->o_parent->getLogId(),
                         ':user' => $value->getLogId(),
                     ]), 3);
 
                     sql()->insert('accounts_users_roles', [
-                        'roles_id' => $this->parent->getId(),
+                        'roles_id' => $this->o_parent->getId(),
                         'users_id' => $value->getId(),
                     ]);
 
-                } elseif ($this->parent instanceof RightInterface) {
+                } elseif ($this->o_parent instanceof RightInterface) {
                     Log::action(ts('Adding right ":right" to user ":user"', [
-                        ':right' => $this->parent->getLogId(),
+                        ':right' => $this->o_parent->getLogId(),
                         ':user'  => $value->getLogId(),
                     ]), 3);
 
                     sql()->insert('accounts_users_rights', [
-                        'rights_id' => $this->parent->getId(),
+                        'rights_id' => $this->o_parent->getId(),
                         'users_id'  => $value->getId(),
-                        'name'      => $this->parent->getName(),
-                        'seo_name'  => $this->parent->getSeoName(),
+                        'name'      => $this->o_parent->getName(),
+                        'seo_name'  => $this->o_parent->getSeoName(),
                     ]);
                 }
             }
@@ -240,7 +242,7 @@ class Users extends DataIterator implements UsersInterface
      */
     public function removeKeys(Stringable|array|string|int $keys, bool $strict = false): static
     {
-        $this->ensureParent(tr('remove entry from parent'));
+        $this->checkParent(tr('remove entry from parent'));
 
         if (!$keys) {
             // Nothing to do
@@ -257,28 +259,28 @@ class Users extends DataIterator implements UsersInterface
             // Add a single user. Since this is a User object, the entry already exists in the database
             $user = User::new()->load($keys);
 
-            if ($this->parent instanceof RoleInterface) {
+            if ($this->o_parent instanceof RoleInterface) {
                 Log::action(ts('Removing user ":user" from role ":role"', [
-                    ':role' => $this->parent->getLogId(),
+                    ':role' => $this->o_parent->getLogId(),
                     ':user' => $user->getLogId(),
                 ]), 3);
 
                 sql()->delete('accounts_users_rights', [
-                    'roles_id' => $this->parent->getId(),
+                    'roles_id' => $this->o_parent->getId(),
                     'users_id' => $user->getId(),
                 ]);
 
                 // Remove user from the internal list
                 parent::removeKeys($user->getUniqueColumnValue(), $strict);
 
-            } elseif ($this->parent instanceof RightInterface) {
+            } elseif ($this->o_parent instanceof RightInterface) {
                 Log::action(ts('Removing user ":user" from right ":right"', [
-                    ':right' => $this->parent->getLogId(),
+                    ':right' => $this->o_parent->getLogId(),
                     ':user'  => $user->getLogId(),
                 ]), 3);
 
                 sql()->delete('accounts_users_rights', [
-                    'rights_id' => $this->parent->getId(),
+                    'rights_id' => $this->o_parent->getId(),
                     'users_id'  => $user->getId(),
                 ]);
 
@@ -299,24 +301,24 @@ class Users extends DataIterator implements UsersInterface
      */
     public function clear(): static
     {
-        $this->ensureParent(tr('clear all entries from parent'));
+        $this->checkParent(tr('clear all entries from parent'));
 
-        if ($this->parent instanceof RoleInterface) {
+        if ($this->o_parent instanceof RoleInterface) {
             Log::action(ts('Removing role ":role" from all users', [
-                ':right' => $this->parent->getLogId(),
+                ':right' => $this->o_parent->getLogId(),
             ]));
 
             sql()->query('DELETE FROM `accounts_users_roles` WHERE `roles_id` = :roles_id', [
-                'roles_id' => $this->parent->getId(),
+                'roles_id' => $this->o_parent->getId(),
             ]);
 
-        } elseif ($this->parent instanceof RightInterface) {
+        } elseif ($this->o_parent instanceof RightInterface) {
             Log::action(ts('Removing right ":right" from all users', [
-                ':right' => $this->parent->getLogId(),
+                ':right' => $this->o_parent->getLogId(),
             ]), 3);
 
             sql()->query('DELETE FROM `accounts_users_rights` WHERE `rights_id` = :rights_id', [
-                'rights_id' => $this->parent->getId(),
+                'rights_id' => $this->o_parent->getId(),
             ]);
         }
 
@@ -332,7 +334,7 @@ class Users extends DataIterator implements UsersInterface
      */
     public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
-//        $this->ensureParent(tr('save parent entries'));
+//        $this->checkParent(tr('save parent entries'));
 //
 //        if ($this->parent instanceof RoleInterface) {
 //            // Delete the current list
@@ -541,15 +543,15 @@ class Users extends DataIterator implements UsersInterface
      * Load the data for this users list into the object
      *
      * @param array|string|int|null $identifiers
-     * @param bool $only_if_empty
+     * @param bool                  $like
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false): static
+    public function load(array|string|int|null $identifiers = null, bool $like = false): static
     {
-        if (empty($this->query) and empty($this->query_builder)) {
-            if ($this->parent) {
-                if ($this->parent instanceof RoleInterface) {
+        if (empty($this->query) and empty($this->o_query_builder)) {
+            if ($this->o_parent) {
+                if ($this->o_parent instanceof RoleInterface) {
                     $this->query   = 'SELECT `accounts_users`.`email` AS `key`, `accounts_users`.* 
                                       FROM   `accounts_users_roles` 
                                       JOIN   `accounts_users` 
@@ -557,10 +559,10 @@ class Users extends DataIterator implements UsersInterface
                                       WHERE  `accounts_users_roles`.`roles_id` = :roles_id';
 
                     $this->execute = [
-                        ':roles_id' => $this->parent->getId(),
+                        ':roles_id' => $this->o_parent->getId(),
                     ];
 
-                } elseif ($this->parent instanceof RightInterface) {
+                } elseif ($this->o_parent instanceof RightInterface) {
                     $this->query = 'SELECT `accounts_users`.`email` AS `key`, `accounts_users`.* 
                                     FROM   `accounts_users_rights` 
                                     JOIN   `accounts_users` 
@@ -568,7 +570,7 @@ class Users extends DataIterator implements UsersInterface
                                     WHERE  `accounts_users_rights`.`rights_id` = :rights_id';
 
                     $this->execute = [
-                        ':rights_id' => $this->parent->getId(),
+                        ':rights_id' => $this->o_parent->getId(),
                     ];
                 }
 
@@ -588,7 +590,7 @@ class Users extends DataIterator implements UsersInterface
             }
         }
 
-        return parent::load();
+        return parent::load($identifiers, $like);
     }
 
 
@@ -636,6 +638,25 @@ class Users extends DataIterator implements UsersInterface
                                                        ])
                                                        ->setJsDateFormat('YYYY-MM-DD HH:mm:ss')
                                                        ->setOrder([2 => 'asc']);
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function setParentObject(DataEntryInterface $o_parent): static
+    {
+        if (!$o_parent instanceof RightInterface) {
+            if (!$o_parent instanceof RoleInterface) {
+                throw new DataEntryInvalidParentException(tr('Cannot attach parent ":parent" with id ":id" to ":class" class object, must be of type "RightInterface" or "RoleInterface"', [
+                    ':id'     => $o_parent->getLogId(),
+                    ':parent' => $o_parent::class,
+                    ':class'  => $this::class,
+                ]));
+            }
+        }
+
+        return parent::setParentObject($o_parent);
     }
 
 

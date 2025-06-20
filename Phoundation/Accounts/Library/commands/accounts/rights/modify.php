@@ -15,13 +15,24 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Rights\Right;
+use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
+CliDocumentation::setAutoComplete(Right::getAutoComplete([
+    'positions' => [
+        0 => function ($word) { return Rights::new()->loadForAutocomplete($word, 'name'); },
+    ],
+    'arguments' => [
+        '-n,--name'        => true,
+        '-d,--description' => true,
+    ]
+]));
+
 CliDocumentation::setUsage('./pho accounts right create -n NAME [OPTIONS]
-./pho system accounts right create -n test -d "This is a test right!"');
+./pho accounts right modify test -n test2 -d "This is a test right!"');
 
 CliDocumentation::setHelp('This command allows you to modify user rights
 
@@ -29,9 +40,15 @@ CliDocumentation::setHelp('This command allows you to modify user rights
 ARGUMENTS
 
 
--n / --name                             The name for the right
+RIGHT                                   The name or id of the right to modify
 
-[-d / --description]                    The description for the right');
+
+OPTIONAL ARGUMENTS 
+
+
+[-n / --name] NAME                      Updates the name for the right
+
+[-d / --description DESCRIPTION]        Updated the description for the right');
 
 
 // Validate arguments
@@ -42,11 +59,11 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-// Get right, ensure new name doesn't exist yet, and modify it
+// Get right, ensure the new name doesn't exist yet, and modify it
 $right = Right::new()->load($argv['right']);
 
 if ($argv['name']) {
-    // If changing name, ensure it doesn't exist yet as it's a unique identifier
+    // If changing name, ensure it doesn't exist yet as it is a unique identifier
     Right::notExists(['name' => $argv['name']], $right->getId(), true);
 }
 
