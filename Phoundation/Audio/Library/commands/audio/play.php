@@ -31,7 +31,7 @@ CliDocumentation::setAutoComplete([
 ]);
 
 CliDocumentation::setUsage('./pho audio play FILENAME
-./pho system audio play PATH/FILE');
+./pho audio play PATH/FILE');
 
 CliDocumentation::setHelp('This command can apply various conversions to the specified image
 
