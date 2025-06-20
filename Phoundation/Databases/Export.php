@@ -133,7 +133,7 @@ class Export
      */
     public function __construct(?PhoRestrictionsInterface $restrictions = null)
     {
-        $this->restrictions = PhoRestrictions::getRestrictionsOrDefault($restrictions, PhoRestrictions::newWritableObject('/'));
+        $this->o_restrictions = PhoRestrictions::getRestrictionsOrDefaultObject($restrictions, PhoRestrictions::newWritableObject('/'));
     }
 
 
@@ -401,7 +401,7 @@ class Export
                 throw new OutOfBoundsException(tr('No export driver specified'));
 
             case 'mysql':
-                $file = MysqlDump::new($this->restrictions)
+                $file = MysqlDump::new($this->o_restrictions)
                                  ->setConnectorObject($this->getConnectorObject())
                                  ->setTimeout($this->timeout)
                                  ->setDatabases($this->database ?? ($this->getConnectorObject()->getDatabase()))

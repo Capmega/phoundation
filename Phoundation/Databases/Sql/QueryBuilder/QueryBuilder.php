@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Sql\QueryBuilder;
 
 use PDOStatement;
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Traits\TraitDataConnector;
@@ -25,6 +24,7 @@ use Phoundation\Data\Traits\TraitDataFilterForm;
 use Phoundation\Data\Traits\TraitDataMetaEnabled;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryDefinitionsInterface;
+use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Forms\Interfaces\FilterFormInterface;
@@ -52,6 +52,43 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      * @var string|null $query
      */
     protected ?string $query = null;
+
+
+    /**
+     * Renders and returns a "... LIKE ... " query part for the query builder
+     *
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                      $like
+     *
+     * @return static
+     */
+    public function setIdentifiers(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
+    {
+        $this->clearWhere();
+
+        $equal = ($like ? 'LIKE ' : '= ');
+
+        if ($identifiers) {
+            foreach ($identifiers as $key => $value) {
+                // Make sure that the identifier column contains a table to avoid ambiguous columns
+                if (!str_contains($key, '.')) {
+                    // This key contains no table, default to the first FROM table
+                    $key = $this->getFrom() . '.' . $key;
+                }
+
+                $key    = str_replace('.', '`.`', $key);
+                $key    = str_replace('``.``', '`.`', $key);
+                $key    = Strings::ensureBeginsWith($key, '`');
+                $key    = Strings::ensureEndsWith($key, '`');
+                $column = SqlQueries::makeColumn($key);
+
+                $this->addWhere('' . $key . ' ' . $equal . ':' . $column)
+                     ->addExecute($value, $column);
+            }
+        }
+
+        return $this;
+    }
 
 
     /**

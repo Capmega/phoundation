@@ -8,7 +8,10 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Log\Log;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Utils\Strings;
 
 throw new \Phoundation\Exception\ObsoleteException();
 
@@ -224,7 +227,7 @@ switch (cli_method()) {
             case 'databases':
                 cli_no_arguments_left();
 
-                if (VERBOSE) {
+                if (Log::getVerbose()) {
                     log_console(tr('Databases (:count) for connector/host ":connector/:host"', [
                         ':connector' => $connector,
                         ':host'      => $_CONFIG['db'][$connector]['host'],
@@ -247,12 +250,12 @@ switch (cli_method()) {
                 cli_no_arguments_left();
 
                 if ($tables and $all_tables) {
-                    throw new CoreException(tr('Both --all-tables and --tables have been specified. --all-tables is not needed, if --tables is not specified, all tables will be displayed'), 'invalid');
+                    throw new CoreException(tr('Both --all-tables and --tables have been specified. --all-tables is not needed, if --tables is not specified, all tables will be displayed'));
                 }
 
                 $tables = s_get_tables($tables, $databases);
 
-                if (VERBOSE) {
+                if (Log::getVerbose()) {
                     if ($all) {
                         log_console(tr('Tables (:count) for connector/host/database ":connector/:host/all databases"', [
                             ':connector' => $connector,

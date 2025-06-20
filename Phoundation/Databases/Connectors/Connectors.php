@@ -70,19 +70,19 @@ class Connectors extends DataIterator implements ConnectorsInterface
      * Load the id list from the database
      *
      * @param array|string|int|null $identifiers
-     * @param bool                  $only_if_empty
+     * @param bool                  $like
      * @param bool                  $ignore_sql_exceptions
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false, bool $ignore_sql_exceptions = false): static
+    public function load(array|string|int|null $identifiers = null, bool $like = false, bool $ignore_sql_exceptions = false): static
     {
         try {
-            parent::load($identifiers, $only_if_empty);
+            parent::load($identifiers, $like);
 
         } catch (SqlException $e) {
             if (!$ignore_sql_exceptions) {
-                // In some cases, we need access to configured connectors while database connectors are not available
+                // In some cases, we need access to configured connectors while database connectors aren't available
                 // because the database may not exist, or a database version may be so old that the databases_connectors
                 // table doesn't exist. In those cases where we know that this might happen, we will ignore SQL
                 // exceptions and continue loading connectors from configuration
@@ -111,6 +111,7 @@ class Connectors extends DataIterator implements ConnectorsInterface
             $connector['id']       = --$count;
             $connector['name']     = $name;
             $connector['seo_name'] = Seo::string($name);
+
             $this->source[$name]   = Connector::newFromSource($connector);
         }
 

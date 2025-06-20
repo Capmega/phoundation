@@ -35,6 +35,7 @@ use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
 use Phoundation\Databases\Exception\DatabaseTestException;
 use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
+use Phoundation\Databases\Sql\Exception\SqlAmbiguousColumnException;
 use Phoundation\Databases\Sql\Exception\SqlColumnDoesNotExistsException;
 use Phoundation\Databases\Sql\Exception\SqlConnectException;
 use Phoundation\Databases\Sql\Exception\SqlConnectionRefusedException;
@@ -540,6 +541,13 @@ class Sql implements SqlInterface
 
             case 23000:
                 switch ($e->getSqlSecondaryState()) {
+                    case 1052:
+                        $message = Strings::from($e->getMessage(), '1052');
+                        $message = trim($message);
+                        $column  = Strings::cut($message, "'", "'");
+
+                        throw SqlAmbiguousColumnException::new($message, $e)->addData(['column' => $column]);
+
                     case 1062:
                         throw new SqlContstraintDuplicateEntryException($e);
                 }
@@ -2047,7 +2055,7 @@ class Sql implements SqlInterface
      */
     public static function logStatistics(): void
     {
-        if (Debug::isEnabled() and VERBOSE) {
+        if (Debug::isEnabled() and Log::getVerbose()) {
             Log::write(ts('STATISTIC SQL object executed ":count" queries in ":time" seconds', [
                 ':count' => Timers::getCount('sql'),
                 ':time'  => number_format(Timers::getTotal('sql'), 5),

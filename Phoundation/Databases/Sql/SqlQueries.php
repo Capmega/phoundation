@@ -228,7 +228,7 @@ class SqlQueries
     {
         Arrays::ensure($execute);
 
-        $label  = Strings::ensureStartsWith($label ?? $column, ':');
+        $label  = Strings::ensureBeginsWith($label ?? $column, ':');
         $return = [];
 
         if (is_array($values)) {
@@ -308,7 +308,7 @@ class SqlQueries
             throw new OutOfBoundsException(tr('Specified source is empty'));
         }
 
-        $column = Strings::ensureStartsWith($column, ':');
+        $column = Strings::ensureBeginsWith($column, ':');
         $source = Arrays::force($source);
 
         return Arrays::sequentialKeys($source, $column, $filter_null, $null_string, $start);
@@ -353,10 +353,10 @@ class SqlQueries
 
         if ($not) {
             // (My)Sql curiosity: When comparing != string, NULL values are NOT evaluated
-            return ' (' . $column . ' != ' . Strings::ensureStartsWith($label, ':') . ' OR ' . $column . ' IS NULL)';
+            return ' (' . $column . ' != ' . Strings::ensureBeginsWith($label, ':') . ' OR ' . $column . ' IS NULL)';
         }
 
-        return ' ' . $column . ' = ' . Strings::ensureStartsWith($label, ':');
+        return ' ' . $column . ' = ' . Strings::ensureBeginsWith($label, ':');
     }
 
 
@@ -526,7 +526,7 @@ class SqlQueries
         if ($column_starts_with) {
             // Only return those columns that start with this string
             foreach ($in as $key => $column) {
-                if (!Strings::ensureStartsWith($key, $column_starts_with)) {
+                if (!Strings::ensureBeginsWith($key, $column_starts_with)) {
                     unset($in[$key]);
                 }
             }
@@ -553,5 +553,32 @@ class SqlQueries
             // This is a write query, check if we're not in readonly mode
             Core::checkReadonly('write query');
         }
+    }
+
+
+    /**
+     * Returns the specified key in a format that can be used as query column identifiers
+     *
+     * @param string $key
+     *
+     * @return string
+     */
+    public static function makeColumn(string $key): string
+    {
+        return str_replace([' ', '.', '-', '`', '"', "'", ''], '_', str_replace(['`'], '', $key));
+    }
+
+
+    /**
+     * Ensures that the specified source string is surrounded by quotes
+     *
+     * @param string $source The source string to manipulate
+     * @param string $quote  The quote to use, defaults to ` (backtick)
+     *
+     * @return string
+     */
+    public static function ensureQuotes(string $source, string $quote = '`'): string
+    {
+        return Strings::ensureSurroundedWith($source, $quote);
     }
 }
