@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http;
 
 use Phoundation\Accounts\Config\Exception\ConfigPathDoesNotExistsException;
+use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
@@ -25,6 +26,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -1586,6 +1588,42 @@ class Url implements UrlInterface
         throw UrlException::new(tr('The URL ":source" does not match the specified domain ":domain"', [
             ':source' => $this->source,
             ':domain' => $domain,
+        ]));
+    }
+
+
+    /**
+     * Returns true if the current session user (or the specified one) has access to this URL
+     *
+     * @param UserInterface|null $user
+     *
+     * @return bool
+     */
+    public function hasAccess(?UserInterface $user = null): bool
+    {
+        $user = $user ?? Session::getUserObject();
+
+throw new UnderConstructionException();
+    }
+
+
+    /**
+     * Returns true if the current session user (or the specified one) has access to this URL
+     *
+     * @param UserInterface|null $user
+     *
+     * @return static
+     * @throws AccessDeniedException
+     */
+    public function checkAccess(?UserInterface $user = null): static
+    {
+        if ($this->hasAccess($user)) {
+            return $this;
+        }
+
+        throw new AccessDeniedException(tr('The user ":user" does not have access to URL ":url"', [
+            ':user' => $user->getLogId(),
+            ':url'  => $this->getSource(),
         ]));
     }
 }
