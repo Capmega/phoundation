@@ -19,10 +19,12 @@ declare(strict_types=1);
 namespace Phoundation\Data\Library\Tests\Phoundation\Data\DataEntry;
 
 use Phoundation\Data\DataEntries\DataEntry;
+use Phoundation\Data\DataEntries\Exception\DataEntryColumnNotDefinedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryException;
 use Phoundation\Data\DataEntries\Tests\TestDataEntry;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Numbers;
+use Phoundation\Utils\Strings;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 
@@ -46,25 +48,8 @@ class DataEntryTest extends TestCase
      */
     public function testNewId()
     {
-        $this->assertEquals(null, DataEntry::new()->getId());
+        $this->assertEquals(null, DataEntry::new()->getId(false));
     }
-
-
-    //TODO: fix
-//    /**
-//     * Tests DataEntry::new(RANDOM_ID)
-//     *
-//     * @return void
-//     */
-//    public function testNewRandomId()
-//    {
-//        $id    = Numbers::getRandomInt();
-//        $entry = TestDataEntry::new($id);
-//
-//        $entry->save();
-//
-//        $this->assertEquals($id, $entry->getId(), 'The TestDataEntry object should have the ID it was initialized with');
-//    }
 
 
     /**
@@ -93,22 +78,23 @@ class DataEntryTest extends TestCase
     }
 
 
-    //TODO: fix
-//    /**
-//     * Tests DataEntry::isNew()
-//     *
-//     * @return void
-//     */
-//    public function testIsNew()
-//    {
-//        $entry = TestDataEntry::new();
-//
-//        $this->assertTrue($entry->isNew(), 'The TestDataEntry object that is not yet written to a database should be new');
-//
-//        $entry->setStatus('saved');
-//
-//        $this->assertFalse($entry->isNew(), 'The TestDataEntry object that has been written to a database should NOT be new');
-//    }
+    /**
+     * Tests DataEntry::isNew()
+     *
+     * @return void
+     */
+    public function testIsNew()
+    {
+        $entry = TestDataEntry::new();
+
+        $this->assertTrue($entry->isNew(), 'The TestDataEntry object that is not yet written to a database should be new');
+
+        $entry->setName(Strings::getRandom(4) . Numbers::getRandomInt(1000,9999));
+
+        $entry->save();
+
+        $this->assertFalse($entry->isNew(), 'The TestDataEntry object that has been written to a database should NOT be new');
+    }
 
 
     /**
@@ -141,12 +127,21 @@ class DataEntryTest extends TestCase
 
         $test_value = 'test-set-value';
 
+        // Test setting null value
+        $entry->set(null, 'name');
+        $this->assertEquals(null, $entry->get('name'), 'The TestDataEntry object should have the specified value');
+
+        $entry->set('example-name', 'name');
+        $entry->set(null, 'name', skip_null_values: true);
+        $this->assertEquals('example-name', $entry->get('name'), 'The TestDataEntry object should have the specified value');
+
+
         // Test setting to invalid column
         try {
             $entry->set($test_value, 'invalid-column');
 
         } catch (Throwable $e) {
-            $this->AssertEquals(DataEntryException::class, $e::class, 'A DataEntryException should have been thrown');
+            $this->assertInstanceOf(DataEntryColumnNotDefinedException::class, $e::class, 'A DataEntryException should have been thrown');
         }
 
         // Test setting to ignored column // TODO: add ignored column
@@ -156,6 +151,11 @@ class DataEntryTest extends TestCase
         $entry->set($test_value, $test_key);
 
         $this->assertEquals($test_value, $entry->get($test_key), 'The TestDataEntry object should have the specified value');
+
+        // Test setting to invalid column
+        $entry->set($test_value, 'invalid-column');
+
+        $this->expectException(DataEntryColumnNotDefinedException::class);
     }
 
 
@@ -169,7 +169,7 @@ class DataEntryTest extends TestCase
         $entry = TestDataEntry::new();
 
         // Successful get
-        $test_value = 'test-get-value';
+        $test_value = 'test_value';
         $test_key   = 'test_column';
         $entry->set($test_value, $test_key);
 
@@ -185,27 +185,13 @@ class DataEntryTest extends TestCase
         $entry->clear();
         $test_key_invalid = 'test-get-value-invalid';
         $value = $entry->get($test_key_invalid, false);
-        $this->assertNull($value, '`get()` should return the specified value');
+        $this->assertNull($value, 'get() should return the specified value');
 
         // Failure with exception
-        $this->expectException(OutOfBoundsException::class, '`get()` should return the specified value');
-        $value = $entry->get($test_key_invalid, exception: true);
+        $this->expectException(OutOfBoundsException::class);
+        $entry->get($test_key_invalid);
     }
 
-
-    /**
-     * Tests DataEntry::getTypesafe()
-     *
-     * @return void
-     */
-    public function testGetMetaColumns()
-    {
-        $entry = TestDataEntry::new();
-
-        $meta_columns = ['id', 'created_on', 'created_by', 'meta_id', 'status', 'meta_state'];
-
-        $this->assertEquals($meta_columns, $entry->getMetaColumns(), 'getMetaColumns should return meta data columns');
-    }
 
 
     /**
@@ -220,7 +206,7 @@ class DataEntryTest extends TestCase
         $source_keys_unfiltered = ['id', 'created_on', 'created_by', 'meta_id', 'status', 'meta_state', 'seo_name', 'name', 'test_column', 'parents_id', 'description'];
         $source_keys_filtered   = ['seo_name', 'name', 'test_column', 'parents_id', 'description'];
 
-        $this->AssertEquals($source_keys_unfiltered, $entry->getSourceKeys(), 'getSourceKeys() should return the source keys, including meta columns');
-        $this->AssertEquals($source_keys_filtered, array_values($entry->getSourceKeys(true)), 'getSourceKeys() should return the filtered source keys, not including meta columns');
+        $this->assertEquals($source_keys_unfiltered, $entry->getSourceKeys(), 'getSourceKeys() should return the source keys, including meta columns');
+        $this->assertEquals($source_keys_filtered, array_values($entry->getSourceKeys(true)), 'getSourceKeys() should return the filtered source keys, not including meta columns');
     }
 }

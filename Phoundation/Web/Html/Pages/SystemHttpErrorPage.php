@@ -75,7 +75,7 @@ class SystemHttpErrorPage extends Page
      *
      * @return TemplateInterface
      */
-    public static function new(?string $name): TemplateInterface
+    public static function new(?string $name = null): TemplateInterface
     {
         return new static($name);
     }
