@@ -23,7 +23,7 @@ use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 trait TraitDataEntryRestrictions
 {
     use TraitDataRestrictions {
-        setRestrictions as protected __setRestrictions;
+        setRestrictionsObject as protected __setRestrictionsObject;
     }
 
 
@@ -32,7 +32,7 @@ trait TraitDataEntryRestrictions
      *
      * @return PhoRestrictions
      */
-    public function getRestrictions(): PhoRestrictionsInterface
+    public function getRestrictionsObject(): PhoRestrictionsInterface
     {
         return PhoRestrictions::newFromImport($this->getTypesafe('string', 'restrictions'));
     }
@@ -41,19 +41,19 @@ trait TraitDataEntryRestrictions
     /**
      * Sets access restrictions for this task
      *
-     * @param PhoRestrictionsInterface|array|string|null $restrictions
+     * @param PhoRestrictionsInterface|array|string|null $o_restrictions
      * @param bool                                       $write
      * @param string|null                                $label
      *
      * @return static
      */
-    public function setRestrictions(PhoRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static
+    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions = null, bool $write = false, ?string $label = null): static
     {
-        if (!$restrictions instanceof PhoRestrictionsInterface) {
-            $restrictions = PhoRestrictions::newFromImport($restrictions);
+        if (!$o_restrictions instanceof PhoRestrictionsInterface) {
+            $o_restrictions = PhoRestrictions::newFromImport($o_restrictions);
         }
 
-        return $this->set($restrictions->getPoadString(), 'restrictions')
-                    ->__setRestrictions($restrictions);
+        return $this->set($o_restrictions->getPoadString(), 'restrictions')
+                    ->__setRestrictionsObject($o_restrictions);
     }
 }

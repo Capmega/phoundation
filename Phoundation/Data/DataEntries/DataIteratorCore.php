@@ -20,6 +20,7 @@ use PDOStatement;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Cache\Cache;
 use Phoundation\Cli\CliAutoComplete;
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
@@ -33,6 +34,7 @@ use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\IteratorCore;
 use Phoundation\Data\Traits\TraitDataCacheKey;
+use Phoundation\Data\Traits\TraitDataColumns;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Data\Traits\TraitDataFilterForm;
@@ -61,8 +63,12 @@ use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use ReturnTypeWillChange;
 use Stringable;
 
+
 class DataIteratorCore extends IteratorCore implements DataIteratorInterface, IdentifierInterface
 {
+    use TraitDataColumns {
+        setColumns as protected __setColumns;
+    }
     use TraitDataCacheKey;
     use TraitDataConnector;
     use TraitDataDebug;
@@ -113,7 +119,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      *
      * @var QueryBuilderInterface
      */
-    protected QueryBuilderInterface $query_builder;
+    protected QueryBuilderInterface $o_query_builder;
 
     /**
      * Tracks if entries are stored by id or unique column
@@ -128,21 +134,6 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      * @var string $input_select_class
      */
     protected string $input_select_class = InputSelect::class;
-
-    /**
-     * Tracks what SQL columns will be used in loading data
-     *
-     * @note Defaults to ' `' . static::getTable() . '`.* '
-     * @var string|null $sql_columns
-     */
-    protected ?string $sql_columns = null;
-
-    /**
-     * Tracks if this list requires a parent, or not
-     *
-     * @var bool $require_parent
-     */
-    protected bool $require_parent = false;
 
     /**
      * Tracks the entries in this iterator that were modified
@@ -303,7 +294,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     public function getQueryBuilderObject(): QueryBuilderInterface
     {
         $this->useQueryBuilder();
-        return $this->query_builder;
+        return $this->o_query_builder;
     }
 
 
@@ -314,8 +305,8 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      */
     public function getQueryHash(): ?string
     {
-        if (isset($this->query_builder)) {
-            $hash = 'QB-' . $this->query_builder->getQueryHash() . sha1(sql()->parseQuery($this->query, $this->execute));
+        if (isset($this->o_query_builder)) {
+            $hash = 'QB-' . $this->o_query_builder->getQueryHash() . sha1(sql()->parseQuery($this->query, $this->execute));
 //Log::printr('QUERY BUILDER: ' . sql()->parseQuery($this->query_builder->getQuery(), $this->query_builder->getExecute()));
 
         } elseif ($this->query) {
@@ -340,7 +331,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      */
     public function modifyQueryBuilderObject(callable $callback): static
     {
-        $callback($this->query_builder);
+        $callback($this->o_query_builder);
         return $this;
     }
 
@@ -352,14 +343,14 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      */
     public function useQueryBuilder(): static
     {
-        if (!isset($this->query_builder)) {
-            $this->query_builder = QueryBuilder::new($this)
-                                               ->setDebug($this->debug)
-                                               ->setConnectorObject($this->getConnectorObject())
-                                               ->addSelect('`' . static::getTable() . '`.*');
+        if (empty($this->o_query_builder)) {
+            $this->o_query_builder = QueryBuilder::new($this)
+                                                 ->setDebug($this->debug)
+                                                 ->setConnectorObject($this->getConnectorObject())
+                                                 ->setSelects($this->getSqlSelectColumns());
 
             if ($this->status_filter !== false) {
-                $this->query_builder->addWhere(SqlQueries::is('`' . static::getTable() . '`.`status`', $this->status_filter, ':status'));
+                $this->o_query_builder->addWhere(SqlQueries::is('`' . static::getTable() . '`.`status`', $this->status_filter, ':status'));
             }
         }
 
@@ -376,7 +367,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      */
     public function setQueryBuilderObject(QueryBuilderInterface $query_builder): static
     {
-        $this->query_builder = $query_builder;
+        $this->o_query_builder = $query_builder;
         return $this;
     }
 
@@ -391,7 +382,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      */
     public function setQuery(?string $query, ?array $execute = null): static
     {
-        unset($this->query_builder);
+        unset($this->o_query_builder);
 
         $this->query   = $query;
         $this->execute = $execute;
@@ -404,19 +395,26 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      * Selects if we use the default query or a query from the QueryBuilder
      *
      * @param array|string|int|null $identifiers
+     * @param bool                  $like
      *
      * @return static
      */
-    protected function selectQuery(array|string|int|null $identifiers = null): static
+    protected function selectQuery(array|string|int|null $identifiers = null, bool $like = false): static
     {
-        // Use the default html_query and html_execute or QueryBuilder html_query and html_execute?
-        if (isset($this->query_builder)) {
-            $this->filter_form?->applyFiltersToQueryBuilder($this->query_builder);
+        // Use the query builder or hard-coded query
+        if (isset($this->o_query_builder)) {
+            // Add query builder filters from filter_form if attached, or identifiers first if specified
+            if (empty($identifiers)) {
+                $this->filter_form?->applyFiltersToQueryBuilder($this->o_query_builder);
 
-            $this->query   = $this->query_builder->getQuery();
-            $this->execute = $this->query_builder->getExecute();
+            } else {
+                $this->getQueryBuilderObject()->setIdentifiers($identifiers, $like);
+            }
 
-        } elseif (!isset($this->query) or $identifiers) {
+            $this->query   = $this->o_query_builder->getQuery();
+            $this->execute = $this->o_query_builder->getExecute();
+
+        } elseif (empty($this->query) or $identifiers) {
             if (static::getTable()) {
                 // Define default identifiers
                 if ($identifiers === null) {
@@ -424,9 +422,9 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
                 }
 
                 // Create a query with optional filtering for parents_id
-                if ($this->parent) {
-                    $parent_filter = '`' . static::getTable() . '`.`' . Strings::fromReverse($this->parent::getTable(), '_') . '_id` = :parents_id AND ';
-                    $this->execute['parents_id'] = $this->parent->getId();
+                if ($this->o_parent) {
+                    $parent_filter = '`' . static::getTable() . '`.`' . Strings::fromReverse($this->o_parent::getTable(), '_') . '_id` = :parents_id AND ';
+                    $this->execute['parents_id'] = $this->o_parent->getId();
 
                 } else {
                     $parent_filter = null;
@@ -435,7 +433,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
                 $this->buildManualQuery($identifiers, $where, $joins, $group, $order, $this->execute);
 
                 // Set default query
-                $this->query = 'SELECT  ' . $this->getSqlColumns() . '
+                $this->query = 'SELECT  ' . $this->getSqlSelectColumns() . '
                                 FROM   `' . static::getTable() . '`
                                 ' . $joins . '
                                 WHERE  ' . $parent_filter .  $where . $group . $order;
@@ -496,38 +494,25 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
 
 
     /**
-     * Returns if this Iterator requires a parent or not
-     *
-     * @return bool
-     */
-    public function getRequireParent(): bool
-    {
-        return $this->require_parent;
-    }
-
-
-    /**
-     * Sets if this Iterator requires a parent or not
-     *
-     * @param bool $require_parent
-     *
-     * @return static
-     */
-    public function setRequireParent(bool $require_parent): static
-    {
-        $this->require_parent = $require_parent;
-        return $this;
-    }
-
-
-    /**
      * Returns what SQL columns will be used in loading data
      *
      * @return string
      */
-    public function getSqlColumns(): string
+    public function getSqlSelectColumns(): string
     {
-        return $this->sql_columns ?? ' ' . static::getTableIdColumn() . ' AS `unique_identifier`, `' . static::getTable() . '`.* ';
+        if ($this->columns) {
+            $return = [];
+
+            // Add SQL SELECT for each specified column
+            foreach ($this->columns as $column) {
+                $return[] = SqlQueries::ensureQuotes(static::getTable()) . '.' . SqlQueries::ensureQuotes($column);
+            }
+
+            return implode(', ', $return);
+        }
+
+        // Load all columns
+        return SqlQueries::ensureQuotes(static::getTableIdColumn()) . ' AS `unique_identifier`, ' . SqlQueries::ensureQuotes(static::getTable()) . '.* ';
     }
 
 
@@ -563,21 +548,6 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
 
         unset($value);
         return $source;
-    }
-
-
-    /**
-     * Sets what SQL columns will be used in loading data
-     *
-     * @todo Clarify the title of this documentation, what does it mean "will be used" ????
-     * @param string|null $columns
-     *
-     * @return static
-     */
-    public function setSqlColumns(?string $columns): static
-    {
-        $this->sql_columns = $columns;
-        return $this;
     }
 
 
@@ -1215,7 +1185,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     {
         return $this->getAcceptedDataType()::new()
                                            ->setDebug($this->debug)
-                                           ->setRestrictions($this->restrictions)
+                                           ->setRestrictionsObject($this->o_restrictions)
                                            ->setConnectorObject($this->getConnectorObject())
                                            ->loadOrThis($identifier);
     }
@@ -1251,7 +1221,8 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
                     $entry = $this->loadObject($this->source[$key]);
                 }
 
-                $this->source[$key] = $entry;
+                $this->source[$key] = $entry->setDebug($this->debug)
+                                            ->setColumns($this->columns);
             }
         }
 
@@ -1340,67 +1311,44 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
 
 
     /**
-     * Load the id list from the database
+     * Load the Iterator list data from the database for use with auto complete
      *
-     * @todo Add support for specifying which column should be the identifier column instead of only id_column or unique_column
+     * This method will load only the specified column and automatically like filter on identifier [name => word%]
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $only_if_empty Will only load if the current DataIterator source is empty
+     * @param string|null $word   The word to filter on, if any. If no word is specified, all results will be returned
+     * @param string|null $column The column to filter on. If not specified, will default to the unique column for this
+     *                            DataIterator
      *
      * @return static
+     * @todo Add support for specifying which column should be the identifier column instead of only id_column or unique_column
      */
-    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = true): static
+    public function loadForAutocomplete(?string $word = null, ?string $column = null): static
     {
-        $this->setIsLoading(true)
-             ->selectQuery($identifiers);
+        if ($column === 'id') {
+            throw new OutOfBoundsException(tr('Cannot use auto complete on "id" column'));
+        }
 
-        cache('dataentries')->get($this->getCacheKey(), function ()  use ($identifiers, $only_if_empty) {
-            if (empty($this->source)) {
-                $this->source = sql($this->getConnectorObject())->setDebug($this->debug)
-                                                                ->listKeyValues($this->query, $this->execute, $this->keys_are_unique_column ? $this->getUniqueColumn() : $this->getIdColumn());
+        $column = $column ?? $this->getUniqueColumn();
 
-                if (static::getConfigurationPath()) {
-                    $this->source = array_merge($this->source, $this->loadFromConfiguration());
-                }
-
-            } else {
-                if ($only_if_empty) {
-                    throw new DataIteratorNotCleanException(tr('Cannot load database data into DataIterator, source is not empty'));
-                }
-
-                $this->source = array_merge(
-                    $this->source,
-                    sql($this->getConnectorObject())->setDebug($this->debug)
-                                                    ->listKeyValues(
-                                                        $this->query,
-                                                        $this->execute,
-                                                        static::getUniqueColumn()));
-            }
-
-            $this->is_loaded  = true;
-            $this->is_loading = false;
-        });
-
-        return $this;
+        return $this->setColumns(['id', $column])->load([$column => $word . '%'], true)->getAllRowsSingleColumn('name');
     }
 
 
     /**
-     * Load list from the database where the identifiers partially match
-     *
-     * @todo Add support for specifying which column should be the identifier column instead of only id_column or unique_column
+     * Load the Iterator list data from the database
      *
      * @param array|string|int|null $identifiers
-     * @param bool                  $only_if_empty Will only load if the current DataIterator source is empty
+     * @param bool                  $like
      *
      * @return static
+     * @todo Add support for specifying which column should be the identifier column instead of only id_column or unique_column
      */
-    public function loadLike(array|string|int|null $identifiers = null, bool $only_if_empty = true): static
+    public function load(array|string|int|null $identifiers = null, bool $like = false): static
     {
         $this->setIsLoading(true)
-             ->selectQuery($identifiers);
+             ->selectQuery($identifiers, $like);
 
-        cache('dataentries')->get($this->getCacheKey('-like'), function ()  use ($identifiers, $only_if_empty) {
+        cache('dataentries')->get($this->getCacheKey(), function ()  use ($identifiers) {
             if (empty($this->source)) {
                 $this->source = sql($this->getConnectorObject())->setDebug($this->debug)
                                                                 ->listKeyValues($this->query, $this->execute, $this->keys_are_unique_column ? $this->getUniqueColumn() : $this->getIdColumn());
@@ -1410,10 +1358,6 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
                 }
 
             } else {
-                if ($only_if_empty) {
-                    throw new DataIteratorNotCleanException(tr('Cannot load database data into DataIterator, source is not empty'));
-                }
-
                 $this->source = array_merge(
                     $this->source,
                     sql($this->getConnectorObject())->setDebug($this->debug)
@@ -1489,23 +1433,6 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     {
         foreach ($this->source as $key => $value) {
             $this->ensureObject($key);
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Will throw an OutOfBoundsException exception if no parent was set for this list
-     *
-     * @param string $action
-     *
-     * @return static
-     */
-    protected function ensureParent(string $action): static
-    {
-        if (!$this->parent and $this->require_parent) {
-            throw new OutOfBoundsException(tr('Cannot ":action", no parent specified', [':action' => $action]));
         }
 
         return $this;
@@ -1671,6 +1598,23 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
                 }
             }
         }
+
+        return $this;
+    }
+
+
+    /**
+     * Sets the columns that this DataIterator will load for each entry
+     *
+     * @param ArrayableInterface|array|string|null $columns
+     *
+     * @return static
+     */
+    public function setColumns(ArrayableInterface|array|string|null $columns): static
+    {
+        // Tell the QueryBuilder object to only use the specified columns
+        $this->__setColumns($columns);
+        $this->getQueryBuilderObject()->setSelects($this->getSqlSelectColumns());
 
         return $this;
     }

@@ -25,9 +25,9 @@ trait TraitDataRestrictions
     /**
      * Server object where the image conversion commands will be executed
      *
-     * @var PhoRestrictionsInterface|null $restrictions
+     * @var PhoRestrictionsInterface|null $o_restrictions
      */
-    protected ?PhoRestrictionsInterface $restrictions = null;
+    protected ?PhoRestrictionsInterface $o_restrictions = null;
 
 
     /**
@@ -35,34 +35,34 @@ trait TraitDataRestrictions
      *
      * @return PhoRestrictionsInterface
      */
-    public function getRestrictions(): PhoRestrictionsInterface
+    public function getRestrictionsObject(): PhoRestrictionsInterface
     {
-        if (empty($this->restrictions)) {
-            $this->restrictions = new PhoRestrictions();
+        if (empty($this->o_restrictions)) {
+            $this->o_restrictions = new PhoRestrictions();
         }
 
-        return $this->restrictions;
+        return $this->o_restrictions;
     }
 
 
     /**
      * Sets the server and filesystem restrictions for this object
      *
-     * @param PhoRestrictionsInterface|array|string|null $restrictions The file restrictions to apply to this object
-     * @param bool                                       $write        If $restrictions is not specified as a
+     * @param PhoRestrictionsInterface|array|string|null $o_restrictions The file restrictions to apply to this object
+     * @param bool                                       $write          If $restrictions is not specified as a
      *                                                                FsRestrictions class, but as a path string, or
      *                                                                array of path strings, then this method will
      *                                                                convert that into a FsRestrictions object and this
      *                                                                is the $write modifier for that object
-     * @param string|null                                $label        If $restrictions is not specified as a
+     * @param string|null                                $label          If $restrictions is not specified as a
      *                                                                FsRestrictions class, but as a path string, or
      *                                                                array of path strings, then this method will
      *                                                                convert that into a FsRestrictions object and this
      *                                                                is the $label modifier for that object
      */
-    public function setRestrictions(PhoRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static
+    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions = null, bool $write = false, ?string $label = null): static
     {
-        $this->restrictions = PhoRestrictions::ensure($restrictions, $write, $label);
+        $this->o_restrictions = PhoRestrictions::ensureObject($o_restrictions, $write, $label);
 
         return $this;
     }
@@ -77,6 +77,6 @@ trait TraitDataRestrictions
      */
     public function ensureRestrictions(?PhoRestrictionsInterface $restrictions): PhoRestrictionsInterface
     {
-        return PhoRestrictions::getRestrictionsOrDefault($restrictions, $this->restrictions);
+        return PhoRestrictions::getRestrictionsOrDefaultObject($restrictions, $this->o_restrictions);
     }
 }

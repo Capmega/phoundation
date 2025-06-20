@@ -87,7 +87,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     }
     use TraitDataFilterForm;
     use TraitDataParent {
-        setParentObject as protected __setParent;
+        setParentObject as protected __setParentObject;
     }
     use TraitDataRestrictions;
     use TraitDataRowCallbacks;
@@ -118,6 +118,13 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      * @var string
      */
     protected string $input_select_class = InputSelect::class;
+
+    /**
+     * Tracks validators that are required to pass to add values to this Iterator
+     *
+     * @var IteratorInterface $validators
+     */
+    protected IteratorInterface $validators;
 
     /**
      * Tracks if values in this Iterator should be automatically converted into objects, or not
@@ -251,21 +258,21 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Sets the parent
      *
-     * @param DataEntryInterface $parent
+     * @param DataEntryInterface $o_parent
      *
      * @return static
      */
-    public function setParentObject(DataEntryInterface $parent): static
+    public function setParentObject(DataEntryInterface $o_parent): static
     {
-        if ($this->getReadonly() !== $parent->getReadonly()) {
-            $this->setReadonly($this->getReadonly() or $parent->getReadonly());
+        if ($this->getReadonly() !== $o_parent->getReadonly()) {
+            $this->setReadonly($this->getReadonly() or $o_parent->getReadonly());
         }
 
-        if ($this->getDisabled() !== $parent->getDisabled()) {
-            $this->setDisabled($this->getDisabled() or $parent->getDisabled());
+        if ($this->getDisabled() !== $o_parent->getDisabled()) {
+            $this->setDisabled($this->getDisabled() or $o_parent->getDisabled());
         }
 
-        return $this->__setParent($parent);
+        return $this->__setParentObject($o_parent);
     }
 
 
@@ -440,7 +447,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @return void
      */
-    protected function checkDataTypeAndContent(mixed $value, Stringable|string|float|int|null $key): void
+    protected function checkDataTypeAndContent(mixed $value, Stringable|string|float|int|null $key = null): void
     {
         if ($this->accepted_data_types) {
             if (!is_datatype_or_class($this->accepted_data_types, $value)) {
@@ -458,11 +465,11 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             foreach ($this->validators as $name => $o_validator) {
                 if (!$o_validator($value)) {
                     throw OutOfBoundsException::new(tr('Iterator value argument ":key" with value ":value" failed to pass validator ":validator"', [
-                        ':key'       => $key,
+                        ':key'       => $key ?? tr('N/A'),
                         ':value'     => $value,
                         ':validator' => $name,
                     ]))->addData([
-                        'key'       => $key,
+                        'key'       => $key ?? tr('N/A'),
                         'value'     => $value,
                         'validator' => $name,
                         'iterator'  => $this->getName(),
@@ -513,9 +520,9 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      * @param mixed       $source
      * @param string|null $separator
      *
-     * @return IteratorInterface|DataIteratorInterface
+     * @return static
      */
-    public static function force(mixed $source, ?string $separator = ','): IteratorInterface|DataIteratorInterface
+    public static function force(mixed $source, ?string $separator = ','): static
     {
         return static::new(Arrays::force($source, $separator));
     }
@@ -527,9 +534,9 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      * @param Stringable|string $source
      * @param string|null       $separator
      *
-     * @return IteratorInterface
+     * @return static
      */
-    public static function explode(Stringable|string $source, ?string $separator = ','): IteratorInterface
+    public static function explode(Stringable|string $source, ?string $separator = ','): static
     {
         $source = (string) $source;
 
@@ -541,7 +548,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             $source = [$source];
         }
 
-        return Iterator::new()->setSource($source);
+        return static::new()->setSource($source);
     }
 
 
@@ -1311,9 +1318,9 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @return static
      */
-    public function getMatchingKeys(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): IteratorInterface
+    public function getMatchingKeys(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static
     {
-        return new Iterator(Arrays::keepMatchingKeys($this->source, $needles, $flags));
+        return new static(Arrays::keepMatchingKeys($this->source, $needles, $flags));
     }
 
 
@@ -1325,9 +1332,24 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @return static
      */
-    public function getMatchingValues(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): IteratorInterface
+    public function getMatchingValues(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static
     {
-        return new Iterator(Arrays::keepMatchingValues($this->source, $needles, $flags));
+        return new static(Arrays::keepMatchingValues($this->source, $needles, $flags));
+    }
+
+
+    /**
+     * Returns a list with all the values that match the specified value
+     *
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param int                                                 $flags
+     * @param string|null                                         $column
+     *
+     * @return static
+     */
+    public function keepMatchingValuesStartingWith(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH, ?string $column = null): static
+    {
+        return new static(Arrays::keepMatchingValuesStartingWith($this->source, $needles, $flags, $column));
     }
 
 
@@ -1337,25 +1359,11 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      * @param ArrayableInterface|Stringable|array|string|int|null $needles
      * @param int                                                 $flags
      *
-     * @return IteratorInterface
+     * @return static
      */
-    public function keepMatchingValuesStartingWith(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH, ?string $column = null): IteratorInterface
+    public function keepMatchingKeysStartingWith(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH): static
     {
-        return new Iterator(Arrays::keepMatchingValuesStartingWith($this->source, $needles, $flags, $column));
-    }
-
-
-    /**
-     * Returns a list with all the values that match the specified value
-     *
-     * @param ArrayableInterface|Stringable|array|string|int|null $needles
-     * @param int                                                 $flags
-     *
-     * @return IteratorInterface
-     */
-    public function keepMatchingKeysStartingWith(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH): IteratorInterface
-    {
-        return new Iterator(Arrays::keepMatchingKeysStartingWith($this->source, $needles, $flags));
+        return new static(Arrays::keepMatchingKeysStartingWith($this->source, $needles, $flags));
     }
 
 
@@ -1730,9 +1738,9 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      * @param array|string          $columns
      * @param bool                  $exception
      *
-     * @return IteratorInterface
+     * @return static
      */
-    #[ReturnTypeWillChange] public function getSingleRowMultipleColumns(Stringable|string|int $key, array|string $columns, bool $exception = true): IteratorInterface
+    #[ReturnTypeWillChange] public function getSingleRowMultipleColumns(Stringable|string|int $key, array|string $columns, bool $exception = true): static
     {
         if (!$columns) {
             throw new OutOfBoundsException(tr('Cannot return source key columns for ":this", no columns specified', [
@@ -1743,7 +1751,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         $value = $this->get($key, $exception);
         $value = $this->ensureSourceValueHasColumns($value, $columns);
 
-        return new Iterator(Arrays::keepKeys($value, $columns));
+        return new static(Arrays::keepKeys($value, $columns));
     }
 
 
@@ -1927,9 +1935,9 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      * @param string $column
      * @param bool   $allow_scalar
      *
-     * @return IteratorInterface
+     * @return static
      */
-    public function getAllRowsSingleColumn(string $column, bool $allow_scalar = false): IteratorInterface
+    public function getAllRowsSingleColumn(string $column, bool $allow_scalar = false): static
     {
         if (!$column) {
             throw new OutOfBoundsException(tr('Cannot return source column for ":this", no column specified', [
@@ -1955,7 +1963,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        return new Iterator($return);
+        return new static($return);
     }
 
 
@@ -2018,9 +2026,9 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @param array|string|null $columns
      *
-     * @return IteratorInterface
+     * @return static
      */
-    public function getAllRowsMultipleColumns(array|string|null $columns): IteratorInterface
+    public function getAllRowsMultipleColumns(array|string|null $columns): static
     {
         if (!$columns) {
             // Return all columns
@@ -2036,7 +2044,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             $return[$key] = Arrays::keepKeysOrdered($value, $columns);
         }
 
-        return new Iterator($return);
+        return new static($return);
     }
 
 
@@ -2106,7 +2114,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      */
     public function getCacheKeySeed(?String $append_string = null): ?string
     {
-        return static::class . '-' . Request::getTargetObject()->getRootname() . ($this->parent ? '-' . $this->parent::class . '-' . $this->parent->getId() : '') . $append_string;
+        return static::class . '-' . Request::getTargetObject()->getRootname() . ($this->o_parent ? '-' . $this->o_parent::class . '-' . $this->o_parent->getId() : '') . $append_string;
     }
 
 
@@ -2262,15 +2270,15 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @param IteratorInterface|array $source
      *
-     * @return IteratorInterface
+     * @return static
      */
-    public function diff(IteratorInterface|array $source): IteratorInterface
+    public function diff(IteratorInterface|array $source): static
     {
         if ($source instanceof IteratorInterface) {
             $source = $source->getSource();
         }
 
-        return new Iterator(array_diff($this->source, $source));
+        return new static(array_diff($this->source, $source));
     }
 
 

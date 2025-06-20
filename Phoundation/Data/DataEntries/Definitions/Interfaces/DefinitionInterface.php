@@ -1291,24 +1291,24 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return PhoRestrictionsInterface
      */
-    public function getRestrictions(): PhoRestrictionsInterface;
+    public function getRestrictionsObject(): PhoRestrictionsInterface;
 
     /**
      * Sets the server and filesystem restrictions for this object
      *
-     * @param PhoRestrictionsInterface|array|string|null $restrictions The file restrictions to apply to this object
-     * @param bool                                       $write        If $restrictions is not specified as a
+     * @param PhoRestrictionsInterface|array|string|null $o_restrictions The file restrictions to apply to this object
+     * @param bool                                       $write          If $restrictions is not specified as a
      *                                                                FsRestrictions class, but as a path string, or
      *                                                                array of path strings, then this method will
      *                                                                convert that into a FsRestrictions object and this
      *                                                                is the $write modifier for that object
-     * @param string|null                                $label        If $restrictions is not specified as a
+     * @param string|null                                $label          If $restrictions is not specified as a
      *                                                                FsRestrictions class, but as a path string, or
      *                                                                array of path strings, then this method will
      *                                                                convert that into a FsRestrictions object and this
      *                                                                is the $label modifier for that object
      */
-    public function setRestrictions(PhoRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
+    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions = null, bool $write = false, ?string $label = null): static;
 
     /**
      * Returns if this column is forced processed or not
