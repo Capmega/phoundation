@@ -411,11 +411,11 @@ class Cli
                     throw new OutOfBoundsException(tr('Empty argument specified'));
 
                 case 1:
-                    $test = Strings::ensureStartsWith($argument, '-');
+                    $test = Strings::ensureBeginsWith($argument, '-');
                     break;
 
                 default:
-                    $test = Strings::ensureStartsWith($argument, '--');
+                    $test = Strings::ensureBeginsWith($argument, '--');
             }
         }
 

@@ -73,6 +73,7 @@ declare(strict_types=1);
 namespace Phoundation\Cli;
 
 use JetBrains\PhpStorm\NoReturn;
+use PDOStatement;
 use Phoundation\Accounts\Users\Locale\Language\Languages;
 use Phoundation\Cli\Exception\CliAutoCompleteException;
 use Phoundation\Core\Core;
@@ -235,29 +236,33 @@ class CliAutoComplete
             $word  = array_shift($words);
 
             if (str_starts_with((string) $word, '-')) {
-                static::processArguments(static::$system_arguments);
+                CliAutoComplete::processArguments(static::$system_arguments);
 
             } else {
                 if (empty($data['commands'])) {
-                    Log::warning(ts('Auto complete could not find any available cached root commands. try ./pho -Z to rebuild system caches'));
-                    Log::error(ts('no-commands-available-see-logs'), 10);
-
-                } else {
-                    CliAutoComplete::showResults($data['commands']);
+                    Log::warning(ts('Auto complete could not find any available cached root commands. try ./pho -Z to rebuild system caches'), echo_screen: false);
+                    Log::error(ts('no_root_commands_available_see_syslog_for_more_information'), 10);
+                    exit(1);
                 }
+
+                CliAutoComplete::showResults($data['commands']);
             }
 
-        } elseif (static::$position > count($cli_commands)) {
+        }
+
+        if (static::$position > count($cli_commands)) {
             // Invalid situation, supposedly the location was beyond, after the number of arguments?
             Log::error(ts('Cannot process commands, command line cursor position ":position" is beyond the command line count ":count"', [
                 ':position' => static::$position,
                 ':count'    => count($cli_commands),
             ]), echo_screen: false);
 
-            Log::error('Invalid-auto-complete-arguments', 10);
+            Log::error('invalid_auto_complete_arguments_see_syslog_for_more_information', 10);
             exit(1);
 
-        } elseif ($data['position'] > static::$position) {
+        }
+
+        if ($data['position'] > static::$position) {
             // The findCommand() method already found this particular word, so we know it exists! However, there may be
             // other commands starting with this particular word, so we may have to display multiple options instead
             $matches = static::getCommandsStartingWith($data['previous_commands'], $cli_commands[static::$position]);
@@ -269,50 +274,45 @@ class CliAutoComplete
 
                 case 1:
                     echo $cli_commands[static::$position];
-                    break;
+                    exit();
 
                 default:
                     // Multiple options available, still, show all!
-                    static::showResults($matches);
-            }
-
-        } else {
-            $argument_command = isset_get($cli_commands[static::$position], '');
-
-            if (!$argument_command) {
-                // There are no commands; Are there modifier arguments, perhaps?
-                $arguments = ArgvValidator::getArguments();
-
-                if ($arguments) {
-                    // Get the argument from the modifier arguments list
-                    $argument_command = array_shift($arguments);
-                }
-            }
-
-            if ($argument_command) {
-                // We have an argument command specified, likely it doesn't exist
-                if (str_starts_with($argument_command, '-')) {
-                    // This is a system modifier argument, show the system modifier arguments instead.
-                    $data['commands'] = [];
-
-                    foreach (static::$system_arguments as $arguments => $o_definitions) {
-                        $arguments = explode(',', $arguments);
-
-                        foreach ($arguments as $argument) {
-                            $data['commands'][] = $argument;
-                        }
-                    }
-                }
-
-                CliAutoComplete::showResults(static::getCommandsStartingWith($data['commands'], $argument_command));
-
-            } else {
-                CliAutoComplete::showResults($data['commands']);
+                    CliAutoComplete::showResults($matches);
             }
         }
 
-        // We're done,
-        exit();
+        $argument_command = isset_get($cli_commands[static::$position], '');
+
+        if (!$argument_command) {
+            // There are no commands; Are there modifier arguments, perhaps?
+            $arguments = ArgvValidator::getArguments();
+
+            if ($arguments) {
+                // Get the argument from the modifier arguments list
+                $argument_command = array_shift($arguments);
+            }
+        }
+
+        if ($argument_command) {
+            // We have an argument command specified, likely it doesn't exist
+            if (str_starts_with($argument_command, '-')) {
+                // This is a system modifier argument, show the system modifier arguments instead.
+                $data['commands'] = [];
+
+                foreach (static::$system_arguments as $arguments => $o_definitions) {
+                    $arguments = explode(',', $arguments);
+
+                    foreach ($arguments as $argument) {
+                        $data['commands'][] = $argument;
+                    }
+                }
+            }
+
+            CliAutoComplete::showResults(static::getCommandsStartingWith($data['commands'], $argument_command));
+        }
+
+        CliAutoComplete::showResults($data['commands']);
     }
 
 
@@ -321,9 +321,9 @@ class CliAutoComplete
      *
      * @param array $argument_definitions
      *
-     * @return void
+     * @return never
      */
-    #[NoReturn] public static function processArguments(array $argument_definitions): void
+    #[NoReturn] public static function processArguments(array $argument_definitions): never
     {
         // Get the word where we're <TAB>bing on
         if (static::$position >= 0) {
@@ -372,6 +372,15 @@ class CliAutoComplete
                         // The $requires_value contains a list of possible values
                         $results = $requires_value;
                     }
+
+                } else {
+                    // This processes the new auto suggest formats
+                    if (is_string($requires_value)) {
+                        $results = static::processDefinition('argument ' . isset_get($previous_word, 'unknown'), $requires_value, $word);
+
+                    } elseif (is_callable($requires_value)) {
+                        $results = static::processDefinition('argument ' . isset_get($previous_word, 'unknown'), $requires_value, $word);
+                    }
                 }
             }
 
@@ -392,10 +401,10 @@ class CliAutoComplete
         // Process results only if we have any
         if (isset($results)) {
             CliAutoComplete::showResults($results, $word);
-
-            // Die here as we have echoed results!
-            exit();
         }
+
+        // There are no results
+        exit();
     }
 
 
@@ -404,9 +413,9 @@ class CliAutoComplete
      *
      * @param IteratorInterface|array|string $results
      * @param string|null $word
-     * @return void
+     * @return never
      */
-    protected static function showResults(IteratorInterface|array|string $results, ?string $word = null): void
+    #[NoReturn] protected static function showResults(IteratorInterface|array|string $results, ?string $word = null): never
     {
         // Sort the results, either array or Iterator
         if (is_array($results)) {
@@ -419,9 +428,11 @@ class CliAutoComplete
 
         } else {
             // The given result is neither array nor Iterator
-            throw new OutOfBoundsException(tr('Invalid ":word" auto completion results specified', [
+            throw OutOfBoundsException::new(tr('Invalid ":word" auto completion results specified', [
                 ':word' => $word ? 'word' : 'noword',
-            ]));
+            ]))->addData([
+                'results' => $results,
+            ]);
         }
 
         foreach ($results as $result) {
@@ -452,6 +463,9 @@ class CliAutoComplete
                 echo ((string) $result) . PHP_EOL;
             }
         }
+
+        // Die here as we've echoed the results!
+        exit();
     }
 
 
@@ -459,59 +473,60 @@ class CliAutoComplete
      * Process the specified definition
      *
      * @param string      $name
-     * @param mixed       $o_definition
+     * @param mixed       $definition
      * @param string|null $word
      *
      * @return IteratorInterface|array|string|null
      */
-    protected static function processDefinition(string $name, mixed $o_definition, ?string $word): IteratorInterface|array|string|null
+    protected static function processDefinition(string $name, mixed $definition, ?string $word): IteratorInterface|array|string|null
     {
         // If no definitions were given, we're done
-        if (is_null($o_definition)) {
+        if (is_null($definition)) {
             return null;
         }
 
         // If the given definition was a function, we can just return the result
-        if (is_callable($o_definition)) {
-            $results = $o_definition((string) $word, ArgvValidator::getArguments());
+        if (is_callable($definition)) {
+            $results = $definition((string) $word, ArgvValidator::getArguments());
 
-            if (is_array($results)) {
+            if (is_array($results) or ($results instanceof IteratorInterface)) {
                 // Limit the number of results
-                $results = static::limit($results);
-
-            } elseif (!is_string($results) and !($results instanceof IteratorInterface)) {
-                throw OutOfBoundsException::new(tr('Executed auto complete callback ":name" with word ":word" returned invalid value with datatype ":results", it should be either null, string, array, or IteratorInterface', [
-                    ':results' =>  get_class_or_datatype($results),
-                    ':word'    => $word,
-                    ':name'    => $name,
-                ]))->setData([
-                    'results' => $results
-                ]);
+                return static::limit($results);
             }
 
-            return $results;
+            // The callback returned a string. Assume it is a query, so update the definition to be the query instead
+            $definition = $results;
         }
 
-        if (is_string($o_definition)) {
-            if (str_starts_with(trim($o_definition), 'SELECT ')) {
+        if (is_string($definition)) {
+            if (str_starts_with(trim($definition), 'SELECT ')) {
                 if ($word) {
                     // Execute the query filtering on the specified word and limit the results
-                    return static::limit(sql()->listScalar($o_definition, [':word' => '%' . $word . '%']));
+                    return static::limit(sql()->listScalar($definition, [':word' => '%' . $word . '%']));
                 }
 
                 // Execute the query completely and limit the results
-                return static::limit(sql()->listScalar($o_definition));
+                return static::limit(sql()->listScalar($definition));
             }
 
-            return $o_definition;
+            return $definition;
+        }
+
+        if ($definition instanceof PDOStatement) {
+            // Convert the query result into an array
+            $definition = sql()->listKeyValue($definition);
+
+        } elseif ($definition instanceof IteratorInterface) {
+            // Convert the Iterator to an array
+            $definition = $definition->getSource();
         }
 
         // Process an array, return all entries that have partial match
-        if (is_array($o_definition)) {
-            $o_definition = static::limit($o_definition);
+        if (is_array($definition)) {
+            $definition = static::limit($definition);
             $results    = [];
 
-            foreach ($o_definition as $value) {
+            foreach ($definition as $value) {
                 if (!$word or str_contains(strtolower(trim($value)), $word)) {
                     $results[] = $value;
                 }
@@ -520,21 +535,24 @@ class CliAutoComplete
             return $results;
         }
 
-        throw new CliAutoCompleteException(tr('Failed to process auto complete definition ":definition" for command ":command"', [
+        throw CliAutoCompleteException::new(tr('Failed to process auto complete definition ":definition" for command ":command", the definition returned no array or IteratorInterface object', [
+            ':definition' => $name,
             ':command'    => static::$command,
-            ':definition' => $o_definition,
-        ]));
+        ]))->addData([
+            'definition' => $name,
+            'results'    => $definition
+        ]);
     }
 
 
     /**
      * Automatically limit the specified result set to the configured auto complete limit
      *
-     * @param array $source
+     * @param IteratorInterface|array $source
      *
      * @return array
      */
-    public static function limit(array $source): array
+    public static function limit(IteratorInterface|array $source): array
     {
         return Arrays::limit($source, static::getLimit());
     }
@@ -600,37 +618,56 @@ class CliAutoComplete
         static::processCommandPosition($o_definitions, $word, static::$position);
 
         // Do we have an "all other positions" entry?
+        static::processCommandPosition($o_definitions, $word, null);
         static::processCommandPosition($o_definitions, $word, -1);
+        static::processCommandPosition($o_definitions, $word, 'all');
     }
 
 
     /**
      * Process auto complete for this command from the definitions specified by the command
      *
-     * @param array  $o_definitions
-     * @param string $word
-     * @param int    $position
+     * @param array           $definitions
+     * @param string          $word
+     * @param string|int|null $position
      *
      * @return void
      */
-    protected static function processCommandPosition(array $o_definitions, string $word, int $position): void
+    protected static function processCommandPosition(array $definitions, string $word, string|int|null $position): void
     {
-        if (array_key_exists($position, isset_get($o_definitions))) {
+        if (!is_array($definitions)) {
+            throw CliAutoCompleteException::new(tr('Invalid auto complete definitions specified for command ":command", the definitions must be an array', [
+                ':command' => static::$command,
+            ]))->addData([
+                'definitions' => $definitions,
+            ]);
+        }
+
+        if (array_key_exists($position, $definitions)) {
             // Get position specific data
-            $position_data = $o_definitions[$position];
+            $position_data = $definitions[$position];
 
             if ($position_data === true) {
-                // Argument is required but we cannot autocomplete it
-
-            } elseif ($word) {
-                // We may have a word or not, check if position_data allows word (or not) and process
-                if (array_key_exists('word', $position_data)) {
-                    $results = static::processDefinition('position ' . $position, $position_data['word'], $word);
-                }
+                // Argument is required but we can't autocomplete it
 
             } else {
-                if (array_key_exists('noword', $position_data)) {
-                    $results = static::processDefinition('position ' . $position, $position_data['noword'], null);
+                if (is_array($position_data)) {
+                    // This is the old auto complete formatting
+                    if ($word) {
+                        // We may have a word or not, check if position_data allows word (or not) and process
+                        if (array_key_exists('word', $position_data)) {
+                            $results = static::processDefinition('position ' . $position, $position_data['word'], $word);
+                        }
+
+                    } else {
+                        if (array_key_exists('noword', $position_data)) {
+                            $results = static::processDefinition('position ' . $position, $position_data['noword'], $word);
+                        }
+                    }
+
+                } else {
+                    // This is the new auto complete formatting
+                    $results = static::processDefinition('position ' . $position, $position_data, $word);
                 }
             }
 
@@ -638,7 +675,7 @@ class CliAutoComplete
             if (isset($results)) {
                 CliAutoComplete::showResults($results, $word);
 
-                // Die here as we have echoed the results!
+                // Die here as we've echoed the results!
                 exit();
             }
         }
@@ -650,9 +687,9 @@ class CliAutoComplete
      *
      * @param IteratorInterface|array|null $o_definitions
      *
-     * @return void
+     * @return never
      */
-    public static function processCommandArguments(IteratorInterface|array|null $o_definitions): void
+    #[NoReturn] public static function processCommandArguments(IteratorInterface|array|null $o_definitions): never
     {
         if ($o_definitions) {
             if ($o_definitions instanceof IteratorInterface) {
@@ -660,11 +697,10 @@ class CliAutoComplete
                 $o_definitions = $o_definitions->getSource();
             }
 
-            static::processArguments(array_merge($o_definitions, static::$system_arguments));
-
-        } else {
-            static::processArguments(static::$system_arguments);
+            CliAutoComplete::processArguments(array_merge($o_definitions, static::$system_arguments));
         }
+
+        CliAutoComplete::processArguments(static::$system_arguments);
     }
 
 

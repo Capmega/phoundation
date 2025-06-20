@@ -28,6 +28,7 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Config\Config;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Audio\Audio;
+use Phoundation\Audio\Success;
 use Phoundation\Cache\Cache;
 use Phoundation\Cache\InstanceCache;
 use Phoundation\Cli\Exception\CliAutoCompleteException;
@@ -71,6 +72,7 @@ use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Requests\Request;
+use Phoundation\Web\Requests\Response;
 use Throwable;
 
 
@@ -301,7 +303,6 @@ class CliCommand
             $parameters = CliCommand::start();
 
         } catch (Throwable $e) {
-showdie($e);
             echo 'CLI startup failed with the following exception:' . PHP_EOL;
             throw $e;
         }
@@ -320,7 +321,7 @@ showdie($e);
         // Execute the command and finish execution
         try {
             CliCommand::setProcessTitle();
-            Request::setRestrictions(PhoRestrictions::newFilesystemRootObject());
+            Request::setRestrictionsObject(PhoRestrictions::newFilesystemRootObject());
             Request::execute(CliCommand::$command_file . '.php');
 
         } catch (SqlNoTimezonesException $e) {
@@ -485,7 +486,7 @@ showdie($e);
         if (Core::getMaintenanceMode()) {
             // We're running in maintenance mode, limit command execution to system/
             $return['limit']  = ['system/', 'project/', 'info'];
-            $return['reason'] = tr('system has been placed in maintenance mode by user ":user" and only "./pho system ..." or "./pho project ..." commands are available right now. If maintenance mode is stuck then please run "./pho project modes maintenance disable" to disable maintenance mode. Please note that all web requests are being blocked as well during maintenance mode!', [
+            $return['reason'] = tr('system has been placed in maintenance mode by user ":user" and only "./pho project ..." commands are available right now. If maintenance mode is stuck then please run "./pho project modes maintenance disable" to disable maintenance mode. Please note that all web requests are being blocked as well during maintenance mode!', [
                 ':user' => Core::getMaintenanceMode(),
             ]);
         }
@@ -628,8 +629,8 @@ showdie($e);
         // As what user should we execute this? Build the sudo command to be executed
         $command = 'sudo -Esu ' . escapeshellarg($user) . ' ' . $command . ' ' . Strings::force($arguments, ' ');
 
-        if (!CliAutoComplete::isActive() and VERBOSE) {
-            if (VERBOSE) {
+        if (!CliAutoComplete::isActive() and Log::getVerbose()) {
+            if (Log::getVerbose()) {
                 echo 'Re-executing ./pho command as user "' . $user . '" with command:' . $command . PHP_EOL;
 
             } else {
@@ -776,9 +777,7 @@ showdie($e);
         } else {
             // Give a "success!" sound for normally executed commands (so NOT auto complete actions!)
             if (!CliAutoComplete::isActive()) {
-                Audio::new('success.mp3')
-                     ->setTimeout(5)
-                     ->playLocal(true);
+                Success::new()->playLocal(true);
 
                 if ($exit_message) {
                     Log::success($exit_message, 8);
@@ -1033,6 +1032,22 @@ showdie($e);
 
 
     /**
+     * Returns the command to replicate auto complete commands
+     *
+     * @return string
+     */
+    public static function getAutoCompleteCommand(): string
+    {
+        $complete = array_pop($_SERVER['argv']);
+        $complete = Strings::quote($complete, '"');
+
+        $_SERVER['argv'][] = $complete;
+
+        return implode(' ', $_SERVER['argv']);
+    }
+
+
+    /**
      * Process auto complete requests
      *
      * @return string|null
@@ -1041,8 +1056,8 @@ showdie($e);
     {
         Core::setScriptState();
 
-        Log::action(ts('Executing auto complete with command ":command"', [
-            ':command' => implode(' ', $_SERVER['argv'])
+        Log::action(ts('Executing auto complete with command: :command', [
+            ':command' => CliCommand::getAutoCompleteCommand(),
         ]), 7, echo_screen: false);
 
         try {
@@ -1317,7 +1332,7 @@ showdie($e);
 ./pho find COMMAND
 ./pho rebuild
 ./pho accounts users create --help
-./pho system update -H
+./pho project update -H
 ./pho dev patch -H
 ./pho project modes maintenance disable
 ./pho <TAB>
@@ -1363,7 +1378,7 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
                 throw $reason;
             }
 
-            throw ScriptException::new(tr('Cannot execute command ":command" because :reason. You may need to execute "./pho system setup"', [
+            throw ScriptException::new(tr('Cannot execute command ":command" because :reason. You may need to execute "./pho project setup"', [
                 ':command' => $test,
                 ':reason'  => $reason,
             ]));
@@ -1821,21 +1836,27 @@ return 'under construction';
             Session::initializePhpIni();
 
             // Define basic platform constants
-            define('ADMIN', '');
-            define('ALL', $argv['all']);
-            define('DELETED', $argv['deleted']);
-            define('FORCE', $argv['force']);
-            define('LIMIT', get_null($argv['limit']) ?? config()->getNatural('paging.limit', 50));
-            define('NOAUDIO', $argv['no_audio'] or $argv['auto_complete']); // auto complete mode disables audio
-            define('NOCOLOR', $argv['no_color']);
+            define('ADMIN'     , '');
+            define('ALL'       , $argv['all']);
+            define('DELETED'   , $argv['deleted']);
+            define('FORCE'     , $argv['force']);
+            define('LIMIT'     , get_null($argv['limit']) ?? config()->getNatural('paging.limit', 50));
+            define('NOAUDIO'   , $argv['no_audio'] or $argv['auto_complete']); // auto complete mode disables audio
+            define('NOCOLOR'   , $argv['no_color']);
             define('NOWARNINGS', $argv['no_warnings']);
-            define('OUTPUT', $argv['json_output'] ? 'json' : 'normal');
-            define('PAGE', $argv['page']);
-            define('PROTOCOL', config()->get('web.protocol', 'https://'));
-            define('PWD', Strings::slash(isset_get($_SERVER['PWD'])));
-            define('STATUS', $argv['status']);
-            define('TEST', $argv['test']);
-            define('VERBOSE', $argv['verbose']);
+            define('OUTPUT'    , $argv['json_output'] ? 'json' : 'normal');
+            define('PAGE'      , $argv['page']);
+            define('PROTOCOL'  , config()->get('web.protocol', 'https://'));
+            define('PWD'       , Strings::slash(isset_get($_SERVER['PWD'])));
+            define('STATUS'    , $argv['status']);
+            define('TEST'      , $argv['test']);
+            define('VERBOSE'   , $argv['verbose']);
+
+            if ($argv['log_level']) {
+                Log::setThreshold($argv['log_level']);
+            }
+
+            Log::setVerbose($argv['verbose']);
 
             // Set requested language
             Core::writeRegister($argv['language'] ?? config()->getString('languages.default', 'en'), 'system', 'language');
@@ -1890,14 +1911,9 @@ return 'under construction';
                 // User set timeout
                 Core::setTimeout((int)$argv['timeout']);
 
-            }
-            else {
+            } else {
                 // Use default timeout
                 Core::setTimeout();
-            }
-
-            if ($argv['log_level']) {
-                Log::setThreshold($argv['log_level']);
             }
 
             if ($argv['prefix']) {
@@ -1918,7 +1934,7 @@ return 'under construction';
             Core::setLocale($argv['locale'] ?? config()->getString('locale.default', 'en-ca'));
 
             // Prepare for unicode usage
-            if (config()->get('languages.encoding.character-set', 'UTF-8') === 'UTF-8') {
+            if (Response::hasEncoding('UTF-8')) {
                 // TODO Fix this godawful mess!
                 mb_init(not_empty(config()->get('locale.LC_CTYPE', ''), config()->get('locale.LC_ALL', '')));
 
@@ -2044,10 +2060,19 @@ return 'under construction';
 
             if ($argv['clear_caches']) {
                 // Clear all caches
-                Core::enableInitState();
-                Cache::clearAll();
-                CliCommand::setRequireDefault(false);
-                Core::disableInitState();
+                try {
+                    Core::enableInitState();
+                    Log::setVerbose(true);
+                    Cache::clearAll();
+                    Log::setVerbose(VERBOSE);
+                    CliCommand::setRequireDefault(false);
+                    Core::disableInitState();
+
+                } catch (Throwable $e) {
+                    // Something went wrong, reset Log VERBOSE setting to avoid spamming extra lines on top of Exception
+                    Log::setVerbose(VERBOSE);
+                    throw $e;
+                }
             }
 
             if ($argv['clear_tmp']) {
@@ -2071,7 +2096,6 @@ return 'under construction';
             CliCommand::$service = $argv['service'];
 
         } catch (Throwable $e) {
-print_r($e);
             throw new CliCommandException(ts('Failed to process system arguments'), $e);
         }
     }
