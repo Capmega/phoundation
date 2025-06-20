@@ -111,15 +111,15 @@ class SshAccounts extends DataIterator
     /**
      * @inheritDoc
      */
-    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false): static
+    public function load(array|string|int|null $identifiers = null, bool $like = false): static
     {
-        parent::load($identifiers, $only_if_empty);
+        parent::load($identifiers, $like);
 
         // If any of the accounts have the "file" key, replace that key with ssh_key value
         foreach ($this->source as &$entry) {
             if (empty($entry['name'])) {
-                // No name always default to username
-                $entry['name'] = $entry['username'];
+                // Unnamed entries always default to username@hostname
+                $entry['name'] = array_get_safe($entry, 'username') . '@' . array_get_safe($entry, 'hostname');
             }
 
             if (array_key_exists('file', $entry)) {

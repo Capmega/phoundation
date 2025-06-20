@@ -58,9 +58,9 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
      */
     public function __construct(PhoDirectoryInterface $directory)
     {
-        $this->parent              = $directory;
+        $this->o_parent            = $directory;
         $this->accepted_data_types = [PhoPathInterface::class];
-        $this->restrictions        = $directory->getRestrictions();
+        $this->o_restrictions        = $directory->getRestrictionsObject();
 
         $this->___construct($directory);
     }

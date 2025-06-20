@@ -57,7 +57,7 @@ trait TraitProcessVariables
     use TraitDataLogLevel;
     use TraitDataServer;
     use TraitDataRestrictions {
-        setRestrictions as protected ___setRestrictions;
+        setRestrictionsObject as protected __setRestrictionsObject;
     }
 
 
@@ -376,7 +376,7 @@ trait TraitProcessVariables
 
         if ($execution_directory_or_restrictions) {
             if ($execution_directory_or_restrictions instanceof PhoRestrictions) {
-                $this->setRestrictions($execution_directory_or_restrictions);
+                $this->setRestrictionsObject($execution_directory_or_restrictions);
 
             } else {
                 $this->setExecutionDirectory($execution_directory_or_restrictions);
@@ -393,16 +393,16 @@ trait TraitProcessVariables
      *
      * @note NULL means this local server
      *
-     * @param PhoRestrictionsInterface|array|string|null $restrictions
+     * @param PhoRestrictionsInterface|array|string|null $o_restrictions
      * @param bool                                       $write
      * @param string|null                                $label
      *
      * @return static
      */
-    public function setRestrictions(PhoRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static
+    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions = null, bool $write = false, ?string $label = null): static
     {
         $this->cached_command_line = null;
-        return $this->___setRestrictions($restrictions, $write, $label);
+        return $this->__setRestrictionsObject($o_restrictions, $write, $label);
     }
 
 
@@ -851,7 +851,7 @@ trait TraitProcessVariables
     {
         $this->cached_command_line = null;
         $this->execution_directory = $execution_directory;
-        $this->restrictions        = $execution_directory?->getRestrictions() ?? PhoRestrictions::new();
+        $this->o_restrictions        = $execution_directory?->getRestrictionsObject() ?? PhoRestrictions::new();
 
         return $this;
     }
@@ -1864,7 +1864,7 @@ trait TraitProcessVariables
 
             } else {
                 // Redirect output to a file
-                PhoDirectory::new(dirname($redirect), $this->restrictions->getParent())
+                PhoDirectory::new(dirname($redirect), $this->o_restrictions->getParent())
                             ->ensure('output redirect file');
 
                 $this->output_redirect[$channel] = ($append ? '>>' : '> ') . $redirect;
@@ -1936,7 +1936,7 @@ trait TraitProcessVariables
         $this->cached_command_line = null;
 
         if ($redirect) {
-            PhoFile::new($redirect, $this->restrictions)->checkReadable();
+            PhoFile::new($redirect, $this->o_restrictions)->checkReadable();
             $this->input_redirect[$channel] = $redirect;
         }
 

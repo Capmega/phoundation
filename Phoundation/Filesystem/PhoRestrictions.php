@@ -368,7 +368,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      *
      * @return static
      */
-    public static function getRestrictionsOrDefault(PhoRestrictionsInterface|null ...$restrictions): static
+    public static function getRestrictionsOrDefaultObject(PhoRestrictionsInterface|null ...$restrictions): static
     {
         // Find the first restrictions object
         foreach ($restrictions as $restriction) {
@@ -405,7 +405,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      *                                                                $restictions were specified ($restrictions was
      *                                                                null or an empty string), NULL will be returned
      */
-    public static function ensure(PhoRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): ?PhoRestrictionsInterface
+    public static function ensureObject(PhoRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): ?PhoRestrictionsInterface
     {
         if ($restrictions) {
             if (!is_object($restrictions)) {
@@ -503,7 +503,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
 
         foreach ($this->source as $directory => $original_write) {
             foreach ($child_directories as $child) {
-                $restrictions->addDirectory(Strings::slash($directory) . Strings::ensureStartsNotWith($child, '/'), $write ?? $original_write);
+                $restrictions->addDirectory(Strings::slash($directory) . Strings::ensureBeginsNotWith($child, '/'), $write ?? $original_write);
             }
         }
 

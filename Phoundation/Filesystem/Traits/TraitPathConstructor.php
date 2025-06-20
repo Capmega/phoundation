@@ -39,7 +39,7 @@ trait TraitPathConstructor
             // The Specified file was actually a PhoPathInterface object, get the file from there
             $this->setSource($source, $absolute_prefix)
                  ->setTarget($source->getTarget())
-                 ->setRestrictions($restrictions ?? $source->getRestrictions());
+                 ->setRestrictionsObject($restrictions ?? $source->getRestrictionsObject());
 
         } else {
             $source = static::validateFilename($source);
@@ -73,7 +73,7 @@ trait TraitPathConstructor
             }
 
             $this->setSource($source, $absolute_prefix)
-                 ->setRestrictions($restrictions);
+                 ->setRestrictionsObject($restrictions);
         }
     }
 }

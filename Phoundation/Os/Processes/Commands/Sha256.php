@@ -43,7 +43,7 @@ class Sha256 extends Command
         } catch (ProcessFailedException $e) {
             // The command sha256sum failed, most of the time either $file doesn't exist, or we don't have access
             static::handleException('sha256sum', $e, function () use ($file) {
-                PhoFile::new($file, $this->restrictions)->checkReadable();
+                PhoFile::new($file, $this->o_restrictions)->checkReadable();
             });
         }
     }

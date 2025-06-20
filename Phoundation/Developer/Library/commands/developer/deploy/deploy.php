@@ -22,7 +22,7 @@ use Phoundation\Developer\Project\Project;
 
 
 CliDocumentation::setUsage('./pho development deploy [OPTIONS] TARGET_ENVIRONMENT
-./pho system development deploy TARGET_ENVIRONMENT
+./pho development deploy TARGET_ENVIRONMENT
 ');
 
 CliDocumentation::setHelp('This command will update your Phoundation libraries and list

@@ -22,7 +22,7 @@ use Phoundation\Filesystem\PhoDirectory;
 
 
 CliDocumentation::setUsage('./pho development git rebase BRANCH
-./pho system dev git rebase BRANCH');
+./pho dev git rebase BRANCH');
 
 CliDocumentation::setHelp('This command is an interface to the git command through Phoundation. Its not really needed -nor
 useful- beyond testing the git library');

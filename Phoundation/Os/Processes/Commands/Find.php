@@ -765,7 +765,7 @@ class Find extends Command implements FindInterface
      */
     public function getFoundFiles(): PhoFilesInterface
     {
-        return PhoFiles::new($this->path, $this->output, $this->restrictions);
+        return PhoFiles::new($this->path, $this->output, $this->o_restrictions);
     }
 
 
@@ -777,7 +777,7 @@ class Find extends Command implements FindInterface
     public function getFiles(): PhoFilesInterface
     {
         if (empty($this->files)) {
-            $this->files = PhoFiles::new($this->path, $this->executeReturnArray(), $this->restrictions);
+            $this->files = PhoFiles::new($this->path, $this->executeReturnArray(), $this->o_restrictions);
         }
 
         return $this->files;

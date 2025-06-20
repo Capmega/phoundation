@@ -144,7 +144,7 @@ class Repository extends PhoDirectory implements RepositoryInterface
         }
 
         // The project file must contain "phoundation"
-        $project = PhoFile::new($this . 'config/project/name', $this->getRestrictions())->getContentsAsString();
+        $project = PhoFile::new($this . 'config/project/name', $this->getRestrictionsObject())->getContentsAsString();
         $project = trim($project);
 
         if ($project === 'phoundation') {

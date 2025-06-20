@@ -21,7 +21,7 @@ use Phoundation\Developer\Versioning\Git\Git;
 
 
 CliDocumentation::setUsage('./pho development git clone URL
-./pho system dev git clone URL');
+./pho dev git clone URL');
 
 CliDocumentation::setHelp('This command is an interface to the git command through Phoundation. Its not really needed -nor
 useful- beyond testing the git library');

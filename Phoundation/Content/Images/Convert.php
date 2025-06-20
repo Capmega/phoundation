@@ -186,7 +186,7 @@ class Convert extends Command implements ConvertInterface
      */
     public function resize(bool $background = false): Resize
     {
-        $resize = new Resize($this->source, $this->restrictions);
+        $resize = new Resize($this->source, $this->o_restrictions);
         $resize->setBackground($background);
 
         return $resize;
@@ -213,6 +213,6 @@ class Convert extends Command implements ConvertInterface
      */
     protected function getDirectory(string $directory): PhoDirectoryInterface
     {
-        return new PhoDirectory($directory, $this->restrictions);
+        return new PhoDirectory($directory, $this->o_restrictions);
     }
 }

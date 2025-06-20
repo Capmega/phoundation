@@ -22,7 +22,7 @@ use Phoundation\Filesystem\PhoDirectory;
 
 
 CliDocumentation::setUsage('./pho development git stash pop
-./pho system dev git stash pop');
+./pho dev git stash pop');
 
 CliDocumentation::setHelp('This command is an interface to the git command through Phoundation. Its not really needed -nor
 useful- beyond testing the git library');

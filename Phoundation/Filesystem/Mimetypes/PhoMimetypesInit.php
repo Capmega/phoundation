@@ -72,7 +72,7 @@ class PhoMimetypesInit
 
             try {
                 $type      = Arrays::force($type, "\t");
-                $extension = Strings::ensureStartsNotWith(trim($type[0]), '.');
+                $extension = Strings::ensureBeginsNotWith(trim($type[0]), '.');
                 $mimetype  = trim($type[1]);
                 $priority  = (int) trim((string) isset_get($type[2], 0));
 

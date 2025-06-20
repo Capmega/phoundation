@@ -74,11 +74,12 @@ class KubernetesObject
      * Load the deployment description
      *
      * @param array|string|int|null $identifiers
-     * @param bool $only_if_empty
+     * @param bool                  $like
      *
      * @return static
+     * @todo Rewrite this using DataIterator::load() method
      */
-    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false): static
+    public function load(array|string|int|null $identifiers = null, bool $like = false): static
     {
         if ($this->getName()) {
             $output = Process::new('kubectl')

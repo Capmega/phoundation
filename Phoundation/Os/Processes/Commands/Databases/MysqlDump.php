@@ -416,7 +416,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
 
         // TODO Improve this, we make a file object a string and a file object again
         $file = PhoPath::absolutePath($file, DIRECTORY_DATA . 'sources/', false);
-        $file = PhoFile::new($file, $this->restrictions)->ensureParentDirectory();
+        $file = PhoFile::new($file, $this->o_restrictions)->ensureParentDirectory();
 
         // Build the process parameters, then execute
         $this->setCommand('mysqldump')

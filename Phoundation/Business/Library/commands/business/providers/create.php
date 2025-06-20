@@ -21,7 +21,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 CliDocumentation::setUsage('./pho business providers create NAME [OPTIONS]
-./pho system business providers create test -d "This is a test provider!"');
+./pho business providers create test -d "This is a test provider!"');
 
 CliDocumentation::setHelp('This command allows you to create providers
 

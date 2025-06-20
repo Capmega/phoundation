@@ -167,7 +167,7 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
      */
     public function setExtension(?string $extension): static
     {
-        return $this->set(Strings::ensureStartsNotWith($extension, '.'), 'extension');
+        return $this->set(Strings::ensureBeginsNotWith($extension, '.'), 'extension');
     }
 
 

@@ -627,7 +627,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
     public function isPhoundationProject(string $directory): bool
     {
         // Is the path readable?
-        $directory = PhoDirectory::new($directory, $this->restrictions)
+        $directory = PhoDirectory::new($directory, $this->o_restrictions)
                                  ->checkReadable()
                                  ->getSource();
 

@@ -59,7 +59,7 @@ class PhoUploadedFile extends PhoFileCore implements PhoUploadedFileInterface
 
         // This uploaded file refers to the PHP temp file
         $this->setSource($source->getTmpName())
-             ->setRestrictions($restrictions)
+             ->setRestrictionsObject($restrictions)
              ->setError($source->getError())
              ->setRealName($source->getName());
 

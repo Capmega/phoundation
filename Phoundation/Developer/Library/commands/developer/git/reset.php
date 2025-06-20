@@ -22,7 +22,7 @@ use Phoundation\Filesystem\PhoDirectory;
 
 
 CliDocumentation::setUsage('./pho development git reset [BRANCH] [FILE] [--hard]
-./pho system dev git reset [BRANCH] [FILE] [--hard]');
+./pho dev git reset [BRANCH] [FILE] [--hard]');
 
 CliDocumentation::setHelp('This command is an interface to the git command through Phoundation. Its not really needed -nor
 useful- beyond testing the git library');

@@ -59,7 +59,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
     {
         parent::__construct($identifier);
 
-        $this->restrictions = $this->ensureRestrictions($restrictions);
+        $this->o_restrictions = $this->ensureRestrictions($restrictions);
     }
 
 
@@ -120,7 +120,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
                 $mount_path['target_path'] = PhoPath::absolutePath($mount_path['target_path'], must_exist: false);
 
                 if (str_starts_with($path, $mount_path['target_path'])) {
-                    return static::new($mount_path['id'], 'id')->setRestrictions($restrictions);
+                    return static::new($mount_path['id'], 'id')->setRestrictionsObject($restrictions);
                 }
             }
         }
@@ -344,7 +344,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
     public function isMounted(): bool
     {
         try {
-            foreach (PhoMounts::getMountSources($this->getAbsoluteTargetPath(), $this->restrictions)
+            foreach (PhoMounts::getMountSources($this->getAbsoluteTargetPath(), $this->o_restrictions)
                               ->getAllRowsSingleColumn('source_path') as $source_path) {
                 if ($this->getSourcePath() !== $source_path) {
                     throw new MountsException(tr('The target path ":target" should be mounted from ":source" but is mounted from ":current"', [
@@ -395,7 +395,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
     public function getCurrentSource(): string|null
     {
         try {
-            $mounts = PhoMounts::getMountSources($this->getAbsoluteTargetPath(), $this->restrictions)
+            $mounts = PhoMounts::getMountSources($this->getAbsoluteTargetPath(), $this->o_restrictions)
                                ->getAllRowsSingleColumn('source_path');
 
             return end($mounts);
@@ -435,7 +435,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
      */
     public function unmount(): static
     {
-        UnMount::new($this->restrictions)
+        UnMount::new($this->o_restrictions)
                ->unmount($this->getAbsoluteTargetPath());
 
         return $this;
@@ -460,7 +460,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
      */
     public function mount(): static
     {
-        Mount::new($this->restrictions)->mount(
+        Mount::new($this->o_restrictions)->mount(
             $this->getSourcePath(),
             $this->getAbsoluteTargetPath(),
             $this->getFilesystem(),

@@ -386,7 +386,7 @@ class Sync
      */
     public function importConnector(?ServerInterface $server, string $file, ConnectorInterface $connector): static
     {
-        $file = PhoFile::new($this->target_temp_path . $file, $this->target_temp_path->getRestrictions());
+        $file = PhoFile::new($this->target_temp_path . $file, $this->target_temp_path->getRestrictionsObject());
 
         Log::action(ts('Importing ":driver" database with connector ":connector" for environment ":environment" from file ":file"', [
             ':driver'      => $connector->getDriver(),
@@ -513,7 +513,7 @@ class Sync
                  ->setRemoteSudo((bool) $this->configuration['sudo'])
                  ->execute();
 
-            $file = PhoFile::new($target, $this->target_temp_path->getRestrictions());
+            $file = PhoFile::new($target, $this->target_temp_path->getRestrictionsObject());
 
             if ($file->exists()){
                 Log::success(ts('Received target file ":file" with size ":size"', [

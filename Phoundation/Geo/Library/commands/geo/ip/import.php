@@ -69,7 +69,7 @@ if ($argv['source_path']) {
 
 // Process the files
 $provider::process($directory, $argv['target_path'], PhoRestrictions::new([
-    $directory->getRestrictions(),
+    $directory->getRestrictionsObject(),
     DIRECTORY_DATA,
 ], true));
 

@@ -21,7 +21,7 @@ use Phoundation\Developer\Project\Project;
 
 
 CliDocumentation::setUsage('./pho project check
-./pho system project check --repair
+./pho project check --repair
 ');
 
 CliDocumentation::setHelp('This command will check - and report - (and optionally fix) the project and its systems

@@ -40,9 +40,9 @@ CliDocumentation::setAutoComplete([
                                   ]);
 
 CliDocumentation::setUsage('./pho project update [OPTIONS]
-./pho system development phoundation patch -b BRANCH
-./pho system development phoundation patch -b  BRANCH --no-checkout -s
-./pho system development phoundation patch -l --branch BRANCH -p /home/USER/projects/phoundation
+./pho development phoundation patch -b BRANCH
+./pho development phoundation patch -b  BRANCH --no-checkout -s
+./pho development phoundation patch -l --branch BRANCH -p /home/USER/projects/phoundation
 ');
 
 CliDocumentation::setHelp('This command will update your Phoundation libraries and list

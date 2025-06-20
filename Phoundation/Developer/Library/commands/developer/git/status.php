@@ -22,7 +22,7 @@ use Phoundation\Filesystem\PhoDirectory;
 
 
 CliDocumentation::setUsage('./pho development git status [PATH]
-./pho system dev git status [PATH]');
+./pho dev git status [PATH]');
 
 CliDocumentation::setHelp('This command is an interface to the git command through Phoundation. Its not really needed -nor
 useful- beyond testing the git library');

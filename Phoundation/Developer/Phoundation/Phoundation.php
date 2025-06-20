@@ -79,8 +79,8 @@ class Phoundation extends Project
             '/var/www/html/',
         ];
         if ($location) {
-            $directory          = realpath($location);
-            $this->restrictions = PhoRestrictions::new(dirname($directory));
+            $directory            = realpath($location);
+            $this->o_restrictions = PhoRestrictions::new(dirname($directory));
             if (!$directory) {
                 throw new FileNotExistException(tr('The specified Phoundation location ":file" does not exist', [
                     ':file' => $location,
@@ -125,8 +125,8 @@ class Phoundation extends Project
 
             // The main phoundation directory should be called either phoundation or Phoundation.
             foreach ($names as $name) {
-                $test_path          = $directory . $name . '/';
-                $this->restrictions = PhoRestrictions::new(dirname($test_path));
+                $test_path            = $directory . $name . '/';
+                $this->o_restrictions = PhoRestrictions::new(dirname($test_path));
 
                 if (!file_exists($test_path)) {
                     Log::warning(ts('Ignoring directory ":directory", it does not exist', [
@@ -181,7 +181,7 @@ class Phoundation extends Project
     public function isPhoundation(string $directory): bool
     {
         try {
-            $file    = PhoFile::new($directory . 'config/project/name', $this->restrictions)
+            $file    = PhoFile::new($directory . 'config/project/name', $this->o_restrictions)
                               ->checkReadable()
                               ->getSource();
             $project = file_get_contents($file);

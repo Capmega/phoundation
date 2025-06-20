@@ -33,7 +33,7 @@ CliDocumentation::setAutoComplete(SshAccount::getAutoComplete([
                                                               ]));
 
 CliDocumentation::setUsage('./pho servers accounts modify IDENTIFIER [OPTIONS]
-./pho system servers accounts modify NAME -u phoundation -k KEYFILE -d "This is a test account"');
+./pho servers accounts modify NAME -u phoundation -k KEYFILE -d "This is a test account"');
 
 CliDocumentation::setHelp(SshAccount::getHelpText('This command allows you to modify existing SSH accounts.
 
