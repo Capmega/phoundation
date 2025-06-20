@@ -152,17 +152,17 @@ interface RoutingParametersInterface
      *
      * @return PhoRestrictionsInterface
      */
-    public function getRestrictions(): PhoRestrictionsInterface;
+    public function getRestrictionsObject(): PhoRestrictionsInterface;
 
 
     /**
      * Sets the server restrictions
      *
-     * @param PhoRestrictionsInterface|array|string|null $restrictions
+     * @param PhoRestrictionsInterface|array|string|null $o_restrictions
      *
      * @return static
      */
-    public function setRestrictions(PhoRestrictionsInterface|array|string|null $restrictions): static;
+    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions): static;
 
 
     /**

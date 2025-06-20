@@ -242,7 +242,7 @@ class Route
         static::$method = $_SERVER['REQUEST_METHOD'];
         static::$ip     = Session::getIpAddress();
         static::$query  = Strings::from($_SERVER['REQUEST_URI'], '?');
-        static::$url    = Strings::ensureStartsNotWith($_SERVER['REQUEST_URI'], '/');
+        static::$url    = Strings::ensureBeginsNotWith($_SERVER['REQUEST_URI'], '/');
         static::$url    = Strings::until(static::$url, '?');
 
         // Ensure the post-processing function is registered
@@ -301,6 +301,8 @@ class Route
             define('TEST'      , get_null(getenv('TEST'))       ?? false);
             define('VERBOSE'   , get_null(getenv('VERBOSE'))    ?? false);
 
+            Log::setVerbose(get_null(getenv('VERBOSE')) ?? false);
+
             // Check HEAD and OPTIONS requests. If HEAD was requested, just return basic HTTP headers
 // :TODO: Should pages themselves not check for this and perhaps send other headers?
             switch ($_SERVER['REQUEST_METHOD']) {
@@ -316,7 +318,7 @@ class Route
             Core::setLocale();
 
             // Prepare for unicode usage
-            if (config()->get('languages.encoding.character-set', 'UTF-8') === 'UTF-8') {
+            if (Response::hasEncoding('UTF-8')) {
                 mb_init(not_empty(config()->get('locale.LC_CTYPE', ''), config()->get('locale.LC_ALL', '')));
 
                 if (function_exists('mb_internal_encoding')) {
@@ -470,7 +472,7 @@ class Route
      */
     protected static function init(): void
     {
-        Request::setRestrictions(PhoRestrictions::newFilesystemRootObject());
+        Request::setRestrictionsObject(PhoRestrictions::newFilesystemRootObject());
         Response::initialize();
 
         if (Core::getMaintenanceMode()) {
@@ -559,7 +561,7 @@ class Route
             if (str_starts_with($queries, '?')) {
                 // The URL contains multiple ? symbols at the start
                 $redirect = true;
-                $queries  = Strings::ensureStartsNotWith($queries, '?');
+                $queries  = Strings::ensureBeginsNotWith($queries, '?');
             }
 
             if (str_contains($queries, '?')) {

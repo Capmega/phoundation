@@ -247,14 +247,14 @@ class Response implements ResponseInterface
     protected function __construct()
     {
         // Take file access restrictions from the Request object
-        static::$restrictions = Request::getRestrictions();
+        static::$o_restrictions = Request::getRestrictionsObject();
 
         // Add required HTTP headers
         // TODO Add support for "vary" header
         Response::addHttpHeaders(config()->get('web.headers.accept-ch', ['Sec-CH-UA, Device-Memory, Sec-CH-UA-Arch, Sec-CH-UA-Full-Version, Sec-CH-UA-Mobile, Sec-CH-UA-Model, Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version, Viewport-Width, Width, Sec-CH-Prefers-Color-Scheme']), 'Accept-CH');
 
         // Add required page headers
-        Response::addMetaToPageHeaders(config()->get('languages.encoding.character-set', 'UTF-8')                            , 'character_set');
+        Response::addMetaToPageHeaders(Response::getCharset()                                                                , 'character_set');
         Response::addMetaToPageHeaders(config()->get('web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no'), 'character_set');
     }
 
@@ -1932,7 +1932,7 @@ class Response implements ResponseInterface
                 ]));
         }
 
-        $headers[] = 'Content-Type: ' . static::$content_type . '; charset=' . (array_get_safe(static::$page_headers, 'meta/character_set', config()->get('languages.encoding.character-set', 'UTF-8')));
+        $headers[] = 'Content-Type: ' . static::$content_type . '; charset=' . (array_get_safe(static::$page_headers, 'meta/character_set', Response::getEncoding()));
         $headers[] = 'Content-Language: ' . LANGUAGE;
         $headers[] = 'Content-Length: ' . ob_get_length();
 
@@ -2270,5 +2270,29 @@ class Response implements ResponseInterface
         }
 
         $script->render();
+    }
+
+
+    /**
+     * Returns the encoding used by Phoundation
+     *
+     * @return string
+     */
+    public static function getEncoding(): string
+    {
+        return config()->getString('languages.encoding.character-set', 'UTF-8');
+    }
+
+
+    /**
+     * Returns true if the specified encoding is the same as the encoding used by Phoundation
+     *
+     * @param string $encoding
+     *
+     * @return bool
+     */
+    public static function hasEncoding(string $encoding): bool
+    {
+        return static::getEncoding() === $encoding;
     }
 }

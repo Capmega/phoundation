@@ -73,7 +73,7 @@ class Url implements UrlInterface
         // This is either part of a URL or a complete URL
         if (!Url::isValidUrl($source)) {
             // This is a section
-            $this->source = Strings::ensureStartsNotWith($source, '/');
+            $this->source = Strings::ensureBeginsNotWith($source, '/');
 
         } else {
             // This is a valid URL, continue.
@@ -583,8 +583,8 @@ class Url implements UrlInterface
 //            return $directory;
 //        }
 
-        $this->source = Strings::ensureStartsNotWith($this->source, 'data/content/cdn/');
-        $this->source = Strings::ensureStartsWith($this->source, 'img/');
+        $this->source = Strings::ensureBeginsNotWith($this->source, 'data/content/cdn/');
+        $this->source = Strings::ensureBeginsWith($this->source, 'img/');
 
         return $this->renderCdn();
     }
@@ -758,14 +758,14 @@ class Url implements UrlInterface
 
         // Build the URL
         $base  = Url::getBase($use_configured_root);
-        $url   = Strings::ensureStartsNotWith($url, '/');
+        $url   = Strings::ensureBeginsNotWith($url, '/');
         $url   = $prefix . $url;
         $url   = str_replace(':LANGUAGE', Session::getLanguage(), $base . $url);
         $query = Strings::from($url , '?', needle_required: true);
         $url   = Strings::until($url, '?');
 
         if ($extension) {
-            $extension = Strings::ensureStartsWith($extension, '.');
+            $extension = Strings::ensureBeginsWith($extension, '.');
         }
 
         if (!preg_match('/\.[a-z0-9]{3,5}$/i', $url)) {
@@ -809,10 +809,10 @@ class Url implements UrlInterface
         // Apply special variables
         // Form the CDN URL
         if (!$extension) {
-            $url  = Strings::ensureStartsWith($url, Core::getProjectSeoName() . '/');
+            $url  = Strings::ensureBeginsWith($url, Core::getProjectSeoName() . '/');
 
         } else {
-            $url  = Strings::ensureStartsWith($url, 'templates' . '/');
+            $url  = Strings::ensureBeginsWith($url, 'templates' . '/');
         }
 
         $url  = static::applyPredefined($url);
@@ -820,7 +820,7 @@ class Url implements UrlInterface
         $base = Domains::getConfigurationKey(Domains::getCurrent(), 'cdn', $_SERVER['REQUEST_SCHEME'] . '://cdn.' . Domains::getCurrent() . '/:LANGUAGE/', false);
         $base = Strings::ensureEndsWith($base, '/');
         $base = str_replace(':LANGUAGE', Session::getLanguage(), $base);
-        $url  = Strings::ensureStartsNotWith($url, '/');
+        $url  = Strings::ensureBeginsNotWith($url, '/');
         $url .= static::addExtension($extension);
 
         $this->source = $base . $url;

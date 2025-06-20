@@ -150,39 +150,4 @@ class Menus extends Iterator implements IteratorInterface, MenusInterface
 
         return $this;
     }
-
-
-    /**
-     * Load the menu contents from the database
-     *
-     * @param array|string|int|null $identifiers
-     * @param bool $only_if_empty
-     *
-     * @return static
-     */
-    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false): static
-    {
-        throw new UnderConstructionException();
-//        if (Core::stateIs('setup')) {
-//            // In setup mode we don't need menus...
-//            $this->primary_menu   = Menu::new();
-//            $this->secondary_menu = Menu::new();
-//            return;
-//        }
-//
-//        $primary_menu   = sql()->getColumn('SELECT `value` FROM `key_value_store` WHERE `key` = :key', [':key' => 'primary_menu']);
-//        $secondary_menu = sql()->getColumn('SELECT `value` FROM `key_value_store` WHERE `key` = :key', [':key' => 'secondary_menu']);
-//
-//        if ($primary_menu) {
-//            $this->primary_menu = Menu::new($primary_menu);
-//        } else {
-//            $this->primary_menu = $this->menus->getPrimaryMenu();
-//        }
-//
-//        if ($secondary_menu) {
-//            $this->secondary_menu = Menu::new($secondary_menu);
-//        } else {
-//            $this->secondary_menu = $this->menus->getSecondaryMenu();
-//        }
-    }
 }

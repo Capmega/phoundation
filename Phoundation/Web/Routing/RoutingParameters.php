@@ -51,9 +51,9 @@ class RoutingParameters implements RoutingParametersInterface
     /**
      * Server restrictions indicating what the router can access
      *
-     * @var PhoRestrictions|array|string|null $restrictions
+     * @var PhoRestrictions|array|string|null $o_restrictions
      */
-    protected PhoRestrictions|array|string|null $restrictions = null;
+    protected PhoRestrictions|array|string|null $o_restrictions = null;
 
     /**
      * Sets the default base URL for all links generated
@@ -207,7 +207,7 @@ class RoutingParameters implements RoutingParametersInterface
             // Ensure it doesn't start with a slash to avoid empty right entries.
             // Then explode to array.
             $directory = Strings::from($target, $this->require_directory_rights, needle_required: true);
-            $directory = Strings::ensureStartsNotWith($directory, '/');
+            $directory = Strings::ensureBeginsNotWith($directory, '/');
             $directory = dirname($directory);
 
             if (!$directory) {
@@ -263,7 +263,7 @@ class RoutingParameters implements RoutingParametersInterface
      */
     public function setRequireDirectoryRights(string $require_directory_rights, array|string|null $rights_exceptions = null): static
     {
-        $this->require_directory_rights = DIRECTORY_WEB . Strings::ensureStartsNotWith($require_directory_rights, '/');
+        $this->require_directory_rights = DIRECTORY_WEB . Strings::ensureBeginsNotWith($require_directory_rights, '/');
 
         if ($rights_exceptions) {
             $this->rights_exceptions = get_null(Arrays::force($rights_exceptions));
@@ -385,7 +385,6 @@ class RoutingParameters implements RoutingParametersInterface
     public function setRootDirectory(string $root_directory): static
     {
         $this->root_directory = $root_directory;
-
         return $this;
     }
 
@@ -394,23 +393,25 @@ class RoutingParameters implements RoutingParametersInterface
      * Returns the server restrictions
      *
      * @return PhoRestrictionsInterface
+     * @todo Use TraitRestrictionsObject instead!
      */
-    public function getRestrictions(): PhoRestrictionsInterface
+    public function getRestrictionsObject(): PhoRestrictionsInterface
     {
-        return $this->restrictions ?? PhoRestrictions::newWeb(false, 'RoutingParameter::setRestrictions()');
+        return $this->o_restrictions ?? PhoRestrictions::newWeb(false, 'RoutingParameter::setRestrictionsObject()');
     }
 
 
     /**
      * Sets the server restrictions
      *
-     * @param PhoRestrictionsInterface|array|string|null $restrictions
+     * @param PhoRestrictionsInterface|array|string|null $o_restrictions
      *
      * @return static
+     * @todo Use TraitRestrictionsObject instead!
      */
-    public function setRestrictions(PhoRestrictionsInterface|array|string|null $restrictions): static
+    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions): static
     {
-        $this->restrictions = $restrictions ?? PhoRestrictions::newWeb(false, 'RoutingParameter::setRestrictions()');
+        $this->o_restrictions = $o_restrictions ?? PhoRestrictions::newWeb(false, 'RoutingParameter::setRestrictionsObject()');
 
         return $this;
     }
