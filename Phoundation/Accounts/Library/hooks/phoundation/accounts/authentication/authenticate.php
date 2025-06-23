@@ -25,8 +25,8 @@ use Phoundation\Core\Hooks\Hook;
 
 
 // Ensure we have the hook object
-$hook = Hook::ensure($hook);
+$o_hook = Hook::ensure($o_hook);
 
 
 // Default setup: Use internal authentication
-return User::authenticateInternal($hook->getArgument('identifier'), $hook->getArgument('password'), $hook->getArgument('action'), $hook->getArgument('domain'));
+return User::authenticateInternal($o_hook->getArgument('identifier'), $o_hook->getArgument('password'), $o_hook->getArgument('action'), $o_hook->getArgument('domain'));
