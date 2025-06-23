@@ -3196,6 +3196,18 @@ class Core implements CoreInterface
      */
     #[NoReturn] protected static function processUncaughtWebException(Throwable $e, string $state): never
     {
+        // Log full exception data
+        Log::error(ts('*** UNCAUGHT EXCEPTION ":class" IN ":type" WEB PAGE ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
+            ':class'       => get_class($e),
+            ':type'        => Request::getRequestType()->value,
+            ':state'       => Core::$state,
+            ':command'     => Strings::from(Core::getExecutedPath(), DIRECTORY_COMMANDS),
+            ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null),
+        ]), 10);
+
+        Log::error(ts('Exception data:'), 10);
+        Log::error($e, 10);
+
         // Rethrow exception to avoid lots of "if" statements - this way, we can just catch the right one
         try {
             throw $e;
@@ -3207,59 +3219,45 @@ class Core implements CoreInterface
                 Log::warning($e->getData(), 10);
             }
             // This is just a simple validation warning, show warning messages in the exception data
-            //  static::executeUncaughtExceptionSystemPage(400, $e, tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
+            //  static::executeUncaughtExceptionSystemPage(400, $e, tr('Page didn't catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
 
         } catch (AuthenticationException $e) {
-            static::executeUncaughtExceptionSystemPage(401, $e, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
+            static::executeUncaughtExceptionSystemPage(-401, $e, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
 
         } catch (IncidentsException $e) {
             $new_target = $e->getNewTarget();
 
-            if (!$new_target) {
-                static::executeUncaughtExceptionSystemPage(403, $e, tr('Page did not catch the following "IncidentsException or AccessDeniedException" warning. Executing "system/403" instead'));
+            if (empty($new_target)) {
+                static::executeUncaughtExceptionSystemPage(500, $e, tr('Page did not catch the following "IncidentsException" warning. Executing "system/500" instead'));
+
+            } else {
+                Log::warning(ts('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
+                    ':new'    => $new_target,
+                    ':target' => Request::$o_target->getRootname(),
+                    ':user'   => Session::getUserObject()->getDisplayId(),
+                ]));
+
+                // Execute the new system page target instead
+                static::executeUncaughtExceptionSystemPage($new_target , $e, $e->getMessage());
             }
 
-            Log::warning(ts('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
-                ':new'    => $new_target,
-                ':target' => Request::$o_target->getRootname(),
-                ':user'   => Session::getUserObject()->getDisplayId(),
-            ]));
-
-            // Execute the new system page target instead
-            static::executeUncaughtExceptionSystemPage($new_target, $e, $e->getMessage());
+        } catch (AccessDeniedException $e) {
+            static::executeUncaughtExceptionSystemPage(403, $e, tr('Page did not catch the following "AccessDeniedException" warning. Executing "system/403" instead'));
 
         } catch (Http404Exception | DataEntryNotExistsException | DataEntryDeletedException $e) {
-            static::executeUncaughtExceptionSystemPage(404, $e, tr('Page did not catch the following "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
+            static::executeUncaughtExceptionSystemPage(404, $e, tr('Page did not catch the following "Http404Exception" "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
 
         } catch (Http405Exception | DataEntryReadonlyException | RequestMethodRestrictionsException $e) {
-            static::executeUncaughtExceptionSystemPage(405, $e, tr('Page did not catch the following "Http405Exception or DataEntryReadonlyException or CoreReadonlyException" warning. Executing "system/405" instead'));
+            static::executeUncaughtExceptionSystemPage(405, $e, tr('Page did not catch the following "Http405Exception" or "DataEntryReadonlyException" or "RequestMethodRestrictionsException" warning. Executing "system/405" instead'));
 
         } catch (Http409Exception | DataEntryAlreadyExistsException $e) {
             static::executeUncaughtExceptionSystemPage(409, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
 
         } catch (Http503Exception | CoreReadonlyException $e) {
-            static::executeUncaughtExceptionSystemPage(503, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
+            static::executeUncaughtExceptionSystemPage(503, $e, tr('Page did not catch the following "Http503Exception" warning. Executing "system/503" instead'));
 
-        } catch (PhoException $e) {
-            if ($e->isWarning()) {
-                // This is just a simple general warning, no backtrace and such needed, only show the principal message
-                Log::warning('Warning: ' . $e->getMessage(), 10);
-            } else {
-                throw $e;
-            }
-
-        } catch (Throwable) {
-            // Log full exception data
-            Log::error(ts('*** UNCAUGHT EXCEPTION ":class" IN ":type" WEB PAGE ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
-                ':class'       => get_class($e),
-                ':type'        => Request::getRequestType()->value,
-                ':state'       => Core::$state,
-                ':command'     => Strings::from(Core::getExecutedPath(), DIRECTORY_COMMANDS),
-                ':environment' => (defined('ENVIRONMENT') ? ENVIRONMENT : null),
-            ]), 10);
-
-            Log::error(ts('Exception data:'), 10);
-            Log::error($e, 10);
+        } catch (PhoException | Throwable $e) {
+            static::executeUncaughtExceptionSystemPage(500, $e, tr('Page did not catch the following "PhoException" warning. Executing "system/500" instead'));
         }
 
         // Remove all caching headers
@@ -3552,8 +3550,10 @@ class Core implements CoreInterface
     /**
      * Tries to execute the specified system page on the web platform, returns void if unable to do so due to Debug mode
      *
-     * @param int       $page
-     * @param Throwable $e
+     * @param int $page            The system page to execute. If specified as a negative number, the page will be executed forcibly, even if debug mode is
+     *                             enabled
+     * @param Throwable   $e       The exception that caused this system page to be executed
+     * @param string|null $message The optional message to add to this system page
      *
      * @return void
      */
@@ -3565,7 +3565,7 @@ class Core implements CoreInterface
             ProjectException::class,
         ];
 
-        if (!Debug::isEnabled()) {
+        if (!Debug::isEnabled() or ($page < 0)) {
             foreach ($classes as $class) {
                 if (($e instanceof $class)) {
                     // Don't try to display a pretty error page, this exception is too severe
