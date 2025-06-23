@@ -939,4 +939,14 @@ interface IteratorInterface extends IteratorBaseInterface
      * @return static
      */
     public function setRequireParent(bool $require_parent): static;
+
+    /**
+     * Returns a list with all the values that match the specified value
+     *
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param string|null                                         $column
+     *
+     * @return static
+     */
+    public function keepMatchingAutocompleteValues(ArrayableInterface|Stringable|array|string|int|null $needles, ?string $column = null): static;
 }
