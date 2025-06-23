@@ -2304,7 +2304,7 @@ throw new ObsoleteException();
                 return $this;
             }
 
-            return $this->isBetween(0, 180);
+            return $this->isBetween(-180, 180);
         });
     }
 

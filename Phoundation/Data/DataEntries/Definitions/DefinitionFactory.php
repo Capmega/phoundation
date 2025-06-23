@@ -1935,6 +1935,52 @@ class DefinitionFactory
 
 
     /**
+     * Returns a Definition object for longitude
+     *
+     * @param string|null $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newLongitude(?string $column = 'longitude'): DefinitionInterface
+    {
+        return Definition::new($column)
+                         ->setOptional(true)
+                         ->setInputType(EnumInputType::number)
+                         ->setSize(3)
+                         ->setCliColumn('--longitude')
+                         ->setCliAutoComplete(true)
+                         ->setLabel(tr('Longitude'))
+                         ->setHelpGroup(tr('Location information'))
+                         ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                             $o_validator->isLongitude();
+                         });
+    }
+
+
+    /**
+     * Returns a Definition object for latitude
+     *
+     * @param string|null $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newLatitude(?string $column = 'latitude'): DefinitionInterface
+    {
+        return Definition::new($column)
+                         ->setOptional(true)
+                         ->setInputType(EnumInputType::number)
+                         ->setSize(3)
+                         ->setCliColumn('--latitude')
+                         ->setCliAutoComplete(true)
+                         ->setLabel(tr('Latitude'))
+                         ->setHelpGroup(tr('Location information'))
+                         ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                             $o_validator->isLatitude();
+                         });
+    }
+
+
+    /**
      * Returns a Definition object for status
      *
      * @param string|null $column
