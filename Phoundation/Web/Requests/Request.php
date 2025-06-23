@@ -1261,7 +1261,7 @@ class Request implements RequestInterface
                         'rights'      => $rights,
                     ])
                     ->save()
-                    ->throw();
+                    ->throw(AuthenticationException::class);
         }
 
         // This user is missing rights
@@ -1471,15 +1471,16 @@ class Request implements RequestInterface
     /**
      * Executes the specified system page
      *
-     * @param int            $http_code
-     * @param Throwable|null $e
-     * @param string|null    $message
+     * @param int            $http_code The system page to execute. If specified as a negative number, the page will be executed forcibly, even if debug mode is
+     *                                  enabled
+     * @param Throwable|null $e         The exception that caused this system page to be executed
+     * @param string|null    $message   The optional message to add to this system page
      *
      * @return never
      */
     #[NoReturn] public static function executeSystem(int $http_code, ?Throwable $e = null, ?string $message = null): never
     {
-        if ($e and Debug::isEnabled()) {
+        if ($e and (Debug::isEnabled() and $http_code > 0)) {
             // In debug mode we don't show pretty pages, we dump all the exception data on screen
             throw $e;
         }
@@ -1492,7 +1493,7 @@ class Request implements RequestInterface
             Session::start();
         }
 
-        SystemRequest::new()->execute($http_code, $e, $message);
+        SystemRequest::new()->execute(abs($http_code), $e, $message);
     }
 
 
