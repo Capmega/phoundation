@@ -20,6 +20,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Interfaces\ComponentInterface;
 use Phoundation\Web\Html\Interfaces\TemplateRendererInterface;
 use Phoundation\Web\Html\Template\Exception\TemplateException;
+use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Traits\TraitDataComponent;
 
 
@@ -120,7 +121,10 @@ class TemplateRenderer implements TemplateRendererInterface
     public function render(): ?string
     {
         if (empty($this->render_function)) {
-            throw new TemplateException(ts('Cannot render because no template render function specified'));
+            throw new TemplateException(ts('Cannot render because no template render function specified. This likely means that the current template ":template" does not have (render) support for the current object ":class" that needs rendering, and no default render function is available either, or that the template object is trying to use a non-existing parent rendering function', [
+                ':template' => Request::getTemplateObject(),
+                ':class'    => $this->o_component::class,
+            ]));
         }
 
         // Use the supplied render function
