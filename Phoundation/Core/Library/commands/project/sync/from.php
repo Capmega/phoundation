@@ -25,10 +25,7 @@ use Phoundation\Developer\Sync;
 
 CliDocumentation::setAutoComplete([
     'positions' => [
-        0 => [
-            'word'   => function ($word) { return Project::getEnvironments()->keepMatchingValuesStartingWith($word); },
-            'noword' => function ($word) { return Project::getEnvironments(); },
-        ],
+        0 => function ($word) { return Project::getEnvironments()->keepMatchingAutocompleteValues($word); },
     ],
     'arguments' => [
         '-l,--lock'    => false,
