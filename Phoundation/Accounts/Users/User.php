@@ -3249,31 +3249,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                     ->add(DefinitionFactory::newTimezonesId()
                                            ->setSize(2))
 
-                    ->add(Definition::new('latitude')
-                                    ->setOptional(true)
-                                    ->setInputType(EnumInputType::number)
-                                    ->setSize(3)
-                                    ->setCliColumn('--latitude')
-                                    ->setCliAutoComplete(true)
-                                    ->setLabel(tr('Latitude'))
-                                    ->setHelpGroup(tr('Location information'))
-                                    ->setHelpText(tr('The latitude location for this user'))
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isLatitude();
-                                    }))
+                    ->add(DefinitionFactory::newLatitude()
+                                           ->setHelpText(tr('The latitude location for this user')))
 
-                    ->add(Definition::new('longitude')
-                                    ->setOptional(true)
-                                    ->setInputType(EnumInputType::number)
-                                    ->setSize(3)
-                                    ->setCliColumn('--longitude')
-                                    ->setCliAutoComplete(true)
-                                    ->setLabel(tr('Longitude'))
-                                    ->setHelpGroup(tr('Location information'))
-                                    ->setHelpText(tr('The longitude location for this user'))
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isLongitude();
-                                    }))
+                    ->add(DefinitionFactory::newLongitude()
+                                           ->setHelpText(tr('The longitude location for this user')))
 
                     ->add(Definition::new('offset_latitude')
                                     ->setOptional(true)

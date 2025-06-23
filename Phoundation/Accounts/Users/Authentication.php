@@ -44,6 +44,7 @@ use Phoundation\Geo\GeoIp\GeoIp;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 
@@ -545,17 +546,13 @@ class Authentication extends DataEntry implements AuthenticationInterface
                                              ->setOptional(true)
                                              ->setSize(3))
 
-                      ->add(DefinitionFactory::newNumber('latitude')
-                                             ->setLabel(tr('Latitude'))
+                      ->add(DefinitionFactory::newLatitude()
                                              ->setDisabled(true)
-                                             ->setOptional(true)
-                                             ->setSize(3))
+                                             ->setHelpText(tr('The latitude location for this authentication')))
 
-                      ->add(DefinitionFactory::newNumber('longitude')
-                                             ->setLabel(tr('Longitude'))
+                      ->add(DefinitionFactory::newLongitude()
                                              ->setDisabled(true)
-                                             ->setOptional(true)
-                                             ->setSize(3))
+                                             ->setHelpText(tr('The longitude location for this authentication')))
 
                       ->add(DefinitionFactory::newBoolean('captcha_required')
                                              ->setLabel(tr('Required CAPTCHA'))
