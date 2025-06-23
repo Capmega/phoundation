@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Page 401
+ * Page 405
  *
  * This is the page that will be shown when a users access to a certain resource was prohibited
  *
@@ -18,12 +18,12 @@ use Phoundation\Utils\Enums\EnumJsonResponse;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\FlashMessage;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Requests\JsonPage;
+use Phoundation\Web\Requests\Response;
+
+
+Response::setHttpCode(405);
 
 
 JsonPage::new()
-        ->setResponse(EnumJsonResponse::signin)
-        ->addFlashMessageSections(FlashMessage::new()
-                                              ->setMode(EnumDisplayMode::error)
-                                              ->setTitle(tr('Unauthorized'))
-                                              ->setMessage(tr('You need to sign-in to be able to see the requested resource')))
-        ->replyWithHttpCode(401, ['message' => $data ?? tr('unauthorized')]);
+        ->setResponse(EnumJsonResponse::error)
+        ->replyWithHttpCode(405, ['message' => $data ?? tr('method not allowed')]);

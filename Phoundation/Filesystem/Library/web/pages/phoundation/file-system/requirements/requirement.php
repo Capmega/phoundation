@@ -17,6 +17,7 @@ declare(strict_types=1);
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Filesystem\Requirements\Requirement;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\Img;
@@ -78,7 +79,7 @@ if (Request::isPostRequestMethod()) {
                 Response::redirect();
         }
 
-    } catch (IncidentsException | ValidationFailedException $e) {
+    } catch (IncidentsException | ValidationFailedException | AccessDeniedException $e) {
         // Oops! Show validation errors and remain on the page
         Response::getFlashMessagesObject()->addMessage($e);
         $requirement->forceApply();

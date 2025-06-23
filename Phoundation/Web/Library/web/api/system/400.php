@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Page 401
+ * Page 400
  *
  * This is the page that will be shown when a users access to a certain resource was prohibited
  *
@@ -20,10 +20,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Requests\JsonPage;
 
 
+// Show a 400 - Bad request flash message on the desktop
 JsonPage::new()
-        ->setResponse(EnumJsonResponse::signin)
-        ->addFlashMessageSections(FlashMessage::new()
-                                              ->setMode(EnumDisplayMode::error)
-                                              ->setTitle(tr('Unauthorized'))
-                                              ->setMessage(tr('You need to sign-in to be able to see the requested resource')))
-        ->replyWithHttpCode(401, ['message' => $data ?? tr('unauthorized')]);
+        ->setResponse(EnumJsonResponse::error)
+        ->replyWithHttpCode(400, ['message' => $data ?? tr('bad request')]);

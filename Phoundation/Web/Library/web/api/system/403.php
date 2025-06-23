@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Page 401
+ * Page 403
  *
  * This is the page that will be shown when a users access to a certain resource was prohibited
  *
@@ -14,16 +14,22 @@
 
 declare(strict_types=1);
 
+use Phoundation\Core\Core;
+use Phoundation\Core\Log\Log;
 use Phoundation\Utils\Enums\EnumJsonResponse;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\FlashMessage;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
+use Phoundation\Web\Html\Pages\Page;
+use Phoundation\Web\Http\Url;
+use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\JsonPage;
+use Phoundation\Web\Requests\Request;
+use Phoundation\Web\Requests\Response;
+
+
+Response::setHttpCode(403);
 
 
 JsonPage::new()
-        ->setResponse(EnumJsonResponse::signin)
-        ->addFlashMessageSections(FlashMessage::new()
-                                              ->setMode(EnumDisplayMode::error)
-                                              ->setTitle(tr('Unauthorized'))
-                                              ->setMessage(tr('You need to sign-in to be able to see the requested resource')))
-        ->replyWithHttpCode(401, ['message' => $data ?? tr('unauthorized')]);
+        ->setResponse(EnumJsonResponse::error)
+        ->replyWithHttpCode(403, ['message' => $data ?? tr('forbidden')]);

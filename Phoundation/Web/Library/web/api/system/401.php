@@ -22,8 +22,4 @@ use Phoundation\Web\Requests\JsonPage;
 
 JsonPage::new()
         ->setResponse(EnumJsonResponse::signin)
-        ->addFlashMessageSections(FlashMessage::new()
-                                              ->setMode(EnumDisplayMode::error)
-                                              ->setTitle(tr('Unauthorized'))
-                                              ->setMessage(tr('You need to sign-in to be able to see the requested resource')))
         ->replyWithHttpCode(401, ['message' => $data ?? tr('unauthorized')]);

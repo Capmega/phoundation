@@ -19,6 +19,7 @@ use Phoundation\Accounts\Users\User;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\Forms\Form;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
@@ -82,7 +83,7 @@ if (Session::getUserObject()->hasAllRights(['accounts'])) {
 
                     Response::redirect('root');
             }
-        } catch (IncidentsException | ValidationFailedException $e) {
+        } catch (IncidentsException | ValidationFailedException | AccessDeniedException $e) {
             // Oops! Show validation errors and remain on page
             Response::getFlashMessagesObject()->addMessage($e);
             $user->forceApply();
