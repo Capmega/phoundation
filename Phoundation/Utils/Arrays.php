@@ -73,14 +73,14 @@ class Arrays extends Utils
      */
     public static function requiredKeys(array $source, IteratorInterface|Stringable|array|string|int|null $keys, string $exception_class = OutOfBoundsException::class): void
     {
-        if (!static::hasAllKeys($source, $keys)) {
+        if (!Arrays::hasAllKeys($source, $keys)) {
             if ($exception_class) {
                 throw new $exception_class(tr('The specified array does not contain all required keys ":keys"', [
                     ':keys' => $keys,
                 ]));
             }
 
-            static::ensure($source, $keys);
+            Arrays::ensure($source, $keys);
         }
     }
 
@@ -273,7 +273,7 @@ class Arrays extends Utils
             $current_key = $prefix === '' ? $key : "{$prefix}[{$key}]";
 
             if (is_array($value)) {
-                $result = array_merge($result, static::flattenToBracketedArray($value, $current_key));
+                $result = array_merge($result, Arrays::flattenToBracketedArray($value, $current_key));
 
             } else {
                 $result[$current_key] = $value;
@@ -617,7 +617,7 @@ class Arrays extends Utils
         foreach ($source as $key => $value) {
             if (is_array($value)) {
                 // Recurse
-                $return[] .= $key . $key_separator . $row_separator . static::implodeWithKeys($value, $row_separator, $key_separator, $quote_character, $options);
+                $return[] .= $key . $key_separator . $row_separator . Arrays::implodeWithKeys($value, $row_separator, $key_separator, $quote_character, $options);
 
             } else {
                 if (!$value and !is_numeric($value)) {
@@ -700,11 +700,11 @@ class Arrays extends Utils
      */
     public static function mergeFull(): array
     {
-        $arguments = static::getArgumentArrays(func_get_args());
+        $arguments = Arrays::getArgumentArrays(func_get_args());
         $return    = [];
 
         foreach ($arguments as $id => $array) {
-            static::requireArrayOrNull($array, $id);
+            Arrays::requireArrayOrNull($array, $id);
 
             foreach ($array as $key => $value) {
                 if (is_array($value) and array_key_exists($key, $return) and is_array($return[$key])) {
@@ -796,7 +796,7 @@ class Arrays extends Utils
 
         if (!is_numeric($count) or ($count < 0)) {
             throw new OutOfBoundsException(tr('Cannot limit :class to ":count" entries, the number must be a positive integer value', [
-                ':class' => static::class,
+                ':class' => Arrays::class,
                 ':count' => $count
             ]));
         }
@@ -1078,7 +1078,7 @@ class Arrays extends Utils
      */
     public static function keepMatchingKeys(IteratorInterface|array $source, IteratorInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): array
     {
-        return static::matchKeys(Utils::MATCH_ACTION_RETURN_VALUES, $source, $needles, $flags);
+        return Arrays::matchKeys(Utils::MATCH_ACTION_RETURN_VALUES, $source, $needles, $flags);
     }
 
 
@@ -1093,7 +1093,7 @@ class Arrays extends Utils
      */
     public static function removeMatchingKeys(IteratorInterface|array $source, IteratorInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): array
     {
-        return static::matchKeys(Utils::MATCH_ACTION_RETURN_NOT_VALUES, $source, $needles, $flags);
+        return Arrays::matchKeys(Utils::MATCH_ACTION_RETURN_NOT_VALUES, $source, $needles, $flags);
     }
 
 
@@ -1110,7 +1110,7 @@ class Arrays extends Utils
      */
     public static function keepMatchingValues(IteratorInterface|array $source, IteratorInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): array
     {
-        return static::matchValues(Utils::MATCH_ACTION_RETURN_VALUES, $source, $needles, $flags, $column);
+        return Arrays::matchValues(Utils::MATCH_ACTION_RETURN_VALUES, $source, $needles, $flags, $column);
     }
 
 
@@ -1127,7 +1127,7 @@ class Arrays extends Utils
      */
     public static function keepMatchingFullValues(IteratorInterface|array $source, IteratorInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): array
     {
-        return static::matchValues(Utils::MATCH_ACTION_RETURN_FULL_VALUES, $source, $needles, $flags, $column);
+        return Arrays::matchValues(Utils::MATCH_ACTION_RETURN_FULL_VALUES, $source, $needles, $flags, $column);
     }
 
 
@@ -1143,7 +1143,7 @@ class Arrays extends Utils
      */
     public static function removeMatchingValues(IteratorInterface|array $source, ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): array
     {
-        return static::matchValues(Utils::MATCH_ACTION_RETURN_NOT_VALUES, $source, $needles, $flags, $column);
+        return Arrays::matchValues(Utils::MATCH_ACTION_RETURN_NOT_VALUES, $source, $needles, $flags, $column);
     }
 
 
@@ -1159,7 +1159,7 @@ class Arrays extends Utils
      */
     public static function removeMatchingFullValues(IteratorInterface|array $source, ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): array
     {
-        return static::matchValues(Utils::MATCH_ACTION_RETURN_NOT_FULL_VALUES, $source, $needles, $flags, $column);
+        return Arrays::matchValues(Utils::MATCH_ACTION_RETURN_NOT_FULL_VALUES, $source, $needles, $flags, $column);
     }
 
 
@@ -1175,7 +1175,7 @@ class Arrays extends Utils
      */
     public static function keepMatchingValuesStartingWith(IteratorInterface|array $source, ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH, ?string $column = null): array
     {
-        return static::keepMatchingValues($source, $needles, $flags | Utils::MATCH_STARTS_WITH, $column);
+        return Arrays::keepMatchingValues($source, $needles, $flags | Utils::MATCH_STARTS_WITH, $column);
     }
 
 
@@ -1190,7 +1190,7 @@ class Arrays extends Utils
      */
     public static function keepMatchingKeysStartingWith(IteratorInterface|array $source, IteratorInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH): array
     {
-        return static::keepMatchingKeys($source, $needles, $flags | Utils::MATCH_STARTS_WITH);
+        return Arrays::keepMatchingKeys($source, $needles, $flags | Utils::MATCH_STARTS_WITH);
     }
 
 
@@ -1205,7 +1205,7 @@ class Arrays extends Utils
      */
     public static function hasAnyMatchingKeys(IteratorInterface|array $source, IteratorInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): bool
     {
-        return (bool) static::matchKeys(Utils::MATCH_ACTION_RETURN_KEYS, $source, $needles, $flags);
+        return (bool) Arrays::matchKeys(Utils::MATCH_ACTION_RETURN_KEYS, $source, $needles, $flags);
     }
 
 
@@ -1407,7 +1407,7 @@ class Arrays extends Utils
      */
     public static function filteredMerge()
     {
-        $arguments = static::getArgumentArrays(func_get_args(), 3);
+        $arguments = Arrays::getArgumentArrays(func_get_args(), 3);
         $filters   = array_shift($arguments);
         $source    = array_shift($arguments);
         $source    = Arrays::removeKeys($source, $filters);
@@ -1652,7 +1652,7 @@ class Arrays extends Utils
      */
     public static function mergeNull(): array
     {
-        $arguments = static::getArgumentArrays(func_get_args(), 3);
+        $arguments = Arrays::getArgumentArrays(func_get_args(), 3);
         $return    = [];
 
         foreach ($arguments as $array) {
@@ -1680,7 +1680,7 @@ class Arrays extends Utils
      */
     public static function hideSensitive(?array $source, string|array $keys = ['GLOBALS', '%pass', 'ssh_key'], string $hide = '*** HIDDEN ***', string $empty = '-', bool $recurse = true): ?array
     {
-        static::requireArrayOrNull($source);
+        Arrays::requireArrayOrNull($source);
 
         // Ensure that the keys we need to hide are in array format
         $keys = Arrays::force($keys);
@@ -1863,7 +1863,7 @@ class Arrays extends Utils
             } elseif (is_array($value)) {
                 if ($recurse) {
                     // Recurse
-                    $value = static::trimStrings($value);
+                    $value = Arrays::trimStrings($value);
                 }
             }
         }
@@ -2015,15 +2015,15 @@ class Arrays extends Utils
      */
     public static function addValues(): array
     {
-        $arguments = static::getArgumentArrays(func_get_args());
+        $arguments = Arrays::getArgumentArrays(func_get_args());
         $target    = array_shift($arguments);
 
         // Ensure target is an array
-        static::requireArrayOrNull($target);
+        Arrays::requireArrayOrNull($target);
 
         foreach ($arguments as $id => $source) {
             // Ensure all sources are arrays
-            static::requireArrayOrNull($source, $id);
+            Arrays::requireArrayOrNull($source, $id);
 
             foreach ($source as $key => $value) {
                 // Ensure source is numeric!
@@ -2044,7 +2044,7 @@ class Arrays extends Utils
                         }
 
                         // Target is also an array, recurse!
-                        $target[$key] = static::addValues($target[$key], $value);
+                        $target[$key] = Arrays::addValues($target[$key], $value);
                         continue;
                     }
 
@@ -2802,7 +2802,7 @@ class Arrays extends Utils
      */
     public static function keysMatch(array $haystack, IteratorInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_RECURSE): bool
     {
-        return (bool) static::keepMatchingKeys($haystack, $needles, $flags);
+        return (bool) Arrays::keepMatchingKeys($haystack, $needles, $flags);
     }
 
 
@@ -2818,7 +2818,7 @@ class Arrays extends Utils
      */
     public static function valuesMatch(IteratorInterface|array $haystack, ArrayableInterface|Stringable|array|string|int|null $needles, ?string $column = null, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): bool
     {
-        return (bool) static::keepMatchingValues($haystack, $needles, $flags, $column);
+        return (bool) Arrays::keepMatchingValues($haystack, $needles, $flags, $column);
     }
 
 
@@ -3093,13 +3093,13 @@ class Arrays extends Utils
     public static function spliceByKey(array &$source, string|float|int $key, ?int $length = null, IteratorInterface|array $replacement = [], bool $after = false): array
     {
         if ($after) {
-            $offset = static::getKeyNextOffset($source, $key);
+            $offset = Arrays::getKeyNextOffset($source, $key);
 
         } else {
-            $offset = static::getKeyOffset($source, $key);
+            $offset = Arrays::getKeyOffset($source, $key);
         }
 
-        return static::splice($source, $offset, $length, $replacement);
+        return Arrays::splice($source, $offset, $length, $replacement);
     }
 
 
@@ -3449,7 +3449,7 @@ class Arrays extends Utils
     {
         $width  = null;
         $return = [];
-        $source = static::extractSourceArray($source);
+        $source = Arrays::extractSourceArray($source);
 
         foreach ($source as $line) {
             if ($skip > 0) {
@@ -3504,7 +3504,7 @@ class Arrays extends Utils
     public static function fromTableSource(IteratorInterface|PDOStatement|array|string $source, array $format, ?string $use_key = null, int $skip = 1): array
     {
         $return = [];
-        $source = static::extractSourceArray($source);
+        $source = Arrays::extractSourceArray($source);
 
         foreach ($source as $line) {
             if ($skip > 0) {
@@ -3729,6 +3729,7 @@ class Arrays extends Utils
             if (str_contains((string) $key, $separator) and (!str_starts_with($key, $separator))) {
                 $prefix = Strings::until($key, $separator);
                 $key    = Strings::from($key, $separator);
+
                 $return[$prefix][$key] = $value;
 
             } else {
@@ -4126,23 +4127,25 @@ class Arrays extends Utils
     protected static function decodeMatchFlags(int $options, bool $allow_recurse): array
     {
         // Decode options
-        $return             = [];
-        $return['no_case']  = (bool) ($options & Utils::MATCH_CASE_INSENSITIVE);
-        $return['all']      = (bool) ($options & Utils::MATCH_ALL);
-        $return['any']      = (bool) ($options & Utils::MATCH_ANY);
-        $return['require']  = (bool) ($options & Utils::MATCH_REQUIRE);
-        $return['start']    = (bool) ($options & Utils::MATCH_STARTS_WITH);
-        $return['end']      = (bool) ($options & Utils::MATCH_ENDS_WITH);
-        $return['contains'] = (bool) ($options & Utils::MATCH_CONTAINS);
-        $return['recurse']  = (bool) ($options & Utils::MATCH_RECURSE);
-        $return['not']      = (bool) ($options & Utils::MATCH_NOT);
-        $return['strict']   = (bool) ($options & Utils::MATCH_STRICT);
-        $return['full']     = (bool) ($options & Utils::MATCH_FULL);
-        $return['regex']    = (bool) ($options & Utils::MATCH_REGEX);
-        $return['empty']    = (bool) ($options & Utils::MATCH_EMPTY);
-        $return['null']     = (bool) ($options & Utils::MATCH_NULL);
-        $return['single']   = (bool) ($options & Utils::MATCH_SINGLE);
-        $return['trim']     = (bool) ($options & Utils::MATCH_TRIM);
+        $return                       = [];
+        $return['no_case']            = (bool)  ($options & Utils::MATCH_CASE_INSENSITIVE);
+        $return['all']                = (bool)  ($options & Utils::MATCH_ALL);
+        $return['any']                = (bool)  ($options & Utils::MATCH_ANY);
+        $return['require']            = (bool)  ($options & Utils::MATCH_REQUIRE);
+        $return['start']              = (bool)  ($options & Utils::MATCH_STARTS_WITH);
+        $return['end']                = (bool)  ($options & Utils::MATCH_ENDS_WITH);
+        $return['contains']           = (bool)  ($options & Utils::MATCH_CONTAINS);
+        $return['recurse']            = (bool)  ($options & Utils::MATCH_RECURSE);
+        $return['not']                = (bool)  ($options & Utils::MATCH_NOT);
+        $return['strict']             = (bool)  ($options & Utils::MATCH_STRICT);
+        $return['full']               = (bool)  ($options & Utils::MATCH_FULL);
+        $return['regex']              = (bool)  ($options & Utils::MATCH_REGEX);
+        $return['null']               = (bool)  ($options & Utils::MATCH_NULL);
+        $return['empty']              = (bool) (($options & Utils::MATCH_EMPTY) or $return['null']);
+        $return['single']             = (bool)  ($options & Utils::MATCH_SINGLE);
+        $return['trim']               = (bool)  ($options & Utils::MATCH_TRIM);
+        $return['skip_null_needles']  = (bool)  ($options & Utils::SKIP_NULL_NEEDLES);
+        $return['skip_empty_needles'] = (bool) (($options & Utils::SKIP_EMPTY_NEEDLES) or $return['skip_null_needles']);
 
         // Validate options
         if ($return['full']) {
@@ -4227,7 +4230,9 @@ class Arrays extends Utils
     protected static function prepareNeedles(IteratorInterface|Stringable|array|string|int|null $needles, array $flags): array
     {
         if (really_empty($needles)) {
-            throw new OutOfBoundsException(tr('No needles specified'));
+            if (!$flags['skip_null_needles']) {
+                throw new OutOfBoundsException(tr('No needles specified'));
+            }
         }
 
         $needles = Arrays::force($needles);
@@ -4263,8 +4268,8 @@ class Arrays extends Utils
      */
     protected static function matchKeys(int $action, DataIteratorInterface|array $source, DataIteratorInterface|array|string|null $needles, int $flags): array
     {
-        $flags   = static::decodeMatchFlags($flags, true);
-        $needles = static::prepareNeedles($needles, $flags);
+        $flags   = Arrays::decodeMatchFlags($flags, true);
+        $needles = Arrays::prepareNeedles($needles, $flags);
 
         if ($source instanceof DataIteratorInterface) {
             $source = $source->getSource();
@@ -4272,23 +4277,23 @@ class Arrays extends Utils
 
         // Execute matching
         return match ($flags['match_mode']) {
-            'full'     => static::matchKeysFunction($action, $source, $needles, $flags, function (mixed $key, mixed $needle, array $flags) {
+            'full'     => Arrays::matchKeysFunction($action, $source, $needles, $flags, function (mixed $key, mixed $needle, array $flags) {
                 return (($flags['strict'] and ($key === $needle)) or ($key == $needle));
             }),
 
-            'regex'    => static::matchKeysFunction($action, $source, $needles, $flags, function (mixed $key, mixed $needle, array $flags) {
+            'regex'    => Arrays::matchKeysFunction($action, $source, $needles, $flags, function (mixed $key, mixed $needle, array $flags) {
                 return preg_match($needle, $key);
             }),
 
-            'contains' => static::matchKeysFunction($action, $source, $needles, $flags, function (mixed $key, mixed $needle, array $flags) {
+            'contains' => Arrays::matchKeysFunction($action, $source, $needles, $flags, function (mixed $key, mixed $needle, array $flags) {
                 return str_contains($key, $needle);
             }),
 
-            'start'    => static::matchKeysFunction($action, $source, $needles, $flags, function (mixed $key, mixed $needle, array $flags) {
+            'start'    => Arrays::matchKeysFunction($action, $source, $needles, $flags, function (mixed $key, mixed $needle, array $flags) {
                 return str_starts_with($key, $needle);
             }),
 
-            'end'      => static::matchKeysFunction($action, $source, $needles, $flags, function (mixed $key, mixed $needle, array $flags) {
+            'end'      => Arrays::matchKeysFunction($action, $source, $needles, $flags, function (mixed $key, mixed $needle, array $flags) {
                 return str_ends_with($key, $needle);
             }),
 
@@ -4312,8 +4317,8 @@ class Arrays extends Utils
      */
     protected static function matchValues(int $action, DataIteratorInterface|array $source, IteratorInterface|Stringable|array|string|int|null $needles, int $flags, ?string $column = null): array
     {
-        $flags   = static::decodeMatchFlags($flags, true);
-        $needles = static::prepareNeedles($needles, $flags);
+        $flags   = Arrays::decodeMatchFlags($flags, true);
+        $needles = Arrays::prepareNeedles($needles, $flags);
 
         if ($source instanceof DataIteratorInterface) {
             $source = $source->getSource();
@@ -4321,23 +4326,23 @@ class Arrays extends Utils
 
         // Execute matching
         return match ($flags['match_mode']) {
-            'full'     => static::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
+            'full'     => Arrays::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
                 return (($flags['strict'] and ($value === $needle)) or ($value == $needle));
             }),
 
-            'regex'    => static::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
+            'regex'    => Arrays::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
                 return preg_match($needle, $value);
             }),
 
-            'contains' => static::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
+            'contains' => Arrays::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
                 return str_contains($value, $needle);
             }),
 
-            'start'    => static::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
+            'start'    => Arrays::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
                 return str_starts_with($value, $needle);
             }),
 
-            'end'      => static::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
+            'end'      => Arrays::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
                 return str_ends_with($value, $needle);
             }),
 
@@ -4419,11 +4424,10 @@ class Arrays extends Utils
      * @param mixed $needle
      * @param mixed $key
      * @param mixed $value
-     * @param array $flags
      *
      * @return void
      */
-    protected static function processMatch(bool $matched, int $action, array &$return, mixed &$needle, mixed &$key, mixed &$value, array $flags): void
+    protected static function processMatch(bool $matched, int $action, array &$return, mixed &$needle, mixed &$key, mixed &$value): void
     {
         if ($matched) {
             switch ($action) {
@@ -4484,46 +4488,52 @@ class Arrays extends Utils
         $return = [];
 
         foreach ($source as $key => $value) {
-            $needles_match = false;
+            if ($needles) {
+                $needles_match = false;
 
-            foreach ($needles as $needle) {
-                if (!static::useCleanedHaystackValue($key, $flags)) {
-                    continue;
-                }
-
-                $match = $function($key, $needle, $flags);
-
-                if ($flags['not']) {
-                    // Invert the match result
-                    $match = !$match;
-                }
-
-                if ($match) {
-                    // This needle matched, yay!
-                    $needles_match = true;
-
-                    if ($flags['any']) {
-                        // We're in "any" mode, and a single needle matched, so don't consider any other needles.
-                        break;
+                foreach ($needles as $needle) {
+                    if (!Arrays::useCleanedHaystackValue($key, $flags)) {
+                        continue;
                     }
 
-                    // Check the next needle
-                    continue;
+                    $match = $function($key, $needle, $flags);
+
+                    if ($flags['not']) {
+                        // Invert the match result
+                        $match = !$match;
+                    }
+
+                    if ($match) {
+                        // This needle matched, yay!
+                        $needles_match = true;
+
+                        if ($flags['any']) {
+                            // We're in "any" mode, and a single needle matched, so don't consider any other needles.
+                            break;
+                        }
+
+                        // Check the next needle
+                        continue;
+                    }
+
+                    // This needle didn't match
+
+                    if ($flags['all']) {
+                        // We're in "all" mode, and a single needle failed, so don't consider any other needles.
+                        $needles_match = false;
+                        break;
+                    }
                 }
 
-                // This needle didn't match
-
-                if ($flags['all']) {
-                    // We're in "all" mode, and a single needle failed, so don't consider any other needles.
-                    $needles_match = false;
-                    break;
-                }
+            } else {
+                // No needles specified!
+                $needles_match = true;
             }
 
-            static::processMatch($needles_match, $action, $return, $needle, $key, $value, $flags);
+            Arrays::processMatch($needles_match, $action, $return, $needle, $key, $value);
         }
 
-        return static::checkMatch($needles, $flags, $return);
+        return Arrays::checkMatch($needles, $flags, $return);
     }
 
 
@@ -4531,11 +4541,11 @@ class Arrays extends Utils
      * Process the given array with the specified needles for full matching and return the requested result
      *
      * @param int         $action
-     * @param array       $source
-     * @param array       $needles
-     * @param string|null $column
-     * @param array $flags
-     * @param callable    $function
+     * @param array       $source   The source data to match against
+     * @param array       $needles  The needles to match against
+     * @param string|null $column   If specified will try to match against the specified value sub column
+     * @param array       $flags    The matching flags that may modify the match behavior
+     * @param callable    $function The callback function that executes the actual matching
      *
      * @return array
      */
@@ -4544,53 +4554,73 @@ class Arrays extends Utils
         $return = [];
 
         foreach ($source as $key => $value) {
-            $needles_match = false;
+            if ($needles) {
+                $needles_match = false;
 
-            foreach ($needles as $needle) {
-                $string_value = Strings::getStringValue($value, $column);
+                foreach ($needles as $needle) {
+                    $match = false;
 
-                if (!static::useCleanedHaystackValue($string_value, $flags)) {
-                    continue;
-                }
+                    if (empty($needle)) {
+                        if ($needle === null) {
+                            if ($flags['skip_null_needles']) {
+                                $match = true;
+                            }
 
-                $match = $function($string_value, $needle, $flags);
+                        } elseif ($flags['skip_empty_needles']) {
+                            $match = true;
+                        }
 
-                if ($flags['not']) {
-                    // Invert the match result
-                    $match = !$match;
-                }
+                    } else {
+                        $string_value = Strings::getStringValue($value, $column);
 
-                if ($match) {
-                    // This needle matched, yay!
-                    $needles_match = true;
+                        if (!Arrays::useCleanedHaystackValue($string_value, $flags)) {
+                            continue;
+                        }
 
-                    if ($flags['any']) {
-                        // We're in "any" mode, and a single needle matched, so don't consider any other needles.
-                        break;
+                        $match = $function($string_value, $needle, $flags);
                     }
 
-                    // Check the next needle
-                    continue;
+                    if ($flags['not']) {
+                        // Invert the match result
+                        $match = !$match;
+                    }
+
+                    if ($match) {
+                        // This needle matched, yay!
+                        $needles_match = true;
+
+                        if ($flags['any']) {
+                            // We're in "any" mode, and a single needle matched, so don't consider any other needles.
+                            break;
+                        }
+
+                        // Check the next needle
+                        continue;
+                    }
+
+                    // At this point, this needle didn't match
+                    if ($flags['all']) {
+                        // We're in "all" mode, and a single needle failed, so don't consider any other needles.
+                        $needles_match = false;
+                        break;
+                    }
                 }
-
-                // This needle didn't match
-
-                if ($flags['all']) {
-                    // We're in "all" mode, and a single needle failed, so don't consider any other needles.
-                    $needles_match = false;
-                    break;
-                }
-            }
-
-            if ($action === static::MATCH_ACTION_RETURN_FULL_VALUES) {
-                static::processMatch($needles_match, $action, $return, $needle, $key, $value, $flags);
 
             } else {
-                static::processMatch($needles_match, $action, $return, $needle, $key, $string_value, $flags);
+                // No needles specified!
+                $needles_match = true;
+                $string_value  = Strings::getStringValue($value, $column);
+            }
+
+            if ($action === Utils::MATCH_ACTION_RETURN_FULL_VALUES) {
+                Arrays::processMatch($needles_match, $action, $return, $needle, $key, $value);
+
+            } else {
+                Arrays::processMatch($needles_match, $action, $return, $needle, $key, $string_value);
             }
         }
 
-        return static::checkMatch($needles, $flags, $return);
+        return Arrays::checkMatch($needles, $flags, $return);
     }
 }
 

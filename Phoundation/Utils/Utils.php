@@ -43,6 +43,8 @@ class Utils
     const int MATCH_EMPTY            = 8192;
     const int MATCH_SINGLE           = 16384;
     const int MATCH_TRIM             = 32768;
+    const int SKIP_NULL_NEEDLES      = 65536;
+    const int SKIP_EMPTY_NEEDLES     = 131072;
 
 
     /**
