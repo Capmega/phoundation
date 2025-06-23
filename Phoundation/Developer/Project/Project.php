@@ -294,7 +294,7 @@ class Project implements ProjectInterface
     public static function getEnvironments(): IteratorInterface
     {
         $return = [];
-        $files  = glob(DIRECTORY_ROOT . 'config/*.yaml');
+        $files  = glob(DIRECTORY_ROOT . 'config/environments/*');
 
         foreach ($files as $file) {
             if ($file[0] === '.') {
