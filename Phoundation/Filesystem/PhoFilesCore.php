@@ -22,6 +22,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Data\IteratorCore;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Exception\NoPathSpecifiedException;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
@@ -75,7 +76,7 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
      */
     public function setSource(IteratorInterface|array|string|PDOStatement|null $source = null, ?array $execute = null, bool $filter_meta = false): static
     {
-        parent::setSource($source, $execute, $filter_meta);
+        parent::setSource($source, $execute);
         return $this->init();
     }
 
@@ -92,17 +93,38 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
 
 
     /**
-     * Returns the parent Path (if available) that contains these files
+     * Sets the parent path where the files for this object are located.
+     *
+     * @note By default, will then load the files in that path
      *
      * @param PhoPathInterface|null $parent_directory
      *
      * @return PhoFiles
      */
-    public function setParentDirectory(?PhoPathInterface $parent_directory): static
+    public function setParentDirectory(?PhoPathInterface $parent_directory, bool $load = true): static
     {
         $this->parent_directory = $parent_directory;
 
+        if ($load) {
+            return $this->load();
+        }
+
         return $this;
+    }
+
+
+    /**
+     * Loads the files for the current parent_directory into the source array
+     *
+     * @return static
+     */
+    protected function load(): static
+    {
+        if (empty($this->parent_directory)) {
+            throw new NoPathSpecifiedException(tr('Cannot load files, no parent directory specified'));
+        }
+
+        $this->setSource($this->parent_directory->scan());
     }
 
 
@@ -117,14 +139,12 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
      *
      * @return static
      */
-    public function move(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null): static
+    public function move(?PhoDirectoryInterface $target, ?PhoRestrictionsInterface $o_restrictions = null): static
     {
-        $restrictions = $this->ensureRestrictions($restrictions);
-
         PhoDirectory::new($target, $restrictions)->ensure();
 
         foreach ($this->source as $file) {
-            PhoFile::new($file)->move($target, $restrictions);
+            PhoFile::new($file)->move($target, $target->getRestrictions());
         }
 
         return $this;
@@ -341,13 +361,17 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
      *
      * @note This will remove the files from this PhoFiles object
      *
+     * @param string|bool $clean_path
+     * @param bool        $sudo
+     * @param bool        $escape
+     * @param bool        $use_run_file
+     *
      * @return static
      */
     public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static
     {
         foreach ($this as $key => $file) {
             $file->delete($clean_path, $sudo, $escape, $use_run_file);
-
             unset($this->source[$key]);
         }
 
@@ -356,6 +380,8 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
 
 
     /**
+     * Will shred all files in this PhoFiles iterator
+     *
      * @param int  $passes
      * @param bool $simultaneously
      * @param bool $randomized
@@ -370,13 +396,12 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
         if ($simultaneously) {
             // Delete the files all simultaneously
             // This may require reimplementing FsCorePath::doInitialize() all anew!
-            throw new UnderConstructionException();
+throw new UnderConstructionException();
 
         } else {
             // Delete the files one after the other
             foreach ($this as $key => $file) {
                 $file->shred($passes, $randomized, $block_size);
-
                 unset($this->source[$key]);
             }
         }
