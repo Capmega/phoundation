@@ -1736,4 +1736,10 @@ class Config implements ConfigInterface
     {
         return $this->data;
     }
+
+
+    public function getEnvironments(): IteratorInterface
+    {
+
+    }
 }
