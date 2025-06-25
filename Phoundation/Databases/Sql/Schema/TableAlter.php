@@ -119,7 +119,7 @@ class TableAlter extends SchemaAbstract
             throw new OutOfBoundsException(tr('No column specified'));
         }
 
-        $column = Strings::ensureStartsNotWith($column, '`');
+        $column = Strings::ensureBeginsNotWith($column, '`');
         $column = Strings::ensureEndsNotWith($column, '`');
 
         $this->sql->query('ALTER TABLE ' . $this->name . ' DROP COLUMN `' . $column . '`');
@@ -146,7 +146,7 @@ class TableAlter extends SchemaAbstract
             throw new OutOfBoundsException(tr('No new column definition specified'));
         }
 
-        $column        = Strings::ensureStartsNotWith($column       , '`');
+        $column        = Strings::ensureBeginsNotWith($column       , '`');
         $column        = Strings::ensureEndsNotWith($column         , '`');
         $to_definition = Strings::ensureEndsNotWith($to_definition  , ',');
 
@@ -174,7 +174,7 @@ class TableAlter extends SchemaAbstract
             throw new OutOfBoundsException(tr('No new column definition specified'));
         }
 
-        $column        = Strings::ensureStartsNotWith($column       , '`');
+        $column        = Strings::ensureBeginsNotWith($column       , '`');
         $column        = Strings::ensureEndsNotWith($column         , '`');
         $to_definition = Strings::ensureEndsNotWith($to_definition  , ',');
 
@@ -205,9 +205,9 @@ class TableAlter extends SchemaAbstract
             throw new OutOfBoundsException(tr('No new column definition specified'));
         }
 
-        $from_name = Strings::ensureStartsNotWith($from_name, '`');
+        $from_name = Strings::ensureBeginsNotWith($from_name, '`');
         $from_name = Strings::ensureEndsNotWith($from_name, '`');
-        $to_name   = Strings::ensureStartsNotWith($to_name, '`');
+        $to_name   = Strings::ensureBeginsNotWith($to_name, '`');
         $to_name   = Strings::ensureEndsNotWith($to_name, '`');
 
         $this->sql->query('ALTER TABLE `' . $this->name . '` RENAME COLUMN `' . $from_name . '` TO `' . $to_name . '`');
@@ -296,13 +296,13 @@ class TableAlter extends SchemaAbstract
      */
     public function renameIndex(string $from_name, string $to_name): static
     {
-        $definition = $this->getDefinition($from_name, 'KEY');
-        $definition = str_replace($to_name    , '##########', $definition);
-        $definition = str_replace($from_name  , $to_name    , $definition);
-        $definition = str_replace('##########', $to_name    , $definition);
+        $o_definition = $this->getDefinition($from_name, 'KEY');
+        $o_definition = str_replace($to_name    , '##########', $o_definition);
+        $o_definition = str_replace($from_name  , $to_name    , $o_definition);
+        $o_definition = str_replace('##########', $to_name    , $o_definition);
 
         $this->sql->query('ALTER TABLE ' . $this->name . ' DROP KEY `' . $from_name . '`');
-        $this->sql->query('ALTER TABLE ' . $this->name . ' ADD ' . $definition);
+        $this->sql->query('ALTER TABLE ' . $this->name . ' ADD ' . $o_definition);
 
         return $this;
     }
@@ -340,7 +340,7 @@ class TableAlter extends SchemaAbstract
     {
         if ($index) {
             $this->sql->query('ALTER TABLE ' . $this->name . ' 
-                               DROP KEY   `' . Strings::ensureEndsNotWith(Strings::ensureStartsNotWith($index, '`'), '`') . '`');
+                               DROP KEY   `' . Strings::ensureEndsNotWith(Strings::ensureBeginsNotWith($index, '`'), '`') . '`');
         }
 
         return $this;

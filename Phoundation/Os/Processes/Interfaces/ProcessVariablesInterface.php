@@ -205,6 +205,7 @@ interface ProcessVariablesInterface extends Stringable
      * Sets the terminal to execute this command
      *
      * @param string|null $term
+     * @param bool        $only_if_empty
      *
      * @return static This process so that multiple methods can be chained
      */
@@ -295,7 +296,7 @@ interface ProcessVariablesInterface extends Stringable
      * @note NULL means this local server
      * @return PhoRestrictionsInterface
      */
-    public function getRestrictions(): PhoRestrictionsInterface;
+    public function getRestrictionsObject(): PhoRestrictionsInterface;
 
 
     /**
@@ -303,13 +304,13 @@ interface ProcessVariablesInterface extends Stringable
      *
      * @note NULL means this local server
      *
-     * @param PhoRestrictionsInterface|array|string|null $restrictions
+     * @param PhoRestrictionsInterface|array|string|null $o_restrictions
      * @param bool                                       $write
      * @param string|null                                $label
      *
      * @return static
      */
-    public function setRestrictions(PhoRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
+    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions = null, bool $write = false, ?string $label = null): static;
 
 
     /**

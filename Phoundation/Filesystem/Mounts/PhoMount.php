@@ -59,7 +59,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
     {
         parent::__construct($identifier);
 
-        $this->restrictions = $this->ensureRestrictions($restrictions);
+        $this->o_restrictions = $this->ensureRestrictions($restrictions);
     }
 
 
@@ -120,7 +120,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
                 $mount_path['target_path'] = PhoPath::absolutePath($mount_path['target_path'], must_exist: false);
 
                 if (str_starts_with($path, $mount_path['target_path'])) {
-                    return static::new($mount_path['id'], 'id')->setRestrictions($restrictions);
+                    return static::new($mount_path['id'], 'id')->setRestrictionsObject($restrictions);
                 }
             }
         }
@@ -344,7 +344,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
     public function isMounted(): bool
     {
         try {
-            foreach (PhoMounts::getMountSources($this->getAbsoluteTargetPath(), $this->restrictions)
+            foreach (PhoMounts::getMountSources($this->getAbsoluteTargetPath(), $this->o_restrictions)
                               ->getAllRowsSingleColumn('source_path') as $source_path) {
                 if ($this->getSourcePath() !== $source_path) {
                     throw new MountsException(tr('The target path ":target" should be mounted from ":source" but is mounted from ":current"', [
@@ -395,7 +395,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
     public function getCurrentSource(): string|null
     {
         try {
-            $mounts = PhoMounts::getMountSources($this->getAbsoluteTargetPath(), $this->restrictions)
+            $mounts = PhoMounts::getMountSources($this->getAbsoluteTargetPath(), $this->o_restrictions)
                                ->getAllRowsSingleColumn('source_path');
 
             return end($mounts);
@@ -435,7 +435,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
      */
     public function unmount(): static
     {
-        UnMount::new($this->restrictions)
+        UnMount::new($this->o_restrictions)
                ->unmount($this->getAbsoluteTargetPath());
 
         return $this;
@@ -460,7 +460,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
      */
     public function mount(): static
     {
-        Mount::new($this->restrictions)->mount(
+        Mount::new($this->o_restrictions)->mount(
             $this->getSourcePath(),
             $this->getAbsoluteTargetPath(),
             $this->getFilesystem(),
@@ -483,8 +483,8 @@ class PhoMount extends DataEntry implements PhoMountInterface
                                              ->setMaxLength(64)
                                              ->setLabel(tr('Name'))
                                              ->setHelpText(tr('The unique identifier name for this mount'))
-                                             ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isUnique();
+                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->isUnique();
                                            }))
 
                     ->add(DefinitionFactory::newSeoName())
@@ -495,8 +495,8 @@ class PhoMount extends DataEntry implements PhoMountInterface
                                     ->setMaxLength(255)
                                     ->setLabel(tr('Source'))
                                     ->setHelpText(tr('The source file for this mount'))
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isFile([PhoDirectory::newFilesystemRootObject(), PhoDirectory::newDomainObject('*')]);
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isFile([PhoDirectory::newFilesystemRootObject(), PhoDirectory::newDomainObject('*')]);
                                     }))
 
                     ->add(Definition::new('target_path')
@@ -505,8 +505,8 @@ class PhoMount extends DataEntry implements PhoMountInterface
                                     ->setMaxLength(255)
                                     ->setLabel(tr('Target'))
                                     ->setHelpText(tr('The target file for this mount'))
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isDirectory(PhoDirectory::newFilesystemRootObject());
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isDirectory(PhoDirectory::newFilesystemRootObject());
                                     }))
 
                     ->add(Definition::new('filesystem')

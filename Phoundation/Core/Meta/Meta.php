@@ -243,7 +243,7 @@ class Meta implements MetaInterface
     {
         Validate::new($limit)->isMoreThan(0);
 
-        $before = PhoDateTime::new($before)->format(EnumDateFormat::mysql);
+        $before = PhoDateTime::new($before)->format(EnumDateFormat::mysql_datetime);
 
         sql()->list('DELETE FROM `meta_history` WHERE `created_on` < :created_on' . ($limit ? ' LIMIT ' . $limit : null), [
             ':created_on' => $before,

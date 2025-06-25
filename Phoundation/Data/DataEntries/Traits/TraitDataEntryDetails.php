@@ -18,6 +18,7 @@ namespace Phoundation\Data\DataEntries\Traits;
 
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Stringable;
@@ -30,15 +31,19 @@ trait TraitDataEntryDetails
      *
      * @return array|null
      */
-    public function getDetails(): array|null
+    public function getDetails(): ?array
     {
         try {
             return Json::decode($this->getTypesafe('string', 'details'));
 
         } catch (JsonException $e) {
-            Log::warning(ts('Failed to decode details because of following exception'));
-            Log::warning(ts('NOTE: This is due to DataEntry::setDetails() JSON encoding incoming arrays automatically, but when reading from DB, it reads strings, it gets messy and a better solution must be found'));
-            Log::error($e);
+            Incident::new()
+                    ->setTitle(ts('Failed to decode details because of following exception'))
+                    ->setBody(ts('NOTE: This is due to DataEntry::setDetails() JSON encoding incoming arrays automatically, but when reading from DB, it reads strings, it gets messy and a better solution must be found'))
+                    ->setException($e)
+                    ->setLog(ENVIRONMENT === 'production' ? 10 : 4)
+                    ->setNotifyRoles('developer')
+                    ->save();
 
             return [$this->getTypesafe('string', 'details')];
         }

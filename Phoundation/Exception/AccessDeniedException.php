@@ -16,9 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Exception;
 
-use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Security\Exception\SecurityException;
 
 
-class AccessDeniedException extends IncidentsException
+class AccessDeniedException extends SecurityException
 {
 }

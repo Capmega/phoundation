@@ -19,17 +19,17 @@ namespace Phoundation\Date\Enums;
 
 enum EnumDateFormat: string
 {
-    case user_time      = 'user_time';
-    case user_date      = 'user_date';
-    case user_datetime  = 'user_datetime';
-    case human_time     = 'human_time';     // DEPRECATED
-    case human_date     = 'human_date';     // DEPRECATED
-    case human_datetime = 'human_datetime'; // DEPRECATED
-    case iso_date       = 'iso_date';
-    case system_date    = 'system_date';
-    case mysql_date     = 'mysql_date';
-    case iso_date_time  = 'iso_date_time';
-    case mysql          = 'mysql';
-    case mysql_datetime = 'mysql_datetime';
-    case file           = 'file';
+    case user_time       = 'user_time';
+    case user_date       = 'user_date';
+    case user_datetime   = 'user_datetime';
+    case human_time      = 'human_time';     // DEPRECATED
+    case human_date      = 'human_date';     // DEPRECATED
+    case human_datetime  = 'human_datetime'; // DEPRECATED
+    case system_date     = 'system_date';
+    case system_datetime = 'system_datetime';
+    case iso_date        = 'iso_date';
+    case iso_date_time   = 'iso_date_time';
+    case mysql_date      = 'mysql_date';
+    case mysql_datetime  = 'mysql_datetime';
+    case file            = 'file';
 }

@@ -72,7 +72,7 @@ class AuthenticationsFilterForm extends \Phoundation\Web\Html\Components\Forms\F
         if ($this->apply_filters->keyExists('action') and $this->o_definitions->isRendered('action', false)) {
             if ($this->getAction()) {
                 $builder->addWhere(
-                    '`' . $builder->getFromTable() . '`.`action` = :action', [':action' => $this->getAction()]
+                    '`' . $builder->getFrom() . '`.`action` = :action', [':action' => $this->getAction()]
                 );
             }
         }

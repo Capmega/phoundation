@@ -117,7 +117,7 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
                                      <label class="form-label" for="' . Html::safe($o_definition->getColumn()) . '">' . Html::safe($o_definition->getLabel()) . '</label>
                                  </div>
                              </div>',
-            //            ' . $this->renderTooltip($definition) . '
+            //            ' . $this->renderTooltip($o_definition) . '
         };
 
         return $this->render;
@@ -127,16 +127,16 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
     /**
      * Renders and returns the tooltip for the specified definition
      *
-     * @param DefinitionInterface $definition
+     * @param DefinitionInterface $o_definition
      *
      * @return string|null
      */
-    protected function renderTooltip(DefinitionInterface $definition): ?string
+    protected function renderTooltip(DefinitionInterface $o_definition): ?string
     {
-        if ($definition->getTooltip()) {
+        if ($o_definition->getTooltip()) {
             // Render and return the tooltip
             return Tooltip::new()
-                          ->setTitle($definition->getTooltip())
+                          ->setTitle($o_definition->getTooltip())
                           ->setUseIcon(true)
                           ->render();
         }

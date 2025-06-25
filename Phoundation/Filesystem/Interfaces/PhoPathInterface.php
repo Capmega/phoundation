@@ -945,12 +945,12 @@ interface PhoPathInterface extends Stringable
      *
      * @return PhoRestrictionsInterface
      */
-    public function getRestrictions(): PhoRestrictionsInterface;
+    public function getRestrictionsObject(): PhoRestrictionsInterface;
 
     /**
      * Sets the server and filesystem restrictions for this PhoPath object
      *
-     * @param PhoRestrictionsInterface|array|string|null $restrictions     The file restrictions to apply to this object
+     * @param PhoRestrictionsInterface|array|string|null $o_restrictions   The file restrictions to apply to this object
      * @param bool                                       $write            If $restrictions is not specified as a
      *                                                                     FsRestrictions class, but as a path string,
      *                                                                     or array of path strings, then this method
@@ -964,7 +964,7 @@ interface PhoPathInterface extends Stringable
      *                                                                     object and this is the $label modifier for
      *                                                                     that object
      */
-    public function setRestrictions(PhoRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
+    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions = null, bool $write = false, ?string $label = null): static;
 
     /**
      * Returns either the specified restrictions, or this object's restrictions, or system default restrictions

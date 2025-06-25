@@ -39,6 +39,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Requests\Enums;
 
+
 enum EnumRequestTypes: string
 {
     case api         = 'api';

@@ -129,7 +129,7 @@ class PhoDate
                 $format = DateTimeInterface::ATOM;
                 break;
 
-            case EnumDateFormat::mysql:
+            case EnumDateFormat::mysql_datetime:
                 // no break
             case EnumDateFormat::user_datetime:
                 // Use mysql format
@@ -165,7 +165,7 @@ class PhoDate
 
                 case '12':
                     // Only add AM/PM in case the original spec has 24H and no AM/PM
-                    if (($requested_format != EnumDateFormat::mysql) and str_contains($format, 'g')) {
+                    if (($requested_format != EnumDateFormat::mysql_datetime) and str_contains($format, 'g')) {
                         $format = str_replace('H', 'g', $format);
                         if (!str_contains($format, 'a')) {
                             $format .= ' a';

@@ -32,7 +32,7 @@ class Crypt
      *
      * @return string
      */
-    public static function createCryptString(int $size = 32): string
+    public static function createString(int $size = 32): string
     {
         return PhoFile::new('/dev/urandom', PhoRestrictions::newReadonlyObject('/dev/'))
                       ->readBytes($size);
@@ -47,7 +47,7 @@ class Crypt
      *
      * @return PhoFileInterface
      */
-    public static function createCryptFile(PhoFileInterface $file, int $size = 4_096): PhoFileInterface
+    public static function createFile(PhoFileInterface $file, int $size = 4_096): PhoFileInterface
     {
         if ($size > 16_777_216) {
             // Yeah, 16M keys is not enough? Really?

@@ -141,7 +141,7 @@ class Category extends DataEntry implements CategoryInterface
         $o_definitions->add(Definition::new('parents_id')
                                       ->setOptional(true)
                                       ->setElement(EnumElement::select)
-                                      ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                                      ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
@@ -149,9 +149,9 @@ class Category extends DataEntry implements CategoryInterface
                                     })
                                       ->setSize(6)
                                       ->setLabel(tr('Parent category'))
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         // Ensure parents_id exists and that its or parent
-                                        $validator->orColumn('parent')
+                                        $o_validator->orColumn('parent')
                                                   ->isDbId()
                                                   ->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
                                     }))
@@ -170,16 +170,16 @@ class Category extends DataEntry implements CategoryInterface
                                                              ->getSource();
                                         },
                                     ])
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         // Ensure parent exists and that its or parents_id
-                                        $validator->orColumn('parents_id')
+                                        $o_validator->orColumn('parents_id')
                                                   ->isName(64)
                                                   ->setColumnFromQuery('parents_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$parent']);
                                     }))
 
                     ->add(DefinitionFactory::newName()
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isFalse(function ($value, $source) {
+                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->isFalse(function ($value, $source) {
                                                    Category::exists(['name' => $value], isset_get($source['id']));
                                                }, tr('already exists'));
                                            }))

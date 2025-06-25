@@ -53,7 +53,7 @@ class Rm extends Command
                 $empty = true;
                 while ($empty) {
                     $file  = dirname($file);
-                    $empty = PhoDirectory::new($file, $this->restrictions)
+                    $empty = PhoDirectory::new($file, $this->o_restrictions)
                                          ->isEmpty();
                     if ($empty) {
                         static::delete($file, $recurse_down, false, 1);

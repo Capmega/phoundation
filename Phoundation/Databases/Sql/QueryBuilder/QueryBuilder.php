@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Sql\QueryBuilder;
 
 use PDOStatement;
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Traits\TraitDataConnector;
@@ -25,6 +24,7 @@ use Phoundation\Data\Traits\TraitDataFilterForm;
 use Phoundation\Data\Traits\TraitDataMetaEnabled;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryDefinitionsInterface;
+use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Forms\Interfaces\FilterFormInterface;
@@ -42,9 +42,9 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
     /**
      * The pre-defined query sections
      *
-     * @var QueryDefinitionsInterface $definitions
+     * @var QueryDefinitionsInterface $o_definitions
      */
-    protected QueryDefinitionsInterface $definitions;
+    protected QueryDefinitionsInterface $o_definitions;
 
     /**
      * Caches the executed query
@@ -52,6 +52,43 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      * @var string|null $query
      */
     protected ?string $query = null;
+
+
+    /**
+     * Renders and returns a "... LIKE ... " query part for the query builder
+     *
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                      $like
+     *
+     * @return static
+     */
+    public function setIdentifiers(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
+    {
+        $this->clearWhere();
+
+        $equal = ($like ? 'LIKE ' : '= ');
+
+        if ($identifiers) {
+            foreach ($identifiers as $key => $value) {
+                // Make sure that the identifier column contains a table to avoid ambiguous columns
+                if (!str_contains($key, '.')) {
+                    // This key contains no table, default to the first FROM table
+                    $key = $this->getFrom() . '.' . $key;
+                }
+
+                $key    = str_replace('.', '`.`', $key);
+                $key    = str_replace('``.``', '`.`', $key);
+                $key    = Strings::ensureBeginsWith($key, '`');
+                $key    = Strings::ensureEndsWith($key, '`');
+                $column = SqlQueries::makeColumn($key);
+
+                $this->addWhere('' . $key . ' ' . $equal . ':' . $column)
+                     ->addExecute($value, $column);
+            }
+        }
+
+        return $this;
+    }
 
 
     /**
@@ -71,13 +108,30 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
 
 
     /**
+     * Adds the specifications of the given query builder to the query builder of this DataEntry object
+     *
+     * @param QueryBuilderInterface|null $o_query_builder
+     *
+     * @return static
+     */
+    public function addQueryBuilderObject(?QueryBuilderInterface $o_query_builder): static
+    {
+        if ($o_query_builder) {
+            $this->addSource($o_query_builder->getSource());
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Returns the bound variables execute array
      *
      * @return array|null
      */
     public function getExecute(): ?array
     {
-        return $this->execute;
+        return $this->executes;
     }
 
 
@@ -88,7 +142,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function &getExecuteByReference(): ?array
     {
-        return $this->execute;
+        return $this->executes;
     }
 
 
@@ -102,7 +156,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
     public function execute(bool $debug = false): PDOStatement
     {
         $this->query = $this->getQuery($debug);
-        return sql($this->o_connector)->query($this->query, $this->execute);
+        return sql($this->o_connector)->query($this->query, $this->executes);
     }
 
 
@@ -122,14 +176,18 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
             $predefine();
         }
 
-        if ($this->select) {
-            $query .= Strings::ensureEndsNotWith(trim(implode(', ', $this->select)), ',') . PHP_EOL . 'FROM `' . implode('`, `', $this->from) . '` ';
+        if ($this->selects) {
+            $query .= 'SELECT ' . Strings::ensureEndsNotWith(trim(implode(', ', $this->selects)), ',') . PHP_EOL . 'FROM `' . implode('`, `', $this->froms) . '` ';
 
         } elseif ($this->delete) {
-            $query .= Strings::ensureEndsNotWith(trim(implode(', ', $this->delete)), ',') . PHP_EOL . 'FROM `' . implode('`, `', $this->from) . '` ';
+            if (empty($this->wheres)) {
+                throw new QueryBuilderException(tr('Cannot create delete query without WHERE clauses'));
+            }
 
-        } elseif ($this->update) {
-            $query .= 'UPDATE `' . Strings::ensureEndsNotWith(trim(implode('`, `', $this->from)), ',') . '` SET ' . implode(',' . PHP_EOL, $this->update);
+            $query .= 'DELETE FROM `' . implode('`, `', $this->froms) . '` ';
+
+        } elseif ($this->updates) {
+            $query .= 'UPDATE `' . Strings::ensureEndsNotWith(trim(implode('`, `', $this->froms)), ',') . '` SET ' . implode(',' . PHP_EOL, $this->updates);
         }
 
         foreach ($this->joins as $join) {
@@ -140,16 +198,16 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
             $query .= PHP_EOL . 'WHERE ' . implode(' AND ', $this->wheres);
         }
 
-        if ($this->group_by) {
-            $query .= PHP_EOL . 'GROUP BY ' . implode(', ', $this->group_by);
+        if ($this->group_bys) {
+            $query .= PHP_EOL . 'GROUP BY ' . implode(', ', $this->group_bys);
         }
 
-        if ($this->having) {
-            $query .= PHP_EOL . 'HAVING ' . implode(' AND ', $this->having);
+        if ($this->havings) {
+            $query .= PHP_EOL . 'HAVING ' . implode(' AND ', $this->havings);
         }
 
-        if ($this->order_by) {
-            $query .= PHP_EOL . 'ORDER BY ' . implode(', ', $this->order_by);
+        if ($this->order_bys) {
+            $query .= PHP_EOL . 'ORDER BY ' . implode(', ', $this->order_bys);
         }
 
         if ($this->limit_count) {
@@ -171,7 +229,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
             return null;
         }
 
-        return sha1(sql()->parseQuery($this->query, $this->execute));
+        return sha1(sql()->parseQuery($this->query, $this->executes));
     }
 
 
@@ -184,7 +242,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function get(bool $debug = false): ?array
     {
-        return sql($this->o_connector)->getRow($this->getQuery($debug), $this->execute, $this->meta_enabled);
+        return sql($this->o_connector)->getRow($this->getQuery($debug), $this->executes, $this->meta_enabled);
     }
 
 
@@ -198,7 +256,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function getColumn(?string $column = null, bool $debug = false): string|float|int|bool|null
     {
-        return sql($this->o_connector)->getColumn($this->getQuery($debug), $this->execute, $column);
+        return sql($this->o_connector)->getColumn($this->getQuery($debug), $this->executes, $column);
     }
 
 
@@ -211,7 +269,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function list(bool $debug = false): array
     {
-        return sql($this->o_connector)->list($this->getQuery($debug), $this->execute);
+        return sql($this->o_connector)->list($this->getQuery($debug), $this->executes);
     }
 
 
@@ -226,7 +284,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function listArray(bool $debug = false): array
     {
-        return sql($this->o_connector)->listArray($this->getQuery($debug), $this->execute);
+        return sql($this->o_connector)->listArray($this->getQuery($debug), $this->executes);
     }
 
 
@@ -241,7 +299,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function listScalar(bool $debug = false): array
     {
-        return sql($this->o_connector)->listScalar($this->getQuery($debug), $this->execute);
+        return sql($this->o_connector)->listScalar($this->getQuery($debug), $this->executes);
     }
 
 
@@ -254,7 +312,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function listKeyValue(bool $debug = false): array
     {
-        return sql($this->o_connector)->listKeyValue($this->getQuery($debug), $this->execute);
+        return sql($this->o_connector)->listKeyValue($this->getQuery($debug), $this->executes);
     }
 
 
@@ -270,7 +328,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function listKeyValues(bool $debug = false, ?string $column = null): array
     {
-        return sql($this->o_connector)->listKeyValues($this->getQuery($debug), $this->execute, $column);
+        return sql($this->o_connector)->listKeyValues($this->getQuery($debug), $this->executes, $column);
     }
 
 
@@ -281,7 +339,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function isBuilt(): bool
     {
-        return $this->select and $this->wheres;
+        return $this->selects and $this->wheres;
     }
 
 

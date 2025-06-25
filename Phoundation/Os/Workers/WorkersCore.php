@@ -459,7 +459,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
     {
         // Check the workers that are still active
         foreach ($this->workers as $pid => $worker) {
-            $ps = Ps::new($this->restrictions)
+            $ps = Ps::new($this->o_restrictions)
                     ->ps($pid);
 
             if ($ps) {

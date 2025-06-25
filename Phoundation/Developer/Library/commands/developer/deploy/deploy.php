@@ -22,7 +22,7 @@ use Phoundation\Developer\Project\Project;
 
 
 CliDocumentation::setUsage('./pho development deploy [OPTIONS] TARGET_ENVIRONMENT
-./pho system development deploy TARGET_ENVIRONMENT
+./pho development deploy TARGET_ENVIRONMENT
 ');
 
 CliDocumentation::setHelp('This command will update your Phoundation libraries and list
@@ -51,7 +51,7 @@ $argv = ArgvValidator::new()
 Log::information(ts('Deploying project ":project" to environment ":environment"', [
     ':project'     => PROJECT,
     ':environment' => $argv['target_environment'],
-]));
+]), 10);
 
 
 Project::deploy()

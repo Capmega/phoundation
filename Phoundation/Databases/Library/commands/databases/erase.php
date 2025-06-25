@@ -130,4 +130,4 @@ Log::success(ts('Finished erasing record ":value" from table ":table" from datab
     ':database' => $argv['database'],
     ':table'    => $argv['table'],
     ':value'    => $argv['key'] . '=' . $argv['value'],
-]));
+]), 10);

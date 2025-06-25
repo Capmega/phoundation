@@ -41,7 +41,10 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryUserAgent;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Geo\GeoIp\Exception\GeoIpException;
 use Phoundation\Geo\GeoIp\GeoIp;
+use Phoundation\Security\Incidents\Incident;
+use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 
@@ -153,9 +156,9 @@ class Authentication extends DataEntry implements AuthenticationInterface
     /**
      * Returns the account for this authentication
      *
-     * @return string|null
+     * @return array|string|null
      */
-    public function getAccount(): ?string
+    public function getAccount(): array|string|null
     {
         return Json::encode($this->getTypesafe('array', 'account'));
     }
@@ -460,13 +463,13 @@ class Authentication extends DataEntry implements AuthenticationInterface
     protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
         // Ensure status will be limited to the defined possible states
-        $o_definitions->removeKeys('new-divider')
+        $o_definitions->removeKeys('meta-divider')
                       ->get('status')->setDataSource(static::getStatuses());
 
         $o_definitions->add(DefinitionFactory::newCreatedBy()
                                              ->setOptional(true))
 
-                      ->add(DefinitionFactory::newDivider('new-divider'))
+                      ->add(DefinitionFactory::newDivider('meta-divider'))
 
                       ->add(DefinitionFactory::newData('account')
                                              ->setLabel(tr('Used user account'))
@@ -474,8 +477,8 @@ class Authentication extends DataEntry implements AuthenticationInterface
                                              ->setDisabled(true)
                                              ->setMaxLength(128)
                                              ->setSize(3)
-                                             ->addValidationFunction(function (ValidatorInterface $validator) {
-                                                 $validator->sanitizeDecodeJson()->hasField('email')->forEachField()->isEmail();
+                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                                 $o_validator->sanitizeDecodeJson()->hasField('email')->forEachField()->isEmail();
                                              }))
 
                       ->add(DefinitionFactory::newNumber('ip_address_binary')
@@ -543,17 +546,13 @@ class Authentication extends DataEntry implements AuthenticationInterface
                                              ->setOptional(true)
                                              ->setSize(3))
 
-                      ->add(DefinitionFactory::newNumber('latitude')
-                                             ->setLabel(tr('Latitude'))
+                      ->add(DefinitionFactory::newLatitude()
                                              ->setDisabled(true)
-                                             ->setOptional(true)
-                                             ->setSize(3))
+                                             ->setHelpText(tr('The latitude location for this authentication')))
 
-                      ->add(DefinitionFactory::newNumber('longitude')
-                                             ->setLabel(tr('Longitude'))
+                      ->add(DefinitionFactory::newLongitude()
                                              ->setDisabled(true)
-                                             ->setOptional(true)
-                                             ->setSize(3))
+                                             ->setHelpText(tr('The longitude location for this authentication')))
 
                       ->add(DefinitionFactory::newBoolean('captcha_required')
                                              ->setLabel(tr('Required CAPTCHA'))

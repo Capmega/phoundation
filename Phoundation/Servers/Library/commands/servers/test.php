@@ -49,4 +49,4 @@ try {
 }
 
 
-Log::success(ts('Server ":server" was authenticated successfully', [':server' => $server->getDisplayName()]));
+Log::success(ts('Server ":server" was authenticated successfully', [':server' => $server->getDisplayName()]), 10);

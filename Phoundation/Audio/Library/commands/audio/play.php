@@ -31,7 +31,7 @@ CliDocumentation::setAutoComplete([
 ]);
 
 CliDocumentation::setUsage('./pho audio play FILENAME
-./pho system audio play PATH/FILE');
+./pho audio play PATH/FILE');
 
 CliDocumentation::setHelp('This command can apply various conversions to the specified image
 
@@ -53,5 +53,5 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Log::information(ts('Playing audio file ":file"', [':file' => $argv['file']]));
+Log::information(ts('Playing audio file ":file"', [':file' => $argv['file']]), 10);
 Audio::new($argv['file'])->playLocal($argv['background']);

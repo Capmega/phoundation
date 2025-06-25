@@ -133,7 +133,7 @@ class MaxMindImport extends GeoIpImport
         }
 
         $target_directory->ensure();
-        $target_directory->getRestrictions()->addDirectory(DIRECTORY_DATA . 'garbage/', true);
+        $target_directory->getRestrictionsObject()->addDirectory(DIRECTORY_DATA . 'garbage/', true);
 
         Log::action(ts('Processing GeoIP files and moving to directory ":directory"', [
             ':directory' => $target_directory
@@ -144,7 +144,7 @@ class MaxMindImport extends GeoIpImport
             PhoFile::new(DIRECTORY_DATA . 'garbage/maxmind', PhoRestrictions::newDataObject(true))->delete();
             PhoFile::new(
                 $source_directory . 'GeoLite2-*',
-                $source_directory->getRestrictions()
+                $source_directory->getRestrictionsObject()
             )->delete(false, false, false);
 
             $garbage  = clone $target_directory;
@@ -159,7 +159,7 @@ show($garbage->getSource());
             foreach (static::getMaxMindFiles(true) as $file => $url) {
                 if (str_ends_with($file, 'sha256')) {
                     // Get the required sha256 code for the following file
-                    $sha = PhoFile::new($source_directory . $file, $source_directory->getRestrictions())
+                    $sha = PhoFile::new($source_directory . $file, $source_directory->getRestrictionsObject())
                                   ->checkReadable()
                                   ->getContentsAsString();
 
@@ -172,7 +172,7 @@ show($garbage->getSource());
 
                 // Take the downloaded file, check sha256, untar it, and move the datafile from the resulting directory
                 // to the target
-                $directory = PhoFile::new($source_directory . $file, $source_directory->getRestrictions())
+                $directory = PhoFile::new($source_directory . $file, $source_directory->getRestrictionsObject())
                                     ->checkReadable()
                                     ->checkSha256($shas[$file])
                                     ->untar()
@@ -181,7 +181,7 @@ show($garbage->getSource());
                 // Move the file to the target path and delete the source path
                 $source = clone $directory;
 show('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz');
-                $directory->getRestrictions()->addRestrictions($target_directory->getRestrictions());
+                $directory->getRestrictionsObject()->addRestrictions($target_directory->getRestrictionsObject());
                 $directory->getSingleFile('/.+?.mmdb/i')->movePath($target_directory);
                 $source->delete();
             }

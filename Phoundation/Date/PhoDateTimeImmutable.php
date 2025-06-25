@@ -78,7 +78,7 @@ class PhoDateTimeImmutable extends \DateTimeImmutable implements Stringable, Int
     public function format(?string $format = null): string
     {
         switch (strtolower($format)) {
-            case EnumDateFormat::mysql:
+            case EnumDateFormat::mysql_datetime:
                 $format = 'Y-m-d H:i:s';
                 break;
         }

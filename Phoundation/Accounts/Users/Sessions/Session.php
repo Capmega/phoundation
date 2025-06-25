@@ -29,6 +29,7 @@ namespace Phoundation\Accounts\Users\Sessions;
 
 use DateTimeZone;
 use Exception;
+use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Enums\EnumAuthenticationAction;
 use Phoundation\Accounts\Users\Authentication;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
@@ -71,6 +72,7 @@ use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Http\Http;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
@@ -561,12 +563,12 @@ class Session implements SessionInterface
                                 ->setRoles('developer')
                                 ->setTitle(tr('Invalid cookie domain'))
                                 ->setMessage(tr('Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', [
-                                    ':domain'         => Strings::ensureStartsNotWith(config()->getStringBoolean('web.sessions.cookies.domain'), '.'),
+                                    ':domain'         => Strings::ensureBeginsNotWith(config()->getStringBoolean('web.sessions.cookies.domain'), '.'),
                                     ':cookie_domain'  => config()->getStringBoolean('web.sessions.cookies.domain'),
                                     ':current_domain' => static::$domain,
                                 ]))
                                 ->send();
-                    Response::redirect(PROTOCOL . Strings::ensureStartsNotWith(config()->getStringBoolean('web.sessions.cookies.domain'), '.'));
+                    Response::redirect(PROTOCOL . Strings::ensureBeginsNotWith(config()->getStringBoolean('web.sessions.cookies.domain'), '.'));
                 }
 
                 ini_set('session.cookie_domain', config()->getStringBoolean('web.sessions.cookies.domain'));
@@ -1075,7 +1077,8 @@ class Session implements SessionInterface
 
         Response::getFlashMessagesObject()->addWarning(tr('You were signed out automatically because your session timed out'));
         Session::signOut(true);
-        Response::redirect('signin');
+        Session::setAutoSignedOut();
+        Response::redirect(Url::new('signin')->makeWww()->addRedirect(Session::getPreviousPage()));
     }
 
 
@@ -1407,6 +1410,64 @@ class Session implements SessionInterface
 
 
     /**
+     * Redirects the user after they have signed in
+     *
+     * @param string|null $redirect
+     * @param string|null $email
+     *
+     * @return void
+     */
+    #[NoReturn] public static function redirectAfterSignIn(string|null $redirect, ?string $email = null): void
+    {
+        // Try to redirect the user back where they were. If the email is different (new, different user) do not do
+        // this as we would redirect the new user to what the previous user was doing
+        if (empty($email) or (static::getUserObject()->getEmail() === $email)) {
+
+            // If auto-signed-out, check if it has been more than 12 hours (in which case do not redirect back to previous page)
+            if (Session::getAutoSignedOut()) {
+                $auto_sign_out_time      = PhoDateTime::new(Session::getAutoSignedOut());
+                $auto_sign_out_hours_ago = $auto_sign_out_time->diff(PhoDateTime::new())->getTotalHours();
+
+                // If auto-sign-out was more than 12 hours ago, redirect back to default page
+                if ($auto_sign_out_hours_ago >= config()->getPositiveInteger('medinet.billing.restore-page.timeout.hours', 12)) {
+                    $default_page = Session::getUserObject()->getConfigurationsObject()->get('default_page');
+                    if ($default_page) {
+                        Response::redirect($default_page);
+
+                    } else {
+                        Response::redirect(Url::new('index')->makeWww());
+                    }
+                }
+            }
+
+            // First try the specified URL (likely from GET)
+            $redirect_urls[] = $redirect;
+
+            // Next try the URL from session
+            $redirect_urls[] = Session::getPreviousPage();
+
+            // Next try the accounts_users "previous_page" column
+//            $redirect_urls[] = Session::getUserObject()->getPreviousPage();
+
+            // Next try the user default page
+            $redirect_urls[] = Session::getUserObject()->getConfigurationsObject()->get('default_page');
+
+            foreach ($redirect_urls as $redirect_url) {
+                $redirect_url = Url::filter($redirect_url, ['sign-out', 'sign-in', 'auto-sign-out']);
+
+                if ($redirect_url) {
+                    $redirect_url = Url::newRedirect($redirect_url);
+                    Response::redirect($redirect_url);
+                }
+            }
+        }
+
+        // GET email didn't match or wasn't specified, redirect the default page for this user
+        Response::redirect(Url::new('index')->makeWww());
+    }
+
+
+    /**
      * Authenticate a user with the specified password
      *
      * @param UserInterface $user
@@ -1419,10 +1480,15 @@ class Session implements SessionInterface
             // Update the users sign-in and last sign-in information
             static::$user         = $user;
             static::$user_changed = true;
+            $auto_sign_out_time   = Session::getAutoSignedOut();
 
             Session::clear();
             Session::updateSignInTracking();
             Session::clearSignInKey();
+
+            if ($auto_sign_out_time) {
+                Session::setAutoSignedOut($auto_sign_out_time);
+            }
 
             Incident::new()
                     ->setType(tr('User sign in'))
@@ -1434,6 +1500,7 @@ class Session implements SessionInterface
 
             $_SESSION['first_visit'] = 1;
             $_SESSION['user']['id']  = static::$user->getId();
+
             return static::$user;
 
         } catch (DataEntryNotExistsException $e) {
@@ -1481,10 +1548,11 @@ class Session implements SessionInterface
             $display  = array_get_safe($_SESSION, 'display');
 
             $_SESSION = [
-                'domain'       => array_get_safe($_SESSION, 'domain'),
-                'init'         => array_get_safe($_SESSION, 'init'),
-                'first_ip'     => array_get_safe($_SESSION, 'first_ip'),
-                'first_domain' => array_get_safe($_SESSION, 'first_domain'),
+                'domain'          => array_get_safe($_SESSION, 'domain'),
+                'init'            => array_get_safe($_SESSION, 'init'),
+                'first_ip'        => array_get_safe($_SESSION, 'first_ip'),
+                'first_domain'    => array_get_safe($_SESSION, 'first_domain'),
+                'previous_page'   => array_get_safe($_SESSION, 'previous_page'),
             ];
 
             if ($messages) {
@@ -1543,6 +1611,7 @@ class Session implements SessionInterface
             }
         }
 
+        Session::setPreviousPage();
         Session::release();
     }
 
@@ -1580,15 +1649,15 @@ class Session implements SessionInterface
     /**
      * Validate sign in data
      *
-     * @param ValidatorInterface|null $validator
+     * @param ValidatorInterface|null $o_validator
      *
      * @return array
      */
-    public static function validateSignIn(?ValidatorInterface $validator = null): array
+    public static function validateSignIn(?ValidatorInterface $o_validator = null): array
     {
-        $validator = $validator ?? PostValidator::new();
+        $o_validator = $o_validator ?? PostValidator::new();
 
-        return $validator->select('email')->isEmail()
+        return $o_validator->select('email')->isEmail()
                          ->select('password')->isPassword()
                          ->validate();
     }
@@ -1597,17 +1666,17 @@ class Session implements SessionInterface
     /**
      * Validate sign up data
      *
-     * @param ValidatorInterface|null $validator
+     * @param ValidatorInterface|null $o_validator
      *
      * @return array
      */
-    public static function validateSignUp(?ValidatorInterface $validator = null): array
+    public static function validateSignUp(?ValidatorInterface $o_validator = null): array
     {
-        if (!$validator) {
-            $validator = PostValidator::new();
+        if (!$o_validator) {
+            $o_validator = PostValidator::new();
         }
 
-        return $validator->select('email')
+        return $o_validator->select('email')
                          ->isEmail()
                          ->select('password')
                          ->isPassword()
@@ -1640,7 +1709,7 @@ class Session implements SessionInterface
     protected static function setLanguage(): string
     {
         // Check what languages are accepted by the client (in order of importance) and see if we support any of those
-        $supported_languages = Arrays::force(config()->get('language.supported', []));
+        $supported_languages = Arrays::force(config()->get('locale.language.supported', []));
         $requested_languages = Request::acceptsLanguages();
 
         foreach ($requested_languages as $requested_language) {
@@ -2549,5 +2618,72 @@ class Session implements SessionInterface
     public static function setSignOutOnExit(?int $sign_out_on_exit): void
     {
         static::$sign_out_on_exit = $sign_out_on_exit;
+    }
+
+
+    /**
+     * Returns the value stored in the "previous_page" key
+     *
+     * @return string|null
+     */
+    public static function getPreviousPage(): ?string
+    {
+        return Session::get('previous_page');
+    }
+
+
+    /**
+     * Sets the value for the "previous_page" key
+     *
+     * @param UrlInterface|string|null $url
+     *
+     * @return void
+     */
+    protected static function setPreviousPage(UrlInterface|string|null $url = null): void
+    {
+        $url = $url ?? Request::getUrl();
+
+        if (is_string($url)) {
+            $url = Url::new($url);
+        }
+
+        if (!Request::isRequestType(EnumRequestTypes::html)) {
+            return;
+        }
+
+        // Check if this is from the sign-in/sign-out page. If so, do not reset the session previous page
+        if (empty(Url::filter($url, ['sign-out', 'sign-in', 'auto-sign-out']))) {
+            return;
+        }
+
+        Session::set($url->getSource(), 'previous_page');
+    }
+
+
+    /**
+     * Returns the auto sign out value for this user, in seconds, if available, null otherwise
+     *
+     * @return ?int
+     */
+    public static function getAutoSignedOut(): ?int
+    {
+        return array_get_safe($_SESSION, 'auto_signed_out');
+    }
+
+
+    /**
+     * Sets the auto sign out value for this user, in seconds, if available, null otherwise
+     *
+     * @param int|null $time
+     *
+     * @return void
+     */
+    protected static function setAutoSignedOut(?int $time = null): void
+    {
+        if ($time) {
+            $_SESSION['auto_signed_out'] = $time;
+        } else {
+            $_SESSION['auto_signed_out'] = time();
+        }
     }
 }

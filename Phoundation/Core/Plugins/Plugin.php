@@ -54,7 +54,7 @@ class Plugin extends DataEntry implements PluginInterface
 
     public function __construct(IdentifierInterface|false|array|int|string|null $identifier = false)
     {
-        $this->setRestrictions(PhoRestrictions::newReadonlyObject(DIRECTORY_ROOT . 'Plugins'));
+        $this->setRestrictionsObject(PhoRestrictions::newReadonlyObject(DIRECTORY_ROOT . 'Plugins'));
 
         parent::__construct($identifier);
     }
@@ -612,8 +612,8 @@ class Plugin extends DataEntry implements PluginInterface
                                     ->setSize(5)
                                     ->setReadonly(true)
                                     ->setHelpText(tr('The base class path of this plugin'))
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->hasMaxCharacters(1024)
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->hasMaxCharacters(1024)
                                                   ->matchesRegex('/Plugins\\\[\\\A-Za-z0-9]+\\\Plugin/');
                                     }))
 
@@ -638,8 +638,8 @@ class Plugin extends DataEntry implements PluginInterface
                                     ->setMin(0)
                                     ->setMax(100)
                                     ->setHelpText(tr('The priority for loading this plugin, between 0 and 100. A lower value will load the plugin before others'))
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isInteger();
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isInteger();
                                     }))
 
                     ->add(Definition::new('menu_priority')
@@ -652,8 +652,8 @@ class Plugin extends DataEntry implements PluginInterface
                                     ->setMin(0)
                                     ->setMax(100)
                                     ->setHelpText(tr('The priority for where to display the menu of this plugin, between 0 and 100. A lower value will display the menu before others'))
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isInteger();
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isInteger();
                                     }))
 
                     ->add(Definition::new('menu_enabled')
@@ -682,8 +682,8 @@ class Plugin extends DataEntry implements PluginInterface
                                     ->setLabel(tr('Web enabled'))
                                     ->setDefault(true)
                                     ->setHelpText(tr('If enabled, this plugin will automatically start upon each page load or command execution'))
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->isBoolean();
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isBoolean();
                                     }));
 
         return $this;

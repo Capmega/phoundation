@@ -24,6 +24,7 @@ use JetBrains\PhpStorm\NoReturn;
 use PDOStatement;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Audio\Audio;
+use Phoundation\Audio\Showdie;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Interfaces\ArrayableInterface;
@@ -257,9 +258,7 @@ class Debug
                         ),
                     ]));
 
-                    Audio::new('showdie.mp3')
-                         ->setTimeout(5)
-                         ->playLocal(true);
+                    Showdie::new()->playLocal(true);
                 }
 
             } catch (Throwable $e) {

@@ -68,11 +68,11 @@ interface DatabaseInterface extends SchemaAbstractInterface
      * Load the table parameters from the database
      *
      * @param array|string|int|null $identifiers
-     * @param bool $only_if_empty
+     * @param bool                  $like
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false): static;
+    public function load(array|string|int|null $identifiers = null, bool $like = false): static;
 
 
     /**

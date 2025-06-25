@@ -20,6 +20,7 @@ namespace Phoundation\Os\Processes;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Traits\TraitDataLogThreshold;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\PhoFile;
@@ -204,7 +205,7 @@ abstract class ProcessCore implements ProcessInterface
 
 
     /**
-     * Returns true if permission was denied and the
+     * Returns true if permission was denied on data/bin executables
      *
      * @param int $exit_code
      *
@@ -235,7 +236,7 @@ abstract class ProcessCore implements ProcessInterface
             }
         }
 
-        // Either permission wasn't denied or it could not be fixed
+        // Either permission wasn't denied or it couldn't be fixed
         return false;
     }
 
@@ -393,20 +394,17 @@ abstract class ProcessCore implements ProcessInterface
                 if ($background) {
                     $this->cached_command_line = '(' . $nohup . "bash -c 'set -o pipefail; " . $this->cached_command_line . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . ($this->getLogFile() ?? '/dev/null') . " 2>&1 & echo \$! >&3) 3> " . ($this->getRunFile() ?? '/dev/null');
 
-                }
-                elseif ($this->register_run_file) {
+                } elseif ($this->register_run_file) {
                     // Make sure the PID will be registered in the run file
                     $this->cached_command_line = "bash -c 'set -o pipefail; " . $this->cached_command_line . "; exit \$?'; EXIT=\$?; echo \$\$ > " . ($this->getRunFile() ?? '/dev/null') . "; exit \$EXIT;";
                 }
 
-            }
-            else {
+            } else {
                 // Create command line without run-file
                 if ($background) {
                     $this->cached_command_line = '(' . $nohup . "bash -c 'set -o pipefail; " . $this->cached_command_line . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . ($this->getLogFile() ?? '/dev/null') . " 2>&1 & echo \$!)";
 
-                }
-                elseif ($this->register_run_file) {
+                } elseif ($this->register_run_file) {
                     // Make sure the PID will be registered in the run file
                     $this->cached_command_line = "bash -c 'set -o pipefail; " . $this->cached_command_line . "; exit \$?';";
                 }
@@ -622,7 +620,7 @@ abstract class ProcessCore implements ProcessInterface
         Log::success(ts('Executed background command ":command" with PID ":pid"', [
             ':command' => $this->real_command,
             ':pid'     => $this->pid,
-        ]), 3);
+        ]), $this->log_level);
 
         return $this->pid;
     }
@@ -645,8 +643,8 @@ abstract class ProcessCore implements ProcessInterface
             Log::printr(Strings::untilReverse($this->getFullCommandLine(), 'exit '), echo_header: false);
         }
 
-        Log::action(ts('Executing command ":commands" using passthru()', [
-            ':commands' => $command,
+        Log::action(ts('Executing command ":command" using passthru()', [
+            ':command' => $command,
         ]), $this->log_level);
 
         $this->start = microtime(true);
@@ -752,7 +750,7 @@ abstract class ProcessCore implements ProcessInterface
     public function kill(int $signal = 15): void
     {
         if ($this->pid) {
-            Kill::new($this->restrictions)
+            Kill::new($this->o_restrictions)
                 ->pid($signal, $this->pid);
         }
     }
@@ -770,7 +768,7 @@ abstract class ProcessCore implements ProcessInterface
     public function hasSudoAvailable(bool $exception = false): bool
     {
         try {
-            Process::new($this->command, $this->getRestrictions())
+            Process::new($this->command, $this->getRestrictionsObject())
                 ->setSudo(true)
                 ->addArgument('--version')
                 ->executeReturnArray();

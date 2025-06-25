@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\QueryBuilder\Interfaces;
 
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Strings;
+
 interface QueryObjectInterface
 {
     /**
@@ -19,12 +22,11 @@ interface QueryObjectInterface
     /**
      * Make this a DELETE query by adding the select clause here
      *
-     * @param string     $delete
-     * @param array|null $execute
+     * @param bool $delete
      *
      * @return static
      */
-    public function addDelete(string $delete, ?array $execute = null): static;
+    public function setDelete(bool $delete): static;
 
     /**
      * Make this a UPDATE query by adding the select clause here
@@ -94,7 +96,7 @@ interface QueryObjectInterface
      *
      * @return static
      */
-    public function setOrderBy(?string $order_by, ?array $execute = null): static;
+    public function setOrderBys(?string $order_by, ?array $execute = null): static;
 
     /**
      * Add a ORDER BY part of the query
@@ -109,12 +111,12 @@ interface QueryObjectInterface
     /**
      * Add a JOIN part of the query
      *
-     * @param string                $column
      * @param string|float|int|null $value
+     * @param string                $column
      *
      * @return static
      */
-    public function addExecute(string $column, string|float|int|null $value): static;
+    public function addExecute(string|float|int|null $value, string $column): static;
 
     /**
      * Add a ORDER BY part of the query
@@ -163,23 +165,7 @@ interface QueryObjectInterface
      *
      * @return static
      */
-    public function setSelect(string $select, ?array $execute = null): static;
-
-    /**
-     * Returns the principle "FROM" table
-     *
-     * @return string|null
-     */
-    public function getFromTable(): ?string;
-
-    /**
-     * Sets the principle "FROM" table
-     *
-     * @param string|null $from_table
-     *
-     * @return static
-     */
-    public function setFromTable(?string $from_table): static;
+    public function setSelects(string $select, ?array $execute = null): static;
 
     /**
      * Sets the "FROM" part of the query
@@ -207,4 +193,120 @@ interface QueryObjectInterface
      * @return array
      */
     public function getWheres(): array;
+
+    /**
+     * Resets all query variables
+     *
+     * @return static
+     */
+    public function reset(): static;
+
+    /**
+     * Updates the source data from this QueryObject with the specified data
+     *
+     * @param array $source
+     *
+     * @return $this
+     */
+    public function addSource(array $source): static;
+
+    /**
+     * Updates the source data from this QueryObject with the specified data
+     *
+     * @param array $source
+     *
+     * @return $this
+     */
+    public function setSource(array $source): static;
+
+    /**
+     * Returns the source of this object
+     *
+     * @note: This object doesn't work with "source" data as such, so it will be constructed upon request
+     *
+     * @return array
+     */
+    public function getSource(): array;
+
+    /**
+     * Returns the first FROM table
+     *
+     * @return string|null
+     */
+    public function getFrom(): ?string;
+
+    /**
+     * Returns the WHERE parts of the query
+     *
+     * @return array
+     */
+    public function getFroms(): array;
+
+    /**
+     * Sets bound execution variables
+     *
+     * @param array $executes
+     *
+     * @return static
+     */
+    public function setExecutes(array $executes): static;
+
+    /**
+     * Returns the WHERE parts of the query
+     *
+     * @return array
+     */
+    public function getSelects(): array;
+
+    /**
+     * Returns the JOINS parts of the query
+     *
+     * @return array
+     */
+    public function getJoins(): array;
+
+    /**
+     * Clears the "WHERE" section
+     *
+     * @return static
+     */
+    public function clearWhere(): static;
+
+    /**
+     * Returns the GROUP BY parts of the query
+     *
+     * @return array
+     */
+    public function getGroupBys(): array;
+
+    /**
+     * Returns the HAVING parts of the query
+     *
+     * @return array
+     */
+    public function getHavings(): array;
+
+    /**
+     * Returns the ORDER BY parts of the query
+     *
+     * @return array
+     */
+    public function getOrderBys(): array;
+
+    /**
+     * Adds a WHERE = or WHERE IN depending on parameter type
+     *
+     * @param string                $column
+     * @param array|string|int|null $value
+     *
+     * @return static
+     */
+    public function addWhereIn(string $column, array|string|int|null $value): static;
+
+    /**
+     * Returns all predefines for this query builder
+     *
+     * @return array
+     */
+    public function getPredefines(): array;
 }

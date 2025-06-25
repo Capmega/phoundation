@@ -52,7 +52,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return QueryBuilderInterface
      */
-    public function getQueryBuilder(): QueryBuilderInterface;
+    public function getQueryBuilderObject(): QueryBuilderInterface;
 
 
     /**
@@ -239,12 +239,13 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @note When specifying multiple classes in a string, make sure they are space separated!
      *
-     * @param array|string $value
+     * @param IteratorInterface|callable|array|string|null $value
+     * @param bool                                         $skip_null_values
      *
      * @return static
      * @see  Definition::setVirtual()
      */
-    public function addClasses(array|string $value): static;
+    public function addClasses(IteratorInterface|callable|array|string|null $value, bool $skip_null_values = true): static;
 
 
     /**
@@ -252,12 +253,12 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @note When specifying multiple classes in a string, make sure they are space separated!
      *
-     * @param array|string $value
+     * @param callable|array|string $value
      *
      * @return static
      * @see  Definition::setVirtual()
      */
-    public function setClasses(array|string $value): static;
+    public function setClasses(callable|array|string $value): static;
 
 
     /**
@@ -273,13 +274,13 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @note When specifying multiple data in a string, make sure they are space separated!
      *
-     * @param array|string $value
-     * @param string       $key
+     * @param callable|array|string|null $value
+     * @param string                     $key
      *
      * @return static
      * @see  Definition::setVirtual()
      */
-    public function addData(array|string $value, string $key): static;
+    public function addData(callable|array|string|null $value, string $key): static;
 
 
     /**
@@ -287,12 +288,12 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @note When specifying multiple data in a string, make sure they are space separated!
      *
-     * @param IteratorInterface|array $value
+     * @param IteratorInterface|callable|array $value
      *
      * @return static
      * @see  Definition::setVirtual()
      */
-    public function setData(IteratorInterface|array $value): static;
+    public function setData(IteratorInterface|callable|array $value): static;
 
 
     /**
@@ -326,13 +327,13 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @note When specifying multiple aria in a string, make sure they are space separated!
      *
-     * @param array|string $value
-     * @param string       $key
+     * @param callable|array|string|null $value
+     * @param string                     $key
      *
      * @return static
      * @see  Definition::setVirtual()
      */
-    public function addAria(array|string $value, string $key): static;
+    public function addAria(callable|array|string|null $value, string $key): static;
 
 
     /**
@@ -340,12 +341,12 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @note When specifying multiple aria in a string, make sure they are space separated!
      *
-     * @param IteratorInterface|array $value
+     * @param IteratorInterface|callable|array $value
      *
      * @return static
      * @see  Definition::setVirtual()
      */
-    public function setAria(IteratorInterface|array $value): static;
+    public function setAria(IteratorInterface|callable|array $value): static;
 
 
     /**
@@ -1178,11 +1179,11 @@ interface DefinitionInterface extends BeforeAfterContentInterface
     /**
      * Validate this column according to the column definitions
      *
-     * @param ValidatorInterface $validator
+     * @param ValidatorInterface $o_validator
      *
      * @return bool
      */
-    public function validate(ValidatorInterface $validator): bool;
+    public function validate(ValidatorInterface $o_validator): bool;
 
 
     /**
@@ -1290,24 +1291,24 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return PhoRestrictionsInterface
      */
-    public function getRestrictions(): PhoRestrictionsInterface;
+    public function getRestrictionsObject(): PhoRestrictionsInterface;
 
     /**
      * Sets the server and filesystem restrictions for this object
      *
-     * @param PhoRestrictionsInterface|array|string|null $restrictions The file restrictions to apply to this object
-     * @param bool                                       $write        If $restrictions is not specified as a
+     * @param PhoRestrictionsInterface|array|string|null $o_restrictions The file restrictions to apply to this object
+     * @param bool                                       $write          If $restrictions is not specified as a
      *                                                                FsRestrictions class, but as a path string, or
      *                                                                array of path strings, then this method will
      *                                                                convert that into a FsRestrictions object and this
      *                                                                is the $write modifier for that object
-     * @param string|null                                $label        If $restrictions is not specified as a
+     * @param string|null                                $label          If $restrictions is not specified as a
      *                                                                FsRestrictions class, but as a path string, or
      *                                                                array of path strings, then this method will
      *                                                                convert that into a FsRestrictions object and this
      *                                                                is the $label modifier for that object
      */
-    public function setRestrictions(PhoRestrictionsInterface|array|string|null $restrictions = null, bool $write = false, ?string $label = null): static;
+    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions = null, bool $write = false, ?string $label = null): static;
 
     /**
      * Returns if this column is forced processed or not
@@ -1538,4 +1539,81 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      * @return static
      */
     public function setMaximumDateObject(PhoDateTimeInterface|null $value, bool $equal = false): static;
+
+    /**
+     * Sets the full element name for this definition
+     *
+     * @return string|null
+     */
+    public function getName(): ?string;
+
+    /**
+     * Returns the properties for this definition
+     *
+     * @return array|null
+     */
+    public function getProperties(): ?array;
+
+    /**
+     * Returns the value for the requested property key, or NULL if it does not exist
+     *
+     * @param string|float|int $key
+     *
+     * @return mixed
+     */
+    public function getProperty(string|float|int $key): mixed;
+
+    /**
+     * Sets the value for the requested property key
+     *
+     * @param mixed            $value
+     * @param string|float|int $key
+     *
+     * @return mixed
+     */
+    public function addProperty(mixed $value, string|float|int $key): static;
+
+    /**
+     * Sets the properties for this definition
+     *
+     * @param array|null $properties
+     *
+     * @return static
+     */
+    public function setProperties(?array $properties): static;
+
+    /**
+     * Returns the value for the requested event key, or NULL if it doesn't exist
+     *
+     * @param string|float|int $key
+     *
+     * @return mixed
+     */
+    public function getEventHandler(string|float|int $key): mixed;
+
+    /**
+     * Sets the value for the requested property key
+     *
+     * @param mixed            $value
+     * @param string|float|int $key
+     *
+     * @return mixed
+     */
+    public function addEventHandler(mixed $value, string|float|int $key): static;
+
+    /**
+     * Returns all event handlers for this object
+     *
+     * @return array|null
+     */
+    public function getEventHandlers(): ?array;
+
+    /**
+     * Sets all event handlers for this object
+     *
+     * @param array|null $handlers
+     *
+     * @return Definition
+     */
+    public function setEventHandlers(?array $handlers): static;
 }

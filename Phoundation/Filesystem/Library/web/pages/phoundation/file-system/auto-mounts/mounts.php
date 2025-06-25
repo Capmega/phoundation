@@ -75,7 +75,7 @@ if (Request::isPostRequestMethod()) {
 
 // Get the mounts list and apply filters
 $mounts   = PhoMounts::new();
-$builder = $mounts->getQueryBuilder()
+$builder = $mounts->getQueryBuilderObject()
     ->addSelect('`filesystem_mounts`.`id`, 
                  `filesystem_mounts`.`name`, 
                  `filesystem_mounts`.`filesystem`, 

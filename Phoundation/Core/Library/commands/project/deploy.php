@@ -172,7 +172,7 @@ $argv = ArgvValidator::new()
 
 
 // Start deploying
-Log::information('Starting deployment process');
+Log::information('Starting deployment process', 10);
 
 
 if ($argv['targets']) {

@@ -138,6 +138,24 @@ trait TraitDataEntryName
 
 
     /**
+     * Returns true if this object has the specified name
+     *
+     * @param string|null $name
+     * @param bool        $strict
+     *
+     * @return bool
+     */
+    public function hasName(?string $name, bool $strict = true): bool
+    {
+        if ($strict) {
+            return $this->getName() === $name;
+        }
+
+        return $this->getName() == $name;
+    }
+
+
+    /**
      * Sets the name for this object
      *
      * @param string|null $name

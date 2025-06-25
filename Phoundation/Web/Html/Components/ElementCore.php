@@ -89,10 +89,10 @@ abstract class ElementCore implements ElementInterface
         if (isset($this->o_tooltip)) {
             if ($this->o_tooltip->getUseIcon()) {
                 if ($this->o_tooltip->getRenderBefore()) {
-                    $this->o_classes->add(true, 'has-tooltip-icon-left');
+                    $this->addClass('has-tooltip-icon-left');
 
                 } else {
-                    $this->o_classes->add(true, 'has-tooltip-icon-right');
+                    $this->addClass('has-tooltip-icon-right');
                 }
             }
         }

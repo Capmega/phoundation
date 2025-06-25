@@ -40,13 +40,29 @@ class ValidationFailedException extends ValidatorException
     {
         parent::__construct($messages, $previous);
         $this->makeWarning();
+    }
 
-        if (!Core::inBootState() and config()->getBoolean('security.validation.failures.log', true) and !config()->getBoolean('debug.exceptions.log.auto.enabled', false)) {
+
+    public function addData(mixed $data, ?string $key = null): static
+    {
+        parent::addData($data, $key);
+
+        // Automatically log every validation exception IF:
+        // * The system is not in booting up state
+        //
+        // AND one of the following:
+        //
+        // * Verbose mode is on
+        // * Security configuration says to log validation exceptions
+        // * Debug configuration says to log all exceptions
+        if (!Core::inBootState() and (Log::getVerbose() or config()->getBoolean('security.validation.failures.log', true) or config()->getBoolean('debug.exceptions.log.auto.enabled', false))) {
             // Automatically log validation failures, but only once!
             if (empty($previous)) {
-                Log::warning($this);
+                Log::warning($this, PLATFORM_CLI ? 10 : Log::getThreshold());
             }
         }
+
+        return $this;
     }
 
 
@@ -89,11 +105,11 @@ class ValidationFailedException extends ValidatorException
         // Apply the data entry definition labels to the data
         if ($this->getDataKey('failures') and $this->o_data_entry) {
             // Create a temporary data entry object to get its definitions.
-            $definitions = $this->o_data_entry->getDefinitionsObject();
+            $o_definitions = $this->o_data_entry->getDefinitionsObject();
 
             // Create a new exception data array with labels instead of keys
             foreach ($this->getDataKey('failures') as $key => $failure) {
-                $label   = $definitions->get($definitions->removeColumnPrefix($key))->getLabel() ?? $key;
+                $label   = $o_definitions->get($o_definitions->removeColumnPrefix($key))->getLabel() ?? $key;
                 $message = str_replace('"' . $key . '"', '"' . $label . '"', $failure['message']);
 
                 $this->data['failures'][$key]['label']   = $label;

@@ -123,9 +123,11 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
     /**
      * Returns the query builder for this data entry
      *
-     * @return QueryBuilderInterface
+     * @param bool $auto_initialize
+     *
+     * @return QueryBuilderInterface|null
      */
-    public function getQueryBuilderObject(): QueryBuilderInterface;
+    public function getQueryBuilderObject(bool $auto_initialize = true): ?QueryBuilderInterface;
 
     /**
      * Returns true if the internal data structures have been modified
@@ -204,9 +206,12 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
     /**
      * Returns id for this database entry
      *
-     * @return int|null
+     * @param bool        $exception
+     * @param string|null $suffix
+     *
+     * @return string|int|null
      */
-    public function getId(): int|null;
+    public function getId(bool $exception = true, ?string $suffix = null): string|int|null;
 
     /**
      * Returns the unique identifier for this database entry, which will be the ID column if it does not have any
@@ -830,4 +835,54 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * @return bool
      */
     public function hasException(): bool;
+
+    /**
+     * Returns whether this object will allow columns that aren't permitted
+     *
+     * @return bool
+     */
+    public function getAllowUnpermittedColumns(): bool;
+
+    /**
+     * Sets whether this object will allow columns that aren't permitted
+     *
+     * @param bool $allow
+     *
+     * @return static
+     */
+    public function setAllowUnpermittedColumns(bool $allow): static;
+
+    /**
+     * Returns true if the specified column is on the permitted columns list
+     *
+     * @param string $column
+     *
+     * @return bool
+     */
+    public function columnIsPermitted(string $column): bool;
+
+    /**
+     * Returns a list of columns that aren't defined, but are permitted for use
+     *
+     * @return array|null
+     */
+    public function getPermittedColumns(): ?array;
+
+    /**
+     * Returns a list of columns that aren't defined, but are permitted for use
+     *
+     * @param array|string|null $columns
+     *
+     * @return static
+     */
+    public function setPermittedColumns(array|string|null $columns): static;
+
+    /**
+     * Returns a list of columns that aren't defined, but are permitted for use
+     *
+     * @param array|string|null $columns
+     *
+     * @return static
+     */
+    public function addPermittedColumns(array|string|null $columns): static;
 }

@@ -5,6 +5,10 @@
  *
  * This class validates data from untrusted arrays
  *
+ * @see       https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/
+ * @see       https://nulldog.com/utf-8-encoding-in-php-a-complete-guide
+ * @see
+ *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -66,8 +70,8 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Http\Domains;
-use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Requests\Response;
 use Plugins\Medinet\Utils\Exception\InvalidPhnException;
 use Plugins\Medinet\Utils\Exception\PhnRequiredException;
 use Plugins\Medinet\Utils\Phn;
@@ -485,7 +489,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             if (!$this->hasOptionalValue($value) or $also_if_selected_is_default) {
                 // Ensure we have clean keys to test, test all keys
                 foreach ($keys as $key) {
-                    $clean_key = Strings::ensureStartsNotWith($key, '-');
+                    $clean_key = Strings::ensureBeginsNotWith($key, '-');
                     $clean_key = str_replace('-', '_', $clean_key);
 
                     // This key likely WILL exist (because if not specified, it would be defaulted or already failed)
@@ -976,7 +980,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             Log::write('Validation backtrace:', 'debug', 6);
             Log::backtrace(threshold: 6);
             Log::write('Validation data source:', 'debug', 6);
-            Log::write(get_null($this->source) ? print_r($this->source, true) : '-', 'debug', clean: false);
+            Log::write(get_null($this->source) ? print_r($this->source, true) : '-', 'debug', 6, clean: false);
         }
 
         // Build up the failure string
@@ -1459,13 +1463,12 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             if (Core::inBootState() or config()->getBoolean('security.validation.enabled', true)) {
                 $permit          = $this->getPermitValidationFailures();
                 $this->exception = ValidationFailedException::new(tr('Data validation failed with the following issues:'))
-                                                            ->addData([
-                                                                          'class'    => $this->o_data_entry ? $this->o_data_entry::class : 'N/A',
-                                                                          'failures' => $this->failures,
-                                                                          'values'   => $values
-                                                                      ])
                                                             ->setDataEntryObject($this->o_definitions?->getDataEntryObject())
-                                                            ->makeWarning();
+                                                            ->addData([
+                                                                'class'    => $this->o_data_entry ? $this->o_data_entry::class : 'N/A',
+                                                                'failures' => $this->failures,
+                                                                'values'   => $values
+                                                            ]);
 
                 switch ($permit) {
                     case EnumSoftHard::hard:
@@ -2110,13 +2113,15 @@ throw new ObsoleteException();
      *
      * This method ensures that the specified array key is a string
      *
+     * @param int|false|null $max_characters
+     *
      * @return static
      */
-    public function isString(): static
+    public function isString(int|false|null $max_characters = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) {
+        return $this->validateValues(function (&$value) use ($max_characters) {
             if (!$this->hasOptionalValue($value)) {
                 if (!is_string($value)) {
                     if ($value instanceof Stringable) {
@@ -2138,6 +2143,11 @@ throw new ObsoleteException();
                         // A number is allowed to be interpreted as a string
                         $value = (string) $value;
                     }
+                }
+
+                // Ensure this string is smaller than the maximum supported string size
+                if ($max_characters !== false) {
+                    $this->hasMaxCharacters($max_characters, false);
                 }
             }
         });
@@ -2188,7 +2198,7 @@ throw new ObsoleteException();
         $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
-            $this->hasMaxCharacters(32);
+            $this->sanitizeTrim()->hasMaxCharacters(32);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -2294,7 +2304,7 @@ throw new ObsoleteException();
                 return $this;
             }
 
-            return $this->isBetween(0, 180);
+            return $this->isBetween(-180, 180);
         });
     }
 
@@ -2438,29 +2448,30 @@ throw new ObsoleteException();
      *
      * This method ensures that the specified array key is a valid code
      *
-     * @param string|null $until
-     * @param int|null    $max_characters
-     * @param int|null    $min_characters
+     * @param string|null       $until
+     * @param int|null          $max_characters
+     * @param int|null          $min_characters
+     * @param string|false|null $encoding The encoding that this string must use
      *
      * @return static
      */
-    public function isCode(?string $until = null, ?int $max_characters = 64, ?int $min_characters = 1): static
+    public function isCode(?string $until = null, ?int $max_characters = 64, ?int $min_characters = 1, string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($until, $min_characters, $max_characters) {
-            if ($until) {
-                // Truncate the code at one of the specified characters
-                $value = Strings::until($value, $until);
-                $value = trim($value);
-            }
-
-            $this->sanitizeTrim()->hasMinCharacters($min_characters)->hasMaxCharacters($max_characters);
+        return $this->validateValues(function (&$value) use ($until, $min_characters, $max_characters, $encoding) {
+            $this->hasEncoding($encoding, true, $max_characters, $min_characters);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
                 return;
+            }
+
+            if ($until) {
+                // Truncate the code at one of the specified characters
+                $value = Strings::until($value, $until);
+                $value = trim($value);
             }
 
             $this->isPrintable();
@@ -2471,16 +2482,19 @@ throw new ObsoleteException();
     /**
      * Validates that the selected field is equal or larger than the specified number of characters
      *
-     * @param int $characters
+     * @param int  $characters
+     * @param bool $check_datatype
      *
      * @return static
      */
-    public function hasMinCharacters(int $characters): static
+    public function hasMinCharacters(int $characters, bool $check_datatype = true): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($characters) {
-            $this->isString();
+        return $this->validateValues(function (&$value) use ($characters, $check_datatype) {
+            if ($check_datatype) {
+                $this->isString();
+            }
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -2498,15 +2512,18 @@ throw new ObsoleteException();
      * Validates that the selected field is equal or shorter than the specified number of characters
      *
      * @param int|null $max_characters
+     * @param bool     $check_datatype
      *
      * @return static
      */
-    public function hasMaxCharacters(?int $max_characters = null): static
+    public function hasMaxCharacters(?int $max_characters = null, bool $check_datatype = true): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($max_characters) {
-            $this->isString();
+        return $this->validateValues(function (&$value) use ($max_characters, $check_datatype) {
+            if ($check_datatype) {
+                $this->isString(false);
+            }
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -2612,7 +2629,7 @@ throw new ObsoleteException();
         $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
-            $this->hasMaxCharacters(32);
+            $this->sanitizeTrim()->hasMaxCharacters(32);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -2656,14 +2673,16 @@ throw new ObsoleteException();
     /**
      * Strips HTML from the value
      *
+     * @param string|false|null $encoding The encoding that this string must use
+     *
      * @return static
      */
-    public function sanitizeStripHtml(): static
+    public function sanitizeStripHtml(string|false|null $encoding = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) {
-            $this->isString()->hasMaxCharacters();
+        return $this->validateValues(function (&$value) use ($encoding) {
+            $this->hasEncoding($encoding);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -2678,14 +2697,16 @@ throw new ObsoleteException();
     /**
      * Validates that the selected field contains HTML
      *
+     * @param string|false|null $encoding The encoding that this string must use
+     *
      * @return static
      */
-    public function containsHtml(): static
+    public function containsHtml(string|false|null $encoding = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) {
-            $this->isString()->hasMaxCharacters();
+        return $this->validateValues(function (&$value) use ($encoding){
+            $this->hasEncoding($encoding);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -2702,14 +2723,16 @@ throw new ObsoleteException();
     /**
      * Validates that the selected field contains no HTML
      *
+     * @param string|false|null $encoding The encoding that this string must use
+     *
      * @return static
      */
-    public function containsNoHtml(): static
+    public function containsNoHtml(string|false|null $encoding = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) {
-            $this->isString()->hasMaxCharacters();
+        return $this->validateValues(function (&$value) use ($encoding) {
+            $this->hasEncoding($encoding);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -3191,15 +3214,17 @@ throw new ObsoleteException();
      * This method ensures that the specified array key is a scalar value
      *
      * @param IteratorInterface|array $array
+     * @param bool                    $strict
+     * @param string|false|null       $encoding
      *
      * @return static
      */
-    public function isInArray(IteratorInterface|array $array, bool $strict = true): static
+    public function isInArray(IteratorInterface|array $array, bool $strict = true, string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($array, $strict) {
+        return $this->validateValues(function (&$value) use ($array, $strict, $encoding) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
 
@@ -3212,7 +3237,7 @@ throw new ObsoleteException();
                 $array = $array->getSource();
             }
 
-            $this->sanitizeTrim()->hasMaxCharacters(Arrays::getLongestValueLength($array));
+            $this->hasEncoding($encoding, true, Arrays::getLongestValueLength($array));
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -3999,16 +4024,18 @@ throw new ObsoleteException();
     /**
      * Validates that the selected field is a timezone
      *
+     * @param string|false|null $encoding The encoding that this string must use
+     *
      * @return static
      */
-    public function isTimezone(): static
+    public function isTimezone(string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) {
+        return $this->validateValues(function (&$value) use ($encoding) {
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
-            $this->sanitizeTrim()->hasMaxCharacters(64);
+            $this->hasEncoding($encoding, true, 64);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -4231,15 +4258,17 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a valid gender
      *
+     * @param string|false|null $encoding The encoding that this string must use
+     *
      * @return static
      */
-    public function isGender(): static
+    public function isGender(string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters(16);
+        return $this->validateValues(function (&$value) use ($encoding) {
+            $this->hasEncoding($encoding, true, 16, 2);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -4254,17 +4283,18 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a valid name
      *
-     * @param int|null $max_characters
+     * @param int|null          $max_characters
+     * @param string|false|null $encoding The encoding that this string must use
      *
      * @return static
      */
-    public function isName(?int $max_characters = 128): static
+    public function isName(?int $max_characters = 128, string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($max_characters) {
-            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters($max_characters);
+        return $this->validateValues(function (&$value) use ($max_characters, $encoding) {
+            $this->hasEncoding($encoding, true, $max_characters, 1);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -4304,17 +4334,18 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a valid name
      *
-     * @param int|null $max_characters
+     * @param int|null          $max_characters
+     * @param string|false|null $encoding The encoding that this string must use
      *
      * @return static
      */
-    public function isUsername(?int $max_characters = 64): static
+    public function isUsername(?int $max_characters = 64, string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($max_characters) {
-            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters($max_characters);
+        return $this->validateValues(function (&$value) use ($max_characters, $encoding) {
+            $this->hasEncoding($encoding, true, $max_characters, 2);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -4353,15 +4384,17 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a valid word
      *
+     * @param string|false|null $encoding The encoding that this string must use
+     *
      * @return static
      */
-    public function isWord(): static
+    public function isWord(string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters(32);
+        return $this->validateValues(function (&$value, $encoding) {
+            $this->hasEncoding($encoding, true, 32, 2);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -4376,17 +4409,18 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a valid variable
      *
-     * @param int|null $max_characters
+     * @param int|null          $max_characters
+     * @param string|false|null $encoding The encoding that this string must use
      *
      * @return static
      */
-    public function isVariable(?int $max_characters = null): static
+    public function isVariable(?int $max_characters = null, string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($max_characters) {
-            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters($max_characters);
+        return $this->validateValues(function (&$value) use ($max_characters, $encoding) {
+            $this->hasEncoding($encoding, true, $max_characters, 1);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -4401,17 +4435,18 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a valid variable name or label
      *
-     * @param int|null $max_characters
+     * @param int|null          $max_characters
+     * @param string|false|null $encoding The encoding that this string must use
      *
      * @return static
      */
-    public function isVariableName(?int $max_characters = 128): static
+    public function isVariableName(?int $max_characters = 128, string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($max_characters) {
-            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters($max_characters);
+        return $this->validateValues(function (&$value) use ($max_characters, $encoding) {
+            $this->hasEncoding($encoding, true, $max_characters, 2);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -4426,17 +4461,18 @@ throw new ObsoleteException();
     /**
      * Checks if the value is a valid filename
      *
-     * @param int|null $max_characters
+     * @param int|null          $max_characters
+     * @param string|false|null $encoding The encoding that this string must use
      *
      * @return static
      */
-    public function isFilename(?int $max_characters = 2048): static
+    public function isFilename(?int $max_characters = 2048, string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($max_characters) {
-            $this->sanitizeTrim()->hasMinCharacters(2)->hasMaxCharacters($max_characters);
+        return $this->validateValues(function (&$value) use ($max_characters, $encoding) {
+            $this->hasEncoding($encoding, true, $max_characters, 2);
 
             $this->matchesRegex('/\//i');
         });
@@ -4472,7 +4508,7 @@ throw new ObsoleteException();
         // Was a path specified? A path is required here!
         if (!$path) {
             $this->addSoftFailure(tr('must contain a path'));
-            return new $class($path, $this->restrictions);
+            return new $class($path, $this->o_restrictions);
         }
 
         // Check each specified directory if the file exists there.
@@ -4489,7 +4525,7 @@ throw new ObsoleteException();
 
             // The path should be a PhoPath object with restrictions from the specified directory that is tested
             // Get the absolute "path", "file" doesn't need to exist here, that can be checked later
-            $test = $class::new($path, $exists_in_directory->getRestrictions())
+            $test = $class::new($path, $exists_in_directory->getRestrictionsObject())
                           ->makeReal($exists_in_directory);
 
             if ($test->isInDirectory($exists_in_directory)) {
@@ -4518,7 +4554,7 @@ throw new ObsoleteException();
         } else {
             // The file, whatever it is, does exist
             if ($require_exist === false) {
-                // The file exists, but should NOT exist
+                // The file exists, but shouldn't exist
                 $this->addSoftFailure(tr('must not exist'));
             }
 
@@ -4530,7 +4566,7 @@ throw new ObsoleteException();
                 }
 
             } elseif (is_bool($must_be_directory)) {
-                // The file should NOT be a directory
+                // The file shouldn't be a directory
                 if ($test->isDirectory()) {
                     $this->addSoftFailure(tr('cannot be a directory'));
                 }
@@ -4546,16 +4582,17 @@ throw new ObsoleteException();
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
+     * @param string|false|null           $encoding
      *
      * @return static
      */
-    public function isPath(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static
+    public function isPath(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists) {
-            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
+        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists, $encoding) {
+            $this->hasEncoding($encoding, true, 2048, 1);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -4573,16 +4610,17 @@ throw new ObsoleteException();
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
+     * @param string|false|null           $encoding
      *
      * @return static
      */
-    public function isDirectory(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static
+    public function isDirectory(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists) {
-            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
+        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists, $encoding) {
+            $this->hasEncoding($encoding, true, 2048, 1);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -4600,16 +4638,17 @@ throw new ObsoleteException();
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
+     * @param string|false|null           $encoding
      *
      * @return static
      */
-    public function isFile(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static
+    public function isFile(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists) {
-            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
+        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists, $encoding) {
+            $this->hasEncoding($encoding, true, 2048, 1);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -4627,16 +4666,17 @@ throw new ObsoleteException();
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
+     * @param string|false|null           $encoding
      *
      * @return static
      */
-    public function sanitizePath(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static
+    public function sanitizePath(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists) {
-            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
+        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists, $encoding) {
+            $this->hasEncoding($encoding, true, 2048, 1);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -4654,16 +4694,17 @@ throw new ObsoleteException();
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
+     * @param string|false|null           $encoding
      *
      * @return static
      */
-    public function sanitizeDirectory(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static
+    public function sanitizeDirectory(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists) {
-            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
+        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists, $encoding) {
+            $this->hasEncoding($encoding, true, 2048, 1);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -4681,16 +4722,17 @@ throw new ObsoleteException();
      *
      * @param PhoDirectoryInterface|array $exists_in_directories
      * @param bool|null                   $require_exists
+     * @param string|false|null           $encoding
      *
      * @return static
      */
-    public function sanitizeFile(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true): static
+    public function sanitizeFile(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists) {
-            $this->sanitizeTrim()->hasMinCharacters(1)->hasMaxCharacters(2048);
+        return $this->validateValues(function (&$value) use ($exists_in_directories, $require_exists, $encoding) {
+            $this->hasEncoding($encoding, true, 2048, 1);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -4706,17 +4748,18 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a valid description
      *
-     * @param int|null $max_characters
+     * @param int|null          $max_characters
+     * @param string|false|null $encoding The encoding that this string must use
      *
      * @return static
      */
-    public function isDescription(?int $max_characters = 16_777_200): static
+    public function isDescription(?int $max_characters = 16_777_200, string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($max_characters) {
-            $this->sanitizeTrim()->hasMaxCharacters($max_characters);
+        return $this->validateValues(function (&$value) use ($max_characters, $encoding) {
+            $this->hasEncoding($encoding, true, $max_characters);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -4773,15 +4816,17 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a valid and strong enough password
      *
+     * @param string|false|null $encoding The encoding that this string must use
+     *
      * @return static
      */
-    public function isStrongPassword(): static
+    public function isStrongPassword(string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(10)->hasMaxCharacters(128);
+        return $this->validateValues(function (&$value) use ($encoding) {
+            $this->hasEncoding($encoding, true, 128, 10);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -4847,17 +4892,18 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a valid email address
      *
-     * @param int|null $max_characters
+     * @param int|null          $max_characters
+     * @param string|false|null $encoding The encoding that this string must use
      *
      * @return static
      */
-    public function isEmail(?int $max_characters = 2048): static
+    public function isEmail(?int $max_characters = 2048, string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($max_characters) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($max_characters);
+        return $this->validateValues(function (&$value) use ($max_characters, $encoding) {
+            $this->hasEncoding($encoding, true, $max_characters, 3);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -4874,18 +4920,19 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a valid email address
      *
-     * @param string|null $domain
-     * @param int|null    $max_characters
+     * @param string|null       $domain
+     * @param int|null          $max_characters
+     * @param string|false|null $encoding The encoding that this string must use
      *
      * @return static
      */
-    public function isUrl(?string $domain = null, ?int $max_characters = 2048): static
+    public function isUrl(?string $domain = null, ?int $max_characters = 2048, string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($max_characters, $domain) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($max_characters);
+        return $this->validateValues(function (&$value) use ($max_characters, $domain, $encoding) {
+            $this->hasEncoding($encoding, true, $max_characters, 3);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -4968,15 +5015,17 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a valid domain name
      *
+     * @param string|false|null $encoding The encoding that this string must use
+     *
      * @return static
      */
-    public function isDomain(): static
+    public function isDomain(string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(128);
+        return $this->validateValues(function (&$value) use ($encoding) {
+            $this->hasEncoding($encoding, true, 128, 3);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -5018,15 +5067,17 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a valid domain name or IP address
      *
+     * @param string|false|null $encoding The encoding that this string must use
+     *
      * @return static
      */
-    public function isDomainOrIp(): static
+    public function isDomainOrIp(string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(128);
+        return $this->validateValues(function (&$value) use ($encoding) {
+            $this->hasEncoding($encoding, true, 128, 3);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -5070,6 +5121,8 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a valid JSON string
      *
+     * @param string|false|null $encoding The encoding that this string must use
+     *
      * @return static
      * @copyright The used JSON regex validation taken from a twitter post by @Fish_CTO
      * @see       static::isCsv()
@@ -5078,13 +5131,13 @@ throw new ObsoleteException();
      * @see       static::isSerialized()
      * @see       static::sanitizeDecodeJson()
      */
-    public function isJson(): static
+    public function isJson(string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
+        return $this->validateValues(function (&$value) use ($encoding) {
+            $this->hasEncoding($encoding, true, null, 3);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -5104,9 +5157,10 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a valid CSV string
      *
-     * @param string $separator The separation character, defaults to comma
-     * @param string $enclosure
-     * @param string $escape
+     * @param string            $separator The separation character, defaults to comma
+     * @param string            $enclosure
+     * @param string            $escape
+     * @param string|false|null $encoding The encoding that this string must use
      *
      * @return static
      * @see static::isBase58()
@@ -5114,13 +5168,13 @@ throw new ObsoleteException();
      * @see static::isSerialized()
      * @see static::sanitizeDecodeCsv()
      */
-    public function isCsv(string $separator = ',', string $enclosure = "\"", string $escape = "\\"): static
+    public function isCsv(string $separator = ',', string $enclosure = "\"", string $escape = "\\", string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($separator, $enclosure, $escape) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
+        return $this->validateValues(function (&$value) use ($separator, $enclosure, $escape, $encoding) {
+            $this->hasEncoding($encoding, true, null, 3);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -5142,6 +5196,8 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a serialized string
      *
+     * @param string|false|null $encoding The encoding that this string must use
+     *
      * @return static
      * @see static::isCsv()
      * @see static::isBase58()
@@ -5149,13 +5205,13 @@ throw new ObsoleteException();
      * @see static::isSerialized()
      * @see static::sanitizeDecodeSerialized()
      */
-    public function isSerialized(): static
+    public function isSerialized(string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
+        return $this->validateValues(function (&$value) use ($encoding) {
+            $this->hasEncoding($encoding, true, null, 3);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -5175,19 +5231,21 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a base58 string
      *
+     * @param string|false|null $encoding The encoding that this string must use
+     *
      * @return static
      * @see static::isCsv()
      * @see static::isBase64()
      * @see static::isSerialized()
      * @see static::sanitizeDecodeBase58()
      */
-    public function isBase58(): static
+    public function isBase58(string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
+        return $this->validateValues(function (&$value) use ($encoding) {
+            $this->hasEncoding($encoding, true, null, 3);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -5204,19 +5262,21 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a base64 string
      *
+     * @param string|false|null $encoding The encoding that this string must use
+     *
      * @return static
      * @see static::isCsv()
      * @see static::isBase58()
      * @see static::isSerialized()
      * @see static::sanitizeDecodeBase64()
      */
-    public function isBase64(): static
+    public function isBase64(string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
+        return $this->validateValues(function (&$value) use ($encoding) {
+            $this->hasEncoding($encoding, true, null, 3);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -5369,15 +5429,17 @@ throw new ObsoleteException();
     /**
      * Sanitize the selected value by applying htmlspecialchars()
      *
+     * @param string|false|null $encoding The encoding that this string must use
+     *
      * @return static
      * @see trim()
      */
-    public function sanitizeHtmlSpecialChars(): static
+    public function sanitizeHtmlSpecialChars(string|false|null $encoding = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMaxCharacters();
+        return $this->validateValues(function (&$value) use ($encoding) {
+            $this->hasEncoding($encoding);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -5584,15 +5646,17 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
     /**
      * Sanitize the selected value by applying htmlentities()
      *
+     * @param string|false|null $encoding The encoding that this string must use
+     *
      * @return static
      * @see trim()
      */
-    public function sanitizeHtmlEntities(): static
+    public function sanitizeHtmlEntities(string|false|null $encoding = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMaxCharacters();
+        return $this->validateValues(function (&$value) use ($encoding) {
+            $this->hasEncoding($encoding);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -5622,6 +5686,7 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
 
         return $this->validateValues(function (&$value) use ($needle) {
             $this->isString();
+
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
                 return;
@@ -5718,16 +5783,18 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
     /**
      * Sanitize the selected value by making the entire string uppercase
      *
+     * @param string|false|null $encoding The encoding that this string must use
+     *
      * @return static
      * @see static::sanitizeTrim()
      * @see static::sanitizeLowercase()
      */
-    public function sanitizeUppercase(): static
+    public function sanitizeUppercase(string|false|null $encoding = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
+        return $this->validateValues(function (&$value) use ($encoding) {
+            $this->hasEncoding($encoding);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -5749,18 +5816,18 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
     /**
      * Sanitize the selected value by making the entire string lowercase
      *
+     * @param string|false|null $encoding The encoding that this string must use
+     *
      * @return static
      * @see static::sanitizeTrim()
      * @see static::sanitizeUppercase()
      */
-    public function sanitizeLowercase(): static
+    public function sanitizeLowercase(string|false|null $encoding = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) {
-            $this->sanitizeTrim()
-                 ->hasMinCharacters(3)
-                 ->hasMaxCharacters();
+        return $this->validateValues(function (&$value) use ($encoding) {
+            $this->hasEncoding($encoding);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -5782,20 +5849,20 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
     /**
      * Sanitize the selected value with a search / replace
      *
-     * @param array $replace A key => value map of all items that should be searched / replaced
-     * @param bool  $regex   If true, all keys in the $replace array will be treated as a regex instead of a normal
-     *                       string This is slower and more memory intensive, but more flexible as well.
+     * @param array             $replace A key => value map of all items that should be searched / replaced
+     * @param bool              $regex   If true, all keys in the $replace array will be treated as a regex instead of a
+     *                                   normal string This is slower and more memory intensive, but more flexible as well.
+     * @param string|false|null $encoding The encoding that this string must use
      *
      * @return static
      * @see trim()
      */
-    public function sanitizeSearchReplace(array $replace, bool $regex = false): static
+    public function sanitizeSearchReplace(array $replace, bool $regex = false, string|false|null $encoding = null): static
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($replace, $regex) {
-
-            $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
+        return $this->validateValues(function (&$value) use ($replace, $regex, $encoding) {
+            $this->hasEncoding($encoding);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, don't test anything more
@@ -5817,7 +5884,8 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
     /**
      * Sanitize the selected value by decoding the JSON
      *
-     * @param bool $array If true, will return the data in associative arrays instead of generic objects
+     * @param bool              $array    If true, will return the data in associative arrays instead of generic objects
+     * @param string|false|null $encoding The encoding that this string must use
      *
      * @return static
      * @see static::isJson()
@@ -5825,15 +5893,15 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
      * @see static::sanitizeDecodeSerialized()
      * @see static::sanitizeForceString()
      */
-    public function sanitizeDecodeJson(bool $array = true): static
+    public function sanitizeDecodeJson(bool $array = true, string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($array) {
+        return $this->validateValues(function (&$value) use ($array, $encoding) {
             try {
                 if (is_string($value)) {
-                    $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters();
+                    $this->hasEncoding($encoding, true, null, 2);
 
                     if ($this->process_value_failed or $this->selected_is_default) {
                         // Validation already failed or defaulted, don't test anything more
@@ -6594,9 +6662,67 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
             if (!$this->hasOptionalValue($value)) {
                 try {
                     $value = Phn::checkSanitizeAndValidate($value);
+
                 } catch (InvalidPhnException | PhnRequiredException) {
                     $this->addSoftFailure(tr('must be a valid PHN'));
                 }
+            }
+        });
+    }
+
+
+    /**
+     * Validates that the string has the correct encoding
+     *
+     * @param string|false|null $encoding The encoding that this string must use
+     * @param bool              $trim
+     * @param int|false|null    $max_characters
+     * @param int|false|null    $min_characters
+     *
+     * @return static
+     */
+    public function hasEncoding(string|false|null $encoding = null, bool $trim = true, int|false|null $max_characters = null, int|false|null $min_characters = null): static
+    {
+        static $enabled = false;
+
+        $this->test_count++;
+
+        // Default in encoding to what the Response will be
+        $encoding = $encoding ?? Response::getEncoding();
+        $enabled  = config()->getBoolean('security.validation.encoding.enabled', true);
+
+        return $this->validateValues(function (&$value) use ($encoding, $trim, $min_characters, $max_characters, $enabled) {
+            if ($trim) {
+                $this->sanitizeTrim();
+            }
+
+            if ($max_characters !== false) {
+                // If trim was executed, it already checked for $max_characters NULL. Only check numeric max_characters
+                if (!$trim or is_numeric($max_characters)) {
+                    // !trim because Validator::sanitizeTrim() already checks datatype
+                    $this->hasMaxCharacters($max_characters, !$trim);
+                }
+            }
+
+            if ($min_characters) {
+                // !trim because Validator::sanitizeTrim() already checks datatype
+                $this->hasMinCharacters($min_characters, !$trim);
+            }
+
+            if (!$enabled or !$encoding) {
+                // Don't check encoding
+                return;
+            }
+
+            if ($this->process_value_failed or $this->selected_is_default) {
+                // Validation already failed or defaulted, don't test anything more
+                return;
+            }
+
+            if (!mb_check_encoding($value, $encoding)) {
+                $this->addSoftFailure(tr('does not have valid :encoding encoding', [
+                    ':encoding' => $encoding,
+                ]));
             }
         });
     }

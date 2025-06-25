@@ -60,7 +60,7 @@ abstract class ObjectFile
         $data = $this->renderConfiguration();
         $data = yaml_emit($data);
         PhoFile::new($this->file)
-            ->setRestrictions(DIRECTORY_ROOT . 'config/kubernetes/' . strtolower($this->object->getKind()) . '/', true, 'kubernetes')
+            ->setRestrictionsObject(DIRECTORY_ROOT . 'config/kubernetes/' . strtolower($this->object->getKind()) . '/', true, 'kubernetes')
             ->create($data);
 
         return $this;

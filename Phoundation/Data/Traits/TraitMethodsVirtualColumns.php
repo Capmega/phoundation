@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Data\DataEntries\Exception\DataEntryColumnNotDefinedException;
+use Phoundation\Data\DataEntries\Exception\DataEntryColumnsNotDefinedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryInvalidVirtualConfigurationException;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Exception\OutOfBoundsException;
@@ -101,7 +101,7 @@ trait TraitMethodsVirtualColumns {
                     }
                 }
 
-            } catch (DataEntryColumnNotDefinedException $e) {
+            } catch (DataEntryColumnsNotDefinedException $e) {
                 // We're trying to set a column that doesn't exist in the Definitions object
                 throw DataEntryInvalidVirtualConfigurationException::new(tr('Virtual columns configuration for table ":table" in class ":class" contains column ":column" but that column does not exist in the definitions for this class', [
                     ':table'  => $table,

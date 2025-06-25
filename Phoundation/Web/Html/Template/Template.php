@@ -158,7 +158,7 @@ abstract class Template implements TemplateInterface
                 $class = get_class($class);
             }
 
-            $class      = Strings::ensureStartsNotWith($class, '\\');
+            $class      = Strings::ensureBeginsNotWith($class, '\\');
             $class_path = Strings::from($class, 'Html\\', needle_required: true);
 
             if (str_starts_with($class, 'Plugins\\')) {
@@ -170,11 +170,11 @@ abstract class Template implements TemplateInterface
 
             } else {
                 if (!$class_path) {
-                    // This class is not an HTML class. Maybe it's an object that extends an HTML class, so check the parent
-                    // class and see if that one works
+                    // This class is not an HTML class. Maybe it is an object that extends an HTML class, so check the parent class and see if that one works
                     $parent = get_parent_class($class);
+
                     if (!$parent) {
-                        throw new OutOfBoundsException(tr('Specified class ":class" does not appear to be an Html\\ component. An HTML component should contain "Html\\" like (for example) "Plugins\\Phoundation\\Html\\Layout\\Grid""', [
+                        throw new OutOfBoundsException(tr('Specified class ":class" does not appear to be an Html\\ component. An HTML component should contain "Html\\" like (for example) "Plugins\\Phoundation\\Html\\Layout\\Grid"', [
                             ':class' => $class,
                         ]));
                     }
@@ -193,9 +193,8 @@ abstract class Template implements TemplateInterface
                 $include_file = str_replace('\\', '/', $class_path);
                 $include_file = $this->getDirectoryObject() . 'Html/' . $include_file . '.php';
 
-                // Find the class path in the file, we will return this as the class that should be used for
-                // rendering
-                $include_class = Strings::untilReverse(get_class($this), '\\');
+                // Find the class path in the file, we will return this as the class that should be used for rendering
+                $include_class  = Strings::untilReverse(get_class($this), '\\');
                 $include_class .= '\\Html\\' . $class_path;
             }
 
@@ -212,7 +211,7 @@ abstract class Template implements TemplateInterface
                 return $include_class;
             }
 
-            // So at this point, we did not find a file. Try the parent of this class, see if that one perhaps has a
+            // So at this point, we didn't find a file. Try the parent of this class, see if that one perhaps has a
             // renderer available?
             $class = get_parent_class($class);
 

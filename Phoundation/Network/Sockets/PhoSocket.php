@@ -803,7 +803,7 @@ class PhoSocket implements Stringable, PhoSocketInterface
      *                     </p><p><code>SO_RCVTIMEO</code> - Reports the timeout value for input operations.
      *                     Returns an array with two keys: <code>sec</code> which is the seconds part on the timeout
      *                     value and <code>usec</code> which is the microsecond part of the timeout value.
-     *                     </p><p> <code>SO_SNDTIMEO</code> - Reports the timeout value specifying the amount of time
+     *                     </p><p> <code>SO_SNDTIMEO</code> - Reports the timeout value specifying the number of time
      *                     that an output function blocks because flow control prevents data from being sent. Returns
      *                     an array with two keys: <code>sec</code> which is the seconds part on the timeout value and
      *                     <code>usec</code> which is the microsecond part of the timeout value.</p>
@@ -1080,7 +1080,7 @@ class PhoSocket implements Stringable, PhoSocketInterface
      *                                           will not block.
      * @param array        $except               The sockets listed in the except array will be watched for exceptions.
      * @param ?int         $timeout_seconds      The seconds portion of the timeout parameters (in conjunction with
-     *                                           timeoutMilliseconds). The timeout is an upper bound on the amount of
+     *                                           timeoutMilliseconds). The timeout is an upper bound on the number of
      *                                           time elapsed before <code>select()</code> returns. timeoutSeconds may
      *                                           be zero, causing the <code>select()</code> to return immediately. This
      *                                           is useful for polling. If timeoutSeconds is <code>NULL</code>

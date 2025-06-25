@@ -95,7 +95,7 @@ class UploadHandler implements UploadHandlerInterface
         if (empty($this->files)) {
             $this->files = new PhoFiles();
             $this->files->setAcceptedDataTypes(PhoUploadedFileInterface::class)
-                        ->getRestrictions()
+                        ->getRestrictionsObject()
                             ->addDirectory(DIRECTORY_TMP, true)
                             ->addDirectory('/tmp/', true);
         }
@@ -261,13 +261,13 @@ class UploadHandler implements UploadHandlerInterface
         // Ensure the file has the correct extension
         $file->ensureExtensionMatchesMimetype();
 
-//        $validator = FileValidator::new($file);
+//        $o_validator = FileValidator::new($file);
 //
 //        foreach ($this->validations as $function) {
-//            $function($validator);
+//            $function($o_validator);
 //        }
 //
-//        $validator->validate();
+//        $o_validator->validate();
 
         $this->validated = true;
         return $file;

@@ -93,15 +93,15 @@ class Page extends DataEntry implements PageInterface
 //`is_template` tinyint DEFAULT NULL,
         $o_definitions->add(DefinitionFactory::newParentsId()
                                              ->setElement(EnumElement::select)
-                                             ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                                             ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                                return Pages::new()
                                                            ->getHtmlSelectOld()
                                                            ->setName($key)
                                                            ->setSelected(isset_get($source[$key]));
                                            })
-                                             ->addValidationFunction(function (ValidatorInterface $validator) {
+                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                                // Ensure categories id exists and that its or category
-                                               $validator->orColumn('parents_name')
+                                               $o_validator->orColumn('parents_name')
                                                          ->isDbId()
                                                          ->isQueryResult('SELECT `id` FROM `pages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
                                            }))
@@ -117,9 +117,9 @@ class Page extends DataEntry implements PageInterface
                                                                     ->getSource();
                                                },
                                            ])
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
+                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                                // Ensure category exists and that it's a category id or category name
-                                               $validator->orColumn('parents_id')
+                                               $o_validator->orColumn('parents_id')
                                                          ->isName()
                                                          ->setColumnFromQuery('parents_id', 'SELECT `id` FROM `pages` WHERE `name` = :name AND `status` IS NULL', [':id' => '$parents_name']);
                                            }))
@@ -132,8 +132,8 @@ class Page extends DataEntry implements PageInterface
                                            ->setDefault(tr('-')))
 
                     ->add(DefinitionFactory::newName()
-                                           ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isFalse(function ($value, $source) {
+                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->isFalse(function ($value, $source) {
                                                    static::exists(['name' => $value], isset_get($source['id']));
                                                }, tr('already exists'));
                                            }))

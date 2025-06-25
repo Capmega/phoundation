@@ -57,7 +57,7 @@ class Device extends PhoFile implements DeviceInterface
      */
     protected function checkDeviceFile(): void
     {
-        $this->source = Strings::ensureStartsWith($this->source, '/dev/');
+        $this->source = Strings::ensureBeginsWith($this->source, '/dev/');
         if (
             !Lsblk::new()
                   ->isStorageDevice($this->source)
@@ -104,7 +104,7 @@ class Device extends PhoFile implements DeviceInterface
     public function scramble(): static
     {
         $this->checkUnmounted();
-        Process::new('dd', $this->restrictions)
+        Process::new('dd', $this->o_restrictions)
                ->setSudo(true)
                ->setAcceptedExitCodes([
                    0,

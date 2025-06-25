@@ -85,16 +85,16 @@ class CliDocumentation
     /**
      * Process auto complete requests specific for this method
      *
-     * @param array|null $definitions
+     * @param array|null $o_definitions
      *
      * @return void
      */
-    public static function setAutoComplete(?array $definitions = null): void
+    public static function setAutoComplete(?array $o_definitions = null): void
     {
         try {
             if (CliAutoComplete::isActive()) {
-                CliAutoComplete::processCommandPositions(isset_get($definitions['positions']));
-                CliAutoComplete::processCommandArguments(isset_get($definitions['arguments']));
+                CliAutoComplete::processCommandPositions(isset_get($o_definitions['positions']));
+                CliAutoComplete::processCommandArguments(isset_get($o_definitions['arguments']));
                 exit();
             }
 

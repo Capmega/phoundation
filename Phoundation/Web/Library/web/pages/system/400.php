@@ -28,17 +28,6 @@ use Phoundation\Web\Requests\Response;
 $e = Core::readRegister('e');
 
 
-// JSON type pages should not return this HTML
-switch (Request::getRequestType()) {
-    case EnumRequestTypes::ajax:
-        // no break
-
-    case EnumRequestTypes::api:
-        Response::setHttpCode(400);
-        JsonPage::new()->reply($e->getData());
-}
-
-
 // Set page meta data
 Response::setHttpCode(400);
 Response::setRenderMainWrapper(false);

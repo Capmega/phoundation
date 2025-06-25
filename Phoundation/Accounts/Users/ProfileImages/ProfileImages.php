@@ -27,7 +27,7 @@ class ProfileImages extends IteratorCore implements ProfileImagesInterface
      */
     public function __construct(UserInterface $user)
     {
-        $this->parent              = $user;
+        $this->o_parent            = $user;
         $this->accepted_data_types = [ProfileImageInterface::class];
     }
 }

@@ -136,6 +136,7 @@ class Icon extends ElementCore implements IconInterface
     {
         if ($label) {
             $label = trim($label);
+
             if (!preg_match('/[a-z0-9-_ ]+/i', $label)) {
                 // Icon names should only have letters, numbers and dashes and underscores. Multiple names may be
                 // needed, so also allow spaces
@@ -210,7 +211,7 @@ throw new UnderConstructionException(tr('Subset is not yet supported for icons')
      */
     public function setColor(?string $color): static
     {
-        return $this->addClass(Strings::ensureStartsWith($color, 'color-'));
+        return $this->addClass(Strings::ensureBeginsWith($color, 'color-'));
     }
 
 
@@ -222,10 +223,15 @@ throw new UnderConstructionException(tr('Subset is not yet supported for icons')
         switch ($this->getVendor()) {
             // TODO Currently, fas logic is hard coded.
             case 'fas':
-                $this->addClasses(['fas', $this->getLabel(), 'fa-lg']);
-                $this->setContent(null);
+                // no break
 
-                break;
+            case 'fa-solid':
+                // no break
+
+            case 'fa-regular':
+                // TODO This sort of negates subsets, which need to be supported!
+                $this->addClasses([$this->getVendor(), $this->getLabel(), 'fa-lg']);
+                $this->setContent(null);
 
             default:
                 Log::warning(tr('The Icon vendor ":vendor" is not yet supported or the Icon is being created improperly', [

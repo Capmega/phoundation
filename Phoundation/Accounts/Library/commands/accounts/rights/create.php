@@ -21,7 +21,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 CliDocumentation::setUsage('./pho accounts right create NAME [OPTIONS]
-./pho system accounts right create test -d "This is a test right!"');
+./pho accounts right create test -d "This is a test right!"');
 
 CliDocumentation::setHelp('This command allows you to create user rights
 
@@ -50,4 +50,4 @@ $right = Right::new()->apply(false, $argv)->save();
 
 
 // Done!
-Log::success(ts('Created new right ":right"', [':right' => $right->getName()]));
+Log::success(ts('Created new right ":right"', [':right' => $right->getName()]), 10);

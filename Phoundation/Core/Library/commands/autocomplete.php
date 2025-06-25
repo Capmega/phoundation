@@ -19,7 +19,7 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 
 
-CliDocumentation::setUsage('./pho system clear [OPTIONS]
+CliDocumentation::setUsage('./pho project clear [OPTIONS]
 ');
 
 CliDocumentation::setHelp('This command ensures autocomplete will be available

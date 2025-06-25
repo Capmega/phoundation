@@ -118,7 +118,7 @@ class Cdn
                     $file = $_CONFIG['cdn']['prefix'] . $file;
                 }
 
-                return $_SESSION['cdn'] . Strings::ensureStartsNotWith($file, '/');
+                return $_SESSION['cdn'] . Strings::ensureBeginsNotWith($file, '/');
             }
             /*
              * Get this URL from the CDN system

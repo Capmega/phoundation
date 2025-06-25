@@ -90,7 +90,7 @@ $argv = ArgvValidator::new()
                      ->select('-f,--file', true)->sanitizeFile([PhoDirectory::newDataSourcesObject(), PhoDirectory::newDataTmpObject()])
                      ->select('-b,--database', true)->isOptional()->isVariable()
                      ->select('--comments', true)->isOptional()->isPrintable()
-                     ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(null, true, true)->getAllRowsSingleColumn('name'))
+                     ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(null, false, true)->getAllRowsSingleColumn('name'))
                      ->select('-t,--timeout', true)->isOptional(3600)->isNatural(true)
                      ->select('--no-drop')->isOptional(false)->isBoolean()
                      ->select('--no-init')->isOptional(false)->isBoolean()
@@ -98,7 +98,7 @@ $argv = ArgvValidator::new()
 
 
 // Execute the import for the specified driver
-Log::information(ts('Executing database import'));
+Log::information(ts('Executing database import'), 10);
 
 Import::new()
       ->setConnector($argv['connector'])
@@ -111,10 +111,10 @@ Import::new()
 
 // Execute init?
 if ($argv['no_init']) {
-    Log::warning(ts('Not executing database init due to "--no-init" argument but this may leave the database in an incompatible state!'));
+    Log::warning(ts('Not executing database init due to "--no-init" argument but this may leave the database in an incompatible state!'), 10);
 
 } else {
-    Log::information(ts('Executing database init to ensure database layout is compatible with the current code version'));
+    Log::information(ts('Executing database init to ensure database layout is compatible with the current code version'), 10);
 
     Pho::new()
        ->setTimeout(0)
@@ -125,4 +125,4 @@ if ($argv['no_init']) {
 
 
 // Done!
-Log::success(ts('Finished database import'));
+Log::success(ts('Finished database import'), 10);

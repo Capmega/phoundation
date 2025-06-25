@@ -65,18 +65,18 @@ if ($argv['test']) {
     } else {
         Log::success(ts('The file ":file" has no BOM', [
             ':file' => $argv['file'],
-        ]));
+        ]), 10);
     }
 
 } else {
     if (BomFile::new($argv['file'])->clearBom()) {
         Log::success(ts('A BOM was found and removed from the file ":file"', [
             ':file' => $argv['file'],
-        ]));
+        ]), 10);
 
     } else {
         Log::success(ts('The file ":file" has no BOM', [
             ':file' => $argv['file'],
-        ]));
+        ]), 10);
     }
 }

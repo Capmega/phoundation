@@ -76,8 +76,8 @@ class Timezone extends DataEntry implements TimezoneInterface
         $o_definitions->add(DefinitionFactory::newName()
                                              ->setOptional(false)
                                              ->setSize(4)
-                                             ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isUnique();
+                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->isUnique();
                                            }))
 
                       ->add(DefinitionFactory::newSeoName());
@@ -85,15 +85,15 @@ class Timezone extends DataEntry implements TimezoneInterface
         $o_definitions->add(DefinitionFactory::newCode()
                                              ->setOptional(false)
                                              ->setSize(4)
-                                             ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isUnique();
+                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->isUnique();
                                            }));
 
         return $this;
 
 //        throw new UnderConstructionException();
 //
-//        $data = $validator
+//        $data = $o_validator
 //            ->select($this->getAlternateValidationField('code'), true)->hasMaxCharacters()->isName()->isQueryResult('SELECT `name` FROM `geo_continents` WHERE `name` = :name AND `status` IS NULL', [':name' => '$continent'])
 //            ->select($this->getAlternateValidationField('continent'), true)->or('continents_id')->isName()->isQueryResult('SELECT `name` FROM `geo_continents` WHERE `name` = :name AND `status` IS NULL', [':name' => '$continent'])
 //            ->select($this->getAlternateValidationField('continents_id'), true)->or('continent')->isDbId()->isQueryResult  ('SELECT `id`   FROM `geo_continents` WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$continents_id'])

@@ -131,9 +131,7 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
             $o_definition->validate($o_validator);
         }
 
-        $result       = $o_validator->validate($require_clean_source);
-        $this->source = array_merge($this->source, $result);
-
+        $this->source = array_merge($this->source, $o_validator->validate($require_clean_source));
         return $this;
     }
 
@@ -149,14 +147,12 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
      */
     public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
-        $source = Arrays::toBooleanFromString($this->source);
-
         foreach ($this->o_definitions as $column => $o_definition) {
             if ($o_definition->getVirtual()) {
                 continue;
             }
 
-            $this->saveColumn(array_get_safe($source, $column), $column, $o_definition);
+            $this->saveColumn(array_get_safe($this->source, $column), $column, $o_definition);
         }
 
         return $this;
@@ -192,6 +188,24 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
         }
 
         return $this;
+    }
+
+
+    /**
+     * Creates and returns an HTML for the phones
+     *
+     * @param string $name
+     * @param bool   $meta_visible
+     *
+     * @return DataEntryFormInterface
+     */
+    public function getHtmlDataEntryFormObject(string $name = 'configuration', bool $meta_visible = false): DataEntryFormInterface
+    {
+        return DataEntryForm::new()
+                            ->setSource(Arrays::toStringFromBoolean($this->source, true: 'on', false: 'off'))
+                            ->setReadonly($this->readonly)
+                            ->setDisabled($this->disabled)
+                            ->setDefinitionsObject($this->getDefinitionsObject());
     }
 
 
@@ -256,7 +270,10 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->setDataSource([
                                                      'on'   => tr('On'),
                                                      'off'  => tr('Off'),
-                                                 ]))
+                                                 ])
+                                                 ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                                     $o_validator->isBoolean();
+                                                 }))
 
                                  ->add(Definition::new('menu_open')
                                                  ->setOptional(true, false)
@@ -269,7 +286,10 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->setDataSource([
                                                      'on'   => tr('On'),
                                                      'off'  => tr('Off'),
-                                                 ]))
+                                                                 ])
+                                                 ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                                     $o_validator->isBoolean();
+                                                 }))
 
                                  ->add(Definition::new('accordion_open')
                                                  ->setOptional(true, false)
@@ -282,7 +302,10 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->setDataSource([
                                                      'on'   => tr('On'),
                                                      'off'  => tr('Off'),
-                                                 ]))
+                                                                 ])
+                                                 ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                                     $o_validator->isBoolean();
+                                                 }))
 
                                  ->add(DefinitionFactory::newDivider())
 
@@ -307,23 +330,5 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                                                    return false;
                                                                                 });');
                                                         }));
-    }
-
-
-    /**
-     * Creates and returns an HTML for the phones
-     *
-     * @param string $name
-     * @param bool   $meta_visible
-     *
-     * @return DataEntryFormInterface
-     */
-    public function getHtmlDataEntryFormObject(string $name = 'configuration', bool $meta_visible = false): DataEntryFormInterface
-    {
-        return DataEntryForm::new()
-                            ->setSource(Arrays::toStringFromBoolean($this->source, true: 'on', false: 'off'))
-                            ->setReadonly($this->readonly)
-                            ->setDisabled($this->disabled)
-                            ->setDefinitionsObject($this->getDefinitionsObject());
     }
 }

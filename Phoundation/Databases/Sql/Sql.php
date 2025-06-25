@@ -35,6 +35,7 @@ use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
 use Phoundation\Databases\Exception\DatabaseTestException;
 use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
+use Phoundation\Databases\Sql\Exception\SqlAmbiguousColumnException;
 use Phoundation\Databases\Sql\Exception\SqlColumnDoesNotExistsException;
 use Phoundation\Databases\Sql\Exception\SqlConnectException;
 use Phoundation\Databases\Sql\Exception\SqlConnectionRefusedException;
@@ -540,6 +541,13 @@ class Sql implements SqlInterface
 
             case 23000:
                 switch ($e->getSqlSecondaryState()) {
+                    case 1052:
+                        $message = Strings::from($e->getMessage(), '1052');
+                        $message = trim($message);
+                        $column  = Strings::cut($message, "'", "'");
+
+                        throw SqlAmbiguousColumnException::new($message, $e)->addData(['column' => $column]);
+
                     case 1062:
                         throw new SqlContstraintDuplicateEntryException($e);
                 }
@@ -717,7 +725,7 @@ class Sql implements SqlInterface
             return null;
         }
 
-        return Strings::toBoolean($result);
+        return Strings::toBoolean($result, false);
     }
 
 
@@ -922,7 +930,7 @@ class Sql implements SqlInterface
 
             Log::success(static::getConnectorLogPrefix() . ts('Connected to database with PDO connect string ":connect" in ":time"', [
                 ':connect' => $connect_string,
-                ':time'    => PhoTime::difference($start, microtime(true), 'auto', 5),
+                ':time'    => PhoTime::difference($start, microtime(true), 'auto', 4),
             ]), 4);
 
             Log::printr($this->configuration['attributes'], 2, echo_header: false);
@@ -1343,24 +1351,22 @@ class Sql implements SqlInterface
     {
         Core::checkReadonly('sql insert');
 
-        $columns = SqlQueries::getPrefixedColumns($data);
-        $values  = SqlQueries::getBoundValues($data);
+        $columns       = SqlQueries::getPrefixedColumns($data);
+        $values        = SqlQueries::getBoundValues($data);
+        $update_values = SqlQueries::getBoundValues($update, 'update_');
 
         if ($update) {
             // Build bound variables for the query
-            if (is_array($update)) {
-                $data = array_merge($data, $update);
-            }
-
+            $values = array_merge($values, $update_values);
             $keys   = SqlQueries::getBoundKeys($data);
-            $update = SqlQueries::getUpdateKeyValues($update);
+            $update = SqlQueries::getUpdateKeyValues($update, 'update_');
 
             $this->query('INSERT INTO            `' . $table . '` (' . $columns . ') 
                           VALUES                                  (' . $keys . ') 
                           ON DUPLICATE KEY UPDATE ' . $update, $values);
 
         } else {
-            // Build bound variables for query
+            // Build bound variables for the query
             $keys = SqlQueries::getBoundKeys($data);
             $this->query('INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . $keys . ')', $values);
         }
@@ -2049,7 +2055,7 @@ class Sql implements SqlInterface
      */
     public static function logStatistics(): void
     {
-        if (Debug::isEnabled() and !QUIET) {
+        if (Debug::isEnabled() and Log::getVerbose()) {
             Log::write(ts('STATISTIC SQL object executed ":count" queries in ":time" seconds', [
                 ':count' => Timers::getCount('sql'),
                 ':time'  => number_format(Timers::getTotal('sql'), 5),

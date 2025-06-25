@@ -56,4 +56,4 @@ Cache::new($argv['group'])->clear();
 
 Log::success(ts('Cleared cache group ":group"', [
     ':group' => $argv['group']
-]));
+]), 10);

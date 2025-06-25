@@ -40,6 +40,7 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\PhoFile;
@@ -63,13 +64,17 @@ use Phoundation\Web\Http\Exception\Http404Exception;
 use Phoundation\Web\Http\Exception\Http405Exception;
 use Phoundation\Web\Http\Exception\Http409Exception;
 use Phoundation\Web\Http\Exception\Http503Exception;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Requests\Enums\EnumDomainAllowed;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Exception\RequestTypeException;
 use Phoundation\Web\Requests\Exception\SystemPageNotFoundException;
 use Phoundation\Web\Requests\Interfaces\JsonPageInterface;
 use Phoundation\Web\Requests\Interfaces\RequestInterface;
+use Phoundation\Web\Requests\Restrictions\Exception\RequestHasWrongEncodingException;
 use Phoundation\Web\Requests\Restrictions\Exception\RequestMethodRestrictionsException;
+use Phoundation\Web\Requests\Restrictions\Exception\RequestHasNoEncodingSpecifiedException;
 use Phoundation\Web\Requests\Restrictions\Interfaces\RequestMethodRestrictionsInterface;
 use Phoundation\Web\Requests\Restrictions\RequestMethodRestrictions;
 use Phoundation\Web\Requests\Traits\TraitDataStaticRouteParameters;
@@ -109,7 +114,7 @@ class Request implements RequestInterface
      *
      * @var PhoFileInterface $o_target
      */
-    protected static PhoFileInterface $o_target;
+    public static PhoFileInterface $o_target;
 
     /**
      * The file that is currently executed for this system page request
@@ -224,6 +229,13 @@ class Request implements RequestInterface
      * @var RequestMethodRestrictionsInterface $web_restrictions
      */
     protected static RequestMethodRestrictionsInterface $web_restrictions;
+
+    /**
+     * Tracks client request headers
+     *
+     * @var IteratorInterface $headers
+     */
+    protected static IteratorInterface $headers;
 
 
     /**
@@ -464,7 +476,7 @@ class Request implements RequestInterface
      */
     public static function detectRequestedLanguage(): string
     {
-        $languages = config()->getArray('language.supported', []);
+        $languages = config()->getArray('locale.language.supported', []);
 
         switch (count($languages)) {
             case 0:
@@ -561,7 +573,7 @@ class Request implements RequestInterface
                     'locale'   => (str_contains($requested, '-') ? Strings::from($requested, '-') : null),
                 ];
 
-                if (empty(config()->get('language.supported', [])[$requested['language']])) {
+                if (empty(config()->get('locale.language.supported', [])[$requested['language']])) {
                     continue;
                 }
 
@@ -604,29 +616,29 @@ class Request implements RequestInterface
     /**
      * Returns the request method for this page
      *
-     * @param bool $default If true, if no referer is available, the current page URL will be returned instead. If
-     *                      string, and no referer is available, the default string will be returned instead
+     * @param bool                     $default        If true, if no referer is available, the current page URL will be returned instead. If
+     *                                                 string, and no referer is available, the default string will be returned instead
      *
-     * @return string|null
+     * @param EnumDomainAllowed|string $allowed_domain The type of domain that is allowed to be redirected to
+     *
+     * @return UrlInterface|null
      */
-    public static function getReferer(string|bool $default = false): ?string
+    public static function getReferer(string|bool $default = false, EnumDomainAllowed|string $allowed_domain = EnumDomainAllowed::current): ?UrlInterface
     {
         $url = isset_get($_SERVER['HTTP_REFERER']);
 
         if ($url) {
-            return $url;
+            return Url::new($url)->checkDomain($allowed_domain);
         }
 
         if ($default) {
             if (is_bool($default)) {
                 // We don't have a referer, return the current URL instead
-                return Url::newCurrent()
-                          ->__toString();
+                return Url::newCurrent();
             }
 
             // Use the specified referrer
-            return Url::new($default)->makeWww()
-                      ->__toString();
+            return Url::new($default)->checkDomain($allowed_domain)->makeWww();
         }
 
         // We got nothing...
@@ -1017,7 +1029,7 @@ class Request implements RequestInterface
 
         // Determine the target file that is to be executed
         $o_target         = static::ensureRequestPathPrefix($o_target);
-        static::$o_target = PhoFile::new($o_target, static::getRestrictions())->makeAbsolute(DIRECTORY_WEB);
+        static::$o_target = PhoFile::new($o_target, static::getRestrictionsObject())->makeAbsolute(DIRECTORY_WEB);
 
         static::$o_target->checkRestrictions(false);
         static::getTargets()->add(static::$o_target);
@@ -1159,7 +1171,7 @@ class Request implements RequestInterface
             $request_type = EnumRequestTypes::cli;
 
         } else {
-            $uri = Strings::from($target, 'web/pages/');
+            $uri = Strings::from($target, 'web/');
 
             if (str_starts_with($uri, 'ajax/')) {
                 $request_type = EnumRequestTypes::ajax;
@@ -1248,20 +1260,8 @@ class Request implements RequestInterface
                         'real_target' => static::$o_target->getSource('web'),
                         'rights'      => $rights,
                     ])
-                    ->save();
-
-            if (static::isRequestType(EnumRequestTypes::api)) {
-                // This method will exit
-                JsonPage::new()->replyWithHttpCode('sign-in');
-            }
-
-            if (static::isRequestType(EnumRequestTypes::ajax)) {
-                // This method will exit
-                JsonPage::new()->replyWithHttpCode('sign-in');
-            }
-
-            // This method will exit
-            Response::redirect($guest_redirect);
+                    ->save()
+                    ->throw(AuthenticationException::class);
         }
 
         // This user is missing rights
@@ -1294,7 +1294,8 @@ class Request implements RequestInterface
                         'missing_rights' => Rights::getNotExist($rights),
                     ])
                     ->setNotifyRoles('security')
-                    ->save();
+                    ->save()
+                    ->throw(AccessDeniedException::class);
 
         } else {
             // Registered user doesn't have the required rights
@@ -1320,11 +1321,9 @@ class Request implements RequestInterface
                         'rights'      => Session::getUserObject()->getMissingRights($rights),
                     ])
                     ->setNotifyRoles('security')
-                    ->save();
+                    ->save()
+                    ->throw();
         }
-
-        // This method will exit
-        static::executeSystem($rights_redirect);
     }
 
 
@@ -1356,9 +1355,8 @@ class Request implements RequestInterface
                         'rights'       => $rights,
                         ':sign_in_key' => $key->getUuid(),
                     ])
-                    ->save();
-
-            static::executeSystem(401);
+                    ->save()
+                    ->throw(AccessDeniedException::class);
         }
 
         if (!$key->signKeyAllowsUrl(Url::newCurrent(), $target)) {
@@ -1376,10 +1374,8 @@ class Request implements RequestInterface
                         ':allow'    => $key->getRedirect(),
                         ':uuid'     => $key->getUuid(),
                     ])
-                    ->save();
-
-            // This method will exit
-            static::executeSystem(401);
+                    ->save()
+                    ->throw(AccessDeniedException::class);
         }
     }
 
@@ -1475,15 +1471,16 @@ class Request implements RequestInterface
     /**
      * Executes the specified system page
      *
-     * @param int            $http_code
-     * @param Throwable|null $e
-     * @param string|null    $message
+     * @param int            $http_code The system page to execute. If specified as a negative number, the page will be executed forcibly, even if debug mode is
+     *                                  enabled
+     * @param Throwable|null $e         The exception that caused this system page to be executed
+     * @param string|null    $message   The optional message to add to this system page
      *
      * @return never
      */
     #[NoReturn] public static function executeSystem(int $http_code, ?Throwable $e = null, ?string $message = null): never
     {
-        if ($e and Debug::isEnabled()) {
+        if ($e and (Debug::isEnabled() and $http_code > 0)) {
             // In debug mode we don't show pretty pages, we dump all the exception data on screen
             throw $e;
         }
@@ -1496,23 +1493,7 @@ class Request implements RequestInterface
             Session::start();
         }
 
-        switch (static::getRequestType()) {
-            case EnumRequestTypes::ajax:
-                // no break
-
-            case EnumRequestTypes::api:
-                // These are JSON type requests, reply with JSON instead of HTML
-                if ($e) {
-                    Incident::new()
-                            ->setException($e)
-                            ->setLog(true)
-                            ->save();
-                }
-
-                JsonPage::new()->replyWithHttpCode($http_code);
-        }
-
-        SystemRequest::new()->execute($http_code, $e, $message);
+        SystemRequest::new()->execute(abs($http_code), $e, $message);
     }
 
 
@@ -1574,7 +1555,9 @@ class Request implements RequestInterface
         }
 
         if (PLATFORM_CLI) {
-            Log::action(ts('Executing program ":program"', [':program' => static::$o_target->getRootname()]));
+            if (Log::getVerbose()) {
+                Log::action(ts('Executing program ":program"', [':program' => static::$o_target->getRootname()]));
+            }
 
             if (static::$stack_level > 0) {
                 // This is a CLI sub command, execute it directly with output buffering and return the output
@@ -1593,9 +1576,6 @@ class Request implements RequestInterface
 
             switch (static::getRequestType()) {
                 case EnumRequestTypes::html:
-                    // Does the user have a default page configured? If so, ensure we're going there
-                    static::redirectToDefaultPage();
-
                     if (!static::getSystem()) {
                         // Check if the user has access to the requested page, then check if the user should be force redirected
                         static::hasRightsOrRedirect(static::$o_parameters->getRequiredRights((string) static::$o_target));
@@ -1694,7 +1674,9 @@ class Request implements RequestInterface
             ':target' => $target,
         ]));
 
-        Request::executeSystem(404);
+        throw Http404Exception::new(tr('The requested system page ":page" does not exist', [
+            ':page' => $target,
+        ]));
     }
 
 
@@ -1810,92 +1792,56 @@ class Request implements RequestInterface
     protected static function executeWebTarget(bool $flush): ?string
     {
         // Execute the specified target file
-        try {
-            switch (static::getRequestType()) {
-                case EnumRequestTypes::api:
-                    Log::action(ts('Executing API page ":target" on stack level ":level" with in language ":language" and sending output as API page', [
-                        ':target'   => Strings::from(static::getTargetObject(), '/web/'),
-                        ':level'    => static::$stack_level,
-                        ':language' => LANGUAGE,
-                    ]), (static::$stack_level ? 5 : 7));
-                    break;
+        switch (static::getRequestType()) {
+            case EnumRequestTypes::api:
+                Log::action(ts('Executing API page ":target" on stack level ":level" with in language ":language" and sending output as API page', [
+                    ':target'   => Strings::from(static::getTargetObject(), '/web/'),
+                    ':level'    => static::$stack_level,
+                    ':language' => LANGUAGE,
+                ]), (static::$stack_level ? 5 : 7));
+                break;
 
-                case EnumRequestTypes::ajax:
-                    Log::action(ts('Executing AJAX page ":target" on stack level ":level" with in language ":language" and sending output as AJAX API page', [
-                        ':target'   => Strings::from(static::getTargetObject(), '/web/'),
-                        ':level'    => static::$stack_level,
-                        ':language' => LANGUAGE,
-                    ]), (static::$stack_level ? 5 : 7));
-                    break;
+            case EnumRequestTypes::ajax:
+                Log::action(ts('Executing AJAX page ":target" on stack level ":level" with in language ":language" and sending output as AJAX API page', [
+                    ':target'   => Strings::from(static::getTargetObject(), '/web/'),
+                    ':level'    => static::$stack_level,
+                    ':language' => LANGUAGE,
+                ]), (static::$stack_level ? 5 : 7));
+                break;
 
-                default:
-                    Log::action(ts('Executing program ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
-                        ':target'   => Strings::from(static::getTargetObject(), '/web/'),
-                        ':template' => static::$template->getName(),
-                        ':level'    => static::$stack_level,
-                        ':language' => LANGUAGE,
-                    ]), (static::$stack_level ? 5 : 7));
-            }
-
-            // Hide $_FILES data in case files were uploaded
-            if (count($_FILES)) {
-                UploadHandlers::hideData();
-            }
-
-            // Prepare page, increase the stack counter, and execute the target
-            if (!$flush and static::$stack_level) {
-                // Execute only the file and return the output
-                return execute();
-            }
-
-            if (!Request::isSystemPage()) {
-                Response::addHeadDataAttribute(Url::getBase(), 'base-url');
-            }
-
-            // Execute the entire page and return the output
-            $results = static::$page->execute();
-
-            // Are all request method restrictions satisfied? Only check non-system pages, system pages will allow all
-            if (!static::$is_system) {
-                Request::getMethodRestrictionsObject()->checkRestrictions();
-            }
-
-            return $results;
-
-        } catch (ValidationFailedException | RequestMethodRestrictionsException $e) {
-            static::executeSystem(400, $e, tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
-
-        } catch (AuthenticationException $e) {
-            static::executeSystem(401, $e, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
-
-        } catch (IncidentsException $e) {
-            $new_target = $e->getNewTarget();
-
-            if (!$new_target) {
-                static::executeSystem(403, $e, tr('Page did not catch the following "IncidentsException or AccessDeniedException" warning. Executing "system/403" instead'));
-            }
-
-            Log::warning(ts('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
-                ':new'    => $new_target,
-                ':target' => static::$o_target->getRootname(),
-                ':user'   => Session::getUserObject()->getDisplayId(),
-            ]));
-
-            // Execute the new system page target instead
-            static::executeSystem($new_target, $e, $e->getMessage());
-
-        } catch (Http404Exception | DataEntryNotExistsException | DataEntryDeletedException $e) {
-            static::executeSystem(404, $e, tr('Page did not catch the following "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
-
-        } catch (Http405Exception | DataEntryReadonlyException $e) {
-            static::executeSystem(405, $e, tr('Page did not catch the following "Http405Exception or DataEntryReadonlyException or CoreReadonlyException" warning. Executing "system/405" instead'));
-
-        } catch (Http409Exception | DataEntryAlreadyExistsException $e) {
-            static::executeSystem(409, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
-
-        } catch (Http503Exception | CoreReadonlyException $e) {
-            static::executeSystem(503, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
+            default:
+                Log::action(ts('Executing program ":target" on stack level ":level" with template ":template" in language ":language" and sending output as HTML web page', [
+                    ':target'   => Strings::from(static::getTargetObject(), '/web/'),
+                    ':template' => static::$template->getName(),
+                    ':level'    => static::$stack_level,
+                    ':language' => LANGUAGE,
+                ]), (static::$stack_level ? 5 : 7));
         }
+
+        // Hide $_FILES data in case files were uploaded
+        if (count($_FILES)) {
+            UploadHandlers::hideData();
+        }
+
+        // Prepare page, increase the stack counter, and execute the target
+        if (!$flush and static::$stack_level) {
+            // Execute only the file and return the output
+            return execute();
+        }
+
+        if (!Request::isSystemPage()) {
+            Response::addHeadDataAttribute(Url::getBase(), 'base-url');
+        }
+
+        // Execute the entire page and return the output
+        $results = static::$page->execute();
+
+        // Are all request method restrictions satisfied? Only check non-system pages, system pages will allow all
+        if (!static::$is_system) {
+            Request::getMethodRestrictionsObject()->checkRestrictions();
+        }
+
+        return $results;
     }
 
 
@@ -1913,11 +1859,11 @@ class Request implements RequestInterface
         }
 
         return match (static::getRequestType()) {
-            EnumRequestTypes::api     => Strings::ensureStartsWith($target, 'api/'),
-            EnumRequestTypes::ajax    => Strings::ensureStartsWith($target, 'ajax/'),
-            EnumRequestTypes::file    => Strings::ensureStartsWith($target, 'files/'),
+            EnumRequestTypes::api     => Strings::ensureBeginsWith($target, 'api/'),
+            EnumRequestTypes::ajax    => Strings::ensureBeginsWith($target, 'ajax/'),
+            EnumRequestTypes::file    => Strings::ensureBeginsWith($target, 'files/'),
             EnumRequestTypes::html,
-            EnumRequestTypes::system  => Strings::ensureStartsWith($target, 'pages/'),
+            EnumRequestTypes::system  => Strings::ensureBeginsWith($target, 'pages/'),
             default                   => throw new OutOfBoundsException(tr('Unsupported request type ":request" for this process', [
                 ':request' => static::getRequestType(),
             ])),
@@ -1956,6 +1902,112 @@ class Request implements RequestInterface
 
 
     /**
+     * Returns all request headers
+     *
+     * @return IteratorInterface
+     */
+    public static function getHeaders(): IteratorInterface
+    {
+        if (empty(static::$headers)) {
+            static::$headers = Iterator::new(getallheaders());
+        }
+
+        return static::$headers;
+    }
+
+
+    /**
+     * Returns the value for the specified request header
+     *
+     * @param string $name      The header which should be returned
+     * @param bool   $exception If true will throw an exception if the header doesn't exist
+     *
+     * @return string|null
+     */
+    public static function getHeader(string $name, bool $exception = false): ?string
+    {
+        return Request::getHeaders()->get($name, $exception);
+    }
+
+
+    /**
+     * Returns the encoding for user data as specified by the client
+     *
+     * @return string|null
+     */
+    public static function getEncoding(): ?string
+    {
+        static $encoding = null;
+
+        if ($encoding === null) {
+            $encoding = static::getHeader('Content-Encoding');
+            $encoding = Strings::from((string) $encoding, 'charset=');
+        }
+
+        return get_null($encoding);
+    }
+
+
+    /**
+     * Returns the encoding for user data as specified by the client
+     *
+     * @param string|null $encoding
+     * @param bool|null   $strict
+     *
+     * @return bool
+     */
+    public static function hasEncoding(?string $encoding = null, ?bool $strict = null): bool
+    {
+        // Apply defaults to arguments
+        $encoding = $encoding ?? Request::getEncoding();
+        $strict   = $strict   ?? config()->getBoolean('security.validation.encoding.strict', false);
+
+        if ($encoding) {
+            return Response::getEncoding() === Request::getEncoding();
+        }
+
+        if ($strict) {
+            throw RequestHasNoEncodingSpecifiedException::new(tr('Cannot accept client request, encoding has not been specified'));
+        }
+
+        // Client specified no encoding, assume it is ok
+        return true;
+    }
+
+
+    /**
+     * Returns the encoding for user data as specified by the client
+     *
+     * @param bool|null $strict
+     *
+     * @return void
+     */
+    public static function checkEncoding(?bool $strict = null): void
+    {
+        if (Request::hasEncoding(Response::getEncoding(), $strict)) {
+            return;
+        }
+
+        throw RequestHasWrongEncodingException::new(tr('Cannot accept client request, client uses ":client" encoding while ":server" coding is required', [
+            ':client' => Request::getEncoding(),
+            ':server' => Response::getEncoding()
+        ]));
+    }
+
+
+    /**
+     * Returns the encoding for user data as specified by the client
+     *
+     * @return string|null
+     */
+    public static function detectEncoding(): ?string
+    {
+        throw new UnderConstructionException();
+        // iconv(mb_detect_encoding($text, mb_detect_order(), true), 'UTF-8', $text);
+    }
+
+
+    /**
      * Returns a validated useragent
      *
      * @todo Implement useragent validation
@@ -1963,6 +2015,6 @@ class Request implements RequestInterface
      */
     public static function getUserAgent(): ?string
     {
-        return isset_get($_SERVER['HTTP_USER_AGENT']);
+        return Request::getHeader('User-Agent');
     }
 }

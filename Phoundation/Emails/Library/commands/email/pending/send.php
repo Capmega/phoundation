@@ -60,7 +60,7 @@ $argv  = ArgvValidator::new()
 
 // Load the pending emails
 $emails = Emails::new();
-$emails->getQueryBuilder()
+$emails->getQueryBuilderObject()
        ->addSelect('*')
        ->addWhere('`status` IS NOT NULL AND `status` = "PENDING-SEND"')
        ->setLimit($argv['limit']);
@@ -75,15 +75,15 @@ foreach ($emails->load() as $email) {
 
 // Should we restart?
 if ($count) {
-    Log::success(ts('Sent ":count" emails', [':count' => $count]));
+    Log::success(ts('Sent ":count" emails', [':count' => $count]), 10);
 
     if ($count >= $argv['limit']) {
         if ($argv['auto_restart']) {
             if ($argv['background']) {
-                Log::action(ts('Restarting send process as background process'));
+                Log::action(ts('Restarting send process as background process'), 10);
                 $method = EnumExecuteMethod::background;
             } else {
-                Log::action(ts('Restarting send process as background process'));
+                Log::action(ts('Restarting send process as background process'), 10);
                 $method = EnumExecuteMethod::passthru;
             }
 
@@ -98,5 +98,5 @@ if ($count) {
     }
 
 } else {
-    Log::success(ts('Found no pending emails'));
+    Log::success(ts('Found no pending emails'), 10);
 }

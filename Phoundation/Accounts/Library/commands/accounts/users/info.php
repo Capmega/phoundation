@@ -53,11 +53,11 @@ $user = User::new()->load($argv['user']);
 // Display user data
 $user->displayCliForm();
 
-Log::information('Alternative email accounts for this user:');
+Log::information('Alternative email accounts for this user:', 10);
 $user->getEmailsObject()->displayCliTable();
 
-Log::information('Roles assigned to this user:');
+Log::information('Roles assigned to this user:', 10);
 $user->getRolesObject()->displayCliTable();
 
-Log::information('Roles assigned to this user through its roles:');
+Log::information('Roles assigned to this user through its roles:', 10);
 $user->getRightsObject()->displayCliTable();

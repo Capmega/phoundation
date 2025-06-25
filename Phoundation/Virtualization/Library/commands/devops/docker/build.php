@@ -33,6 +33,6 @@ $argv = ArgvValidator::new()
 
 // Build the docker image
 DockerFile::new($argv['image'], $argv['path'])
-          ->setRestrictions(DIRECTORY_ROOT, true)
+          ->setRestrictionsObject(DIRECTORY_ROOT, true)
           ->writeConfig()
           ->render();

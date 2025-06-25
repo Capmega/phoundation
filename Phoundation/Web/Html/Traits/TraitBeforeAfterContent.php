@@ -70,6 +70,10 @@ trait TraitBeforeAfterContent
     {
         $this->after_content = [];
 
+        if (empty($after_content)) {
+            return $this;
+        }
+
         return $this->addAfterContent(function () use ($after_content) {
             return $after_content;
         });
@@ -85,17 +89,20 @@ trait TraitBeforeAfterContent
      */
     public function addAfterContent(RenderInterface|array|callable|string|null $after_content): static
     {
-        if (is_array($after_content)) {
-            foreach ($after_content as $content) {
-                $this->addAfterContent(function () use ($content) {
-                    return $content;
-                });
+        if ($after_content) {
+            if (is_array($after_content)) {
+                foreach ($after_content as $content) {
+                    $this->addAfterContent(function () use ($content) {
+                        return $content;
+                    });
+                }
+
+                return $this;
             }
 
-            return $this;
+            $this->after_content[] = $after_content;
         }
 
-        $this->after_content[] = $after_content;
         return $this;
     }
 
@@ -133,6 +140,10 @@ trait TraitBeforeAfterContent
     {
         $this->before_content = [];
 
+        if (empty($before_content)) {
+            return $this;
+        }
+
         return $this->addBeforeContent(function () use ($before_content) {
             return $before_content;
         });
@@ -148,17 +159,20 @@ trait TraitBeforeAfterContent
      */
     public function addBeforeContent(RenderInterface|array|callable|string|null $before_content): static
     {
-        if (is_array($before_content)) {
-            foreach ($before_content as $content) {
-                $this->addBeforeContent(function () use ($content) {
-                    return $content;
-                });
+        if ($before_content) {
+            if (is_array($before_content)) {
+                foreach ($before_content as $content) {
+                    $this->addBeforeContent(function () use ($content) {
+                        return $content;
+                    });
+                }
+
+                return $this;
             }
 
-            return $this;
+            $this->before_content[] = $before_content;
         }
 
-        $this->before_content[] = $before_content;
         return $this;
     }
 }

@@ -315,8 +315,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                             // TODO CHECK THIS! WHAT IF SOURCE IS A SINGLE STRING?
                             $o_definition->setElement(EnumElement::select);
 
-                        }
-                        else {
+                        } else {
                             // Default element for form items "text input"
                             $o_definition->setElement(EnumElement::input);
                         }
@@ -368,7 +367,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                     }
 
                     // Build the form elements unless a component or content was specified manually
-                    if (!$o_definition->getContent() and !$o_definition->getContent()) {
+                    if (!$o_definition->getContent()) {
                         switch ($o_definition->getElement()) {
                             case EnumElement::input:
                                 if (!$o_definition->getInputType()) {
@@ -693,17 +692,17 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     /**
      * Applies pre-render functions if defined and adds the specified component to the DataEntryFormRow
      *
-     * @param DefinitionInterface $definition
+     * @param DefinitionInterface $o_definition
      * @param array               $source
      * @param mixed               $value
      *
      * @return mixed
      */
-    protected function executePreRenderFunctions(DefinitionInterface $definition, array $source, mixed $value): mixed
+    protected function executePreRenderFunctions(DefinitionInterface $o_definition, array $source, mixed $value): mixed
     {
         // Execute all available pre-render functions
-        foreach ($definition->getPreRenderFunctions() as $function) {
-            $value = $function ($definition, $source, $value);
+        foreach ($o_definition->getPreRenderFunctions() as $function) {
+            $value = $function ($o_definition, $source, $value);
         }
 
         return $value;

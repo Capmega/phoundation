@@ -19,6 +19,8 @@ namespace Phoundation\Core\Libraries;
 use Phoundation\Core\Libraries\Exception\LibraryInvalidVendorException;
 use Phoundation\Core\Libraries\Interfaces\UpdatesInterface;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Validate;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Developer\Exception\DoubleVersionException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -407,7 +409,15 @@ abstract class Updates implements UpdatesInterface
                 return false;
         }
 
-        $result = Version::compare($version, $this->code_version);
+        try {
+            $result = Version::compare($version, $this->code_version);
+
+        } catch (ValidationFailedException $e) {
+            throw new OutOfBoundsException(tr('Version ":version" defined in update file ":file" is not a valid version number', [
+                ':version' => $version,
+                ':file'    => $this->file->getRootname(),
+            ]), $e);
+        }
 
         switch ($result) {
             case -1:

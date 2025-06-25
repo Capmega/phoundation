@@ -38,7 +38,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                  ->setSize(4)
                  ->setOptional(true)
                  ->setInputType(EnumInputType::text)
-                 ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                 ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                      return Severities::new()->getHtmlSelectOld()
                                              ->setAutoSubmit(true)
                                              ->setName($field_name)

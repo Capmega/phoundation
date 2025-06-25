@@ -72,11 +72,11 @@ if ($duplicates->getCount()) {
     ]));
 
     foreach ($duplicates as $hash => $files) {
-        Log::notice($hash);
+        Log::notice($hash, 10);
         Log::debug($files, echo_header: false);
         Log::cli(' ');
     }
 
 } else {
-    Log::success('No duplicate files found');
+    Log::success('No duplicate files found', 10);
 }

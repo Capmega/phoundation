@@ -940,11 +940,11 @@ trait TraitDataDate
         }
 
         if ($this->getMinimumDateObject()) {
-            $options['min'] = $this->getMinimumDateObject()->format(EnumDateFormat::mysql);
+            $options['min'] = $this->getMinimumDateObject()->format(EnumDateFormat::mysql_datetime);
         }
 
         if ($this->getMaximumDateObject()) {
-            $options['max'] = $this->getMaximumDateObject()->format(EnumDateFormat::mysql);
+            $options['max'] = $this->getMaximumDateObject()->format(EnumDateFormat::mysql_datetime);
         }
 
         if ($this->getConfirmDateOnSelect()) {

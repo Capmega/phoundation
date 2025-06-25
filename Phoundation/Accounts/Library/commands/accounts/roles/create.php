@@ -22,7 +22,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 CliDocumentation::setUsage('./pho accounts roles create NAME [OPTIONS]
-./pho system accounts roles create test -d "This is a test role!"');
+./pho accounts roles create test -d "This is a test role!"');
 
 CliDocumentation::setHelp('This command allows you to create roles
 
@@ -68,4 +68,4 @@ $role->getRightsObject()->setRights($argv['rights']);
 
 
 // Done!
-Log::success(ts('Created new role ":role"', [':role' => $role->getName()]));
+Log::success(ts('Created new role ":role"', [':role' => $role->getName()]), 10);

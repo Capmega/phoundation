@@ -21,7 +21,7 @@ use Phoundation\Databases\Sql\SqlQueries;
 
 
 CliDocumentation::setUsage('./pho accounts roles list [OPTIONS]
-./pho system accounts roles list -d -r god');
+./pho accounts roles list -d -r god');
 
 CliDocumentation::setHelp('This command will list the available roles on this system
 
@@ -43,7 +43,7 @@ $argv = ArgvValidator::new()
 
 // Load the roles
 $roles   = Roles::new();
-$builder = $roles->getQueryBuilder();
+$builder = $roles->getQueryBuilderObject();
 
 
 // Apply rights filter

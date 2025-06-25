@@ -43,14 +43,18 @@ interface RolesInterface extends DataIteratorInterface
      * Load the data for this roles list into the object
      *
      * @param array|string|int|null $identifiers
-     * @param bool $only_if_empty
+     * @param bool                  $like
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false): static;
+    public function load(array|string|int|null $identifiers = null, bool $like = false): static;
 
     /**
-     * Save the data for this roles list in the database
+     * Save the data for this "roles" list in the database
+     *
+     * @param bool        $force
+     * @param bool        $skip_validation
+     * @param string|null $comments
      *
      * @return static
      */

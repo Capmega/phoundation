@@ -59,8 +59,8 @@ if ($mode) {
         ':mode' => $mode->getMode(),
         ':user' => $mode->getUserObject()?->getLogId(),
         ':date' => $mode->getDateTime()->format('Y-m-d H:i:s')
-    ]));
+    ]), 10);
 
 } else {
-    Log::success(ts('The project is NOT in maintenance mode'));
+    Log::success(ts('The project is NOT in maintenance mode'), 10);
 }

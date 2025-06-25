@@ -223,7 +223,7 @@ interface PhoSocketInterface
      *                     </p><p><code>SO_RCVTIMEO</code> - Reports the timeout value for input operations.
      *                     Returns an array with two keys: <code>sec</code> which is the seconds part on the timeout
      *                     value and <code>usec</code> which is the microsecond part of the timeout value.
-     *                     </p><p> <code>SO_SNDTIMEO</code> - Reports the timeout value specifying the amount of time
+     *                     </p><p> <code>SO_SNDTIMEO</code> - Reports the timeout value specifying the number of time
      *                     that an output function blocks because flow control prevents data from being sent. Returns
      *                     an array with two keys: <code>sec</code> which is the seconds part on the timeout value and
      *                     <code>usec</code> which is the microsecond part of the timeout value.</p>

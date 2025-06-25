@@ -25,12 +25,11 @@ interface QueryBuilderInterface extends QueryObjectInterface
     /**
      * Make this a DELETE query by adding the select clause here
      *
-     * @param string|null $delete
-     * @param array|null  $execute
+     * @param bool $delete
      *
      * @return static
      */
-    public function addDelete(?string $delete, ?array $execute = null): static;
+    public function setDelete(bool $delete): static;
 
 
     /**
@@ -113,12 +112,12 @@ interface QueryBuilderInterface extends QueryObjectInterface
     /**
      * Add a JOIN part of the query
      *
-     * @param string                $column
      * @param string|float|int|null $value
+     * @param string                $column
      *
      * @return static
      */
-    public function addExecute(string $column, string|float|int|null $value): static;
+    public function addExecute(string|float|int|null $value, string $column): static;
 
 
     /**

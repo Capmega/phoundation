@@ -22,6 +22,7 @@ use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Interfaces\ArraySourceInterface;
+use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\IteratorBase;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
@@ -196,7 +197,7 @@ class Strings extends Utils
     public static function isBase64(Stringable|string $source): bool
     {
         try {
-            static::fromBase64($source);
+            Strings::fromBase64($source);
 
             return true;
 
@@ -216,7 +217,7 @@ class Strings extends Utils
     public static function fromBase64(Stringable|string $source): string
     {
         $source = (string) $source;
-        $source = static::fixBase64($source);
+        $source = Strings::fixBase64($source);
 
         return base64_decode($source);
     }
@@ -262,7 +263,7 @@ class Strings extends Utils
     public static function isBase58(Stringable|string $source): bool
     {
         try {
-            static::fromBase58($source);
+            Strings::fromBase58($source);
 
             return true;
 
@@ -457,14 +458,32 @@ class Strings extends Utils
      *
      * @see    https://semver.org/
      *
-     * @param  Stringable|string $source
+     * @param Stringable|string $source
+     * @param bool              $phoundation_version
      *
      * @return bool True if the specified string is a version format string matching "/^\d{1,3}\.\d{1,3}\.\d{1,3}$/".
      *              False if not
      */
-    public static function isVersion(Stringable|string $source): bool
+    public static function isVersion(Stringable|string $source, bool $phoundation_version = false): bool
     {
-        $result = preg_match('/^\d{1,4}\.\d{1,4}\.\d{1,4}$/', (string) $source);
+        if ($phoundation_version) {
+            switch ($source) {
+                case 'post_once':
+                    // no break
+
+                case 'post_always':
+                    // These are fake versions
+                    return true;
+            }
+
+            // Phoundation also allows negative versions for post init version control
+            $regex = '/^-?\d{1,4}\.\d{1,4}\.\d{1,4}$/';
+
+        } else {
+            $regex = '/^\d{1,4}\.\d{1,4}\.\d{1,4}$/';
+        }
+
+        $result = preg_match($regex, (string) $source);
 
         if ($result === false) {
             throw new CoreException(tr('Failed version detection for specified source ":source"', [
@@ -532,7 +551,7 @@ class Strings extends Utils
                 ]));
             }
 
-            if (static::searchKeyword($source, $keyword, $regex, $unicode)) {
+            if (Strings::searchKeyword($source, $keyword, $regex, $unicode)) {
                 return $keyword;
             }
         }
@@ -585,7 +604,7 @@ class Strings extends Utils
         $source = (string) $source;
 
         foreach ($keywords as $keyword) {
-            if (!static::searchKeyword($source, $keyword, $regex, $unicode)) {
+            if (!Strings::searchKeyword($source, $keyword, $regex, $unicode)) {
                 return false;
             }
         }
@@ -802,7 +821,7 @@ class Strings extends Utils
             } elseif (is_array($value)) {
                 if ($recurse) {
                     // Recurse
-                    $value = static::trimArray($value);
+                    $value = Strings::trimArray($value);
                 }
             }
         }
@@ -997,7 +1016,7 @@ class Strings extends Utils
      */
     public static function cut(Stringable|string|int|null $source, Stringable|string|int $start, Stringable|string|int $stop, bool $needles_required = true, bool $case_insensitive = false): string
     {
-        return static::until(static::from($source, $start, needle_required: $needles_required, case_insensitive: $case_insensitive), $stop, needle_required: $needles_required, case_insensitive: $case_insensitive);
+        return Strings::until(Strings::from($source, $start, needle_required: $needles_required, case_insensitive: $case_insensitive), $stop, needle_required: $needles_required, case_insensitive: $case_insensitive);
     }
 
 
@@ -1300,7 +1319,7 @@ class Strings extends Utils
      *
      * @return string
      */
-    public static function ensureStartsWith(Stringable|string|null $source, Stringable|string $string): string
+    public static function ensureBeginsWith(Stringable|string|null $source, Stringable|string $string): string
     {
         $source = (string) $source;
         $string = (string) $string;
@@ -1325,7 +1344,7 @@ class Strings extends Utils
      *
      * @return string
      */
-    public static function ensureStartsNotWith(Stringable|string|null $source, Stringable|string $string): string
+    public static function ensureBeginsNotWith(Stringable|string|null $source, Stringable|string $string): string
     {
         $source = (string) $source;
         $string = (string) $string;
@@ -1351,7 +1370,7 @@ class Strings extends Utils
      */
     public static function slash(Stringable|string|null $string): string
     {
-        return static::ensureEndsWith((string) $string, '/');
+        return Strings::ensureEndsWith((string) $string, '/');
     }
 
 
@@ -1391,7 +1410,7 @@ class Strings extends Utils
      */
     public static function unslash(Stringable|string|null $string, bool $loop = true): string
     {
-        return static::ensureEndsNotWith((string) $string, '/', $loop);
+        return Strings::ensureEndsNotWith((string) $string, '/', $loop);
     }
 
 
@@ -1458,7 +1477,7 @@ class Strings extends Utils
      */
     public static function ensureSurroundedWith(Stringable|string|null $source, Stringable|string $string): string
     {
-        return static::ensureEndsWith(static::ensureStartsWith($source, $string), $string);
+        return Strings::ensureEndsWith(Strings::ensureBeginsWith($source, $string), $string);
     }
 
 
@@ -1473,7 +1492,7 @@ class Strings extends Utils
      */
     public static function ensureNotSurroundedWith(Stringable|string|null $source, Stringable|string $string, bool $loop = true): string
     {
-        return static::ensureEndsNotWith(static::ensureStartsNotWith($source, $string), $string, $loop);
+        return Strings::ensureEndsNotWith(Strings::ensureBeginsNotWith($source, $string), $string, $loop);
     }
 
 
@@ -1554,10 +1573,10 @@ class Strings extends Utils
         }
 
         if ($clean) {
-            return static::replaceDouble(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', str_replace('  ', ' ', str_replace("\n", ' ', static::truncate($source, $truncate, ' ... ', 'center')))), '\1', ' ');
+            return Strings::replaceDouble(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', str_replace('  ', ' ', str_replace("\n", ' ', Strings::truncate($source, $truncate, ' ... ', 'center')))), '\1', ' ');
         }
 
-        return static::truncate($source, $truncate, ' ... ', 'center');
+        return Strings::truncate($source, $truncate, ' ... ', 'center');
     }
 
 
@@ -1869,7 +1888,8 @@ class Strings extends Utils
                     ]));
                 }
 
-                return null;
+                // Hard cast to boolean, and pray for the best!
+                return (bool) $source;
         }
     }
 
@@ -1892,7 +1912,7 @@ class Strings extends Utils
     public static function isBoolean(Stringable|string|int|bool|null $source): bool
     {
         try {
-            static::toBoolean($source);
+            Strings::toBoolean($source);
             return true;
 
         } catch (OutOfBoundsException) {
@@ -2013,12 +2033,13 @@ class Strings extends Utils
      * Returns an array with
      *
      * @param Stringable|string $source
+     * @param array             $previous
      *
      * @return array
      */
-    public static function countCharacters(Stringable|string $source): array
+    public static function countCharacters(Stringable|string $source, array $previous = []): array
     {
-        $return = [];
+        $return = $previous;
         $source = (string) $source;
         $length = strlen($source);
 
@@ -2028,8 +2049,7 @@ class Strings extends Utils
             }
         }
 
-        sort($return);
-
+        ksort($return);
         return $return;
     }
 
@@ -2083,7 +2103,7 @@ class Strings extends Utils
                         ->setException($e)
                         ->send(true);
 
-            $data = static::getRandom(16);
+            $data = Strings::getRandom(16);
         }
 
         // Set version to 0100, set bits 6-7 to 10
@@ -2253,7 +2273,7 @@ class Strings extends Utils
         foreach ($source as $key => $value) {
             if (!is_string($value)) {
                 // Recurse
-                $value = static::getKeyValueTable($value, $eol, $separator, $indent + $indent_increase, $indent_increase);
+                $value = Strings::getKeyValueTable($value, $eol, $separator, $indent + $indent_increase, $indent_increase);
             }
 
             // Resize the call lines to all have the same size for easier reading
@@ -2325,7 +2345,7 @@ class Strings extends Utils
         $skip_symbols        = mb_str_split($skip_symbols, 1);
         $standard_delimiters = str_replace($skip_symbols, '', '\\()[]{}<>.?+*^$=!|:-');
 
-        return static::escape($string, $standard_delimiters . $delimiters);
+        return Strings::escape($string, $standard_delimiters . $delimiters);
     }
 
 
@@ -2426,7 +2446,7 @@ class Strings extends Utils
 
                 if (is_object($source)) {
                     if ($source instanceof IteratorBase) {
-                        return static::force($source->getSource(), $separator);
+                        return Strings::force($source->getSource(), $separator);
                     }
 
                     if ($source instanceof Stringable) {
@@ -2526,7 +2546,7 @@ class Strings extends Utils
      */
     public static function getMatchingNeedles(Stringable|string $haystack, array|string $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_RECURSE): Stringable|string|null
     {
-        if (static::matchValues(Utils::MATCH_ACTION_RETURN_NEEDLES, [$haystack], $needles, $flags)) {
+        if (Strings::matchValues(Utils::MATCH_ACTION_RETURN_NEEDLES, [$haystack], $needles, $flags)) {
             return $haystack;
         }
 
@@ -2576,7 +2596,7 @@ class Strings extends Utils
      */
     public static function getMatch(Stringable|string $haystack, array|string $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_CONTAINS): Stringable|string|null
     {
-        if (static::matchValues(Utils::MATCH_ACTION_RETURN_VALUES, [$haystack], $needles, $flags)) {
+        if (Strings::matchValues(Utils::MATCH_ACTION_RETURN_VALUES, [$haystack], $needles, $flags)) {
             return $haystack;
         }
 
@@ -2626,7 +2646,7 @@ class Strings extends Utils
      */
     public static function matches(Stringable|string $haystack, DataIteratorInterface|array|string|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_RECURSE): bool
     {
-        return (bool) static::matchValues(Utils::MATCH_ACTION_RETURN_VALUES, [$haystack], $needles, $flags);
+        return (bool) Strings::matchValues(Utils::MATCH_ACTION_RETURN_VALUES, [$haystack], $needles, $flags);
     }
 
 
@@ -2767,5 +2787,103 @@ class Strings extends Utils
         }
 
         return $source;
+    }
+
+
+    /**
+     * Returns the specified source value with a prefix, unless the source is empty, in which case $default is returned
+     *
+     * @param Stringable|string|float|int|null $source
+     * @param Stringable|string|null           $prefix
+     * @param string|null                      $default
+     *
+     * @return Stringable|string|float|int|null
+     */
+    public static function getWithPrefix(Stringable|string|float|int|null $source, Stringable|string|null $prefix, ?string $default = null): Stringable|string|float|int|null
+    {
+        if ($source) {
+            if ($prefix) {
+                return $prefix . $source;
+            }
+
+            return $source;
+        }
+
+        return $default;
+    }
+
+
+    /**
+     * Returns the specified source value with a suffix, unless the source is empty, in which case $default is returned
+     *
+     * @param Stringable|string|float|int|null $source
+     * @param Stringable|string|null           $suffix
+     * @param string|null                      $default
+     *
+     * @return Stringable|string|float|int|null
+     */
+    public static function getWithSuffix(Stringable|string|float|int|null $source, Stringable|string|null $suffix, ?string $default = null): Stringable|string|float|int|null
+    {
+        if ($source) {
+            if ($suffix) {
+                return $source . $suffix;
+            }
+
+            return $source;
+        }
+
+        return $default;
+    }
+
+
+    /**
+     * Returns the source if it's a string, the key value if it's an array, or the object key value if it's a
+     * DataEntryInterface object
+     *
+     * @param mixed       $source
+     * @param string|null $key
+     *
+     * @return string|null
+     */
+    public static function getStringValue(mixed $source, ?string $key): ?string
+    {
+        if ($key) {
+            try {
+                if (is_array($source)) {
+                    return get_null((string)$source[$key]);
+                }
+
+                if ($source instanceof EntryInterface) {
+                    return get_null((string) $source->get($key));
+                }
+
+            } catch (Throwable $e) {
+                throw new OutOfBoundsException(tr('Specified column ":column" does not exist in the given value ":value"', [
+                    ':column' => $key,
+                    ':value'  => $source,
+                ]), $e);
+            }
+        }
+
+        if (is_string($source)) {
+            return get_null($source);
+        }
+
+        if (is_scalar($source)) {
+            return get_null(Strings::force($source));
+        }
+
+        if (is_array($source) or ($source instanceof EntryInterface)) {
+            throw OutOfBoundsException::new(tr('Cannot extract string value from specified source array or EntryInterface object, no column specified'))
+                                      ->addData([
+                                                    'source' => $source,
+                                                ]);
+        }
+
+        throw OutOfBoundsException::new(tr('Cannot extract string, specified source must be either scalar, or and array, or an ":class" type object with a column specified to extract a value from', [
+            ':class' => EntryInterface::class
+        ]))->addData([
+                         ':source' => $source,
+                     ]);
     }
 }

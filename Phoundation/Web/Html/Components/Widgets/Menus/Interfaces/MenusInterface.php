@@ -97,15 +97,4 @@ interface MenusInterface extends IteratorInterface
      * @return static
      */
     public function addMenu(string $name, MenuInterface|null $menu): static;
-
-
-    /**
-     * Load the menu contents from the database
-     *
-     * @param array|string|int|null $identifiers
-     * @param bool $only_if_empty
-     *
-     * @return static
-     */
-    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false): static;
 }

@@ -106,7 +106,7 @@ if (Request::isPostRequestMethod()) {
 
 // Get the users list and apply filters
 $users   = Users::new()->setFilterFormObject($filters);
-$builder = $users->getQueryBuilder()
+$builder = $users->getQueryBuilderObject()
                  ->addSelect('
                      `accounts_users`.`id`, 
                      TRIM(CONCAT(`first_names`, " ", `last_names`)) AS `name`, 

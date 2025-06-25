@@ -31,7 +31,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.9.1';
+        return '0.9.2';
     }
 
 
@@ -1298,6 +1298,17 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             if ($table->columnExists('users_id')) {
                 $table->alter()->changeColumn('`users_id`', '`users_id` bigint NULL DEFAULT NULL,');
+            }
+
+        })->addUpdate('0.9.2', function () {
+            $table = sql()->getSchemaObject()->getTableObject('accounts_users');
+
+            if (!$table->columnExists('update_password')) {
+                $table->alter()->addColumn('`update_password` datetime NULL DEFAULT NULL,', 'AFTER `password`');
+            }
+
+            if (!$table->indexExists('update_password')) {
+                $table->alter()->addIndex('KEY `update_password` (`update_password`)');
             }
         });
     }

@@ -114,14 +114,14 @@ class Role extends DataEntry implements RoleInterface
 
         // Build up the rights select object
         $rights = Rights::new();
-        $rights->setQueryBuilder(QueryBuilder::new($rights)
-                                             ->setSelect('`accounts_rights`.`id`, 
-                                                          CONCAT(
-                                                            UPPER(LEFT(`accounts_rights`.`name`, 1)), 
-                                                            SUBSTRING(`accounts_rights`.`name`, 2)
-                                                          ) AS `name`')
-                                             ->setWhere('`accounts_rights`.`status` IS NULL')
-                                             ->setOrderBy('`name`'))
+        $rights->setQueryBuilderObject(QueryBuilder::new($rights)
+                                                   ->setSelects('`accounts_rights`.`id`, 
+                                                                 CONCAT(
+                                                                     UPPER(LEFT(`accounts_rights`.`name`, 1)), 
+                                                                     SUBSTRING(`accounts_rights`.`name`, 2)
+                                                                 ) AS `name`')
+                                                   ->setWhere('`accounts_rights`.`status` IS NULL')
+                                                   ->setOrderBys('`name`'))
                ->load();
 
         $entry  = DataEntryForm::new()->setRenderContentsOnly(true);
@@ -234,7 +234,8 @@ class Role extends DataEntry implements RoleInterface
         }
 
         return Users::new()
-                    ->setParentObject($this);
+                    ->setParentObject($this)
+                    ->load();
     }
 
 
@@ -305,8 +306,8 @@ class Role extends DataEntry implements RoleInterface
                                              ->setSize(12)
                                              ->setMaxLength(64)
                                              ->setHelpText(tr('The name for this role'))
-                                             ->addValidationFunction(function (ValidatorInterface $validator) {
-                                               $validator->isUnique();
+                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->isUnique();
                                            }))
 
                     ->add(DefinitionFactory::newSeoName())

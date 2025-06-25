@@ -19,6 +19,7 @@ namespace Phoundation\Notifications;
 
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Audio\Audio;
+use Phoundation\Audio\Ping;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Notifications\Interfaces\NotificationsInterface;
@@ -139,7 +140,7 @@ class Notifications extends DataIterator implements NotificationsInterface
 //    /**
 //     * @inheritDoc
 //     */
-//    public function load(array|string|int|null $identifiers = null, bool $only_if_empty = false): static
+//    public function load(array|string|int|null $identifiers = null, bool $like = false): static
 //    {
 //        $this->source = sql()->list('SELECT `notifications`.`id`, `notifications`.`title`
 //                                   FROM     `notifications`
@@ -251,8 +252,8 @@ class Notifications extends DataIterator implements NotificationsInterface
      */
     public function autoUpdate(): static
     {
-        Audio::new('/audio/ping.mp3')
-             ->playRemote('notification');
+        Ping::new()->playRemote('notification');
+
         Script::new()
               ->setJavascriptWrapper(EnumJavascriptWrappers::none)
               ->setContent('   function checkNotifications(ping) {

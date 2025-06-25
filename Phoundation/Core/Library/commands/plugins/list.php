@@ -20,7 +20,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 
 
 CliDocumentation::setUsage('./pho plugins list [OPTIONS]
-./pho system plugins list --all');
+./pho plugins list --all');
 
 CliDocumentation::setHelp('This command allows you to view your registered plugins
 

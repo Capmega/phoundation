@@ -101,4 +101,4 @@ Log::success(ts('Finished exporting ":type" type database ":database" to file ":
     ':type'     => $argv['connector'],
     ':file'     => $argv['file'],
     ':database' => $argv['database'],
-]));
+]), 10);

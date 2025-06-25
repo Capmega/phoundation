@@ -129,8 +129,8 @@ class Non200Url extends DataEntry
                                     ->setSize(4)
                                     ->setMaxLength(12)
                                     ->setHelpText(tr('The HTTP method used for this request'))
-                                    ->addValidationFunction(function (ValidatorInterface $validator) {
-                                        $validator->sanitizeLowercase()
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->sanitizeLowercase()
                                                   ->isInArray([
                                                       'get',
                                                       'head',
@@ -165,29 +165,38 @@ class Non200Url extends DataEntry
                                            ->setHelpText(tr('Request URL that failed')))
 
                     ->add(DefinitionFactory::newData('headers')
-->setNoValidation(true)
                                            ->setOptional(true)
                                            ->setReadonly(true)
                                            ->setLabel(tr('Request headers'))
-                                           ->setHelpText(tr('The HTTP headers that were received from the client for this request')))
+                                           ->setHelpText(tr('The HTTP headers that were received from the client for this request'))
+                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->sanitizeHtmlEntities()->setContentTestDone();
+                                           }))
 
                     ->add(DefinitionFactory::newData('cookies')
-->setNoValidation(true)
                                            ->setOptional(true)
                                            ->setReadonly(true)
                                            ->setLabel(tr('Request cookies'))
-                                           ->setHelpText(tr('The cookies that were received from the client for this request')))
+                                           ->setHelpText(tr('The cookies that were received from the client for this request'))
+                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->sanitizeHtmlEntities()->setContentTestDone();
+                                           }))
 
                     ->add(DefinitionFactory::newData('post')
-->setNoValidation(true)
                                            ->setOptional(true)
                                            ->setReadonly(true)
                                            ->setLabel(tr('Request POST data'))
-                                           ->setHelpText(tr('The POST data that was  received from the client for this request')))
+                                           ->setHelpText(tr('The POST data that was  received from the client for this request'))
+                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->sanitizeHtmlEntities()->setContentTestDone();
+                                           }))
 
                     ->add(DefinitionFactory::newComments()
                                            ->setOptional(true)
-                                           ->setHelpText(tr('Comments on this failed request')));
+                                           ->setHelpText(tr('Comments on this failed request'))
+                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                               $o_validator->sanitizeHtmlEntities()->setContentTestDone();
+                                           }));
 
         return $this;
     }

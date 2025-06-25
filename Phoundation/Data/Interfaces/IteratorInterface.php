@@ -9,7 +9,7 @@ use Phoundation\Content\Documents\Interfaces\SpreadSheetInterface;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
-use Phoundation\Data\Iterator;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Forms\Interfaces\FilterFormInterface;
@@ -876,12 +876,12 @@ interface IteratorInterface extends IteratorBaseInterface
     /**
      * Adds a validator callback that must be passed for data to be added to this Iterator object
      *
-     * @param callable    $validator
+     * @param callable    $o_validator
      * @param string|null $name
      *
      * @return static
      */
-    public function addValidator(callable $validator, ?string $name = null): static;
+    public function addValidator(callable $o_validator, ?string $name = null): static;
 
     /**
      * Returns true if the specified key exists in the array source
@@ -907,4 +907,46 @@ interface IteratorInterface extends IteratorBaseInterface
      * @return $this
      */
     public function setEnsureObjects(bool $ensure_objects): static;
+
+    /**
+     * Returns the DataEntryInterface parent object
+     *
+     * @return DataEntryInterface
+     */
+    #[ReturnTypeWillChange] public function getParentObject(): DataEntryInterface;
+
+    /**
+     * Sets the DataEntryInterface parent object
+     *
+     * @param DataEntryInterface $o_parent
+     *
+     * @return static
+     */
+    public function setParentObject(DataEntryInterface $o_parent): static;
+
+    /**
+     * Returns if this Iterator requires a parent or not
+     *
+     * @return bool
+     */
+    public function getRequireParent(): bool;
+
+    /**
+     * Sets if this Iterator requires a parent or not
+     *
+     * @param bool $require_parent
+     *
+     * @return static
+     */
+    public function setRequireParent(bool $require_parent): static;
+
+    /**
+     * Returns a list with all the values that match the specified value
+     *
+     * @param ArrayableInterface|Stringable|array|string|int|null $needles
+     * @param string|null                                         $column
+     *
+     * @return static
+     */
+    public function keepMatchingAutocompleteValues(ArrayableInterface|Stringable|array|string|int|null $needles, ?string $column = null): static;
 }

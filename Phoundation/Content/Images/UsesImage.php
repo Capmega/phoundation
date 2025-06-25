@@ -53,7 +53,7 @@ trait UsesImage
     public function setImage(ImageFileInterface|string|null $image = null): static
     {
         if (!is_object($image)) {
-            $image = new ImageFile($image, $this->restrictions);
+            $image = new ImageFile($image, $this->o_restrictions);
         }
 
         $this->image = $image;

@@ -91,19 +91,19 @@ class DockerFile
     {
         // Delete old docker configuration files
         PhoFile::new($this->o_directory . '.docker')
-            ->setRestrictions($this->restrictions->getChild('.docker'))
+            ->setRestrictionsObject($this->o_restrictions->getChild('.docker'))
             ->delete();
         PhoFile::new($this->o_directory . 'docker-compose.yml')
-            ->setRestrictions($this->restrictions->getChild('docker-compose.yml'))
+            ->setRestrictionsObject($this->o_restrictions->getChild('docker-compose.yml'))
             ->delete();
         PhoFile::new($this->o_directory . '.docker/Dockerfile')
-            ->setRestrictions($this->restrictions->getChild('.docker/Dockerfile'))
+            ->setRestrictionsObject($this->o_restrictions->getChild('.docker/Dockerfile'))
             ->create('FROM php:8.2-apache
 COPY . /app
 COPY .docker/vhost.conf /etc/apache2/sites-available/000-default.conf
 RUN chown -R www-data:www-data /app && a2enmod rewrite');
         PhoFile::new($this->o_directory . '.docker/vhost.conf')
-            ->setRestrictions($this->restrictions->getChild('.docker/vhost.conf'))
+            ->setRestrictionsObject($this->o_restrictions->getChild('.docker/vhost.conf'))
             ->create('<VirtualHost *:80>
     DocumentRoot /app/public
     <Directory “/app/public”>
@@ -114,7 +114,7 @@ RUN chown -R www-data:www-data /app && a2enmod rewrite');
     CustomLog ${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>');
         PhoFile::new($this->o_directory . 'docker-compose.yml')
-            ->setRestrictions($this->restrictions->getChild('docker-compose.yml'))
+            ->setRestrictionsObject($this->o_restrictions->getChild('docker-compose.yml'))
             ->create('version: ‘3’
 services:
   docker-tutorial:

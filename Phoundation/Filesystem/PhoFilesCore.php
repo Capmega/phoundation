@@ -277,14 +277,14 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
                 }
 
                 if (is_dir($file)) {
-                    $file = PhoDirectory::new($file, $this->restrictions);
+                    $file = PhoDirectory::new($file, $this->o_restrictions);
 
                 } elseif (file_exists($file)) {
-                    $file = PhoFile::new($file, $this->restrictions);
+                    $file = PhoFile::new($file, $this->o_restrictions);
 
                 } else {
                     // Non-existing file, just return the path
-                    $file = PhoPath::new($file, $this->restrictions);
+                    $file = PhoPath::new($file, $this->o_restrictions);
                 }
 
                 continue;

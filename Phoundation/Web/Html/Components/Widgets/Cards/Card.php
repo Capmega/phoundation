@@ -362,10 +362,10 @@ class Card extends Widget
         $this->collapsed = $collapsed;
 
         if ($this->collapsed) {
-            $this->o_classes->add(true, 'collapsed-card');
+            $this->addClass('collapsed-card');
 
         } else {
-            $this->o_classes->removeKeys('collapsed-card');
+            $this->removeClass('collapsed-card');
         }
 
         return $this;

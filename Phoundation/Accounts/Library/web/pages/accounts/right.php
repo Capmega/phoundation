@@ -18,6 +18,7 @@ use Phoundation\Accounts\Rights\Right;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
@@ -68,7 +69,7 @@ if (Request::isPostRequestMethod()) {
                 Response::redirect();
         }
 
-    } catch (IncidentsException | ValidationFailedException $e) {
+    } catch (IncidentsException | ValidationFailedException | AccessDeniedException $e) {
         // Oops! Show validation errors and remain on the page
         Response::getFlashMessagesObject()->addMessage($e);
         $right->forceApply();
@@ -102,7 +103,7 @@ if (!$right->isNew()) {
 
     $users = $right->getUsersObject();
 // :TODO: Fix Users class first, make sure that Users::load() uses query builder instead of direct queries!
-//    $users->getQueryBuilder()->addSelect('        `accounts_users`.`id`,
+//    $users->getQueryBuilderObject()->addSelect('        `accounts_users`.`id`,
 //                                                  TRIM(CONCAT(`first_names`, " ", `last_names`)) AS `name`,
 //                                                  `accounts_users`.`email`,
 //                                                  `accounts_users`.`status`,

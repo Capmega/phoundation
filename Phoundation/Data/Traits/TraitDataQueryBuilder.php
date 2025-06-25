@@ -34,7 +34,7 @@ trait TraitDataQueryBuilder
      *
      * @return QueryBuilderInterface
      */
-    public function getQueryBuilder(): QueryBuilderInterface
+    public function getQueryBuilderObject(): QueryBuilderInterface
     {
         return $this->query_builder;
     }
@@ -47,7 +47,7 @@ trait TraitDataQueryBuilder
      *
      * @return static
      */
-    public function setQueryBuilder(QueryBuilderInterface $query_builder): static
+    public function setQueryBuilderObject(QueryBuilderInterface $query_builder): static
     {
         $this->query_builder = $query_builder;
         return $this;

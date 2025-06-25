@@ -25,6 +25,7 @@ class IncidentsException extends SecurityException
 {
     use TraitDataNewTarget;
 
+
     /**
      * AccessDeniedException class constructor
      *

@@ -141,8 +141,8 @@ class Activities extends IteratorCore
                                                       AND  `created_on` >= :start
                                                       AND  `created_on` <= :stop', [
                                                           ':users_id' => $user->getId(),
-                                                          ':start'    => $start->format(EnumDateFormat::mysql),
-                                                          ':stop'     => $start->format(EnumDateFormat::mysql)
+                                                          ':start'    => $start->format(EnumDateFormat::mysql_datetime),
+                                                          ':stop'     => $start->format(EnumDateFormat::mysql_datetime)
                         ]);
 
         return $this;
@@ -186,11 +186,11 @@ class Activities extends IteratorCore
         ];
 
         if ($start) {
-            $execute[':start'] = $start->format(EnumDateFormat::mysql);
+            $execute[':start'] = $start->format(EnumDateFormat::mysql_datetime);
         }
 
         if ($stop) {
-            $execute[':stop'] = $stop->format(EnumDateFormat::mysql);
+            $execute[':stop'] = $stop->format(EnumDateFormat::mysql_datetime);
         }
 
         $this->source = sql()->listKeyValues('SELECT   `id`,

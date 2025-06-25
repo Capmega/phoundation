@@ -1576,10 +1576,21 @@ function execute(): ?string
 {
     try {
         Core::setScriptState();
-
         $result = include(Request::getTargetObject());
 
-        if ($result and (is_string($result) or $result instanceof RenderInterface)) {
+    } catch (Throwable $e) {
+        if (!($e instanceof PhoException) or !$e->isWarning()) {
+            Log::error(tr('Command ":command" failed with exception: :exception', [
+                ':command'   => Request::getTargetObject(),
+                ':exception' => $e->getMessage(),
+            ]));
+        }
+
+        throw $e;
+    }
+
+    try {
+        if ($result and (is_string($result) or ($result instanceof RenderInterface))) {
             echo $result;
         }
 
@@ -1587,7 +1598,7 @@ function execute(): ?string
 
     } catch (Throwable $e) {
         if (!($e instanceof PhoException) or !$e->isWarning()) {
-            Log::error(tr('Command ":command" failed with exception: :exception', [
+            Log::error(tr('Command ":command" output failed to be pushed to output buffer: :exception', [
                 ':command'   => Request::getTargetObject(),
                 ':exception' => $e->getMessage(),
             ]));
@@ -1601,12 +1612,14 @@ function execute(): ?string
 /**
  * Executes the specified hook file
  *
+ * @note This function is used to execute hooks to give them their own empty function scope
+ *
  * @param string        $__file
- * @param HookInterface $hook
+ * @param HookInterface $o_hook
  *
  * @return mixed
  */
-function execute_hook(string $__file, HookInterface $hook): mixed
+function execute_hook(string $__file, HookInterface $o_hook): mixed
 {
     $return = include($__file);
 

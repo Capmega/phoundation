@@ -75,10 +75,10 @@ $plugin->save();
 if ($plugin->isSaved()) {
     Log::success(ts('Plugin ":plugin" has been updated', [
         ':plugin' => $plugin->getName(),
-    ]));
+    ]), 10);
 
 } else {
     Log::warning(ts('Plugin ":plugin" was not modified', [
         ':plugin' => $plugin->getName(),
-    ]));
+    ]), 10);
 }

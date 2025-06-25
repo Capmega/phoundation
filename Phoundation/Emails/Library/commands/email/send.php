@@ -101,7 +101,7 @@ try {
 
 } catch (ConfigPathDoesNotExistsException $e) {
     // Phoundation isn't properly configured
-    Log::error(ts('Cannot send email because the email.from.email and or email.from.name are not correctly configured'));
+    Log::error(ts('Cannot send email because the email.from.email and or email.from.name are not correctly configured'), 10);
 }
 
 if (!$mail->send()) {
@@ -111,4 +111,4 @@ if (!$mail->send()) {
 Log::success(ts('Sent email ":subject" to ":user"', [
     ':subject' => $argv['subject'],
     ':user'    => $to->getLogId(),
-]));
+]), 10);

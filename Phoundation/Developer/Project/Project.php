@@ -294,7 +294,7 @@ class Project implements ProjectInterface
     public static function getEnvironments(): IteratorInterface
     {
         $return = [];
-        $files  = glob(DIRECTORY_ROOT . 'config/*.yaml');
+        $files  = glob(DIRECTORY_ROOT . 'config/environments/*');
 
         foreach ($files as $file) {
             if ($file[0] === '.') {
@@ -383,13 +383,13 @@ class Project implements ProjectInterface
     /**
      * Validate the specified project information
      *
-     * @param ValidatorInterface $validator
+     * @param ValidatorInterface $o_validator
      *
      * @return array
      */
-    public static function validate(ValidatorInterface $validator): array
+    public static function validate(ValidatorInterface $o_validator): array
     {
-        return $validator->select('admin_email')->isEmail()
+        return $o_validator->select('admin_email')->isEmail()
                          ->select('admin_pass1')->isPassword()
                          ->select('admin_pass2')->isPassword()
                          ->isEqualTo('admin_pass1')->select('domain')->isDomain()
@@ -627,7 +627,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
     public function isPhoundationProject(string $directory): bool
     {
         // Is the path readable?
-        $directory = PhoDirectory::new($directory, $this->restrictions)
+        $directory = PhoDirectory::new($directory, $this->o_restrictions)
                                  ->checkReadable()
                                  ->getSource();
 

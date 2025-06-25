@@ -1290,11 +1290,11 @@ interface ValidatorInterface extends IteratorBaseInterface
     /**
      * Sets the data entry
      *
-     * @param DefinitionsInterface $definitions
+     * @param DefinitionsInterface $o_definitions
      *
      * @return static
      */
-    public function setDefinitionsObject(DefinitionsInterface $definitions): static;
+    public function setDefinitionsObject(DefinitionsInterface $o_definitions): static;
 
     /**
      * This method will validate that the specified key is set as well, in case the current key is not the default

@@ -261,31 +261,17 @@ class Validate
      * Validates if the selected field is a valid version number
      *
      * @param int|null $characters
-     * @param bool     $allow_post_versions If true, the versions "post_once" and "post_always" will be allowed as a
-     *                                      valid version
+     * @param bool     $phoundation_versions If true, the versions 'post_once' and 'post_always' will be allowed as a
+     *                                       valid version
      *
      * @return static
      */
-    public function isVersion(?int $characters = 11, bool $allow_post_versions = false): static
+    public function isVersion(?int $characters = 11, bool $phoundation_versions = false): static
     {
         $this->hasMaxCharacters($characters);
 
-        if (!Strings::isVersion($this->source)) {
-            switch ($this->source) {
-                case 'post_once':
-                    // no break
-
-                case 'post_always':
-                    if ($allow_post_versions) {
-                        break;
-                    }
-
-                // no break
-                default:
-                    throw new ValidationFailedException(tr('The specified value must contain a valid version number'));
-            }
-
-            // This is considered a valid version, and it's allowed. Continue!
+        if (!Strings::isVersion($this->source, $phoundation_versions)) {
+            throw new ValidationFailedException(tr('The specified value must contain a valid version number'));
         }
 
         return $this;

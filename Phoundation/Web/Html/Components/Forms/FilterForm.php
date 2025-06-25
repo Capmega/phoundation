@@ -141,7 +141,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                           ->setOptional(true)
                                                           ->setAutoSubmit(true)
                                                           ->setElement(EnumElement::select)
-                                                          ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                                                          ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                                               if (empty($this->source[$key])) {
                                                                   if (empty($this->source['date_range'])) {
                                                                       $source = $this->getDateRangeDefault();
@@ -158,15 +158,15 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                                                    ->setParentSelector($this->date_range_selector)
                                                                                    ->setValue($this->source[$key]);
                                                           })
-                                                          ->addValidationFunction(function (ValidatorInterface $validator) {
-                                                              $validator->isOptional()->isDateRange()->copyToKey('date_range_split');
+                                                          ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                                              $o_validator->isOptional()->isDateRange()->copyToKey('date_range_split');
                                                           }))
 
                                           ->add(Definition::new('date_range_split')
                                                           ->setRender(false)
                                                           ->setForceValidations(true)
-                                                          ->addValidationFunction(function (ValidatorInterface $validator) {
-                                                              $validator->isOptional()->sanitizeForceArray('-')->forEachField()->sanitizeTrim()->isDate();
+                                                          ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                                              $o_validator->isOptional()->sanitizeForceArray('-')->forEachField()->sanitizeTrim()->isDate();
                                                           }))
 
                                           ->add(Definition::new('users_id')
@@ -174,7 +174,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                           ->setSize(4)
                                                           ->setOptional(true)
                                                           ->setInputType(EnumInputType::dbid)
-                                                          ->setContent(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                                                          ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                                               return Users::new()->getHtmlSelectOld()
                                                                                  ->setSourceQuery('SELECT    `accounts_users`.`id`, COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `accounts_users`.`first_names`, `accounts_users`.`last_names`)), ""), `accounts_users`.`nickname`, `accounts_users`.`username`, `accounts_users`.`email`, "' . tr('System') . '") AS `name` 
                                                                                                    FROM      `accounts_users`
@@ -276,9 +276,9 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      */
     #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = false): mixed
     {
-        $definition = $this->o_definitions->get($key, false);
+        $o_definition = $this->o_definitions->get($key, false);
 
-        if (!$definition?->getRender()) {
+        if (!$o_definition?->getRender()) {
             // NOTE: Non-rendered elements will always return null
             return null;
         }
@@ -599,24 +599,24 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
         // Auto apply
         if ($class === static::class) {
-            $validator = $this->selectValidator()->setDefinitionsObject($this->o_definitions);
+            $o_validator = $this->selectValidator()->setDefinitionsObject($this->o_definitions);
 
             // Go over each field and let the field definition do the validation since it knows the specs
-            foreach ($this->o_definitions as $column => $definition) {
+            foreach ($this->o_definitions as $column => $o_definition) {
 //if ($column !== 'action') continue;
-                $definition->validate($validator, null);
+                $o_definition->validate($o_validator, null);
             }
 
             // Validate buttons too
             if ($this->o_definitions->hasButtons()) {
                 foreach ($this->o_definitions->getButtons() as $button) {
-                    $validator->select($button->getName())->isOptional()->hasValue($button->getValue());
+                    $o_validator->select($button->getName())->isOptional()->hasValue($button->getValue());
                 }
             }
 
             try {
                 // Execute the validate method to get the results of the validation
-                $this->source = $validator->validate($require_clean_source);
+                $this->source = $o_validator->validate($require_clean_source);
 
             } catch (ValidationFailedException $e) {
                 // Add the DataEntry object type to the exception message
@@ -646,7 +646,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                 // Is the status filter not set to "All"?
                 if ($this->getStatus() !== 'all') {
                     $builder->addWhere(
-                        SqlQueries::is('`' . $builder->getFromTable() . '`.`status`', $this->getStatus(), ':from_status', $builder->getExecuteByReference())
+                        SqlQueries::is('`' . $builder->getFrom() . '`.`status`', $this->getStatus(), ':from_status', $builder->getExecuteByReference())
                     );
                 }
             }
@@ -655,13 +655,13 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
         if ($this->apply_filters->keyExists('date_range') and $this->o_definitions->isRendered('date_range', false)) {
             if ($this->getStartDate()) {
                 $builder->addWhere(
-                    '`' . $builder->getFromTable() . '`.`created_on` >= :start', [':start' => $this->getStartDate()->format(EnumDateFormat::mysql)]
+                    '`' . $builder->getFrom() . '`.`created_on` >= :start', [':start' => $this->getStartDate()->format(EnumDateFormat::mysql_datetime)]
                 );
             }
 
             if ($this->getStopDate()) {
                 $builder->addWhere(
-                    '`' . $builder->getFromTable() . '`.`created_on` <= :stop', [':stop' => $this->getStopDate()->format(EnumDateFormat::mysql)]
+                    '`' . $builder->getFrom() . '`.`created_on` <= :stop', [':stop' => $this->getStopDate()->format(EnumDateFormat::mysql_datetime)]
                 );
             }
         }
@@ -669,7 +669,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
         if ($this->apply_filters->keyExists('users_id') and $this->o_definitions->isRendered('users_id', false)) {
             if ($this->getUsersId()) {
                 $builder->addWhere(
-                    '`' . $builder->getFromTable() . '`.`created_by` = :created_by', [':created_by' => $this->getUsersId()]
+                    '`' . $builder->getFrom() . '`.`created_by` = :created_by', [':created_by' => $this->getUsersId()]
                 );
             }
         }

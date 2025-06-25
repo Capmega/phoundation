@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http;
 
 use Phoundation\Accounts\Config\Exception\ConfigPathDoesNotExistsException;
+use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
@@ -25,6 +26,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -32,7 +34,9 @@ use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Http\Exception\UrlConfiguredUrlNotFoundException;
+use Phoundation\Web\Http\Exception\UrlException;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
+use Phoundation\Web\Requests\Enums\EnumDomainAllowed;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Stringable;
@@ -73,7 +77,7 @@ class Url implements UrlInterface
         // This is either part of a URL or a complete URL
         if (!Url::isValidUrl($source)) {
             // This is a section
-            $this->source = Strings::ensureStartsNotWith($source, '/');
+            $this->source = Strings::ensureBeginsNotWith($source, '/');
 
         } else {
             // This is a valid URL, continue.
@@ -583,8 +587,8 @@ class Url implements UrlInterface
 //            return $directory;
 //        }
 
-        $this->source = Strings::ensureStartsNotWith($this->source, 'data/content/cdn/');
-        $this->source = Strings::ensureStartsWith($this->source, 'img/');
+        $this->source = Strings::ensureBeginsNotWith($this->source, 'data/content/cdn/');
+        $this->source = Strings::ensureBeginsWith($this->source, 'img/');
 
         return $this->renderCdn();
     }
@@ -758,14 +762,14 @@ class Url implements UrlInterface
 
         // Build the URL
         $base  = Url::getBase($use_configured_root);
-        $url   = Strings::ensureStartsNotWith($url, '/');
+        $url   = Strings::ensureBeginsNotWith($url, '/');
         $url   = $prefix . $url;
         $url   = str_replace(':LANGUAGE', Session::getLanguage(), $base . $url);
         $query = Strings::from($url , '?', needle_required: true);
         $url   = Strings::until($url, '?');
 
         if ($extension) {
-            $extension = Strings::ensureStartsWith($extension, '.');
+            $extension = Strings::ensureBeginsWith($extension, '.');
         }
 
         if (!preg_match('/\.[a-z0-9]{3,5}$/i', $url)) {
@@ -809,10 +813,10 @@ class Url implements UrlInterface
         // Apply special variables
         // Form the CDN URL
         if (!$extension) {
-            $url  = Strings::ensureStartsWith($url, Core::getProjectSeoName() . '/');
+            $url  = Strings::ensureBeginsWith($url, Core::getProjectSeoName() . '/');
 
         } else {
-            $url  = Strings::ensureStartsWith($url, 'templates' . '/');
+            $url  = Strings::ensureBeginsWith($url, 'templates' . '/');
         }
 
         $url  = static::applyPredefined($url);
@@ -820,7 +824,7 @@ class Url implements UrlInterface
         $base = Domains::getConfigurationKey(Domains::getCurrent(), 'cdn', $_SERVER['REQUEST_SCHEME'] . '://cdn.' . Domains::getCurrent() . '/:LANGUAGE/', false);
         $base = Strings::ensureEndsWith($base, '/');
         $base = str_replace(':LANGUAGE', Session::getLanguage(), $base);
-        $url  = Strings::ensureStartsNotWith($url, '/');
+        $url  = Strings::ensureBeginsNotWith($url, '/');
         $url .= static::addExtension($extension);
 
         $this->source = $base . $url;
@@ -1254,7 +1258,7 @@ class Url implements UrlInterface
          * Do language mapping, but only if routemap has been set
          */
         // :TODO: This will fail when using multiple CDN servers (WHY?)
-        if (!empty(config()->get('language.supported', [])) and ($this->url_params['domain'] !== $_CONFIG['cdn']['domain'] . '/')) {
+        if (!empty(config()->get('locale.language.supported', [])) and ($this->url_params['domain'] !== $_CONFIG['cdn']['domain'] . '/')) {
             if ($this->url_params['from_language'] !== 'en') {
                 /*
                  * Translate the current non-English URL to English first
@@ -1540,16 +1544,86 @@ class Url implements UrlInterface
     /**
      * Returns true if the current URL has the specified domain
      *
-     * @param string|null $domain
+     * @param EnumDomainAllowed|string|null $domain
      *
      * @return bool
      */
-    public function hasDomain(?string $domain = null): bool
+    public function hasDomain(EnumDomainAllowed|string|null $domain = null): bool
     {
         if ($domain === null) {
             return true;
         }
 
+        if ($domain instanceof EnumDomainAllowed) {
+            switch ($domain) {
+                case EnumDomainAllowed::any:
+                    break;
+
+                case EnumDomainAllowed::current:
+                    $domain = Url::newCurrentDomainRootUrl()->getDomain();
+                    break;
+
+                case EnumDomainAllowed::whitelist:
+                    throw UnderConstructionException::new();
+            }
+        }
+
         return $domain === parse_url($this->source, PHP_URL_HOST);
+    }
+
+
+    /**
+     * Returns static if the URL domain matches the specified domain. Throws an exception if URL does not match
+     *
+     * @param EnumDomainAllowed|string $domain
+     *
+     * @return static
+     */
+    public function checkDomain(EnumDomainAllowed|string $domain): static
+    {
+        if ($this->hasDomain($domain)) {
+            return $this;
+        }
+
+        throw UrlException::new(tr('The URL ":source" does not match the specified domain ":domain"', [
+            ':source' => $this->source,
+            ':domain' => $domain,
+        ]));
+    }
+
+
+    /**
+     * Returns true if the current session user (or the specified one) has access to this URL
+     *
+     * @param UserInterface|null $user
+     *
+     * @return bool
+     */
+    public function hasAccess(?UserInterface $user = null): bool
+    {
+        $user = $user ?? Session::getUserObject();
+
+throw new UnderConstructionException();
+    }
+
+
+    /**
+     * Returns true if the current session user (or the specified one) has access to this URL
+     *
+     * @param UserInterface|null $user
+     *
+     * @return static
+     * @throws AccessDeniedException
+     */
+    public function checkAccess(?UserInterface $user = null): static
+    {
+        if ($this->hasAccess($user)) {
+            return $this;
+        }
+
+        throw new AccessDeniedException(tr('The user ":user" does not have access to URL ":url"', [
+            ':user' => $user->getLogId(),
+            ':url'  => $this->getSource(),
+        ]));
     }
 }

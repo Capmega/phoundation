@@ -242,7 +242,7 @@ class Route
         static::$method = $_SERVER['REQUEST_METHOD'];
         static::$ip     = Session::getIpAddress();
         static::$query  = Strings::from($_SERVER['REQUEST_URI'], '?');
-        static::$url    = Strings::ensureStartsNotWith($_SERVER['REQUEST_URI'], '/');
+        static::$url    = Strings::ensureBeginsNotWith($_SERVER['REQUEST_URI'], '/');
         static::$url    = Strings::until(static::$url, '?');
 
         // Ensure the post-processing function is registered
@@ -286,21 +286,22 @@ class Route
 
             // Define basic platform constants
             define('ADMIN'     , '');
-            define('PROTOCOL'  , config()->get('web.protocol', 'https://'));
-            define('PWD'       , Strings::slash(isset_get($_SERVER['PWD'])));
-            define('PAGE'      , $_GET['page'] ?? 1);
-            define('QUIET'     , (get_null(getenv('QUIET')) or get_null(getenv('VERY_QUIET'))) ?? false);
             define('ALL'       , get_null(getenv('ALL'))        ?? false);
             define('DELETED'   , get_null(getenv('DELETED'))    ?? false);
             define('FORCE'     , get_null(getenv('FORCE'))      ?? false);
+            define('LIMIT'     , get_null(getenv('LIMIT'))      ?? config()->getNatural('paging.limit', 50));
+            define('NOAUDIO'   , get_null(getenv('NOAUDIO'))    ?? false);
+            define('NOWARNINGS', get_null(getenv('NOWARNINGS')) ?? false);
             define('ORDERBY'   , get_null(getenv('ORDERBY'))    ?? '');
+            define('OUTPUT'    , 'normal');
+            define('PAGE'      , $_GET['page'] ?? 1);
+            define('PROTOCOL'  , config()->get('web.protocol', 'https://'));
+            define('PWD'       , Strings::slash(isset_get($_SERVER['PWD'])));
             define('STATUS'    , get_null(getenv('STATUS'))     ?? '');
-            define('VERY_QUIET', get_null(getenv('VERY_QUIET')) ?? false);
             define('TEST'      , get_null(getenv('TEST'))       ?? false);
             define('VERBOSE'   , get_null(getenv('VERBOSE'))    ?? false);
-            define('NOAUDIO'   , get_null(getenv('NOAUDIO'))    ?? false);
-            define('LIMIT'     , get_null(getenv('LIMIT'))      ?? config()->getNatural('paging.limit', 50));
-            define('NOWARNINGS', get_null(getenv('NOWARNINGS')) ?? false);
+
+            Log::setVerbose(get_null(getenv('VERBOSE')) ?? false);
 
             // Check HEAD and OPTIONS requests. If HEAD was requested, just return basic HTTP headers
 // :TODO: Should pages themselves not check for this and perhaps send other headers?
@@ -317,7 +318,7 @@ class Route
             Core::setLocale();
 
             // Prepare for unicode usage
-            if (config()->get('languages.encoding.character-set', 'UTF-8') === 'UTF-8') {
+            if (Response::hasEncoding('UTF-8')) {
                 mb_init(not_empty(config()->get('locale.LC_CTYPE', ''), config()->get('locale.LC_ALL', '')));
 
                 if (function_exists('mb_internal_encoding')) {
@@ -327,7 +328,7 @@ class Route
 
             // Check for configured maintenance mode
             if (config()->getBoolean('system.maintenance', false)) {
-                // We are in maintenance mode, have to show maintenance page.
+                // We're in maintenance mode, have to show maintenance page.
                 Request::executeSystem(503);
             }
 
@@ -471,7 +472,7 @@ class Route
      */
     protected static function init(): void
     {
-        Request::setRestrictions(PhoRestrictions::newFilesystemRootObject());
+        Request::setRestrictionsObject(PhoRestrictions::newFilesystemRootObject());
         Response::initialize();
 
         if (Core::getMaintenanceMode()) {
@@ -560,7 +561,7 @@ class Route
             if (str_starts_with($queries, '?')) {
                 // The URL contains multiple ? symbols at the start
                 $redirect = true;
-                $queries  = Strings::ensureStartsNotWith($queries, '?');
+                $queries  = Strings::ensureBeginsNotWith($queries, '?');
             }
 
             if (str_contains($queries, '?')) {

@@ -17,7 +17,9 @@ declare(strict_types=1);
 namespace Phoundation\Web\Requests;
 
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Core;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\OutOfBoundsException;
@@ -28,6 +30,7 @@ use Phoundation\Utils\Enums\EnumJsonResponse;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderJsonInterface;
+use Phoundation\Web\Html\Components\Widgets\FlashMessages\FlashMessage;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessageInterface;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessagesInterface;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -236,6 +239,19 @@ class JsonPage implements JsonPageInterface
     /**
      * Send a JSON message from an HTTP code
      *
+     * @param Throwable $e
+     *
+     * @return never
+     */
+    public function replyWithException(Throwable $e): never
+    {
+
+    }
+
+
+    /**
+     * Send a JSON message from an HTTP code
+     *
      * @param string|int|PhoException $code
      * @param mixed                   $data
      *
@@ -252,15 +268,13 @@ class JsonPage implements JsonPageInterface
             case 301:
                 $this->setResponse(EnumJsonResponse::redirect)
                      ->reply([
-                         'http_code' => 301,
-                         'location'  => $data
+                         'location' => $data
                      ]);
 
             case 302:
                 $this->setResponse(EnumJsonResponse::redirect)
                      ->reply([
-                         'http_code' => 301,
-                         'location'  => $data
+                         'location' => $data
                      ]);
 
             case 'signin':
@@ -268,14 +282,15 @@ class JsonPage implements JsonPageInterface
             case 'sign-in':
                 $this->setResponse(EnumJsonResponse::signin)
                      ->reply([
-                         'http_code' => 301,
-                         'location'  => Url::new('sign-in')->makeWww()
-                                           ->getSource()
+                         'location' => Url::new('sign-in')->makeWww()->getSource()
                      ]);
         }
 
+
         // Get valid HTTP code, as code here may also be code words
         $int_code = static::getHttpCode($code);
+
+        Response::setHttpCode($code);
 
         // Process HTTP code specific replies
         switch ($int_code) {
@@ -423,21 +438,23 @@ class JsonPage implements JsonPageInterface
     /**
      * Adds HTML flash message sections to the JSON reply
      *
-     * @param FlashMessagesInterface|FlashMessageInterface $messages
+     * @param FlashMessagesInterface|FlashMessageInterface|null $messages
      *
      * @return static
      */
-    public function addFlashMessageSections(FlashMessagesInterface|FlashMessageInterface $messages): static
+    public function addFlashMessageSections(FlashMessagesInterface|FlashMessageInterface|null $messages): static
     {
-        if ($messages instanceof FlashMessagesInterface) {
-            // Multiple HTML sections, add each one individually
-            foreach ($messages as $message) {
-                $this->addFlashMessageSections($message);
-            }
+        if ($messages) {
+            if ($messages instanceof FlashMessagesInterface) {
+                // Multiple HTML sections, add each one individually
+                foreach ($messages as $message) {
+                    $this->addFlashMessageSections($message);
+                }
 
-        } else {
-            // This is just a single HTML section, make a list out of it
-            static::$flash[] = $messages->renderArray();
+            } else {
+                // This is just a single HTML section, make a list out of it
+                static::$flash[] = $messages->renderArray();
+            }
         }
 
         return $this;
@@ -457,7 +474,6 @@ class JsonPage implements JsonPageInterface
         // Clean up the data array and create a message
         $data = static::createMessage($data);
 
-        Response::setHttpCode(200);
         Response::setContentType('application/json');
         Response::setOutput($data);
         Response::send(false);
