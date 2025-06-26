@@ -81,7 +81,7 @@ abstract class Updates implements UpdatesInterface
     public function __construct()
     {
         // Detect the library name
-        $library = strtolower(get_class($this));
+        $library = strtolower(static::class);
         $plugin  = str_contains($library, 'plugins\\');
         $vendor  = Strings::from($library, 'plugins\\');
         $vendor  = Strings::until($vendor, '\\');
@@ -131,7 +131,7 @@ abstract class Updates implements UpdatesInterface
             ]));
         }
 
-        $this->file         = PhoDirectory::newRootObject()->addFile(str_replace('\\', '/', get_class($this)) . '.php');
+        $this->file         = PhoDirectory::newRootObject()->addFile(str_replace('\\', '/', static::class) . '.php');
         $this->vendor       = $vendor;
         $this->library      = $library;
         $this->code_version = $code_version;

@@ -620,7 +620,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
             } catch (ValidationFailedException $e) {
                 // Add the DataEntry object type to the exception message
-                throw $e->setMessage('(' . get_class($this) . ') ' . $e->getMessage());
+                throw $e->setMessage('(' . static::class . ') ' . $e->getMessage());
             }
 
             // Generate a list of all available filters so that we can tick them off one by one when we apply them later

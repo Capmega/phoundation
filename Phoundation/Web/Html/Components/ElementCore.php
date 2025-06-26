@@ -198,7 +198,7 @@ abstract class ElementCore implements ElementInterface
         } else {
             // The template component doesn't exist, return the basic Phoundation version
             Log::warning(ts('No template render class found for element component ":component", rendering basic HTML', [
-                ':component' => get_class($this),
+                ':component' => static::class,
             ]), 2);
 
             // The render function does NOT add before and after content, add it manually here.

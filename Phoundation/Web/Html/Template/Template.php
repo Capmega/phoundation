@@ -85,7 +85,7 @@ abstract class Template implements TemplateInterface
      */
     public function getName(): string
     {
-        return Strings::from(Strings::fromReverse(get_class($this), '\\'), '\\');
+        return Strings::from(Strings::fromReverse(static::class, '\\'), '\\');
     }
 
 
@@ -194,7 +194,7 @@ abstract class Template implements TemplateInterface
                 $include_file = $this->getDirectoryObject() . 'Html/' . $include_file . '.php';
 
                 // Find the class path in the file, we will return this as the class that should be used for rendering
-                $include_class  = Strings::untilReverse(get_class($this), '\\');
+                $include_class  = Strings::untilReverse(static::class, '\\');
                 $include_class .= '\\Html\\' . $class_path;
             }
 

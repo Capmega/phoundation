@@ -1224,7 +1224,7 @@ class PhoPathCore implements PhoPathInterface
         if (empty($this->o_restrictions)) {
             Log::warning(ts('Skipping auto mount of path ":path" with class instance ":class" attempt because no filesystem restrictions were specified', [
                 ':path'  => $this->source,
-                ':class' => get_class($this),
+                ':class' => static::class,
             ]));
         } else {
             try {

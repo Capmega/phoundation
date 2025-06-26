@@ -44,7 +44,7 @@ trait TraitDataReadonly
         if ($this->readonly) {
             throw new DataEntryReadonlyException(tr('Unable to perform action ":action", the ":object" object is readonly', [
                 ':action' => $action,
-                ':object' => Strings::fromReverse(get_class($this), '\\'),
+                ':object' => Strings::fromReverse(static::class, '\\'),
             ]));
         }
 
@@ -52,13 +52,13 @@ trait TraitDataReadonly
             if ($this->sourceLoadedFromConfiguration()) {
                 throw new DataEntryReadonlyException(tr('Unable to perform action ":action", the ":object" object is readonly because it was read from configuration', [
                     ':action' => $action,
-                    ':object' => Strings::fromReverse(get_class($this), '\\'),
+                    ':object' => Strings::fromReverse(static::class, '\\'),
                 ]));
             }
 
             throw new DataEntryReadonlyException(tr('Unable to perform action ":action", the ":object" object is readonly', [
                 ':action' => $action,
-                ':object' => Strings::fromReverse(get_class($this), '\\'),
+                ':object' => Strings::fromReverse(static::class, '\\'),
             ]));
         }
 

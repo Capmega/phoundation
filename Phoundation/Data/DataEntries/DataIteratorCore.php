@@ -580,7 +580,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
         if ($exception) {
             throw new NotExistsException(tr('Key ":key" does not exist in this ":class" DataIterator', [
                 ':key'   => $key,
-                ':class' => get_class($this),
+                ':class' => static::class,
             ]));
         }
 
@@ -630,7 +630,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
         }
 
         throw new OutOfBoundsException(tr('Cannot set value ":value" to key ":key" in the list ":list", the value does not have a required DataEntryInterface', [
-            ':list'  => get_class($this),
+            ':list'  => static::class,
             ':key'   => $key,
             ':value' => $value,
         ]));
@@ -1085,7 +1085,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
                     throw new OutOfBoundsException(tr('Cannot add entry ":value" because the ":class" DataIterator object should use unique column ":column" as keys, but has no unique column value', [
                         ':column' => $value->getUniqueColumn(),
                         ':value'  => $value,
-                        ':class'  => get_class($this),
+                        ':class'  => static::class,
                     ]));
                 }
             }

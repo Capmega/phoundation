@@ -1075,7 +1075,7 @@ class Definition implements DefinitionInterface
         if ($exception) {
             throw new NotExistsException(tr('Key ":key" does not exist in this ":class" DataIterator', [
                 ':key'   => $key,
-                ':class' => get_class($this),
+                ':class' => static::class,
             ]));
         }
 

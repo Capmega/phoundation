@@ -426,7 +426,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             if (array_key_exists($key, $this->source) and $exception) {
                 throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object because the key already exists', [
                     ':key'   => $key,
-                    ':class' => get_class($this),
+                    ':class' => static::class,
                 ]));
             }
 
@@ -583,7 +583,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             if (array_key_exists($key, $this->source) and $exception) {
                 throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object because the key already exists', [
                     ':key'   => $key,
-                    ':class' => get_class($this),
+                    ':class' => static::class,
                 ]));
             }
 
@@ -623,7 +623,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the before key ":before" does not exist', [
                 ':key'    => $key,
                 ':before' => $before,
-                ':class'  => get_class($this),
+                ':class'  => static::class,
             ]));
         }
 
@@ -632,7 +632,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the key ":key" already exists', [
                 ':key'    => $key,
                 ':before' => $before,
-                ':class'  => get_class($this),
+                ':class'  => static::class,
             ]));
         }
 
@@ -697,7 +697,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the after key ":after" does not exist', [
                 ':key'   => $key,
                 ':after' => $after,
-                ':class' => get_class($this),
+                ':class' => static::class,
             ]));
         }
 
@@ -706,7 +706,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the key ":key" already exists', [
                 ':key'   => $key,
                 ':after' => $after,
-                ':class' => get_class($this),
+                ':class' => static::class,
             ]));
         }
 
@@ -748,7 +748,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before value ":before" because the before value ":before" does not exist', [
                 ':key'    => $key,
                 ':before' => $before,
-                ':class'  => get_class($this),
+                ':class'  => static::class,
             ]));
         }
 
@@ -757,7 +757,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the key ":key" already exists', [
                 ':key'    => $key,
                 ':before' => $before,
-                ':class'  => get_class($this),
+                ':class'  => static::class,
             ]));
         }
 
@@ -799,7 +799,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after value ":after" because the after value ":after" does not exist', [
                 ':key'   => $key,
                 ':after' => $after,
-                ':class' => get_class($this),
+                ':class' => static::class,
             ]));
         }
 
@@ -808,7 +808,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the key ":key" already exists', [
                 ':key'   => $key,
                 ':after' => $after,
-                ':class' => get_class($this),
+                ':class' => static::class,
             ]));
         }
 
@@ -835,14 +835,14 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         if ($pos_key === false) {
             throw new OutOfBoundsException(tr('Specified key ":key" does not exist in this ":class" list', [
                 ':key'   => $key,
-                ':class' => get_class($this),
+                ':class' => static::class,
             ]));
         }
 
         if ($pos_before === false) {
             throw new OutOfBoundsException(tr('Specified before key ":key" does not exist in this ":class" list', [
                 ':key'   => $before,
-                ':class' => get_class($this),
+                ':class' => static::class,
             ]));
         }
 
@@ -872,14 +872,14 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         if ($pos_key === false) {
             throw new OutOfBoundsException(tr('Specified key ":key" does not exist in this ":class" list', [
                 ':key'   => $key,
-                ':class' => get_class($this),
+                ':class' => static::class,
             ]));
         }
 
         if ($pos_after === false) {
             throw new OutOfBoundsException(tr('Specified after key ":key" does not exist in this ":class" list', [
                 ':key'   => $after,
-                ':class' => get_class($this),
+                ':class' => static::class,
             ]));
         }
 
@@ -1758,7 +1758,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     {
         if (!$columns) {
             throw new OutOfBoundsException(tr('Cannot return source key columns for ":this", no columns specified', [
-                ':this' => get_class($this),
+                ':this' => static::class,
             ]));
         }
 
@@ -1788,7 +1788,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             // The key doesn't exist
             throw new NotExistsException(tr('The key ":key" does not exist in this ":class" object', [
                 ':key'   => $key,
-                ':class' => get_class($this),
+                ':class' => static::class,
             ]));
         }
 
@@ -1859,7 +1859,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         if (is_object($value)) {
             if (!$value instanceof ArrayableInterface) {
                 throw new OutOfBoundsException(tr('Cannot get source columns for ":this", the source contains non arrayable objects', [
-                    ':this' => get_class($this),
+                    ':this' => static::class,
                 ]));
             }
 
@@ -1898,7 +1898,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         if (is_object($value)) {
             if (!$value instanceof ArrayableInterface) {
                 throw new OutOfBoundsException(tr('Cannot get source columns for ":this", the source contains non arrayable objects', [
-                    ':this' => get_class($this),
+                    ':this' => static::class,
                 ]));
             }
 
@@ -1928,7 +1928,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     {
         if (!$column) {
             throw new OutOfBoundsException(tr('Cannot return source key column for ":this", no column specified', [
-                ':this' => get_class($this),
+                ':this' => static::class,
             ]));
         }
 
@@ -1955,7 +1955,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     {
         if (!$column) {
             throw new OutOfBoundsException(tr('Cannot return source column for ":this", no column specified', [
-                ':this' => get_class($this),
+                ':this' => static::class,
             ]));
         }
 

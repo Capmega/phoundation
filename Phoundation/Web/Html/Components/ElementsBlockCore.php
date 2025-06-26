@@ -121,7 +121,7 @@ abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockIn
         if ($renderer_class) {
             Log::write(ts('Using renderer class ":class" for ":this"', [
                 ':class' => $renderer_class,
-                ':this'  => get_class($this),
+                ':this'  => static::class,
             ]), 'debug', 2);
 
             TemplateRenderer::ensureClass($renderer_class, $this);
@@ -138,7 +138,7 @@ abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockIn
 
         // The template component doesn't exist, return the basic Phoundation version
         Log::warning(ts('No template render class found for block component ":component", rendering basic HTML', [
-            ':component' => get_class($this),
+            ':component' => static::class,
         ]), 2);
 
         return $render_function($this->render) . $scripts;

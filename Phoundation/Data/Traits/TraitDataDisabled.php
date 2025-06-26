@@ -43,7 +43,7 @@ trait TraitDataDisabled
         if ($this->disabled) {
             throw new DataEntryDisabledException(tr('Unable to perform action ":action", the ":object" object is disabled', [
                 ':action' => $action,
-                ':object' => Strings::fromReverse(get_class($this), '\\'),
+                ':object' => Strings::fromReverse(static::class, '\\'),
             ]));
         }
 

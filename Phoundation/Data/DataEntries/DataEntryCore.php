@@ -947,7 +947,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
             throw new OutOfBoundsException(tr('Specified unique key ":key" is not defined for the ":class" class DataEntry object', [
-                ':class' => get_class($this),
+                ':class' => static::class,
                 ':key'   => $key,
             ]));
         }
@@ -1030,7 +1030,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         if (empty($this->o_definitions)) {
             if ($this->is_initialized) {
                 throw new DataEntryException(tr('The ":class" class has been initialized but has no definitions object', [
-                    ':class' => get_class($this),
+                    ':class' => static::class,
                 ]));
             }
 
@@ -1044,14 +1044,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 // Not permitted either. Do we have definitions at all?
                 if ($this->getDefinitionsObject()->isEmpty()) {
                     throw new DataEntryException(tr('The ":class" class has no columns defined yet', [
-                        ':class' => get_class($this),
+                        ':class' => static::class,
                     ]));
                 }
 
                 // Yeah, this column is not allowed
                 throw DataEntryColumnsNotDefinedException::new(tr('Not setting column ":column", it is not defined for the ":class" class', [
                     ':column' => $key,
-                    ':class'  => get_class($this),
+                    ':class'  => static::class,
                 ]))->setData([
                     'column' => $key
                 ]);
@@ -1069,7 +1069,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             if ($o_definition->getIgnored()) {
                 Log::warning(ts('Not updating DataEntry object ":object" column ":column" because it has the "ignored" flag set', [
                     ':column' => $key,
-                    ':object' => get_class($this),
+                    ':object' => static::class,
                 ]), 6);
 
                 return $this;
@@ -2798,8 +2798,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 throw DataEntryTypeException::new(tr('Failed to set DataEntry class ":class" source key ":key" with method ":short:::method()" because of a datatype mismatch. Check the column definition and validation rules.', [
                     ':key'    => $column,
                     ':method' => $method,
-                    ':class'  => get_class($this),
-                    ':short'  => Strings::fromReverse(get_class($this), '\\'),
+                    ':class'  => static::class,
+                    ':short'  => Strings::fromReverse(static::class, '\\'),
                 ]), $e)->setData([
                     'column'   => $column,
                     'datatype' => gettype($value),
@@ -2813,8 +2813,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             throw new DataEntryException(tr('Failed to set DataEntry class ":class" source key ":key" with method ":short:::method()".', [
                 ':key'    => $column,
                 ':method' => $method,
-                ':class'  => get_class($this),
-                ':short'  => Strings::fromReverse(get_class($this), '\\'),
+                ':class'  => static::class,
+                ':short'  => Strings::fromReverse(static::class, '\\'),
             ]), $e);
         }
 
@@ -3107,7 +3107,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         if ($this->debug) {
-            Log::debug('APPLY ' . static::getEntryName() . ' (' . get_class($this) . ')', 10, echo_header: false);
+            Log::debug('APPLY ' . static::getEntryName() . ' (' . static::class . ')', 10, echo_header: false);
             Log::debug('CURRENT DATA', 10         , echo_header: false);
             Log::vardump($this->source            , echo_header: false);
             Log::debug('UNVALIDATED NEW DATA'     , echo_header: false);
@@ -3219,7 +3219,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
             if ($this->debug) {
-                Log::debug('VALIDATING COLUMN "' . get_class($this) . ' > ' . $column . '" WITH VALUE "'  . $this->get($column). ' ['  . gettype($this->get($column)). ']"', echo_header: false);
+                Log::debug('VALIDATING COLUMN "' . static::class . ' > ' . $column . '" WITH VALUE "'  . $this->get($column). ' ['  . gettype($this->get($column)). ']"', echo_header: false);
             }
 
             try {
@@ -3255,12 +3255,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         } catch (ValidationFailedException $e) {
             if ($this->debug) {
-                Log::debug('FAILED VALIDATION OF "' . get_class($this) . '" DATA ENTRY DATA, SEE FOLLOWING LOG ENTRIES', 10, echo_header: false);
+                Log::debug('FAILED VALIDATION OF "' . static::class . '" DATA ENTRY DATA, SEE FOLLOWING LOG ENTRIES', 10, echo_header: false);
                 Log::printr($e->getData(), echo_header: false);
             }
 
             // Add the DataEntry object type to the exception message
-            throw $e->setMessage('(' . get_class($this) . ') ' . $e->getMessage());
+            throw $e->setMessage('(' . static::class . ') ' . $e->getMessage());
         }
 
         // Fix column names if prefix was specified
@@ -3301,7 +3301,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             if (!$this->columnIsPermitted($key)) {
                 if ($exception) {
                     throw new OutOfBoundsException(tr('Specified key ":key" is not defined for the ":class" class DataEntry object', [
-                        ':class' => get_class($this),
+                        ':class' => static::class,
                         ':key'   => $key,
                     ]));
                 }
@@ -4642,7 +4642,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         // Not new, nothing changed, no forcing, so there is no reason to save
         if ($this->debug) {
-            Log::debug('NOT SAVING IN DB, NOTHING CHANGED FOR "' . get_class($this) . '" ID "' . $this->getLogId() . '"', 10, echo_header: false);
+            Log::debug('NOT SAVING IN DB, NOTHING CHANGED FOR "' . static::class . '" ID "' . $this->getLogId() . '"', 10, echo_header: false);
         }
 
         return false;
@@ -4667,7 +4667,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         // Debug this specific entry?
         if ($this->debug) {
-            Log::debug('SAVING DATA ENTRY "' . get_class($this) . '" WITH ID "' . $this->getLogId() . '"', 10, echo_header: false);
+            Log::debug('SAVING DATA ENTRY "' . static::class . '" WITH ID "' . $this->getLogId() . '"', 10, echo_header: false);
             sql($this->o_connector)->setDebug($this->debug);
         }
 
@@ -4683,7 +4683,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                                                                  ->write($comments));
 
         if ($this->debug) {
-            Log::information('SAVED DATA ENTRY "' . get_class($this) . '" WITH ID "' . $this->getLogId() . '"', 10);
+            Log::information('SAVED DATA ENTRY "' . static::class . '" WITH ID "' . $this->getLogId() . '"', 10);
         }
 
         // Write the list, if exists
@@ -4794,7 +4794,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         if ($this->debug) {
-            Log::debug('DATA SENT TO SQL FOR "' . get_class($this) . '"', 10, echo_header: false);
+            Log::debug('DATA SENT TO SQL FOR "' . static::class . '"', 10, echo_header: false);
             Log::vardump($return, echo_header: false);
         }
 
@@ -4819,7 +4819,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             } else {
                 // The data in this object hasn't been validated yet! Do so now...
                 if ($this->debug) {
-                    Log::debug('VALIDATING "' . get_class($this) . '" DATA ENTRY WITH ID "' . $this->getLogId() . '"', echo_header: false);
+                    Log::debug('VALIDATING "' . static::class . '" DATA ENTRY WITH ID "' . $this->getLogId() . '"', echo_header: false);
                 }
 
                 // Gather data that required validation

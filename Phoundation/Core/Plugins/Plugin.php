@@ -159,8 +159,8 @@ class Plugin extends DataEntry implements PluginInterface
             // Path hasn't been set yet? It should always be set UNLESS it's new.
             if (!$this->isNew()) {
                 throw new PluginsException(tr('Plugin ":plugin" from vendor ":vendor" does not have a class directory set', [
-                    ':vendor' => get_class($this),
-                    ':plugin' => get_class($this),
+                    ':vendor' => static::class,
+                    ':plugin' => static::class,
                 ]));
             }
 

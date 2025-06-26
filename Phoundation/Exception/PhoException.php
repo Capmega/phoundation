@@ -523,7 +523,7 @@ class PhoException extends RuntimeException implements PoadInterface
     {
         $return = [
             'code'     => $this->getCode(),
-            'class'    => get_class($this),
+            'class'    => static::class,
             'message'  => $this->getMessage(),
             'messages' => $this->getMessages(),
             'data'     => $this->getData(),

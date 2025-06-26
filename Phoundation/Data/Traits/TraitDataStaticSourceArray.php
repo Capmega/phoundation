@@ -155,7 +155,7 @@ trait TraitDataStaticSourceArray
             // The key does not exist
             throw new NotExistsException(tr('The key ":key" does not exist in this ":class" object', [
                 ':key'   => $key,
-                ':class' => get_class($this),
+                ':class' => static::class,
             ]));
         }
 

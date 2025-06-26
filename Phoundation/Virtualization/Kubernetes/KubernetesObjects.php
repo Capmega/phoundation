@@ -39,7 +39,7 @@ class KubernetesObjects extends Iterator
         $this->__construct($source);
         $format            = [];
         $this->source      = [];
-        $this->kind        = Strings::fromReverse(get_class($this), '\\');
+        $this->kind        = Strings::fromReverse(static::class, '\\');
         $this->get_command = strtolower($this->kind);
         $output = Process::new('kubectl')
                          ->addArguments([

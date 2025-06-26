@@ -297,7 +297,7 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
             }
 
             throw new OutOfBoundsException(tr('Iterator ":class" key ":key" contains unsupported data ":data"', [
-                ':class' => get_class($this),
+                ':class' => static::class,
                 ':key'   => $key,
                 ':data'  => $file,
             ]));

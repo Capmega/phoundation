@@ -64,7 +64,7 @@ class KubernetesObject
     public function __construct(?string $name = null)
     {
         $this->name        = $name;
-        $this->kind        = Strings::fromReverse(get_class($this), '\\');
+        $this->kind        = Strings::fromReverse(static::class, '\\');
         $this->get_command = strtolower($this->kind);
         $this->load();
     }
@@ -126,7 +126,7 @@ class KubernetesObject
         if (!$this->file) {
             if (!isset($this->object_file_class)) {
                 throw new OutOfBoundsException(tr('The ":class" class does not support Kubernetes configuration files', [
-                    ':class' => get_class($this),
+                    ':class' => static::class,
                 ]));
             }
             $this->file = new $this->object_file_class($this);

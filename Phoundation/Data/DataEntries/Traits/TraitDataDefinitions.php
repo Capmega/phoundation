@@ -59,7 +59,7 @@ trait TraitDataDefinitions
             if ($this instanceof DataEntryInterface) {
                 if ($this->isInitialized()) {
                     throw new OutOfBoundsException(tr('The ":class" DataEntry object is initialized but has no Definitions class object set', [
-                        ':class' => get_class($this),
+                        ':class' => static::class,
                     ]));
                 }
 
@@ -68,14 +68,14 @@ trait TraitDataDefinitions
 
             } else {
                 throw OutOfBoundsException::new(tr('The ":class" object has no Definitions object set', [
-                    ':class' => get_class($this),
+                    ':class' => static::class,
                 ]));
             }
         }
 
         if ($this->o_definitions->isEmpty()) {
             throw new OutOfBoundsException(tr('The ":class" DataEntry object has a Definitions object but it is empty', [
-                ':class' => get_class($this),
+                ':class' => static::class,
             ]));
         }
 

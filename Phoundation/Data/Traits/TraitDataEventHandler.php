@@ -147,7 +147,7 @@ trait TraitDataEventHandler
         if (!$this->eventIsAllowed($event)) {
             throw new EventNotAllowedException(tr('The event key ":key" is not allowed for this ":class" class object', [
                 ':key'   => $event,
-                ':class' => get_class($this),
+                ':class' => static::class,
             ]));
         }
 
