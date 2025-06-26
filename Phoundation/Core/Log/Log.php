@@ -518,6 +518,8 @@ class Log implements LogInterface
      */
     public static function passesThreshold(int $threshold): bool
     {
+        static::ensureInstance();
+
         // Get the real level and check if we passed the threshold. If $threshold was negative, the same message may be
         // logged multiple times
         $real_threshold = abs($threshold);
