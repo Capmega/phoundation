@@ -44,7 +44,7 @@ class Process extends ProcessCore
             $this->setCommand($command, $which_command);
         }
 
-        $this->setLogLevel(4);
+        $this->setLogLevel(3);
     }
 
 
