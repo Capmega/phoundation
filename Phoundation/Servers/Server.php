@@ -66,6 +66,7 @@ class Server extends DataEntry implements ServerInterface
     use TraitDataEntryState;
     use TraitDataEntryCity;
 
+
     /**
      * Server class constructor
      *
@@ -74,6 +75,21 @@ class Server extends DataEntry implements ServerInterface
     public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false)
     {
         parent::__construct($identifier);
+
+        $this->addPermittedColumns([
+            'categories_code',
+            'categories_name',
+            'providers_code',
+            'providers_name',
+            'customers_code',
+            'customers_name',
+            'countries_code',
+            'countries_name',
+            'states_code',
+            'states_name',
+            'cities_code',
+            'cities_name',
+        ]);
     }
 
 
@@ -599,13 +615,12 @@ class Server extends DataEntry implements ServerInterface
                                     ->setCliColumn('-a,--account ACCOUNT-NAME')
                                     ->setHelpGroup(tr('Identification and network'))
                                     ->setHelpText(tr('The unique hostname for this server'))
-                                    ->setCliAutoComplete([
-                                        'word'   => function ($word) { return SshAccounts::new()->keepMatchingKeys($word); },
-                                        'noword' => function ($word) { return SshAccounts::new()->getSource(); },
-                                    ])
+                                    ->setCliAutoComplete(function ($word) { return SshAccounts::new()->keepMatchingAutocompleteValues($word); })
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->xorColumn('ssh_accounts_id')
-                                                  ->setColumnFromQuery('ssh_accounts_id', 'SELECT `id` FROM `ssh_accounts` WHERE `name` = :name AND `status` IS NULL', [':name' => '$ssh_account']);
+                                                    ->setColumnFromQuery('ssh_accounts_id', 'SELECT `id` FROM `ssh_accounts` WHERE `name` = :name AND `status` IS NULL', [
+                                                        ':name' => '$ssh_account'
+                                                    ]);
                                     }))
 
                     ->add(Definition::new('ssh_accounts_id')
@@ -613,12 +628,11 @@ class Server extends DataEntry implements ServerInterface
                                     ->setSize(4)
                                     ->setLabel(tr('Account'))
                                     ->setHelpText(tr('The unique hostname for this server'))
-                                    ->setCliAutoComplete([
-                                        'word'   => function ($word) { return SshAccounts::new()->keepMatchingKeys($word);},
-                                        'noword' => function ($word) { return SshAccounts::new()->getSource(); },
-                                    ])
+                                    ->setCliAutoComplete(function ($word) { return SshAccounts::new()->keepMatchingAutocompleteValues($word); })
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isQueryResult('SELECT `id` FROM `ssh_accounts` WHERE `id` = :id AND `status` IS NULL', [':id' => '$ssh_accounts_id']);
+                                        $o_validator->isQueryResult('SELECT `id` FROM `ssh_accounts` WHERE `id` = :id AND `status` IS NULL', [
+                                            ':id' => '$ssh_accounts_id'
+                                        ]);
                                     }))
 
                     ->add(Definition::new('port')

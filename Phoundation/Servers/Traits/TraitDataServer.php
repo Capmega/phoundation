@@ -27,7 +27,7 @@ trait TraitDataServer
      *
      * @var ServerInterface|null
      */
-    protected ?ServerInterface $server = null;
+    protected ?ServerInterface $o_server = null;
 
 
     /**
@@ -35,23 +35,22 @@ trait TraitDataServer
      *
      * @return ServerInterface|null
      */
-    public function getServer(): ?ServerInterface
+    public function getServerObject(): ?ServerInterface
     {
-        return $this->server;
+        return $this->o_server;
     }
 
 
     /**
      * Sets the server
      *
-     * @param ServerInterface|string|null $server
+     * @param ServerInterface|string|null $o_server
      *
      * @return static
      */
-    public function setServer(ServerInterface|string|null $server): static
+    public function setServerObject(ServerInterface|string|null $o_server): static
     {
-        $this->server = $server ? Server::new()->load($server) : null;
-
+        $this->o_server = $o_server ? Server::new()->load($o_server) : null;
         return $this;
     }
 }
