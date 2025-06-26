@@ -70,7 +70,7 @@ class Mode implements ModeInterface
                     ->setException($e)
                     ->setTitle(tr('Specified user ":user" for mode file ":file" does not exist, using system user instead', [
                         ':user' => $mode_file?->getBasename(),
-                        ':mode' => $mode_file?->getRootname()
+                        ':file' => $mode_file?->getRootname()
                     ]))
                     ->save();
 

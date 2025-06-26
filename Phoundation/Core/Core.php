@@ -682,6 +682,12 @@ class Core implements CoreInterface
      */
     #[NoReturn] public static function exit(Throwable|int $exit_code = 0, ?string $exit_message = null, bool $sig_kill = false, bool $direct_exit = false): never
     {
+        if (Core::isReady()) {
+            if (Log::passesThreshold(2) or Log::getVerbose()) {
+                Log::warning(ts('Core->exit() was called'), 10);
+            }
+        }
+
         if (!Core::isReady()) {
             if (!Core::$error_state) {
                 // Exit was initiated before Core was ready! Do NOT use tr(), the functions file likely has not been loaded
@@ -690,8 +696,6 @@ class Core implements CoreInterface
         }
 
         if (!Core::$shutdown) {
-            Core::$shutdown = true;
-
             Core::setShutdownState();
 
             if (Core::$shutdown_handling) {
@@ -1685,6 +1689,17 @@ class Core implements CoreInterface
     {
         Core::setGlobalId(substr(Strings::getUuid(), 0, 8));
         return Core::getGlobalId();
+    }
+
+
+    /**
+     * Returns the amount of seconds that this process has been running
+     *
+     * @return float
+     */
+    public static function getRuntime(): float
+    {
+        return STARTTIME - microtime(true);
     }
 
 

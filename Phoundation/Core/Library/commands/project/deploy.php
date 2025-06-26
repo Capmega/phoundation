@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Command project check
+ * Command project deploy
  *
- * This command will check for - and report - (and optionally fix) the project and its systems
+ * This command will deploy your local project to the specified target environment
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -20,39 +20,40 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Filesystem\PhoDirectory;
 
+
 CliDocumentation::setAutoComplete([
-                                      'positions' => [
-                                          0 => [
-                                              'word'   => function ($word) { return PhoDirectory::newRootObject(false, 'config/deploy/')->scan($word, '/.*?\.yaml$/'); },
-                                              'noword' => function ($word) { return PhoDirectory::newRootObject(false, 'config/deploy/')->scan($word, '/.*?\.yaml$/'); },
-                                          ],
-                                      ],
-                                      'arguments' => [
-                                          '-c / --categories'   => false,
-                                          '-t / --targets'      => false,
-                                          '--do-ignore-changes' => false,
-                                          '--no-ignore-changes' => false,
-                                          '--do-content-check'  => false,
-                                          '--no-content-check'  => false,
-                                          '--do-execute-hooks'  => false,
-                                          '--no-execute-hooks'  => false,
-                                          '--do-init'           => false,
-                                          '--no-init'           => false,
-                                          '--no-notify'         => false,
-                                          '--no-compress'       => false,
-                                          '--no-push'           => false,
-                                          '--no-parrallel'      => false,
-                                          '--no-sitemap'        => false,
-                                          '--no-translate'      => false,
-                                          '--no-bom-check'      => false,
-                                          '--no-backup'         => false,
-                                          '--do-backup'         => false,
-                                          '--update-sitemap'    => false,
-                                          '-F / --force'        => false,
-                                          '--test-syntax'       => false,
-                                          '--test-unit'         => false,
-                                      ],
-                                  ]);
+    'positions' => [
+        0 => [
+            'word'   => function ($word) { return PhoDirectory::newRootObject(false, 'config/deploy/')->scan($word, '/.*?\.yaml$/'); },
+            'noword' => function ($word) { return PhoDirectory::newRootObject(false, 'config/deploy/')->scan($word, '/.*?\.yaml$/'); },
+        ],
+    ],
+    'arguments' => [
+        '-c / --categories'   => false,
+        '-t / --targets'      => false,
+        '--do-ignore-changes' => false,
+        '--no-ignore-changes' => false,
+        '--do-content-check'  => false,
+        '--no-content-check'  => false,
+        '--do-execute-hooks'  => false,
+        '--no-execute-hooks'  => false,
+        '--do-init'           => false,
+        '--no-init'           => false,
+        '--no-notify'         => false,
+        '--no-compress'       => false,
+        '--no-push'           => false,
+        '--no-parrallel'      => false,
+        '--no-sitemap'        => false,
+        '--no-translate'      => false,
+        '--no-bom-check'      => false,
+        '--no-backup'         => false,
+        '--do-backup'         => false,
+        '--update-sitemap'    => false,
+        '-F / --force'        => false,
+        '--test-syntax'       => false,
+        '--test-unit'         => false,
+    ],
+]);
 
 CliDocumentation::setUsage('./pho project deploy TARGET
 ./pho project deploy TARGET --no-init
