@@ -587,7 +587,7 @@ class Task extends DataEntry implements TaskInterface
 
         // Execute the command
         $worker = Worker::new($this->getCommand(), $this->getExecutionDirectory())
-                               ->setServer($this->getServer())
+                               ->setServerObject($this->getServer())
                                ->setArguments($this->getArguments())
                                ->setVariables($this->getVariables())
                                ->setEnvironmentVariables($this->getEnvironmentVariables())

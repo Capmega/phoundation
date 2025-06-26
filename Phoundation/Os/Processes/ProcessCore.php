@@ -284,7 +284,7 @@ abstract class ProcessCore implements ProcessInterface
         }
 
         // Add sudo
-        if (!$this->server and $this->sudo) {
+        if (!$this->o_server and $this->sudo) {
             $this->cached_command_line = $this->sudo . ' ' . $this->cached_command_line;
         }
 
@@ -304,14 +304,14 @@ abstract class ProcessCore implements ProcessInterface
         }
 
         // Execute on a server?
-        if (!empty($this->server)) {
+        if (!empty($this->o_server)) {
             // Execute on a server!
             if ($this->sudo) {
                 // Add sudo
                 $this->cached_command_line = $this->sudo . ' ' . $this->cached_command_line;
             }
 
-            $this->cached_command_line = $this->server->getSshCommandLine($this->cached_command_line);
+            $this->cached_command_line = $this->o_server->getSshCommandLine($this->cached_command_line);
         }
 
         // Execute the command in the specified terminal
@@ -437,7 +437,7 @@ abstract class ProcessCore implements ProcessInterface
         }
 
         // Add sudo
-        if (!$this->server and $this->sudo) {
+        if (!$this->o_server and $this->sudo) {
             $this->cached_command_line = $this->sudo . ' ' . $this->cached_command_line;
         }
 

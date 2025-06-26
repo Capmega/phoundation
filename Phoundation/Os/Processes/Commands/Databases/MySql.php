@@ -244,7 +244,7 @@ class MySql extends Command
     protected function deletePasswordFile(): static
     {
         PhoFile::new('~/.my.cnf', '~/.my.cnf')
-            ->setServer($this->server)
+            ->setServerObject($this->o_server)
             ->secureDelete();
 
         return $this;

@@ -17,7 +17,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes;
 
-use Phoundation\Core\Log\Log;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 

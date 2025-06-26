@@ -18,17 +18,17 @@ interface ProcessInterface extends ProcessVariablesInterface
      *
      * @return ServerInterface|null
      */
-    public function getServer(): ?ServerInterface;
+    public function getServerObject(): ?ServerInterface;
 
 
     /**
      * Sets the server on which this command should be executed
      *
-     * @param ServerInterface|string|null $server
+     * @param ServerInterface|string|null $o_server
      *
      * @return static
      */
-    public function setServer(ServerInterface|string|null $server): static;
+    public function setServerObject(ServerInterface|string|null $o_server): static;
 
 
     /**
