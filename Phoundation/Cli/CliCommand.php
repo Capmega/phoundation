@@ -2096,7 +2096,7 @@ return 'under construction';
             CliCommand::$service = $argv['service'];
 
         } catch (Throwable $e) {
-            throw new CliCommandException(ts('Failed to process system arguments'), $e);
+            throw new CliCommandException(ts('Failed to process system arguments because: ' . $e->getMessage()), $e);
         }
     }
 
