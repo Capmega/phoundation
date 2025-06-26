@@ -164,13 +164,9 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      */
     public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
     {
-        if ($source) {
-            $this->setSource($source);
-        }
+        parent::__construct($source);
 
-        // Set what datatypes this DataIterator will accept
         // If this data iterator had a source specified, consider it loaded
-        $this->setAcceptedDataTypes(static::getDefaultContentDataType());
         $this->is_loaded = (bool) $source;
         $this->cache     = Cache::isEnabled();
     }
