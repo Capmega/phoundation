@@ -357,6 +357,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
     {
         try {
+            // Intercept loading "system" user
+            if ($identifier === ['email' => 'system']) {
+                return $this->initSystemUser();
+            }
+
             $user = parent::load($identifier, $on_load_null_identifier, $on_load_not_exists);
 
         } catch (DataEntryNotExistsException $e) {
@@ -2777,9 +2782,9 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     /**
      * Initializes a System user object
      *
-     * @return void
+     * @return static
      */
-    protected function initSystemUser(): void
+    protected function initSystemUser(): static
     {
         // System user is readonly and also doesn't register meta-requests
         $this->readonly     = true;
@@ -2795,6 +2800,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
         $this->roles  = RolesBySeoName::new()->load(['name' => 'god']);
         $this->rights = RightsBySeoName::new()->load(['name' => 'god']);
+
+        return $this;
     }
 
 

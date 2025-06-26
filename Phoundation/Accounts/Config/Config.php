@@ -331,8 +331,8 @@ class Config implements ConfigInterface
     {
         if (empty($this->environment)) {
             // We don't really have an environment, don't check configuration
-            // NOTE: DO NOT USE TR() HERE AS THE FUNCTIONS FILE MAY NOT YET BE LOADED
             if (!static::$allow_empty_environment) {
+                // NOTE: Don't use tr() or ts() here as functions may not be loaded yet, and it can lead to endless loops
                 throw ConfigException::new('Cannot access configuration, environment has not been determined yet');
             }
 
@@ -345,6 +345,7 @@ class Config implements ConfigInterface
         if ($this->failed) {
             // Config class failed, return all default values when not NULL
             if ($default === null) {
+                // NOTE: Don't use tr() or ts() here as functions may not be loaded yet, and it can lead to endless loops
                 throw new ConfigFailedException('Cannot get configuration, Config object has failed status "' . $this->failed . '"');
             }
 
@@ -408,7 +409,6 @@ class Config implements ConfigInterface
             $part = str_replace(':', '.', $part);
 
             if (!is_array($data)) {
-//                echo "<pre>";var_dump($path);var_dump($section);var_dump($data);echo PHP_EOL;
                 if ($data !== null) {
                     Log::warning(ts('Encountered invalid configuration structure whilst looking for ":path". Section ":section" should contain sub values but does not. Please check your configuration files that this structure exists correctly', [
                         ':path'    => $path,
@@ -421,7 +421,7 @@ class Config implements ConfigInterface
             }
 
             if (!array_key_exists($part, $data)) {
-                // The requested key does not exist
+                // The requested key doesn't exist
                 if ($default === null) {
                     // We have no default configuration either
                     if (ENVIRONMENT === 'production') {
@@ -440,7 +440,7 @@ class Config implements ConfigInterface
                     ]));
                 }
 
-                // The requested key does not exist in configuration, return the default value instead
+                // The requested key doesn't exist in configuration, return the default value instead
                 return $this->cache[$path] = $default;
             }
 
@@ -1535,13 +1535,13 @@ class Config implements ConfigInterface
     /**
      * Escapes . in the specified path section
      *
-     * @param string $path
+     * @param string|int $path
      *
      * @return string
      */
-    public static function escape(string $path): string
+    public static function escape(string|int $path): string
     {
-        return str_replace('.', '\\.', str_replace('_', '-', $path));
+        return str_replace('.', '\\.', str_replace('_', '-', (string) $path));
     }
 
 
