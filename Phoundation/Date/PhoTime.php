@@ -32,9 +32,9 @@ class PhoTime
      * @param int         $decimals
      * @param string|null $zero_label
      *
-     * @return string
+     * @return string|null
      */
-    public static function difference(float $start, float $stop, string $precision = 'auto', int $decimals = 2, ?string $zero_label = null): string
+    public static function difference(float $start, float $stop, string $precision = 'auto', int $decimals = 2, ?string $zero_label = null): ?string
     {
         $time = $stop - $start;
 
@@ -75,9 +75,9 @@ class PhoTime
      * @param int         $decimals
      * @param string|null $zero_label
      *
-     * @return string
+     * @return string|null
      */
-    protected static function differenceAuto(float $time, float $start, float $stop, int $decimals = 2, ?string $zero_label = null): string
+    protected static function differenceAuto(float $time, float $start, float $stop, int $decimals = 2, ?string $zero_label = null): ?string
     {
         if (empty($time) and $zero_label) {
             return $zero_label;
@@ -272,9 +272,9 @@ class PhoTime
      * @param int         $decimals
      * @param string|null $zero_label
      *
-     * @return string
+     * @return string|null
      */
-    protected static function differenceYears(float $time, int $decimals = 2, ?string $zero_label = null): string
+    protected static function differenceYears(float $time, int $decimals = 2, ?string $zero_label = null): ?string
     {
         if (empty($time) and $zero_label) {
             return $zero_label;
@@ -311,9 +311,9 @@ class PhoTime
      * @param int         $decimals
      * @param string|null $zero_label
      *
-     * @return string
+     * @return string|null
      */
-    protected static function differenceMonths(float $time, int $decimals = 2, ?string $zero_label = null): string
+    protected static function differenceMonths(float $time, int $decimals = 2, ?string $zero_label = null): ?string
     {
         if (empty($time) and $zero_label) {
             return $zero_label;
@@ -348,9 +348,9 @@ class PhoTime
      * @param int         $decimals
      * @param string|null $zero_label
      *
-     * @return string
+     * @return string|null
      */
-    protected static function differenceWeeks(float $time, int $decimals = 2, ?string $zero_label = null): string
+    protected static function differenceWeeks(float $time, int $decimals = 2, ?string $zero_label = null): ?string
     {
         if (empty($time) and $zero_label) {
             return $zero_label;
@@ -384,9 +384,9 @@ class PhoTime
      * @param int         $decimals
      * @param string|null $zero_label
      *
-     * @return string
+     * @return string|null
      */
-    protected static function differenceDays(float $time, int $decimals = 2, ?string $zero_label = null): string
+    protected static function differenceDays(float $time, int $decimals = 2, ?string $zero_label = null): ?string
     {
         if (empty($time) and $zero_label) {
             return $zero_label;
@@ -418,9 +418,9 @@ class PhoTime
      * @param int         $decimals
      * @param string|null $zero_label
      *
-     * @return string
+     * @return string|null
      */
-    protected static function differenceHours(float $time, int $decimals = 2, ?string $zero_label = null): string
+    protected static function differenceHours(float $time, int $decimals = 2, ?string $zero_label = null): ?string
     {
         if (empty($time) and $zero_label) {
             return $zero_label;
@@ -450,9 +450,9 @@ class PhoTime
      * @param int         $decimals
      * @param string|null $zero_label
      *
-     * @return string
+     * @return string|null
      */
-    protected static function differenceMinutes(float $time, int $decimals = 2, ?string $zero_label = null): string
+    protected static function differenceMinutes(float $time, int $decimals = 2, ?string $zero_label = null): ?string
     {
         if (empty($time) and $zero_label) {
             return $zero_label;
@@ -480,9 +480,9 @@ class PhoTime
      * @param int         $decimals
      * @param string|null $zero_label
      *
-     * @return string
+     * @return string|null
      */
-    protected static function differenceSeconds(float $time, int $decimals = 2, ?string $zero_label = null): string
+    protected static function differenceSeconds(float $time, int $decimals = 2, ?string $zero_label = null): ?string
     {
         if (empty($time) and $zero_label) {
             return $zero_label;
@@ -541,7 +541,7 @@ class PhoTime
      *
      * @return array
      */
-    public function getPeriods(): array
+    public static function getPeriods(): array
     {
         return [
             [
