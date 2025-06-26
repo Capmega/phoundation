@@ -1785,7 +1785,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         }
 
         if ($exception) {
-            // The key does not exist
+            // The key doesn't exist
             throw new NotExistsException(tr('The key ":key" does not exist in this ":class" object', [
                 ':key'   => $key,
                 ':class' => get_class($this),

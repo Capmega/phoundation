@@ -826,10 +826,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         $this->o_definitions = $o_definitions->add(DefinitionFactory::newDivider('meta-divider')
-                                                                ->addPreRenderFunctions(function(DefinitionInterface $o_definition, array $source, mixed $value) {
-                                                                    // Only render this when displaying meta-elements
-                                                                    $o_definition->setRender(!$this->isNew() and $this->getDefinitionsObject()->getRenderMeta() and $o_definition->getRender());
-                                                                }));
+                                                                    ->addPreRenderFunctions(function(DefinitionInterface $o_definition, array $source, mixed $value) {
+                                                                        // Only render this when displaying meta-elements
+                                                                        $o_definition->setRender(!$this->isNew() and
+                                                                                                  $this->getDefinitionsObject()->getRenderMeta() and
+                                                                                                  $o_definition->getRender());
+                                                                    }));
 
         return $this;
     }
@@ -940,10 +942,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         if ($key) {
             // Test if this key was defined to begin with! If not, throw an exception to clearly explain what's wrong
-            if (
-                $this->getDefinitionsObject()
-                     ->keyExists($key)
-            ) {
+            if ($this->getDefinitionsObject()->keyExists($key)) {
                 return $this->getTypesafe('string|float|int|null', static::getUniqueColumn());
             }
 
@@ -1039,70 +1038,73 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         // Only save values that are defined for this object
-        if (
-            !$this->getDefinitionsObject()
-                  ->keyExists($key)
-        ) {
-            if (
-                $this->getDefinitionsObject()
-                     ->isEmpty()
-            ) {
-                throw new DataEntryException(tr('The ":class" class has no columns defined yet', [
-                    ':class' => get_class($this),
-                ]));
+        if (!$this->getDefinitionsObject()->keyExists($key)) {
+            // The column is not defined. Is it permitted, perhaps?
+            if (!$this->columnIsPermitted($key)) {
+                // Not permitted either. Do we have definitions at all?
+                if ($this->getDefinitionsObject()->isEmpty()) {
+                    throw new DataEntryException(tr('The ":class" class has no columns defined yet', [
+                        ':class' => get_class($this),
+                    ]));
+                }
+
+                // Yeah, this column is not allowed
+                throw DataEntryColumnsNotDefinedException::new(tr('Not setting column ":column", it is not defined for the ":class" class', [
+                    ':column' => $key,
+                    ':class'  => get_class($this),
+                ]))->setData([
+                    'column' => $key
+                ]);
             }
 
-            throw DataEntryColumnsNotDefinedException::new(tr('Not setting column ":column", it is not defined for the ":class" class', [
-                ':column' => $key,
-                ':class'  => get_class($this),
-            ]))->setData([
-                'column' => $key
-            ]);
-        }
+            // Column is permitted but has no Definition available!
+            $o_definition = null;
 
-        // If the key is defined as readonly or disabled, it cannot be updated unless it's a new object or a
-        // static value.
-        $o_definition = $this->getDefinitionsObject()
-                           ->get($key);
+        } else {
+            // If the key is defined as readonly or disabled, it cannot be updated unless it's a new object or a
+            // static value.
+            $o_definition = $this->getDefinitionsObject()->get($key);
 
-        // If a column is ignored, we won't update anything
-        if ($o_definition->getIgnored()) {
-            Log::warning(ts('Not updating DataEntry object ":object" column ":column" because it has the "ignored" flag set', [
-                ':column' => $key,
-                ':object' => get_class($this),
-            ]),          6);
+            // If a column is ignored, we won't update anything
+            if ($o_definition->getIgnored()) {
+                Log::warning(ts('Not updating DataEntry object ":object" column ":column" because it has the "ignored" flag set', [
+                    ':column' => $key,
+                    ':object' => get_class($this),
+                ]), 6);
 
-            return $this;
-        }
-
-        if ($value === null) {
-            // Apply default values
-            if ($this->isNew()) {
-                $value = $o_definition->getInitialDefault() ?? $o_definition->getDefault();
-
-            } else {
-                $value = $o_definition->getDefault();
+                return $this;
             }
 
             if ($value === null) {
-                if ($skip_null_values) {
-                    if ($this->debug) {
-                        Log::debug('NOT SETTING "' . Strings::fromReverse(static::class, '\\') . '::$' . $key . ', SKIPPING NULL VALUE', 10, echo_header: false);
-                    }
+                // Apply default values
+                if ($this->isNew()) {
+                    $value = $o_definition->getInitialDefault() ?? $o_definition->getDefault();
 
-                    return $this;
+                } else {
+                    $value = $o_definition->getDefault();
                 }
-            }
 
-            if ($this->debug) {
-                Log::debug('USE DEFAULT VALUE "' . Strings::log($value) . '" FOR FIELD "' . Strings::fromReverse(static::class, '\\') . '::$' . $key . '"', 10, echo_header: false);
+                if ($value === null) {
+                    if ($skip_null_values) {
+                        if ($this->debug) {
+                            Log::debug('NOT SETTING "' . Strings::fromReverse(static::class, '\\') . '::$' . $key . ', SKIPPING NULL VALUE', 10, echo_header: false);
+                        }
+
+                        return $this;
+                    }
+                }
+
+                if ($this->debug) {
+                    Log::debug('USE DEFAULT VALUE "' . Strings::log($value) . '" FOR FIELD "' . Strings::fromReverse(static::class, '\\') . '::$' . $key . '"', 10, echo_header: false);
+                }
             }
         }
 
+        // Try to modify the value for the column
         if (array_get_safe($this->source, $key) !== $value) {
-            if (!$this->is_modified and !$o_definition->getIgnoreModify()) {
+            if (!$this->is_modified and !$o_definition?->getIgnoreModify()) {
                 $this->is_modified = true;
-                $this->is_saved = false;
+                $this->is_saved    = false;
             }
 
             if ($this->debug) {
@@ -1116,11 +1118,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         // Update the column value
-        $this->changes[] = $key;
+        $this->changes[]    = $key;
         $this->source[$key] = $value;
         $this->is_validated = (!$this->is_modified and $this->is_validated);
-        $this->is_created = (!$this->is_modified and $this->is_created);
-        $this->is_saved = (!$this->is_modified and $this->is_saved);
+        $this->is_created   = (!$this->is_modified and $this->is_created);
+        $this->is_saved     = (!$this->is_modified and $this->is_saved);
 
         return $this;
     }
@@ -1416,7 +1418,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return static|null
      */
-    public function loadNull(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_not_exists = null): ?static
+    public function loadNull(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
     {
         return $this->load($identifier, EnumLoadParameters::null, $on_load_not_exists);
     }
@@ -1431,7 +1433,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return static
      */
-    public function loadThis(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_not_exists = null): static
+    public function loadThis(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_not_exists = null): static
     {
         return $this->load($identifier, EnumLoadParameters::this, $on_load_not_exists);
     }
@@ -1446,7 +1448,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return static|null
      */
-    public function loadOrThis(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_null_identifier = null): ?static
+    public function loadOrThis(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null): ?static
     {
         return $this->load($identifier, $on_load_null_identifier, EnumLoadParameters::this);
     }
@@ -1461,7 +1463,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return static|null
      */
-    public function loadOrNull(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_null_identifier = null): ?static
+    public function loadOrNull(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null): ?static
     {
         return $this->load($identifier, $on_load_null_identifier, EnumLoadParameters::null);
     }
@@ -1475,7 +1477,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return static
      */
-    public function loadThisOrThis(IdentifierInterface|array|string|int|null $identifier): static
+    public function loadThisOrThis(IdentifierInterface|array|string|int|null $identifier = null): static
     {
         return $this->load($identifier, EnumLoadParameters::this, EnumLoadParameters::this);
     }
@@ -1489,7 +1491,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return static
      */
-    public function loadThisOrNull(IdentifierInterface|array|string|int|null $identifier): static
+    public function loadThisOrNull(IdentifierInterface|array|string|int|null $identifier = null): static
     {
         return $this->load($identifier, EnumLoadParameters::this, EnumLoadParameters::null);
     }
@@ -1503,7 +1505,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return static|null
      */
-    public function loadNullOrThis(IdentifierInterface|array|string|int|null $identifier): ?static
+    public function loadNullOrThis(IdentifierInterface|array|string|int|null $identifier = null): ?static
     {
         return $this->load($identifier, EnumLoadParameters::null, EnumLoadParameters::this);
     }
@@ -1517,7 +1519,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return static|null
      */
-    public function loadNullOrNull(IdentifierInterface|array|string|int|null $identifier): ?static
+    public function loadNullOrNull(IdentifierInterface|array|string|int|null $identifier = null): ?static
     {
         return $this->load($identifier, EnumLoadParameters::null, EnumLoadParameters::null);
     }
@@ -2037,8 +2039,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Loads the specified data into this DataEntry object directly, circumventing the definitions
      *
-     * @warning THIS IS CONSIDERED DANGEROUS. You can load any type of data and column into this dataentry, wheter its
-     *          supported or not!
+     * @warning THIS IS CONSIDERED DANGEROUS. You can load any type of data and column into this DataEntry object, whether its defined / permitted or not!
      *
      * @param DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source
      * @param array|null                                                          $execute
@@ -2125,7 +2126,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
             // This DataEntry supports loading from configuration. Identifier arrays may ONLY contain one column!
-            $column = static::determineColumn($this->identifier);
+            $column     = static::determineColumn($this->identifier);
             $identifier = $this->identifier[$column];
 
             // Can only load from configuration using unique column, or id column or NULL column (means id column too)
@@ -2177,10 +2178,24 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     protected function loadFromConfiguration(string $path, string|int $identifier): ?array
     {
         try {
-            $source = config()->getArray(Strings::ensureEndsWith($path, '.') . Config::escape($identifier), []);
+            if (is_numeric_integer($identifier)) {
+                // Get the Nth value in the configuration
+                $source = config()->getArray($path, []);
+
+                try {
+                    $source = get_index_value($source, abs($identifier));
+
+                } catch (OutOfBoundsException) {
+                    // The specified identifier doesn't exist in the configuration
+                    $source = null;
+                }
+
+            } else {
+                $source = config()->getArray(Strings::ensureEndsWith($path, '.') . Config::escape($identifier), []);
+            }
 
         } catch (ConfigEmptyException) {
-            // The configuration key exists, but is empty. Act as if it does not exist
+            // The configuration key exists but is empty. Act as if it doesn't exist
             Log::warning(ts('Ignoring empty value for configuration path ":path" while trying to load a ":class" DataEntry object', [
                 ':path'  => $path,
                 ':class' => static::class
@@ -2189,11 +2204,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             return null;
         }
 
-        if (count($source)) {
+        if ($source) {
             // Found the entry in configuration! Make it a readonly DataEntry object
-            $source['id'] = -1;
+            $source['id']     = (is_numeric_integer($identifier) ? $identifier : -1);
             $source['status'] = 'configuration';
-            $source['name'] = $identifier;
+            $source['name']   = $identifier;
 
             // Create a DataTypeInterface object but since we can't write configuration, make it readonly!
             return $source;
@@ -2216,7 +2231,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         $this->is_loading = true;
-        $this->cache_key = null;
+        $this->cache_key  = null;
 
         // TODO This may no longer be necessary with the upgraded setIdentifier() which already ensures identifier internally is an array!
         if (is_array($this->identifier)) {
@@ -2229,13 +2244,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         } elseif ($this->identifier) {
             // For single column queries, determine the column that should be used
-            $column = static::determineColumn($this->identifier);
-            $where = '`' . static::getTable() . '`.`' . $column . '` = :identifier';
+            $column  = static::determineColumn($this->identifier);
+            $where   = '`' . static::getTable() . '`.`' . $column . '` = :identifier';
             $execute = [':identifier' => $this->identifier];
 
         } else {
             // For single column queries, determine the column that should be used
-            $where = null;
+            $where   = null;
             $execute = null;
         }
 
@@ -2335,8 +2350,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function getQueryBuilderObject(bool $auto_initialize = true): ?QueryBuilderInterface
     {
         if (!$this->query_builder and $auto_initialize) {
-            $this->query_builder = QueryBuilder::new($this)
-                                               ->setDebug($this->debug);
+            $this->query_builder = QueryBuilder::new($this)->setDebug($this->debug);
         }
 
         return $this->query_builder;
@@ -3283,11 +3297,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function get(Stringable|string|float|int $key, bool $exception = true): mixed
     {
         if (!$this->getDefinitionsObject()->keyExists($key)) {
-            if ($exception) {
-                throw new OutOfBoundsException(tr('Specified key ":key" is not defined for the ":class" class DataEntry object', [
-                    ':class' => get_class($this),
-                    ':key'   => $key,
-                ]));
+            // Column is not defined. Is it permitted, maybe?
+            if (!$this->columnIsPermitted($key)) {
+                if ($exception) {
+                    throw new OutOfBoundsException(tr('Specified key ":key" is not defined for the ":class" class DataEntry object', [
+                        ':class' => get_class($this),
+                        ':key'   => $key,
+                    ]));
+                }
             }
         }
 

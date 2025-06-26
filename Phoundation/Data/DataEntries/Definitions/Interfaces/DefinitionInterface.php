@@ -595,9 +595,9 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      * If true, will enable browser auto-complete for this input control
      *
      * @note Defaults to false
-     * @return array|bool|null
+     * @return callable|array|bool|null
      */
-    public function getCliAutoComplete(): array|bool|null;
+    public function getCliAutoComplete(): callable|array|bool|null;
 
 
     /**
@@ -605,11 +605,11 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @note Defaults to false
      *
-     * @param array|bool|null $value
+     * @param callable|array|bool|null $value
      *
      * @return static
      */
-    public function setCliAutoComplete(array|bool|null $value): static;
+    public function setCliAutoComplete(callable|array|bool|null $value): static;
 
 
     /**

@@ -23,16 +23,9 @@ use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
 use Phoundation\Utils\Seo;
 
+
 trait TraitDataEntryName
 {
-    /**
-     * Tracks if this class supports SEO hostnames
-     *
-     * @var bool $supports_seo_name
-     */
-    protected bool $supports_seo_name = true;
-
-
     /**
      * Returns if this object supports SEO hostnames
      *
@@ -40,20 +33,7 @@ trait TraitDataEntryName
      */
     public function getSupportsSeoName(): bool
     {
-        return $this->supports_seo_name;
-    }
-
-
-    /**
-     * Sets if this object supports SEO hostnames
-     *
-     * @param bool $supports_seo_name
-     * @return static
-     */
-    public function setSupportsSeoName(bool $supports_seo_name): static
-    {
-        $this->supports_seo_name = $supports_seo_name;
-        return $this;
+        return (bool) $this->getDefinitionsObject()->keyExists('seo_name');
     }
 
 
@@ -64,11 +44,11 @@ trait TraitDataEntryName
      */
     public function getSeoName(): ?string
     {
-        if ($this->supports_seo_name) {
+        if ($this->getSupportsSeoName()) {
             return $this->getTypesafe('string', 'seo_name');
         }
 
-        throw new DataEntryNoSeoNameException(tr('Cannot return seo_name from ":class" DataEntry object, it has seo name support disabled', [
+        throw new DataEntryNoSeoNameException(tr('Cannot return seo_name from ":class" DataEntry object, it does not have seo name support defined', [
             ':class' => $this::class
         ]));
     }
@@ -82,7 +62,13 @@ trait TraitDataEntryName
      */
     protected function setSeoName(?string $seo_name): static
     {
-        return $this->set(get_null($seo_name), 'seo_name', true);
+        if ($this->getSupportsSeoName()) {
+            return $this->set(get_null($seo_name), 'seo_name', true);
+        }
+
+        throw new DataEntryNoSeoNameException(tr('Cannot set seo_name from ":class" DataEntry object, it does not have seo name support defined', [
+            ':class' => $this::class
+        ]));
     }
 
 
@@ -94,10 +80,10 @@ trait TraitDataEntryName
      */
     protected function setSeoNameFromName(?string $name): static
     {
-        // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
+        // Get SEO name and ensure that the seo_name doesn't surpass the name maxlength because MySQL won't find
         // the entry if it does!
         try {
-            if ($this->supports_seo_name and $name) {
+            if ($this->getSupportsSeoName() and $name) {
                 if ($this->isLoadedFromConfiguration()) {
                     // ID is negative, this comes from configuration. Just use any seo-name
                     return $this->setSeoName(Seo::string($name));
@@ -165,7 +151,7 @@ trait TraitDataEntryName
      */
     public function setName(?string $name, bool $set_seo_name = true): static
     {
-        if ($this->supports_seo_name) {
+        if ($this->getSupportsSeoName()) {
             if ($set_seo_name) {
                 if (!$this->is_loading) {
                     $this->setSeoNameFromName($name);

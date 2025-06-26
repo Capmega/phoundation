@@ -2601,9 +2601,9 @@ class Definition implements DefinitionInterface
     /**
      * Returns the cli auto-completion queries for this column
      *
-     * @return array|bool|null
+     * @return callable|array|bool|null
      */
-    public function getCliAutoComplete(): array|bool|null
+    public function getCliAutoComplete(): callable|array|bool|null
     {
         return get_safe_typed('array|bool', $this->source, 'cli_auto_complete');
     }
@@ -2925,11 +2925,11 @@ class Definition implements DefinitionInterface
     /**
      * Sets the cli auto-completion queries for this column
      *
-     * @param array|bool|null $value
+     * @param callable|array|bool|null $value
      *
      * @return static
      */
-    public function setCliAutoComplete(array|bool|null $value): static
+    public function setCliAutoComplete(callable|array|bool|null $value): static
     {
         if ($value === false) {
             throw new OutOfBoundsException(tr('Invalid value "FALSE" specified for column ":column", it must be "TRUE" or an array with only the keys "word" and "noword"', [

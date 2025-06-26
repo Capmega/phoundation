@@ -17,19 +17,13 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntries\Traits;
 
 use Phoundation\Core\Core;
+use Phoundation\Data\DataEntries\Exception\DataEntryNoSeoNameException;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Utils\Seo;
 
+
 trait TraitDataEntryHostname
 {
-    /**
-     * Tracks if this class supports SEO hostnames
-     *
-     * @var bool $supports_seo_hostname
-     */
-    protected bool $supports_seo_hostname = true;
-
-
     /**
      * Returns if this object supports SEO hostnames
      *
@@ -37,20 +31,7 @@ trait TraitDataEntryHostname
      */
     public function getSupportsSeoHostname(): bool
     {
-        return $this->supports_seo_hostname;
-    }
-
-
-    /**
-     * Sets if this object supports SEO hostnames
-     *
-     * @param bool $supports_seo_hostname
-     * @return static
-     */
-    public function setSupportsSeoHostname(bool $supports_seo_hostname): static
-    {
-        $this->supports_seo_hostname = $supports_seo_hostname;
-        return $this;
+        return (bool) $this->getDefinitionsObject()->keyExists('seo_hostname');
     }
 
 
@@ -61,7 +42,13 @@ trait TraitDataEntryHostname
      */
     public function getSeoHostname(): ?string
     {
-        return $this->getTypesafe('string', 'seo_hostname');
+        if ($this->getSupportsSeoName()) {
+            return $this->getTypesafe('string', 'seo_hostname');
+        }
+
+        throw new DataEntryNoSeoNameException(tr('Cannot return seo_hostname from ":class" DataEntry object, it does not have seo hostname support defined', [
+            ':class' => $this::class
+        ]));
     }
 
 
@@ -73,7 +60,13 @@ trait TraitDataEntryHostname
      */
     protected function setSeoHostname(?string $seo_hostname): static
     {
-        return $this->set(get_null($seo_hostname), 'seo_hostname');
+        if ($this->getSupportsSeoName()) {
+            return $this->set(get_null($seo_hostname), 'seo_hostname');
+        }
+
+        throw new DataEntryNoSeoNameException(tr('Cannot set seo_hostname from ":class" DataEntry object, it does not have seo hostname support defined', [
+            ':class' => $this::class
+        ]));
     }
 
 
@@ -133,7 +126,7 @@ trait TraitDataEntryHostname
     public function setHostname(?string $hostname, ?bool $set_seo_name = null): static
     {
         if ($set_seo_name === null) {
-            $set_seo_name = $this->supports_seo_hostname;
+            $set_seo_name = $this->getSupportsSeoHostname();
         }
 
         if ($set_seo_name) {
