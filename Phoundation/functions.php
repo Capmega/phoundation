@@ -28,6 +28,7 @@ use Phoundation\Core\Interfaces\FloatableInterface;
 use Phoundation\Core\Interfaces\IntegerableInterface;
 use Phoundation\Core\Log\Interfaces\LogInterface;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Validate;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
@@ -52,6 +53,76 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Requests\Request;
 
+
+/**
+ * Returns the value for the Nth array key
+ *
+ * @param IteratorInterface|array $source
+ * @param int                     $index
+ * @param bool                    $exception
+ *
+ * @return mixed
+ */
+function get_index_value(IteratorInterface|array $source, int $index, bool $exception = true): mixed
+{
+    if ($index < 0) {
+        throw new OutOfBoundsException(ts('The specified index ":index" is invalid, it must be a positive integer', [
+            ':index' => $index,
+        ]));
+    }
+
+    $return = array_slice($source, $index, 1);
+
+    if (empty($return)) {
+        if ($exception) {
+            throw OutOfBoundsException::new(ts('The specified index ":index" does not exist in the specified source array', [
+                ':index' => $index,
+            ]))->addData([
+                'index'  => $index,
+                'source' => $source,
+            ]);
+        }
+    }
+
+    return array_pop($return);
+}
+
+
+/**
+ * Returns the array index for the specified array key
+ *
+ * @param IteratorInterface|array          $source
+ * @param Stringable|string|float|int|null $key
+ * @param bool                             $exception
+ *
+ * @return mixed
+ */
+function get_key_index(IteratorInterface|array $source, Stringable|string|float|int|null $key, bool $exception = true): mixed
+{
+    if (array_key_exists($key, $source)) {
+        return array_search($key, array_keys($source));
+    }
+
+    if ($exception) {
+        throw OutOfBoundsException::new(ts('The specified key ":key" does not exist in the specified source array', [
+            ':key' => $key,
+        ]))->addData([
+            'key'    => $key,
+            'source' => $source,
+        ]);
+    }
+}
+
+
+
+
+/**
+ * Returns true if the specified string is a valid version string
+ *
+ * @param string $version
+ *
+ * @return bool
+ */
 function is_version(string $version): bool
 {
     $return = preg_match('/\d{1,4}\.\d{1,4}\.\d{1,4}/', $version);
