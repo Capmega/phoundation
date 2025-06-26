@@ -16,7 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Connectors;
 
+use PDOStatement;
 use Phoundation\Data\DataEntries\DataIterator;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
 use Phoundation\Databases\Sql\Exception\DatabasesConnectorException;
@@ -25,14 +27,15 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Seo;
 use Stringable;
 
+
 class Connectors extends DataIterator implements ConnectorsInterface
 {
     /**
      * DataIterator class constructor
      */
-    public function __construct()
+    public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
     {
-        parent::__construct();
+        parent::__construct($source);
 
         $this->keys_are_unique_column = true;
         $this->query                  = 'SELECT * FROM `databases_connectors`';

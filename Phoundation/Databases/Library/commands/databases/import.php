@@ -15,14 +15,13 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Import;
 use Phoundation\Filesystem\PhoDirectory;
-use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Pho;
+
 
 CliDocumentation::setUsage('./pho databases import -d mysql -b system -f system.sql');
 
@@ -57,18 +56,11 @@ CliDocumentation::setAutoComplete([
             'word'   => function ($word) { return PhoDirectory::newDataSourcesObject()->scan('/^' . $word . '.*?[.sql|.gz]$/'); },
             'noword' => function ($word) { return PhoDirectory::newDataSourcesObject()->scan('/^' . $word . '.*?[.sql|.gz]$/'); },
         ],
-        '-c,--connector' => [
-            'word'   => function ($word) {
-                return Connectors::new()
-                                 ->load(null, true, true)
-                                 ->keepMatchingValuesStartingWith($word, column: 'name');
-            },
-            'noword' => function ($word) {
-                return Connectors::new()
-                                 ->load(null, true, true)
-                                 ->getAllRowsSingleColumn('name');
-            },
-        ],
+        '-c,--connector' => function ($word) {
+            return Connectors::new()
+                             ->load(null, true, true)
+                             ->keepMatchingAutocompleteValues($word);
+        },
         '-b,--database'  => [
             'word'   => function ($word) {
                 return sql()->listScalar('SHOW DATABASES LIKE :word', [':word' => '%' . $word . '%']);
