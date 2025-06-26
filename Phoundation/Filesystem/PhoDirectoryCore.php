@@ -535,8 +535,6 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
      */
     public function ensure(string|int|null $mode = null, ?bool $clear = false, bool $sudo = false): static
     {
-        $mode = config()->get('filesystem.mode.directories', $mode ?? 0750);
-
         if ($clear) {
             // Delete the currently existing directory, so we can  be sure we have a clean directory to work with
             PhoFile::new($this->source, $this->o_restrictions)->delete(false, $sudo);
@@ -557,7 +555,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                         // Some normal file is in the way. Move the file out of the way, and retry
                         PhoFile::new($this->source, $this->o_restrictions)->backup(move: true);
 
-                        return $this->ensure($mode, $clear, $sudo);
+                        return $this->ensure(config()->get('filesystem.mode.directories', $mode ?? 0750), $clear, $sudo);
                     }
 
                     continue;
@@ -570,6 +568,8 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                 try {
                     // Make sure that the parent directory is writable when creating the directory
                     // Since we're modifying the item $id of $count, be sure to get matching restrictions
+                    $mode = config()->get('filesystem.mode.directories', $mode ?? 0750);
+
                     PhoDirectory::new(dirname($this->source), $this->o_restrictions->getParent($count - $id)->makeWritable())
                                 ->execute()
                                     ->setMode(0770)
@@ -601,7 +601,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
             PhoFile::new(Strings::ensureEndsNotWith($this->source, '/'), $this->o_restrictions)
                    ->delete(false, $sudo);
 
-            return $this->ensure($mode, $clear, $sudo);
+            return $this->ensure(config()->get('filesystem.mode.directories', $mode ?? 0750), $clear, $sudo);
         }
 
         return $this;
