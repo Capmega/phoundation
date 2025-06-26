@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem\Traits;
 
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Exception\NoPathSpecifiedExceptions;
+use Phoundation\Filesystem\Exception\NoPathSpecifiedException;
 use Phoundation\Filesystem\Exception\NoRestrictionsSpecifiedExceptions;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
@@ -45,7 +45,7 @@ trait TraitPathConstructor
             $source = static::validateFilename($source);
 
             if (!$source) {
-                throw new NoPathSpecifiedExceptions(
+                throw new NoPathSpecifiedException(
                     tr('Cannot create ":class" object for path ":path", no restrictions were specified.', [
                         ':class' => static::class,
                         ':path'  => $source

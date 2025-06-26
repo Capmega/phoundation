@@ -17,6 +17,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Exception;
 
-class NoPathSpecifiedExceptions extends FilesystemException
+class NoPathSpecifiedException extends FilesystemException
 {
 }
