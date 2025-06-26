@@ -136,25 +136,25 @@ class Provider extends DataEntry implements ProviderInterface
      *
      * @param DefinitionsInterface $o_definitions
      *
-     * @return void
+     * @return static
      */
     protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $o_definitions->add(DefinitionFactory::getCategoriesId($this))
-                      ->add(DefinitionFactory::getCategory($this))
-                      ->add(DefinitionFactory::getCompaniesId($this))
-                      ->add(DefinitionFactory::getCompany($this))
-                      ->add(DefinitionFactory::getName($this)
+        $o_definitions->add(DefinitionFactory::newCategoriesId())
+                      ->add(DefinitionFactory::newCategory())
+                      ->add(DefinitionFactory::newCompaniesId())
+                      ->add(DefinitionFactory::newCompany())
+                      ->add(DefinitionFactory::newName()
                                            ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                                $o_validator->isFalse(function ($value, $source) {
                                                    Provider::exists(['name' => $value], isset_get($source['id']));
                                                }, tr('already exists'));
                                            }))
-                    ->add(DefinitionFactory::getSeoName($this))
-                    ->add(DefinitionFactory::getCode($this))
-                    ->add(DefinitionFactory::getEmail($this))
-                    ->add(DefinitionFactory::getLanguagesId($this))
-                    ->add(DefinitionFactory::getLanguage($this))
+                    ->add(DefinitionFactory::newSeoName())
+                    ->add(DefinitionFactory::newCode())
+                    ->add(DefinitionFactory::newEmail())
+                    ->add(DefinitionFactory::newLanguagesId())
+                    ->add(DefinitionFactory::newLanguagesName())
                     ->add(Definition::new('address1')
                                     ->setOptional(true)
                                     ->setCliAutoComplete(true)
@@ -187,17 +187,19 @@ class Provider extends DataEntry implements ProviderInterface
                                     ->setSize(6)
                                     ->setLabel(tr('Postal code / Zipcode'))
                                     ->setHelpText(tr('Postal code (zipcode) information for this provider')))
-                    ->add(DefinitionFactory::getCountriesId($this))
-                    ->add(DefinitionFactory::getCountry($this))
-                    ->add(DefinitionFactory::getStatesId($this))
-                    ->add(DefinitionFactory::getState($this))
-                    ->add(DefinitionFactory::getCitiesId($this))
-                    ->add(DefinitionFactory::getCity($this))
-                    ->add(DefinitionFactory::getPhones($this))
-                    ->add(DefinitionFactory::getUrl($this))
-                    ->add(DefinitionFactory::getDescription($this))
+                    ->add(DefinitionFactory::newCountriesId())
+                    ->add(DefinitionFactory::newCountriesName())
+                    ->add(DefinitionFactory::newStatesId())
+                    ->add(DefinitionFactory::newStatesName())
+                    ->add(DefinitionFactory::newCitiesId())
+                    ->add(DefinitionFactory::newCitiesName())
+                    ->add(DefinitionFactory::newPhones())
+                    ->add(DefinitionFactory::newUrl())
+                    ->add(DefinitionFactory::newDescription())
                     ->add(Definition::new('picture')
                                     ->setVirtual(true)
                                     ->setRender(false));
+
+        return $this;
     }
 }

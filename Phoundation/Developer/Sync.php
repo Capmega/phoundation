@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Sync
+ * Class Sync
  *
  * This class contains functionalities to sync different environment with each other, facilitating development work that
  * sometimes requires to work with production data
@@ -42,6 +42,7 @@ use Phoundation\Servers\Server;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
+
 
 class Sync
 {
@@ -188,7 +189,6 @@ class Sync
     public function setLock(bool $lock): Sync
     {
         $this->lock = $lock;
-
         return $this;
     }
 
@@ -202,6 +202,8 @@ class Sync
      */
     public function from(string $environment): static
     {
+        Log::setVerbose(true);
+
         Log::information(ts('Synchronizing from environment ":environment" to this environment ":local"', [
             ':environment' => $environment,
             ':local'       => ENVIRONMENT,
@@ -268,7 +270,7 @@ class Sync
      */
     protected function executeHook(array|string $hooks): static
     {
-        if ($this->configuration['execute_hooks']) {
+        if (array_get_safe($this->configuration, 'execute_hooks')) {
             Hook::new('system/sync')->execute($hooks);
         }
 
@@ -300,7 +302,7 @@ class Sync
             return Pho::new(null, PhoFile::new($this->configuration['path'] . 'pho', PhoRestrictions::newReadonlyObject($this->configuration['path'])))
                       ->setPhoCommands($pho_commands)
                       ->setEnvironment($this->environment)
-                      ->setServer($server)
+                      ->setServerObject($server)
                       ->setSudo($this->configuration['sudo']);
         }
 
@@ -541,14 +543,22 @@ class Sync
      */
     protected function unlock(?ServerInterface $server): static
     {
-        Log::action(ts('Unlocking environment ":environment"', [
+        if ($this->lock) {
+            Log::action(ts('Unlocking environment ":environment"', [
+                ':environment' => $this->getEnvironmentForServer($server),
+            ]));
+
+            return $this->executeHook('pre-unlock')
+                        ->unlockSystem($server)
+                        ->unlockSql($server)
+                        ->executeHook('post-unlock');
+        }
+
+        Log::warning(ts('NOT unlocking environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
 
-        return $this->executeHook('pre-unlock')
-                    ->unlockSystem($server)
-                    ->unlockSql($server)
-                    ->executeHook('post-unlock');
+        return $this;
     }
 
 
@@ -601,7 +611,7 @@ class Sync
      */
     protected function dumpAllDatabases(?ServerInterface $server): static
     {
-        Log::action(ts('Dumping all configured connectors for environment ":environment"', [
+        Log::action(ts('Dumping data for all configured connectors for environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
 
@@ -609,6 +619,7 @@ class Sync
 
         // Get connectors from target environment
         Config::setDefaultEnvironment($this->getEnvironmentForServer($server));
+
         $connectors = config()->getArray('databases.connectors');
 
         // Return Config to default environment
@@ -737,14 +748,22 @@ class Sync
      */
     protected function lock(?ServerInterface $server): static
     {
-        Log::action(ts('Locking environment ":environment"', [
+        if ($this->lock) {
+            Log::action(ts('Locking environment ":environment"', [
+                ':environment' => $this->getEnvironmentForServer($server),
+            ]));
+
+            return $this->executeHook('pre-lock')
+                        ->lockSystem($server)
+                        ->lockConnectors($server)
+                        ->executeHook('post-lock');
+        }
+
+        Log::warning(ts('NOT locking environment ":environment"', [
             ':environment' => $this->getEnvironmentForServer($server),
         ]));
 
-        return $this->executeHook('pre-lock')
-                    ->lockSystem($server)
-                    ->lockConnectors($server)
-                    ->executeHook('post-lock');
+        return $this;
     }
 
 
@@ -851,11 +870,11 @@ class Sync
     /**
      * Scans the remote environment
      *
-     * @param ServerInterface $server
+     * @param ServerInterface $o_server
      *
      * @return static
      */
-    public function scan(ServerInterface $server): static
+    public function scan(ServerInterface $o_server): static
     {
         Log::action(ts('Scanning project installation on server ":server"', [
             ':server' => $this->server->getDisplayName(),
@@ -864,14 +883,14 @@ class Sync
         $this->executeHook('pre-scan');
 
         $result = Process::new('ls')
-                         ->setServer($server)
+                         ->setServerObject($o_server)
                          ->setSudo($this->configuration['sudo'])
                          ->addArgument(Strings::slash($this->configuration['path']))
                          ->executeReturnString();
 
         if ($result) {
             $result = Process::new('ls')
-                             ->setServer($server)
+                             ->setServerObject($o_server)
                              ->setSudo($this->configuration['sudo'])
                              ->addArgument(Strings::slash($this->configuration['path']) . 'pho')
                              ->executeReturnString();
@@ -904,7 +923,7 @@ class Sync
             ]));
         }
 
-        return $this->initTemporaryPath($server)
+        return $this->initTemporaryPath($o_server)
                     ->executeHook('post-scan');
     }
 

@@ -90,6 +90,13 @@ class Deploy implements DeployInterface
      */
     protected array $targets;
 
+    /**
+     * Tracks configuration for the target environment
+     *
+     * @var array $env_config
+     */
+    protected array $env_config;
+
 
     /**
      * Deploy class constructor
@@ -113,7 +120,7 @@ class Deploy implements DeployInterface
      */
     protected function getConfig(): array
     {
-        return Config->forEnvironment('deploy')->getArray('', require_keys: 'targets');
+        return config('deploy')->getArray('', require_keys: 'targets');
     }
 
 
@@ -130,14 +137,12 @@ class Deploy implements DeployInterface
 
         foreach ($this->targets as $environment) {
             // Read environment config, update global config and then check which sections should be executed
-            $env_config = $this->getEnvironmentConfig($environment);
-            $this->configuration['execute_hooks'] = $env_config['execute_hooks'];
-            $this->configuration['force']         = ($env_config['force'] or FORCE);
-            if (!$env_config['ignore_changes']) {
-                if (
-                    $this->project->getGit()
-                                  ->hasChanges()
-                ) {
+            $this->env_config                     =  $this->getEnvironmentConfig($environment);
+            $this->configuration['execute_hooks'] =  $this->env_config['execute_hooks'];
+            $this->configuration['force']         = ($this->env_config['force'] or FORCE);
+
+            if (!$this->env_config['ignore_changes']) {
+                if ($this->project->getGit()->hasChanges()) {
                     throw new DeployException(tr('The project has pending git changes. Please commit or stash first'));
                 }
             }
@@ -151,83 +156,101 @@ class Deploy implements DeployInterface
             // TODO: Convert the rest of this method to separate methods
 
             static::executeHook('post-test-unit,pre-sync');
-            if ($env_config['sync']) {
+
+            if ($this->env_config['sync']) {
                 Log::action(ts('Executing system synchronisation'));
 
             }
+
             static::executeHook('post-sync,pre-init');
-            if ($env_config['init']) {
+
+            if ($this->env_config['init']) {
                 // Initialize the system
                 Log::action(ts('Executing project initialization'));
                 Libraries::initialize(true, true, true, 'Executed by the Phoundation deployment system');
             }
+
             static::executeHook('post-init,pre-translate');
-            if ($env_config['translate']) {
+
+            if ($this->env_config['translate']) {
                 Log::action(ts('Executing translation'));
 
             }
+
             static::executeHook('post-translate,pre-minify');
-            if ($env_config['minify']) {
+
+            if ($this->env_config['minify']) {
                 Log::action(ts('Executing CDN data minification'));
 
             }
+
             static::executeHook('post-minify,pre-update-sitemap');
-            if ($env_config['update_sitemap']) {
+
+            if ($this->env_config['update_sitemap']) {
                 Log::action(ts('Executing sitemap update'));
 
             }
+
             static::executeHook('post-update-sitemap,pre-push');
-            if ($env_config['push']) {
+
+            if ($this->env_config['push']) {
                 Log::action(ts('Pushing updates to remote GIT'));
-
             }
+
             static::executeHook('post-push,pre-connect,pre-backup');
-            if ($env_config['backup']) {
-                Log::action(ts('Executing remote backup'));
 
+            if ($this->env_config['backup']) {
+                Log::action(ts('Executing remote backup'));
             }
+
             static::executeHook('post-backup,pre-parallel');
-            if ($env_config['parallel']) {
+
+            if ($this->env_config['parallel']) {
                 Log::action(ts('Executing remote project copy to prepare for parallel rsync'));
             }
+
             static::executeHook('post-parallel,pre-rsync');
+
             // Build the rsync target
-            if (empty($env_config['server']['host'])) {
+            if (empty($this->env_config['server']['host'])) {
                 throw new OutOfBoundsException(tr('No host configured for target ":target"', [
                     ':target' => $environment,
                 ]));
             }
-            $rsync_target = Strings::ensureEndsWith($env_config['server']['host'], ':');
-            $rsync_target .= $env_config['server']['path'];
-            if ($env_config['server']['user']) {
-                $rsync_target = $env_config['server']['user'] . '@' . $rsync_target;
+
+            $rsync_target = Strings::ensureEndsWith($this->env_config['server']['host'], ':');
+            $rsync_target .= $this->env_config['server']['path'];
+
+            if ($this->env_config['server']['user']) {
+                $rsync_target = $this->env_config['server']['user'] . '@' . $rsync_target;
             }
+
 // TODO Add support for languages!
 //            foreach (Translations::getLanguages() as $language)
             // Add the project directory to the rsync_target
             $project = Strings::fromReverse(Strings::ensureEndsNotWith(DIRECTORY_ROOT, '/'), '/');
+
             // Execute rsync
             Log::action(ts('Executing rsync to target ":target"', [
                 ':target' => Strings::ensureEndsWith($rsync_target, '/') . $project,
             ]));
+
             // First ensure the target base directory exists!
             Process::new('mkdir')
-                   ->setServer(Server::new()
-                                     ->setHostname($env_config['server']['host'])
-                                     ->setPort($env_config['server']['port'])
-                                     ->setSshAccount())
-                   ->addArguments([
-                       '-p',
-                       $env_config['server']['path'],
-                   ])
+                   ->setServerObject(Server::new()
+                                           ->setHostname($this->env_config['server']['host'])
+                                           ->setPort($this->env_config['server']['port'])
+                                           ->setSshAccountObject())
+                   ->addArguments(['-p', $this->env_config['server']['path']])
                    ->execute(EnumExecuteMethod::noReturn);
+
             // And then rsync!
             Rsync::new()
                  ->setArchive(true)
                  ->setVerbose(true)
                  ->setCompress(true)
-                 ->setRemoteSudo($env_config['server']['sudo'])
-                 ->setPort($env_config['server']['port'])
+                 ->setRemoteSudo($this->env_config['server']['sudo'])
+                 ->setPort($this->env_config['server']['port'])
                  ->setSource(DIRECTORY_ROOT)
                  ->setTarget(Strings::ensureEndsWith($rsync_target, '/') . $project)
                  ->addExclude('.git')
@@ -242,15 +265,20 @@ class Deploy implements DeployInterface
                  ->addExclude('data/cookies')
                  ->addExclude('data/sessions')
                  ->execute();
+
             static::executeHook('post-rsync,pre-update-file-modes');
-            if ($env_config['update_file_modes']) {
+
+            if ($this->env_config['update_file_modes']) {
                 Log::action(ts('Executing file mode update'));
             }
+
             static::executeHook('post-update-file-modes,pre-notify');
-            if ($env_config['notify']) {
+
+            if ($this->env_config['notify']) {
                 Log::action(ts('Sending out notifications'));
 
             }
+
             static::executeHook('post-notify,finish');
         }
 
@@ -269,9 +297,8 @@ class Deploy implements DeployInterface
     {
         static::executeHook('pre-unit-test');
 
-        if (!$env_config['unit_test']) {
+        if (!$this->env_config['unit_test']) {
             Log::action(ts('Executing unit tests'));
-
         }
 
         static::executeHook('post-unit-test');
@@ -290,9 +317,8 @@ class Deploy implements DeployInterface
     {
         static::executeHook('pre-content-check');
 
-        if (!$env_config['content_check']) {
+        if (!$this->env_config['content_check']) {
             Log::action(ts('Executing content check'));
-
         }
 
         static::executeHook('post-content-check');
@@ -309,9 +335,8 @@ class Deploy implements DeployInterface
     {
         static::executeHook('pre-test-syntax');
 
-        if ($env_config['bom_check']) {
+        if ($this->env_config['bom_check']) {
             Log::action(ts('Executing BOM check'));
-
         }
 
         static::executeHook('post-test-syntax');
@@ -330,7 +355,7 @@ class Deploy implements DeployInterface
     {
         static::executeHook('pre-bom-check');
 
-        if ($env_config['bom_check']) {
+        if ($this->env_config['bom_check']) {
             Log::action(ts('Executing BOM check'));
 //                BomDirectory::new(DIRECTORY_ROOT, DIRECTORY_ROOT)->clearBom();
         }

@@ -78,7 +78,7 @@ class EmailAccount extends DataEntry
                     ->add(DefinitionFactory::newDomain('smtp_host')
                                            ->setRender(false))
 
-                    ->add(DefinitionFactory::getPort($this, 'smtp_port')
+                    ->add(DefinitionFactory::newPort($this, 'smtp_port')
                                            ->setRender(false))
 
                     ->add(Definition::new('smtp_auth')
