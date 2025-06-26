@@ -163,7 +163,7 @@ class Connectors extends DataIterator implements ConnectorsInterface
         $o_connector = parent::get($key, $exception);
 
         if (empty($o_connector)) {
-            $o_connector = Connector::new()->load($key);
+            $o_connector = Connector::new($key);
         }
 
         return $o_connector;

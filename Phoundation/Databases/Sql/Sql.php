@@ -290,7 +290,9 @@ class Sql implements SqlInterface
      */
     public function get(string|float|int|null $key, ?callable $cache_callback = null): mixed
     {
-        return $this->getColumn('SELECT `value` FROM `core_cache` WHERE `key` = :key`');
+        return $this->getColumn('SELECT `value` FROM `core_cache` WHERE `key` = :key', [
+            ':key' => $key
+        ]);
     }
 
 

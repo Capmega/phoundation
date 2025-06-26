@@ -1,7 +1,7 @@
 <?php
 
 /**
- * DataStores class
+ * Class DataStores
  *
  * This class is the quick access to all database connectors, SQL or NoSQL alike
  *
@@ -16,13 +16,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases;
 
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
+use Phoundation\Databases\ElasticSearch\ElasticSearch;
 use Phoundation\Databases\FileDb\FileDb;
 use Phoundation\Databases\Interfaces\DatabaseInterface;
+use Phoundation\Databases\Memcached\Interfaces\ElasticSearchInterface;
 use Phoundation\Databases\Memcached\Interfaces\MemcachedInterface;
 use Phoundation\Databases\Memcached\Memcached;
 use Phoundation\Databases\MongoDb\MongoDb;
@@ -67,6 +68,7 @@ class Databases
             'mysql',
             'redis',
             'mongo',
+            'memcached',
             'elasticsearch',
         ];
     }
@@ -128,13 +130,14 @@ class Databases
     public static function fromConnector(ConnectorInterface $connector, bool $connect = true, bool $use_database = true): DatabaseInterface
     {
         return match ($connector->getType()) {
-            'sql'       => Databases::getSql($connector, $connect, $use_database),
-            'null'      => Databases::getNullDb($connector, $connect, $use_database),
-            'file'      => Databases::getFileDb($connector, $connect, $use_database),
-            'mongo'     => Databases::getMongo($connector, $connect, $use_database),
-            'redis'     => Databases::getRedis($connector, $connect, $use_database),
-            'memcached' => Databases::getMemcached($connector, $connect, $use_database),
-            default     => throw new OutOfBoundsException(tr('Unknown connector type ":type" specified', [
+            'sql'           => Databases::getSql($connector, $connect, $use_database),
+            'null'          => Databases::getNullDb($connector, $connect, $use_database),
+            'file'          => Databases::getFileDb($connector, $connect, $use_database),
+            'mongo'         => Databases::getMongo($connector, $connect, $use_database),
+            'redis'         => Databases::getRedis($connector, $connect, $use_database),
+            'memcached'     => Databases::getMemcached($connector, $connect, $use_database),
+            'elasticsearch' => Databases::getElasticSearch($connector, $connect, $use_database),
+            default         => throw new OutOfBoundsException(tr('Unknown connector type ":type" specified', [
                 ':type' => $connector->getType()
             ])),
         };
@@ -149,9 +152,9 @@ class Databases
      * @param bool                      $connect
      * @param bool                      $use_database
      *
-     * @return SqlInterface|RedisInterface|MemcachedInterface|MongoDb|FileDb|NullDb
+     * @return SqlInterface|RedisInterface|MemcachedInterface|MongoDb|FileDb|NullDb|ElasticSearchInterface
      */
-    protected static function getDatabase(ConnectorInterface|string $connector, string $class, bool $connect = true, bool $use_database = true): SqlInterface|RedisInterface|MemcachedInterface|MongoDb|FileDb|NullDb
+    protected static function getDatabase(ConnectorInterface|string $connector, string $class, bool $connect = true, bool $use_database = true): SqlInterface|RedisInterface|MemcachedInterface|MongoDb|FileDb|NullDb|ElasticSearchInterface
     {
         $o_connector    = Databases::getConnectorObject($connector);
         $connector_name = $o_connector->getDisplayName();
@@ -197,6 +200,21 @@ class Databases
     public static function getMemcached(ConnectorInterface|string $connector, bool $connect = true, bool $use_database = true): MemcachedInterface
     {
         return static::getDatabase($connector, Memcached::class, $connect, $use_database);
+    }
+
+
+    /**
+     * Access ElasticSearch database connectors
+     *
+     * @param ConnectorInterface|string $connector
+     * @param bool                      $connect
+     * @param bool                      $use_database
+     *
+     * @return ElasticSearchInterface
+     */
+    public static function getElasticSearch(ConnectorInterface|string $connector, bool $connect = true, bool $use_database = true): ElasticSearchInterface
+    {
+        return static::getDatabase($connector, ElasticSearch::class, $connect, $use_database);
     }
 
 

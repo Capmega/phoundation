@@ -19,8 +19,6 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Memcached;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Interfaces\PoadInterface;
-use Phoundation\Data\Poad\Poad;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Memcached\Exception\MemcachedException;
