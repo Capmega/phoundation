@@ -227,7 +227,6 @@ class Sql implements SqlInterface
     public function setDatabase(?string $database, bool $use = false): static
     {
         $this->database = $database;
-
         return $this;
     }
 
@@ -250,7 +249,6 @@ class Sql implements SqlInterface
                 // No results. This is probably okay, but do check if the query was a select or show query, just to
                 // be sure
                 SqlQueries::checkShowSelect($query, $execute);
-
                 return null;
 
             case 1:
@@ -270,6 +268,7 @@ class Sql implements SqlInterface
             default:
                 // Multiple results, this is always bad for a function that should only return one result!
                 SqlQueries::checkShowSelect($query, $execute);
+
                 throw SqlMultipleResultsException::new(tr('Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', [
                     ':count' => $result->rowCount(),
                     ':query' => SqlQueries::renderQueryString($result->queryString, $execute),
@@ -350,10 +349,6 @@ class Sql implements SqlInterface
         $log = false;
 
         try {
-            if (!trim($query)) {
-                throw new SqlException(tr('Cannot execute empty query'));
-            }
-
             if (!$this->pdo) {
                 throw new SqlException(tr('Cannot execute query ":query", on instance ":instance", it is not connected to a server', [
                     ':query'    => $query,
@@ -377,7 +372,7 @@ class Sql implements SqlInterface
 
             } else {
                 // Log query?
-                if ($this->debug or ($query[0] === ' ')) {
+                if ($this->debug or str_starts_with($query, ' ')) {
                     $log = true;
                 }
 
@@ -413,7 +408,7 @@ class Sql implements SqlInterface
             }
 
             if ($this->statistics) {
-                // Get current function / file@line. If current function is actually an include then assume this is the
+                // Get current function / file@line. If the current function is actually an included file, then assume this is the
                 // actual script that was executed by route()
                 Debug::addStatistic()
                      ->setQuery(SqlQueries::show($query, $execute, true))
