@@ -371,11 +371,12 @@ class Domains
 
         } catch (ConfigPathDoesNotExistsException) {
             if (isset($empty)) {
+                // TODO This MIGHT be caused by "http://phoundation.org./foobar" instead of "http://phoundation.org/foobar", auto adjust for this!
                 // Okay, this is a bit of a problem. The CURRENT domain apparently is not configured anywhere.
-                // This MIGHT be caused by "http://phoundation.org./foobar" instead of "http://phoundation.org/foobar"
                 // Log this, and redirect to main-domain/current-url
-                Log::warning(ts('The current domain ":domain" is not configured. Redirecting', [
+                Log::warning(ts('The current domain ":domain" is not configured. Redirecting to ":to"', [
                     ':domain' => $domain,
+                    ':to'     => Url::newRootDomainUrl(),
                 ]));
 
                 Response::redirect(Url::newRootDomainUrl());
