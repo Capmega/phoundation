@@ -14,12 +14,11 @@
 
 declare(strict_types=1);
 
-use Phoundation\Audio\Audio;
 use Phoundation\Cli\CliDocumentation;
+use Phoundation\Content\Media\Audio\Audio;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\PhoDirectory;
-
 
 CliDocumentation::setAutoComplete([
     'positions' => [
