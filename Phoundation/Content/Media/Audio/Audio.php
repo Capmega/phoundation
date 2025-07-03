@@ -13,18 +13,18 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Audio;
+namespace Phoundation\Content\Media\Audio;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataLogLevel;
 use Phoundation\Data\Traits\TraitDataSignal;
 use Phoundation\Data\Traits\TraitDataTimeout;
 use Phoundation\Filesystem\Exception\FileNotExistException;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
-use Phoundation\Filesystem\Interfaces\PhoPathInterface;
-use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Os\Enums\EnumSignal;
 use Phoundation\Os\Processes\Commands\Mpg123;
 use Phoundation\Os\Processes\Exception\ProcessesException;
@@ -32,7 +32,6 @@ use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Stringable;
-
 
 class Audio extends PhoFile
 {
