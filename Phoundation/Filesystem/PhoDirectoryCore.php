@@ -49,6 +49,7 @@ use Phoundation\Utils\Strings;
 use Stringable;
 use Throwable;
 
+
 class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
 {
     use TraitDataRestrictions {
@@ -625,7 +626,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
      * Return all files in this directory
      *
      * @return PhoFilesInterface The files
-     *@todo Merge this with PhoDirectoryCore::scan()
+     * @todo Merge this with PhoDirectoryCore::scan()
      */
     public function list(): PhoFilesInterface
     {
@@ -792,6 +793,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                 } else {
                     $return += filesize($this->source . $file);
                 }
+
             } catch (PhpException) {
                 Log::warning(ts('Ignoring file size for path ":path", it does not exist (path is likely a dead symlink)', [
                     ':path' => $this->source . $file,
@@ -829,6 +831,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                 } else {
                     $return++;
                 }
+
             } catch (PhpException) {
                 Log::warning(ts('Ignoring file count for directory ":path", it does not exist (path is likely a dead symlink)', [
                     ':path' => $this->source . $file,

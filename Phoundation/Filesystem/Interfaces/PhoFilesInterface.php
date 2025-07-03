@@ -67,12 +67,13 @@ interface PhoFilesInterface extends IteratorInterface
      * @note The specified target MUST be a directory, as multiple files will be moved there
      * @note The specified target either must exist or will be created automatically
      *
-     * @param Stringable|string    $target
-     * @param PhoRestrictions|null $restrictions
+     * @param PhoDirectoryInterface         $o_target
+     * @param PhoRestrictionsInterface|null $o_restrictions
      *
      * @return static
      */
-    public function move(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null): static;
+    public function move(PhoDirectoryInterface $o_target, ?PhoRestrictionsInterface $o_restrictions = null): static;
+
 
     /**
      * Copy all files to the specified target
@@ -81,12 +82,13 @@ interface PhoFilesInterface extends IteratorInterface
      * @note The specified target either must exist or will be created automatically
      *
      * @param Stringable|string             $target
-     * @param PhoRestrictionsInterface|null $restrictions
+     * @param PhoRestrictionsInterface|null $o_restrictions
      * @param callable|null                 $callback
+     * @param mixed|null                    $context
      *
      * @return static
      */
-    public function copy(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null): static;
+    public function copy(Stringable|string $target, ?PhoRestrictionsInterface $o_restrictions = null, ?callable $callback = null, mixed $context = null): static;
 
     /**
      * Returns the current file
