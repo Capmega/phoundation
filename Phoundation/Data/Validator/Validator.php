@@ -4482,14 +4482,14 @@ throw new ObsoleteException();
     /**
      * Checks if the specified path exists in one the required directories or not, and if its of the correct type
      *
-     * @param string                      $path
-     * @param PhoDirectoryInterface|array $exists_in_directories
-     * @param bool                        $must_be_directory
-     * @param bool|null                   $require_exist
+     * @param string                           $path
+     * @param PhoDirectoryInterface|array|null $exists_in_directories
+     * @param bool                             $must_be_directory
+     * @param bool|null                        $require_exist
      *
      * @return PhoPathInterface
      */
-    protected function validatePath(string $path, PhoDirectoryInterface|array $exists_in_directories, ?bool $must_be_directory, ?bool $require_exist): PhoPathInterface
+    protected function validatePath(string $path, PhoDirectoryInterface|array|null $exists_in_directories, ?bool $must_be_directory, ?bool $require_exist): PhoPathInterface
     {
         // Determine filetype, if any
         if ($must_be_directory) {
@@ -4512,32 +4512,38 @@ throw new ObsoleteException();
         }
 
         // Check each specified directory if the file exists there.
-        foreach (Arrays::force($exists_in_directories) as $exists_in_directory) {
-            if (!$exists_in_directory instanceof PhoDirectoryInterface) {
-                throw new OutOfBoundsException(tr('Cannot validate if path ":path", the specified "$exists_in_directory" value ":value" must be an PhoDirectoryInterface object or an array with PhoDirectoryInterface objects', [
-                    ':path'  => $path,
-                    ':value' => $exists_in_directory
-                ]));
+        if ($exists_in_directories) {
+            foreach (Arrays::force($exists_in_directories) as $exists_in_directory) {
+                if (!$exists_in_directory instanceof PhoDirectoryInterface) {
+                    throw new OutOfBoundsException(tr('Cannot validate if path ":path", the specified "$exists_in_directory" value ":value" must be an PhoDirectoryInterface object or an array with PhoDirectoryInterface objects', [
+                        ':path'  => $path,
+                        ':value' => $exists_in_directory
+                    ]));
+                }
+
+                $exists_in_directory->makeAbsolute(must_exist: false)
+                                    ->checkRestrictions(false);
+
+                // The path should be a PhoPath object with restrictions from the specified directory that is tested
+                // Get the absolute "path", "file" doesn't need to exist here, that can be checked later
+                $test = $class::new($path, $exists_in_directory->getRestrictionsObject())
+                              ->makeReal($exists_in_directory);
+
+                if ($test->isInDirectory($exists_in_directory)) {
+                    $does_exist = true;
+                    break;
+                }
             }
 
-            $exists_in_directory->makeAbsolute(must_exist: false)
-                                ->checkRestrictions(false);
-
-            // The path should be a PhoPath object with restrictions from the specified directory that is tested
-            // Get the absolute "path", "file" doesn't need to exist here, that can be checked later
-            $test = $class::new($path, $exists_in_directory->getRestrictionsObject())
-                          ->makeReal($exists_in_directory);
-
-            if ($test->isInDirectory($exists_in_directory)) {
-                $does_exist = true;
-                break;
-            }
+        } else {
+            // Okay, we shouldn't check if it exists IN a directly but does it exists at all?
+            $does_exist = file_exists($path);
         }
 
         if (empty($does_exist)) {
-            // The file, whatever it is, does NOT exist
+            // The file, whatever it is, doesn't exist
             if ($require_exist) {
-                // File does NOT exist, but should exist
+                // File doesn't exist, but should exist
                 if ($type) {
                     $this->addSoftFailure(tr('must be an existing ":type" in paths ":paths"', [
                         ':type'  => $type,
@@ -4580,13 +4586,13 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a valid file path
      *
-     * @param PhoDirectoryInterface|array $exists_in_directories
-     * @param bool|null                   $require_exists
-     * @param string|false|null           $encoding
+     * @param PhoDirectoryInterface|array|null $exists_in_directories
+     * @param bool|null                        $require_exists
+     * @param string|false|null                $encoding
      *
      * @return static
      */
-    public function isPath(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, string|false|null $encoding = null): static
+    public function isPath(PhoDirectoryInterface|array|null $exists_in_directories = null, ?bool $require_exists = true, string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
@@ -4608,13 +4614,13 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a valid directory
      *
-     * @param PhoDirectoryInterface|array $exists_in_directories
-     * @param bool|null                   $require_exists
-     * @param string|false|null           $encoding
+     * @param PhoDirectoryInterface|array|null $exists_in_directories
+     * @param bool|null                        $require_exists
+     * @param string|false|null                $encoding
      *
      * @return static
      */
-    public function isDirectory(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, string|false|null $encoding = null): static
+    public function isDirectory(PhoDirectoryInterface|array|null $exists_in_directories = null, ?bool $require_exists = true, string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
@@ -4636,13 +4642,13 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a valid file
      *
-     * @param PhoDirectoryInterface|array $exists_in_directories
-     * @param bool|null                   $require_exists
-     * @param string|false|null           $encoding
+     * @param PhoDirectoryInterface|array|null $exists_in_directories
+     * @param bool|null                        $require_exists
+     * @param string|false|null                $encoding
      *
      * @return static
      */
-    public function isFile(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, string|false|null $encoding = null): static
+    public function isFile(PhoDirectoryInterface|array|null $exists_in_directories = null, ?bool $require_exists = true, string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
@@ -4664,13 +4670,13 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a valid file path and converts the value into PhoPath object
      *
-     * @param PhoDirectoryInterface|array $exists_in_directories
-     * @param bool|null                   $require_exists
-     * @param string|false|null           $encoding
+     * @param PhoDirectoryInterface|array|null $exists_in_directories
+     * @param bool|null                        $require_exists
+     * @param string|false|null                $encoding
      *
      * @return static
      */
-    public function sanitizePath(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, string|false|null $encoding = null): static
+    public function sanitizePath(PhoDirectoryInterface|array|null $exists_in_directories = null, ?bool $require_exists = true, string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
@@ -4692,13 +4698,13 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a valid directory and converts the value into PhoDirectory object
      *
-     * @param PhoDirectoryInterface|array $exists_in_directories
-     * @param bool|null                   $require_exists
-     * @param string|false|null           $encoding
+     * @param PhoDirectoryInterface|array|null $exists_in_directories
+     * @param bool|null                        $require_exists
+     * @param string|false|null                $encoding
      *
      * @return static
      */
-    public function sanitizeDirectory(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, string|false|null $encoding = null): static
+    public function sanitizeDirectory(PhoDirectoryInterface|array|null $exists_in_directories = null, ?bool $require_exists = true, string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
@@ -4720,13 +4726,13 @@ throw new ObsoleteException();
     /**
      * Validates if the selected field is a valid file and converts the value into an PhoFile object
      *
-     * @param PhoDirectoryInterface|array $exists_in_directories
-     * @param bool|null                   $require_exists
-     * @param string|false|null           $encoding
+     * @param PhoDirectoryInterface|array|null $exists_in_directories
+     * @param bool|null                        $require_exists
+     * @param string|false|null                $encoding
      *
      * @return static
      */
-    public function sanitizeFile(PhoDirectoryInterface|array $exists_in_directories, ?bool $require_exists = true, string|false|null $encoding = null): static
+    public function sanitizeFile(PhoDirectoryInterface|array|null $exists_in_directories = null, ?bool $require_exists = true, string|false|null $encoding = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
