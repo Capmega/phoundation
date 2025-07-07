@@ -18,8 +18,7 @@ declare(strict_types=1);
 namespace Phoundation\Notifications;
 
 use Phoundation\Accounts\Users\Sessions\Session;
-use Phoundation\Audio\Audio;
-use Phoundation\Audio\Ping;
+use Phoundation\Content\Media\Audio\Ping;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Notifications\Interfaces\NotificationsInterface;

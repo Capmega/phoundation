@@ -336,12 +336,12 @@ interface PhoPathInterface extends Stringable
     /**
      * Moves this file to the specified target, will try to ensure target directory exists
      *
-     * @param Stringable|string    $target
+     * @param PhoPathInterface     $o_target
      * @param PhoRestrictions|null $restrictions
      *
      * @return static
      */
-    public function move(Stringable|string $target, ?PhoRestrictions $restrictions = null): static;
+    public function move(PhoPathInterface $o_target, ?PhoRestrictions $restrictions = null): static;
 
     /**
      * Switches file mode to the new value and returns the previous value

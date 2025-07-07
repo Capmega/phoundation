@@ -2027,27 +2027,29 @@ class Route
             // still, just to be sure
             if (empty($_SERVER['HTTP_HOST'])) {
                 // No host name WTF? Redirect to the main site
-                Request::setRoutingParameters(static::getParametersObject()
-                                                    ->select(Url::newRootDomainRootUrl()));
+                Request::setRoutingParameters(static::getParametersObject()->select(Url::newRootDomainRootUrl()));
                 Response::redirect(Url::newRootDomainRootUrl());
             }
+
             if (str_starts_with($_SERVER['HTTP_HOST'], '.') or str_ends_with($_SERVER['HTTP_HOST'], '.')) {
                 Log::warning(ts('Encountered invalid HTTP HOST ":host", it starts or ends with a dot. Redirecting to clean hostname', [
                     ':host' => $_SERVER['HTTP_HOST'],
                 ]));
+
                 // Remove dots, whitespaces, etc.
                 $domain = trim(trim($_SERVER['HTTP_HOST'], '.'));
+
                 if (Domains::isConfigured($domain)) {
                     Log::warning(ts('HTTP HOST ":host" is not configured, redirecting to main site main page', [
                         ':host' => $_SERVER['HTTP_HOST'],
                     ]));
-                    Request::setRoutingParameters(static::getParametersObject()
-                                                        ->select(Url::newRootDomainRootUrl()));
+
+                    Request::setRoutingParameters(static::getParametersObject()->select(Url::newRootDomainRootUrl()));
                     Response::redirect(Url::newRootDomainRootUrl());
                 }
+
                 // Redirect to correct page
-                Request::setRoutingParameters(static::getParametersObject()
-                                                    ->select(Url::newRootDomainUrl()));
+                Request::setRoutingParameters(static::getParametersObject()->select(Url::newRootDomainUrl()));
                 Response::redirect(Url::newRootDomainUrl());
             }
         }

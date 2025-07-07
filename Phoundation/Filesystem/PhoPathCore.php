@@ -1779,49 +1779,49 @@ class PhoPathCore implements PhoPathInterface
     /**
      * Moves this file to the specified target, will try to ensure target directory exists
      *
-     * @param Stringable|string    $target
+     * @param PhoPathInterface     $o_target
      * @param PhoRestrictions|null $restrictions
      *
      * @return static
      */
-    public function move(Stringable|string $target, ?PhoRestrictions $restrictions = null): static
+    public function move(PhoPathInterface $o_target, ?PhoRestrictionsInterface $restrictions = null): static
     {
-        $target = new PhoPath($target, $restrictions);
-        $target->makeAbsolute(must_exist: false);
+        $o_target = new PhoPath($o_target, $restrictions);
+        $o_target->makeAbsolute(must_exist: false);
 
         // Check the target directory exists, if so must be directory
-        if ($target->exists()) {
+        if ($o_target->exists()) {
             // Target exists. It has to be a directory where we can move into, or fail!
-            if (!$target->isDirectory()) {
+            if (!$o_target->isDirectory()) {
                 throw FileExistsException::new(tr('The specified target ":target" already exists', [
-                    ':target' => $target,
+                    ':target' => $o_target,
                 ]));
             }
 
             // Target exists and is directory. Rename target to "this file in the target directory"
-            $target = $target->appendPath($this->getBasename());
+            $o_target = $o_target->appendPath($this->getBasename());
 
         } else {
-            // Target does not exist
-            if ($target instanceof PhoDirectoryInterface) {
+            // Target doesn't exist
+            if ($o_target instanceof PhoDirectoryInterface) {
                 // If the target is indicated to be a directory (because it ends with a slash) then it should be created
-                $target->ensure();
+                $o_target->ensure();
 
             } else {
                 // Ensure that the target parent directory exists
-                $target->getParentDirectory()->ensure();
+                $o_target->getParentDirectory()->ensure();
             }
         }
 
         // Check restrictions and execute move
         $this->checkRestrictions(true);
-        $target->checkRestrictions(true);
+        $o_target->checkRestrictions(true);
 
-        rename($this->source, $target->getSource());
+        rename($this->source, $o_target->getSource());
 
-        // Update this object path and restrictions to the target and we're done
-        return $this->setSource($target->getSource())
-                    ->setRestrictionsObject($target->getRestrictionsObject());
+        // Update this object path and restrictions to the target, and we're done
+        return $this->setSource($o_target->getSource())
+                    ->setRestrictionsObject($o_target->getRestrictionsObject());
     }
 
 

@@ -23,8 +23,7 @@ namespace Phoundation\Developer\Debug;
 use JetBrains\PhpStorm\NoReturn;
 use PDOStatement;
 use Phoundation\Accounts\Users\Sessions\Session;
-use Phoundation\Audio\Audio;
-use Phoundation\Audio\Showdie;
+use Phoundation\Content\Media\Audio\Showdie;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Interfaces\ArrayableInterface;
@@ -49,7 +48,6 @@ use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Throwable;
-
 
 class Debug
 {

@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class Critical
+ * Class Success
  *
- * Audio type class that will always play data/audio/critical.mp3
+ * Audio type class that will always play data/audio/success.mp3
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -14,24 +14,23 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Audio;
+namespace Phoundation\Content\Media\Audio;
 
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Stringable;
 
-
-class Critical extends Audio
+class Success extends Audio
 {
     /**
-     * Critical class constructor
+     * Success class constructor
      *
      * @param Stringable|string|null             $source
      * @param bool|PhoRestrictionsInterface|null $restrictions
      * @param bool|Stringable|string|null        $absolute_prefix
      */
-    public function __construct(Stringable|string|null $source = 'critical.mp3', bool|PhoRestrictionsInterface|null $restrictions = null, bool|Stringable|string|null $absolute_prefix = false)
+    public function __construct(Stringable|string|null $source = 'success.mp3', bool|PhoRestrictionsInterface|null $restrictions = null, bool|Stringable|string|null $absolute_prefix = false)
     {
-        parent::__construct('critical.mp3', $restrictions, $absolute_prefix);
+        parent::__construct('success.mp3', $restrictions, $absolute_prefix);
         $this->setTimeout(5);
     }
 
@@ -45,8 +44,8 @@ class Critical extends Audio
      *
      * @return static
      */
-    public static function new(Stringable|string $source = 'critical.mp3', PhoRestrictionsInterface|bool|null $restrictions = null, Stringable|string|bool|null $absolute_prefix = false): static
+    public static function new(Stringable|string $source = 'success.mp3', PhoRestrictionsInterface|bool|null $restrictions = null, Stringable|string|bool|null $absolute_prefix = false): static
     {
-        return new static('critical.mp3', $restrictions, $absolute_prefix);
+        return new static('success.mp3', $restrictions, $absolute_prefix);
     }
 }

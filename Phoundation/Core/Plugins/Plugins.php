@@ -345,8 +345,8 @@ class Plugins extends DataIterator implements PluginsInterface
                             ->setDetails([
                                 'vendor'            => $plugin['vendor'],
                                 'plugin'            => $plugin['name'],
-                                'startup-exception' => $e->getPoadString(true),
-                                'handler-exception' => $f->getPoadString(true)
+                                'startup-exception' => ($e instanceof PhoException ? $e->getPoadString(true) : $e->getMessage()),
+                                'handler-exception' => ($f instanceof PhoException ? $f->getPoadString(true) : $f->getMessage()),
                             ])
                             ->setNotifyRoles('developer')
                             ->save();

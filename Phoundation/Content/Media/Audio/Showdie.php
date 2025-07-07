@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class Warning
+ * Class Showdie
  *
- * Audio type class that will always play data/audio/warning.mp3
+ * Audio type class that will always play data/audio/showdie.mp3
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -14,24 +14,23 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Audio;
+namespace Phoundation\Content\Media\Audio;
 
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Stringable;
 
-
-class Warning extends Audio
+class Showdie extends Audio
 {
     /**
-     * Warning class constructor
+     * Showdie class constructor
      *
      * @param Stringable|string|null             $source
      * @param bool|PhoRestrictionsInterface|null $restrictions
      * @param bool|Stringable|string|null        $absolute_prefix
      */
-    public function __construct(Stringable|string|null $source = 'warning.mp3', bool|PhoRestrictionsInterface|null $restrictions = null, bool|Stringable|string|null $absolute_prefix = false)
+    public function __construct(Stringable|string|null $source = 'showdie.mp3', bool|PhoRestrictionsInterface|null $restrictions = null, bool|Stringable|string|null $absolute_prefix = false)
     {
-        parent::__construct('warning.mp3', $restrictions, $absolute_prefix);
+        parent::__construct('showdie.mp3', $restrictions, $absolute_prefix);
         $this->setTimeout(5);
     }
 
@@ -45,8 +44,8 @@ class Warning extends Audio
      *
      * @return static
      */
-    public static function new(Stringable|string $source = 'warning.mp3', PhoRestrictionsInterface|bool|null $restrictions = null, Stringable|string|bool|null $absolute_prefix = false): static
+    public static function new(Stringable|string $source = 'showdie.mp3', PhoRestrictionsInterface|bool|null $restrictions = null, Stringable|string|bool|null $absolute_prefix = false): static
     {
-        return new static('warning.mp3', $restrictions, $absolute_prefix);
+        return new static('showdie.mp3', $restrictions, $absolute_prefix);
     }
 }
