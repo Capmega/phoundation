@@ -88,4 +88,10 @@ class Departments extends DataIterator implements DepartmentsInterface
                      ->setNotSelectedLabel(tr('Select a department'))
                      ->setComponentEmptyLabel(tr('No departments available'));
     }
+
+
+    public function getHtmlSelect(string $value_column = 'name', ?string $key_column = 'id', ?string $order = null, ?array $joins = null, ?array $filters = ['status' => null]): InputSelectInterface
+    {
+        // TODO: Implement getHtmlSelect() method.
+    }
 }
