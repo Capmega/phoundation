@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class DataEntryColumnNotDefinedException
+ * Class DataEntryColumnsNotDefinedException
  *
  *
  *
