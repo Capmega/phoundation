@@ -28,7 +28,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.1.0';
+        return '0.1.1';
     }
 
 
@@ -176,6 +176,21 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->getSchemaObject()->getTableObject('categories')->alter()
                 ->dropIndex('parent_name')
                 ->addIndex('UNIQUE KEY `parents_id_name` (`parents_id`,`name`)');
+
+        })->addUpdate('0.1.1', function () {
+            // Modify the "test_dataentries" table.
+            sql()->getSchemaObject()
+                ->getTableObject('test_dataentries')
+                ->alter()
+                ->addColumn('
+                    `created_by` bigint DEFAULT NULL', 'AFTER `created_on`
+                ')
+                ->addIndices('
+                    KEY `created_by` (`created_by`)
+                ')
+                ->addForeignKeys('
+                    CONSTRAINT `fk_test_dataentries_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
+                ');
         });
     }
 }
