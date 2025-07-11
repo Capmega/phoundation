@@ -1709,8 +1709,13 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        // All were in the array
-        return true;
+        if ($all) {
+            // All were in the array
+            return true;
+        } else {
+            // if a match happened, it would have returned true instantly, meaning there were no matches
+            return false;
+        }
     }
 
 
