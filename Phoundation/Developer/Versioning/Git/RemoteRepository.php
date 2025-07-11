@@ -201,7 +201,7 @@ class RemoteRepository extends IteratorCore
      *
      * @return static
      */
-    public function setName(string $repository): static
+    public function setName(string|null $repository): static
     {
         $output = $this->git_process->clearArguments()
                                     ->addArgument('remote')
