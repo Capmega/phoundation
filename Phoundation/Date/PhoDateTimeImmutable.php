@@ -245,4 +245,16 @@ class PhoDateTimeImmutable extends \DateTimeImmutable implements Stringable, Int
         $this->modify('-' . $days . ' day');
         return $this;
     }
+
+
+    public function getNextDay(DateTimeZone|string|null $timezone = null): static
+    {
+        // TODO: Implement getNextDay() method.
+    }
+
+
+    public function getPreviousDay(DateTimeZone|string|null $timezone = null): static
+    {
+        // TODO: Implement getPreviousDay() method.
+    }
 }
