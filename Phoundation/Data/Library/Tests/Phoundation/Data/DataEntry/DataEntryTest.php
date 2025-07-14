@@ -16,11 +16,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Library\Tests\Phoundation\Data\DataEntry;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Exception\DataEntryColumnsNotDefinedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryIsNewException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNoIdentifierSpecifiedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntries\Exception\DataEntryNotSavedException;
 use Phoundation\Data\DataEntries\Tests\TestDataEntry;
 use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -28,6 +30,7 @@ use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
+use PHPUnit\Event\TestData\TestData;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 
@@ -304,6 +307,8 @@ class DataEntryTest extends TestCase
         $test_source_2 = $test_entry->getSource(true);
         $this->assertEquals('test_value', array_get_safe($test_source_2, 'test_column'));
         $this->assertNull(array_get_safe($test_source_2, 'id'));
+
+        // TODO test other parameters
     }
 
 
@@ -397,5 +402,228 @@ class DataEntryTest extends TestCase
         } catch (Throwable $e) {
             $this->assertInstanceOf(DataEntryIsNewException::class, $e);
         }
+    }
+
+
+    // DataEntryCore methods *******************************************************************************************
+
+
+    /**
+     * Tests DataEntryCore::construct()
+     *
+     * @return void
+     */
+    public function testConstruct()
+    {
+        $test_data_entry = TestDataEntry::new();
+        $this->assertFalse($test_data_entry->isInitialized());
+
+        $name = Strings::getUuid();
+        $test_data_entry->setName($name)->save();
+        $id = $test_data_entry->getId();
+
+        $test_data_entry_2 = TestDataEntry::new(['name' => $name]);
+        $this->assertEquals($id, $test_data_entry_2->getId());
+    }
+
+
+    /**
+     * Tests DataEntryCore::destruct()
+     *
+     * @return void
+     */
+    public function testDestruct()
+    {
+        // TODO
+        $this->assertTrue(true);
+    }
+
+
+    /**
+     * Tests DataEntryCore::initialize()
+     *
+     * @return void
+     */
+    public function testInitialize()
+    {
+        $test_data_entry = TestDataEntry::new();
+        $this->assertEmpty($test_data_entry->getSource());
+        $test_data_entry->initialize();
+        $this->assertTrue($test_data_entry->isInitialized());
+        $this->assertTrue(!(empty($test_data_entry->getSource())));
+        $this->assertContains('id', $test_data_entry->getSourceKeys());
+        $this->assertEmpty($test_data_entry->getId(false));
+
+        $test_data_entry_2 = TestDataEntry::new()->setName(Strings::getUuid())->save();
+        $id = $test_data_entry_2->getId();
+
+        $test_data_entry_3 = TestDataEntry::new()->initialize($id);
+        $this->assertTrue($test_data_entry_3->isInitialized());
+        $this->assertTrue(!(empty($test_data_entry_3->getSource())));
+        $this->assertTrue((bool) $test_data_entry_3->getId(false));
+    }
+
+
+    /**
+     * Tests DataEntryCore::__toInteger()
+     *
+     * @return void
+     */
+    public function testToInteger()
+    {
+        $test_data_entry = TestDataEntry::new()->setName(Strings::getUuid())->save();
+        $id = $test_data_entry->getId();
+        $this->assertEquals($id, $test_data_entry->__toInteger());
+        // TODO should this pass?
+//        $this->assertEquals($id, (int) $test_data_entry);
+    }
+
+
+    /**
+     * Tests DataEntryCore::__clone()
+     *
+     * @return void
+     */
+    public function testClone()
+    {
+        $test_data_entry = TestDataEntry::new()->setName(Strings::getUuid());
+        $clone = clone $test_data_entry;
+        $this->assertNull($clone->getId(false));
+        $this->assertEquals($test_data_entry->getName(), $clone->getName());
+    }
+
+
+    /**
+     * Tests DataEntryCore::getUniqueColumn()
+     *
+     * @return void
+     */
+    public function testGetUniqueColumn()
+    {
+        $this->assertEquals('seo_name', TestDataEntry::getUniqueColumn());
+    }
+
+
+    /**
+     * Tests DataEntryCore::getEntryName()
+     *
+     * @return void
+     */
+    public function testGetEntryName()
+    {
+        $this->assertEquals(tr('Test DataEntry'), TestDataEntry::getEntryName());
+    }
+
+
+    /**
+     * Tests DataEntryCore::getTable()
+     *
+     * @return void
+     */
+    public function testGetTable()
+    {
+        $this->assertEquals('test_dataentries', TestDataEntry::getTable());
+    }
+
+
+    /**
+     * Tests DataEntryCore::isNotNew()
+     *
+     * @return void
+     */
+    public function testIsNotNew()
+    {
+        $test_data_entry = TestDataEntry::new()->setName(Strings::getUuid());
+        $this->assertFalse($test_data_entry->isNotNew());
+        $test_data_entry->save();
+        $this->assertTrue($test_data_entry->isNotNew());
+    }
+
+
+    /**
+     * Tests DataEntryCore::getId()
+     *
+     * @return void
+     */
+    public function testGetId()
+    {
+        $test_data_entry = TestDataEntry::new()->setName(Strings::getUuid());
+        $this->assertNull($test_data_entry->getId(false));
+
+        try {
+            $test_data_entry->getId();
+            $this->fail('Expected DataEntryNotSavedException was not thrown');
+        } catch (Throwable $e) {
+            $this->assertInstanceOf(DataEntryNotSavedException::class, $e);
+        }
+
+        $test_data_entry->save();
+        $this->assertTrue((bool) $test_data_entry->getId());
+        $this->assertEquals($test_data_entry->getId() . '_test', $test_data_entry->getId(suffix: '_test'));
+    }
+
+
+    /**
+     * Tests DataEntryCore::getDisplayId()
+     *
+     * @return void
+     */
+    public function testGetDisplayId()
+    {
+        $test_data_entry = TestDataEntry::new()->setName(Strings::getUuid());
+        $this->assertEquals('[NEW]', $test_data_entry->getDisplayId());
+        $test_data_entry->save();
+        $this->assertEquals($test_data_entry->getId(), $test_data_entry->getDisplayId());
+    }
+
+
+    /**
+     * Tests DataEntryCore::getLogId()
+     *
+     * @return void
+     */
+    public function testGetLogId()
+    {
+        $name = Strings::getUuid();
+        $test_data_entry = TestDataEntry::new()->setName($name);
+        $this->assertEquals(ts('N/A') . ' / ' . $name, $test_data_entry->getLogId());
+        $test_data_entry->save();
+        $this->assertEquals($test_data_entry->getId() . ' / ' . $name, $test_data_entry->getLogId());
+    }
+
+
+    /**
+     * Tests DataEntryCore::getSourceKeys()
+     *
+     * @return void
+     */
+    public function testGetSourceKeys()
+    {
+        $this->assertTrue(true);
+        // TODO
+    }
+
+
+    /**
+     * Tests DataEntryCore::reload()
+     *
+     * @return void
+     */
+    public function testReload()
+    {
+        $this->assertTrue(true);
+        // TODO
+    }
+
+
+    /**
+     * Tests DataEntryCore::loadColumns()
+     *
+     * @return void
+     */
+    public function testLoadColumns()
+    {
+        $this->assertTrue(true);
+        // TODO
     }
 }

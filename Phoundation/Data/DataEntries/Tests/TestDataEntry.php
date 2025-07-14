@@ -45,6 +45,17 @@ class TestDataEntry extends DataEntry
 
 
     /**
+     * Returns the name of this DataEntry class
+     *
+     * @return string
+     */
+    public static function getEntryName(): string
+    {
+        return tr('Test DataEntry');
+    }
+
+
+    /**
      * Returns the field that is unique for this object
      *
      * @return string|null

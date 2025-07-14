@@ -622,7 +622,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = true): static
     {
         if ($value instanceof DataEntryInterface) {
-            return parent::set($key, $value);
+            return parent::set($value, $key);
         }
 
         throw new OutOfBoundsException(tr('Cannot set value ":value" to key ":key" in the list ":list", the value does not have a required DataEntryInterface', [
