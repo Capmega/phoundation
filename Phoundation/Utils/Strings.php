@@ -706,7 +706,7 @@ class Strings extends Utils
                         throw new OutOfBoundsException(tr('Unknown type ":type" specified', [':type' => $type]));
                 }
 
-                str_replace($word, $replace, $string);
+                $string = str_replace($word, $replace, $string);
             }
         }
 
