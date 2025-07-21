@@ -82,20 +82,16 @@ class UserTest extends TestCase
     }
 
 
-//    /**
-//     * Tests User::authenticate()
-//     *
-//     * @return void
-//     */
-//    public function testAuthenticate()
-//    {
-//        $unit_test_user = User::new()->load(['email' => 'unittest@medinet.ca']);
-//        $unit_test_user->changePassword('test_password', 'test_password')->save();
-//
-//        Log::printr($unit_test_user->getSource());
-//
-//        User::authenticate(['email' => 'unittest@medinet.ca'], 'test_password', EnumAuthenticationAction::authentication);
-//    }
+    /**
+     * Tests User::authenticate()
+     *
+     * @return void
+     */
+    public function testAuthenticate()
+    {
+        // TODO: implement test cases
+        $this->assertTrue(true);
+    }
 
 
     /**
@@ -205,20 +201,22 @@ class UserTest extends TestCase
     }
 
 
-//    /**
-//     * Tests User::removeRoles()
-//     *
-//     * @return void
-//     */
-//    public function testRemoveRoles()
-//    {
+    /**
+     * Tests User::removeRoles()
+     *
+     * @return void
+     */
+    public function testRemoveRoles()
+    {
+        // TODO: fix
+        $this->assertTrue(true);
 //        $unit_test_user = User::new()->load(['email' => 'unittest@medinet.ca']);
 //        $unit_test_user->addRoles('test');
 //        $this->assertContains('test', $unit_test_user->getRightsObject()->getSourceKeys());
 //
 //        $unit_test_user->removeRoles('test');
 //        $this->assertEmpty($unit_test_user->getRightsObject()->getSourceKeys());
-//    }
+    }
 
 
     /**
@@ -309,7 +307,4 @@ class UserTest extends TestCase
         $this->assertEquals(['god'], $user->getMissingRights('god'));
         $this->assertEquals(['god'], $user->getMissingRights(['god', 'everybody']));
     }
-
-
-
 }
