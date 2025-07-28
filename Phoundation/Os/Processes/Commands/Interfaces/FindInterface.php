@@ -12,13 +12,20 @@ use Stringable;
 interface FindInterface extends CommandInterface
 {
     /**
+     * Returns the path object
+     *
+     * @return PhoPathInterface|null
+     */
+    public function getPathObject(): ?PhoPathInterface;
+
+    /**
      * Sets the path in which to find
      *
-     * @param PhoPathInterface|null $path
+     * @param PhoPathInterface|null $o_path
      *
      * @return static
      */
-    public function setPath(PhoPathInterface|null $path): static;
+    public function setPathObject(PhoPathInterface|null $o_path): static;
 
 
     /**

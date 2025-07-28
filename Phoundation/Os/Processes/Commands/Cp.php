@@ -38,7 +38,7 @@ class Cp extends Command
     {
         $source->checkRestrictions(false);
         $target->checkRestrictions(true)
-               ->getParentDirectory()
+               ->getParentDirectoryObject()
                    ->ensure();
 
         // Build the process parameters, then execute

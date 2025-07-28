@@ -18,7 +18,7 @@ namespace Phoundation\Os\Processes\Commands;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Data\Traits\TraitDataStringName;
-use Phoundation\Data\Traits\TraitDataPath;
+use Phoundation\Data\Traits\TraitDataObjectPath;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFiles;
@@ -37,9 +37,10 @@ use Stringable;
 class Find extends Command implements FindInterface
 {
     use TraitDataStringName;
-    use TraitDataPath {
-        setPath as protected __setPath;
+    use TraitDataObjectPath {
+        setPathObject as protected __setPathObject;
     }
+
 
     /**
      * Result files cache
@@ -198,7 +199,7 @@ class Find extends Command implements FindInterface
         parent::__construct($execution_directory, $operating_system, $packages);
 
         if ($execution_directory instanceof PhoDirectoryInterface) {
-            $this->setPath($execution_directory);
+            $this->setPathObject($execution_directory);
         }
     }
 
@@ -206,15 +207,15 @@ class Find extends Command implements FindInterface
     /**
      * Sets the path in which to find
      *
-     * @param PhoPathInterface|null $path
+     * @param PhoPathInterface|null $o_path
      *
      * @return static
      */
-    public function setPath(?PhoPathInterface $path): static
+    public function setPathObject(?PhoPathInterface $o_path): static
     {
-        $this->__setPath($path);
+        $this->__setPathObject($o_path);
 
-        return $this->setExecutionDirectory(new PhoDirectory($this->path));
+        return $this->setExecutionDirectory(new PhoDirectory($this->o_path));
     }
 
 
@@ -765,7 +766,7 @@ class Find extends Command implements FindInterface
      */
     public function getFoundFiles(): PhoFilesInterface
     {
-        return PhoFiles::new($this->path, $this->output, $this->o_restrictions);
+        return PhoFiles::new($this->o_path, $this->output, $this->o_restrictions);
     }
 
 
@@ -777,7 +778,7 @@ class Find extends Command implements FindInterface
     public function getFiles(): PhoFilesInterface
     {
         if (empty($this->files)) {
-            $this->files = PhoFiles::new($this->path, $this->executeReturnArray(), $this->o_restrictions);
+            $this->files = PhoFiles::new($this->o_path, $this->executeReturnArray(), $this->o_restrictions);
         }
 
         return $this->files;
@@ -791,14 +792,14 @@ class Find extends Command implements FindInterface
      */
     public function executeReturnArray(): array
     {
-        if (!$this->path) {
+        if (!$this->o_path) {
             throw new OutOfBoundsException(tr('Cannot execute find, no path has been specified'));
         }
 
         try {
             $this->setCommand('find')
                  ->setTimeout($this->timeout)
-                 ->addArgument($this->path->getSource())
+                 ->addArgument($this->o_path->getSource())
                  ->addArguments($this->mount           ? '-mount'                                     : null)
                  ->addArguments($this->empty           ? '-empty'                                     : null)
                  ->addArguments($this->follow_symlinks ? '-L'                                         : null)
@@ -818,7 +819,7 @@ class Find extends Command implements FindInterface
                  ->addArguments($this->exec            ? ['-exec'    , $this->exec]                   : null);
 
         } catch (ProcessFailedException $e) {
-            PhoPath::new($this->path)
+            PhoPath::new($this->o_path)
                 ->checkReadable('find', $e);
         }
 

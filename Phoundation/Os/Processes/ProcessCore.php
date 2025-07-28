@@ -221,7 +221,7 @@ abstract class ProcessCore implements ProcessInterface
                 PhoRestrictions::newWritableObject(dirname($this->command))
             );
 
-            if ($file->getParentDirectory()->getSource() === DIRECTORY_DATA . 'bin/') {
+            if ($file->getParentDirectoryObject()->getSource() === DIRECTORY_DATA . 'bin/') {
                 // Yeah, this is a ROOT/data/bin executable
                 if ($file->getModePermissions() !== '750') {
                     // Yeah, file permission is not what it should be. Fix and retry.

@@ -62,7 +62,7 @@ class PhoCore extends WorkersCore implements PhoInterface
                    ->ensure();
 
         // Generate the process
-        parent::__construct($pho->getParentDirectory());
+        parent::__construct($pho->getParentDirectoryObject());
 
         // Set the command to execute phoundation, pass basic arguments and settings like timeout
         // --no-audio        is always added to avoid sub commands pinging differently from the main command, causing confusion
