@@ -21,6 +21,8 @@ use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Meta\Activities\Interfaces\ActivityInterface;
 use Phoundation\Core\Meta\Interfaces\MetaInterface;
 use Phoundation\Data\Traits\TraitDataArraySource;
+use Phoundation\Data\Traits\TraitDataDisabled;
+use Phoundation\Data\Traits\TraitDataReadonly;
 use Phoundation\Data\Traits\TraitMethodHasRendered;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
@@ -38,6 +40,8 @@ class Activity implements ActivityInterface, RenderInterface
 {
     use TraitMethodHasRendered;
     use TraitDataArraySource;
+    use TraitDataReadonly;
+    use TraitDataDisabled;
 
 
     /**

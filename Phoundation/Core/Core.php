@@ -1049,10 +1049,6 @@ class Core implements CoreInterface
         Core::ensureDefines();
         Core::playUncaughtExceptionAudio($e);
 
-        // Ensure the exception is a Phoundation exception
-        // TODO Fix this or get rid of this, it causes too much confusion with backtraces. Fixing would require removing line 1040 from backtraces!
-        $e = PhoException::ensurePhoundationException($e);
-
         // When in CLI auto complete mode, log and display a standard exception message
         if (CliAutoComplete::isActive()) {
             Log::error($e, 10, echo_screen: false);
@@ -2996,7 +2992,7 @@ class Core implements CoreInterface
     protected static function registerUncaughtExceptionIncident(Throwable $e): void
     {
         // Don't register warning exceptions
-        if (!$e->isWarning()) {
+        if ((!$e instanceof PhoException) or !$e->isWarning()) {
             if (Core::getReadonly()) {
                 Log::error('Not attempting to register the following uncaught exception incident in the database, system is in readonly mode');
 
@@ -3143,7 +3139,12 @@ class Core implements CoreInterface
 
                 if ($e->getDataKey('failures')) {
                     foreach ($e->getDataKey('failures') as $failure) {
-                        Log::printr($failure, 10, echo_header: false);
+                        if (is_array($failure)) {
+                            Log::printr(array_get_safe($failure, 'message', $failure), 10, echo_header: false);
+
+                        } else {
+                            Log::printr($failure, 10, echo_header: false);
+                        }
                     }
                 }
             }
