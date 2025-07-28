@@ -23,9 +23,9 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 // Required javascript
-Response::loadJavascript('templates/adminlte/plugins/moment/moment');
-Response::loadJavascript('templates/adminlte/plugins/daterangepicker/daterangepicker');
-Response::loadJavascript('templates/adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4');
+Response::loadJavaScript('templates/adminlte/plugins/moment/moment');
+Response::loadJavaScript('templates/adminlte/plugins/daterangepicker/daterangepicker');
+Response::loadJavaScript('templates/adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4');
 
 
 // Required CSS

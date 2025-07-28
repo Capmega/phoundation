@@ -28,8 +28,8 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                                        ]));
 
 Response::loadCss('/adminlte/plugins/ekko-lightbox/ekko-lightbox');
-Response::loadJavascript('/adminlte/plugins/ekko-lightbox/ekko-lightbox');
-Response::loadJavascript('/adminlte/plugins/filterizr/jquery.filterizr');
+Response::loadJavaScript('/adminlte/plugins/ekko-lightbox/ekko-lightbox');
+Response::loadJavaScript('/adminlte/plugins/filterizr/jquery.filterizr');
 
 // The content wrapper class for this page is slightly different
 Response::setClass('content-wrapper kanban', 'content-wrapper');

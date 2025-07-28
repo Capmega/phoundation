@@ -15,8 +15,14 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Sessions\Session;
+use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Requests\Response;
+
+
+// This page accepts no GET parameters
+GetValidator::new()->validate();
+
 
 // Set page meta data
 Response::setPageTitle(tr('Dashboard'));

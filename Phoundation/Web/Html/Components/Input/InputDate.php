@@ -49,7 +49,7 @@ class InputDate extends InputText
         parent::__construct($content);
 
         $this->setConfirmDateOnSelect(true)
-             ->setFormat(Session::getLocaleObject()->getDateFormatJavascript(true));
+             ->setFormat(Session::getLocaleObject()->getDateFormatJavaScript(true));
     }
 
 

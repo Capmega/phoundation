@@ -951,7 +951,7 @@ class Response implements ResponseInterface
      *
      * @return void
      */
-    public static function loadJavascript(string|array $urls, ?bool $header = null, bool $prefix = false): void
+    public static function loadJavaScript(string|array $urls, ?bool $header = null, bool $prefix = false): void
     {
         if ($header === null) {
             $header = !config()->getBoolean('web.javascript.delay', true);

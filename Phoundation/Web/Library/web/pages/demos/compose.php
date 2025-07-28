@@ -32,7 +32,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
                                                        ]));
 
 Response::loadCss('/adminlte/plugins/summernote/summernote-bs4');
-Response::loadJavascript('/adminlte/plugins/summernote/summernote-bs4');
+Response::loadJavaScript('/adminlte/plugins/summernote/summernote-bs4');
 
 echo Script::new()
            ->setJavascriptWrapper(EnumJavascriptWrappers::dom_content)

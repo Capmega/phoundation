@@ -22,8 +22,8 @@ use Phoundation\Web\Requests\Response;
 
 
 // Load required JavaScript & CSS libraries
-Response::loadJavascript('templates/adminlte/plugins/ekko-lightbox/ekko-lightbox');
-Response::loadJavascript('templates/adminlte/plugins/filterizr/jquery.filterizr');
+Response::loadJavaScript('templates/adminlte/plugins/ekko-lightbox/ekko-lightbox');
+Response::loadJavaScript('templates/adminlte/plugins/filterizr/jquery.filterizr');
 Response::loadCss('templates/adminlte/plugins/ekko-lightbox/ekko-lightbox');
 
 Response::setHeaderTitle(tr('Scanner gallery'));

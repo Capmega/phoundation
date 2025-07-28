@@ -22,6 +22,7 @@ use Phoundation\Accounts\Config\Config;
 use Phoundation\Accounts\Config\Exception\ConfigFileDoesNotExistsException;
 use Phoundation\Accounts\Config\Exception\ConfigParseFailedException;
 use Phoundation\Accounts\Users\Sessions\Session;
+use Phoundation\Cli\Exception\CliArgumentsException;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreStartupFailedException;
 use Phoundation\Core\Log\Log;
@@ -279,6 +280,14 @@ class Route
 
             // Set environment and protocol
             Core::setEnvironment($environment);
+
+            // What units to use for binary numbers?
+            if (getenv('UNITS')) {
+                define('UNITS', getenv('UNITS'));
+
+            } else {
+                define('UNITS', config()->getStringUppercase('log.units', 'si'));
+            }
 
             // Register basic HTTP information
 //                    static::$register['http']['accepts'] = Request::accepts();

@@ -30,7 +30,7 @@ class FilterBar extends InputSelect
     public function render(): ?string
     {
         // This input element requires some javascript
-        Response::loadJavascript('plugins/select2/js/select2.full');
+        Response::loadJavaScript('plugins/select2/js/select2.full');
         // This input element also requires some javascript
         Script::new()
               ->setContent('$("' . $this->getId() . '").select2();')

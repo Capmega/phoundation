@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets;
 
-use Phoundation\Data\Traits\TraitDataDate;
+use Phoundation\Data\Traits\TraitDataObjectDate;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Forms\Form;
@@ -32,7 +32,7 @@ use Stringable;
 
 class DateNavigator extends ElementsBlock
 {
-    use TraitDataDate;
+    use TraitDataObjectDate;
 
     /**
      * The link for the previous button

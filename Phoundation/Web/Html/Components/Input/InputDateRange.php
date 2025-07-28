@@ -59,7 +59,7 @@ class InputDateRange extends InputText
      */
     public function __construct(?string $content = null)
     {
-        $this->setFormat(PhoDateTimeFormats::getDefaultDateFormatJavascript(compact: true))
+        $this->setFormat(PhoDateTimeFormats::getDefaultDateFormatJavaScript(compact: true))
              ->input_type = EnumInputType::text;
 
         parent::__construct($content);
@@ -140,9 +140,9 @@ class InputDateRange extends InputText
     public function render(): ?string
     {
         // Required javascript
-        Response::loadJavascript('templates/adminlte/plugins/moment/moment');
-        Response::loadJavascript('templates/adminlte/plugins/daterangepicker/daterangepicker');
-        Response::loadJavascript('templates/adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4');
+        Response::loadJavaScript('templates/adminlte/plugins/moment/moment');
+        Response::loadJavaScript('templates/adminlte/plugins/daterangepicker/daterangepicker');
+        Response::loadJavaScript('templates/adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4');
 
         // Required CSS
         Response::loadCss('templates/adminlte/plugins/daterangepicker/daterangepicker');

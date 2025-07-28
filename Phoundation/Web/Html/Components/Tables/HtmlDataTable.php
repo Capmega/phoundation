@@ -427,7 +427,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
      * @see https://momentjs.com/docs/#/displaying/format/
      * @return string|null
      */
-    public function getDateFormatJavascript(): ?string
+    public function getDateFormatJavaScript(): ?string
     {
         return $this->js_date_format;
     }
@@ -1235,7 +1235,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
             $this->setCache(false);
 
             // TODO Load many of these javascripts conditionally and only if their functions are enabled (button is there, functionality is required, etc)
-            Response::loadJavascript([
+            Response::loadJavaScript([
                 'templates/adminlte/plugins/datatables/jquery.dataTables',
                 'templates/adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4',
                 'templates/adminlte/plugins/datatables-responsive/js/dataTables.responsive',
@@ -1351,7 +1351,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
             }
 
             if ($this->js_date_format) {
-                Response::loadJavascript([
+                Response::loadJavaScript([
                     'templates/adminlte/plugins/moment/moment',
                     'templates/adminlte/plugins/datatables-DateTime-1.5.1/js/dataTables.dateTime',
                     'templates/adminlte/plugins/datatables-sorting/datetime-moment',
