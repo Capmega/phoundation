@@ -1226,7 +1226,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
      */
     public function unzip(?PhoDirectoryInterface $directory = null): PhoPathInterface
     {
-        $directory = $directory ?? $this->getParentDirectory();
+        $directory = $directory ?? $this->getParentDirectoryObject();
 
         return Zip::new($directory)->unzip($this);
     }
@@ -1275,7 +1275,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
         // Target file must not exist, target parent directory should exist
         if ($this->source !== $target->getSource()) {
             // If we're replacing in the same file, then don't have to check
-            $target->getParentDirectory()->ensure();
+            $target->getParentDirectoryObject()->ensure();
             $target->checkNotExists();
         }
 
@@ -1338,7 +1338,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
         }
 
         // Check the filesystem for the directory in which this crypt file will be created. Is there enough space?
-        $filesystem = $this->getParentDirectory()->getFilesystemObject();
+        $filesystem = $this->getParentDirectoryObject()->getFilesystemObject();
 
         if ($filesystem->getAvailableSpace() < $size) {
             throw new NotEnoughStorageSpaceAvailableException(tr('Cannot allocate file ":file" with size ":size", the filesystem ":filesystem" has only ":available" available', [
@@ -1355,7 +1355,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
         ]));
 
         // fallocate the file
-        Process::new('fallocate', $this->getParentDirectory())
+        Process::new('fallocate', $this->getParentDirectoryObject())
                ->addArguments(['-l', $size, $this->source])
                ->executeReturnIterator();
 

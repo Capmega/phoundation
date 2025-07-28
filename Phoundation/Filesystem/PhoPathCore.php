@@ -52,7 +52,6 @@ use Phoundation\Filesystem\Exception\FileRenameException;
 use Phoundation\Filesystem\Exception\FileSyncException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\FilesystemExtensionException;
-use Phoundation\Filesystem\Exception\FilesystemNoRestrictionsSetException;
 use Phoundation\Filesystem\Exception\FileTruncateException;
 use Phoundation\Filesystem\Exception\MountLocationNotFoundException;
 use Phoundation\Filesystem\Exception\NotASymlinkException;
@@ -315,7 +314,7 @@ class PhoPathCore implements PhoPathInterface
         $extension = Strings::ensureBeginsWith($extension, '.');
         $path      = PhoPath::new($path)->appendPath($extension);
 
-        $path->getParentDirectory()->ensure();
+        $path->getParentDirectoryObject()->ensure();
 
         while ($path->exists()) {
             if (++$version >= 123) {
@@ -854,7 +853,7 @@ class PhoPathCore implements PhoPathInterface
         $correct_extension = $this->getCorrectExtension();
         $basename          = $this->getBasename();
         $correct_filename  = Strings::untilReverse($basename, '.') . '.' . $correct_extension;
-        $correct_file      = $this->getParentDirectory()->addFile($correct_filename);
+        $correct_file      = $this->getParentDirectoryObject()->addFile($correct_filename);
 
         Incident::new()
                 ->setType(tr('Incorrect file extension for mimetype'))
@@ -934,7 +933,7 @@ class PhoPathCore implements PhoPathInterface
         }
 
         $correct_extension = $this->getCorrectExtension();
-        $correct_filename  = $this->getParentDirectory() . $correct_basename . '.' . $correct_extension;
+        $correct_filename  = $this->getParentDirectoryObject() . $correct_basename . '.' . $correct_extension;
 
         // Frack! Rename!
         Log::warning(ts('File ":file" has multiple extensions. Renaming to ":rename" to fix this', [
@@ -1226,6 +1225,7 @@ class PhoPathCore implements PhoPathInterface
                 ':path'  => $this->source,
                 ':class' => static::class,
             ]));
+
         } else {
             try {
                 // Check if this path has a mount somewhere. If so, see if it needs auto-mounting
@@ -1809,7 +1809,7 @@ class PhoPathCore implements PhoPathInterface
 
             } else {
                 // Ensure that the target parent directory exists
-                $o_target->getParentDirectory()->ensure();
+                $o_target->getParentDirectoryObject()->ensure();
             }
         }
 
@@ -1975,7 +1975,7 @@ class PhoPathCore implements PhoPathInterface
                        ])
                        ->executeReturnArray();
             } else {
-                Chmod::new($this->getParentDirectory())->do($this->getSource(), $mode, false);
+                Chmod::new($this->getParentDirectoryObject())->do($this->getSource(), $mode, false);
             }
 
         } else {
@@ -2418,7 +2418,7 @@ class PhoPathCore implements PhoPathInterface
 
         // Ensure that we have restriction access and target parent directory exists
         $target->checkRestrictions(true);
-        $target->getParentDirectory()->ensure();
+        $target->getParentDirectoryObject()->ensure();
 
         // Symlink!
         try {
@@ -2616,14 +2616,14 @@ class PhoPathCore implements PhoPathInterface
 
         // Return (possibly) relative links
         if (is_dir($path)) {
-            return new PhoDirectory($path, $this->o_restrictions, $this->getParentDirectory());
+            return new PhoDirectory($path, $this->o_restrictions, $this->getParentDirectoryObject());
         }
 
         if (file_exists($path)) {
-            return new PhoFile($path, $this->o_restrictions, $this->getParentDirectory());
+            return new PhoFile($path, $this->o_restrictions, $this->getParentDirectoryObject());
         }
 
-        return new static($path, $this->o_restrictions, $this->getParentDirectory());
+        return new static($path, $this->o_restrictions, $this->getParentDirectoryObject());
     }
 
 
@@ -2669,13 +2669,32 @@ class PhoPathCore implements PhoPathInterface
 
 
     /**
+     * Returns a PhoDirectory object from this PhoPath object
+     *
+     * If the current path is a directory, the PhoDirectory object will have the same path
+     *
+     * If the current path is not a directory, the parent directory object will be returned instead
+     *
+     * @return PhoDirectoryInterface
+     */
+    public function getDirectoryObject(): PhoDirectoryInterface
+    {
+        if ($this->isDirectory()) {
+            return PhoDirectory::new($this);
+        }
+
+        return $this->getParentDirectoryObject();
+    }
+
+
+    /**
      * Returns the parent directory for this file
      *
      * @param PhoRestrictionsInterface|null $restrictions
      *
      * @return PhoDirectoryInterface
      */
-    public function getParentDirectory(?PhoRestrictionsInterface $restrictions = null): PhoDirectoryInterface
+    public function getParentDirectoryObject(?PhoRestrictionsInterface $restrictions = null): PhoDirectoryInterface
     {
         return PhoDirectory::new(dirname($this->source), $restrictions ?? $this->o_restrictions?->getParent());
     }
@@ -3608,7 +3627,7 @@ class PhoPathCore implements PhoPathInterface
             }
 
             // Force the file to exist
-            $this->getParentDirectory()->ensure();
+            $this->getParentDirectoryObject()->ensure();
             $this->touch();
         }
 
@@ -3649,7 +3668,7 @@ class PhoPathCore implements PhoPathInterface
 
         } else {
             // The source doesn't exist, so we don't have to move anything out of place or delete afterward
-            $this->getParentDirectory()->ensure();
+            $this->getParentDirectoryObject()->ensure();
             $target->rename($this);
         }
 
@@ -3852,7 +3871,7 @@ class PhoPathCore implements PhoPathInterface
 
             } else {
                 // This is a file, so there are no files beyond THIS file.
-                $this->files = PhoFiles::new($this->getParentDirectory(), [$this->source], $this->o_restrictions);
+                $this->files = PhoFiles::new($this->getParentDirectoryObject(), [$this->source], $this->o_restrictions);
             }
         }
 
@@ -3909,7 +3928,7 @@ class PhoPathCore implements PhoPathInterface
 
         // Ensure that we have restriction access and target parent directory exists
         $this->checkRestrictions(true);
-        $this->getParentDirectory()->ensure();
+        $this->getParentDirectoryObject()->ensure();
 
         // Symlink!
         try {
@@ -3945,7 +3964,7 @@ class PhoPathCore implements PhoPathInterface
         if ($this->exists()) {
             $list = Find::new($this->o_restrictions)
                         ->setExecutionDirectory(new PhoDirectory($this))
-                        ->setPath($this)
+                        ->setPathObject($this)
                         ->setType('l')
                         ->setCallback(function ($file) use ($clean) {
                             PhoPath::new($file, $this->o_restrictions)->delete(true);
@@ -4024,7 +4043,7 @@ class PhoPathCore implements PhoPathInterface
     public function getFilesystemObject(): PhoFilesystemInterface
     {
         try {
-            $results = Df::new($this->isDirectory() ? new PhoDirectory($this) : $this->getParentDirectory())
+            $results = Df::new($this->isDirectory() ? new PhoDirectory($this) : $this->getParentDirectoryObject())
                          ->executeNoReturn()
                          ->getResults();
 
@@ -4242,7 +4261,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function ensureParentDirectory(string|int|null $mode = null, ?bool $clear = false, bool $sudo = false): static
     {
-        $this->getParentDirectory()->ensure($mode, $clear, $sudo);
+        $this->getParentDirectoryObject()->ensure($mode, $clear, $sudo);
         return $this;
     }
 
@@ -4617,7 +4636,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function tar(?PhoFileInterface $target = null, bool $compression = true, int $timeout = 600): PhoFileInterface
     {
-        return Tar::new($this->getParentDirectory())->tar($this, $target, $compression, $timeout);
+        return Tar::new($this->getParentDirectoryObject())->tar($this, $target, $compression, $timeout);
     }
 
 
@@ -4628,7 +4647,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function getZipObject(): ZipInterface
     {
-        return Zip::new($this->getParentDirectory())
+        return Zip::new($this->getParentDirectoryObject())
                   ->setSourcePath($this);
     }
 
@@ -4733,5 +4752,45 @@ class PhoPathCore implements PhoPathInterface
     protected function getDirectoryHash(string $algo = 'sha256', bool $binary = false, array $options = []): string
     {
 throw new UnderConstructionException();
+    }
+
+
+    /**
+     * Returns true if the path for this object is in the specified path
+     *
+     * @param PhoPathInterface|string $o_path
+     *
+     * @return bool
+     */
+    public function isIn(PhoPathInterface|string $o_path): bool
+    {
+        if ($o_path instanceof PhoPathInterface) {
+            $o_path = $o_path->getSource();
+        }
+
+        return str_starts_with($this->source, $o_path);
+    }
+
+
+    /**
+     * Returns true if the path for this object is in the specified path
+     *
+     * @param PhoPathInterface|string $o_path
+     *
+     * @return static
+     */
+    public function checkIn(PhoPathInterface|string $o_path): static
+    {
+        if ($this->isIn($o_path)) {
+            return $this;
+        }
+
+        throw FilesystemException::new(tr('The current path ":path" is not inside the specified path ":specified"', [
+            ':path'      => $this->source,
+            ':specified' => $o_path
+        ]))->setData([
+            'path'      => $this->source,
+            'specified' => $o_path,
+        ]);
     }
 }

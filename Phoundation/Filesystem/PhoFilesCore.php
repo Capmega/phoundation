@@ -261,7 +261,6 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
      */
     protected function init(): static
     {
-show('init');
         foreach ($this->source as $key => &$file) {
             if (is_string($file)) {
                 switch ($file) {

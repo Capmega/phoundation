@@ -17,11 +17,9 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem;
 
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
-use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
-use Phoundation\Os\Processes\Commands\Zip;
 
 
 class PhoFiles extends PhoFilesCore implements PhoFilesInterface

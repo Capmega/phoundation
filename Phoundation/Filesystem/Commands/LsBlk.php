@@ -18,7 +18,7 @@ namespace Phoundation\Filesystem\Commands;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Data\Traits\TraitDataPath;
+use Phoundation\Data\Traits\TraitDataObjectPath;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoMountedStorageDevices;
 use Phoundation\Os\Processes\Commands\Command;
