@@ -2377,6 +2377,37 @@ class Arrays extends Utils
 
 
     /**
+     * Returns the value of the shortest key in the specified array.
+     *
+     * @param array $source
+     * @param bool  $return_length
+     *
+     * @return string|float|int|null
+     */
+    public static function getShortestKey(array $source, bool $return_length = false): string|float|int|null
+    {
+        $largest       = PHP_INT_MAX;
+        $largest_value = null;
+
+        foreach ($source as $key => $value) {
+            // Determine the largest key
+            $size = strlen((string) $key);
+
+            if ($size < $largest) {
+                $largest       = $size;
+                $largest_value = $value;
+            }
+        }
+
+        if ($return_length) {
+            return $largest;
+        }
+
+        return $largest_value;
+    }
+
+
+    /**
      * Returns the size of the shortest key in the specified array.
      *
      * @param array $source
@@ -2385,18 +2416,38 @@ class Arrays extends Utils
      */
     public static function getShortestKeyLength(array $source): int
     {
-        $largest = PHP_INT_MAX;
+        return static::getShortestKey($source, true);
+    }
+
+
+    /**
+     * Returns the value of the largest key in the specified array.
+     *
+     * @param array $source
+     * @param bool  $return_length
+     *
+     * @return string|float|int|null
+     */
+    public static function getLongestKey(array $source, bool $return_length = false): string|float|int|null
+    {
+        $largest       = 0;
+        $largest_value = null;
 
         foreach ($source as $key => $value) {
             // Determine the largest key
             $size = strlen((string) $key);
 
-            if ($size < $largest) {
-                $largest = $size;
+            if ($size > $largest) {
+                $largest       = $size;
+                $largest_value = $value;
             }
         }
 
-        return $largest;
+        if ($return_length) {
+            return $largest;
+        }
+
+        return $largest_value;
     }
 
 
@@ -2409,35 +2460,26 @@ class Arrays extends Utils
      */
     public static function getLongestKeyLength(array $source): int
     {
-        $largest = 0;
-
-        foreach ($source as $key => $value) {
-            // Determine the largest key
-            $size = strlen((string) $key);
-
-            if ($size > $largest) {
-                $largest = $size;
-            }
-        }
-
-        return $largest;
+        return static::getLongestKey($source, true);
     }
 
 
     /**
-     * Returns the size of the shortest scalar value in the specified array.
+     * Returns the value of the shortest scalar value in the specified array.
      *
      * @note This function will ignore any and all non-scalar values
      *
      * @param array       $source
      * @param string|null $key
      * @param bool        $exception
+     * @param bool        $return_length
      *
-     * @return int
+     * @return string|float|int|null
      */
-    public static function getShortestValueLength(array $source, ?string $key = null, bool $exception = false): int
+    public static function getShortestValue(array $source, ?string $key = null, bool $exception = false, bool $return_length = false): string|float|int|null
     {
-        $shortest = PHP_INT_MAX;
+        $shortest       = PHP_INT_MAX;
+        $shortest_value = null;
 
         foreach ($source as $value) {
             if ($key) {
@@ -2469,16 +2511,21 @@ class Arrays extends Utils
             $size = strlen((string) $value);
 
             if ($size < $shortest) {
-                $shortest = $size;
+                $shortest       = $size;
+                $shortest_value = $value;
             }
         }
 
-        return $shortest;
+        if ($return_length) {
+            return $shortest;
+        }
+
+        return $shortest_value;
     }
 
 
     /**
-     * Returns the size of the largest scalar value in the specified array.
+     * Returns the size of the shortest scalar value in the specified array.
      *
      * @note This function will ignore any and all non-scalar values
      *
@@ -2488,9 +2535,28 @@ class Arrays extends Utils
      *
      * @return int
      */
-    public static function getLongestValueLength(array $source, ?string $key = null, bool $exception = false): int
+    public static function getShortestValueLength(array $source, ?string $key = null, bool $exception = false): int
     {
-        $largest = 0;
+        return static::getShortestValue($source, $key, $exception, true);
+    }
+
+
+    /**
+     * Returns the value of the largest scalar value in the specified array.
+     *
+     * @note This function will ignore any and all non-scalar values
+     *
+     * @param array       $source
+     * @param string|null $key
+     * @param bool        $exception
+     * @param bool        $return_length
+     *
+     * @return string|float|int|null
+     */
+    public static function getLongestValue(array $source, ?string $key = null, bool $exception = false, bool $return_length = false): string|float|int|null
+    {
+        $largest       = 0;
+        $largest_value = 0;
 
         foreach ($source as $value) {
             if ($key) {
@@ -2508,21 +2574,47 @@ class Arrays extends Utils
             }
 
             if (!is_scalar($value)) {
-                // $string must be a scalar value! Ignore this entry
-                throw new OutOfBoundsException(tr('Specified source data contains non scalar value ":value"', [
-                    ':value' => $value,
-                ]));
+                if ($exception) {
+                    // $string must be a scalar value! Ignore this entry
+                    throw new OutOfBoundsException(tr('Specified source data contains non scalar value ":value"', [
+                        ':value' => $value,
+                    ]));
+                }
+
+                continue;
             }
 
             // Determine the largest call line
             $size = strlen((string) $value);
 
             if ($size > $largest) {
-                $largest = $size;
+                $largest       = $size;
+                $largest_value = $value;
             }
         }
 
-        return $largest;
+        if ($return_length) {
+            return $largest;
+        }
+
+        return $largest_value;
+    }
+
+
+    /**
+     * Returns the size of the largest scalar value in the specified array.
+     *
+     * @note This function will ignore any and all non-scalar values
+     *
+     * @param array       $source
+     * @param string|null $key
+     * @param bool        $exception
+     *
+     * @return int
+     */
+    public static function getLongestValueLength(array $source, ?string $key = null, bool $exception = false): int
+    {
+        return static::getLongestValue($source, $key, $exception, true);
     }
 
 
