@@ -78,7 +78,7 @@ class PhoDateTimeFormats
      *
      * @return string
      */
-    public static function getDefaultDateFormatJavascript(bool $lowercase = false, bool $compact = false): string
+    public static function getDefaultDateFormatJavaScript(bool $lowercase = false, bool $compact = false): string
     {
         $default = static::getDefaultDateFormatPhp($compact);
         $default = static::convertPhpToJs($default);
@@ -124,7 +124,7 @@ class PhoDateTimeFormats
      *
      * @return string
      */
-    public static function getDefaultTimeFormatJavascript(bool $lowercase = false, bool $compact = false): string
+    public static function getDefaultTimeFormatJavaScript(bool $lowercase = false, bool $compact = false): string
     {
         $default = static::getDefaultTimeFormatPhp($compact);
         $default = static::convertPhpToJs($default);
@@ -158,7 +158,7 @@ class PhoDateTimeFormats
             $default = str_replace(' ', '', $default);
         }
 
-        return $default;
+        return str_replace('>>SEPARATOR<<', ' ', $default);
     }
 
 
@@ -170,7 +170,7 @@ class PhoDateTimeFormats
      *
      * @return string
      */
-    public static function getDefaultDateTimeFormatJavascript(bool $lowercase = false, bool $compact = false): string
+    public static function getDefaultDateTimeFormatJavaScript(bool $lowercase = false, bool $compact = false): string
     {
         $default = static::getDefaultDateTimeFormatPhp($compact);
         $default = static::convertPhpToJs($default);
@@ -188,7 +188,7 @@ class PhoDateTimeFormats
      *
      * @return IteratorInterface
      */
-    public static function getSupportedJavascript(): IteratorInterface
+    public static function getSupportedJavaScript(): IteratorInterface
     {
         $supported = static::getSupportedPhp();
 
