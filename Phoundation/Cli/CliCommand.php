@@ -29,6 +29,7 @@ use Phoundation\Accounts\Config\Config;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Cache\Cache;
 use Phoundation\Cache\InstanceCache;
+use Phoundation\Cli\Exception\CliArgumentsException;
 use Phoundation\Cli\Exception\CliAutoCompleteException;
 use Phoundation\Cli\Exception\CliCommandException;
 use Phoundation\Cli\Exception\CliCommandNotExistsException;
@@ -1754,11 +1755,13 @@ return 'under construction';
                                  ->select('-Z,--clear-caches')->isOptional(false)->isBoolean()
                                  ->select('--auto-complete', true)->isOptional()->hasMaxCharacters(1024)
                                  ->select('--deleted')->isOptional(false)->isBoolean()
+                                 ->select('--iec')->isOptional(false)->isBoolean()
                                  ->select('--limit', true)->isOptional(0)->isNatural()
                                  ->select('--locale', true)->isOptional()->hasCharacters(5)
                                  ->select('--no-validation')->isOptional(false)->isBoolean()
                                  ->select('--no-password-validation')->isOptional(false)->isBoolean()
                                  ->select('--show-passwords')->isOptional(false)->isBoolean()
+                                 ->select('--si')->isOptional(false)->isBoolean()
                                  ->select('--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
                                  ->select('--sudo')->isOptional(false)->isBoolean()
                                  ->select('--timezone', true)->isOptional()->isString()
@@ -1831,6 +1834,21 @@ return 'under construction';
 
             // Set session configuration in case session data must be accessed
             Session::initializePhpIni();
+
+            // What units to use for binary numbers?
+            if ($argv['iec']) {
+                if ($argv['si']) {
+                    throw new CliArgumentsException(ts('Cannot use both arguments --si and --iec, these arguments are mutually exclusive'));
+                }
+
+                define('UNITS', 'IEC');
+
+            } elseif ($argv['si']) {
+                define('UNITS', 'SI');
+
+            } else {
+                define('UNITS', config()->getStringUppercase('log.units', 'si'));
+            }
 
             // Define basic platform constants
             define('ADMIN'     , '');
@@ -2093,7 +2111,7 @@ return 'under construction';
             CliCommand::$service = $argv['service'];
 
         } catch (Throwable $e) {
-            throw new CliCommandException(ts('Failed to process system arguments because: ' . $e->getMessage()), $e);
+            throw new CliCommandException(ts('Failed to process system arguments because: ') . $e->getMessage(), $e);
         }
     }
 
@@ -2323,6 +2341,10 @@ return 'under construction';
 
 [--deleted]                             Will show deleted DataEntry records
 
+[--iec]                                 Will display human readable amounts of data in IEC units (International Electrotechnical Commission, 1_024 = 1KB, 
+                                        1_048_576 = 1MB, etc) 
+                                        NOTE: Cannot be used with --si  
+
 [--limit NUMBER]                        Will limit table output to the number of specified fields
 
 [--no-validation]                       Will not validate any of the data input. 
@@ -2333,6 +2355,9 @@ return 'under construction';
                                         
 [--show-passwords]                      Will display passwords visibly on the command line. Both typed passwords and
                                         data output will show passwords in the clear!
+
+[--si]                                  Will display human readable amounts of data in SI units (1_000 = 1KB, 1_000_000 = 1MB, etc)
+                                        NOTE: Cannot be used with --iec  
 
 [--status STRING]                       If specified the system will only display entries with the specified status
 

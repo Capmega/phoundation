@@ -171,10 +171,12 @@ class CliAutoComplete
             '-Y,--clear-tmp'           => false,
             '-Z,--clear-caches'        => false,
             '--deleted'                => false,
+            '--iec'                    => false,
             '--limit'                  => true,
             '--no-validation'          => false,
             '--no-password-validation' => false,
             '--show-passwords'         => false,
+            '--si'                     => false,
             '--status'                 => true,
             '--sudo'                   => false,
             '--timezone'               => [
@@ -741,7 +743,7 @@ class CliAutoComplete
             if ($file->isReadable()) {
                 // Check if it contains the setup for Phoundation
                 // TODO Check if this is an issue with huge bash_completion files, are there huge files out there?
-                $results = Grep::new($file->getParentDirectory())
+                $results = Grep::new($file->getParentDirectoryObject())
                                ->setValue('_phoundation pho')
                                ->setFileObject($file)
                                ->grep(EnumExecuteMethod::returnArray);
@@ -796,12 +798,12 @@ class CliAutoComplete
 
         } else {
             // File does not exist. Does the parent directory match?
-            if (!$file->getParentDirectory()->uidMatchesPuid()) {
+            if (!$file->getParentDirectoryObject()->uidMatchesPuid()) {
                 Log::warning(ts('Not trying to initialize bash completion file ":file" as the owner UID ":fuid (:fname)" of the parent directory ":directory" does not match this process UID ":puid (:pname)"', [
-                    ':directory' => $file->getParentDirectory()->getAbsolutePath(must_exist: false),
+                    ':directory' => $file->getParentDirectoryObject()->getAbsolutePath(must_exist: false),
                     ':file'      => $file->getAbsolutePath(must_exist: false),
-                    ':fuid'      => $file->getParentDirectory()->getOwnerUid(),
-                    ':fname'     => $file->getParentDirectory()->getOwnerName(),
+                    ':fuid'      => $file->getParentDirectoryObject()->getOwnerUid(),
+                    ':fname'     => $file->getParentDirectoryObject()->getOwnerName(),
                     ':puid'      => Core::getProcessUid(),
                     ':pname'     => Core::getProcessUsername()
                 ]));
