@@ -25,7 +25,7 @@ use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 class Analyze
 {
     use TraitDataPathInterface {
-        setPath as protected __setPath;
+        setPathObject as protected __setPath;
     }
 
 
@@ -34,25 +34,25 @@ class Analyze
      */
     public function __construct(PhoPathInterface|string|null $path = null)
     {
-        $this->setPath($path);
+        $this->setPathObject($path);
     }
 
 
     /**
      * Sets the path
      *
-     * @param PhoPathInterface|null $path
+     * @param PhoPathInterface|null $o_path
      *
      * @return static
      */
-    public function setPath(PhoPathInterface|null $path = null): static
+    public function setPathObject(PhoPathInterface|null $o_path = null): static
     {
-        if (!$path) {
+        if (!$o_path) {
             // Default to the root directory of this project
-            $path = new PhoPath(DIRECTORY_ROOT, PhoRestrictions::newReadonlyObject(DIRECTORY_ROOT));
+            $o_path = new PhoPath(DIRECTORY_ROOT, PhoRestrictions::newReadonlyObject(DIRECTORY_ROOT));
         }
 
-        return $this->__setPath($path);
+        return $this->__setPath($o_path);
     }
 
 

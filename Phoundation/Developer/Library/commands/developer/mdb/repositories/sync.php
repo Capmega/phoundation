@@ -86,7 +86,7 @@ foreach ($repositories as $repository) {
         ]), 10);
 
         // Repo does not yet exist, clone it
-        Git::new($path->getParentDirectory()->ensure())->clone($repository);
+        Git::new($path->getParentDirectoryObject()->ensure())->clone($repository);
     }
 }
 
