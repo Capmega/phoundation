@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Data\DataEntries\Enums;
+namespace Phoundation\Data\Enums;
 
 
 enum EnumStateMismatchHandling: string
