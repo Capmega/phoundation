@@ -39,14 +39,14 @@ interface PhoLocaleInterface
      *
      * @return string
      */
-    public function getDateFormatJavascript(): string;
+    public function getDateFormatJavaScript(): string;
 
     /**
      * Returns the default date/time format for this process used in JavaScript
      *
      * @return string
      */
-    public function getDateTimeFormatJavascript(): string;
+    public function getDateTimeFormatJavaScript(): string;
 
     /**
      * Returns a formatted version of the specified phone number

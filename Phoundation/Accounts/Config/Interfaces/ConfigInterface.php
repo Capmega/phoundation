@@ -10,6 +10,7 @@ use Phoundation\Accounts\Config\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Developer\Project\Configuration;
 use Phoundation\Exception\OutOfBoundsException;
+use Stringable;
 
 interface ConfigInterface
 {
@@ -442,4 +443,44 @@ interface ConfigInterface
      * @return array
      */
     public function getSource(): array;
+
+    /**
+     * Return configuration STRING for the specified key path in uppercase
+     *
+     * @note Will throw an exception if a non-string value is returned!
+     *
+     * @param string|array           $path                     The configuration path for which the value should be
+     *                                                         returned
+     * @param Stringable|string|null $default                  The default value to return if the configuration path
+     *                                                         doesn't exist. If not specified, or NULL, an exception
+     *                                                         will be thrown when the path doesn't exist
+     * @param bool                   $allow_user_configuration If true will allow user configuration to override system
+     *                                                         configuration
+     * @param bool                   $use_cache                If true will allow user configuration to be stored in and
+     *                                                         read from cache
+     *
+     * @return string                                The value for the requested path
+     *
+     */
+    public function getStringUppercase(string|array $path, Stringable|string|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): string;
+
+    /**
+     * Return configuration STRING for the specified key path in lowercase
+     *
+     * @note Will throw an exception if a non-string value is returned!
+     *
+     * @param string|array           $path                     The configuration path for which the value should be
+     *                                                         returned
+     * @param Stringable|string|null $default                  The default value to return if the configuration path
+     *                                                         doesn't exist. If not specified, or NULL, an exception
+     *                                                         will be thrown when the path doesn't exist
+     * @param bool                   $allow_user_configuration If true will allow user configuration to override system
+     *                                                         configuration
+     * @param bool                   $use_cache                If true will allow user configuration to be stored in and
+     *                                                         read from cache
+     *
+     * @return string                                The value for the requested path
+     *
+     */
+    public function getStringLowercase(string|array $path, Stringable|string|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): string;
 }

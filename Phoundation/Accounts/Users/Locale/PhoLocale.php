@@ -105,9 +105,9 @@ class PhoLocale extends Locale implements PhoLocaleInterface
      *
      * @return string
      */
-    public function getDateFormatJavascript(bool $lowercase = false): string
+    public function getDateFormatJavaScript(bool $lowercase = false): string
     {
-        return PhoDateTimeFormats::getDefaultDateFormatJavascript($lowercase);
+        return PhoDateTimeFormats::getDefaultDateFormatJavaScript($lowercase);
     }
 
 
@@ -118,9 +118,9 @@ class PhoLocale extends Locale implements PhoLocaleInterface
      *
      * @return string
      */
-    public function getDateTimeFormatJavascript(bool $lowercase = false): string
+    public function getDateTimeFormatJavaScript(bool $lowercase = false): string
     {
-        return PhoDateTimeFormats::getDefaultDateTimeFormatJavascript($lowercase);
+        return PhoDateTimeFormats::getDefaultDateTimeFormatJavaScript($lowercase);
     }
 
 
@@ -131,9 +131,9 @@ class PhoLocale extends Locale implements PhoLocaleInterface
      *
      * @return string
      */
-    public function getTimeFormatJavascript(bool $lowercase = false): string
+    public function getTimeFormatJavaScript(bool $lowercase = false): string
     {
-        return PhoDateTimeFormats::getDefaultTimeFormatJavascript($lowercase);
+        return PhoDateTimeFormats::getDefaultTimeFormatJavaScript($lowercase);
     }
 
 

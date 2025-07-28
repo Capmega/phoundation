@@ -899,8 +899,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                         ]))
                         ->setDetails([
                             ':modify' => $this->getLogId(),
-                            ':user'   => Session::getUserObject()
-                                                ->getSource(),
+                            ':user'   => Session::getUserObject()->getSource(),
                         ])
                         ->setNotifyRoles('accounts')
                         ->save()
