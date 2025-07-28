@@ -229,6 +229,11 @@ trait TraitMethodsVirtualColumns {
             $return = array_merge($additional_filters, $return);
         }
 
+        // If we have the unique table id then return only that.
+        if (array_key_exists('id', $return)) {
+            return ['id' => $return['id']];
+        }
+
         return $return;
     }
 

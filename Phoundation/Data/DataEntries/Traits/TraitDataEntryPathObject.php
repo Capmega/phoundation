@@ -16,10 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries\Traits;
 
-use Phoundation\Filesystem\PhoPath;
-use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
-use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 
 
 trait TraitDataEntryPathObject
@@ -38,12 +35,12 @@ trait TraitDataEntryPathObject
     /**
      * Sets the path for this object
      *
-     * @param PhoPathInterface|null $path
+     * @param PhoPathInterface|null $o_path
      *
      * @return static
      */
-    public function setPathObject(?PhoPathInterface $path): static
+    public function setPathObject(?PhoPathInterface $o_path): static
     {
-        return $this->set($path, 'path');
+        return $this->set($o_path, 'path');
     }
 }

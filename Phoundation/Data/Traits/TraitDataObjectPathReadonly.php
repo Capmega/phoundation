@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Trait TraitDataPath
+ * Trait TraitDataObjectPathReadonly
  *
  *
  *
@@ -19,7 +19,7 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 
 
-trait TraitDataPathInterface
+trait TraitDataObjectPathReadonly
 {
     /**
      * The path to use
@@ -30,7 +30,7 @@ trait TraitDataPathInterface
 
 
     /**
-     * Returns the path
+     * Returns the path object
      *
      * @return PhoPathInterface|null
      */
@@ -41,15 +41,17 @@ trait TraitDataPathInterface
 
 
     /**
-     * Sets the path
+     * Sets the path object
      *
      * @param PhoPathInterface|null $o_path
+     * @param string|null           $prefix
+     * @param bool                  $must_exist
      *
      * @return static
      */
-    public function setPathObject(PhoPathInterface|null $o_path): static
+    protected function setPathObject(PhoPathInterface|null $o_path, ?string $prefix = null, bool $must_exist = true): static
     {
-        $this->o_path = $o_path;
+        $this->o_path = $o_path?->makeAbsolute($prefix, $must_exist);
         return $this;
     }
 }

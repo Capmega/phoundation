@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Trait TraitDataDirectoryReadonly
+ * Trait TraitDataObjectDirectoryReadonly
  *
  *
  *
@@ -19,7 +19,7 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 
 
-trait TraitDataDirectoryReadonly
+trait TraitDataObjectDirectoryReadonly
 {
     /**
      * The directory for this object
@@ -43,15 +43,15 @@ trait TraitDataDirectoryReadonly
     /**
      * Sets the directory
      *
-     * @param PhoDirectoryInterface|null $directory
+     * @param PhoDirectoryInterface|null $o_directory
      * @param string|null                $prefix
      * @param bool                       $must_exist
      *
      * @return static
      */
-    protected function setDirectoryObject(?PhoDirectoryInterface $directory, ?string $prefix = null, bool $must_exist = true): static
+    protected function setDirectoryObject(?PhoDirectoryInterface $o_directory, ?string $prefix = null, bool $must_exist = true): static
     {
-        $this->o_directory = $directory?->makeAbsolute($prefix, $must_exist);
+        $this->o_directory = $o_directory?->makeAbsolute($prefix, $must_exist);
         return $this;
     }
 }

@@ -125,10 +125,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries;
 
-
 use Phoundation\Data\DataEntries\Exception\DataEntryBadException;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Interfaces\ArraySourceInterface;
+
 
 class DataEntry extends DataEntryCore
 {

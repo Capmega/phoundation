@@ -72,7 +72,7 @@ trait TraitMethodEnsureArrayString
         // Objects
         if (is_a($this->source[$key], ArraySourceInterface::class, true)) {
             // Can only do this for objects that have ArraySourceInterface so that we can dump array sources in them.
-            return $this->source[$key]->__toArray();
+            return $this->source[$key]->getSource();
         }
 
         // 0, 0.0, false, "", NULL

@@ -21,7 +21,7 @@ use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 
 
-trait TraitDataDate
+trait TraitDataObjectDate
 {
     /**
      * The date to use
@@ -36,7 +36,7 @@ trait TraitDataDate
      *
      * @return PhoDateTimeInterface|null
      */
-    public function getDate(): ?PhoDateTimeInterface
+    public function getDateObject(): ?PhoDateTimeInterface
     {
         return $this->date;
     }
@@ -50,7 +50,7 @@ trait TraitDataDate
      *
      * @return static
      */
-    public function setDate(PhoDateTimeInterface|string|null $date, DateTimeZone|string|null $timezone = null): static
+    public function setDateObject(PhoDateTimeInterface|string|null $date, DateTimeZone|string|null $timezone = null): static
     {
         if ($date instanceof PhoDateTime) {
             $this->date = new PhoDateTime($date->format('Y-m-d'), $timezone ?? $date->getTimezone());

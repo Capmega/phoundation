@@ -1133,13 +1133,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @param bool $filter_meta
      * @param bool $filter_protected_columns
-     * @param bool $as_is
      *
      * @return array
      */
-    public function getSourceKeys(bool $filter_meta = false, bool $filter_protected_columns = true, bool $as_is = false): array
+    public function getSourceKeys(bool $filter_meta = false, bool $filter_protected_columns = true): array
     {
-        return array_keys($this->getSource($filter_meta, $filter_protected_columns, $as_is));
+        return array_keys($this->getSource($filter_meta, $filter_protected_columns));
     }
 
 
@@ -1341,7 +1340,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $this->setOnLoadNullIdentifier($on_load_null_identifier)
              ->setOnLoadNotExists($on_load_not_exists)
              ->setIdentifier($identifier)
-            ->is_initializing_source = true;
+             ->is_initializing_source = true;
 
         if (empty($this->connector)) {
             // Use the default connector for this DataEntry object
@@ -1571,7 +1570,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
                     if ($this->debug) {
                         Log::debug('FOUND CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($this->identifier) . '" IN GLOBAL CACHE WITH KEY "' . $this->getCacheKey() . '"', 10, echo_header: false);
-                        Log::printr($data_entry->getSource(as_is: true), 10, echo_header: false);
+                        Log::printr($data_entry->getSourceUnfiltered(), 10, echo_header: false);
                     }
 
                     $this->is_loaded_from_cache = true;
@@ -1601,7 +1600,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         if ($this->debug) {
             Log::debug('FOUND CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($this->identifier) . '" IN INSTANCE CACHE WITH KEY "' . $this->getCacheKey() . '"', 10, echo_header: false);
             Log::debug($this->getCacheKeySeed());
-            Log::printr($data_entry->getSource(as_is: true), 10, echo_header: false);
+            Log::printr($data_entry->getSourceUnfiltered(), 10, echo_header: false);
         }
 
         $this->is_loaded_from_cache = true;
@@ -1926,16 +1925,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * @param bool $filter_meta              If true, will filter out the DataEntry meta-columns
      * @param bool $filter_protected_columns If true, will filter out the DataEntry protected columns (typically
      *                                       passwords, etc)
-     * @param bool $as_is
      *
      * @return array
      */
-    public function getSource(bool $filter_meta = false, bool $filter_protected_columns = true, bool $as_is = false): array
+    public function getSource(bool $filter_meta = false, bool $filter_protected_columns = true): array
     {
-        if ($as_is) {
-            return $this->source;
-        }
-
         $source = $this->getSourceWithResolvedVirtualColumns();
 
         if ($filter_meta) {
@@ -1949,6 +1943,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         return $source;
+    }
+
+
+    /**
+     * Returns the source for this DataEntry as-is
+     *
+     * @return array
+     */
+    public function getSourceUnfiltered(): array
+    {
+        return $this->source;
     }
 
 
@@ -4473,7 +4478,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             $created_on = PhoDateTime::new($created_on)->format(EnumDateFormat::mysql_datetime);
         }
 
-        return $this->set($created_on, 'created_by');
+        return $this->set($created_on, 'created_on');
     }
 
 
@@ -4711,6 +4716,28 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
+     * Returns true if this DataEntry object is currently in the process of loading data
+     *
+     * @return bool
+     */
+    public function isLoading(): bool
+    {
+        return $this->is_loading;
+    }
+
+
+    /**
+     * Returns true if this DataEntry object contains data loaded from the database
+     *
+     * @return bool
+     */
+    public function isLoaded(): bool
+    {
+        return $this->is_loaded;
+    }
+
+
+    /**
      * Returns an array containing all the DataEntry state variables
      *
      * @return array
@@ -4725,6 +4752,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             'is_modified'            => $this->is_modified,
             'is_validated'           => $this->is_validated,
             'is_loading'             => $this->is_loading,
+            'is_loaded'              => $this->is_loaded,
             'is_loaded_from_cache'   => $this->is_loaded_from_cache,
             'is_initializing_source' => $this->is_initializing_source,
             'is_initialized'         => $this->is_initialized,

@@ -38,13 +38,13 @@ trait TraitDataEntryPath
     /**
      * Sets the path for this object
      *
-     * @param PhoPathInterface|string|null  $path
+     * @param PhoPathInterface|string|null  $o_path
      * @param PhoRestrictionsInterface|null $restrictions
      *
      * @return static
      */
-    public function setPath(PhoPathInterface|string|null $path, ?PhoRestrictionsInterface $restrictions = null): static
+    public function setPath(PhoPathInterface|string|null $o_path, ?PhoRestrictionsInterface $restrictions = null): static
     {
-        return $this->set(is_string($path) ? new PhoPath($path, $restrictions) : $path, 'path');
+        return $this->set(is_string($o_path) ? new PhoPath($o_path, $restrictions) : $o_path, 'path');
     }
 }
