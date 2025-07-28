@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Virtualization\Docker;
 
-use Phoundation\Data\Traits\TraitDataDirectory;
+use Phoundation\Data\Traits\TraitDataObjectDirectory;
 use Phoundation\Data\Traits\TraitDataPort;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoFile;
@@ -27,7 +27,7 @@ use Phoundation\Virtualization\Traits\TraitDataImage;
 
 class DockerFile
 {
-    use TraitDataDirectory;
+    use TraitDataObjectDirectory;
     use TraitDataPort;
     use TraitDataImage;
     use TraitDataRestrictions;
