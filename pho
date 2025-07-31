@@ -20,10 +20,14 @@
  */
 
 use Phoundation\Cli\CliCommand;
+use Phoundation\Cli\Exception\CliCommandNotExistsException;
+use Phoundation\Cli\Exception\CliCommandNotFoundException;
+use Phoundation\Core\Core;
+use Phoundation\Exception\PhoException;
 
 try {
     // Load the PHP autoloader and execute the static Script::execute() method that will execute the requested command
-    define('PHO_DIRECTORY', __DIR__);
+    define('PHO_DIRECTORY', __DIR__ . '/');
 
     if (!@include(PHO_DIRECTORY . '/vendor/autoload.php')) {
         throw new Exception('Failed opening required \'./vendor/autoload.php\'');
@@ -32,6 +36,10 @@ try {
     CliCommand::execute();
 
 } catch (Throwable $e) {
+    if (($e instanceof CliCommandNotExistsException) or ($e instanceof CliCommandNotFoundException)) {
+        throw $e;
+    }
+
     $message = $e->getMessage();
 
     if (str_starts_with($message, 'Failed opening required \'./vendor/autoload.php\'')) {
