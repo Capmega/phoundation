@@ -20,6 +20,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
@@ -154,8 +155,8 @@ $card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::new('/accounts/users.html')->makeWww() . '">' . tr('Users management') . '</a><br>
-                                   <a href="' . Url::new('/accounts/roles.html')->makeWww() . '">' . tr('Roles management') . '</a>');
+                     ->setContent(Anchor::new('/accounts/users.html', tr('Manage users')) .
+                                  Anchor::new('/accounts/roles.html', tr('Manage roles'), '<br>'));
 
 
 // Build documentation
@@ -170,6 +171,7 @@ Response::setHeaderTitle(tr('Right'));
 Response::setHeaderSubTitle($right->getDisplayName());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                     => tr('Home'),
+    '/accounts.html'        => tr('Accounts'),
     '/accounts/rights.html' => tr('Rights'),
     ''                      => $right->getDisplayName(),
 ]));
@@ -177,5 +179,5 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($card      . isset_get($users_card) , EnumDisplaySize::nine)
-           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($card          . isset_get($users_card), EnumDisplaySize::nine)
+           ->addGridColumn($relevant_card . $documentation_card   , EnumDisplaySize::three);

@@ -20,6 +20,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Forms\Form;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
@@ -59,9 +60,6 @@ if (Request::isPostRequestMethod()) {
                      ->save()
                      ->getRightsObject()
                          ->setRights($post['rights_id']);
-
-// TODO Implement timers
-//showdie(Timers::get('query'));
 
                 Response::getFlashMessagesObject()->addSuccess(tr('Role ":role" has been saved', [':role' => $role->getName()]));
                 Response::redirect('accounts/role+' . $role->getId() . '.html');
@@ -110,21 +108,6 @@ if ($role->isNotNew()) {
     }
 
     $users = $role->getUsersObject();
-// :TODO: Fix Users class first, make sure that Users::load() uses query builder instead of direct queries!
-//    $users->getQueryBuilderObject()->addSelect('        `accounts_users`.`id`,
-//                                                  TRIM(CONCAT(`first_names`, " ", `last_names`)) AS `name`,
-//                                                  `accounts_users`.`email`,
-//                                                  `accounts_users`.`status`,
-//                                                  GROUP_CONCAT(CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) SEPARATOR ", ") AS `roles`,
-//                                                  `accounts_users`.`sign_in_count`,
-//                                                  `accounts_users`.`created_on`,
-//                                                  `accounts_users`.`profile_image`')
-//                             ->addJoin('LEFT JOIN `accounts_users_roles`
-//                                               ON `accounts_users_roles`.`users_id` = `accounts_users`.`id`')
-//                             ->addJoin('LEFT JOIN `accounts_roles`
-//                                               ON `accounts_roles`.`id` = `accounts_users_roles`.`roles_id`')
-//                             ->addWhere('         `accounts_users`.`email` != "guest"')
-//                             ->addGroupBy('       `accounts_users`.`id`');
 
     // Build the "users" list section
     $users_card = Card::new()
@@ -162,8 +145,8 @@ $role_card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::new('/accounts/users.html')->makeWww() . '">' . tr('Users management') . '</a><br>
-                                   <a href="' . Url::new('/accounts/rights.html')->makeWww() . '">' . tr('Rights management') . '</a>');
+                     ->setContent(Anchor::new('/accounts/users.html' , tr('Manage users')) .
+                                  Anchor::new('/accounts/rights.html', tr('Manage rights'), '<br>'));
 
 
 // Build documentation
@@ -190,6 +173,7 @@ Response::setHeaderTitle(tr('Role'));
 Response::setHeaderSubTitle($role->getDisplayName());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                    => tr('Home'),
+    '/accounts.html'       => tr('Accounts'),
     '/accounts/roles.html' => tr('Roles'),
     ''                     => $role->getDisplayName(),
 ]));

@@ -15,6 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Data\Iterator;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Forms\FilterForm;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -56,10 +57,10 @@ $sessions_card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent(($user ? '<a href="' . Url::new('/accounts/user+' . $user->getId() . '.html')->makeWww() . '">' . tr('Manage user :user', [':user' => $user->getDisplayName()]) . '</a><hr>' : null) . '
-                                   <a href="' . Url::new('/accounts/users.html')->makeWww() . '">' . tr('Users management') . '</a><br>
-                                   <a href="' . Url::new('/accounts/roles.html')->makeWww() . '">' . tr('Roles management') . '</a><br>
-                                   <a href="' . Url::new('/accounts/rights.html')->makeWww() . '">' . tr('Rights management') . '</a>');
+                     ->setContent(($user ? Anchor::new('/accounts/user+' . $user->getId() . '.html', tr('Manage user :user', [':user' => $user->getDisplayName()])) : null) .
+                                           Anchor::new('/accounts/users.html'                      , tr('Manage users') , $user ? '<hr>' : null) .
+                                           Anchor::new('/accounts/roles.html'                      , tr('Manage roles') , '<br>') .
+                                           Anchor::new('/accounts/rights.html'                     , tr('Manage rights'), '<br>'));
 
 
 // Build documentation
@@ -84,9 +85,10 @@ if ($user) {
     // Set page meta data
     Response::setHeaderTitle(tr('User sessions'));
     Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-        '/'                           => tr('Home'),
-        '/accounts/users.html'        => tr('Users'),
-        ''                            => tr('Sessions'),
+        '/'                    => tr('Home'),
+        '/accounts.html'       => tr('Accounts'),
+        '/accounts/users.html' => tr('Users'),
+        ''                     => tr('Sessions'),
     ]));
 }
 

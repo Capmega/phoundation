@@ -146,6 +146,27 @@ class Buttons extends ElementsBlock implements ButtonsInterface
 
 
     /**
+     * Renders and returns the string for this Buttons class
+     *
+     * @return string|null
+     */
+    public function render(): ?string
+    {
+        $o_aria  = $this->getAriaObject();
+        $o_data = $this->getDataObject();
+        $o_class = $this->getClassesObject();
+
+        foreach ($this as $button) {
+            $button->getAriaObject()->addSource($o_aria);
+            $button->getDataObject()->addSource($o_data);
+            $button->getClassesObject()->addSource($o_class);
+        }
+
+        return parent::render();
+    }
+
+
+    /**
      * Returns the button grouping
      *
      * @return bool
@@ -166,7 +187,6 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     public function setGroup(bool $group): static
     {
         $this->group = $group;
-
         return $this;
     }
 
@@ -174,9 +194,9 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     /**
      * Returns the current button
      *
-     * @return Button
+     * @return ButtonInterface|DropdownButtonInterface
      */
-    #[ReturnTypeWillChange] public function current(): Button
+    #[ReturnTypeWillChange] public function current(): ButtonInterface|DropdownButtonInterface
     {
         return current($this->source);
     }

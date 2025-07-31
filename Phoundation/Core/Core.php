@@ -397,7 +397,7 @@ class Core implements CoreInterface
 
         define('DIRECTORY_DATA'       , $data . '/');
         define('DIRECTORY_SYSTEM'     , DIRECTORY_DATA   . 'system/');
-        define('DIRECTORY_CDN'        , realpath(DIRECTORY_DATA . 'content/cdn/'));
+        define('DIRECTORY_CDN'        , realpath(DIRECTORY_DATA . 'content/cdn') . '/');
         define('DIRECTORY_PUBTMP'     , DIRECTORY_CDN    . 'tmp/');
         define('DIRECTORY_TMP'        , DIRECTORY_SYSTEM . 'tmp/');
         define('DIRECTORY_COMMANDS'   , DIRECTORY_SYSTEM . 'cache/system/commands/');
@@ -1073,7 +1073,12 @@ class Core implements CoreInterface
                     }
                 }
 
-                // The system crashed before Core wsa ready
+                // The system crashed before Core was ready
+                if (CliAutoComplete::isActive()) {
+                    // If we're in autocomplete mode, so we're fine as it can end before Core is ready
+                    exit();
+                }
+
                 Log::error(ts('*** UNCAUGHT STARTUP EXCEPTION ":class" IN ":type" TYPE SCRIPT ":command" ***', [
                     ':class'   => get_class($e),
                     ':type'    => Request::getRequestType()->value,

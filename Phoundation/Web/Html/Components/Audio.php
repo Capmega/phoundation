@@ -86,7 +86,7 @@ class Audio extends Element
      */
     public function setFile(PhoFileInterface $file): static
     {
-        return $this->setAttribute($file, 'src');
+        return $this->setAttribute($file->getFrom(DIRECTORY_CDN . LANGUAGE . '/phoundation/'), 'src');
     }
 
 

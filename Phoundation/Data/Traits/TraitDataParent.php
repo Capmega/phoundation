@@ -18,17 +18,18 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use ReturnTypeWillChange;
-
 
 trait TraitDataParent
 {
     /**
      * Tracks the parent object
      *
-     * @var DataEntryInterface|null $o_parent
+     * @var DataEntryInterface|RenderInterface|UrlInterface|null $o_parent
      */
-    protected ?DataEntryInterface $o_parent = null;
+    protected DataEntryInterface|RenderInterface|UrlInterface|null $o_parent = null;
 
     /**
      * Tracks if this object requires a parent, or not
@@ -41,9 +42,9 @@ trait TraitDataParent
     /**
      * Returns the DataEntryInterface parent object
      *
-     * @return DataEntryInterface
+     * @return DataEntryInterface|RenderInterface|UrlInterface|null
      */
-    #[ReturnTypeWillChange] public function getParentObject(): DataEntryInterface
+    #[ReturnTypeWillChange] public function getParentObject(): DataEntryInterface|RenderInterface|UrlInterface|null
     {
         return $this->o_parent;
     }
@@ -52,11 +53,11 @@ trait TraitDataParent
     /**
      * Sets the DataEntryInterface parent object
      *
-     * @param DataEntryInterface $o_parent
+     * @param DataEntryInterface|RenderInterface|UrlInterface|null $o_parent
      *
      * @return static
      */
-    public function setParentObject(DataEntryInterface $o_parent): static
+    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $o_parent): static
     {
         $this->o_parent = $o_parent;
         return $this;

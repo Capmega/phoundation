@@ -118,7 +118,7 @@ class Template implements TemplateInterface
             return $this->render;
         }
 
-        $renderer_class = Request::getTemplateObject()->getRendererClass($this);
+        $renderer_class = Request::getTemplateObject()->getRenderClass($this);
 
         if ($renderer_class and ($renderer_class !== 'Templates\Phoundation\Mdb\Html\Pages\Template')) {
             return $this->render = $renderer_class::new($this)->render();

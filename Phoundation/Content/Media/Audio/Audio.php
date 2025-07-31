@@ -50,13 +50,14 @@ class Audio extends PhoFile
     public function __construct(Stringable|string|null $source = null, bool|PhoRestrictionsInterface|null $restrictions = null, bool|Stringable|string|null $absolute_prefix = false)
     {
         if (!$source instanceof PhoPathInterface) {
-            $restrictions = $restrictions ?? PhoRestrictions::newReadonlyObject(DIRECTORY_DATA . 'audio');
+            $source = PhoFile::new($source, $restrictions ?? PhoRestrictions::newReadonlyObject(DIRECTORY_CDN . LANGUAGE . '/phoundation/audio'), DIRECTORY_CDN . LANGUAGE . '/phoundation/audio');
         }
 
         parent::__construct($source, $restrictions, $absolute_prefix);
 
         $this->setLogLevel(3)
-             ->signal = EnumSignal::SIGKILL;
+             ->setSignal(EnumSignal::SIGKILL)
+             ->setTimeout(config()->getInteger('media.audio.timeout', 10));
     }
 
 

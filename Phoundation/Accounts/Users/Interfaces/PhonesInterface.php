@@ -8,17 +8,19 @@ use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Exception\NotExistsException;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 
 interface PhonesInterface extends DataIteratorInterface
 {
     /**
      * Sets the parent
      *
-     * @param DataEntryInterface $o_parent
+     * @param DataEntryInterface|RenderInterface|UrlInterface|null $o_parent
      *
      * @return static
      */
-    public function setParentObject(DataEntryInterface $o_parent): static;
+    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $o_parent): static;
 
 
     /**

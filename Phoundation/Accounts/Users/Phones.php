@@ -17,7 +17,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
 
-use Exception;
 use Phoundation\Accounts\Users\Interfaces\PhoneInterface;
 use Phoundation\Accounts\Users\Interfaces\PhonesInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
@@ -33,8 +32,9 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
-
 
 class Phones extends DataIterator implements PhonesInterface
 {
@@ -92,11 +92,11 @@ class Phones extends DataIterator implements PhonesInterface
     /**
      * Sets the parent
      *
-     * @param DataEntryInterface $o_parent
+     * @param DataEntryInterface|RenderInterface|UrlInterface|null $o_parent
      *
      * @return static
      */
-    public function setParentObject(DataEntryInterface $o_parent): static
+    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $o_parent): static
     {
         if ($o_parent instanceof UserInterface) {
             // Clear the source to avoid having a parent with the wrong children

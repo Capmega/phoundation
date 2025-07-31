@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Interfaces;
 
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Span;
 use Phoundation\Web\Html\Enums\EnumElement;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
 
-interface ElementInterface extends ComponentInterface
+interface ElementInterface extends ComponentInterface, ElementAttributesInterface
 {
     /**
      * Sets the type of element to display
@@ -73,19 +73,19 @@ interface ElementInterface extends ComponentInterface
     /**
      * Returns the (optional) anchor for this element
      *
-     * @return AInterface
+     * @return AnchorInterface
      */
-    public function getAnchorObject(): AInterface;
+    public function getAnchorObject(): AnchorInterface;
 
 
     /**
      * Sets the anchor for this element
      *
-     * @param AInterface|null $o_anchor
+     * @param UrlInterface|AnchorInterface|null $o_anchor
      *
      * @return Span
      */
-    public function setAnchorObject(?AInterface $o_anchor): static;
+    public function setAnchorObject(UrlInterface|AnchorInterface|null $o_anchor): static;
 
 
     /**

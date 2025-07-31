@@ -83,4 +83,32 @@ interface RightsInterface extends DataIteratorInterface
      * @return static
      */
     public function setAutoCreate(bool $auto_create): static;
+
+    /**
+     * Returns true if the user has SOME of the specified rights
+     *
+     * @param array|string $rights
+     *
+     * @return bool
+     */
+    public function hasSome(array|string $rights): bool;
+
+    /**
+     * Returns true if the user has ALL the specified rights
+     *
+     * @param array|string $rights
+     * @param string|null  $always_match
+     *
+     * @return bool
+     */
+    public function hasAll(array|string $rights, ?string $always_match = 'god'): bool;
+
+    /**
+     * Returns an array of what rights this user misses
+     *
+     * @param array|string $rights
+     *
+     * @return array
+     */
+    public function getMissing(array|string $rights): array;
 }

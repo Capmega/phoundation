@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Forms\Interfaces;
 
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 
 interface DataEntryFormColumnInterface extends ElementsBlockInterface
 {

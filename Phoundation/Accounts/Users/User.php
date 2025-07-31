@@ -20,7 +20,8 @@ namespace Phoundation\Accounts\Users;
 use DateTimeInterface;
 use Phoundation\Accounts\Enums\EnumAuthenticationAction;
 use Phoundation\Accounts\Exception\AccountsException;
-use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
+use Phoundation\Accounts\Rights\Interfaces\RightInterface;
+use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Rights\RightsBySeoName;
 use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
@@ -56,7 +57,6 @@ use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
-use Phoundation\Data\DataEntries\Exception\DataEntryNotSavedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
@@ -83,6 +83,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryVerificationCode;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryVerifiedOn;
 use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Traits\TraitDataObjectRightsBySeoName;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
@@ -139,35 +140,32 @@ class User extends DataEntry implements UserInterface
     use TraitDataEntryVerifiedOn;
     use TraitDataEntryMfaCode;
     use TraitDataEntryMfaTimeslice;
+    use TraitDataObjectRightsBySeoName {
+        addRight    as protected __addRight;
+        removeRight as protected __removeRight;
+    }
 
 
     /**
      * The extra email addresses for this user
      *
-     * @var EmailsInterface $emails
+     * @var EmailsInterface $o_emails
      */
-    protected EmailsInterface $emails;
+    protected EmailsInterface $o_emails;
 
     /**
      * The extra phones for this user
      *
-     * @var PhonesInterface $phones
+     * @var PhonesInterface $o_phones
      */
-    protected PhonesInterface $phones;
+    protected PhonesInterface $o_phones;
 
     /**
      * The roles for this user
      *
-     * @var RolesInterface $roles
+     * @var RolesInterface $o_roles
      */
-    protected RolesInterface $roles;
-
-    /**
-     * The rights for this user
-     *
-     * @var RightsInterface $rights
-     */
-    protected RightsInterface $rights;
+    protected RolesInterface $o_roles;
 
     /**
      * Columns that will NOT be inserted
@@ -315,7 +313,7 @@ class User extends DataEntry implements UserInterface
     /**
      * Returns a single user object for a single user that has the specified role.
      *
-     * @note Will throw a NotExistsException if the specified role does not exist
+     * @note Will throw a NotExistsException if the specified role doesn't exist
      *
      * @param RoleInterface|array|string|int $role
      *
@@ -420,7 +418,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             }
         }
 
-        // Could not load user from alternative email address
+        // Couldn't load user from alternative email address
         return null;
     }
 
@@ -873,9 +871,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      * @param string|null $comments
      *
      * @return static
+     * @todo This method should also save all sub data like roles, emails, phones, etc...
      */
     public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
+Log::backtrace();
         Log::action(ts('Saving user ":user"', [':user' => $this->getDisplayName()]));
 
         if ($this->readonly or $this->disabled) {
@@ -1232,122 +1232,6 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
 
     /**
-     * Returns true if the user has SOME of the specified rights
-     *
-     * @param array|string $rights
-     *
-     * @return bool
-     */
-    public function hasSomeRights(array|string $rights): bool
-    {
-        if (!$rights) {
-            return true;
-        }
-
-        if (empty($this->rights) and $this->isNew()) {
-            return false;
-        }
-
-        $contains = $this->getRightsObject()->containsKeys($rights, false, 'god');
-
-        if (!$contains) {
-            if ($this->getRightsObject()->getCount()) {
-                $this->getRightsObject()->ensureRightsExist($this->getMissingRights($rights));
-
-            } else {
-                if ($this->isSystem()) {
-                    // System user has all rights
-                    return true;
-                }
-            }
-        }
-
-        return $contains;
-    }
-
-
-    /**
-     * Returns true if the user has ALL the specified rights
-     *
-     * @param array|string $rights
-     * @param string|null  $always_match
-     *
-     * @return bool
-     */
-    public function hasAllRights(array|string $rights, ?string $always_match = 'god'): bool
-    {
-        if (!$rights) {
-            return true;
-        }
-
-        if (empty($this->rights) and $this->isNew()) {
-            return false;
-        }
-
-        $contains = $this->getRightsObject()->containsKeys($rights, true, $always_match);
-
-        if (!$contains) {
-            if ($this->getRightsObject()->getCount()) {
-                $this->getRightsObject()
-                     ->setAutoCreate(true)
-                     ->ensureRightsExist($this->getMissingRights($rights));
-
-            } else {
-                if (PLATFORM_CLI and $this->isSystem()) {
-                    // System user has all rights
-                    return true;
-                }
-            }
-        }
-
-        return $contains;
-    }
-
-
-    /**
-     * Returns the roles for this user
-     *
-     * @param bool $reload
-     * @param bool $order
-     *
-     * @return RightsInterface
-     */
-    public function getRightsObject(bool $reload = false, bool $order = false): RightsInterface
-    {
-        if ($this->isNew()) {
-            throw new AccountsException(tr('Cannot access rights for user ":user", the user has not yet been saved', [
-                ':user' => $this->getLogId(),
-            ]));
-        }
-
-        if (empty($this->rights) or $reload) {
-            $this->rights = RightsBySeoName::new()
-                                           ->setParentObject($this)
-                                           ->load($order ? ['$order' => ['right' => 'asc']] : null);
-        }
-
-        return $this->rights;
-    }
-
-
-    /**
-     * Returns an array of what rights this user misses
-     *
-     * @param array|string $rights
-     *
-     * @return array
-     */
-    public function getMissingRights(array|string $rights): array
-    {
-        if (!$rights) {
-            return [];
-        }
-
-        return $this->getRightsObject()->getMissingKeys($rights, 'god');
-    }
-
-
-    /**
      * Authenticates the specified user id / email with its password
      *
      * @param string $key
@@ -1436,18 +1320,18 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             ]));
         }
 
-        if (!isset($this->roles)) {
+        if (!isset($this->o_roles)) {
             if ($this->getId(false)) {
-                $this->roles = RolesBySeoName::new()
-                                             ->setParentObject($this)
-                                             ->load();
+                $this->o_roles = RolesBySeoName::new()
+                                               ->setParentObject($this)
+                                               ->load();
 
             } else {
-                $this->roles = RolesBySeoName::new()->setParentObject($this);
+                $this->o_roles = RolesBySeoName::new()->setParentObject($this);
             }
         }
 
-        return $this->roles;
+        return $this->o_roles;
     }
 
 
@@ -2383,19 +2267,19 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function getEmailsObject(): EmailsInterface
     {
-        if (!isset($this->emails)) {
+        if (!isset($this->o_emails)) {
             if ($this->isNew()) {
-                $this->emails = Emails::new()->setParentObject($this);
+                $this->o_emails = Emails::new()->setParentObject($this);
 
             } else {
-                $this->emails = Emails::new()
-                                      ->setParentObject($this)
-                                      ->load();
+                $this->o_emails = Emails::new()
+                                        ->setParentObject($this)
+                                        ->load();
             }
 
         }
 
-        return $this->emails;
+        return $this->o_emails;
     }
 
 
@@ -2418,18 +2302,18 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function getPhonesObject(): PhonesInterface
     {
-        if (!isset($this->phones)) {
+        if (!isset($this->o_phones)) {
             if ($this->isNew()) {
-                $this->phones = Phones::new()->setParentObject($this);
+                $this->o_phones = Phones::new()->setParentObject($this);
 
             } else {
-                $this->phones = Phones::new()
-                                      ->setParentObject($this)
-                                      ->load();
+                $this->o_phones = Phones::new()
+                                        ->setParentObject($this)
+                                        ->load();
             }
         }
 
-        return $this->phones;
+        return $this->o_phones;
     }
 
 
@@ -2797,8 +2681,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         $this->source['email']    = 'system';
         $this->source['nickname'] = tr('System');
 
-        $this->roles  = RolesBySeoName::new()->load(['name' => 'god']);
-        $this->rights = RightsBySeoName::new()->load(['name' => 'god']);
+        $this->o_roles  = RolesBySeoName::new()->load(['name' => 'god']);
+        $this->o_rights = RightsBySeoName::new()->load(['name' => 'god']);
 
         return $this;
     }

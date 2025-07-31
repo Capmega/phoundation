@@ -42,7 +42,7 @@ use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Components\Interfaces\ScriptsInterface;
 use Phoundation\Web\Html\Components\Scripts;
@@ -54,7 +54,6 @@ use ReturnTypeWillChange;
 use Stringable;
 use Throwable;
 use ValueError;
-
 
 class Definition implements DefinitionInterface
 {
@@ -2637,17 +2636,22 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * If true, the value cannot be modified and this element will be shown as disabled on HTML clients
+     * If true, the value can't be modified and this element will be shown as disabled on HTML clients
      *
      * @note Defaults to false
      *
-     * @param bool|null $value
+     * @param bool|null $disabled
+     * @param bool|null $set_readonly
      *
      * @return static
      */
-    public function setDisabled(?bool $value): static
+    public function setDisabled(?bool $disabled, ?bool $set_readonly = null): static
     {
-        return $this->setKey((bool) $value, 'disabled');
+        if ($set_readonly) {
+            $this->setReadonly($disabled, false);
+        }
+
+        return $this->setKey($disabled, 'disabled');
     }
 
 
@@ -3874,17 +3878,22 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * If true, the value cannot be modified and this element will be shown as disabled on HTML clients
+     * If true, the value can't be modified and this element will be shown as disabled on HTML clients
      *
      * @note Defaults to false
      *
-     * @param bool|null $value
+     * @param bool|null $readonly
+     * @param bool|null $set_disabled
      *
      * @return static
      */
-    public function setReadonly(?bool $value): static
+    public function setReadonly(?bool $readonly, ?bool $set_disabled = null): static
     {
-        return $this->setKey((bool) $value, 'readonly');
+        if ($set_disabled) {
+            $this->setDisabled($readonly, false);
+        }
+
+        return $this->setKey((bool) $readonly, 'readonly');
     }
 
 

@@ -16,9 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Traits;
 
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
-
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 
 trait TraitBeforeAfterContent
 {

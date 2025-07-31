@@ -273,17 +273,6 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
 
 
     /**
-     * Returns table top-buttons
-     *
-     * @return ButtonsInterface
-     */
-    public function getButtons(): ButtonsInterface
-    {
-        return $this->buttons;
-    }
-
-
-    /**
      * Sets table top-buttons
      *
      * @param ButtonsInterface|array|string|null $buttons
@@ -1356,6 +1345,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
                     'templates/adminlte/plugins/datatables-DateTime-1.5.1/js/dataTables.dateTime',
                     'templates/adminlte/plugins/datatables-sorting/datetime-moment',
                 ]);
+
                 $content .= 'DataTable.moment("' . $this->js_date_format . '");' . PHP_EOL;
             }
 

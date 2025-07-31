@@ -132,12 +132,12 @@ trait TraitProcessVariables
     protected ?int $exit_code = null;
 
     /**
-     * The maximum amount of time in seconds that a command is allowed to run before it will time out. Zero to disable,
-     * default to 30
+     * The maximum amount of time in seconds that a command is allowed to run before it will time out. Zero or NULL to disable,
+     * defaults to 30
      *
-     * @var float|int $timeout
+     * @var float|int|null $timeout
      */
-    protected float|int $timeout = 30;
+    protected float|int|null $timeout = 30;
 
     /**
      * The signal that the timeout will give to the process

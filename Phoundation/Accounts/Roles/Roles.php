@@ -32,8 +32,9 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
-
 
 class Roles extends DataIterator implements RolesInterface
 {
@@ -42,7 +43,8 @@ class Roles extends DataIterator implements RolesInterface
      */
     public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
     {
-        $this->getQueryBuilderObject()->addSelect('`accounts_roles`.`id`, 
+        $this->setAcceptedDataTypes(RoleInterface::class)
+             ->getQueryBuilderObject()->addSelect('`accounts_roles`.`id`, 
                                                    `accounts_roles`.`seo_name`, 
                                                    `accounts_roles`.`description`,
                                                    CONCAT(
@@ -283,7 +285,11 @@ class Roles extends DataIterator implements RolesInterface
      */
     public function removeKeys(Stringable|array|string|int $keys, bool $strict = false): static
     {
-        return $this->removeValues($keys, strict: $strict);
+        if ($this->o_parent and (($this->o_parent instanceof UserInterface) or ($this->o_parent instanceof RightInterface))) {
+            return $this->removeValues($keys, strict: $strict);
+        }
+
+        return parent::removeKeys($keys, $strict);
     }
 
 
@@ -363,6 +369,9 @@ class Roles extends DataIterator implements RolesInterface
 
                 // Remove right from the internal list
                 parent::removeKeys($o_role->getUniqueColumnValue(), $strict);
+
+            } else {
+                parent::removeValues($needles, $column, $strict);
             }
         }
 
@@ -597,7 +606,7 @@ class Roles extends DataIterator implements RolesInterface
     /**
      * @inheritDoc
      */
-    public function setParentObject(DataEntryInterface $o_parent): static
+    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $o_parent): static
     {
         if (!$o_parent instanceof UserInterface) {
             if (!$o_parent instanceof RightInterface) {

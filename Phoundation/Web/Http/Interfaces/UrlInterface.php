@@ -4,8 +4,19 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Interfaces;
 
+use Phoundation\Accounts\Exception\AccountsException;
+use Phoundation\Accounts\Rights\Interfaces\RightInterface;
+use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
+use Phoundation\Accounts\Rights\Right;
+use Phoundation\Accounts\Rights\Rights;
+use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Exception\AccessDeniedException;
+use Phoundation\Web\Html\Components\Interfaces\AnchorInterface;
+use Phoundation\Web\Html\Enums\EnumAnchorTarget;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Requests\Request;
 
 interface UrlInterface
 {
@@ -171,4 +182,87 @@ interface UrlInterface
      * @return static
      */
     public function removeAllQueries(): static;
+
+    /**
+     * Returns the roles for this user
+     *
+     * @param bool $reload
+     * @param bool $order
+     *
+     * @return RightsInterface
+     */
+    public function getRightsObject(bool $reload = false, bool $order = false): RightsInterface;
+
+    /**
+     * Returns true if the user has SOME of the specified rights
+     *
+     * @param array|string $rights
+     *
+     * @return bool
+     */
+    public function hasSomeRights(array|string $rights): bool;
+
+    /**
+     * Returns true if the user has ALL the specified rights
+     *
+     * @param array|string $rights
+     * @param string|null  $always_match
+     *
+     * @return bool
+     */
+    public function hasAllRights(array|string $rights, ?string $always_match = 'god'): bool;
+
+    /**
+     * Adds the specified right to the list
+     *
+     * @param RightInterface|string|null $o_right
+     *
+     * @return $this
+     */
+    public function addRight(RightInterface|string|null $o_right): static;
+
+    /**
+     * Removes the specified right from the list
+     *
+     * @param RightInterface|string|null $o_right
+     *
+     * @return $this
+     */
+    public function removeRight(RightInterface|string|null $o_right): static;
+
+    /**
+     * Returns the rights required by any user to view this URL using the current routing parameters
+     *
+     * @return array
+     */
+    public function getRequiredRights(): array;
+
+    /**
+     * Returns true if the current session user (or the specified one) has access to this URL
+     *
+     * @param UserInterface|null $o_user
+     *
+     * @return bool
+     */
+    public function userHasAccess(?UserInterface $o_user = null): bool;
+
+    /**
+     * Throws an AccessDeniedException if the current session user (or the specified one) doesn't have access to this URL
+     *
+     * @param UserInterface|null $o_user
+     *
+     * @return static
+     * @throws AccessDeniedException
+     */
+    public function checkUserAccess(?UserInterface $o_user = null): static;
+
+    /**
+     * Returns an Anchor object with this URL
+     *
+     * @param string|null           $content
+     * @param EnumAnchorTarget|null $o_target
+     *
+     * @return AnchorInterface
+     */
+    public function getAnchorObject(?string $content = null, ?EnumAnchorTarget $o_target = null): AnchorInterface;
 }

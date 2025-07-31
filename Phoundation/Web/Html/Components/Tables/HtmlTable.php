@@ -18,12 +18,10 @@ namespace Phoundation\Web\Html\Components\Tables;
 
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataCellCallbacks;
 use Phoundation\Data\Traits\TraitDataColumns;
-use Phoundation\Data\Traits\TraitDataDataIterator;
 use Phoundation\Data\Traits\TraitDataRowCallbacks;
 use Phoundation\Data\Traits\TraitDataTitle;
 use Phoundation\Developer\Debug\Debug;
@@ -33,19 +31,20 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputCheckbox;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\ResourceElement;
-use Phoundation\Web\Html\Components\ResourceElementCore;
 use Phoundation\Web\Html\Components\Tables\Exception\TablesException;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use Phoundation\Web\Html\Enums\EnumTableRowType;
-use Phoundation\Web\Html\Traits\TraitButtons;
+use Phoundation\Web\Html\Traits\TraitObjectButtons;
+use Phoundation\Web\Html\Traits\TraitObjectTopButtons;
 use Phoundation\Web\Http\Url;
 use Stringable;
 
 
 class HtmlTable extends ResourceElement implements HtmlTableInterface
 {
-    use TraitButtons;
+    use TraitObjectButtons;
+    use TraitObjectTopButtons;
     use TraitDataColumns {
         setColumns as protected __setColumns;
     }
@@ -116,13 +115,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      * @var IteratorInterface|null $column_urls
      */
     protected ?IteratorInterface $column_urls = null;
-
-    /**
-     * Top buttons
-     *
-     * @var IteratorInterface|null $top_buttons
-     */
-    protected ?IteratorInterface $top_buttons = null;
 
     /**
      * Data attributes for <td> columns
@@ -409,21 +401,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
 
     /**
-     * Returns the table's top buttons
-     *
-     * @return IteratorInterface
-     */
-    public function getTopButtons(): IteratorInterface
-    {
-        if (empty($this->top_buttons)) {
-            $this->top_buttons = new Iterator();
-        }
-
-        return $this->top_buttons;
-    }
-
-
-    /**
      * Returns the classes used for <tr> tags
      *
      * @return string|null
@@ -617,7 +594,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      */
     public function renderBody(): string
     {
-        $return  = null;
+        $return  = $this->renderTopButtons();
         $return .= $this->renderBodyQuery();
         $return .= $this->renderBodyArray();
 
@@ -626,6 +603,21 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         }
 
         return $this->renderHeaders() . $return . $this->renderFooters();
+    }
+
+
+    /**
+     * Renders the table top buttons, if defined
+     *
+     * @return string|null
+     */
+    protected function renderTopButtons(): ?string
+    {
+        if (empty($this->o_top_buttons)) {
+            return null;
+        }
+
+        return $this->o_top_buttons->addClass('top-buttons')->render();
     }
 
 

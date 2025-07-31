@@ -17,6 +17,8 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 use DateTimeZone;
+use Phoundation\Date\Enums\EnumDateFormat;
+use Phoundation\Date\Interfaces\PhoDateTimeZoneInterface;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 
@@ -45,12 +47,12 @@ trait TraitDataObjectDate
     /**
      * Sets the date
      *
-     * @param PhoDateTimeInterface|string|null $date
-     * @param DateTimeZone|string|null         $timezone
+     * @param PhoDateTimeInterface|string|null     $date
+     * @param PhoDateTimeZoneInterface|string|null $timezone
      *
      * @return static
      */
-    public function setDateObject(PhoDateTimeInterface|string|null $date, DateTimeZone|string|null $timezone = null): static
+    public function setDateObject(PhoDateTimeInterface|string|null $date, PhoDateTimeZoneInterface|string|null $timezone = null): static
     {
         if ($date instanceof PhoDateTime) {
             $this->date = new PhoDateTime($date->format('Y-m-d'), $timezone ?? $date->getTimezone());

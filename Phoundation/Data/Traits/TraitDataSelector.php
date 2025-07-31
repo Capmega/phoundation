@@ -20,15 +20,22 @@ namespace Phoundation\Data\Traits;
 trait TraitDataSelector
 {
     /**
-     *
+     * Tracks the selector
      *
      * @var string|null $selector
      */
     protected ?string $selector = null;
 
+    /**
+     * Tracks the selector suffix
+     *
+     * @var string|null $selector_suffix
+     */
+    protected ?string $selector_suffix = null;
+
 
     /**
-     * Returns the source
+     * Returns the selector
      *
      * @return string|null
      */
@@ -39,7 +46,7 @@ trait TraitDataSelector
 
 
     /**
-     * Sets the source
+     * Sets the selector
      *
      * @param string|null $selector
      *
@@ -48,6 +55,31 @@ trait TraitDataSelector
     public function setSelector(?string $selector): static
     {
         $this->selector = get_null($selector);
+        return $this;
+    }
+
+
+    /**
+     * Returns the selector_suffix
+     *
+     * @return string|null
+     */
+    public function getSelectorSuffix(): ?string
+    {
+        return $this->selector_suffix;
+    }
+
+
+    /**
+     * Sets the source
+     *
+     * @param string|null $selector_suffix
+     *
+     * @return static
+     */
+    public function setSelectorSuffix(?string $selector_suffix): static
+    {
+        $this->selector_suffix = get_null($selector_suffix);
         return $this;
     }
 }

@@ -1836,11 +1836,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Sets if this object is readonly or not
      *
-     * @param bool $readonly
+     * @param bool      $readonly
+     * @param bool|null $set_disabled
      *
      * @return static
      */
-    public function setReadonly(bool $readonly): static
+    public function setReadonly(bool $readonly, ?bool $set_disabled = null): static
     {
         if (!$readonly and $this->isLoadedFromConfiguration()) {
             throw new ReadOnlyModeException(tr('Cannot disable readonly mode for the DataEntry ":class" class, it is loaded from configuration and cannot be saved', [
@@ -1848,7 +1849,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             ]));
         }
 
-        return $this->__setReadonly($readonly);
+        return $this->__setReadonly($readonly, $set_disabled);
     }
 
 

@@ -91,13 +91,19 @@ trait TraitDataReadonly
     /**
      * Sets if this object is readonly or not
      *
-     * @param bool $readonly
+     * @param bool      $readonly
+     * @param bool|null $set_disabled
      *
      * @return static
      */
-    public function setReadonly(bool $readonly): static
+    public function setReadonly(bool $readonly, ?bool $set_disabled = null): static
     {
         $this->readonly = $readonly;
+
+        if ($set_disabled) {
+            $this->setDisabled($readonly, false);
+        }
+
         return $this;
     }
 }

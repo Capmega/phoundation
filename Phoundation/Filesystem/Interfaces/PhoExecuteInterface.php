@@ -55,16 +55,16 @@ interface PhoExecuteInterface extends PhoDirectoryInterface
     /**
      * Returns the path mode that will be set for each path
      *
-     * @return int|null
+     * @return int
      */
-    public function getMode(): int|null;
+    public function getMode(): int;
 
     /**
      * Returns the file mode for the object file in octal mode
      *
-     * @return string|null
+     * @return string
      */
-    public function getOctalMode(): string|null;
+    public function getOctalMode(): string;
 
     /**
      * Sets the path mode that will be set for each path

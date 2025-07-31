@@ -502,8 +502,11 @@ class CliCommand
      */
     protected static function checkPhoNotWorldExecutable(): void
     {
-        return;
-        throw new CliCommandException(tr('Refusing to startup, the "pho" command is world executable. Please fix this first by running "chmod o-rwx ./pho" in your projects root directory.'));
+        if (PhoFile::new(DIRECTORY_ROOT . 'pho', PhoRestrictions::newRootObject())->isWorldExecutable()) {
+            if (config()->getBoolean('security.commandline.pho.permit.execute.world', false)) {
+                throw new CliCommandException(tr('Refusing to start, the "pho" command is world executable which is a security risk. Please fix this first by running "chmod o-rwx ./pho" in your projects root directory.'));
+            }
+        }
     }
 
 
@@ -1753,7 +1756,7 @@ return 'under construction';
                                  ->select('-X,--ignore-readonly')->isOptional(false)->isBoolean()
                                  ->select('-Y,--clear-tmp')->isOptional(false)->isBoolean()
                                  ->select('-Z,--clear-caches')->isOptional(false)->isBoolean()
-                                 ->select('--auto-complete', true)->isOptional()->hasMaxCharacters(1024)
+                                 ->select('--auto-complete', true)->isOptional()->hasMaxCharacters(8192)
                                  ->select('--deleted')->isOptional(false)->isBoolean()
                                  ->select('--iec')->isOptional(false)->isBoolean()
                                  ->select('--limit', true)->isOptional(0)->isNatural()
@@ -1774,39 +1777,6 @@ return 'under construction';
 
         try {
             Core::detectProject();
-
-            // DEBUG CODE, uncomment these if manual $argv settings are required
-            //        $argv = [
-            //            'all'                    => false,
-            //            'no_color'               => false,
-            //            'debug'                  => false,
-            //            'environment'            => null,
-            //            'force'                  => false,
-            //            'help'                   => false,
-            //            'log_level'              => false,
-            //            'order_by'               => false,
-            //            'page'                   => 1,
-            //            'quiet'                  => false,
-            //            'very_quiet'             => false,
-            //            'prefix'                 => false,
-            //            'no_sound'               => false,
-            //            'status'                 => false,
-            //            'test'                   => false,
-            //            'json_input'             => null,
-            //            'json_output'            => null,
-            //            'usage'                  => false,
-            //            'verbose'                => false,
-            //            'no_warnings'            => false,
-            //            'language'               => false,
-            //            'deleted'                => false,
-            //            'version'                => false,
-            //            'limit'                  => false,
-            //            'timezone'               => null,
-            //            'auto_complete'          => null,
-            //            'show_passwords'         => false,
-            //            'no_validation'          => false,
-            //            'no_password_validation' => false
-            //    ];
 
             // Parse command line arguments in JSON format
             if ($argv['json_input']) {

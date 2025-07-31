@@ -24,12 +24,12 @@ use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabInterface;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabsInterface;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Enums\EnumOrientation;
-use Phoundation\Web\Html\Traits\TraitButtons;
+use Phoundation\Web\Html\Traits\TraitObjectButtons;
 use Stringable;
 
 class Tabs extends ElementsBlock implements TabsInterface
 {
-    use TraitButtons;
+    use TraitObjectButtons;
     use TraitDataOrientation {
         setOrientation as protected __setOrientation;
     }

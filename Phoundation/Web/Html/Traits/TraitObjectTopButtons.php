@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Trait TraitButtons
+ * Trait TraitObjectTopButtons
  *
  *
  *
@@ -22,14 +22,14 @@ use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\DropdownButtonInterface;
 
 
-trait TraitButtons
+trait TraitObjectTopButtons
 {
     /**
      * The bottom buttons content for this modal
      *
      * @var ButtonsInterface
      */
-    protected ButtonsInterface $buttons;
+    protected ButtonsInterface $o_top_buttons;
 
 
     /**
@@ -37,13 +37,13 @@ trait TraitButtons
      *
      * @return bool
      */
-    public function hasButtons(): bool
+    public function hasTopButtons(): bool
     {
-        if (empty($this->buttons)) {
+        if (empty($this->o_top_buttons)) {
             return false;
         }
 
-        return $this->buttons->isNotEmpty();
+        return $this->o_top_buttons->isNotEmpty();
     }
 
 
@@ -52,30 +52,30 @@ trait TraitButtons
      *
      * @return ButtonsInterface
      */
-    public function getButtons(): ButtonsInterface
+    public function getTopButtons(): ButtonsInterface
     {
-        if (empty($this->buttons)) {
-            $this->buttons = new Buttons();
+        if (empty($this->o_top_buttons)) {
+            $this->o_top_buttons = new Buttons();
         }
 
-        return $this->buttons;
+        return $this->o_top_buttons;
     }
 
 
     /**
      * Sets the modal buttons
      *
-     * @param ButtonsInterface|null $buttons
+     * @param ButtonsInterface|null $o_top_buttons
      *
      * @return static
      */
-    public function setButtons(?ButtonsInterface $buttons): static
+    public function setTopButtons(?ButtonsInterface $o_top_buttons): static
     {
-        if ($buttons) {
-            $this->buttons = $buttons;
+        if ($o_top_buttons) {
+            $this->o_top_buttons = $o_top_buttons;
 
         } else {
-            unset($this->buttons);
+            unset($this->o_top_buttons);
         }
 
         return $this;
@@ -89,9 +89,9 @@ trait TraitButtons
      *
      * @return static
      */
-    public function addButtons(?ButtonsInterface $buttons): static
+    public function addTopButtons(?ButtonsInterface $buttons): static
     {
-        $this->getButtons()->addSource($buttons);
+        $this->getTopButtons()->addSource($buttons);
         return $this;
     }
 
@@ -103,10 +103,10 @@ trait TraitButtons
      *
      * @return static
      */
-    public function addButton(DropdownButtonInterface|ButtonInterface|null $button): static
+    public function addTopButton(DropdownButtonInterface|ButtonInterface|null $button): static
     {
         if ($button) {
-            $this->getButtons()->addButton($button);
+            $this->getTopButtons()->addButton($button);
         }
 
         return $this;

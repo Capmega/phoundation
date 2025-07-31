@@ -20,6 +20,7 @@ use Phoundation\Accounts\Users\Users;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -141,7 +142,9 @@ $users_card = Card::new()
                                          'status'        => tr('Status'),
                                          'sign_in_count' => tr('Signins'),
                                          'created_on'    => tr('Created on'),
-                                     ])->setRowUrl('/accounts/user+:ROW.html'))
+                                     ])->setRowUrl('/accounts/user+:ROW.html')
+                                       ->setTopButtons(Buttons::new()
+                                                              ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html')))
                   ->useForm(true)
                   ->setButtons(Buttons::new()
                                       ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html', right: true)
@@ -158,8 +161,9 @@ $users_card->getForm()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::new('/accounts/roles.html')->makeWww() . '">' . tr('Roles management') . '</a><br>
-                                   <a href="' . Url::new('/accounts/rights.html')->makeWww() . '">' . tr('Rights management') . '</a>');
+                     ->setContent(Anchor::new('/accounts/roles.html'   , tr('Manage roles')) .
+                                  Anchor::new('/accounts/rights.html'  , tr('Manage rights')  , '<br>') .
+                                  Anchor::new('/accounts/sessions.html', tr('Manage sessions'), '<hr>'));
 
 
 // Build documentation
@@ -172,8 +176,9 @@ $documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Users'));
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/' => tr('Home'),
-    ''  => tr('Users'),
+    '/'              => tr('Home'),
+    '/accounts.html' => tr('Accounts'),
+    ''               => tr('Users'),
 ]));
 
 

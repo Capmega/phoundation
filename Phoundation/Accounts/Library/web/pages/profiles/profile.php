@@ -8,7 +8,7 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Web
+ * @package   Phoundation\Accounts
  */
 
 
@@ -52,7 +52,7 @@ Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
 
 
 if (Session::getUserObject()->hasAllRights(['accounts'])) {
-// Validate POST and submit
+    // Validate POST and submit
     if (Request::isPostRequestMethod()) {
         try {
             switch (PostValidator::new()->getSubmitButton()) {
@@ -83,6 +83,7 @@ if (Session::getUserObject()->hasAllRights(['accounts'])) {
 
                     Response::redirect('root');
             }
+
         } catch (IncidentsException | ValidationFailedException | AccessDeniedException $e) {
             // Oops! Show validation errors and remain on page
             Response::getFlashMessagesObject()->addMessage($e);

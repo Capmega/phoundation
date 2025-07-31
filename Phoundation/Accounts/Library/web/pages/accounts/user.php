@@ -20,6 +20,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
@@ -64,8 +65,8 @@ if ($user->isNotNew()) {
                               ->setUrl(Url::new('accounts/user/image/upload+' . $user->getId())->makeAjax())
                               ->setSelector('#profile-picture-card')
                               ->setMaxFiles(0)
-                              ->getHandlerObject()
-           )->process();
+                              ->getHandlerObject())
+           ->process();
 }
 
 
@@ -84,6 +85,7 @@ if (Request::isPostRequestMethod()) {
                 $user->getEmailsObject()->apply(false);
                 $user->getPhonesObject()->apply();
 
+                // TODO This method should also save all sub data like roles, emails, phones, etc...
                 $user->save();
                 $user->getRolesObject()->setRoles($post['roles_id']);
                 $user->getEmailsObject()->save();
@@ -305,13 +307,13 @@ $picture_card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent(($user->isNew() ? '' : '<a href="' . Url::new('/profiles/profile+' . $user->getId() . '.html')->makeWww() . '">' . tr('Profile page for this user') . '</a><br>
-                                                          <a href="' . Url::new('/accounts/password+' . $user->getId() . '.html')->makeWww() . '">' . tr('Change password for this user') . '</a><br>
-                                                          <a href="' . Url::new('/security/authentications.html')->makeWww()->addQueries('users_id=' . $user->getId()) . '">' . tr('Authentications for this user') . '</a><br>
-                                                          <a href="' . Url::new('/security/incidents.html')->makeWww()->addQueries('users_id=' . $user->getId()) . '">' . tr('Security incidents for this user') . '</a><br>
-                                                          <a href="' . Url::new('/accounts/sessions.html')->makeWww()->addQueries('users_id=' . $user->getId()) . '">' . tr('Sessions for this user') . '</a><hr>') . '
-                                                          <a href="' . Url::new('/accounts/roles.html')->makeWww() . '">' . tr('Roles management') . '</a><br>
-                                                          <a href="' . Url::new('/accounts/rights.html')->makeWww() . '">' . tr('Rights management') . '</a>' );
+                     ->setContent(($user->isNew() ? '' : Anchor::new(Url::new('/profiles/profile+' . $user->getId() . '.html')->makeWww()                           , tr('Profile page for this user'))) .
+                                                         Anchor::new(Url::new('/accounts/password+' . $user->getId() . '.html')->makeWww()                          , tr('Change password for this user')   , '<br>') .
+                                                         Anchor::new(Url::new('/security/authentications.html')->makeWww()->addQueries('users_id=' . $user->getId()), tr('Authentications for this user')   , '<br>') .
+                                                         Anchor::new(Url::new('/security/incidents.html')->makeWww()->addQueries('users_id=' . $user->getId())      , tr('Security incidents for this user'), '<br>') .
+                                                         Anchor::new(Url::new('/accounts/roles.html')->makeWww()                                                    , tr('Manage roles')                    , '<hr>') .
+                                                         Anchor::new(Url::new('/accounts/rights.html')->makeWww()                                                   , tr('Manage rights')                   , '<br>') .
+                                                         Anchor::new(Url::new('/accounts/sessions.html')->makeWww()->addQueries('users_id=' . $user->getId())       , tr('Manage sessions')                 , '<hr>'));
 
 
 // Build documentation
@@ -329,6 +331,7 @@ Response::setHeaderTitle(tr('User'));
 Response::setHeaderSubTitle($user->getDisplayName());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
     '/'                    => tr('Home'),
+    '/accounts.html'       => tr('Accounts'),
     '/accounts/users.html' => tr('Users'),
     ''                     => $user->getDisplayName(),
 ]));

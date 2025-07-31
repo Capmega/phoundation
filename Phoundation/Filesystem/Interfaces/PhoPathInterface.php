@@ -1034,9 +1034,9 @@ interface PhoPathInterface extends Stringable
     /**
      * Returns the file mode for the object file in octal mode
      *
-     * @return string|null
+     * @return string
      */
-    public function getOctalMode(): string|null;
+    public function getOctalMode(): string;
 
     /**
      * Returns the file mode permission for the object file in octal form
@@ -1317,4 +1317,95 @@ interface PhoPathInterface extends Stringable
      * @return static
      */
     public function checkIn(PhoPathInterface|string $o_path): static;
+
+    /**
+     * Returns permissions for the owner of this file
+     *
+     * @return string
+     */
+    public function getOwnerPermissions(): string;
+
+    /**
+     * Returns permissions for users that are members of the group of this file
+     *
+     * @return string
+     */
+    public function getGroupPermissions(): string;
+
+    /**
+     * Returns permissions for world users
+     *
+     * @return string
+     */
+    public function getWorldPermissions(): string;
+
+    /**
+     * Returns the file permissions for owner, group, world
+     *
+     * @return string
+     */
+    public function getPermissions(): string;
+
+    /**
+     * Returns true if the file is owner executable
+     *
+     * @return bool
+     */
+    public function isOwnerReadable(): bool;
+
+    /**
+     * Returns true if the file is owner executable
+     *
+     * @return bool
+     */
+    public function isOwnerWritable(): bool;
+
+    /**
+     * Returns true if the file is owner executable
+     *
+     * @return bool
+     */
+    public function isOwnerExecutable(): bool;
+
+    /**
+     * Returns true if the file is group executable
+     *
+     * @return bool
+     */
+    public function isGroupReadable(): bool;
+
+    /**
+     * Returns true if the file is group executable
+     *
+     * @return bool
+     */
+    public function isGroupWritable(): bool;
+
+    /**
+     * Returns true if the file is group executable
+     *
+     * @return bool
+     */
+    public function isGroupExecutable(): bool;
+
+    /**
+     * Returns true if the file is world executable
+     *
+     * @return bool
+     */
+    public function isWorldReadable(): bool;
+
+    /**
+     * Returns true if the file is world executable
+     *
+     * @return bool
+     */
+    public function isWorldWritable(): bool;
+
+    /**
+     * Returns true if the file is world executable
+     *
+     * @return bool
+     */
+    public function isWorldExecutable(): bool;
 }

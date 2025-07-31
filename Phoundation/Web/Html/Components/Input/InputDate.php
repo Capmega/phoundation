@@ -63,15 +63,34 @@ class InputDate extends InputText
      */
     public function setValue(PhoDateTimeInterface|Stringable|string|float|int|null $value, bool $make_safe = true): static
     {
-
         if ($value instanceof PhoDateTimeInterface) {
-            $value = $value->format(Session::getLocaleObject()->getDateFormatPhp());
+            $value = $value->format($this->getDateFormat(Session::getLocaleObject()->getDateFormatPhp()));
 
         } else {
-            $value = PhoDateTime::new($value)->format(EnumDateFormat::user_date);
+            $value = PhoDateTime::new($value)->format($this->getDateFormat());
         }
 
         return parent::setValue($value, $make_safe);
+    }
+
+
+    /**
+     * Returns the date format required by the used template for this InputDate class
+     *
+     * @param EnumDateFormat|string $requested_format
+     *
+     * @return EnumDateFormat|string
+     */
+    public function getDateFormat(EnumDateFormat|string $requested_format = EnumDateFormat::user_date): EnumDateFormat|string
+    {
+        $class = static::getRenderClass(true);
+
+        if ($class) {
+            return $class::getDateFormat() ?? $requested_format;
+        }
+
+        return $requested_format;
+
     }
 
 

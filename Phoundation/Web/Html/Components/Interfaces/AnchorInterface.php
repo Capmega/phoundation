@@ -17,25 +17,26 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Interfaces;
 
 use Phoundation\Web\Html\Enums\EnumAnchorTarget;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 
-interface AInterface extends SpanInterface
+interface AnchorInterface extends SpanInterface
 {
     /**
      * Returns the href for this anchor
      *
-     * @return string|null
+     * @return UrlInterface|null
      */
-    public function getHref(): ?string;
+    public function getHref(): ?UrlInterface;
 
 
     /**
      * Sets the href for this anchor
      *
-     * @param string|null $href
+     * @param UrlInterface|string|null $o_href
      *
      * @return static
      */
-    public function setHref(?string $href): static;
+    public function setHref(UrlInterface|string|null $o_href): static;
 
 
     /**
@@ -49,9 +50,9 @@ interface AInterface extends SpanInterface
     /**
      * Sets the target for this anchor
      *
-     * @param EnumAnchorTarget|null $target
+     * @param EnumAnchorTarget|null $o_target
      *
      * @return static
      */
-    public function setTarget(?EnumAnchorTarget $target): static;
+    public function setTarget(?EnumAnchorTarget $o_target): static;
 }

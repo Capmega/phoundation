@@ -24,15 +24,14 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
-use Phoundation\Date\PhoDateTime;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\BeforeAfterContentInterface;
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Components\Interfaces\ScriptsInterface;
-use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Enums\EnumElement;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -538,15 +537,16 @@ interface DefinitionInterface extends BeforeAfterContentInterface
 
 
     /**
-     * If true, the value cannot be modified and this element will be shown as disabled on HTML clients
+     * If true, the value can't be modified and this element will be shown as disabled on HTML clients
      *
      * @note Defaults to false
      *
-     * @param bool|null $value
+     * @param bool|null $readonly
+     * @param bool|null $set_disabled
      *
      * @return static
      */
-    public function setReadonly(?bool $value): static;
+    public function setReadonly(?bool $readonly, ?bool $set_disabled = null): static;
 
 
     /**
@@ -647,11 +647,12 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @note Defaults to false
      *
-     * @param bool|null $value
+     * @param bool|null $disabled
+     * @param bool|null $set_readonly
      *
      * @return static
      */
-    public function setDisabled(?bool $value): static;
+    public function setDisabled(?bool $disabled, ?bool $set_readonly = null): static;
 
 
     /**

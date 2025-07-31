@@ -3,8 +3,6 @@
 namespace Phoundation\Web\Html\Components\Interfaces;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
-
 
 interface ScriptsInterface extends IteratorInterface, RenderInterface
 {

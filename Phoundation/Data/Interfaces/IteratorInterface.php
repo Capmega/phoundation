@@ -14,8 +14,10 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Forms\Interfaces\FilterFormInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use ReturnTypeWillChange;
 use Stringable;
 use Throwable;
@@ -908,21 +910,23 @@ interface IteratorInterface extends IteratorBaseInterface
      */
     public function setEnsureObjects(bool $ensure_objects): static;
 
+
     /**
      * Returns the DataEntryInterface parent object
      *
-     * @return DataEntryInterface
+     * @return DataEntryInterface|RenderInterface|UrlInterface|null
      */
-    #[ReturnTypeWillChange] public function getParentObject(): DataEntryInterface;
+    #[ReturnTypeWillChange] public function getParentObject(): DataEntryInterface|RenderInterface|UrlInterface|null;
+
 
     /**
      * Sets the DataEntryInterface parent object
      *
-     * @param DataEntryInterface $o_parent
+     * @param DataEntryInterface|RenderInterface|UrlInterface|null $o_parent
      *
      * @return static
      */
-    public function setParentObject(DataEntryInterface $o_parent): static;
+    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $o_parent): static;
 
     /**
      * Returns if this Iterator requires a parent or not

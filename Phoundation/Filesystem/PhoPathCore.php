@@ -1842,22 +1842,30 @@ class PhoPathCore implements PhoPathInterface
 
 
     /**
-     * Returns the file mode for the object file
+     * Returns the file mode as an octal number
      *
-     * @return int|null
+     * @return int
      */
-    public function getMode(): int|null
+    public function getMode(): int
     {
-        return $this->getStat()['mode'];
+        $mode = fileperms($this->getSource());
+
+        if ($mode === false) {
+            $this->checkReadable('getMode', FilesystemException::new(ts('Failed to get file mode for file ":file"', [
+                ':file' => $this->getSource(),
+            ])));
+        }
+
+        return $mode;
     }
 
 
     /**
      * Returns the file mode for the object file in octal mode
      *
-     * @return string|null
+     * @return string
      */
-    public function getOctalMode(): string|null
+    public function getOctalMode(): string
     {
         return decoct($this->getMode());
     }
@@ -1871,6 +1879,164 @@ class PhoPathCore implements PhoPathInterface
     public function getModePermissions(): string
     {
         return substr($this->getOctalMode(), -3, 3);
+    }
+
+
+    /**
+     * Returns permissions for the owner of this file
+     *
+     * @return string
+     */
+    public function getOwnerPermissions(): string
+    {
+        $mode = $this->getMode();
+
+        return (($mode & 0x0100) ? 'r' : '-') .
+               (($mode & 0x0080) ? 'w' : '-') .
+               (($mode & 0x0040) ? (($mode & 0x0800) ? 's' : 'x')
+                   : (($mode & 0x0800) ? 'S' : '-'));
+    }
+
+
+    /**
+     * Returns permissions for users that are members of the group of this file
+     *
+     * @return string
+     */
+    public function getGroupPermissions(): string
+    {
+        $mode = $this->getMode();
+
+        return (($mode & 0x0020) ? 'r' : '-') .
+               (($mode & 0x0010) ? 'w' : '-') .
+               (($mode & 0x0008) ? (($mode & 0x0400) ? 's' : 'x')
+                   : (($mode & 0x0400) ? 'S' : '-'));
+    }
+
+
+    /**
+     * Returns permissions for world users
+     *
+     * @return string
+     */
+    public function getWorldPermissions(): string
+    {
+        $mode = $this->getMode();
+
+        return (($mode & 0x0004) ? 'r' : '-') .
+               (($mode & 0x0002) ? 'w' : '-') .
+               (($mode & 0x0001) ? (($mode & 0x0200) ? 't' : 'x')
+                   : (($mode & 0x0200) ? 'T' : '-'));
+    }
+
+
+    /**
+     * Returns the file permissions for owner, group, world
+     *
+     * @return string
+     */
+    public function getPermissions(): string
+    {
+        return $this->getOwnerPermissions() . $this->getGroupPermissions() . $this->getWorldPermissions();
+    }
+
+
+    /**
+     * Returns true if the file is owner executable
+     *
+     * @return bool
+     */
+    public function isOwnerReadable(): bool
+    {
+        return (bool) ($this->getMode() & 0x0100);
+    }
+
+
+    /**
+     * Returns true if the file is owner executable
+     *
+     * @return bool
+     */
+    public function isOwnerWritable(): bool
+    {
+        return (bool) ($this->getMode() & 0x0080);
+    }
+
+
+    /**
+     * Returns true if the file is owner executable
+     *
+     * @return bool
+     */
+    public function isOwnerExecutable(): bool
+    {
+        return (bool) ($this->getMode() & 0x0800);
+    }
+
+
+    /**
+     * Returns true if the file is group executable
+     *
+     * @return bool
+     */
+    public function isGroupReadable(): bool
+    {
+        return (bool) ($this->getMode() & 0x0020);
+    }
+
+
+    /**
+     * Returns true if the file is group executable
+     *
+     * @return bool
+     */
+    public function isGroupWritable(): bool
+    {
+        return (bool) ($this->getMode() & 0x0010);
+    }
+
+
+    /**
+     * Returns true if the file is group executable
+     *
+     * @return bool
+     */
+    public function isGroupExecutable(): bool
+    {
+        return (bool) ($this->getMode() & 0x0400);
+    }
+
+
+    /**
+     * Returns true if the file is world executable
+     *
+     * @return bool
+     */
+    public function isWorldReadable(): bool
+    {
+        return (bool) ($this->getMode() & 0x0004);
+    }
+
+
+    /**
+     * Returns true if the file is world executable
+     *
+     * @return bool
+     */
+    public function isWorldWritable(): bool
+    {
+        return (bool) ($this->getMode() & 0x0002);
+    }
+
+
+    /**
+     * Returns true if the file is world executable
+     *
+     * @return bool
+     */
+    public function isWorldExecutable(): bool
+    {
+        return (bool) ($this->getMode() & 0x0200);
     }
 
 

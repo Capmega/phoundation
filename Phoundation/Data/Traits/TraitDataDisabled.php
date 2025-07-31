@@ -76,13 +76,19 @@ trait TraitDataDisabled
     /**
      * Sets if this object is disabled or not
      *
-     * @param bool $disabled
+     * @param bool      $disabled
+     * @param bool|null $set_readonly
      *
      * @return static
      */
-    public function setDisabled(bool $disabled): static
+    public function setDisabled(bool $disabled, ?bool $set_readonly = null): static
     {
         $this->disabled = $disabled;
+
+        if ($set_readonly) {
+            return $this->setReadonly($disabled, false);
+        }
+
         return $this;
     }
 }

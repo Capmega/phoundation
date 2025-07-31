@@ -21,6 +21,7 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Passwords\Exception\NoPasswordSpecifiedException;
 use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
 use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -40,7 +41,7 @@ $get = GetValidator::new()
 
 
 // Load user and get password
-$user     = User::new()->load($get['id']);
+$user     = User::new($get['id']);
 $password = $user->getPasswordObject();
 
 
@@ -105,9 +106,9 @@ $column = GridColumn::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::new('/accounts/user+' . $user->getId() . '.html')->makeWww() . '">' . tr('Modify profile for this user') . '</a><br>
-                                   <a href="' . Url::new('/accounts/roles.html')->makeWww() . '">' . tr('Roles management') . '</a><br>
-                                   <a href="' . Url::new('/accounts/rights.html')->makeWww() . '">' . tr('Rights management') . '</a>');
+                     ->setContent(Anchor::new('/accounts/user+' . $user->getId() . '.html', tr('Modify profile for this user')) .
+                                  Anchor::new('/accounts/roles.html'                      , tr('Manage roles') , '<hr>') .
+                                  Anchor::new('/accounts/rights.html'                     , tr('Manage rights'), '<br>'));
 
 
 // Build documentation
@@ -123,10 +124,11 @@ $documentation_card = Card::new()
 Response::setHeaderTitle(tr('Change password'));
 Response::setHeaderSubTitle($user->getDisplayName());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                                          => tr('Home'),
-    '/accounts/users.html'                       => tr('Users'),
-    '/accounts/user+' . $user->getId() . '.html' => $user->getDisplayName(),
-    ''                                           => tr('Modify password'),
+    Anchor::new('/'                                         , tr('Home')),
+    Anchor::new('/accounts.html'                            , tr('Accounts')),
+    Anchor::new('/accounts/users.html'                      , tr('Users')),
+    Anchor::new('/accounts/user+' . $user->getId() . '.html', $user->getDisplayName()),
+    tr('Modify password')
 ]));
 
 

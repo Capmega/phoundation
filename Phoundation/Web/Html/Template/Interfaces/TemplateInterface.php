@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Template\Interfaces;
 
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 
 interface TemplateInterface
 {
@@ -56,7 +56,7 @@ interface TemplateInterface
      *
      * @return string|null
      */
-    public function getRendererClass(RenderInterface|string $class): ?string;
+    public function getRenderClass(RenderInterface|string $class): ?string;
 
 
     /**

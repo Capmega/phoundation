@@ -69,6 +69,17 @@ class TemplateRenderer implements TemplateRendererInterface
 
 
     /**
+     * Returns the suffix for this component for JavaScript selecting
+     *
+     * @return string|null
+     */
+    public static function getJavaScriptSelectorSuffix(): ?string
+    {
+        return null;
+    }
+
+
+    /**
      * Ensures that the specified class is a Renderer subclass
      *
      * @param string $class

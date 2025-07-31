@@ -22,6 +22,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -47,7 +48,7 @@ $filters->getDefinitionsObject()->setDefinitionRender('rights_id', false)
 
 $filters_card = Card::new()
                     ->setCollapseSwitch(true)
-                    ->setTitle('Users filters')
+                    ->setTitle('Filters')
                     ->setContent($filters);
 
 
@@ -91,8 +92,14 @@ $rights_card = Card::new()
                    ->setSwitches('reload')
                    ->setContent(Rights::new()
                                       ->setFilterFormObject($filters)
-                                      ->getHtmlDataTableObject()
-                                      ->setRowUrl('/accounts/right+:ROW.html'))
+                                      ->getHtmlDataTableObject([
+                                        'id'          => tr('Id'),
+                                        'right'       => tr('Right'),
+                                        'roles'       => tr('Used by roles'),
+                                        'description' => tr('Description'),
+                                      ])->setRowUrl('/accounts/right+:ROW.html')
+                                        ->setTopButtons(Buttons::new()
+                                                               ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/right.html')))
                    ->useForm(true)
                    ->setButtons(Buttons::new()
                                        ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/right.html')
@@ -109,8 +116,9 @@ $rights_card->getForm()
 $relevant_card = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
-                ->setContent('<a href="' . Url::new('/accounts/users.html')->makeWww() . '">' . tr('Users management') . '</a><br>
-                              <a href="' . Url::new('/accounts/roles.html')->makeWww() . '">' . tr('Roles management') . '</a>');
+                ->setContent(Anchor::new('/accounts/users.html'   , tr('Manage users')) .
+                             Anchor::new('/accounts/roles.html'   , tr('Manage roles')   , '<br>') .
+                             Anchor::new('/accounts/sessions.html', tr('Manage sessions'), '<hr>'));
 
 
 // Build documentation
@@ -123,8 +131,9 @@ $documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Rights'));
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/' => tr('Home'),
-    ''  => tr('Rights'),
+    '/'              => tr('Home'),
+    '/accounts.html' => tr('Accounts'),
+    ''               => tr('Rights'),
 ]));
 
 

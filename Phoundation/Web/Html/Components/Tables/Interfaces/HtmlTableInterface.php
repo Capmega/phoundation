@@ -110,14 +110,6 @@ interface HtmlTableInterface extends ResourceElementInterface
 
 
     /**
-     * Returns the table's top buttons
-     *
-     * @return IteratorInterface
-     */
-    public function getTopButtons(): IteratorInterface;
-
-
-    /**
      * Returns the classes used for <tr> tags
      *
      * @return string|null
