@@ -18,7 +18,6 @@ use Phoundation\Core\Plugins\Plugin;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -69,7 +68,7 @@ Response::setBreadCrumbs([
     Anchor::new('/'                    , tr('Home')),
     Anchor::new('/plugins/plugins.html', tr('Plugins')),
     Anchor::new(''                     , $plugin->getDisplayName()),
-]););
+]);
 
 
 // Render and return the page grid

@@ -18,7 +18,6 @@ use Phoundation\Core\Plugins\FilterForm;
 use Phoundation\Core\Plugins\Plugins;
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -80,7 +79,7 @@ Response::setBreadCrumbs([
     Anchor::new('/'                , tr('Home')),
     Anchor::new('/phoundation.html', tr('Phoundation')),
     Anchor::new(''                 , tr('Plugins')),
-]););
+]);
 
 
 // Render and return the page grid

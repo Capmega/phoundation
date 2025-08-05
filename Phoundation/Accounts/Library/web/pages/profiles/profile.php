@@ -25,7 +25,6 @@ use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Forms\Form;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Requests\Request;
@@ -49,7 +48,7 @@ Response::setBreadCrumbs([
     Anchor::new('/profiles.html'          , tr('Profiles')),
     Anchor::new('/profiles/employees.html', tr('Employees')),
     Anchor::new(''                        , $user->getDisplayName()),
-]););
+]);
 
 
 if (Session::getUserObject()->hasAllRights(['accounts'])) {

@@ -24,7 +24,6 @@ use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -134,7 +133,7 @@ Response::setBreadCrumbs([
     Anchor::new('/'             , tr('Home')),
     Anchor::new('/accounts.html', tr('Accounts')),
     Anchor::new(''              , tr('Rights')),
-]););
+]);
 
 
 // Render and return the page grid

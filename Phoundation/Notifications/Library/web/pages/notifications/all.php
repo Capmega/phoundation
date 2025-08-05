@@ -21,7 +21,6 @@ use Phoundation\Notifications\FilterForm;
 use Phoundation\Notifications\Notifications;
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -113,7 +112,7 @@ Response::setHeaderTitle(tr('Notifications'));
 Response::setBreadCrumbs([
     Anchor::new('/', tr('Home')),
     Anchor::new('' , tr('Notifications'))
-]););
+]);
 
 
 // Render and return the page grid

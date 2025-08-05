@@ -17,7 +17,6 @@ declare(strict_types=1);
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Html\Components\Anchor;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Requests\Response;
 
 
@@ -33,4 +32,4 @@ Response::setDescription(tr(''));
 Response::setBreadCrumbs([
     Anchor::new('/', tr('Home')),
     Anchor::new('' , tr('Dashboard')),
-]););
+]);

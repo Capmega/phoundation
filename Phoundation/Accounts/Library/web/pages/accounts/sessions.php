@@ -17,7 +17,6 @@ declare(strict_types=1);
 use Phoundation\Data\Iterator;
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Forms\FilterForm;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;

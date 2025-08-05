@@ -20,7 +20,6 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Img;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -113,7 +112,7 @@ Response::setBreadCrumbs([
     Anchor::new('/'                       , tr('Home')),
     Anchor::new('/business/customers.html', tr('Customers')),
     Anchor::new(''                        , $customer->getDisplayName()),
-]););
+]);
 
 
 // Render and return the page grid

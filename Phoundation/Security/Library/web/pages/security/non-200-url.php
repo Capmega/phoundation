@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Html\Components\Anchor;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -66,7 +65,7 @@ Response::setBreadCrumbs([
     Anchor::new('/security.html'             , tr('Security')),
     Anchor::new('/security/non-200-urls.html', tr('Non HTTP-200 URL\'s')),
     Anchor::new(''                           , $url->getDisplayId()),
-]););
+]);
 
 
 // Render and return the page grid

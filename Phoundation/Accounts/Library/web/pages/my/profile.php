@@ -20,7 +20,6 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -181,7 +180,7 @@ Response::setHeaderSubTitle($user->getDisplayName());
 Response::setBreadCrumbs([
     Anchor::new('/', tr('Home')),
     Anchor::new('' , tr('My profile')),
-]););
+]);
 
 
 // Render and return the page grid

@@ -17,7 +17,6 @@ declare(strict_types=1);
 use Phoundation\Business\Customers\Customers;
 use Phoundation\Business\Customers\FilterForm;
 use Phoundation\Web\Html\Components\Anchor;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -75,7 +74,7 @@ Response::setHeaderTitle(tr('Customers'));
 Response::setBreadCrumbs([
     Anchor::new('/', tr('Home')),
     Anchor::new('' , tr('Customers')),
-]););
+]);
 
 
 // Render and return the page grid

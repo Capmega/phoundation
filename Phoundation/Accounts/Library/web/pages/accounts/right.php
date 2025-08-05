@@ -23,7 +23,6 @@ use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -174,7 +173,7 @@ Response::setBreadCrumbs([
     Anchor::new('/accounts.html'       , tr('Accounts')),
     Anchor::new('/accounts/rights.html', tr('Rights')),
     Anchor::new(''                     , $right->getDisplayName()),
-]););
+]);
 
 
 // Render and return the page grid

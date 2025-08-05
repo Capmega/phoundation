@@ -22,7 +22,6 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -179,7 +178,7 @@ Response::setBreadCrumbs([
     Anchor::new('/'             , tr('Home')),
     Anchor::new('/accounts.html', tr('Accounts')),
     Anchor::new(''              , tr('Users')),
-]););
+]);
 
 
 // Render and return the page grid

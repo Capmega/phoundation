@@ -20,7 +20,6 @@ use Phoundation\Filesystem\Requirements\FilterForm;
 use Phoundation\Filesystem\Requirements\Requirements;
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -146,7 +145,7 @@ Response::setBreadCrumbs([
     Anchor::new('/system-administration.html', tr('System administration')),
     Anchor::new('/filesystem.html'           , tr('Filesystem')),
     Anchor::new(''                           , tr('Requirements')),
-]););
+]);
 
 
 // Render and return the page grid

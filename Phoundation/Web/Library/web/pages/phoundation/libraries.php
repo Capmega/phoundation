@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Web\Html\Components\Anchor;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Requests\Response;
 
@@ -27,7 +26,7 @@ Response::setBreadCrumbs([
     Anchor::new('/'           , tr('Home')),
     Anchor::new('/phoundation', tr('Phoundation')),
     Anchor::new(''            , tr('Libraries')),
-]););
+]);
 
 
 // Build the page content

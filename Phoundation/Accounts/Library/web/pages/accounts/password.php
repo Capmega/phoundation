@@ -23,7 +23,6 @@ use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
 use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -129,7 +128,7 @@ Response::setBreadCrumbs([
     Anchor::new('/accounts/users.html'                      , tr('Users')),
     Anchor::new('/accounts/user+' . $user->getId() . '.html', $user->getDisplayName()),
     Anchor::new(''                                          , tr('Modify password'))
-]););
+]);
 
 
 // Render and return the page grid

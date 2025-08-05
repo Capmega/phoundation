@@ -21,7 +21,6 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Web\Html\Components\Anchor;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -96,7 +95,7 @@ Response::setBreadCrumbs([
     Anchor::new('/'             , tr('Home')),
     Anchor::new('/security.html', tr('Security')),
     Anchor::new(''              , tr('Authentications management')),
-]););
+]);
 
 
 // Render and return the page grid

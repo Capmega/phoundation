@@ -13,7 +13,6 @@
 declare(strict_types=1);
 
 use Phoundation\Web\Html\Components\Anchor;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
@@ -24,7 +23,7 @@ Response::setHeaderTitle(tr('My reports page'));
 Response::setBreadCrumbs([
    Anchor::new('/', tr('Home')),
    Anchor::new('' , tr('Reports')),
-]););
+]);
 
 echo Card::new()
          ->setTitle(tr('Reports available to me'))

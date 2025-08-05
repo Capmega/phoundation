@@ -26,7 +26,6 @@ use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
 use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -130,7 +129,7 @@ Response::setBreadCrumbs([
     Anchor::new('/'               , tr('Home')),
     Anchor::new('/my/profile.html', tr('My profile')),
     Anchor::new(''                , tr('Change my password')),
-]););
+]);
 
 
 // Render and return the page grid

@@ -15,7 +15,6 @@
 declare(strict_types=1);
 
 use Phoundation\Web\Html\Components\Anchor;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Requests\Response;
 
 
@@ -26,7 +25,8 @@ Response::setBreadCrumbs([
     Anchor::new('/'          , tr('Home')),
     Anchor::new('/demos.html', tr('Demos')),
     Anchor::new(''           , tr('Package timeline')),
-]););
+]);
+
 ?>
 <!-- Main content -->
 <section class="content">

@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Script;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Requests\Response;
 
@@ -28,7 +27,7 @@ Response::setBreadCrumbs([
    Anchor::new('/'          , tr('Home')),
    Anchor::new('/demos.html', tr('Demos')),
    Anchor::new(''           , tr('Calendar')),
-]););
+]);
 
 // Load required CSS
 Response::loadCss('templates/adminlte/plugins/fullcalendar/main');

@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Script;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
@@ -34,7 +33,7 @@ Response::setBreadCrumbs([
     Anchor::new('/demos.html'        , tr('Demos')),
     Anchor::new('/demos/scanner.html', tr('Scanner')),
     Anchor::new(''                   , tr('Gallery')),
-]););
+]);
 
 
 // Load specific test script

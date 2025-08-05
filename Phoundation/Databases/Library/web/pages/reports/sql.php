@@ -19,7 +19,6 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\FilterForm;
 use Phoundation\Web\Html\Components\Anchor;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -103,7 +102,7 @@ Response::setBreadCrumbs([
     Anchor::new('/'            , tr('Home')),
     Anchor::new('/reports.html', tr('Reports')),
     Anchor::new(''             , tr('SQL report')),
-]););
+]);
 
 
 // Render and return the page grid
