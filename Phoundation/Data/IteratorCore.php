@@ -410,6 +410,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         // Skip NULL values?
         if ($value === null) {
             if ($skip_null_values) {
+                unset($this->source[$key]);
                 return $this;
             }
         }
@@ -571,6 +572,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         // Skip NULL values?
         if ($value === null) {
             if ($skip_null_values) {
+                unset($this->source[$key]);
                 return $this;
             }
         }
@@ -614,6 +616,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         // Skip NULL values?
         if ($value === null) {
             if ($skip_null_values) {
+                unset($this->source[$key]);
                 return $this;
             }
         }
@@ -688,6 +691,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         // Skip NULL values?
         if ($value === null) {
             if ($skip_null_values) {
+                unset($this->source[$key]);
                 return $this;
             }
         }
@@ -737,6 +741,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         // Skip NULL values?
         if ($value === null) {
             if ($skip_null_values) {
+                unset($this->source[$key]);
                 return $this;
             }
         }
@@ -788,6 +793,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         // Skip NULL values?
         if ($value === null) {
             if ($skip_null_values) {
+                unset($this->source[$key]);
                 return $this;
             }
         }
