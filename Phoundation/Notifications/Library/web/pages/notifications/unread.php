@@ -19,6 +19,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Notifications\FilterForm;
 use Phoundation\Notifications\Notifications;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -102,11 +103,11 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Notifications'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                   => tr('Home'),
-    '/notifications.html' => tr('Notifications'),
-    ''                    => tr('Unread')
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/'                  , tr('Home')),
+    Anchor::new('/notifications.html', tr('Notifications')),
+    Anchor::new(''                   , tr('Unread'))
+]););
 
 
 // Render and return the page grid

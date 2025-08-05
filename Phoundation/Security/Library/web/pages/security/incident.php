@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Security\Incidents\Incident;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -70,12 +71,12 @@ $url = Url::new('/security/incidents.html')->makeWww()->addQueries(
 
 Response::setHeaderTitle(tr('Incident'));
 Response::setHeaderSubTitle($incident->getDisplayId());
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'              => tr('Home'),
-    '/security.html' => tr('Security'),
-    $url             => tr('Incidents management'),
-    ''               => $incident->getDisplayId(),
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/'             , tr('Home')),
+    Anchor::new('/security.html', tr('Security')),
+    Anchor::new($url            , tr('Incidents management')),
+    Anchor::new(''              , $incident->getDisplayId()),
+]););
 
 
 // Render and return the page grid

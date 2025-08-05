@@ -74,21 +74,21 @@ if ($user) {
 // Set page meta data
     Response::setHeaderTitle(tr('Sessions for user'));
     Response::setHeaderSubTitle($user->getDisplayName());
-    Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-        '/'                           => tr('Home'),
-        '/accounts/users.html'        => tr('Users'),
-        '/accounts/session+:ROW.html' => $user->getDisplayName(),
-        ''                            => tr('Sessions'),
+    Response::setBreadCrumbs([
+        Anchor::new('/'                          , tr('Home')),
+        Anchor::new('/accounts/users.html'       , tr('Users')),
+        Anchor::new('/accounts/session+:ROW.html', $user->getDisplayName()),
+        Anchor::new(''                           , tr('Sessions')),
     ]));
 
 } else {
     // Set page meta data
     Response::setHeaderTitle(tr('User sessions'));
-    Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-        '/'                    => tr('Home'),
-        '/accounts.html'       => tr('Accounts'),
-        '/accounts/users.html' => tr('Users'),
-        ''                     => tr('Sessions'),
+    Response::setBreadCrumbs([
+        Anchor::new('/'                   , tr('Home')),
+        Anchor::new('/accounts.html'      , tr('Accounts')),
+        Anchor::new('/accounts/users.html', tr('Users')),
+        Anchor::new(''                    , tr('Sessions')),
     ]));
 }
 

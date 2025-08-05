@@ -24,6 +24,7 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Passwords\Exception\NoPasswordSpecifiedException;
 use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
 use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -125,11 +126,11 @@ $documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Change your password'));
 Response::setHeaderSubTitle($user->getDisplayName());
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                => tr('Home'),
-    '/my/profile.html' => tr('My profile'),
-    ''                 => tr('Change my password'),
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/'               , tr('Home')),
+    Anchor::new('/my/profile.html', tr('My profile')),
+    Anchor::new(''                , tr('Change my password')),
+]););
 
 
 // Render and return the page grid

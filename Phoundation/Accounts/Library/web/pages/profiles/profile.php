@@ -21,6 +21,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Forms\Form;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
@@ -43,12 +44,12 @@ $user = User::new()->load($get['id']);
 // Set page meta data
 Response::setHeaderTitle(tr('Profile'));
 Response::setHeaderSubTitle($user->getDisplayName());
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                        => tr('Home'),
-    '/profiles.html'           => tr('Profiles'),
-    '/profiles/employees.html' => tr('Employees'),
-    ''                         => $user->getDisplayName(),
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/'                       , tr('Home')),
+    Anchor::new('/profiles.html'          , tr('Profiles')),
+    Anchor::new('/profiles/employees.html', tr('Employees')),
+    Anchor::new(''                        , $user->getDisplayName()),
+]););
 
 
 if (Session::getUserObject()->hasAllRights(['accounts'])) {

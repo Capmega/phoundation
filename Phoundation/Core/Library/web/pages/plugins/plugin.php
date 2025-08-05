@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 use Phoundation\Core\Plugins\Plugin;
 use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -64,11 +65,11 @@ $documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Plugin'));
 Response::setHeaderSubTitle($plugin->getDisplayName());
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                     => tr('Home'),
-    '/plugins/plugins.html' => tr('Plugins'),
-    ''                      => $plugin->getDisplayName(),
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/'                    , tr('Home')),
+    Anchor::new('/plugins/plugins.html', tr('Plugins')),
+    Anchor::new(''                     , $plugin->getDisplayName()),
+]););
 
 
 // Render and return the page grid

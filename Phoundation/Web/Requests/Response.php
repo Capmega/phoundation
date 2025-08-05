@@ -390,14 +390,17 @@ class Response implements ResponseInterface
     /**
      * Sets the bread crumbs for this page
      *
-     * @param BreadCrumbsInterface|null $bread_crumbs
+     * @param BreadCrumbsInterface|array|null $bread_crumbs
      *
      * @return void
      */
-    public static function setBreadCrumbs(?BreadCrumbsInterface $bread_crumbs = null): void
+    public static function setBreadCrumbs(BreadCrumbsInterface|array|null $bread_crumbs = null): void
     {
         if (!$bread_crumbs) {
             static::$bread_crumbs = new BreadCrumbs();
+
+        } elseif(is_array($bread_crumbs)) {
+            static::$bread_crumbs = new BreadCrumbs($bread_crumbs);
 
         } else {
             static::$bread_crumbs = $bread_crumbs;

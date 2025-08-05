@@ -18,6 +18,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Connectors\FilterForm;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -138,12 +139,12 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Database connectors'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                           => tr('Home'),
-    '/system-administration.html' => tr('System administration'),
-    '/phoundation/databases.html' => tr('Databases'),
-    ''                            => tr('Connectors'),
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/'                          , tr('Home')),
+    Anchor::new('/system-administration.html', tr('System administration')),
+    Anchor::new('/phoundation/databases.html', tr('Databases')),
+    Anchor::new(''                           , tr('Connectors')),
+]););
 
 
 // Render and return the page grid

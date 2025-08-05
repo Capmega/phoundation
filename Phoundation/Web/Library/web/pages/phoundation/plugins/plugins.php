@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 use Phoundation\Core\Plugins\FilterForm;
 use Phoundation\Core\Plugins\Plugins;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -75,11 +76,11 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Plugins management'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                 => tr('Home'),
-    '/phoundation.html' => tr('Phoundation'),
-    ''                  => tr('Plugins'),
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/'                , tr('Home')),
+    Anchor::new('/phoundation.html', tr('Phoundation')),
+    Anchor::new(''                 , tr('Plugins')),
+]););
 
 
 // Render and return the page grid

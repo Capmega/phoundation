@@ -329,12 +329,12 @@ $documentation_card = Card::new()
 Response::setPageTitle(tr('User :user', [':user' => $user->getDisplayName()]));
 Response::setHeaderTitle(tr('User'));
 Response::setHeaderSubTitle($user->getDisplayName());
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                    => tr('Home'),
-    '/accounts.html'       => tr('Accounts'),
-    '/accounts/users.html' => tr('Users'),
-    ''                     => $user->getDisplayName(),
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/'                   , tr('Home')),
+    Anchor::new('/accounts.html'      , tr('Accounts')),
+    Anchor::new('/accounts/users.html', tr('Users')),
+    Anchor::new(''                    , $user->getDisplayName()),
+]););
 
 
 // Render and return the page grid

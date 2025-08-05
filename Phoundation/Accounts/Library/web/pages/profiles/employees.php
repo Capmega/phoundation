@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Accounts\Users\Users;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Html;
@@ -24,11 +25,11 @@ use Phoundation\Web\Requests\Response;
 
 // Set page meta data
 Response::setHeaderTitle(tr('Employees'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/'              => tr('Home'),
-                                                           '/profiles.html' => tr('Profiles'),
-                                                           ''               => tr('Employees'),
-                                                       ]));
+Response::setBreadCrumbs([
+   Anchor::new('/'             , tr('Home')),
+   Anchor::new('/profiles.html', tr('Profiles')),
+   Anchor::new(''              , tr('Employees')),
+]););
 
 
 $template = '   <div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch flex-column">

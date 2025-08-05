@@ -17,6 +17,7 @@ declare(strict_types=1);
 use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Security\Incidents\FilterForm;
 use Phoundation\Security\Incidents\Incidents;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -83,11 +84,11 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Incidents management'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'              => tr('Home'),
-    '/security.html' => tr('Security'),
-    ''               => tr('Incidents management'),
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/'             , tr('Home')),
+    Anchor::new('/security.html', tr('Security')),
+    Anchor::new(''              , tr('Incidents management')),
+]););
 
 
 // Render and return the page grid

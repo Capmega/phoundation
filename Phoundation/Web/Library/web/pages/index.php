@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Requests\Response;
 
@@ -29,7 +30,7 @@ Response::setPageTitle(tr('Dashboard'));
 Response::setHeaderTitle(tr('Dashboard'));
 Response::setHeaderSubTitle(tr('(:user)', [':user' => Session::getUserObject()->getDisplayName()]));
 Response::setDescription(tr(''));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/' => tr('Home'),
-    ''  => tr('Dashboard'),
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/', tr('Home')),
+    Anchor::new('' , tr('Dashboard')),
+]););

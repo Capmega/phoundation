@@ -36,10 +36,10 @@ GetValidator::new()->validate();
 Response::setPageTitle(tr('Accounts portal'));
 Response::setHeaderTitle(tr('Accounts portal'));
 Response::setDescription(tr(''));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/' => tr('Home'),
-    ''  => tr('Accounts'),
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/', tr('Home')),
+    Anchor::new('' , tr('Accounts')),
+]);
 
 
 // Build link cards

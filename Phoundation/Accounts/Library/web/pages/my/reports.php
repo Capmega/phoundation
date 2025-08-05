@@ -12,6 +12,7 @@
 
 declare(strict_types=1);
 
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Url;
@@ -20,15 +21,15 @@ use Phoundation\Web\Requests\Response;
 
 // Set page meta data
 Response::setHeaderTitle(tr('My reports page'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/' => tr('Home'),
-                                                           ''  => tr('Reports'),
-                                                       ]));
+Response::setBreadCrumbs([
+   Anchor::new('/', tr('Home')),
+   Anchor::new('' , tr('Reports')),
+]););
 
 echo Card::new()
          ->setTitle(tr('Reports available to me'))
          ->setContent('<a href="' . Url::new('/timesheets/my-timesheet-reports/review.html')->makeWww() . '">' . tr('Review & submit') . '</a><hr>
-                         <a href="' . Url::new('/timesheets/my-timesheet-reports/summary.html')->makeWww() . '">' . tr('My summary report') . '</a><br>
-                         <a href="' . Url::new('/timesheets/my-timesheet-reports/detailed.html')->makeWww() . '">' . tr('My detailed report') . '</a><hr>')
+                       <a href="' . Url::new('/timesheets/my-timesheet-reports/summary.html')->makeWww() . '">' . tr('My summary report') . '</a><br>
+                       <a href="' . Url::new('/timesheets/my-timesheet-reports/detailed.html')->makeWww() . '">' . tr('My detailed report') . '</a><hr>')
          ->render();
 ?>

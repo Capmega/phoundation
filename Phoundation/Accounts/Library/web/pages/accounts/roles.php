@@ -124,11 +124,11 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Roles'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'              => tr('Home'),
-    '/accounts.html' => tr('Accounts'),
-    ''               => tr('Roles'),
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/'             , tr('Home')),
+    Anchor::new('/accounts.html', tr('Accounts')),
+    Anchor::new(''              , tr('Roles')),
+]););
 
 
 // Render and return the page grid

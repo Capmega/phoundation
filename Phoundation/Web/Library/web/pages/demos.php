@@ -15,6 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Sessions\Session;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -47,10 +48,10 @@ Response::setPageTitle(tr('Demo dashboard'));
 Response::setHeaderTitle(tr('Dashboard'));
 Response::setHeaderSubTitle(tr('(:user)', [':user' => Session::getUserObject()->getDisplayName()]));
 Response::setDescription(tr(''));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/' => tr('Home'),
-    ''  => tr('Demos'),
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/', tr('Home')),
+    Anchor::new('' , tr('Demos')),
+]););
 
 
 echo Card::new()

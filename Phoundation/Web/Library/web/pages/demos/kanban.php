@@ -14,6 +14,7 @@
 
 declare(strict_types=1);
 
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Requests\Response;
 
@@ -21,11 +22,11 @@ use Phoundation\Web\Requests\Response;
 // Set page meta data
 Response::setHeaderTitle(tr('Kanban board'));
 Response::setHeaderSubTitle(tr('Demo'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/'           => tr('Home'),
-                                                           '/demos.html' => tr('Demos'),
-                                                           ''            => tr('Kanban board'),
-                                                       ]));
+Response::setBreadCrumbs([
+   Anchor::new('/'          , tr('Home')),
+   Anchor::new('/demos.html', tr('Demos')),
+   Anchor::new(''           , tr('Kanban board')),
+]););
 
 Response::loadCss('/adminlte/plugins/ekko-lightbox/ekko-lightbox');
 Response::loadJavaScript('/adminlte/plugins/ekko-lightbox/ekko-lightbox');

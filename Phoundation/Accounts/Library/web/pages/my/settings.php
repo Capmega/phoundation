@@ -17,6 +17,7 @@ declare(strict_types=1);
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -83,11 +84,11 @@ $documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('My settings'));
 Response::setHeaderSubTitle($user->getDisplayName());
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                => tr('Home'),
-    '/my/profile.html' => tr('My profile'),
-    ''                 => tr('My settings'),
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/'               , tr('Home')),
+    Anchor::new('/my/profile.html', tr('My profile')),
+    Anchor::new(''                , tr('My settings')),
+]););
 
 
 // Render and return the page grid

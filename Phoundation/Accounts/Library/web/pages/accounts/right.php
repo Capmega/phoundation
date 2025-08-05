@@ -169,12 +169,12 @@ $documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Right'));
 Response::setHeaderSubTitle($right->getDisplayName());
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                     => tr('Home'),
-    '/accounts.html'        => tr('Accounts'),
-    '/accounts/rights.html' => tr('Rights'),
-    ''                      => $right->getDisplayName(),
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/'                    , tr('Home')),
+    Anchor::new('/accounts.html'       , tr('Accounts')),
+    Anchor::new('/accounts/rights.html', tr('Rights')),
+    Anchor::new(''                     , $right->getDisplayName()),
+]););
 
 
 // Render and return the page grid

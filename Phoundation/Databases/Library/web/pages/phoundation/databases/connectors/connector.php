@@ -21,6 +21,7 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
@@ -214,13 +215,13 @@ $documentation_card = Card::new()
 Response::setPageTitle(tr('Connector :connector', [':connector' => $connector->getDisplayName()]));
 Response::setHeaderTitle(tr('Connector'));
 Response::setHeaderSubTitle($connector->getDisplayName() . ($connector->sourceLoadedFromConfiguration() ? ' [' . tr('Configured') . ']' : ''));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                                                 => tr('Home'),
-    '/system-administration.html'                       => tr('System administration'),
-    '/phoundation/databases.html'                       => tr('Databases'),
-    '/phoundation/databases/connectors/connectors.html' => tr('Connectors'),
-    ''                                                  => $connector->getDisplayName(),
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/'                                                , tr('Home')),
+    Anchor::new('/system-administration.html'                      , tr('System administration')),
+    Anchor::new('/phoundation/databases.html'                      , tr('Databases')),
+    Anchor::new('/phoundation/databases/connectors/connectors.html', tr('Connectors')),
+    Anchor::new(''                                                 , $connector->getDisplayName()),
+]););
 
 
 // Render and return the page grid

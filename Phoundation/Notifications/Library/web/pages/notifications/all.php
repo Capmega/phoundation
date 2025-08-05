@@ -19,6 +19,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Notifications\FilterForm;
 use Phoundation\Notifications\Notifications;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -109,13 +110,13 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Notifications'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/' => tr('Home'),
-    ''  => tr('Notifications')
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/', tr('Home')),
+    Anchor::new('' , tr('Notifications'))
+]););
 
 
 // Render and return the page grid
 return Grid::new()
-    ->addGridColumn($filters_card  . $notifications_card, EnumDisplaySize::nine)
-    ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($filters_card  . $notifications_card, EnumDisplaySize::nine)
+           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);

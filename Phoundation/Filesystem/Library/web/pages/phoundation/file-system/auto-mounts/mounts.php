@@ -18,6 +18,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Filesystem\Mounts\FilterForm;
 use Phoundation\Filesystem\Mounts\PhoMounts;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -136,15 +137,15 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Filesystem mounts'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                           => tr('Home'),
-    '/system-administration.html' => tr('System administration'),
-    '/filesystem.html'            => tr('Filesystem'),
-    ''                            => tr('FsMounts')
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/'                          , tr('Home')),
+    Anchor::new('/system-administration.html', tr('System administration')),
+    Anchor::new('/filesystem.html'           , tr('Filesystem')),
+    Anchor::new(''                           , tr('FsMounts'))
+]););
 
 
 // Render and return the page grid
 return Grid::new()
-    ->addGridColumn($filters_card  . $mounts_card  , EnumDisplaySize::nine)
-    ->addGridColumn($relevant_card . $documentation, EnumDisplaySize::three);
+           ->addGridColumn($filters_card  . $mounts_card, EnumDisplaySize::nine)
+           ->addGridColumn($relevant_card               , EnumDisplaySize::three);

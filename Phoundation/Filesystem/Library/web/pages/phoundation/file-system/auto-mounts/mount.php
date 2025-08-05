@@ -20,6 +20,7 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Filesystem\Mounts\PhoMount;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Img;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
@@ -165,26 +166,23 @@ $documentation = Card::new()
                          <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
-// Render and return the page grid
-$grid = Grid::new()
-    ->addGridColumn(GridColumn::new()
-        // The mount card and all additional cards
-        ->addContent($mount_card)
-        ->setSize(9)
-        ->useForm(true))
-    ->addGridColumn($picture->render() . $relevant->render() . $documentation->render(), EnumDisplaySize::three);
-
-echo $grid->render();
-
-
 // Set page meta data
 Response::setPageTitle(tr('FsMount :mount', [':mount' => $mount->getDisplayName()]));
 Response::setHeaderTitle(tr('FsMount'));
 Response::setHeaderSubTitle($mount->getDisplayName());
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                                     => tr('Home'),
-    '/system-administration.html'           => tr('System administration'),
-    '/phoundation/file-systems.html'        => tr('Filesystems'),
-    '/phoundation/file-systems/mounts.html' => tr('FsMounts'),
-    ''                                      => $mount->getDisplayName()
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/'                                    , tr('Home')),
+    Anchor::new('/system-administration.html'          , tr('System administration')),
+    Anchor::new('/phoundation/file-systems.html'       , tr('Filesystems')),
+    Anchor::new('/phoundation/file-systems/mounts.html', tr('FsMounts')),
+    Anchor::new(''                                     , $mount->getDisplayName()),
+]););
+
+
+// Render and return the page grid
+return Grid::new()
+           ->addGridColumn(GridColumn::new()
+                                     ->addContent($mount_card)
+                                     ->setSize(9)
+                                     ->useForm(true))
+           ->addGridColumn($picture . $relevant . $documentation, EnumDisplaySize::three);

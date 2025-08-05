@@ -15,6 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Sessions\Session;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Url;
@@ -23,11 +24,11 @@ use Phoundation\Web\Requests\Response;
 // Set page meta data
 Response::setHeaderTitle(tr('Projects'));
 Response::setHeaderSubTitle(tr('Demo'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/'           => tr('Home'),
-                                                           '/demos.html' => tr('Demos'),
-                                                           ''            => tr('Projects'),
-                                                       ]));
+Response::setBreadCrumbs([
+   Anchor::new('/'          , tr('Home')),
+   Anchor::new('/demos.html', tr('Demos')),
+   Anchor::new(''           , tr('Projects')),
+]););
 
 ?>
 <!-- Main content -->

@@ -18,6 +18,7 @@ use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\FilterForm;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -98,11 +99,11 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('SQL report'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'              => tr('Home'),
-    '/reports.html'  => tr('Reports'),
-    ''               => tr('SQL report'),
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/'            , tr('Home')),
+    Anchor::new('/reports.html', tr('Reports')),
+    Anchor::new(''             , tr('SQL report')),
+]););
 
 
 // Render and return the page grid

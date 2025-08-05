@@ -20,6 +20,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
@@ -123,12 +124,12 @@ $url = Url::new('/security/authentications.html')->makeWww()->addQueries(
 
 Response::setHeaderTitle(tr('Authentication details'));
 Response::setHeaderSubTitle($authentication->getDisplayId());
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'              => tr('Home'),
-    '/security.html' => tr('Security'),
-    $url             => tr('Authentications management'),
-    ''               => $authentication->getDisplayId(),
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/'             , tr('Home')),
+    Anchor::new('/security.html', tr('Security')),
+    Anchor::new($url            , tr('Authentications management')),
+    Anchor::new(''              , $authentication->getDisplayId()),
+]););
 
 
 // Render and return the page grid

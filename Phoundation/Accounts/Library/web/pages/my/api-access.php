@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -80,10 +81,10 @@ $documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('My API access'));
 Response::setHeaderSubTitle($user->getDisplayName());
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/' => tr('Home'),
-    ''  => tr('My API access'),
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/', tr('Home')),
+    Anchor::new('' , tr('My API access')),
+]););
 
 
 // Render and return the page grid

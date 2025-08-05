@@ -123,13 +123,13 @@ $documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Change password'));
 Response::setHeaderSubTitle($user->getDisplayName());
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
+Response::setBreadCrumbs([
     Anchor::new('/'                                         , tr('Home')),
     Anchor::new('/accounts.html'                            , tr('Accounts')),
     Anchor::new('/accounts/users.html'                      , tr('Users')),
     Anchor::new('/accounts/user+' . $user->getId() . '.html', $user->getDisplayName()),
-    tr('Modify password')
-]));
+    Anchor::new(''                                          , tr('Modify password'))
+]););
 
 
 // Render and return the page grid

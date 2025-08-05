@@ -18,6 +18,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Notifications\Notification;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
@@ -100,14 +101,14 @@ $documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Notification'));
 Response::setHeaderSubTitle($notification->getDisplayId());
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                       => tr('Home'),
-    '/notifications/all.html' => tr('Notifications'),
-    ''                        => tr(':id [:title]', [
+Response::setBreadCrumbs([
+    Anchor::new('/'                      , tr('Home')),
+    Anchor::new('/notifications/all.html', tr('Notifications')),
+    Anchor::new(''                       , tr(':id [:title]'), [
         ':title' => $notification->getTitle(),
         ':id'    => $notification->getDisplayId()
     ])
-]));
+]););
 
 
 // Render and return the page grid

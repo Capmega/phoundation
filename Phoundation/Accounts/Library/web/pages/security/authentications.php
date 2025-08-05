@@ -20,6 +20,7 @@ use Phoundation\Accounts\Users\AuthenticationsFilterForm;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\PhoDateTime;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -77,8 +78,9 @@ $authentications_card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::new('/security/incidents.html')->makeWww()->addQueries($filters->getUsersId()   ? 'users_id=' . $filters->getUsersId()   : '')
-                                                   ->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : '')  . '">' . tr('Incidents management') . '</a>');
+                     ->setContent('<a href="' . Url::new('/security/incidents.html')->makeWww()
+                                                                                    ->addQueries($filters->getUsersId()   ? 'users_id=' . $filters->getUsersId()   : '')
+                                                                                    ->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : '')  . '">' . tr('Incidents management') . '</a>');
 
 
 // Build documentation
@@ -90,11 +92,11 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Authentications management'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'              => tr('Home'),
-    '/security.html' => tr('Security'),
-    ''               => tr('Authentications management'),
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/'             , tr('Home')),
+    Anchor::new('/security.html', tr('Security')),
+    Anchor::new(''              , tr('Authentications management')),
+]););
 
 
 // Render and return the page grid

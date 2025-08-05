@@ -15,6 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -60,12 +61,12 @@ $documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Non HTTP-200 URL'));
 Response::setHeaderSubTitle($url->getDisplayId());
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                           => tr('Home'),
-    '/security.html'              => tr('Security'),
-    '/security/non-200-urls.html' => tr('Non HTTP-200 URL\'s'),
-    ''                            => $url->getDisplayId(),
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/'                          , tr('Home')),
+    Anchor::new('/security.html'             , tr('Security')),
+    Anchor::new('/security/non-200-urls.html', tr('Non HTTP-200 URL\'s')),
+    Anchor::new(''                           , $url->getDisplayId()),
+]););
 
 
 // Render and return the page grid

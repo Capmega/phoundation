@@ -15,6 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Core\Libraries\Libraries;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Requests\Response;
@@ -22,11 +23,11 @@ use Phoundation\Web\Requests\Response;
 
 // Set page meta data
 Response::setHeaderTitle(tr('Libraries'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'            => tr('Home'),
-    '/phoundation' => tr('Phoundation'),
-    ''             => tr('Libraries'),
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/'           , tr('Home')),
+    Anchor::new('/phoundation', tr('Phoundation')),
+    Anchor::new(''            , tr('Libraries')),
+]););
 
 
 // Build the page content

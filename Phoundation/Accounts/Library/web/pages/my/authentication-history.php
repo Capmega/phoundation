@@ -21,6 +21,7 @@ use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\PhoDateTime;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -95,11 +96,11 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Authentications management'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'        => tr('Home'),
-    '/my.html' => tr('My'),
-    ''         => tr('Authentications history'),
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/'       , tr('Home')),
+    Anchor::new('/my.html', tr('My')),
+    Anchor::new(''        , tr('Authentications history')),
+]););
 
 
 // Render and return the page grid

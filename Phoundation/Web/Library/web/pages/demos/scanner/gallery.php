@@ -14,6 +14,7 @@
 
 declare(strict_types=1);
 
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
@@ -28,12 +29,12 @@ Response::loadCss('templates/adminlte/plugins/ekko-lightbox/ekko-lightbox');
 
 Response::setHeaderTitle(tr('Scanner gallery'));
 Response::setHeaderSubTitle(tr('Demo'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                   => tr('Home'),
-    '/demos.html'         => tr('Demos'),
-    '/demos/scanner.html' => tr('Scanner'),
-    ''                    => tr('Gallery'),
-]));
+Response::setBreadCrumbs([
+    Anchor::new('/'                  , tr('Home')),
+    Anchor::new('/demos.html'        , tr('Demos')),
+    Anchor::new('/demos/scanner.html', tr('Scanner')),
+    Anchor::new(''                   , tr('Gallery')),
+]););
 
 
 // Load specific test script
