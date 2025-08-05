@@ -20,9 +20,18 @@ interface UrlInterface
      *
      * @param bool $strip_queries
      *
-     * @return string|null
+     * @return string|int|null
      */
-    public function getSource(bool $strip_queries = false): ?string;
+    public function getSource(bool $strip_queries = false): string|int|null;
+
+    /**
+     * Sets the source URL of this URL object
+     *
+     * @param UrlInterface|string|int|null $source
+     *
+     * @return static
+     */
+    public function setSource(UrlInterface|string|int|null $source): static;
 
 
     /**

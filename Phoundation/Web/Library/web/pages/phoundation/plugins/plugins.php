@@ -63,7 +63,7 @@ $plugins_card->getForm()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::new('/accounts/users.html')->makeWww() . '">' . tr('Users management') . '</a>');
+                     ->setContent(Anchor::new(Url::new('/accounts/users.html')->makeWww(), tr('Users management')));
 
 
 // Build documentation

@@ -57,8 +57,8 @@ $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
                      ->setCollapseSwitch(true)
-                     ->setContent('<a href="' . Url::new('/business/customers.html')->makeWww() . '">' . tr('Customers management') . '</a><br>
-                                   <a href="' . Url::new('/business/companies.html')->makeWww() . '">' . tr('Companies management') . '</a>');
+                     ->setContent(Anchor::new(Url::new('/business/customers.html')->makeWww(), tr('Customers management')) .
+                                  Anchor::new(Url::new('/business/companies.html')->makeWww(), tr('Companies management'), '<br>'));
 
 
 // Build documentation

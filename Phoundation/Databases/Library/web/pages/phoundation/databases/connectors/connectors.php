@@ -125,8 +125,8 @@ $connectors_card->getForm()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::new('/phoundation/databases/connectors/roles.html')->makeWww() . '">' . tr('Roles management') . '</a><br>
-                                   <a href="' . Url::new('/phoundation/databases/connectors/rights.html')->makeWww() . '">' . tr('Rights management') . '</a>');
+                     ->setContent(Anchor::new(Url::new('/phoundation/databases/connectors/roles.html')->makeWww(), tr('Roles management')) .
+                                  Anchor::new(Url::new('/phoundation/databases/connectors/rights.html')->makeWww(), tr('Rights management'), '<br>'));
 
 
 // Build documentation

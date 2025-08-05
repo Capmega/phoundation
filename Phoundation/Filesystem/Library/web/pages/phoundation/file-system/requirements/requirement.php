@@ -169,7 +169,7 @@ $picture = Card::new()
 $relevant = Card::new()
     ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Relevant links'))
-->setContent('<a href="' . Url::new('/phoundation/file-systems.html')->makeWww() . '">' . tr('Manage filesystems') . '</a><br>');
+->setContent(Anchor::new(Url::new('/phoundation/file-systems.html')->makeWww(), tr('Manage filesystems'), '<br>'));
 
 
 // Build documentation

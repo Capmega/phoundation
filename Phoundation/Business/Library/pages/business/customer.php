@@ -92,8 +92,8 @@ $picture = Card::new()
 $relevant = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
-                ->setContent('<a href="' . Url::new('/business/providers.html')->makeWww() . '">' . tr('Providers management') . '</a><br>
-                              <a href="' . Url::new('/business/companies.html')->makeWww() . '">' . tr('Companies management') . '</a>');
+                ->setContent(Anchor::new(Url::new('/business/providers.html')->makeWww(), tr('Providers management')) .
+                             Anchor::new(Url::new('/business/companies.html')->makeWww(), tr('Companies management'), '<br>'));
 
 
 // Build documentation

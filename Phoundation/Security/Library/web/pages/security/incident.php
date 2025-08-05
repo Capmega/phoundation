@@ -52,8 +52,8 @@ $card     = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::new('/accounts/users.html')->makeWww() . '">' . tr('Users management') . '</a><br>
-                                   <a href="' . Url::new('/accounts/rights.html')->makeWww() . '">' . tr('Rights management') . '</a>');
+                     ->setContent(Anchor::new(Url::new('/accounts/users.html')->makeWww(), tr('Users management')) .
+                                   Anchor::new(Url::new('/accounts/rights.html')->makeWww(), tr('Rights management'), '<br>'));
 
 
 // Build documentation

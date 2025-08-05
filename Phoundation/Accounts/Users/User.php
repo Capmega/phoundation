@@ -1070,7 +1070,7 @@ Log::backtrace();
                  ]))
                  ->setMessage(tr('An account has been created on :project by :user. To enter the system, you can click the link :link or copy/paste the :url in your browser. This will immediately take you to your account where you only have to enter your desired password', [
                      ':url'     => $key->getUrl(),
-                     ':link'    => '<a href="' . $key->getUrl() . '">' . tr('here') . '</a>',
+                     ':link'    => Anchor::new($key->getUrl(), tr('here')),
                      ':user'    => Session::getUserObject()
                                           ->getDisplayName(),
                      ':project' => config()->getString('project.name', 'Phoundation'),
@@ -1133,13 +1133,14 @@ Log::backtrace();
         if ($this->getEmail()) {
             $user   = Strings::until($this->getEmail(), '@');
             $domain = Strings::from($this->getEmail(), '@');
+
             return substr($user, 0, 1) . substr($domain, 0, 1);
         }
 
         if (!($name = $this->getId(false))) {
             if ($this->getId(false) === -1) {
                 // This is the guest user
-                $name = tr('G');
+                $name = tr('[G]');
 
             } else {
                 // This is a new user

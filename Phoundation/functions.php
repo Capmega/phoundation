@@ -2231,6 +2231,28 @@ function containsHtml(Stringable|string $source, ?array $tags = null): bool
 
 
 /**
+ * Adds an <hr> tag to the specified content IF content is not empty
+ *
+ * @param Stringable|string|null $content
+ * @param bool                   $before
+ *
+ * @return string|null
+ */
+function hr(Stringable|string|null $content, bool $before = true): ?string
+{
+    if (empty($content)) {
+        return $content;
+    }
+
+    if ($before) {
+        return '<hr>' . $content;
+    }
+
+    return $content . '<hr>';
+}
+
+
+/**
  * Returns true if the specified datatype is an object or class datatype, false if it is a standard PHP datatype
  *
  * Data type "object" and any datatype that is a class path will always return true

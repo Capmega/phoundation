@@ -109,9 +109,9 @@ $card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::new('/my/profile.html')->makeWww() . '">' . tr('Manage my profile') . '</a><br>
-                                   <a href="' . Url::new('/my/settings.html')->makeWww() . '">' . tr('Manage my settings') . '</a><br>');
-//<a href="' . Url::new('/my/authentication-history.html')->makeWww() . '">' . tr('Review my authentication history') . '</a>
+                     ->setContent(Anchor::new(Url::new('/my/profile.html')->makeWww(), tr('Manage my profile')) .
+                                  Anchor::new(Url::new('/my/settings.html')->makeWww(), tr('Manage my settings'), '<br>'));
+                                //Anchor::new(Url::new('/my/authentication-history.html')->makeWww(), tr('Review my authentication history'), '<br>'));
 
 // Build documentation
 $documentation_card = Card::new()

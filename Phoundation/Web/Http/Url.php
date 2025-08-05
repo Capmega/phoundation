@@ -83,12 +83,13 @@ class Url implements UrlInterface
     protected function __construct(Stringable|string|int|null $source = null)
     {
         if ($source instanceof UrlInterface) {
-            // Copy URL data from specified source into this URL object
+            // Copy URL data from the specified source into this URL object
             $this->setSource($source->getSource())
                  ->setRightsObject($source->getRightsObject());
 
         } else {
-            $this->setSource($source);
+            // If the specified was a non UrlInterface stringable object, convert to string and use
+            $this->setSource((string) $source);
         }
     }
 
@@ -664,9 +665,9 @@ class Url implements UrlInterface
      *
      * @param bool $strip_queries
      *
-     * @return string|null
+     * @return string|int|null
      */
-    public function getSource(bool $strip_queries = false): ?string
+    public function getSource(bool $strip_queries = false): string|int|null
     {
         // Auto cloak URL's?
         try {
@@ -691,11 +692,11 @@ class Url implements UrlInterface
     /**
      * Sets the source URL of this URL object
      *
-     * @param UrlInterface|string|null $source
+     * @param UrlInterface|string|int|null $source
      *
      * @return static
      */
-    public function setSource(UrlInterface|string|null $source): static
+    public function setSource(UrlInterface|string|int|null $source): static
     {
         $source = get_null(trim((string) $source));
 

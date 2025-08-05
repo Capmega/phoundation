@@ -55,22 +55,22 @@ Response::setBreadCrumbs([
 
 echo Card::new()
          ->setTitle(tr('Demo page links'))
-         ->setContent('                  <a href="' . Url::new('/demos/timeline.html')->makeWww() . '">' . tr('Package timeline') . '</a><br>
-                  <a href="' . Url::new('/demos/calendar.html')->makeWww() . '">' . tr('User calendar') . '</a><br>
-                  <a href="' . Url::new('/demos/contact-us.html')->makeWww() . '">' . tr('Contact us') . '</a><br>
-                  <a href="' . Url::new('/demos/contacts.html')->makeWww() . '">' . tr('Contacts') . '</a><br>
-                  <a href="' . Url::new('/demos/profile.html')->makeWww() . '">' . tr('Employee profile page') . '</a><br>
-                  <a href="' . Url::new('/demos/fingerprint-screen.html')->makeWww() . '">' . tr('Finger print detection') . '</a><br>
-                  <a href="' . Url::new('/demos/lock-screen.html')->makeWww() . '">' . tr('Lock screen') . '</a><br>
-                  <a href="' . Url::new('/demos/invoice.html')->makeWww() . '">' . tr('Invoice') . '</a><br>
-                  <a href="' . Url::new('/demos/kanban.html')->makeWww() . '">' . tr('Kanban project management board') . '</a><br>
-                  <a href="' . Url::new('/demos/projects.html')->makeWww() . '">' . tr('Projects') . '</a><br>
-                  <a href="' . Url::new('/demos/project-detail.html')->makeWww() . '">' . tr('Projects detail page') . '</a><br>
-                  <a href="' . Url::new('/demos/project-edit.html')->makeWww() . '">' . tr('Projects edit page') . '</a><br>
-                  <a href="' . Url::new('/demos/mailbox.html')->makeWww() . '">' . tr('Mail box') . '</a><br>
-                  <a href="' . Url::new('/demos/read-mail.html')->makeWww() . '">' . tr('Read mail') . '</a><br>
-                  <a href="' . Url::new('/demos/compose.html')->makeWww() . '">' . tr('Compose mail') . '</a><br>
-                  <a href="' . Url::new('/demos/scanner/gallery.html')->makeWww() . '">' . tr('Scanner gallery') . '</a>')
+         ->setContent(Anchor::new(Url::new('/demos/timeline.html')->makeWww(), tr('Package timeline')) .
+                      Anchor::new(Url::new('/demos/calendar.html')->makeWww(), tr('User calendar'), '<br>') .
+                      Anchor::new(Url::new('/demos/contact-us.html')->makeWww(), tr('Contact us'), '<br>') .
+                      Anchor::new(Url::new('/demos/contacts.html')->makeWww(), tr('Contacts'), '<br>') .
+                      Anchor::new(Url::new('/demos/profile.html')->makeWww(), tr('Employee profile page'), '<br>') .
+                      Anchor::new(Url::new('/demos/fingerprint-screen.html')->makeWww(), tr('Finger print detection'), '<br>') .
+                      Anchor::new(Url::new('/demos/lock-screen.html')->makeWww(), tr('Lock screen'), '<br>') .
+                      Anchor::new(Url::new('/demos/invoice.html')->makeWww(), tr('Invoice'), '<br>') .
+                      Anchor::new(Url::new('/demos/kanban.html')->makeWww(), tr('Kanban project management board'), '<br>') .
+                      Anchor::new(Url::new('/demos/projects.html')->makeWww(), tr('Projects'), '<br>') .
+                      Anchor::new(Url::new('/demos/project-detail.html')->makeWww(), tr('Projects detail page'), '<br>') .
+                      Anchor::new(Url::new('/demos/project-edit.html')->makeWww(), tr('Projects edit page'), '<br>') .
+                      Anchor::new(Url::new('/demos/mailbox.html')->makeWww(), tr('Mail box'), '<br>') .
+                      Anchor::new(Url::new('/demos/read-mail.html')->makeWww(), tr('Read mail'), '<br>') .
+                      Anchor::new(Url::new('/demos/compose.html')->makeWww(), tr('Compose mail'), '<br>') .
+                      Anchor::new(Url::new('/demos/scanner/gallery.html')->makeWww(), tr('Scanner gallery'), '<br>'))
          ->render();
 ?>
     <div class="row">

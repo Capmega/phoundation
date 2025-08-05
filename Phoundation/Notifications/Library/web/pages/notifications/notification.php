@@ -82,10 +82,9 @@ $notification_card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::new('/notifications/all.html')->makeWww() . '">' . tr('All notifications') . '</a><br>
-                                   <a href="' . Url::new('/notifications/unread.html')->makeWww() . '">' . tr('Unread notifications') . '</a><br>
-                                   <hr>
-                                   <a href="' . Url::new('/security/incidents.html')->makeWww() . '">' . tr('Security incidents') . '</a>');
+                     ->setContent(Anchor::new(Url::new('/notifications/all.html')->makeWww(), tr('All notifications')) .
+                                  Anchor::new(Url::new('/notifications/unread.html')->makeWww(), tr('Unread notifications'), '<br>') .
+                                  hr(Anchor::new(Url::new('/security/incidents.html')->makeWww(), tr('Security incidents'))));
 
 
 // Build documentation

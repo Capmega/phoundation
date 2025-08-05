@@ -66,11 +66,11 @@ $settings_card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::new('/my/profile.html')->makeWww() . '">' . tr('Manage my profile') . '</a><br>
-                                   <a href="' . Url::new('/my/favorite-diagnostics.html')->makeWww() . '">' . tr('Manage my favorite diagnostics') . '</a><br>
-                                   <a href="' . Url::new('/my/password.html')->makeWww() . '">' . tr('Change my password') . '</a><br>                                 
-                                   <a href="' . Url::new('/mfa/create.html')->makeWww()->addRedirect(Url::newCurrent()) . '">' . tr('Setup multi factor authentication') . '</a><br>');
-//<a href="' . Url::new('/my/authentication-history.html')->makeWww() . '">' . tr('Review my authentication history') . '</a><br>
+                     ->setContent(Anchor::new(Url::new('/my/profile.html')->makeWww(), tr('Manage my profile')) .
+                                  Anchor::new(Url::new('/my/favorite-diagnostics.html')->makeWww(), tr('Manage my favorite diagnostics'), '<br>') .
+                                  Anchor::new(Url::new('/my/password.html')->makeWww(), tr('Change my password'), '<br>') .
+                                  Anchor::new(Url::new('/mfa/create.html')->makeWww()->addRedirect(Url::newCurrent()), tr('Setup multi factor authentication'), '<br>'));
+                                //Anchor::new(Url::new('/my/authentication-history.html')->makeWww(), tr('Review my authentication history'), '<br>') .
 
 
 // Build documentation

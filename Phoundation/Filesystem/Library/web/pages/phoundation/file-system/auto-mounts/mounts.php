@@ -124,7 +124,7 @@ $mounts_card->getForm()
 $relevant_card = Card::new()
     ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Relevant links'))
-    ->setContent('<a href="' . Url::new('/phoundation/file-system/roles.html')->makeWww() . '">' . tr('Filesystem connectors management') . '</a><br>');
+    ->setContent(Anchor::new(Url::new('/phoundation/file-system/roles.html')->makeWww(), tr('Filesystem connectors management'), '<br>'));
 
 
 // Build documentation

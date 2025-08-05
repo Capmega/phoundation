@@ -198,7 +198,7 @@ $connector_card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::new('/phoundation/databases/databases.html')->makeWww() . '">' . tr('Manage databases') . '</a><br>');
+                     ->setContent(Anchor::new(Url::new('/phoundation/databases/databases.html')->makeWww(), tr('Manage databases'), '<br>'));
 
 
 // Build documentation

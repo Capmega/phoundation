@@ -96,8 +96,8 @@ $notifications_card->getForm()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::new('/notifications/unread.html')->makeWww() . '">' . tr('Unread notifications') . '</a><br>
-                                   <a href="' . Url::new('/notifications/test.html')->makeWww() . '">' . tr('Send me a test notification') . '</a>');
+                     ->setContent(Anchor::new(Url::new('/notifications/unread.html')->makeWww(), tr('Unread notifications')) .
+                                  Anchor::new(Url::new('/notifications/test.html')->makeWww(), tr('Send me a test notification'), '<br>'));
 
 
 // Build documentation

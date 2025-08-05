@@ -48,8 +48,8 @@ $plugin_card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::new('/developer/slow-pages.html')->makeWww() . '">' . tr('Slow pages') . '</a><br>
-                                   <a href="' . Url::new('/security/security.html')->makeWww() . '">' . tr('Security management') . '</a>');
+                     ->setContent(Anchor::new(Url::new('/developer/slow-pages.html')->makeWww(), tr('Slow pages')) .
+                                  Anchor::new(Url::new('/security/security.html')->makeWww(), tr('Security management'), '<br>'));
 
 
 // Build documentation

@@ -306,13 +306,13 @@ $picture_card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent(($user->isNew() ? '' : Anchor::new(Url::new('/profiles/profile+' . $user->getId() . '.html')->makeWww()                           , tr('Profile page for this user'))) .
-                                                         Anchor::new(Url::new('/accounts/password+' . $user->getId() . '.html')->makeWww()                          , tr('Change password for this user')   , '<br>') .
-                                                         Anchor::new(Url::new('/security/authentications.html')->makeWww()->addQueries('users_id=' . $user->getId()), tr('Authentications for this user')   , '<br>') .
-                                                         Anchor::new(Url::new('/security/incidents.html')->makeWww()->addQueries('users_id=' . $user->getId())      , tr('Security incidents for this user'), '<br>') .
-                                                         Anchor::new(Url::new('/accounts/roles.html')->makeWww()                                                    , tr('Manage roles')                    , '<hr>') .
-                                                         Anchor::new(Url::new('/accounts/rights.html')->makeWww()                                                   , tr('Manage rights')                   , '<br>') .
-                                                         Anchor::new(Url::new('/accounts/sessions.html')->makeWww()->addQueries('users_id=' . $user->getId())       , tr('Manage sessions')                 , '<hr>'));
+                     ->setContent(($user->isNew() ? '' : Anchor::new(Url::new('/profiles/profile+' . $user->getId() . '.html')->makeWww(), tr('Profile page for this user'))) .
+                                                         Anchor::new(Url::new('/accounts/password+' . $user->getId() . '.html')->makeWww(), tr('Change password for this user'), '<br>') .
+                                                         Anchor::new(Url::new('/security/authentications.html')->makeWww()->addQueries('users_id=' . $user->getId()), tr('Authentications for this user'), '<br>') .
+                                                         Anchor::new(Url::new('/security/incidents.html')->makeWww()->addQueries('users_id=' . $user->getId()), tr('Security incidents for this user'), '<br>') .
+                                                         hr(Anchor::new(Url::new('/accounts/roles.html')->makeWww(), tr('Manage roles'), '<br>') .
+                                                            Anchor::new(Url::new('/accounts/rights.html')->makeWww(), tr('Manage rights'), '<br>') .
+                                                            Anchor::new(Url::new('/accounts/sessions.html')->makeWww()->addQueries('users_id=' . $user->getId()), tr('Manage sessions'))));
 
 
 // Build documentation
@@ -341,10 +341,10 @@ return Grid::new()
             ->addGridColumn(GridColumn::new()
                             // The user card and all additional cards
                                   ->addContent($user_card . '<br>' .
-                                               isset_get($roles_card)?->render() . '<br>' .
-                                               isset_get($rights_card)?->render() . '<br>' .
-                                               isset_get($emails_card)?->render() . '<br>' .
-                                               isset_get($phones_card)?->render())
+                                               isset_get($roles_card) . '<br>' .
+                                               isset_get($rights_card) . '<br>' .
+                                               isset_get($emails_card) . '<br>' .
+                                               isset_get($phones_card))
                                   ->setSize(9)
                                   ->useForm(true))
             ->addGridColumn($picture_card . '<br>' . $relevant_card . '<br>' . $documentation_card, EnumDisplaySize::three);

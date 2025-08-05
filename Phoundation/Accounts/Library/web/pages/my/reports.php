@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Page timesheets/redirect
+ * Page my/reports
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -25,10 +25,8 @@ Response::setBreadCrumbs([
    Anchor::new('' , tr('Reports')),
 ]);
 
-echo Card::new()
-         ->setTitle(tr('Reports available to me'))
-         ->setContent('<a href="' . Url::new('/timesheets/my-timesheet-reports/review.html')->makeWww() . '">' . tr('Review & submit') . '</a><hr>
-                       <a href="' . Url::new('/timesheets/my-timesheet-reports/summary.html')->makeWww() . '">' . tr('My summary report') . '</a><br>
-                       <a href="' . Url::new('/timesheets/my-timesheet-reports/detailed.html')->makeWww() . '">' . tr('My detailed report') . '</a><hr>')
-         ->render();
-?>
+return Card::new()
+           ->setTitle(tr('Reports available to me'))
+           ->setContent(Anchor::new(Url::new('/timesheets/my-timesheet-reports/review.html')->makeWww(), tr('Review & submit')) .
+                        Anchor::new(Url::new('/timesheets/my-timesheet-reports/summary.html')->makeWww(), tr('My summary report'), '<hr>') .
+                        Anchor::new(Url::new('/timesheets/my-timesheet-reports/detailed.html')->makeWww(), tr('My detailed report'), '<br>'));

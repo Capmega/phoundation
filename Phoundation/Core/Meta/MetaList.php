@@ -74,7 +74,7 @@ class MetaList
 
         foreach ($source as &$row) {
             if ($row['created_by']) {
-                $row['user'] = '<a href="' . Url::new('profiles/profile+' . $row['created_by'] . '.html')->makeWww() . '">' . $row['user'] . '</a>';
+                $row['user'] = Anchor::new(Url::new('profiles/profile+' . $row['created_by'] . '.html')->makeWww(), $row['user']);
             }
 
             try {
