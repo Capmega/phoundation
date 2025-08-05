@@ -172,10 +172,10 @@ $rights_card = Card::new()
 Response::setHeaderTitle(tr('Role'));
 Response::setHeaderSubTitle($role->getDisplayName());
 Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                    => tr('Home'),
-    '/accounts.html'       => tr('Accounts'),
-    '/accounts/roles.html' => tr('Roles'),
-    ''                     => $role->getDisplayName(),
+    Anchor::new('/'                   , tr('Home')),
+    Anchor::new('/accounts.html'      , tr('Accounts')),
+    Anchor::new('/accounts/roles.html', tr('Roles')),
+    Anchor::new(''                    , $role->getDisplayName()),
 ]));
 
 
