@@ -4,19 +4,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Http\Interfaces;
 
-use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Rights\Interfaces\RightInterface;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
-use Phoundation\Accounts\Rights\Right;
-use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
-use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Web\Html\Components\Interfaces\AnchorInterface;
 use Phoundation\Web\Html\Enums\EnumAnchorTarget;
 use Phoundation\Web\Http\Url;
-use Phoundation\Web\Requests\Request;
 
 interface UrlInterface
 {
@@ -25,9 +20,9 @@ interface UrlInterface
      *
      * @param bool $strip_queries
      *
-     * @return string
+     * @return string|null
      */
-    public function getSource(bool $strip_queries = false): string;
+    public function getSource(bool $strip_queries = false): ?string;
 
 
     /**

@@ -63,9 +63,9 @@ class Url implements UrlInterface
     /**
      * The url to work with
      *
-     * @var string|int $source
+     * @var string|int|null $source
      */
-    protected string|int $source;
+    protected string|int|null $source;
 
     /**
      * Tracks if this URL is properly encoded, or not
@@ -82,24 +82,13 @@ class Url implements UrlInterface
      */
     protected function __construct(Stringable|string|int|null $source = null)
     {
-        $source = trim((string) $source);
-
-        // This is either part of a URL or a complete URL
-        if (!Url::isValidUrl($source)) {
-            // This is a valid URL, continue.
-            $this->source = $source;
+        if ($source instanceof UrlInterface) {
+            // Copy URL data from specified source into this URL object
+            $this->setSource($source->getSource())
+                 ->setRightsObject($source->getRightsObject());
 
         } else {
-            // This is a section
-            if ($source) {
-                $source = Strings::ensureBeginsNotWith($source, '/');
-
-                if (empty($source)) {
-                    $source = '/';
-                }
-            }
-
-            $this->source = $source;
+            $this->setSource($source);
         }
     }
 
@@ -111,7 +100,7 @@ class Url implements UrlInterface
      */
     public function __toString(): string
     {
-        return $this->getSource();
+        return (string) $this->getSource();
     }
 
 
@@ -472,18 +461,22 @@ class Url implements UrlInterface
      */
     public function makeWww(bool $use_configured_root = false): static
     {
-        if (!$this->source) {
-            return Url::newCurrent();
+        if (empty($this->source)) {
+            // This is a NULL URL, don't do anything
+            return $this;
         }
 
+        // Use configured page extension
+        $extension = config()->getString('web.pages.extension', 'html');
+
         if (is_numeric($this->source)) {
-            $this->source = 'system/' . $this->source . 'html';
+            $this->source = 'system/' . $this->source . $extension;
 
         } elseif ($this->source === '/') {
             return $this->renderUrl('', null, $use_configured_root);
         }
 
-        return $this->renderUrl('html', null, $use_configured_root);
+        return $this->renderUrl($extension, null, $use_configured_root);
     }
 
 
@@ -656,18 +649,31 @@ class Url implements UrlInterface
 
 
     /**
-     * When used as string, will always return the internal URL as available
+     * Returns true if this Url object contains no URL
+     *
+     * @return bool
+     */
+    public function isEmpty(): bool
+    {
+        return empty($this->source);
+    }
+
+
+    /**
+     * Returns the source URL of this URL object
      *
      * @param bool $strip_queries
      *
-     * @return string
+     * @return string|null
      */
-    public function getSource(bool $strip_queries = false): string
+    public function getSource(bool $strip_queries = false): ?string
     {
         // Auto cloak URL's?
         try {
-            if (Domains::getConfigurationKey($this->getDomain(), 'cloaked', false)) {
-                $this->cloak();
+            if ($this->source) {
+                if (Domains::getConfigurationKey($this->getDomain(), 'cloaked', false)) {
+                    $this->cloak();
+                }
             }
 
         } catch (ConfigPathDoesNotExistsException) {
@@ -683,28 +689,66 @@ class Url implements UrlInterface
 
 
     /**
+     * Sets the source URL of this URL object
+     *
+     * @param UrlInterface|string|null $source
+     *
+     * @return static
+     */
+    public function setSource(UrlInterface|string|null $source): static
+    {
+        $source = get_null(trim((string) $source));
+
+        if ($source === null) {
+            $this->source = null;
+
+        } else {
+            // This is either part of a URL or a complete URL
+            if (!Url::isValidUrl($source)) {
+                // This is (as we will assume) a section of a URL
+                if ($source) {
+                    $source = Strings::ensureBeginsNotWith($source, '/');
+
+                    if (empty($source)) {
+                        $source = '/';
+                    }
+                }
+            }
+
+            $this->source = $source;
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Returns the domain for the specified URL, NULL if the URL is invalid
      *
      * @return string|null
      */
     public function getDomain(): ?string
     {
-        $data = parse_url($this->source);
+        if ($this->source) {
+            $data = parse_url($this->source);
 
-        if (!$data) {
-            throw new OutOfBoundsException(tr('Failed to parse url ":url" to fetch domain', [
-                ':url' => $this->source,
-            ]));
+            if (!$data) {
+                throw new OutOfBoundsException(tr('Failed to parse url ":url" to fetch domain', [
+                    ':url' => $this->source,
+                ]));
+            }
+
+            $domain = isset_get($data['host']);
+
+            if ($domain === null) {
+                // Since there is no domain, assume we need the current domain
+                return Domains::getCurrent();
+            }
+
+            return $domain;
         }
 
-        $domain = isset_get($data['host']);
-
-        if ($domain === null) {
-            // Since there is no domain, assume we need the current domain
-            return Domains::getCurrent();
-        }
-
-        return $domain;
+        return null;
     }
 
 
@@ -719,9 +763,9 @@ class Url implements UrlInterface
     public function cloak(): static
     {
         $cloak = sql()->getColumn('SELECT `cloak`
-                                         FROM   `url_cloaks`
-                                         WHERE  `url`        = :url
-                                         AND    `created_by` = :created_by', [
+                                   FROM   `url_cloaks`
+                                   WHERE  `url`        = :url
+                                   AND    `created_by` = :created_by', [
             ':url'        => $this->source,
             ':created_by' => isset_get($_SESSION['user']['id']),
         ]);
@@ -762,6 +806,11 @@ class Url implements UrlInterface
      */
     protected function renderUrl(?string $extension, ?string $prefix, bool $use_configured_root): static
     {
+        if (empty($this->source)) {
+            // There is no URL to work with, we're done
+            return $this;
+        }
+
         $url = $this->source;
 
         if (static::isValidUrl($url)) {
@@ -1632,18 +1681,20 @@ class Url implements UrlInterface
      */
     protected function parseRights(): array
     {
-        $url = parse_url($this->source, PHP_URL_PATH);
+        if ($this->source) {
+            $url = parse_url($this->source, PHP_URL_PATH);
 
-        if (preg_match_all('/^\/\w{2}\/(.+?)\/[^\/]+\.\w+$/', $url, $matches)) {
-            $rights = $matches[1][0];
-            $rights = explode('/', $rights);
+            if (preg_match_all('/^\/\w{2}\/(.+?)\/[^\/]+\.\w+$/', $url, $matches)) {
+                $rights = $matches[1][0];
+                $rights = explode('/', $rights);
 
-        } else {
+                return $rights;
+            }
+
             // No rights found in the URL
-            $rights = [];
         }
 
-        return $rights;
+        return  [];
     }
 
 
@@ -1691,7 +1742,7 @@ class Url implements UrlInterface
      */
     public function getAnchorObject(?string $content = null, ?EnumAnchorTarget $o_target = null): AnchorInterface
     {
-        return Anchor::new($content)->setHref($this)->setTarget($o_target);
+        return Anchor::new($this, $content)->setTarget($o_target);
     }
 
 

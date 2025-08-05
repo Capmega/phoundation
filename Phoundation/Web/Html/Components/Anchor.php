@@ -30,14 +30,15 @@ use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
 use Stringable;
 
+
 class Anchor extends SpanCore implements AnchorInterface
 {
     /**
      * Tracks the url for this anchor
      *
-     * @var UrlInterface $o_href
+     * @var UrlInterface|null $o_href
      */
-    protected UrlInterface $o_href;
+    protected ?UrlInterface $o_href = null;
 
     /**
      * Tracks if the anchor should render anyway even if the user doesn't have all the required rights
@@ -71,7 +72,6 @@ class Anchor extends SpanCore implements AnchorInterface
      * Returns a new static class
      *
      * @param UrlInterface|string|null                   $o_href
-     *
      * @param Stringable|string|null                     $content
      * @param RenderInterface|array|callable|string|null $before_content
      *
@@ -106,7 +106,7 @@ class Anchor extends SpanCore implements AnchorInterface
         $o_href = Url::new($o_href)->makeWww();
 
         // Run the href through Url to ensure that preconfigured URL's like "sign-out" are converted to full URLs
-        $this->o_attributes->set((string) $o_href, 'href');
+        $this->o_attributes->set($o_href->getSource(), 'href');
 
         // Also set the href object itself, and mark that we have to re-update the rights
         $this->o_href = $o_href;
@@ -141,28 +141,13 @@ class Anchor extends SpanCore implements AnchorInterface
 
 
     /**
-     * Will throw an OutOfBoundsException exception if href has not yet been set. If href has been set, it will be returned
-     *
-     * @return UrlInterface
-     */
-    protected function getCheckHref(): UrlInterface
-    {
-        if (empty($this->o_href)) {
-            throw new OutOfBoundsException(tr('Cannot get required rights for Anchor object, it has no href defined yet'));
-        }
-
-        return $this->o_href;
-    }
-
-
-    /**
      * Returns an array of rights that are required to render this Anchor object
      *
      * @return array
      */
     public function getRequiredRights(): array
     {
-        return $this->getCheckHref()->getRequiredRights();
+        return $this->getHref()->getRequiredRights();
     }
 
 
@@ -175,7 +160,7 @@ class Anchor extends SpanCore implements AnchorInterface
      */
     public function userHasAccess(?UserInterface $o_user = null): bool
     {
-        return $this->getCheckHref()->userHasAccess($o_user);
+        return $this->getHref()->userHasAccess($o_user);
     }
 
 
@@ -189,7 +174,7 @@ class Anchor extends SpanCore implements AnchorInterface
      */
     public function checkUserAccess(?UserInterface $o_user = null): static
     {
-        $this->getCheckHref()->checkUserAccess($o_user);
+        $this->getHref()->checkUserAccess($o_user);
         return $this;
     }
 
@@ -217,7 +202,7 @@ class Anchor extends SpanCore implements AnchorInterface
      */
     public function getRightsObject(bool $reload = false, bool $order = false): RightsInterface
     {
-        return $this->getCheckHref()->getRightsObject($reload, $order);
+        return $this->getHref()->getRightsObject($reload, $order);
     }
 
 
@@ -230,7 +215,7 @@ class Anchor extends SpanCore implements AnchorInterface
      */
     protected function setRightsObject(RightsInterface|null $o_rights): static
     {
-        $this->getCheckHref()->setRightsObject($o_rights);
+        $this->getHref()->setRightsObject($o_rights);
         return $this;
     }
 
@@ -244,7 +229,7 @@ class Anchor extends SpanCore implements AnchorInterface
      */
     public function addRight(RightInterface|string|null $o_right): static
     {
-        $this->getCheckHref()->addRight($o_right);
+        $this->getHref()->addRight($o_right);
         return $this;
     }
 
@@ -258,13 +243,13 @@ class Anchor extends SpanCore implements AnchorInterface
      */
     public function removeRight(RightInterface|string|null $o_right): static
     {
-        $this->getCheckHref()->removeRight($o_right);
+        $this->getHref()->removeRight($o_right);
         return $this;
     }
 
 
     /**
-     * Sets how this anchor will render if the user does not have all the required rights
+     * Sets how this anchor will render if the user doesn't have all the required rights
      *
      * @param EnumAnchorRenderRightsFail $render_rights_fail
      *
@@ -278,7 +263,7 @@ class Anchor extends SpanCore implements AnchorInterface
 
 
     /**
-     * Returns how this anchor will render if the user does not have all the required rights
+     * Returns how this anchor will render if the user doesn't have all the required rights
      *
      * @return EnumAnchorRenderRightsFail
      */
@@ -297,7 +282,7 @@ class Anchor extends SpanCore implements AnchorInterface
             switch ($this->render_rights_fail) {
                 case EnumAnchorRenderRightsFail::no_url:
                     // Continue rendering the anchor, but without URL by converting it to a <span>
-                    $this->setElement('span')->setHref(null);
+                    $this->setHref(null);
                     // no break
 
                 case EnumAnchorRenderRightsFail::full:
@@ -310,13 +295,28 @@ class Anchor extends SpanCore implements AnchorInterface
 
                 case EnumAnchorRenderRightsFail::fail:
                     throw AccessDeniedException::new(tr('Cannot render anchor for URL ":url", the user ":user" does not have the required rights to access this URL', [
-                        ':href'  => $this->getCheckHref(),
+                        ':href' => $this->getHref(),
                         ':user' => Session::getUserObject(),
                     ]))->setData([
                         'required_rights' => $this->getRequiredRights(),
-                        'href'            => $this->getCheckHref(),
+                        'href'            => $this->getHref(),
                         'user'            => Session::getUserObject(),
                     ]);
+            }
+        }
+
+        if ($this->getHref()->isEmpty()) {
+            if (empty($this->content)) {
+                // This Anchor contains no URL nor text content to display. Render nothing instead
+                return null;
+            }
+
+            $this->setElement('span')->addClass('anchor');
+
+        } else {
+            if (empty($this->content)) {
+                // This Anchor contains a URL but no text content to display. Use the URL as content instead
+                $this->setContent($this->o_href->getSource());
             }
         }
 
