@@ -23,7 +23,7 @@ use Phoundation\Web\Requests\Response;
 // Set page meta data
 Response::setHeaderTitle(tr('Calendar'));
 Response::setHeaderSubTitle(tr('Demo'));
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
    Anchor::new('/'          , tr('Home')),
    Anchor::new('/demos.html', tr('Demos')),
    Anchor::new(''           , tr('Calendar')),

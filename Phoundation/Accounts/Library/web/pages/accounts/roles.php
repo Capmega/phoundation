@@ -123,7 +123,7 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Roles'));
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/'             , tr('Home')),
     Anchor::new('/accounts.html', tr('Accounts')),
     Anchor::new(''              , tr('Roles')),

@@ -47,7 +47,7 @@ Response::setPageTitle(tr('Demo dashboard'));
 Response::setHeaderTitle(tr('Dashboard'));
 Response::setHeaderSubTitle(tr('(:user)', [':user' => Session::getUserObject()->getDisplayName()]));
 Response::setDescription(tr(''));
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/', tr('Home')),
     Anchor::new('' , tr('Demos')),
 ]);

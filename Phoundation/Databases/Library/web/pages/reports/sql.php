@@ -98,7 +98,7 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('SQL report'));
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/'            , tr('Home')),
     Anchor::new('/reports.html', tr('Reports')),
     Anchor::new(''             , tr('SQL report')),

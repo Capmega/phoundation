@@ -71,7 +71,7 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Customers'));
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/', tr('Home')),
     Anchor::new('' , tr('Customers')),
 ]);

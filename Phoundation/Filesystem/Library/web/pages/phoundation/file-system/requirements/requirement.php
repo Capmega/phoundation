@@ -185,7 +185,7 @@ $documentation = Card::new()
 Response::setPageTitle(tr('Requirement :requirement', [':requirement' => $requirement->getDisplayName()]));
 Response::setHeaderTitle(tr('Requirement'));
 Response::setHeaderSubTitle($requirement->getDisplayName());
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/'                                          , tr('Home')),
     Anchor::new('/system-administration.html'                , tr('System administration')),
     Anchor::new('/phoundation/file-systems.html'             , tr('Filesystems')),

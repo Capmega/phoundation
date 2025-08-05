@@ -377,7 +377,7 @@ class Response implements ResponseInterface
      *
      * @return BreadcrumbsInterface
      */
-    public static function getBreadCrumbs(): BreadcrumbsInterface
+    public static function getBreadcrumbs(): BreadcrumbsInterface
     {
         if (empty(static::$bread_crumbs)) {
             static::$bread_crumbs = new Breadcrumbs();
@@ -394,7 +394,7 @@ class Response implements ResponseInterface
      *
      * @return void
      */
-    public static function setBreadCrumbs(BreadcrumbsInterface|array|null $bread_crumbs = null): void
+    public static function setBreadcrumbs(BreadcrumbsInterface|array|null $bread_crumbs = null): void
     {
         if (!$bread_crumbs) {
             static::$bread_crumbs = new Breadcrumbs();

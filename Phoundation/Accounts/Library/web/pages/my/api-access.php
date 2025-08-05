@@ -80,7 +80,7 @@ $documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('My API access'));
 Response::setHeaderSubTitle($user->getDisplayName());
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/', tr('Home')),
     Anchor::new('' , tr('My API access')),
 ]);

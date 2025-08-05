@@ -169,7 +169,7 @@ $documentation = Card::new()
 Response::setPageTitle(tr('FsMount :mount', [':mount' => $mount->getDisplayName()]));
 Response::setHeaderTitle(tr('FsMount'));
 Response::setHeaderSubTitle($mount->getDisplayName());
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/'                                    , tr('Home')),
     Anchor::new('/system-administration.html'          , tr('System administration')),
     Anchor::new('/phoundation/file-systems.html'       , tr('Filesystems')),

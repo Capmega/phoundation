@@ -99,7 +99,7 @@ $documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Notification'));
 Response::setHeaderSubTitle($notification->getDisplayId());
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/'                      , tr('Home')),
     Anchor::new('/notifications/all.html', tr('Notifications')),
     Anchor::new(''                       , tr(':id [:title]'), [

@@ -24,7 +24,7 @@ use Phoundation\Web\Requests\Response;
 
 // Set page meta data
 Response::setHeaderTitle(tr('Employees'));
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
    Anchor::new('/'             , tr('Home')),
    Anchor::new('/profiles.html', tr('Profiles')),
    Anchor::new(''              , tr('Employees')),

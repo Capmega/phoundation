@@ -28,7 +28,7 @@ Response::loadCss('templates/adminlte/plugins/ekko-lightbox/ekko-lightbox');
 
 Response::setHeaderTitle(tr('Scanner gallery'));
 Response::setHeaderSubTitle(tr('Demo'));
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/'                  , tr('Home')),
     Anchor::new('/demos.html'        , tr('Demos')),
     Anchor::new('/demos/scanner.html', tr('Scanner')),

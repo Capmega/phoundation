@@ -140,7 +140,7 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Filesystem requirements'));
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/'                          , tr('Home')),
     Anchor::new('/system-administration.html', tr('System administration')),
     Anchor::new('/filesystem.html'           , tr('Filesystem')),

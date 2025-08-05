@@ -70,7 +70,7 @@ $url = Url::new('/security/incidents.html')->makeWww()->addQueries(
 
 Response::setHeaderTitle(tr('Incident'));
 Response::setHeaderSubTitle($incident->getDisplayId());
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/'             , tr('Home')),
     Anchor::new('/security.html', tr('Security')),
     Anchor::new($url            , tr('Incidents management')),

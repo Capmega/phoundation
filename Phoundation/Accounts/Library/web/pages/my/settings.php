@@ -83,7 +83,7 @@ $documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('My settings'));
 Response::setHeaderSubTitle($user->getDisplayName());
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/'               , tr('Home')),
     Anchor::new('/my/profile.html', tr('My profile')),
     Anchor::new(''                , tr('My settings')),

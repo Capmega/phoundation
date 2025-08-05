@@ -24,7 +24,7 @@ use Phoundation\Web\Requests\Response;
 // Set page meta data
 Response::setHeaderTitle(tr('Compose mail'));
 Response::setHeaderSubTitle(tr('Demo'));
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
    Anchor::new('/'                  , tr('Home')),
    Anchor::new('/demos.html'        , tr('Demos')),
    Anchor::new('/demos/mailbox.html', tr('Mailbox')),

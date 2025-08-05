@@ -75,7 +75,7 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Plugins management'));
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/'                , tr('Home')),
     Anchor::new('/phoundation.html', tr('Phoundation')),
     Anchor::new(''                 , tr('Plugins')),

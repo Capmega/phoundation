@@ -35,7 +35,7 @@ GetValidator::new()->validate();
 Response::setPageTitle(tr('Accounts portal'));
 Response::setHeaderTitle(tr('Accounts portal'));
 Response::setDescription(tr(''));
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/', tr('Home')),
     Anchor::new('' , tr('Accounts')),
 ]);

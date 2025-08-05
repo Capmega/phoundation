@@ -123,7 +123,7 @@ $url = Url::new('/security/authentications.html')->makeWww()->addQueries(
 
 Response::setHeaderTitle(tr('Authentication details'));
 Response::setHeaderSubTitle($authentication->getDisplayId());
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/'             , tr('Home')),
     Anchor::new('/security.html', tr('Security')),
     Anchor::new($url            , tr('Authentications management')),

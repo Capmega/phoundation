@@ -214,7 +214,7 @@ $documentation_card = Card::new()
 Response::setPageTitle(tr('Connector :connector', [':connector' => $connector->getDisplayName()]));
 Response::setHeaderTitle(tr('Connector'));
 Response::setHeaderSubTitle($connector->getDisplayName() . ($connector->sourceLoadedFromConfiguration() ? ' [' . tr('Configured') . ']' : ''));
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/'                                                , tr('Home')),
     Anchor::new('/system-administration.html'                      , tr('System administration')),
     Anchor::new('/phoundation/databases.html'                      , tr('Databases')),

@@ -53,7 +53,7 @@ $documentation = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Audit information'));
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/'          , tr('Home')),
     Anchor::new('/audit.html', tr('Audits')),
     Anchor::new(''           , Strings::truncate(Strings::force($get['id'], ', '), 32)),

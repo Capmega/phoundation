@@ -44,7 +44,7 @@ Response::setRenderMainWrapper(false);
 Response::setPageTitle('503 - Service Unavailable');
 Response::setHeaderTitle(tr('503 - Error'));
 Response::setDescription(tr('The server is under maintenance and will return momentarily'));
-Response::setBreadCrumbs();
+Response::setBreadcrumbs();
 
 
 // Render and return the system page

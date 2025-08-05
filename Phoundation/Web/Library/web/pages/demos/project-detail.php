@@ -23,7 +23,7 @@ use Phoundation\Web\Requests\Response;
 // Set page meta data
 Response::setHeaderTitle(tr('Project details'));
 Response::setHeaderSubTitle(tr('demo'));
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
    Anchor::new('/'                   , tr('Home')),
    Anchor::new('/demos.html'         , tr('Demos')),
    Anchor::new('/demos/projects.html', tr('Projects')),

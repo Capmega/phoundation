@@ -328,7 +328,7 @@ $documentation_card = Card::new()
 Response::setPageTitle(tr('User :user', [':user' => $user->getDisplayName()]));
 Response::setHeaderTitle(tr('User'));
 Response::setHeaderSubTitle($user->getDisplayName());
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/'                   , tr('Home')),
     Anchor::new('/accounts.html'      , tr('Accounts')),
     Anchor::new('/accounts/users.html', tr('Users')),

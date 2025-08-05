@@ -170,7 +170,7 @@ $rights_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Role'));
 Response::setHeaderSubTitle($role->getDisplayName());
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/'                   , tr('Home')),
     Anchor::new('/accounts.html'      , tr('Accounts')),
     Anchor::new('/accounts/roles.html', tr('Roles')),

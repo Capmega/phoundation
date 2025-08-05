@@ -20,7 +20,7 @@ use Phoundation\Web\Requests\Response;
 
 // Set page meta data
 Response::setHeaderTitle(tr('My reports page'));
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
    Anchor::new('/', tr('Home')),
    Anchor::new('' , tr('Reports')),
 ]);

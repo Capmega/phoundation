@@ -22,7 +22,7 @@ use Phoundation\Web\Requests\Response;
 
 // Set page meta data
 Response::setHeaderTitle(tr('Libraries'));
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/'           , tr('Home')),
     Anchor::new('/phoundation', tr('Phoundation')),
     Anchor::new(''            , tr('Libraries')),

@@ -33,7 +33,7 @@ Response::setRenderMainWrapper(false);
 Response::setPageTitle('404 - Page not found');
 Response::setHeaderTitle(tr('404 - Page not found'));
 Response::setDescription(tr('The specified page is not found'));
-Response::setBreadCrumbs();
+Response::setBreadcrumbs();
 
 
 // Render and return the system page

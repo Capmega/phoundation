@@ -43,7 +43,7 @@ $user = User::new()->load($get['id']);
 // Set page meta data
 Response::setHeaderTitle(tr('Profile'));
 Response::setHeaderSubTitle($user->getDisplayName());
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/'                       , tr('Home')),
     Anchor::new('/profiles.html'          , tr('Profiles')),
     Anchor::new('/profiles/employees.html', tr('Employees')),

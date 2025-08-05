@@ -45,7 +45,7 @@ Response::setRenderMainWrapper(false);
 Response::setPageTitle('409 - Conflict');
 Response::setHeaderTitle(tr('409 - Conflict'));
 Response::setDescription(tr('The specified could not be completed due to a conflict with the current state of the target resource'));
-Response::setBreadCrumbs();
+Response::setBreadcrumbs();
 
 
 // Render and return the system page

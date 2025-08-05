@@ -73,7 +73,7 @@ if ($user) {
 // Set page meta data
     Response::setHeaderTitle(tr('Sessions for user'));
     Response::setHeaderSubTitle($user->getDisplayName());
-    Response::setBreadCrumbs([
+    Response::setBreadcrumbs([
         Anchor::new('/'                          , tr('Home')),
         Anchor::new('/accounts/users.html'       , tr('Users')),
         Anchor::new('/accounts/session+:ROW.html', $user->getDisplayName()),
@@ -83,7 +83,7 @@ if ($user) {
 } else {
     // Set page meta data
     Response::setHeaderTitle(tr('User sessions'));
-    Response::setBreadCrumbs([
+    Response::setBreadcrumbs([
         Anchor::new('/'                   , tr('Home')),
         Anchor::new('/accounts.html'      , tr('Accounts')),
         Anchor::new('/accounts/users.html', tr('Users')),

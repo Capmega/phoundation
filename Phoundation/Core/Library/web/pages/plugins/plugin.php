@@ -64,7 +64,7 @@ $documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Plugin'));
 Response::setHeaderSubTitle($plugin->getDisplayName());
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/'                    , tr('Home')),
     Anchor::new('/plugins/plugins.html', tr('Plugins')),
     Anchor::new(''                     , $plugin->getDisplayName()),

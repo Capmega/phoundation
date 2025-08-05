@@ -83,7 +83,7 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Incidents management'));
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/'             , tr('Home')),
     Anchor::new('/security.html', tr('Security')),
     Anchor::new(''              , tr('Incidents management')),

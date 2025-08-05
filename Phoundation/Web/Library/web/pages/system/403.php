@@ -33,7 +33,7 @@ Response::setRenderMainWrapper(false);
 Response::setPageTitle('403 - Forbidden');
 Response::setHeaderTitle(tr('403 - Error'));
 Response::setDescription(tr('You do not have access to the specified resource'));
-Response::setBreadCrumbs();
+Response::setBreadcrumbs();
 
 
 // Render and return the system page

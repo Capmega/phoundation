@@ -107,7 +107,7 @@ $documentation = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Provider'));
 Response::setHeaderSubTitle($provider->getDisplayName());
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/'                        , tr('Home')),
     Anchor::new('/business/providers.html' , tr('Providers')),
     Anchor::new(''                         , $provider->getDisplayName()),

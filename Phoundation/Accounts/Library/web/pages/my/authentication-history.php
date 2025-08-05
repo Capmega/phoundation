@@ -95,7 +95,7 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Authentications management'));
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/'       , tr('Home')),
     Anchor::new('/my.html', tr('My')),
     Anchor::new(''        , tr('Authentications history')),

@@ -177,7 +177,7 @@ $documentation = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('My profile'));
 Response::setHeaderSubTitle($user->getDisplayName());
-Response::setBreadCrumbs([
+Response::setBreadcrumbs([
     Anchor::new('/', tr('Home')),
     Anchor::new('' , tr('My profile')),
 ]);
