@@ -35,7 +35,7 @@ class InputSelectSubmit extends InputSelect
          * Return HTML for a multi select submit button. This button, once clicked, will show a list of selectable submit buttons.
          *
          * @copyright Copyright © 2022 Sven Olaf Oostenbrink
-         * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+         * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
          * @category Function reference
          * @package html
          * @see html_select()

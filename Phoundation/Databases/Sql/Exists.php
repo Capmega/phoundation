@@ -112,7 +112,7 @@ class SqlExists
      * If the query is prefixed with an exclamation mark ! then the query will only be executed if the function does NOT exist
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists
@@ -157,7 +157,7 @@ class SqlExists
      * If the query is prefixed with an exclamation mark ! then the query will only be executed if the function does NOT exist
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists
@@ -202,7 +202,7 @@ class SqlExists
      * If the query is prefixed with an exclamation mark ! then the query will only be executed if the function does NOT exist
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists
@@ -256,7 +256,7 @@ class SqlExists
      * If the query is prefixed with an exclamation mark ! then the query will only be executed if the function does NOT exist
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists
@@ -308,7 +308,7 @@ class SqlExists
      * Returns the tables that have foreign keys to the specified table / column
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists

@@ -5,7 +5,7 @@
  *
  * This command will modify a user with the specified properties
  *
- * @author Harrison Macey <harrison@medinet.ca>
+ * @author    Harrison Macey <harrison@medinet.ca>
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>

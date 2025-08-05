@@ -2002,7 +2002,7 @@ class Sql implements SqlInterface
     // *
     // *
     // * @copyright Copyright © 2022 Sven Olaf Oostenbrink
-    // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+    // * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
     // * @category Function reference
     // * @package sql
     // *
