@@ -22,6 +22,7 @@ use Phoundation\Security\Passwords\Exception\NoPasswordSpecifiedException;
 use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
 use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -105,9 +106,9 @@ $column = GridColumn::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent(Anchor::new('/accounts/user+' . $user->getId() . '.html', tr('Modify profile for this user')) .
-                                  Anchor::new('/accounts/roles.html'                      , tr('Manage roles') , '<hr>') .
-                                  Anchor::new('/accounts/rights.html'                     , tr('Manage rights'), '<br>'));
+                     ->setContent(AnchorBlock::new('/accounts/user+' . $user->getId() . '.html', tr('Modify profile for this user')) .
+                                  AnchorBlock::new('/accounts/roles.html'                      , tr('Manage roles')) .
+                                  AnchorBlock::new('/accounts/rights.html'                     , tr('Manage rights')));
 
 
 // Build documentation

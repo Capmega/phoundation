@@ -17,6 +17,7 @@ declare(strict_types=1);
 use Phoundation\Business\Providers\FilterForm;
 use Phoundation\Business\Providers\Providers;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -57,8 +58,8 @@ $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
                      ->setCollapseSwitch(true)
-                     ->setContent(Anchor::new(Url::new('/business/customers.html')->makeWww(), tr('Customers management')) .
-                                  Anchor::new(Url::new('/business/companies.html')->makeWww(), tr('Companies management'), '<br>'));
+                     ->setContent(AnchorBlock::new(Url::new('/business/customers.html')->makeWww(), tr('Customers management')) .
+                                  AnchorBlock::new(Url::new('/business/companies.html')->makeWww(), tr('Companies management')));
 
 
 // Build documentation

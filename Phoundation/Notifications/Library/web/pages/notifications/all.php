@@ -20,6 +20,7 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Notifications\FilterForm;
 use Phoundation\Notifications\Notifications;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -96,8 +97,8 @@ $notifications_card->getForm()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent(Anchor::new(Url::new('/notifications/unread.html')->makeWww(), tr('Unread notifications')) .
-                                  Anchor::new(Url::new('/notifications/test.html')->makeWww(), tr('Send me a test notification'), '<br>'));
+                     ->setContent(AnchorBlock::new(Url::new('/notifications/unread.html')->makeWww(), tr('Unread notifications')) .
+                                  AnchorBlock::new(Url::new('/notifications/test.html')->makeWww(), tr('Send me a test notification')));
 
 
 // Build documentation

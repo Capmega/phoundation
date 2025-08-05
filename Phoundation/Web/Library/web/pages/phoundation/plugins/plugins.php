@@ -17,6 +17,7 @@ declare(strict_types=1);
 use Phoundation\Core\Plugins\FilterForm;
 use Phoundation\Core\Plugins\Plugins;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumButtonType;
@@ -63,7 +64,7 @@ $plugins_card->getForm()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent(Anchor::new(Url::new('/accounts/users.html')->makeWww(), tr('Users management')));
+                     ->setContent(AnchorBlock::new(Url::new('/accounts/users.html')->makeWww(), tr('Users management')));
 
 
 // Build documentation

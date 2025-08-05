@@ -19,6 +19,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -159,11 +160,11 @@ $picture = Card::new()
 $relevant = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
-                ->setContent(Anchor::new(Url::new('/my/settings.html')->makeWww(), tr('Manage my settings')) .
-                             Anchor::new(Url::new('/my/favorite-diagnostics.html')->makeWww(), tr('Manage my favorite diagnostics'), '<br>') .
-                             Anchor::new(Url::new('/my/password.html')->makeWww(), tr('Change my password'), '<br>') .
-                             Anchor::new(Url::new('/mfa/create.html')->makeWww()->addRedirect(Url::newCurrent()), tr('Setup multi factor authentication'), '<br>'));
-                           //Anchor::new(Url::new('/my/authentication-history.html')->makeWww(), tr('Review my authentication history'), '<br>') .
+                ->setContent(AnchorBlock::new(Url::new('/my/settings.html')->makeWww(), tr('Manage my settings')) .
+                             AnchorBlock::new(Url::new('/my/favorite-diagnostics.html')->makeWww(), tr('Manage my favorite diagnostics')) .
+                             AnchorBlock::new(Url::new('/my/password.html')->makeWww(), tr('Change my password')) .
+                             AnchorBlock::new(Url::new('/mfa/create.html')->makeWww()->addRedirect(Url::newCurrent()), tr('Setup multi factor authentication')));
+                           //AnchorBlock::new(Url::new('/my/authentication-history.html')->makeWww(), tr('Review my authentication history')) .
 
 
 // Build documentation

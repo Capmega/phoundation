@@ -21,6 +21,7 @@ use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Filesystem\Requirements\Requirement;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Img;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
@@ -169,7 +170,7 @@ $picture = Card::new()
 $relevant = Card::new()
     ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Relevant links'))
-->setContent(Anchor::new(Url::new('/phoundation/file-systems.html')->makeWww(), tr('Manage filesystems'), '<br>'));
+->setContent(AnchorBlock::new(Url::new('/phoundation/file-systems.html')->makeWww(), tr('Manage filesystems')));
 
 
 // Build documentation

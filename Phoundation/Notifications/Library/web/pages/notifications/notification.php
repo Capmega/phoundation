@@ -19,6 +19,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Notifications\Notification;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -82,9 +83,9 @@ $notification_card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent(Anchor::new(Url::new('/notifications/all.html')->makeWww(), tr('All notifications')) .
-                                  Anchor::new(Url::new('/notifications/unread.html')->makeWww(), tr('Unread notifications'), '<br>') .
-                                  hr(Anchor::new(Url::new('/security/incidents.html')->makeWww(), tr('Security incidents'))));
+                     ->setContent(AnchorBlock::new(Url::new('/notifications/all.html')->makeWww(), tr('All notifications')) .
+                                  AnchorBlock::new(Url::new('/notifications/unread.html')->makeWww(), tr('Unread notifications')) .
+                                  hr(AnchorBlock::new(Url::new('/security/incidents.html')->makeWww(), tr('Security incidents'))));
 
 
 // Build documentation

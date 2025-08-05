@@ -21,6 +21,7 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -154,8 +155,8 @@ $card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent(Anchor::new('/accounts/users.html', tr('Manage users')) .
-                                  Anchor::new('/accounts/roles.html', tr('Manage roles'), '<br>'));
+                     ->setContent(AnchorBlock::new('/accounts/users.html', tr('Manage users')) .
+                                  AnchorBlock::new('/accounts/roles.html', tr('Manage roles')));
 
 
 // Build documentation

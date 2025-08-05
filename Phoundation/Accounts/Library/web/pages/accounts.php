@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
@@ -44,10 +45,10 @@ Response::setBreadcrumbs([
 // Build link cards
 $card = Card::new()
             ->setTitle(tr('Accounts management'))
-            ->setContent(Anchor::new('/accounts/users.html'   , tr('Manage users')) .
-                         Anchor::new('/accounts/roles.html'   , tr('Manage roles')   , '<br>') .
-                         Anchor::new('/accounts/rights.html'  , tr('Manage rights')  , '<br>') .
-                         Anchor::new('/accounts/sessions.html', tr('Manage sessions'), '<hr>'));
+            ->setContent(AnchorBlock::new('/accounts/users.html'   , tr('Manage users')) .
+                         AnchorBlock::new('/accounts/roles.html'   , tr('Manage roles')) .
+                         AnchorBlock::new('/accounts/rights.html'  , tr('Manage rights')) .
+                         AnchorBlock::new('/accounts/sessions.html', tr('Manage sessions')));
 
 
 // Render and return the grid

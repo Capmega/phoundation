@@ -17,6 +17,7 @@ declare(strict_types=1);
 use Phoundation\Core\Plugins\Plugin;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -48,8 +49,8 @@ $plugin_card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent(Anchor::new(Url::new('/developer/slow-pages.html')->makeWww(), tr('Slow pages')) .
-                                  Anchor::new(Url::new('/security/security.html')->makeWww(), tr('Security management'), '<br>'));
+                     ->setContent(AnchorBlock::new(Url::new('/developer/slow-pages.html')->makeWww(), tr('Slow pages')) .
+                                  AnchorBlock::new(Url::new('/security/security.html')->makeWww(), tr('Security management')));
 
 
 // Build documentation

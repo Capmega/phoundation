@@ -21,6 +21,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumButtonType;
@@ -160,9 +161,9 @@ $users_card->getForm()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent(Anchor::new('/accounts/roles.html'   , tr('Manage roles')) .
-                                  Anchor::new('/accounts/rights.html'  , tr('Manage rights')  , '<br>') .
-                                  Anchor::new('/accounts/sessions.html', tr('Manage sessions'), '<hr>'));
+                     ->setContent(AnchorBlock::new('/accounts/roles.html'   , tr('Manage roles')) .
+                                  AnchorBlock::new('/accounts/rights.html'  , tr('Manage rights')) .
+                                  AnchorBlock::new('/accounts/sessions.html', tr('Manage sessions')));
 
 
 // Build documentation

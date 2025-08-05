@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 use Phoundation\Data\Iterator;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Forms\FilterForm;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -56,10 +57,10 @@ $sessions_card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent(($user ? Anchor::new('/accounts/user+' . $user->getId() . '.html', tr('Manage user :user', [':user' => $user->getDisplayName()])) : null) .
-                                           Anchor::new('/accounts/users.html'                      , tr('Manage users') , $user ? '<hr>' : null) .
-                                           Anchor::new('/accounts/roles.html'                      , tr('Manage roles') , '<br>') .
-                                           Anchor::new('/accounts/rights.html'                     , tr('Manage rights'), '<br>'));
+                     ->setContent(($user ? AnchorBlock::new('/accounts/user+' . $user->getId() . '.html', tr('Manage user :user', [':user' => $user->getDisplayName()])) : null) .
+                                           AnchorBlock::new('/accounts/users.html'                      , tr('Manage users') , $user ? '<hr>' : null) .
+                                           AnchorBlock::new('/accounts/roles.html'                      , tr('Manage roles')) .
+                                           AnchorBlock::new('/accounts/rights.html'                     , tr('Manage rights')));
 
 
 // Build documentation
@@ -78,7 +79,7 @@ if ($user) {
         Anchor::new('/accounts/users.html'       , tr('Users')),
         Anchor::new('/accounts/session+:ROW.html', $user->getDisplayName()),
         Anchor::new(''                           , tr('Sessions')),
-    ]));
+    ]);
 
 } else {
     // Set page meta data
@@ -88,7 +89,7 @@ if ($user) {
         Anchor::new('/accounts.html'      , tr('Accounts')),
         Anchor::new('/accounts/users.html', tr('Users')),
         Anchor::new(''                    , tr('Sessions')),
-    ]));
+    ]);
 }
 
 

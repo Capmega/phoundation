@@ -19,6 +19,7 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Filesystem\Requirements\FilterForm;
 use Phoundation\Filesystem\Requirements\Requirements;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumButtonType;
@@ -128,7 +129,7 @@ $requirements_card->getForm()
 $relevant_card = Card::new()
     ->setMode(EnumDisplayMode::info)
     ->setTitle(tr('Relevant links'))
-    ->setContent(Anchor::new(Url::new('/phoundation/file-system/roles.html')->makeWww(), tr('Filesystem connectors management'), '<br>'));
+    ->setContent(AnchorBlock::new(Url::new('/phoundation/file-system/roles.html')->makeWww(), tr('Filesystem connectors management')));
 
 
 // Build documentation

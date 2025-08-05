@@ -17,6 +17,7 @@ declare(strict_types=1);
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -64,8 +65,8 @@ $card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent(Anchor::new(Url::new('/my/profile.html')->makeWww(), tr('Your profile')) .
-                                  Anchor::new(Url::new('/my/api-access.html')->makeWww(), tr('Your API access'), '<br>'));
+                     ->setContent(AnchorBlock::new(Url::new('/my/profile.html')->makeWww(), tr('Your profile')) .
+                                  AnchorBlock::new(Url::new('/my/api-access.html')->makeWww(), tr('Your API access')));
 
 
 // Build documentation

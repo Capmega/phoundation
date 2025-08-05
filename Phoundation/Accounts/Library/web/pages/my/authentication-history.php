@@ -22,6 +22,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -80,10 +81,10 @@ $authentications_card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent(Anchor::new(Url::new('/my/profile.html')->makeWww(), tr('Manage my profile')) .
-                                  Anchor::new(Url::new('/my/settings.html')->makeWww(), tr('Manage my settings'), '<br>') .
-                                  Anchor::new(Url::new('/my/password.html')->makeWww(), tr('Change my password'), '<br>') .
-                                  Anchor::new(Url::new('/mfa/create.html')->makeWww()->addRedirect(Url::newCurrent()), tr('Setup multi factor authentication'), '<br>'));
+                     ->setContent(AnchorBlock::new(Url::new('/my/profile.html')->makeWww(), tr('Manage my profile')) .
+                                  AnchorBlock::new(Url::new('/my/settings.html')->makeWww(), tr('Manage my settings')) .
+                                  AnchorBlock::new(Url::new('/my/password.html')->makeWww(), tr('Change my password')) .
+                                  AnchorBlock::new(Url::new('/mfa/create.html')->makeWww()->addRedirect(Url::newCurrent()), tr('Setup multi factor authentication')));
 
 
 // Build documentation

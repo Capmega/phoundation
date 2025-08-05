@@ -19,6 +19,7 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Connectors\FilterForm;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumButtonType;
@@ -125,8 +126,8 @@ $connectors_card->getForm()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent(Anchor::new(Url::new('/phoundation/databases/connectors/roles.html')->makeWww(), tr('Roles management')) .
-                                  Anchor::new(Url::new('/phoundation/databases/connectors/rights.html')->makeWww(), tr('Rights management'), '<br>'));
+                     ->setContent(AnchorBlock::new(Url::new('/phoundation/databases/connectors/roles.html')->makeWww(), tr('Roles management')) .
+                                  AnchorBlock::new(Url::new('/phoundation/databases/connectors/rights.html')->makeWww(), tr('Rights management')));
 
 
 // Build documentation

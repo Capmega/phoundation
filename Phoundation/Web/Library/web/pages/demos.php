@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
@@ -55,22 +56,22 @@ Response::setBreadcrumbs([
 
 echo Card::new()
          ->setTitle(tr('Demo page links'))
-         ->setContent(Anchor::new(Url::new('/demos/timeline.html')->makeWww(), tr('Package timeline')) .
-                      Anchor::new(Url::new('/demos/calendar.html')->makeWww(), tr('User calendar'), '<br>') .
-                      Anchor::new(Url::new('/demos/contact-us.html')->makeWww(), tr('Contact us'), '<br>') .
-                      Anchor::new(Url::new('/demos/contacts.html')->makeWww(), tr('Contacts'), '<br>') .
-                      Anchor::new(Url::new('/demos/profile.html')->makeWww(), tr('Employee profile page'), '<br>') .
-                      Anchor::new(Url::new('/demos/fingerprint-screen.html')->makeWww(), tr('Finger print detection'), '<br>') .
-                      Anchor::new(Url::new('/demos/lock-screen.html')->makeWww(), tr('Lock screen'), '<br>') .
-                      Anchor::new(Url::new('/demos/invoice.html')->makeWww(), tr('Invoice'), '<br>') .
-                      Anchor::new(Url::new('/demos/kanban.html')->makeWww(), tr('Kanban project management board'), '<br>') .
-                      Anchor::new(Url::new('/demos/projects.html')->makeWww(), tr('Projects'), '<br>') .
-                      Anchor::new(Url::new('/demos/project-detail.html')->makeWww(), tr('Projects detail page'), '<br>') .
-                      Anchor::new(Url::new('/demos/project-edit.html')->makeWww(), tr('Projects edit page'), '<br>') .
-                      Anchor::new(Url::new('/demos/mailbox.html')->makeWww(), tr('Mail box'), '<br>') .
-                      Anchor::new(Url::new('/demos/read-mail.html')->makeWww(), tr('Read mail'), '<br>') .
-                      Anchor::new(Url::new('/demos/compose.html')->makeWww(), tr('Compose mail'), '<br>') .
-                      Anchor::new(Url::new('/demos/scanner/gallery.html')->makeWww(), tr('Scanner gallery'), '<br>'))
+         ->setContent(AnchorBlock::new(Url::new('/demos/timeline.html')->makeWww(), tr('Package timeline')) .
+                      AnchorBlock::new(Url::new('/demos/calendar.html')->makeWww(), tr('User calendar')) .
+                      AnchorBlock::new(Url::new('/demos/contact-us.html')->makeWww(), tr('Contact us')) .
+                      AnchorBlock::new(Url::new('/demos/contacts.html')->makeWww(), tr('Contacts')) .
+                      AnchorBlock::new(Url::new('/demos/profile.html')->makeWww(), tr('Employee profile page')) .
+                      AnchorBlock::new(Url::new('/demos/fingerprint-screen.html')->makeWww(), tr('Finger print detection')) .
+                      AnchorBlock::new(Url::new('/demos/lock-screen.html')->makeWww(), tr('Lock screen')) .
+                      AnchorBlock::new(Url::new('/demos/invoice.html')->makeWww(), tr('Invoice')) .
+                      AnchorBlock::new(Url::new('/demos/kanban.html')->makeWww(), tr('Kanban project management board')) .
+                      AnchorBlock::new(Url::new('/demos/projects.html')->makeWww(), tr('Projects')) .
+                      AnchorBlock::new(Url::new('/demos/project-detail.html')->makeWww(), tr('Projects detail page')) .
+                      AnchorBlock::new(Url::new('/demos/project-edit.html')->makeWww(), tr('Projects edit page')) .
+                      AnchorBlock::new(Url::new('/demos/mailbox.html')->makeWww(), tr('Mail box')) .
+                      AnchorBlock::new(Url::new('/demos/read-mail.html')->makeWww(), tr('Read mail')) .
+                      AnchorBlock::new(Url::new('/demos/compose.html')->makeWww(), tr('Compose mail')) .
+                      AnchorBlock::new(Url::new('/demos/scanner/gallery.html')->makeWww(), tr('Scanner gallery')))
          ->render();
 ?>
     <div class="row">

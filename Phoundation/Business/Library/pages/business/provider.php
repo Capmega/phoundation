@@ -18,6 +18,7 @@ use Phoundation\Business\Providers\Provider;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Img;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -91,8 +92,8 @@ $picture = Card::new()
 $relevant = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
-                ->setContent(Anchor::new(Url::new('/business/customers.html')->makeWww(), tr('Customers management')) .
-                             Anchor::new(Url::new('/business/companies.html')->makeWww(), tr('Companies management'), '<br>'));
+                ->setContent(AnchorBlock::new(Url::new('/business/customers.html')->makeWww(), tr('Customers management')) .
+                             AnchorBlock::new(Url::new('/business/companies.html')->makeWww(), tr('Companies management')));
 
 
 // Build documentation

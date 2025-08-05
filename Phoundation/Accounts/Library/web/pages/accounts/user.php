@@ -21,6 +21,7 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -306,12 +307,12 @@ $picture_card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent(($user->isNew() ? '' : Anchor::new(Url::new('/profiles/profile+' . $user->getId() . '.html')->makeWww(), tr('Profile page for this user'))) .
-                                                         Anchor::new(Url::new('/accounts/password+' . $user->getId() . '.html')->makeWww(), tr('Change password for this user'), '<br>') .
-                                                         Anchor::new(Url::new('/security/authentications.html')->makeWww()->addQueries('users_id=' . $user->getId()), tr('Authentications for this user'), '<br>') .
-                                                         Anchor::new(Url::new('/security/incidents.html')->makeWww()->addQueries('users_id=' . $user->getId()), tr('Security incidents for this user'), '<br>') .
-                                                         hr(Anchor::new(Url::new('/accounts/roles.html')->makeWww(), tr('Manage roles'), '<br>') .
-                                                            Anchor::new(Url::new('/accounts/rights.html')->makeWww(), tr('Manage rights'), '<br>') .
+                     ->setContent(($user->isNew() ? '' : AnchorBlock::new(Url::new('/profiles/profile+' . $user->getId() . '.html')->makeWww(), tr('Profile page for this user'))) .
+                                                         AnchorBlock::new(Url::new('/accounts/password+' . $user->getId() . '.html')->makeWww(), tr('Change password for this user')) .
+                                                         AnchorBlock::new(Url::new('/security/authentications.html')->makeWww()->addQueries('users_id=' . $user->getId()), tr('Authentications for this user')) .
+                                                         AnchorBlock::new(Url::new('/security/incidents.html')->makeWww()->addQueries('users_id=' . $user->getId()), tr('Security incidents for this user')) .
+                                                         hr(AnchorBlock::new(Url::new('/accounts/roles.html')->makeWww(), tr('Manage roles')) .
+                                                            AnchorBlock::new(Url::new('/accounts/rights.html')->makeWww(), tr('Manage rights')) .
                                                             Anchor::new(Url::new('/accounts/sessions.html')->makeWww()->addQueries('users_id=' . $user->getId()), tr('Manage sessions'))));
 
 

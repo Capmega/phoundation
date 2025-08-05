@@ -25,6 +25,7 @@ use Phoundation\Security\Passwords\Exception\NoPasswordSpecifiedException;
 use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
 use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -109,9 +110,9 @@ $card = Card::new()
 $relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent(Anchor::new(Url::new('/my/profile.html')->makeWww(), tr('Manage my profile')) .
-                                  Anchor::new(Url::new('/my/settings.html')->makeWww(), tr('Manage my settings'), '<br>'));
-                                //Anchor::new(Url::new('/my/authentication-history.html')->makeWww(), tr('Review my authentication history'), '<br>'));
+                     ->setContent(AnchorBlock::new(Url::new('/my/profile.html')->makeWww(), tr('Manage my profile')) .
+                                  AnchorBlock::new(Url::new('/my/settings.html')->makeWww(), tr('Manage my settings')));
+                                //AnchorBlock::new(Url::new('/my/authentication-history.html')->makeWww(), tr('Review my authentication history')));
 
 // Build documentation
 $documentation_card = Card::new()
