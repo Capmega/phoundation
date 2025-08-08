@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Meta\Activities;
 
+use PDOStatement;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\ArraySourceInterface;
@@ -106,13 +107,14 @@ class Activities extends IteratorCore
     /**
      * Returns a new activities object
      *
-     * @param ArraySourceInterface|array|string|null $source
+     * @param DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null                                                          $execute
      *
      * @return static
      */
-    public static function newFromSource(ArraySourceInterface|array|string|null $source): static
+    public static function newFromSource(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null, ?array $execute = null): static
     {
-        return static::new()->setSource($source);
+        return static::new()->setSource($source, $execute);
     }
 
 
