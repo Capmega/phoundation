@@ -20,6 +20,8 @@ use Phoundation\Accounts\Rights\Interfaces\RightInterface;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\Sessions\Session;
+use Phoundation\Core\Core;
+use Phoundation\Core\Log\Log;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Interfaces\AnchorInterface;
@@ -279,6 +281,14 @@ class Anchor extends SpanCore implements AnchorInterface
     public function render(): ?string
     {
         if (!$this->hasRequiredRights()) {
+            if (!Core::isProductionEnvironment()) {
+                Log::warning(tr('User ":user" does not have the required rights ":rights" to render the URL ":url"', [
+                    ':user'   => Session::getUserObject()->getLogId(),
+                    ':rights' => $this->getRequiredRights(),
+                    ':url'    => $this->getHref()->getSource()
+                ]));
+            }
+
             switch ($this->render_rights_fail) {
                 case EnumAnchorRenderRightsFail::no_url:
                     // Continue rendering the anchor, but without URL by converting it to a <span>
