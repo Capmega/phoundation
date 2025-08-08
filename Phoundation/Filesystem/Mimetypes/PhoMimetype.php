@@ -116,7 +116,7 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
             'priority'  => 0
         ]);
 
-        return $this->__setPath($o_path);
+        return $this->__setPathObject($o_path);
     }
 
 
