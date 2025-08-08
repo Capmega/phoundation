@@ -1915,8 +1915,7 @@ return 'under construction';
 
             // Set required locale.
             // Set language and locale
-            Core::setLanguage();
-            Core::setLocale($argv['locale'] ?? config()->getString('locale.default', 'en-ca'));
+            Core::setLanguageLocale($argv['locale'] ?? config()->getString('locale.default', 'en-ca'));
 
             // Prepare for unicode usage
             if (Response::hasEncoding('UTF-8')) {
