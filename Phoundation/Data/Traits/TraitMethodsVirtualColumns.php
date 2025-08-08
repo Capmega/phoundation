@@ -154,15 +154,15 @@ trait TraitMethodsVirtualColumns {
                 $o_object   = $configuration['class']::new()->loadNull($identifier);
 
             } catch (DataEntryInvalidVirtualConfigurationException $e) {
-                // This means that a column was specified to be checked that doesn't exist in the Definitions object
+                // This means that a column was specified to be checked that does not exist in the Definitions object
                 throw DataEntryInvalidVirtualConfigurationException::new(tr('Cannot find value for defined virtual column ":column" in class ":class", this column does not exist in the definitions object', [
                     ':class'  => $this::class,
                     ':column' => $e->getDataKey('column'),
                 ]), $e)->setData([
-                    'column'        => $e->getDataKey('column'),
-                    'table'         => $table,
-                    'configuration' => $configuration,
-                ]);
+                                     'column'        => $e->getDataKey('column'),
+                                     'table'         => $table,
+                                     'configuration' => $configuration,
+                                 ]);
             }
         }
 
@@ -202,19 +202,12 @@ trait TraitMethodsVirtualColumns {
                 }
 
             } catch (OutOfBoundsException $e) {
-                // This means that a column was specified to be checked that doesn't exist in the Definitions object
+                // This means that a column was specified to be checked that does not exist in the Definitions object
                 throw DataEntryInvalidVirtualConfigurationException::new(tr('Cannot find value for defined virtual column ":column", this column does not exist in the definitions object', [
                     ':column' => $table_column,
                 ]), $e)->setData([
                     'column'  => $table_column,
                 ]);
-            }
-
-            if ($column === 'id') {
-                if ($value < 0) {
-                    // Negative ID columns come from configuration, ignore these
-                    continue;
-                }
             }
 
             if ($value === null) {

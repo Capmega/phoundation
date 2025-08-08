@@ -19,6 +19,7 @@ namespace Phoundation\Data\Traits;
 use PDOStatement;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryBadException;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\ArraySourceInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\NotExistsException;
@@ -91,11 +92,12 @@ trait TraitDataArraySource
     /**
      * Returns a new DataEntry object from the specified array source
      *
-     * @param ArraySourceInterface|array|string $source
+     * @param DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null                                                          $execute
      *
      * @return static
      */
-    public static function newFromSource(ArraySourceInterface|array|string $source): static
+    public static function newFromSource(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
     {
         if ($source instanceof ArraySourceInterface) {
             if (!is_a($source, static::class)) {
@@ -111,7 +113,7 @@ trait TraitDataArraySource
         }
 
         $entry = new static(null);
-        return $entry->setSource($source);
+        return $entry->setSource($source, $execute);
     }
 
 

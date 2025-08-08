@@ -6,7 +6,7 @@
  *
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @license   http://openpath.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
  */
@@ -21,8 +21,22 @@ use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 
 trait TraitDataObjectPath
 {
-    use TraitDataObjectPathReadonly {
-        setPathObject as protected __TraitSetPathObject;
+    /**
+     * The path to use
+     *
+     * @var PhoPathInterface|null $o_path
+     */
+    protected ?PhoPathInterface $o_path = null;
+
+
+    /**
+     * Returns the path
+     *
+     * @return PhoPathInterface|null
+     */
+    public function getPathObject(): ?PhoPathInterface
+    {
+        return $this->o_path;
     }
 
 
@@ -30,13 +44,12 @@ trait TraitDataObjectPath
      * Sets the path
      *
      * @param PhoPathInterface|null $o_path
-     * @param string|null           $prefix
-     * @param bool                  $must_exist
      *
      * @return static
      */
-    public function setPathObject(?PhoPathInterface $o_path, ?string $prefix = null, bool $must_exist = true): static
+    public function setPathObject(?PhoPathInterface $o_path): static
     {
-        return $this->__TraitSetPathObject($o_path, $prefix, $must_exist);
+        $this->o_path = $o_path;
+        return $this;
     }
 }

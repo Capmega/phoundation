@@ -44,14 +44,12 @@ trait TraitDataObjectPathReadonly
      * Sets the path object
      *
      * @param PhoPathInterface|null $o_path
-     * @param string|null           $prefix
-     * @param bool                  $must_exist
      *
      * @return static
      */
-    protected function setPathObject(PhoPathInterface|null $o_path, ?string $prefix = null, bool $must_exist = true): static
+    protected function setPathObject(?PhoPathInterface $o_path): static
     {
-        $this->o_path = $o_path?->makeAbsolute($prefix, $must_exist);
+        $this->o_path = $o_path;
         return $this;
     }
 }
