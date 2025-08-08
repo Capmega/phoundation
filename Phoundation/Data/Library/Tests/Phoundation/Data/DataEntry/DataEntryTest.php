@@ -319,9 +319,12 @@ class DataEntryTest extends TestCase
      */
     public function testSetSource()
     {
+        $name = Strings::getRandom(4) . Numbers::getRandomInt(1000,9999);
+        TestDataEntry::new()->setName($name)->save();
+
         // Test setting a single column
-        $test_entry = TestDataEntry::new()->setSource(['name' => 'test_name', 'test_column' => 'test_value1']);
-        $this->assertEquals('test_name', $test_entry->getName());
+        $test_entry = TestDataEntry::new()->setSource(['seo_name' => $name, 'name' => $name, 'test_column' => 'test_value1']);
+        $this->assertEquals($name, $test_entry->getName());
 
         // Test overwriting a column
         $test_entry->setSource(['test_column' => 'test_value2']);
@@ -335,6 +338,7 @@ class DataEntryTest extends TestCase
         // Test setting source with filter_meta: true
         $test_entry_2 = TestDataEntry::new()->loadRandom();
         $test_entry_3 = TestDataEntry::new();
+        show('-----------------------------------------------------');
         $test_entry_3->setSource($test_entry_2->getSource(), filter_meta: true);
         $this->assertNull($test_entry_3->getId(false));
 
