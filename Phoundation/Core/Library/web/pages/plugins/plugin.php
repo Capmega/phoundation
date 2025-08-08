@@ -46,7 +46,7 @@ $plugin_card = Card::new()
 
 
 // Build relevant links
-$relevant_card = Card::new()
+$o_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
                      ->setContent(AnchorBlock::new(Url::new('/developer/slow-pages.html')->makeWww(), tr('Slow pages')) .
@@ -54,7 +54,7 @@ $relevant_card = Card::new()
 
 
 // Build documentation
-$documentation_card = Card::new()
+$o_documentation_card = Card::new()
                           ->setMode(EnumDisplayMode::info)
                           ->setTitle(tr('Documentation'))
                           ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
@@ -75,4 +75,4 @@ Response::setBreadcrumbs([
 // Render and return the page grid
 return Grid::new()
            ->addGridColumn($plugin_card                        , EnumDisplaySize::nine)
-           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

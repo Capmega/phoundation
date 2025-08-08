@@ -107,7 +107,7 @@ $card = Card::new()
 
 
 // Build relevant links
-$relevant_card = Card::new()
+$o_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
                      ->setContent(AnchorBlock::new(Url::new('/my/profile.html')->makeWww(), tr('Manage my profile')) .
@@ -115,7 +115,7 @@ $relevant_card = Card::new()
                                 //AnchorBlock::new(Url::new('/my/authentication-history.html')->makeWww(), tr('Review my authentication history')));
 
 // Build documentation
-$documentation_card = Card::new()
+$o_documentation_card = Card::new()
                           ->setMode(EnumDisplayMode::info)
                           ->setTitle(tr('Documentation'))
                           ->setContent('<p>Here you can update your password</p>
@@ -136,4 +136,4 @@ Response::setBreadcrumbs([
 // Render and return the page grid
 return Grid::new()
            ->addGridColumn($card                               , EnumDisplaySize::nine, true)
-           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

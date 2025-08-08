@@ -82,14 +82,14 @@ $results_card = Card::new()
 
 
 // Build relevant links
-$relevant_card = Card::new()
+$o_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
                      ->setContent(AnchorBlock::new(Url::new('/reports.html')->makeWww(), tr('Reports')));
 
 
 // Build documentation
-$documentation_card = Card::new()
+$o_documentation_card = Card::new()
                           ->setMode(EnumDisplayMode::info)
                           ->setTitle(tr('Documentation'))
                           ->setContent('<p>This manual query report generator allows you to generate any type of report manually by typing the query</p>
@@ -109,4 +109,4 @@ Response::setBreadcrumbs([
 // Render and return the page grid
 return Grid::new()
            ->addGridColumn($filters_card  . $results_card      , EnumDisplaySize::nine)
-           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

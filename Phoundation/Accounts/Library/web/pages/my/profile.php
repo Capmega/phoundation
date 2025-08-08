@@ -187,4 +187,4 @@ Response::setBreadcrumbs([
 // Render and return the page grid
 return Grid::new()
            ->addGridColumn($column)
-           ->addGridColumn($picture . '<br>' . $relevant . '<br>' . $documentation, EnumDisplaySize::three);
+           ->addGridColumn($picture . $relevant . $documentation, EnumDisplaySize::three);

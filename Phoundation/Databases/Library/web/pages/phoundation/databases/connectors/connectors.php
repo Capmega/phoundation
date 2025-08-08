@@ -123,7 +123,7 @@ $connectors_card->getForm()
 
 
 // Build relevant links
-$relevant_card = Card::new()
+$o_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
                      ->setContent(AnchorBlock::new(Url::new('/phoundation/databases/connectors/roles.html')->makeWww(), tr('Roles management')) .
@@ -131,7 +131,7 @@ $relevant_card = Card::new()
 
 
 // Build documentation
-$documentation_card = Card::new()
+$o_documentation_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Documentation'))
                      ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
@@ -150,4 +150,4 @@ Response::setBreadcrumbs([
 // Render and return the page grid
 return Grid::new()
            ->addGridColumn($filters_card  . $connectors_card   , EnumDisplaySize::nine)
-           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

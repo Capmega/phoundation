@@ -41,15 +41,15 @@ GetValidator::new()->validate();
 
 
 // Build filter card
-$filters = FilterForm::new();
-$filters->getDefinitionsObject()->setDefinitionRender('roles_id', false)
-                                ->setDefinitionSize('rights_id' , 6)
-                                ->setDefinitionSize('status'    , 6);
+$o_filters = FilterForm::new();
+$o_filters->getDefinitionsObject()->setDefinitionRender('roles_id', false)
+                                  ->setDefinitionSize('rights_id' , 6)
+                                  ->setDefinitionSize('status'    , 6);
 
-$filters_card = Card::new()
+$o_filters_card = Card::new()
                ->setCollapseSwitch(true)
                ->setTitle('Filters')
-               ->setContent($filters);
+               ->setContent($o_filters);
 
 
 // Validate POST and submit
@@ -64,11 +64,11 @@ if (Request::isPostRequestMethod()) {
             case tr('Delete'):
                 if ($post['id']) {
                     foreach ($post['id'] as $id) {
-                        $role = Role::new($id)->delete();
+                        $o_role = Role::new($id)->delete();
 
                         Response::getFlashMessagesObject()
                                 ->addSuccess(tr('The role ":role" has been deleted', [
-                                    ':role' => $role->getName()
+                                    ':role' => $o_role->getName()
                                 ]));
                     }
 
@@ -86,20 +86,24 @@ if (Request::isPostRequestMethod()) {
 }
 
 
+// Load the "roles" object
+$o_roles = Roles::new()->load();
+
+
 // Build "roles" card
-$roles_card = Card::new()
-                  ->setTitle('Active roles')
-                  ->setSwitches('reload')
-                  ->setContent(Roles::new()
-                                    ->setFilterFormObject($filters)
-                                    ->getHtmlDataTableObject([
-                                        'id'          => tr('Id'),
-                                        'role'        => tr('Role'),
-                                        'rights'      => tr('Gives user rights'),
-                                        'description' => tr('Description'),
-                                    ])->setRowUrl('/accounts/role+:ROW.html')
-                                      ->setTopButtons(Buttons::new()
-                                                             ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/role.html')))
+$o_roles_card = Card::new()
+                    ->setTitle(tr('Active roles (:count)', [':count' => $o_roles->getCount()]))
+                    ->setSwitches('reload')
+                    ->setContent($o_roles->setFilterFormObject($o_filters)
+                                         ->getHtmlDataTableObject([
+                                             'id'          => tr('Id'),
+                                             'role'        => tr('Role'),
+                                             'rights'      => tr('Gives user rights'),
+                                             'description' => tr('Description'),
+                                         ])
+                                         ->setRowUrl('/accounts/role+:ROW.html')
+                                         ->setTopButtons(Buttons::new()
+                                                                ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/role.html')))
                   ->useForm(true)
                   ->setButtons(Buttons::new()
                                       ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/role.html')
@@ -107,19 +111,19 @@ $roles_card = Card::new()
 
 
 // Build relevant links
-$relevant_card = Card::new()
-                     ->setMode(EnumDisplayMode::info)
-                     ->setTitle(tr('Relevant links'))
-                     ->setContent(AnchorBlock::new('/accounts/users.html'   , tr('Manage users')) .
-                                  AnchorBlock::new('/accounts/rights.html'  , tr('Manage rights')) .
-                                  AnchorBlock::new('/accounts/sessions.html', tr('Manage sessions')));
+$o_relevant_card = Card::new()
+                       ->setMode(EnumDisplayMode::info)
+                       ->setTitle(tr('Relevant links'))
+                       ->setContent(AnchorBlock::new('/accounts/users.html'   , tr('Manage users')) .
+                                    AnchorBlock::new('/accounts/rights.html'  , tr('Manage rights')) .
+                                    AnchorBlock::new('/accounts/sessions.html', tr('Manage sessions')));
 
 
 // Build documentation
-$documentation_card = Card::new()
-                          ->setMode(EnumDisplayMode::info)
-                          ->setTitle(tr('Documentation'))
-                          ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
+$o_documentation_card = Card::new()
+                            ->setMode(EnumDisplayMode::info)
+                            ->setTitle(tr('Documentation'))
+                            ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
 // Set page meta data
@@ -133,5 +137,5 @@ Response::setBreadcrumbs([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($filters_card  . $roles_card        , EnumDisplaySize::nine)
-           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($o_filters_card  . $o_roles_card        , EnumDisplaySize::nine)
+           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

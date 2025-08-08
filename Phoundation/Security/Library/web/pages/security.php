@@ -1,14 +1,14 @@
 <?php
 
 /**
- * /accounts
+ * /security
  *
- * This is the main accounts menu page
+ * This is the main security menu page
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2024 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Accounts
+ * @package   Phoundation\Security
  */
 
 
@@ -24,8 +24,8 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 
-// This page requires the "accounts" right
-Request::requiresAllRights('accounts');
+// This page requires the "security" right
+Request::requiresAllRights('security');
 
 
 // This page allows no get parameters whatsoever
@@ -33,22 +33,21 @@ GetValidator::new()->validate();
 
 
 // Set page meta data
-Response::setPageTitle(tr('Accounts portal'));
-Response::setHeaderTitle(tr('Accounts portal'));
+Response::setPageTitle(tr('Security portal'));
+Response::setHeaderTitle(tr('Security portal'));
 Response::setDescription(tr(''));
 Response::setBreadcrumbs([
     Anchor::new('/', tr('Home')),
-    Anchor::new('' , tr('Accounts')),
+    Anchor::new('' , tr('Security')),
 ]);
 
 
 // Build link cards
 $card = Card::new()
-            ->setTitle(tr('Accounts management'))
-            ->setContent(AnchorBlock::new('/accounts/users.html'   , tr('Manage users')) .
-                         AnchorBlock::new('/accounts/roles.html'   , tr('Manage roles')) .
-                         AnchorBlock::new('/accounts/rights.html'  , tr('Manage rights')) .
-                         hr(AnchorBlock::new('/accounts/sessions.html', tr('Manage sessions'))));
+            ->setTitle(tr('Security management'))
+            ->setContent(AnchorBlock::new('/security/authentications.html', tr('Authentications management')) .
+                         AnchorBlock::new('/security/incidents.html', tr('Incidents management')) .
+                         AnchorBlock::new('/security/non-200-urls.html', tr('Non-200 URL\'s management')));
 
 
 // Render and return the grid

@@ -64,7 +64,7 @@ $settings_card = Card::new()
 
 
 // Build relevant links
-$relevant_card = Card::new()
+$o_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
                      ->setContent(AnchorBlock::new(Url::new('/my/profile.html')->makeWww(), tr('Manage my profile')) .
@@ -75,7 +75,7 @@ $relevant_card = Card::new()
 
 
 // Build documentation
-$documentation_card = Card::new()
+$o_documentation_card = Card::new()
                           ->setMode(EnumDisplayMode::info)
                           ->setTitle(tr('Documentation'))
                           ->setContent('In this settings page you may configure various details about how your account behaves on this platform. These settings are unique to your account alone');
@@ -94,4 +94,4 @@ Response::setBreadcrumbs([
 // Render and return the page grid
 return Grid::new()
             ->addGridColumn($settings_card                               , EnumDisplaySize::nine, true)
-            ->addGridColumn($relevant_card . '<br>' . $documentation_card, EnumDisplaySize::three);
+            ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

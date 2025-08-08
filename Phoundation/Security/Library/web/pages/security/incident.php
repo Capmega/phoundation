@@ -50,15 +50,19 @@ $card     = Card::new()
 
 
 // Build relevant links
-$relevant_card = Card::new()
+$o_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent(AnchorBlock::new(Url::new('/accounts/users.html')->makeWww(), tr('Users management')) .
-                                  AnchorBlock::new(Url::new('/accounts/rights.html')->makeWww(), tr('Rights management')));
+                     ->setContent(AnchorBlock::new(Url::new('/security/authentications.html')->makeWww()->addQueries($get['date_range'] ? 'date_range=' . $get['date_range'] : ''), tr('Authentications management')) .
+                                  AnchorBlock::new(Url::new('/security/incidents.html')->makeWww()->addQueries($get['date_range'] ? 'date_range=' . $get['date_range'] : ''), tr('Incidents management')) .
+                                  AnchorBlock::new(Url::new('/security/non-200-urls.html')->makeWww()->addQueries($get['date_range'] ? 'date_range=' . $get['date_range'] : ''), tr('Non-200 URL\'s management')) .
+                                  hr(AnchorBlock::new(Url::new('/accounts/users.html')->makeWww(), tr('Users management')) .
+                                     AnchorBlock::new(Url::new('/accounts/roles.html')->makeWww(), tr('Roles management')) .
+                                     AnchorBlock::new(Url::new('/accounts/rights.html')->makeWww(), tr('Rights management'))));
 
 
 // Build documentation
-$documentation_card = Card::new()
+$o_documentation_card = Card::new()
                           ->setMode(EnumDisplayMode::info)
                           ->setTitle(tr('Documentation'))
                           ->setContent('This page shows the details of a single specific incident. The information on this page cannot be modified');
@@ -67,7 +71,7 @@ $documentation_card = Card::new()
 // Set page meta data
 $url = Url::new('/security/incidents.html')->makeWww()->addQueries(
     $get['date_range'] ? 'date_range=' . $get['date_range'] : ''
-)->getSource();
+);
 
 Response::setHeaderTitle(tr('Incident'));
 Response::setHeaderSubTitle($incident->getDisplayId());
@@ -82,4 +86,4 @@ Response::setBreadcrumbs([
 // Render and return the page grid
 return Grid::new()
            ->addGridColumn($card                               , EnumDisplaySize::nine)
-           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);
