@@ -156,8 +156,9 @@ echo Card::new()
                                 <a href="#" class="dropdown-item">Add new event</a>
                                 <a href="#" class="dropdown-item">Clear events</a>
                                 <div class="dropdown-divider"></div>
-                                <a href="<?= Url::new('calendar/calendar.html')->makeWww(); ?>" class="dropdown-item">View
-                                    calendar</a>
+                                <?= Anchor::new(Url::new('calendar/calendar.html'))
+                                          ->setContent(tr('View calendar'))
+                                          ->setClass('dropdown-item'); ?>
                             </div>
                         </div>
                         <button type="button" class="btn btn-success btn-sm" data-card-widget="collapse">

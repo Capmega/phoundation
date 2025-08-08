@@ -44,9 +44,8 @@ echo Script::new()
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-3">
-                <a href="<?= Url::new('/demos/mailbox.html')->makeWww(); ?>" class="btn btn-primary btn-block mb-3">Back
-                    to Inbox</a>
-
+                <?= Anchor::new(Url::new('/demos/mailbox.html')->makeWww(), tr('Back to inbox'))
+                          ->setClass('btn btn-primary btn-block mb-3'); ?>
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Folders</h3>
