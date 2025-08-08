@@ -68,6 +68,7 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Os\Processes\Commands\Free;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
@@ -1034,6 +1035,9 @@ class Core implements CoreInterface
      */
     #[NoReturn] public static function uncaughtExceptionHandler(Throwable $e): never
     {
+        // In case of uncaught exceptions, all logging must be turned on
+        Log::enable();
+
         // Uncomment the following line in case the exception handler is not working correctly and does not display exceptions
         //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); exit();
         Core::uncaughtExceptionHandlerAvoidEndlessLoop($e);
@@ -1279,15 +1283,21 @@ class Core implements CoreInterface
 
 
     /**
-     * Set the language for this request
+     * Apply the specified or configured locale
+     *
+     * @param string|null $locale
      *
      * @return void
+     * @todo REWRITE THIS MESS!
+     * @todo MOVE THIS METHOD TO PHOLOCALE CLASS
      */
-    public static function setLanguage(): void
+    public static function setLanguageLocale(?string $locale = null): void
     {
+        // Setup locale and character encoding
+        // TODO Check this mess!
         try {
             if (PLATFORM_WEB) {
-                $supported = config()->get('locale.language.supported', [
+                $supported = config()->get('locale.languages.supported', [
                     'en',
                     'es',
                 ]);
@@ -1306,56 +1316,23 @@ class Core implements CoreInterface
                     }
 
                 } else {
-                    $language = config()->get('languages.default', 'en');
+                    $language = not_empty($locale, config()->get('locale.languages.default', 'en'));
                 }
 
             } else {
-                $language = config()->get('languages.default', 'en');
+                $language = not_empty($locale, config()->get('locale.languages.default', 'en'));
             }
 
-            define('LANGUAGE', $language);
-            define('LOCALE'  , $language . (empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
-
-            // Ensure $_SESSION['language'] available
-            if (empty($_SESSION['language'])) {
-                $_SESSION['language'] = LANGUAGE;
-            }
-
-        } catch (Throwable $e) {
-            // Language selection failed
-            if (!defined('LANGUAGE')) {
-                define('LANGUAGE', 'en');
-            }
-
-            throw new OutOfBoundsException(tr('Language selection failed'), $e);
-        }
-    }
-
-
-    /**
-     * Apply the specified or configured locale
-     *
-     * @param string|null $locale
-     *
-     * @return void
-     * @todo REWRITE THIS MESS!
-     * @todo MOVE THIS METHOD TO PHOLOCALE CLASS
-     */
-    public static function setLocale(?string $locale = null): void
-    {
-        // Setup locale and character encoding
-        // TODO Check this mess!
-        try {
-            $language = not_empty($locale, config()->get('locale.language.default', 'en'));
-
-            if (config()->get('locale.language.default', ['en']) and config()->exists('locale.language.supported.' . $language)) {
+            if (config()->get('locale.languages.default', ['en']) and config()->exists('locale.languages.supported.' . $language)) {
                 throw new CoreException(tr('Unknown language ":language" specified', [':language' => $language]));
             }
 
+            // TODO Don't access $_SESSION data like this directly, get it from Session class methods instead
             define('LANGUAGE', $language);
             define('LOCALE'  , $language . (empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
 
-            $_SESSION['language'] = $language;
+            $_SESSION['language'] = LANGUAGE;
+            $_SESSION['locale']   = LOCALE;
 
         } catch (Throwable $e) {
             // Language selection failed
@@ -1363,7 +1340,13 @@ class Core implements CoreInterface
                 define('LANGUAGE', 'en');
             }
 
-            $e = new CoreException('Language selection failed', $e);
+            // Language selection failed
+            if (!defined('LOCALE')) {
+                define('LOCALE', 'en_US');
+            }
+
+            // Store an incident for this issue
+            Incident::new(new CoreException('Language / Locale selection failed, falling back to "EN_US"', $e))->save();
         }
 
         // Setup locale and character encoding
@@ -1391,7 +1374,7 @@ class Core implements CoreInterface
             $language = LANGUAGE;
 
         } else {
-            $language = config()->get('locale.language.default', 'en');
+            $language = config()->get('locale.languages.default', 'en');
         }
 
         if (isset($_SESSION['location']['country']['code'])) {
