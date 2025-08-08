@@ -249,12 +249,14 @@ class PhoDateTimeImmutable extends \DateTimeImmutable implements Stringable, Int
 
     public function getNextDay(DateTimeZone|string|null $timezone = null): static
     {
+        throw UnderConstructionException::new(tr('This method is under construction'));
         // TODO: Implement getNextDay() method.
     }
 
 
     public function getPreviousDay(DateTimeZone|string|null $timezone = null): static
     {
+        throw UnderConstructionException::new(tr('This method is under construction'));
         // TODO: Implement getPreviousDay() method.
     }
 }
