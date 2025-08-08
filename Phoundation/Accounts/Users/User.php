@@ -875,7 +875,6 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
-Log::backtrace();
         Log::action(ts('Saving user ":user"', [':user' => $this->getDisplayName()]));
 
         if ($this->readonly or $this->disabled) {

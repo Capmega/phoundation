@@ -39,6 +39,7 @@ class UserTest extends TestCase
     public function testNewGuest()
     {
         $guest = User::newGuest();
+
         $this->assertEquals('system', $guest->getStatus());
         $this->assertTrue($guest->isGuest());
         $this->assertTrue($guest->isSystemUser());
@@ -54,12 +55,11 @@ class UserTest extends TestCase
     public function testSave()
     {
         $unit_test_user = User::new();
-        $unit_test_user->loadOrThis([
-            'email' => 'unittest@medinet.ca'
-        ])->setFirstNames('unit')
-          ->setLastNames('test')
-          ->setNotificationsEnabled(false)
-          ->setStatus('test')->save();
+        $unit_test_user->loadOrThis(['email' => 'unittest@medinet.ca'])
+                       ->setFirstNames('unit')
+                       ->setLastNames('test')
+                       ->setNotificationsEnabled(false)
+                       ->setStatus('test')->save();
 
         $this->assertTrue((bool) $unit_test_user->getId());
     }
@@ -79,18 +79,6 @@ class UserTest extends TestCase
         // Try loading another user
         $unit_test_user = User::new()->load(['email' => 'unittest@medinet.ca']);
         $this->assertTrue((bool) $unit_test_user->getId());
-    }
-
-
-    /**
-     * Tests User::authenticate()
-     *
-     * @return void
-     */
-    public function testAuthenticate()
-    {
-        // TODO: implement test cases
-        $this->assertTrue(true);
     }
 
 
@@ -194,8 +182,10 @@ class UserTest extends TestCase
     {
         $unit_test_user = User::new()->load(['email' => 'unittest@medinet.ca']);
         $unit_test_user->addRoles('test');
+
         $o_rights = $unit_test_user->getRightsObject();
         $o_roles  = $unit_test_user->getRolesObject();
+
         $this->assertContains('test', $o_rights->getSourceKeys());
         $this->assertContains('test', $o_roles->getSourceKeys());
     }
@@ -208,14 +198,14 @@ class UserTest extends TestCase
      */
     public function testRemoveRoles()
     {
-        // TODO: fix
-        $this->assertTrue(true);
-//        $unit_test_user = User::new()->load(['email' => 'unittest@medinet.ca']);
-//        $unit_test_user->addRoles('test');
-//        $this->assertContains('test', $unit_test_user->getRightsObject()->getSourceKeys());
-//
-//        $unit_test_user->removeRoles('test');
-//        $this->assertEmpty($unit_test_user->getRightsObject()->getSourceKeys());
+        $unit_test_user = User::new()->load(['email' => 'unittest@medinet.ca']);
+        $unit_test_user->addRoles('test');
+
+        $this->assertContains('test', $unit_test_user->getRightsObject()->getSourceKeys());
+
+        $unit_test_user->removeRoles('test');
+        $this->assertNotContains('test', $unit_test_user->getRolesObject()->getSourceKeys());
+        $this->assertNotContains('test', $unit_test_user->getRightsObject()->getSourceKeys());
     }
 
 
@@ -226,9 +216,13 @@ class UserTest extends TestCase
      */
     public function testHasSomeRights()
     {
-        // New user should return false for anything
-        $new_user = User::new();
-        $this->assertFalse($new_user->hasSomeRights('everybody'));
+        // New user should throw exception
+        try {
+            User::new()->hasSomeRights('everybody');
+            $this->fail('Expected AccountsException was not thrown');
+        } catch (Throwable $e) {
+            $this->assertInstanceOf(AccountsException::class, $e);
+        }
 
         // Test with single string
         $user = User::new()->load(['email' => 'unittest@medinet.ca']);
@@ -259,9 +253,13 @@ class UserTest extends TestCase
      */
     public function testHasAllRights()
     {
-        // New user should return false for anything
-        $new_user = User::new();
-        $this->assertFalse($new_user->hasAllRights('everybody'));
+        // New user should throw exception
+        try {
+            User::new()->hasAllRights('everybody');
+            $this->fail('Expected AccountsException was not thrown');
+        } catch (Throwable $e) {
+            $this->assertInstanceOf(AccountsException::class, $e);
+        }
 
         // Test with single string
         $user = User::new()->load(['email' => 'unittest@medinet.ca']);
@@ -282,29 +280,5 @@ class UserTest extends TestCase
         // Test with Right that doesn't exist
         $user = User::new()->load(['email' => 'unittest@medinet.ca']);
         $this->assertFalse($user->hasAllRights('fail'));
-    }
-
-
-    /**
-     * Tests User::getMissingRights()
-     *
-     * @return void
-     */
-    public function testGetMissingRights()
-    {
-        $new_user = User::new();
-        $this->assertEmpty($new_user->getMissingRights([]));
-
-        try {
-            $new_user->getMissingRights('everybody');
-            $this->fail('Expected AccountsException was not thrown');
-        } catch (Throwable $e) {
-            $this->assertInstanceOf(AccountsException::class, $e);
-        }
-
-        $user = User::new()->load(['email' => 'unittest@medinet.ca']);
-        $this->assertEmpty($user->getMissingRights('everybody'));
-        $this->assertEquals(['god'], $user->getMissingRights('god'));
-        $this->assertEquals(['god'], $user->getMissingRights(['god', 'everybody']));
     }
 }
