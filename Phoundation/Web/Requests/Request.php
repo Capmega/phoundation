@@ -476,7 +476,7 @@ class Request implements RequestInterface
      */
     public static function detectRequestedLanguage(): string
     {
-        $languages = config()->getArray('locale.language.supported', []);
+        $languages = config()->getArray('locale.languages.supported', []);
 
         switch (count($languages)) {
             case 0:
@@ -573,7 +573,7 @@ class Request implements RequestInterface
                     'locale'   => (str_contains($requested, '-') ? Strings::from($requested, '-') : null),
                 ];
 
-                if (empty(config()->get('locale.language.supported', [])[$requested['language']])) {
+                if (empty(config()->get('locale.languages.supported', [])[$requested['language']])) {
                     continue;
                 }
 
