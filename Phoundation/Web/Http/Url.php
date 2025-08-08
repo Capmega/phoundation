@@ -467,6 +467,11 @@ class Url implements UrlInterface
             return $this;
         }
 
+        if ($this->source === '#') {
+            // This is a valid but "do nothing" link, don't do anything
+            return $this;
+        }
+
         // Use configured page extension
         $extension = config()->getString('web.pages.extension', 'html');
 
@@ -1685,11 +1690,13 @@ class Url implements UrlInterface
         if ($this->source) {
             $url = parse_url($this->source, PHP_URL_PATH);
 
-            if (preg_match_all('/^\/\w{2}\/(.+?)\/[^\/]+\.\w+$/', $url, $matches)) {
-                $rights = $matches[1][0];
-                $rights = explode('/', $rights);
+            if ($url) {
+                if (preg_match_all('/^\/\w{2}\/(.+?)\/[^\/]+\.\w+$/', $url, $matches)) {
+                    $rights = $matches[1][0];
+                    $rights = explode('/', $rights);
 
-                return $rights;
+                    return $rights;
+                }
             }
 
             // No rights found in the URL
