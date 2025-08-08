@@ -1694,7 +1694,7 @@ class Session implements SessionInterface
     public static function getLanguage(string $default = 'en'): string
     {
         if (empty(static::$language)) {
-            static::setLanguage();
+            Session::setLanguage();
         }
 
         return static::$language ?? $default;
@@ -1709,7 +1709,7 @@ class Session implements SessionInterface
     protected static function setLanguage(): string
     {
         // Check what languages are accepted by the client (in order of importance) and see if we support any of those
-        $supported_languages = Arrays::force(config()->get('locale.language.supported', []));
+        $supported_languages = Arrays::force(config()->get('locale.languages.supported', []));
         $requested_languages = Request::acceptsLanguages();
 
         foreach ($requested_languages as $requested_language) {

@@ -1558,7 +1558,7 @@ Log::backtrace();
             // Update password immediately
             $date_time = new PhoDateTime('1970');
 
-        } elseif ($date_time) {
+        } elseif ($date_time instanceof DateTimeInterface) {
             $date_time = $date_time->getTimestamp();
         }
 
@@ -2831,32 +2831,41 @@ Log::backtrace();
                                       ->setInputType(EnumInputType::number))
 
                       ->add(Definition::new('last_sign_in')
+                                      ->setOptional(true)
+                                      ->setDisabled(true)
+                                      ->setRender(function() { return !$this->isNew(); })
+                                      ->setInputType(EnumInputType::datetime_local)
+                                      ->setDbNullInputType(EnumInputType::text)
+                                      ->addClasses('text-center')
+                                      ->setSize(3)
+                                      ->setNullDisplay(tr('Never signed yet'))
+                                      ->setLabel('Last sign in'))
+
+                    ->add(Definition::new('update_password')
                                     ->setOptional(true)
                                     ->setDisabled(true)
                                     ->setRender(function() { return !$this->isNew(); })
                                     ->setInputType(EnumInputType::datetime_local)
-                                    ->setDbNullInputType(EnumInputType::text)
                                     ->addClasses('text-center')
-                                    ->setSize(3)
-                                    ->setNullDisplay(tr('Never signed yet'))
-                                    ->setLabel('Last sign in'))
+                                    ->setSize(2)
+                                    ->setLabel(tr('Password last updated on')))
 
                     ->add(DefinitionFactory::newNumber('sign_in_count')
-                                    ->setOptional(true, 0)
-                                    ->setDisabled(true)
-                                    ->setRender(function() { return !$this->isNew(); })
-                                    ->addClasses('text-center')
-                                    ->setSize(3)
-                                    ->setLabel(tr('Sign in count')))
+                                           ->setOptional(true, 0)
+                                           ->setDisabled(true)
+                                           ->setRender(function() { return !$this->isNew(); })
+                                           ->addClasses('text-center')
+                                           ->setSize(2)
+                                           ->setLabel(tr('Sign in count')))
 
                     ->add(DefinitionFactory::newNumber('authentication_failures')
-                                    ->setOptional(true, 0)
-                                    ->setDisabled(true)
-                                    ->setRender(function() { return !$this->isNew(); })
-                                    ->setMin(0)
-                                    ->addClasses('text-center')
-                                    ->setSize(3)
-                                    ->setLabel(tr('Authentication failures')))
+                                           ->setOptional(true, 0)
+                                           ->setDisabled(true)
+                                           ->setRender(function() { return !$this->isNew(); })
+                                           ->setMin(0)
+                                           ->addClasses('text-center')
+                                           ->setSize(2)
+                                           ->setLabel(tr('Authentication failures')))
 
                     ->add(Definition::new('locked_until')
                                     ->setOptional(true)
@@ -2868,15 +2877,6 @@ Log::backtrace();
                                     ->addClasses('text-center')
                                     ->setSize(3)
                                     ->setLabel(tr('Locked until')))
-
-                    ->add(Definition::new('update_password')
-                                    ->setOptional(true)
-                                    ->setDisabled(true)
-                                    ->setRender(function() { return !$this->isNew(); })
-                                    ->setInputType(EnumInputType::datetime_local)
-                                    ->addClasses('text-center')
-                                    ->setSize(3)
-                                    ->setLabel(tr('Password last updated on')))
 
                     ->add(DefinitionFactory::newDivider()
                                            ->setRender(function() {
