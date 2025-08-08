@@ -3225,7 +3225,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
             if ($this->debug) {
-                Log::debug('VALIDATING COLUMN "' . static::class . ' > ' . $column . '" WITH VALUE "'  . $this->get($column). ' ['  . gettype($this->get($column)). ']"', echo_header: false);
+                Log::debug('VALIDATING COLUMN "' . static::class . ' > ' . $column . '" WITH VALUE "'  . $this->get($column) . ' ['  . gettype($this->get($column)) . ']"', echo_header: false);
             }
 
             try {

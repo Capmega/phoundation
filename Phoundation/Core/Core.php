@@ -72,6 +72,7 @@ use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\FlashMessage;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Exception\Http404Exception;
@@ -3445,7 +3446,8 @@ class Core implements CoreInterface
                                 </tr>
                                 <tr>
                                     <td colspan="2">
-                                        <a href="' . Url::new('signout')->makeWww() . '">Sign out</a>
+                                        ' . Anchor::new(Url::new('signout')->makeWww(), tr('Sign out'))
+                                                  ->setClass('btn btn-sm btn-primary') . '
                                     </td>
                                 </tr>
                             </tbody>
