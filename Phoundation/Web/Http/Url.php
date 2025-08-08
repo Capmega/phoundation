@@ -453,6 +453,37 @@ class Url implements UrlInterface
 
 
     /**
+     * Returns true if this URL can be transformed into www, cdn, image url, etc.
+     *
+     * @return bool
+     */
+    public function canMake(): bool
+    {
+        if (empty($this->source)) {
+            // This is a NULL URL, don't do anything
+            return false;
+        }
+
+        if ($this->source === '#') {
+            // This is a valid but "do nothing" link, don't do anything
+            return false;
+        }
+
+        if (str_starts_with($this->source, 'mailto:')) {
+            // This is a valid "mailto" link, don't do anything
+            return false;
+        }
+
+        if (str_starts_with($this->source, 'tel:')) {
+            // This is a valid "tel:" link, don't do anything
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /**
      * Returns a complete web URL
      *
      * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
@@ -462,13 +493,8 @@ class Url implements UrlInterface
      */
     public function makeWww(bool $use_configured_root = false): static
     {
-        if (empty($this->source)) {
-            // This is a NULL URL, don't do anything
-            return $this;
-        }
-
-        if ($this->source === '#') {
-            // This is a valid but "do nothing" link, don't do anything
+        if (!$this->canMake()) {
+            // This URL can't be made into something else
             return $this;
         }
 
@@ -495,6 +521,11 @@ class Url implements UrlInterface
      */
     public function makeCdn(?string $extension = null): static
     {
+        if (!$this->canMake()) {
+            // This URL can't be made into something else
+            return $this;
+        }
+
         return $this->renderCdn($extension);
     }
 
@@ -538,6 +569,11 @@ class Url implements UrlInterface
      */
     protected function makeJson(string $type, bool $use_configured_root = false): static
     {
+        if (!$this->canMake()) {
+            // This URL can't be made into something else
+            return $this;
+        }
+
         if (empty($this->source)) {
             throw new OutOfBoundsException(tr('No URL specified'));
         }
@@ -583,6 +619,11 @@ class Url implements UrlInterface
     public function makeImg(): static
     {
         if ($this->isValid()) {
+            return $this;
+        }
+
+        if (!$this->canMake()) {
+            // This URL can't be made into something else
             return $this;
         }
 
@@ -874,6 +915,11 @@ class Url implements UrlInterface
 
         if (empty($url)) {
             throw new OutOfBoundsException(tr('No URL specified'));
+        }
+
+        if (!$this->canMake()) {
+            // This URL can't be made into something else
+            return $this;
         }
 
         if (static::isValidUrl($url)) {
