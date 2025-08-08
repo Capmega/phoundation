@@ -21,8 +21,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormColumnInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormRowsInterface;
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
-
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 
 class DataEntryFormRows implements DataEntryFormRowsInterface
 {

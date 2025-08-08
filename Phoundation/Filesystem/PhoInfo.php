@@ -17,14 +17,14 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem;
 
 use Phoundation\Data\EntryCore;
-use Phoundation\Data\Traits\TraitDataPath;
+use Phoundation\Data\Traits\TraitDataObjectPath;
 use Phoundation\Filesystem\Interfaces\PhoInfoInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 
 
 class PhoInfo extends EntryCore implements PhoInfoInterface
 {
-    use TraitDataPath {
+    use TraitDataObjectPath {
         setPath as protected __setPath;
     }
 

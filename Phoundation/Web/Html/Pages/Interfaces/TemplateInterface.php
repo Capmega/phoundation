@@ -126,14 +126,16 @@ interface TemplateInterface extends ComponentInterface
      */
     public function getReadonly(): bool;
 
+
     /**
      * Sets if this object is readonly or not
      *
-     * @param bool $readonly
+     * @param bool      $readonly
+     * @param bool|null $set_disabled
      *
      * @return static
      */
-    public function setReadonly(bool $readonly): static;
+    public function setReadonly(bool $readonly, ?bool $set_disabled = null): static;
 
     /**
      * Throws an exception for the given action if the object is disabled
@@ -159,12 +161,14 @@ interface TemplateInterface extends ComponentInterface
      */
     public function isDisabled(): bool;
 
+
     /**
      * Sets if this object is disabled or not
      *
-     * @param bool $disabled
+     * @param bool      $disabled
+     * @param bool|null $set_readonly
      *
      * @return static
      */
-    public function setDisabled(bool $disabled): static;
+    public function setDisabled(bool $disabled, ?bool $set_readonly = null): static;
 }

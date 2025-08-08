@@ -16,8 +16,9 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -61,15 +62,15 @@ $card = Card::new()
 
 
 // Build relevant links
-$relevant_card = Card::new()
+$o_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::new('/my/profile.html')->makeWww() . '">' . tr('Your profile') . '</a><br>
-                                   <a href="' . Url::new('/my/api-access.html')->makeWww() . '">' . tr('Your API access') . '</a>');
+                     ->setContent(AnchorBlock::new(Url::new('/my/profile.html')->makeWww(), tr('Your profile')) .
+                                  AnchorBlock::new(Url::new('/my/api-access.html')->makeWww(), tr('Your API access')));
 
 
 // Build documentation
-$documentation_card = Card::new()
+$o_documentation_card = Card::new()
                           ->setMode(EnumDisplayMode::info)
                           ->setTitle(tr('Documentation'))
                           ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
@@ -80,13 +81,13 @@ $documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('My API access'));
 Response::setHeaderSubTitle($user->getDisplayName());
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/' => tr('Home'),
-    ''  => tr('My API access'),
-]));
+Response::setBreadcrumbs([
+    Anchor::new('/', tr('Home')),
+    Anchor::new('' , tr('My API access')),
+]);
 
 
 // Render and return the page grid
 return Grid::new()
            ->addGridColumn($card                               , EnumDisplaySize::nine, true)
-           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

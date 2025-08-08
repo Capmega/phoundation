@@ -316,7 +316,7 @@ class Plugins extends DataIterator implements PluginsInterface
                             ]));
 
                             Plugin::new()
-                                  ->load($id, false)
+                                  ->load($id, load_plugin_file: false)
                                   ->disable()
                                   ->save();
 

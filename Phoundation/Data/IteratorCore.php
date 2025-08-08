@@ -36,24 +36,22 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
-use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Exception\IteratorException;
 use Phoundation\Data\Exception\IteratorKeyExistsException;
 use Phoundation\Data\Exception\IteratorKeyNotExistsException;
 use Phoundation\Data\Interfaces\ArraySourceInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Interfaces\TreeInterface;
+use Phoundation\Data\Traits\TraitDataArraySource;
 use Phoundation\Data\Traits\TraitDataCache;
 use Phoundation\Data\Traits\TraitDataCacheKey;
 use Phoundation\Data\Traits\TraitDataColumns;
 use Phoundation\Data\Traits\TraitDataDisabled;
 use Phoundation\Data\Traits\TraitDataFilterForm;
-use Phoundation\Data\Traits\TraitDataStringName;
-use Phoundation\Data\Traits\TraitDataReadonly;
-use Phoundation\Data\Traits\TraitDataRowCallbacks;
 use Phoundation\Data\Traits\TraitDataParent;
+use Phoundation\Data\Traits\TraitDataReadonly;
 use Phoundation\Data\Traits\TraitDataRestrictions;
-use Phoundation\Data\Traits\TraitDataArraySource;
+use Phoundation\Data\Traits\TraitDataRowCallbacks;
+use Phoundation\Data\Traits\TraitDataStringName;
 use Phoundation\Databases\Sql\Limit;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -62,7 +60,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Tables\HtmlDataTable;
 use Phoundation\Web\Html\Components\Tables\HtmlTable;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
@@ -72,11 +70,11 @@ use Phoundation\Web\Html\Components\Widgets\Interfaces\AccordionInterface;
 use Phoundation\Web\Html\Components\Widgets\Interfaces\TreeViewerInterface;
 use Phoundation\Web\Html\Components\Widgets\TreeViewer;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Requests\Request;
 use ReturnTypeWillChange;
 use Stringable;
 use Throwable;
-
 
 class IteratorCore extends IteratorBase implements IteratorInterface
 {
@@ -258,18 +256,20 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Sets the parent
      *
-     * @param DataEntryInterface $o_parent
+     * @param DataEntryInterface|RenderInterface|UrlInterface|null $o_parent
      *
      * @return static
+     * @todo This is a mess, redo parent management. DataEntryInterface is very generic, is ok, RenderInterface is generic, is ok, UrlInterface is very specific, not ok. See Rights::setParentObject()
      */
-    public function setParentObject(DataEntryInterface $o_parent): static
+    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $o_parent): static
     {
-        if ($this->getReadonly() !== $o_parent->getReadonly()) {
-            $this->setReadonly($this->getReadonly() or $o_parent->getReadonly());
-        }
-
-        if ($this->getDisabled() !== $o_parent->getDisabled()) {
-            $this->setDisabled($this->getDisabled() or $o_parent->getDisabled());
+        if ($o_parent instanceof DataEntryInterface) {
+            if ($this->getReadonly() !== $o_parent->getReadonly()) {
+                $this->setReadonly($this->getReadonly() or $o_parent->getReadonly());
+            }
+            if ($this->getDisabled() !== $o_parent->getDisabled()) {
+                $this->setDisabled($this->getDisabled() or $o_parent->getDisabled());
+            }
         }
 
         return $this->__setParentObject($o_parent);
@@ -279,38 +279,40 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Sets if this DataIterator (and its entries in its source!) is readonly or not
      *
-     * @param bool $readonly
+     * @param bool      $readonly
+     * @param bool|null $set_disabled
      *
      * @return static
      */
-    public function setReadonly(bool $readonly): static
+    public function setReadonly(bool $readonly, ?bool $set_disabled = null): static
     {
         foreach ($this as $entry) {
             if ($entry instanceof RenderInterface) {
-                $entry->setReadonly($readonly);
+                $entry->setReadonly($readonly, $set_disabled);
             }
         }
 
-        return $this->__setReadonly($readonly);
+        return $this->__setReadonly($readonly, $set_disabled);
     }
 
 
     /**
      * Sets if this DataIterator (and its entries in its source!) is disabled or not
      *
-     * @param bool $disabled
+     * @param bool      $disabled
+     * @param bool|null $set_readonly
      *
      * @return static
      */
-    public function setDisabled(bool $disabled): static
+    public function setDisabled(bool $disabled, ?bool $set_readonly = null): static
     {
         foreach ($this as $entry) {
             if ($entry instanceof RenderInterface) {
-                $entry->setDisabled($disabled);
+                $entry->setDisabled($disabled, $set_readonly);
             }
         }
 
-        return $this->__setDisabled($disabled);
+        return $this->__setDisabled($disabled, $set_readonly);
     }
 
 
@@ -408,6 +410,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         // Skip NULL values?
         if ($value === null) {
             if ($skip_null_values) {
+                unset($this->source[$key]);
                 return $this;
             }
         }
@@ -569,6 +572,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         // Skip NULL values?
         if ($value === null) {
             if ($skip_null_values) {
+                unset($this->source[$key]);
                 return $this;
             }
         }
@@ -612,6 +616,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         // Skip NULL values?
         if ($value === null) {
             if ($skip_null_values) {
+                unset($this->source[$key]);
                 return $this;
             }
         }
@@ -686,6 +691,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         // Skip NULL values?
         if ($value === null) {
             if ($skip_null_values) {
+                unset($this->source[$key]);
                 return $this;
             }
         }
@@ -735,6 +741,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         // Skip NULL values?
         if ($value === null) {
             if ($skip_null_values) {
+                unset($this->source[$key]);
                 return $this;
             }
         }
@@ -786,6 +793,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         // Skip NULL values?
         if ($value === null) {
             if ($skip_null_values) {
+                unset($this->source[$key]);
                 return $this;
             }
         }

@@ -998,12 +998,13 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
             if (Core::inBootState() or config()->getBoolean('security.validation.enabled', true)) {
                 throw ValidationFailedException::new(tr('Data validation failed with the following issues:'))
+                                               ->setDataEntryObject($this->o_definitions?->getDataEntryObject())
+                                               ->makeWarning()
                                                ->addData([
+                                                   'class'    => get_class_or_datatype($this->o_definitions?->getDataEntryObject()),
                                                    'failures' => $this->failures,
                                                    'values'   => $values
-                                               ])
-                                               ->setDataEntryObject($this->o_definitions?->getDataEntryObject())
-                                               ->makeWarning();
+                                               ]);
             }
 
             Log::error('WARNING: SKIPPED FIELDS VALIDATION DUE TO "security.validation.enabled" = false CONFIGURATION! SYSTEM DATA MAY BE IN UNKNOWN STATE!');

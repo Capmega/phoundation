@@ -21,7 +21,7 @@ use GeoIp2\Exception\AddressNotFoundException;
 use GeoIp2\Model\City;
 use MaxMind\Db\Reader\InvalidDatabaseException;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\TraitDataDirectory;
+use Phoundation\Data\Traits\TraitDataObjectDirectory;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
@@ -34,7 +34,7 @@ use Throwable;
 
 class MaxMind extends GeoIp
 {
-    use TraitDataDirectory;
+    use TraitDataObjectDirectory;
 
 
     /**

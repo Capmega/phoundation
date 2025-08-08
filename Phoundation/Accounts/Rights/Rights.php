@@ -33,14 +33,15 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataAutoCreate;
 use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\EnumSeverity;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
-
 
 class Rights extends DataIterator implements RightsInterface
 {
@@ -48,11 +49,12 @@ class Rights extends DataIterator implements RightsInterface
 
 
     /**
-     * Roles class constructor
+     * Rights class constructor
      */
     public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
     {
-        $this->getQueryBuilderObject()->addSelect('`accounts_rights`.`id`, 
+        $this->setAcceptedDataTypes(RightInterface::class)
+             ->getQueryBuilderObject()->addSelect('`accounts_rights`.`id`, 
                                                    `accounts_rights`.`seo_name`, 
                                                    `accounts_rights`.`description`,
                                                    CONCAT(UPPER(LEFT(`accounts_rights`.`name`, 1)), SUBSTRING(`accounts_rights`.`name`, 2)) AS `right`, 
@@ -372,33 +374,39 @@ class Rights extends DataIterator implements RightsInterface
     /**
      * Returns true if the parent has the specified right
      *
-     * @param RightInterface $right
+     * @param RightInterface $o_right
      *
      * @return bool
      */
-    public function hasRight(RightInterface $right): bool
+    public function hasRight(RightInterface $o_right): bool
     {
         if (!$this->o_parent) {
             throw OutOfBoundsException::new('Cannot check if parent has the specified right, this rights list has no parent specified');
         }
+
         if ($this->o_parent instanceof UserInterface) {
             return (bool) sql()->getRow('SELECT `id` 
-                                            FROM   `accounts_users_rights` 
-                                            WHERE  `users_id`  = :users_id 
-                                            AND    `rights_id` = :rights_id', [
-                                                ':users_id'  => $this->o_parent->getId(),
-                                                ':rights_id' => $right->getId(),
+                                         FROM   `accounts_users_rights` 
+                                         WHERE  `users_id`  = :users_id 
+                                         AND    `rights_id` = :rights_id', [
+                ':users_id'  => $this->o_parent->getId(),
+                ':rights_id' => $o_right->getId(),
             ]);
         }
 
-        // No user? Then it must be a role
-        return (bool) sql()->getRow('SELECT `id` 
-                                        FROM   `accounts_roles_rights` 
-                                        WHERE  `roles_id`  = :roles_id 
-                                        AND    `rights_id` = :rights_id', [
-                                            ':roles_id'  => $this->o_parent->getId(),
-                                            ':rights_id' => $right->getId(),
-        ]);
+        if ($this->o_parent instanceof RoleInterface) {
+            // No user? Then it must be a role
+            return (bool) sql()->getRow('SELECT `id` 
+                                         FROM   `accounts_roles_rights` 
+                                         WHERE  `roles_id`  = :roles_id 
+                                         AND    `rights_id` = :rights_id', [
+                ':roles_id'  => $this->o_parent->getId(),
+                ':rights_id' => $o_right->getId(),
+            ]);
+        }
+
+        //
+        return $this->hasKey($o_right->getName());
     }
 
 
@@ -412,7 +420,11 @@ class Rights extends DataIterator implements RightsInterface
      */
     public function removeKeys(Stringable|array|string|int $keys, bool $strict = false): static
     {
-        return $this->removeValues($keys, strict: $strict);
+        if ($this->o_parent and (($this->o_parent instanceof UserInterface) or ($this->o_parent instanceof RoleInterface))) {
+            return $this->removeValues($keys, strict: $strict);
+        }
+
+        return parent::removeKeys($keys, $strict);
     }
 
 
@@ -477,6 +489,9 @@ class Rights extends DataIterator implements RightsInterface
 
                 // Delete the right from the internal list
                 parent::removeValues($o_right->getUniqueColumnValue(), strict: $strict);
+
+            } else {
+                parent::removeValues($needles, $column, $strict);
             }
         }
 
@@ -577,15 +592,20 @@ class Rights extends DataIterator implements RightsInterface
     /**
      * @inheritDoc
      */
-    public function setParentObject(DataEntryInterface $o_parent): static
+    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $o_parent): static
     {
+        // TODO This is a mess, redo parent management
         if (!$o_parent instanceof UserInterface) {
             if (!$o_parent instanceof RoleInterface) {
-                throw new DataEntryInvalidParentException(tr('Cannot attach parent ":parent" with id ":id" to ":class" class object, must be of type "UserInterface" or "RoleInterface"', [
-                    ':id'     => $o_parent->getLogId(),
-                    ':parent' => $o_parent::class,
-                    ':class'  => $this::class,
-                ]));
+                if (!$o_parent instanceof RenderInterface) {
+                    if (!$o_parent instanceof UrlInterface) {
+                        throw new DataEntryInvalidParentException(tr('Cannot attach parent ":parent" with id ":id" to ":class" class object, must be of type "UserInterface" or "RoleInterface"', [
+                            ':id'     => $o_parent->getLogId(),
+                            ':parent' => $o_parent::class,
+                            ':class'  => $this::class,
+                        ]));
+                    }
+                }
             }
         }
 
@@ -604,5 +624,90 @@ class Rights extends DataIterator implements RightsInterface
                      ->setName('rights_id')
                      ->setNotSelectedLabel(tr('Select a right'))
                      ->setComponentEmptyLabel(tr('No rights available'));
+    }
+
+
+    /**
+     * Returns true if the user has SOME of the specified rights
+     *
+     * @param array|string $rights
+     *
+     * @return bool
+     */
+    public function hasSome(array|string $rights): bool
+    {
+        if (!$rights) {
+            return true;
+        }
+
+        if (empty($this->rights) and ($this->getParentObject() instanceof DataEntryInterface) and $this->getParentObject()->isNew()) {
+            return false;
+        }
+
+        $contains = $this->containsKeys($rights, false, 'god');
+
+        if (!$contains) {
+            if ($this->getCount()) {
+                $this->ensureRightsExist($this->getMissing($rights));
+
+            } elseif (PLATFORM_CLI and ($this->getParentObject() instanceof UserInterface) and $this->getParentObject()->isSystem()) {
+                // System user has all rights
+                return true;
+            }
+        }
+
+        return $contains;
+    }
+
+
+    /**
+     * Returns true if the user has ALL the specified rights
+     *
+     * @param array|string $rights
+     * @param string|null  $always_match
+     *
+     * @return bool
+     */
+    public function hasAll(array|string $rights, ?string $always_match = 'god'): bool
+    {
+        if (!$rights) {
+            return true;
+        }
+
+        if (empty($this->rights) and ($this->getParentObject() instanceof DataEntryInterface) and $this->getParentObject()->isNew()) {
+            return false;
+        }
+
+        $contains = $this->containsKeys($rights, true, $always_match);
+
+        if (!$contains) {
+            if ($this->getCount()) {
+                $this->setAutoCreate(true)
+                     ->ensureRightsExist($this->getMissing($rights));
+
+            } elseif (PLATFORM_CLI and ($this->getParentObject() instanceof UserInterface) and $this->getParentObject()->isSystem()) {
+                // System user has all rights
+                return true;
+            }
+        }
+
+        return $contains;
+    }
+
+
+    /**
+     * Returns an array of what rights this user misses
+     *
+     * @param array|string $rights
+     *
+     * @return array
+     */
+    public function getMissing(array|string $rights): array
+    {
+        if (!$rights) {
+            return [];
+        }
+
+        return $this->getMissingKeys($rights, 'god');
     }
 }

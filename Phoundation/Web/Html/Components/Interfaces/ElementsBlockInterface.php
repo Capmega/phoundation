@@ -7,11 +7,10 @@ namespace Phoundation\Web\Html\Components\Interfaces;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\FormInterface;
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
-use Phoundation\Web\Html\Components\Span;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
 
-interface ElementsBlockInterface extends ComponentInterface, IteratorInterface
+interface ElementsBlockInterface extends ComponentInterface, ElementAttributesInterface, IteratorInterface
 {
     /**
      * Sets the content of the element to display
@@ -97,19 +96,19 @@ interface ElementsBlockInterface extends ComponentInterface, IteratorInterface
     /**
      * Returns the (optional) anchor for this element
      *
-     * @return AInterface
+     * @return AnchorInterface
      */
-    public function getAnchorObject(): AInterface;
+    public function getAnchorObject(): AnchorInterface;
 
 
     /**
      * Sets the anchor for this element
      *
-     * @param AInterface|null $o_anchor
+     * @param UrlInterface|AnchorInterface|null $o_anchor
      *
      * @return static
      */
-    public function setAnchorObject(?AInterface $o_anchor): static;
+    public function setAnchorObject(UrlInterface|AnchorInterface|null $o_anchor): static;
 
 
     /**

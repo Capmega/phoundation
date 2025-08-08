@@ -1207,7 +1207,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
     {
         $this->o_restrictions->check($this->source, false);
 
-        $result = glob($this->getRealPath(true) . $path . '*', $glob_flags);
+        $result = glob(Strings::ensureEndsWith($this->getRealPath(true), '/') . Strings::ensureBeginsNotWith($path, '/') . '*', $glob_flags);
         $return = [];
 
         // Apply file and directory patterns on each result
@@ -1561,7 +1561,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
     public function containFiles(): bool
     {
         return Find::new()
-                   ->setPath($this->source)
+                   ->setPathObject($this)
                    ->setType('f')
                    ->executeReturnIterator()
                    ->isNotEmpty();

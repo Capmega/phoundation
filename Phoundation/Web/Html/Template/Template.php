@@ -19,13 +19,12 @@ namespace Phoundation\Web\Html\Template;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Template\Exception\TemplateException;
 use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
 use Phoundation\Web\Html\Template\Interfaces\TemplatePageInterface;
 use Phoundation\Web\Requests\TemplatePage;
 use Plugins\Phoundation\Phoundation\Components\Menu;
-
 
 abstract class Template implements TemplateInterface
 {
@@ -151,7 +150,7 @@ abstract class Template implements TemplateInterface
      *
      * @return string|null
      */
-    public function getRendererClass(RenderInterface|string $class): ?string
+    public function getRenderClass(RenderInterface|string $class): ?string
     {
         while (true) {
             if (is_object($class)) {

@@ -50,9 +50,8 @@ use Phoundation\Exception\PhpException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Requests\Request;
-
 
 /**
  * Returns the value for the Nth array key
@@ -2228,6 +2227,28 @@ function containsHtml(Stringable|string $source, ?array $tags = null): bool
     }
 
     return false;
+}
+
+
+/**
+ * Adds an <hr> tag to the specified content IF content is not empty
+ *
+ * @param Stringable|string|null $content
+ * @param bool                   $before
+ *
+ * @return string|null
+ */
+function hr(Stringable|string|null $content, bool $before = true): ?string
+{
+    if (empty($content)) {
+        return $content;
+    }
+
+    if ($before) {
+        return '<hr>' . $content;
+    }
+
+    return $content . '<hr>';
 }
 
 

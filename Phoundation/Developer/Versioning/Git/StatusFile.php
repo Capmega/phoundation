@@ -170,11 +170,11 @@ class StatusFile extends PhoFileCore implements StatusFileInterface
     public function getPatchFile(): PhoFileInterface
     {
         if ($this->git_target) {
-            return Git::new($this->git_target->getParentDirectory())
+            return Git::new($this->git_target->getParentDirectoryObject())
                       ->saveDiff($this->git_target->getBasename());
         }
 
-        return Git::new($this->file->getParentDirectory())
+        return Git::new($this->file->getParentDirectoryObject())
                   ->saveDiff($this->file->getBasename());
     }
 }

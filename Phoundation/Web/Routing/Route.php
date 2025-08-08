@@ -22,6 +22,7 @@ use Phoundation\Accounts\Config\Config;
 use Phoundation\Accounts\Config\Exception\ConfigFileDoesNotExistsException;
 use Phoundation\Accounts\Config\Exception\ConfigParseFailedException;
 use Phoundation\Accounts\Users\Sessions\Session;
+use Phoundation\Cli\Exception\CliArgumentsException;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreStartupFailedException;
 use Phoundation\Core\Log\Log;
@@ -208,6 +209,13 @@ class Route
      */
     protected static ?array $regex_matches = null;
 
+    /**
+     * Tracks if this request is a favicon request or not
+     *
+     * @var bool $is_favicon_request
+     */
+    protected static bool $is_favicon_request = false;
+
 
     /**
      * Route class constructor
@@ -233,29 +241,58 @@ class Route
 
         Core::setScriptState();
 
-        // Cleanup the request URI by removing all GET requests and the leading slash, URIs cannot be longer than 255
-        // characters
-        //
-        // Deny URI's larger than 255 characters. If these are specified, automatically 404 because this is a hard coded
-        // limit. The reason for this is that the routes_static table columns currently only hold 255 characters and at
-        // the moment I see no reason why anyone would want more than 255 characters in their URL.
+        // Start web request logging with initial request information
         static::$method = $_SERVER['REQUEST_METHOD'];
         static::$ip     = Session::getIpAddress();
         static::$query  = Strings::from($_SERVER['REQUEST_URI'], '?');
         static::$url    = Strings::ensureBeginsNotWith($_SERVER['REQUEST_URI'], '/');
         static::$url    = Strings::until(static::$url, '?');
 
-        // Ensure the post-processing function is registered
-        Log::information(ts('[:method] ":url" from client ":client"', [
-            ':method' => static::$method,
-            ':url'    => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
-            ':client' => Session::getIpAddress() . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')'),
-        ]), 9);
+        if ($this->detectFaviconRequest()) {
+            // This is a favicon request that by default won't be logged, unless exceptions are encountered
+            // Ensure the post-processing function is registered
+            Log::information(ts('[:method] ":url" from client ":client" (Favicon request, logging disabled unless exception encountered)', [
+                ':method' => static::$method,
+                ':url'    => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
+                ':client' => Session::getIpAddress() . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')'),
+            ]), 9);
+            Log::disable();
+
+        } else {
+            // Log all other requests normally
+            Log::information(ts('[:method] ":url" from client ":client"', [
+                ':method' => static::$method,
+                ':url'    => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
+                ':client' => Session::getIpAddress() . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')'),
+            ]), 9);
+        }
 
         // Hide all request data, $_GET & $_POST, but NOT YET $_FILES!
         // Hiding $_FILES data requires the users_id and is done in Request::executeWebTarget()
         GetValidator::hideData();
         PostValidator::hideData();
+    }
+
+
+    /**
+     * Detects favicon requests and returns true if the current request is a favicon request
+     *
+     * @return bool
+     */
+    protected static function detectFaviconRequest(): bool
+    {
+        return static::$is_favicon_request = str_contains($_SERVER['REQUEST_URI'], '/favicon.') or str_contains($_SERVER['REQUEST_URI'], '/favicons/');
+    }
+
+
+    /**
+     * Returns true if the current request is a favicon request
+     *
+     * @return bool
+     */
+    public static function isFaviconRequest(): bool
+    {
+        return static::$is_favicon_request;
     }
 
 
@@ -279,6 +316,14 @@ class Route
 
             // Set environment and protocol
             Core::setEnvironment($environment);
+
+            // What units to use for binary numbers?
+            if (getenv('UNITS')) {
+                define('UNITS', getenv('UNITS'));
+
+            } else {
+                define('UNITS', config()->getStringUppercase('log.units', 'si'));
+            }
 
             // Register basic HTTP information
 //                    static::$register['http']['accepts'] = Request::accepts();
@@ -314,8 +359,7 @@ class Route
             umask(config()->get('filesystem.umask', 0007));
 
             // Set language and locale
-            Core::setLanguage();
-            Core::setLocale();
+            Core::setLanguageLocale();
 
             // Prepare for unicode usage
             if (Response::hasEncoding('UTF-8')) {

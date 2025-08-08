@@ -601,7 +601,7 @@ throw new UnderConstructionException(tr('IMPLEMENT FILE VALIDATIONS'));
      */
     public function render(): ?string
     {
-        Response::loadJavascript('vendor/dropzone/dropzone');
+        Response::loadJavaScript('vendor/dropzone/dropzone');
         $render = null;
 
         foreach ($this->source as $handler) {

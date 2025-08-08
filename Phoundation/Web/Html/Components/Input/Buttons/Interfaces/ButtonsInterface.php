@@ -78,9 +78,9 @@ interface ButtonsInterface extends ElementsBlockInterface
     /**
      * Returns the current button
      *
-     * @return Button
+     * @return ButtonInterface|DropdownButtonInterface
      */
-    public function current(): Button;
+    public function current(): ButtonInterface|DropdownButtonInterface;
 
 
     /**

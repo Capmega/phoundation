@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
-use Phoundation\Data\Traits\TraitDataDirectory;
+use Phoundation\Data\Traits\TraitDataObjectDirectory;
 use Phoundation\Data\Traits\TraitDataFile;
 use Phoundation\Data\Traits\TraitDataStringValue;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
@@ -26,7 +26,7 @@ use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 class Grep extends Command
 {
     use TraitDataFile;
-    use TraitDataDirectory;
+    use TraitDataObjectDirectory;
     use TraitDataStringValue;
 
     /**

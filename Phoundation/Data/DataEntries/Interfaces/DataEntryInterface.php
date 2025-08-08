@@ -252,11 +252,10 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * @param bool $filter_meta              If true, will filter out the DataEntry meta-columns
      * @param bool $filter_protected_columns If true, will filter out the DataEntry protected columns (typically
      *                                       passwords, etc)
-     * @param bool $as_is
      *
      * @return array
      */
-    public function getSource(bool $filter_meta = false, bool $filter_protected_columns = true, bool $as_is = false): array;
+    public function getSource(bool $filter_meta = false, bool $filter_protected_columns = true): array;
 
     /**
      * Set the status for this database entry

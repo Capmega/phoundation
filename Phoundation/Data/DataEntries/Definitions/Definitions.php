@@ -27,13 +27,13 @@ use Phoundation\Data\Traits\TraitDataPrefix;
 use Phoundation\Data\Traits\TraitDataReadonly;
 use Phoundation\Data\Traits\TraitDataTable;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Html\Traits\TraitButtons;
+use Phoundation\Web\Html\Traits\TraitObjectButtons;
 use Stringable;
 
 
 class Definitions extends IteratorCore implements DefinitionsInterface
 {
-    use TraitButtons;
+    use TraitObjectButtons;
     use TraitDataDataEntry;
     use TraitDataTable;
     use TraitDataReadonly;

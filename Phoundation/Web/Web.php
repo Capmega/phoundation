@@ -101,7 +101,7 @@ class Web
 //
 //        // Do language mapping, but only if routemap has been set
 //// :TODO: This will fail when using multiple CDN servers (WHY?)
-//        if (!empty(config()->get('locale.language.supported', [])) and ($domain !== config()->get('cdn.domain', '') . '/')) {
+//        if (!empty(config()->get('locale.languages.supported', [])) and ($domain !== config()->get('cdn.domain', '') . '/')) {
 //            if ($from_language !== 'en') {
 //                /*
 //                 * Translate the current non-English URL to English first
@@ -185,7 +185,7 @@ class Web
 //     * @return string the URL
 //     *@author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
 //     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
-//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+//     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
 //     * @see getDomain()
@@ -202,7 +202,7 @@ class Web
 //     *
 //     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
 //     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
-//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+//     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
 //     * @see getDomain()

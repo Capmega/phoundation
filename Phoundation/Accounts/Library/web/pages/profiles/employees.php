@@ -8,7 +8,7 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Web
+ * @package   Phoundation\Accounts
  */
 
 
@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Accounts\Users\Users;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Url;
@@ -24,11 +24,11 @@ use Phoundation\Web\Requests\Response;
 
 // Set page meta data
 Response::setHeaderTitle(tr('Employees'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/'              => tr('Home'),
-                                                           '/profiles.html' => tr('Profiles'),
-                                                           ''               => tr('Employees'),
-                                                       ]));
+Response::setBreadcrumbs([
+   Anchor::new('/'             , tr('Home')),
+   Anchor::new('/profiles.html', tr('Profiles')),
+   Anchor::new(''              , tr('Employees')),
+]);
 
 
 $template = '   <div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch flex-column">
@@ -57,8 +57,9 @@ $template = '   <div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch 
                         <a href="#" class="btn btn-sm bg-teal">
                           <i class="fas fa-comments"></i>
                         </a>
-                        <a href="' . Url::new('profiles/profile+:id.html')->makeWww() . '" class="btn btn-sm btn-primary">
-                          <i class="fas fa-user"></i> View Profile
+                        ' . Anchor::new(Url::new('profiles/profile+:id.html'))
+                                  ->setContent('<i class="fas fa-user"></i> ' . tr('View Profile'))
+                                  ->setClass('btn btn-sm btn-primary') . '
                         </a>
                       </div>
                     </div>

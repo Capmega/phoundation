@@ -33,19 +33,18 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Seo;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
-use Phoundation\Web\Html\Components\A;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Div;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
-use Phoundation\Web\Html\Components\Interfaces\AInterface;
+use Phoundation\Web\Html\Components\Interfaces\AnchorInterface;
 use Phoundation\Web\Html\Components\Interfaces\DivInterface;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Span;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Interfaces\TooltipInterface;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Tooltip;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
-
 
 trait TraitElementAttributes
 {
@@ -218,9 +217,9 @@ trait TraitElementAttributes
     /**
      * A possible anchor around this element
      *
-     * @var AInterface|null $o_anchor
+     * @var AnchorInterface|null $o_anchor
      */
-    protected ?AInterface $o_anchor = null;
+    protected ?AnchorInterface $o_anchor = null;
 
     /**
      * Contains data, arguments, classes, etc for the element around this element, if needed
@@ -285,12 +284,12 @@ trait TraitElementAttributes
     /**
      * Returns the (optional) anchor for this element
      *
-     * @return AInterface
+     * @return AnchorInterface
      */
-    public function getAnchorObject(): AInterface
+    public function getAnchorObject(): AnchorInterface
     {
         if (empty($this->o_anchor)) {
-            $this->o_anchor = A::new()->setChildElement($this);
+            $this->o_anchor = Anchor::new()->setChildElement($this);
         }
 
         return $this->o_anchor;
@@ -300,15 +299,15 @@ trait TraitElementAttributes
     /**
      * Sets the anchor for this element
      *
-     * @param UrlInterface|AInterface|null $o_anchor
+     * @param UrlInterface|AnchorInterface|null $o_anchor
      *
      * @return Span
      */
-    public function setAnchorObject(UrlInterface|AInterface|null $o_anchor): static
+    public function setAnchorObject(UrlInterface|AnchorInterface|null $o_anchor): static
     {
         if ($o_anchor) {
             if ($o_anchor instanceof UrlInterface) {
-                $o_anchor = A::new()->setHref($o_anchor);
+                $o_anchor = Anchor::new()->setHref($o_anchor);
             }
 
             $this->o_anchor = $o_anchor->setChildElement($this);

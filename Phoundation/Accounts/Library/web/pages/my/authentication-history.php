@@ -21,7 +21,8 @@ use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\PhoDateTime;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
+use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -77,17 +78,17 @@ $authentications_card = Card::new()
 
 
 // Build relevant links
-$relevant_card = Card::new()
+$o_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::new('/my/profile.html')->makeWww() . '">' . tr('Manage my profile') . '</a><br>
-                                   <a href="' . Url::new('/my/settings.html')->makeWww() . '">' . tr('Manage my settings') . '</a><br>
-                                   <a href="' . Url::new('/my/password.html')->makeWww() . '">' . tr('Change my password') . '</a><br>                                 
-                                   <a href="' . Url::new('/mfa/create.html')->makeWww()->addRedirect(Url::newCurrent()) . '">' . tr('Setup multi factor authentication') . '</a><br>');
+                     ->setContent(AnchorBlock::new(Url::new('/my/profile.html')->makeWww(), tr('Manage my profile')) .
+                                  AnchorBlock::new(Url::new('/my/settings.html')->makeWww(), tr('Manage my settings')) .
+                                  AnchorBlock::new(Url::new('/my/password.html')->makeWww(), tr('Change my password')) .
+                                  AnchorBlock::new(Url::new('/mfa/create.html')->makeWww()->addRedirect(Url::newCurrent()), tr('Setup multi factor authentication')));
 
 
 // Build documentation
-$documentation_card = Card::new()
+$o_documentation_card = Card::new()
                           ->setMode(EnumDisplayMode::info)
                           ->setTitle(tr('Documentation'))
                           ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
@@ -95,14 +96,14 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Authentications management'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'        => tr('Home'),
-    '/my.html' => tr('My'),
-    ''         => tr('Authentications history'),
-]));
+Response::setBreadcrumbs([
+    Anchor::new('/'       , tr('Home')),
+    Anchor::new('/my.html', tr('My')),
+    Anchor::new(''        , tr('Authentications history')),
+]);
 
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($filters_card  . '<br>' . $authentications_card, EnumDisplaySize::nine)
-           ->addGridColumn($relevant_card . '<br>' . $documentation_card  , EnumDisplaySize::three);
+           ->addGridColumn($filters_card  . $authentications_card, EnumDisplaySize::nine)
+           ->addGridColumn($o_relevant_card . $o_documentation_card  , EnumDisplaySize::three);

@@ -8,7 +8,7 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Web
+ * @package   Phoundation\Accounts
  */
 
 
@@ -21,10 +21,10 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Forms\Form;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Requests\Request;
@@ -43,16 +43,16 @@ $user = User::new()->load($get['id']);
 // Set page meta data
 Response::setHeaderTitle(tr('Profile'));
 Response::setHeaderSubTitle($user->getDisplayName());
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                        => tr('Home'),
-    '/profiles.html'           => tr('Profiles'),
-    '/profiles/employees.html' => tr('Employees'),
-    ''                         => $user->getDisplayName(),
-]));
+Response::setBreadcrumbs([
+    Anchor::new('/'                       , tr('Home')),
+    Anchor::new('/profiles.html'          , tr('Profiles')),
+    Anchor::new('/profiles/employees.html', tr('Employees')),
+    Anchor::new(''                        , $user->getDisplayName()),
+]);
 
 
 if (Session::getUserObject()->hasAllRights(['accounts'])) {
-// Validate POST and submit
+    // Validate POST and submit
     if (Request::isPostRequestMethod()) {
         try {
             switch (PostValidator::new()->getSubmitButton()) {
@@ -83,6 +83,7 @@ if (Session::getUserObject()->hasAllRights(['accounts'])) {
 
                     Response::redirect('root');
             }
+
         } catch (IncidentsException | ValidationFailedException | AccessDeniedException $e) {
             // Oops! Show validation errors and remain on page
             Response::getFlashMessagesObject()->addMessage($e);

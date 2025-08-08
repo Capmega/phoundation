@@ -14,22 +14,22 @@
 
 declare(strict_types=1);
 
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Requests\Response;
 
 
 // Set page meta data
 Response::setHeaderTitle(tr('Kanban board'));
 Response::setHeaderSubTitle(tr('Demo'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/'           => tr('Home'),
-                                                           '/demos.html' => tr('Demos'),
-                                                           ''            => tr('Kanban board'),
-                                                       ]));
+Response::setBreadcrumbs([
+   Anchor::new('/'          , tr('Home')),
+   Anchor::new('/demos.html', tr('Demos')),
+   Anchor::new(''           , tr('Kanban board')),
+]);
 
 Response::loadCss('/adminlte/plugins/ekko-lightbox/ekko-lightbox');
-Response::loadJavascript('/adminlte/plugins/ekko-lightbox/ekko-lightbox');
-Response::loadJavascript('/adminlte/plugins/filterizr/jquery.filterizr');
+Response::loadJavaScript('/adminlte/plugins/ekko-lightbox/ekko-lightbox');
+Response::loadJavaScript('/adminlte/plugins/filterizr/jquery.filterizr');
 
 // The content wrapper class for this page is slightly different
 Response::setClass('content-wrapper kanban', 'content-wrapper');

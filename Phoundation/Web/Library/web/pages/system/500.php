@@ -44,7 +44,7 @@ Response::setRenderMainWrapper(false);
 Response::setPageTitle('500 - Internal Server Error');
 Response::setHeaderTitle(tr('500 - Error'));
 Response::setDescription(tr('The server encountered an internal error and could not fulfill your request'));
-Response::setBreadCrumbs();
+Response::setBreadcrumbs();
 
 
 // Render and return the system page

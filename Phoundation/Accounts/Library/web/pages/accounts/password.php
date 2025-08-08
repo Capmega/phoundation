@@ -21,8 +21,9 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Passwords\Exception\NoPasswordSpecifiedException;
 use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
 use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
+use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -40,7 +41,7 @@ $get = GetValidator::new()
 
 
 // Load user and get password
-$user     = User::new()->load($get['id']);
+$user     = User::new($get['id']);
 $password = $user->getPasswordObject();
 
 
@@ -102,16 +103,16 @@ $column = GridColumn::new()
 
 
 // Build relevant links
-$relevant_card = Card::new()
+$o_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::new('/accounts/user+' . $user->getId() . '.html')->makeWww() . '">' . tr('Modify profile for this user') . '</a><br>
-                                   <a href="' . Url::new('/accounts/roles.html')->makeWww() . '">' . tr('Roles management') . '</a><br>
-                                   <a href="' . Url::new('/accounts/rights.html')->makeWww() . '">' . tr('Rights management') . '</a>');
+                     ->setContent(AnchorBlock::new('/accounts/user+' . $user->getId() . '.html', tr('Modify profile for this user')) .
+                                  AnchorBlock::new('/accounts/roles.html'                      , tr('Manage roles')) .
+                                  AnchorBlock::new('/accounts/rights.html'                     , tr('Manage rights')));
 
 
 // Build documentation
-$documentation_card = Card::new()
+$o_documentation_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Documentation'))
                      ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
@@ -122,15 +123,16 @@ $documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Change password'));
 Response::setHeaderSubTitle($user->getDisplayName());
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                                          => tr('Home'),
-    '/accounts/users.html'                       => tr('Users'),
-    '/accounts/user+' . $user->getId() . '.html' => $user->getDisplayName(),
-    ''                                           => tr('Modify password'),
-]));
+Response::setBreadcrumbs([
+    Anchor::new('/'                                         , tr('Home')),
+    Anchor::new('/accounts.html'                            , tr('Accounts')),
+    Anchor::new('/accounts/users.html'                      , tr('Users')),
+    Anchor::new('/accounts/user+' . $user->getId() . '.html', $user->getDisplayName()),
+    Anchor::new(''                                          , tr('Modify password'))
+]);
 
 
 // Render and return the page grid
 return Grid::new()
            ->addGridColumn($column)
-           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

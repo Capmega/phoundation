@@ -240,6 +240,6 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
      */
     public function getPatchFile(bool $cached = false): PhoFileInterface
     {
-        return Git::new($this->directory->getParentDirectory())->saveDiff($this->directory->getBasename(), $cached);
+        return Git::new($this->directory->getParentDirectoryObject())->saveDiff($this->directory->getBasename(), $cached);
     }
 }

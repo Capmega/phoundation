@@ -39,7 +39,7 @@ class Tar extends Command
     {
         try {
             if (!$target) {
-                $target = $file->getParentDirectory();
+                $target = $file->getParentDirectoryObject();
             }
 
             $this->setExecutionDirectory($target)
@@ -77,7 +77,7 @@ class Tar extends Command
                 $target = new PhoFile($path . '.tar.gz');
             }
 
-            $this->setExecutionDirectory($path->getParentDirectory())
+            $this->setExecutionDirectory($path->getParentDirectoryObject())
                  ->setCommand('tar')
                  ->addArguments(['-c', ($compression ? 'j' : null), '-f'])
                  ->addArguments($target)

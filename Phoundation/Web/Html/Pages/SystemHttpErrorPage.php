@@ -117,7 +117,7 @@ class SystemHttpErrorPage extends Page
     {
         $this->__setName($name);
 
-        $renderer_class = Request::getTemplateObject()->getRendererClass($this);
+        $renderer_class = Request::getTemplateObject()->getRenderClass($this);
 
         if ($renderer_class) {
             $this->source = $renderer_class::new($this)->render();

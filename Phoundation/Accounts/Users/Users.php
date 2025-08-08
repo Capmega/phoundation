@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
 
+use PDOStatement;
 use Phoundation\Accounts\Rights\Interfaces\RightInterface;
 use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
 use Phoundation\Accounts\Roles\Role;
@@ -37,16 +38,29 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Img;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Components\Widgets\Badge;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Html;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
-
 
 class Users extends DataIterator implements UsersInterface
 {
+    /**
+     * Users class constructor
+     *
+     * @param IteratorInterface|array|string|PDOStatement|null $source
+     */
+    public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null) {
+        $this->setAcceptedDataTypes(UserInterface::class);
+
+        parent::__construct($source);
+    }
+
+
     /**
      * Returns the table name used by this object
      *
@@ -243,7 +257,11 @@ class Users extends DataIterator implements UsersInterface
      */
     public function removeKeys(Stringable|array|string|int $keys, bool $strict = false): static
     {
-        return $this->removeValues($keys, strict: $strict);
+        if ($this->o_parent and (($this->o_parent instanceof RoleInterface) or ($this->o_parent instanceof RightInterface))) {
+            return $this->removeValues($keys, strict: $strict);
+        }
+
+        return parent::removeKeys($keys, $strict);
     }
 
 
@@ -302,6 +320,9 @@ class Users extends DataIterator implements UsersInterface
 
                 // Remove user from the internal list
                 parent::removeKeys($o_user->getUniqueColumnValue(), $strict);
+
+            } else {
+                parent::removeValues($needles, $column, $strict);
             }
         }
 
@@ -660,7 +681,7 @@ class Users extends DataIterator implements UsersInterface
     /**
      * @inheritDoc
      */
-    public function setParentObject(DataEntryInterface $o_parent): static
+    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $o_parent): static
     {
         if (!$o_parent instanceof RightInterface) {
             if (!$o_parent instanceof RoleInterface) {

@@ -22,7 +22,7 @@ use Stringable;
 trait TraitStaticMethodNewStringContent
 {
     /**
-     * Returns a new class
+     * Returns a new static class
      *
      * @param Stringable|string|null $content
      *

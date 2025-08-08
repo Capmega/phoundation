@@ -62,6 +62,7 @@ use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoPath;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
@@ -71,6 +72,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Plugins\Medinet\Utils\Exception\InvalidPhnException;
 use Plugins\Medinet\Utils\Exception\PhnRequiredException;
@@ -1425,9 +1427,16 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             return $this;
         }
 
-        throw new ValidatorException(tr('The ":class" data has not been completely validated', [
-            ':class' => Strings::from(static::class, '\\')
-        ]));
+        throw ValidatorException::new(tr('The ":class" data has not been completely validated. Check the executed program ":program" to see if it executes validation correctly and completely', [
+            ':class'   => Strings::from(static::class, '\\'),
+            ':program' => Request::getExecutedFile(),
+        ]))->setData([
+            'require_clean_source' => Strings::fromBoolean($require_clean_source),
+            'has_been_validated'   => Strings::fromBoolean(static::$has_been_validated),
+            'unclean'              => static::$unclean,
+            'executed_program'     => Request::getExecutedFile(),
+            'validator_source'     => $this->source,
+        ]);
     }
 
 
@@ -4538,6 +4547,7 @@ throw new ObsoleteException();
         } else {
             // Okay, we shouldn't check if it exists IN a directly but does it exists at all?
             $does_exist = file_exists($path);
+            $test       = $class::new($path, PhoRestrictions::new($path));
         }
 
         if (empty($does_exist)) {

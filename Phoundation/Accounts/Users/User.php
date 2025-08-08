@@ -20,7 +20,8 @@ namespace Phoundation\Accounts\Users;
 use DateTimeInterface;
 use Phoundation\Accounts\Enums\EnumAuthenticationAction;
 use Phoundation\Accounts\Exception\AccountsException;
-use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
+use Phoundation\Accounts\Rights\Interfaces\RightInterface;
+use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Rights\RightsBySeoName;
 use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
@@ -56,7 +57,6 @@ use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
-use Phoundation\Data\DataEntries\Exception\DataEntryNotSavedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
@@ -83,6 +83,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryVerificationCode;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryVerifiedOn;
 use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Traits\TraitDataObjectRightsBySeoName;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
@@ -139,35 +140,32 @@ class User extends DataEntry implements UserInterface
     use TraitDataEntryVerifiedOn;
     use TraitDataEntryMfaCode;
     use TraitDataEntryMfaTimeslice;
+    use TraitDataObjectRightsBySeoName {
+        addRight    as protected __addRight;
+        removeRight as protected __removeRight;
+    }
 
 
     /**
      * The extra email addresses for this user
      *
-     * @var EmailsInterface $emails
+     * @var EmailsInterface $o_emails
      */
-    protected EmailsInterface $emails;
+    protected EmailsInterface $o_emails;
 
     /**
      * The extra phones for this user
      *
-     * @var PhonesInterface $phones
+     * @var PhonesInterface $o_phones
      */
-    protected PhonesInterface $phones;
+    protected PhonesInterface $o_phones;
 
     /**
      * The roles for this user
      *
-     * @var RolesInterface $roles
+     * @var RolesInterface $o_roles
      */
-    protected RolesInterface $roles;
-
-    /**
-     * The rights for this user
-     *
-     * @var RightsInterface $rights
-     */
-    protected RightsInterface $rights;
+    protected RolesInterface $o_roles;
 
     /**
      * Columns that will NOT be inserted
@@ -315,7 +313,7 @@ class User extends DataEntry implements UserInterface
     /**
      * Returns a single user object for a single user that has the specified role.
      *
-     * @note Will throw a NotExistsException if the specified role does not exist
+     * @note Will throw a NotExistsException if the specified role doesn't exist
      *
      * @param RoleInterface|array|string|int $role
      *
@@ -420,7 +418,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             }
         }
 
-        // Could not load user from alternative email address
+        // Couldn't load user from alternative email address
         return null;
     }
 
@@ -873,9 +871,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      * @param string|null $comments
      *
      * @return static
+     * @todo This method should also save all sub data like roles, emails, phones, etc...
      */
     public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
+Log::backtrace();
         Log::action(ts('Saving user ":user"', [':user' => $this->getDisplayName()]));
 
         if ($this->readonly or $this->disabled) {
@@ -899,8 +899,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                         ]))
                         ->setDetails([
                             ':modify' => $this->getLogId(),
-                            ':user'   => Session::getUserObject()
-                                                ->getSource(),
+                            ':user'   => Session::getUserObject()->getSource(),
                         ])
                         ->setNotifyRoles('accounts')
                         ->save()
@@ -1071,7 +1070,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                  ]))
                  ->setMessage(tr('An account has been created on :project by :user. To enter the system, you can click the link :link or copy/paste the :url in your browser. This will immediately take you to your account where you only have to enter your desired password', [
                      ':url'     => $key->getUrl(),
-                     ':link'    => '<a href="' . $key->getUrl() . '">' . tr('here') . '</a>',
+                     ':link'    => Anchor::new($key->getUrl(), tr('here')),
                      ':user'    => Session::getUserObject()
                                           ->getDisplayName(),
                      ':project' => config()->getString('project.name', 'Phoundation'),
@@ -1134,13 +1133,14 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         if ($this->getEmail()) {
             $user   = Strings::until($this->getEmail(), '@');
             $domain = Strings::from($this->getEmail(), '@');
+
             return substr($user, 0, 1) . substr($domain, 0, 1);
         }
 
         if (!($name = $this->getId(false))) {
             if ($this->getId(false) === -1) {
                 // This is the guest user
-                $name = tr('G');
+                $name = tr('[G]');
 
             } else {
                 // This is a new user
@@ -1233,122 +1233,6 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
 
     /**
-     * Returns true if the user has SOME of the specified rights
-     *
-     * @param array|string $rights
-     *
-     * @return bool
-     */
-    public function hasSomeRights(array|string $rights): bool
-    {
-        if (!$rights) {
-            return true;
-        }
-
-        if (empty($this->rights) and $this->isNew()) {
-            return false;
-        }
-
-        $contains = $this->getRightsObject()->containsKeys($rights, false, 'god');
-
-        if (!$contains) {
-            if ($this->getRightsObject()->getCount()) {
-                $this->getRightsObject()->ensureRightsExist($this->getMissingRights($rights));
-
-            } else {
-                if ($this->isSystem()) {
-                    // System user has all rights
-                    return true;
-                }
-            }
-        }
-
-        return $contains;
-    }
-
-
-    /**
-     * Returns true if the user has ALL the specified rights
-     *
-     * @param array|string $rights
-     * @param string|null  $always_match
-     *
-     * @return bool
-     */
-    public function hasAllRights(array|string $rights, ?string $always_match = 'god'): bool
-    {
-        if (!$rights) {
-            return true;
-        }
-
-        if (empty($this->rights) and $this->isNew()) {
-            return false;
-        }
-
-        $contains = $this->getRightsObject()->containsKeys($rights, true, $always_match);
-
-        if (!$contains) {
-            if ($this->getRightsObject()->getCount()) {
-                $this->getRightsObject()
-                     ->setAutoCreate(true)
-                     ->ensureRightsExist($this->getMissingRights($rights));
-
-            } else {
-                if (PLATFORM_CLI and $this->isSystem()) {
-                    // System user has all rights
-                    return true;
-                }
-            }
-        }
-
-        return $contains;
-    }
-
-
-    /**
-     * Returns the roles for this user
-     *
-     * @param bool $reload
-     * @param bool $order
-     *
-     * @return RightsInterface
-     */
-    public function getRightsObject(bool $reload = false, bool $order = false): RightsInterface
-    {
-        if ($this->isNew()) {
-            throw new AccountsException(tr('Cannot access rights for user ":user", the user has not yet been saved', [
-                ':user' => $this->getLogId(),
-            ]));
-        }
-
-        if (empty($this->rights) or $reload) {
-            $this->rights = RightsBySeoName::new()
-                                           ->setParentObject($this)
-                                           ->load($order ? ['$order' => ['right' => 'asc']] : null);
-        }
-
-        return $this->rights;
-    }
-
-
-    /**
-     * Returns an array of what rights this user misses
-     *
-     * @param array|string $rights
-     *
-     * @return array
-     */
-    public function getMissingRights(array|string $rights): array
-    {
-        if (!$rights) {
-            return [];
-        }
-
-        return $this->getRightsObject()->getMissingKeys($rights, 'god');
-    }
-
-
-    /**
      * Authenticates the specified user id / email with its password
      *
      * @param string $key
@@ -1437,18 +1321,18 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             ]));
         }
 
-        if (!isset($this->roles)) {
+        if (!isset($this->o_roles)) {
             if ($this->getId(false)) {
-                $this->roles = RolesBySeoName::new()
-                                             ->setParentObject($this)
-                                             ->load();
+                $this->o_roles = RolesBySeoName::new()
+                                               ->setParentObject($this)
+                                               ->load();
 
             } else {
-                $this->roles = RolesBySeoName::new()->setParentObject($this);
+                $this->o_roles = RolesBySeoName::new()->setParentObject($this);
             }
         }
 
-        return $this->roles;
+        return $this->o_roles;
     }
 
 
@@ -1674,7 +1558,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             // Update password immediately
             $date_time = new PhoDateTime('1970');
 
-        } elseif ($date_time) {
+        } elseif ($date_time instanceof DateTimeInterface) {
             $date_time = $date_time->getTimestamp();
         }
 
@@ -2384,19 +2268,19 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function getEmailsObject(): EmailsInterface
     {
-        if (!isset($this->emails)) {
+        if (!isset($this->o_emails)) {
             if ($this->isNew()) {
-                $this->emails = Emails::new()->setParentObject($this);
+                $this->o_emails = Emails::new()->setParentObject($this);
 
             } else {
-                $this->emails = Emails::new()
-                                      ->setParentObject($this)
-                                      ->load();
+                $this->o_emails = Emails::new()
+                                        ->setParentObject($this)
+                                        ->load();
             }
 
         }
 
-        return $this->emails;
+        return $this->o_emails;
     }
 
 
@@ -2419,18 +2303,18 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function getPhonesObject(): PhonesInterface
     {
-        if (!isset($this->phones)) {
+        if (!isset($this->o_phones)) {
             if ($this->isNew()) {
-                $this->phones = Phones::new()->setParentObject($this);
+                $this->o_phones = Phones::new()->setParentObject($this);
 
             } else {
-                $this->phones = Phones::new()
-                                      ->setParentObject($this)
-                                      ->load();
+                $this->o_phones = Phones::new()
+                                        ->setParentObject($this)
+                                        ->load();
             }
         }
 
-        return $this->phones;
+        return $this->o_phones;
     }
 
 
@@ -2798,8 +2682,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         $this->source['email']    = 'system';
         $this->source['nickname'] = tr('System');
 
-        $this->roles  = RolesBySeoName::new()->load(['name' => 'god']);
-        $this->rights = RightsBySeoName::new()->load(['name' => 'god']);
+        $this->o_roles  = RolesBySeoName::new()->load(['name' => 'god']);
+        $this->o_rights = RightsBySeoName::new()->load(['name' => 'god']);
 
         return $this;
     }
@@ -2947,32 +2831,41 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                       ->setInputType(EnumInputType::number))
 
                       ->add(Definition::new('last_sign_in')
+                                      ->setOptional(true)
+                                      ->setDisabled(true)
+                                      ->setRender(function() { return !$this->isNew(); })
+                                      ->setInputType(EnumInputType::datetime_local)
+                                      ->setDbNullInputType(EnumInputType::text)
+                                      ->addClasses('text-center')
+                                      ->setSize(3)
+                                      ->setNullDisplay(tr('Never signed yet'))
+                                      ->setLabel('Last sign in'))
+
+                    ->add(Definition::new('update_password')
                                     ->setOptional(true)
                                     ->setDisabled(true)
                                     ->setRender(function() { return !$this->isNew(); })
                                     ->setInputType(EnumInputType::datetime_local)
-                                    ->setDbNullInputType(EnumInputType::text)
                                     ->addClasses('text-center')
-                                    ->setSize(3)
-                                    ->setNullDisplay(tr('Never signed yet'))
-                                    ->setLabel('Last sign in'))
+                                    ->setSize(2)
+                                    ->setLabel(tr('Password last updated on')))
 
                     ->add(DefinitionFactory::newNumber('sign_in_count')
-                                    ->setOptional(true, 0)
-                                    ->setDisabled(true)
-                                    ->setRender(function() { return !$this->isNew(); })
-                                    ->addClasses('text-center')
-                                    ->setSize(3)
-                                    ->setLabel(tr('Sign in count')))
+                                           ->setOptional(true, 0)
+                                           ->setDisabled(true)
+                                           ->setRender(function() { return !$this->isNew(); })
+                                           ->addClasses('text-center')
+                                           ->setSize(2)
+                                           ->setLabel(tr('Sign in count')))
 
                     ->add(DefinitionFactory::newNumber('authentication_failures')
-                                    ->setOptional(true, 0)
-                                    ->setDisabled(true)
-                                    ->setRender(function() { return !$this->isNew(); })
-                                    ->setMin(0)
-                                    ->addClasses('text-center')
-                                    ->setSize(3)
-                                    ->setLabel(tr('Authentication failures')))
+                                           ->setOptional(true, 0)
+                                           ->setDisabled(true)
+                                           ->setRender(function() { return !$this->isNew(); })
+                                           ->setMin(0)
+                                           ->addClasses('text-center')
+                                           ->setSize(2)
+                                           ->setLabel(tr('Authentication failures')))
 
                     ->add(Definition::new('locked_until')
                                     ->setOptional(true)
@@ -2984,15 +2877,6 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->addClasses('text-center')
                                     ->setSize(3)
                                     ->setLabel(tr('Locked until')))
-
-                    ->add(Definition::new('update_password')
-                                    ->setOptional(true)
-                                    ->setDisabled(true)
-                                    ->setRender(function() { return !$this->isNew(); })
-                                    ->setInputType(EnumInputType::datetime_local)
-                                    ->addClasses('text-center')
-                                    ->setSize(3)
-                                    ->setLabel(tr('Password last updated on')))
 
                     ->add(DefinitionFactory::newDivider()
                                            ->setRender(function() {

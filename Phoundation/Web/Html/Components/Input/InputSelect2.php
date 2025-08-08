@@ -35,7 +35,7 @@ class InputSelect2 extends InputSelect
 
         Response::loadCss('css/plugins/select2/css/select2');
         Response::loadCss('css/plugins/select2-bootstrap4-theme/select2-bootstrap4');
-        Response::loadJavascript('js/plugins/select2/js/select2.full');
+        Response::loadJavaScript('js/plugins/select2/js/select2.full');
     }
 
 

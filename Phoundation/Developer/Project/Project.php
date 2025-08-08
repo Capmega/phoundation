@@ -43,11 +43,13 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;
+use Phoundation\Filesystem\PhoPath;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Os\Processes\Commands\Command;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Os\Processes\Commands\Rsync;
+use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Arrays;
@@ -1041,17 +1043,19 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
     {
 // TODO Implement
         $skip = false;
+
         if ($skip) {
             Log::action(ts('Caching all Phoundation libraries'));
             Find::new()
-                ->setPath(DIRECTORY_ROOT . 'Phoundation/')
-                ->setFilenameFilter('*.php')
-                ->setExecuteOnEach(function (string $file) {
+                ->setPathObject(PhoPath::new(DIRECTORY_ROOT . 'Phoundation/'))
+                ->setName('*.php')
+                ->setCallback(function (string $file) {
                     Log::dot(25);
                     @include($file);
                 })
-                ->execute();
+                ->execute(EnumExecuteMethod::noReturn);
             Log::dot(true);
+
         } else {
             Log::warning(ts('Not caching Phoundation libraries'));
         }

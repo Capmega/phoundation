@@ -6,9 +6,9 @@
  * This page will display the requested notification, and mark it as read
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 
 
@@ -18,9 +18,10 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Notifications\Notification;
+use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -79,17 +80,16 @@ $notification_card = Card::new()
 
 
 // Build relevant links
-$relevant_card = Card::new()
+$o_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::new('/notifications/all.html')->makeWww() . '">' . tr('All notifications') . '</a><br>
-                                   <a href="' . Url::new('/notifications/unread.html')->makeWww() . '">' . tr('Unread notifications') . '</a><br>
-                                   <hr>
-                                   <a href="' . Url::new('/security/incidents.html')->makeWww() . '">' . tr('Security incidents') . '</a>');
+                     ->setContent(AnchorBlock::new(Url::new('/notifications/all.html')->makeWww(), tr('All notifications')) .
+                                  AnchorBlock::new(Url::new('/notifications/unread.html')->makeWww(), tr('Unread notifications')) .
+                                  hr(AnchorBlock::new(Url::new('/security/incidents.html')->makeWww(), tr('Security incidents'))));
 
 
 // Build documentation
-$documentation_card = Card::new()
+$o_documentation_card = Card::new()
                           ->setMode(EnumDisplayMode::info)
                           ->setTitle(tr('Documentation'))
                           ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
@@ -100,17 +100,17 @@ $documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Notification'));
 Response::setHeaderSubTitle($notification->getDisplayId());
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                       => tr('Home'),
-    '/notifications/all.html' => tr('Notifications'),
-    ''                        => tr(':id [:title]', [
+Response::setBreadcrumbs([
+    Anchor::new('/'                      , tr('Home')),
+    Anchor::new('/notifications/all.html', tr('Notifications')),
+    Anchor::new(''                       , tr(':id [:title]'), [
         ':title' => $notification->getTitle(),
         ':id'    => $notification->getDisplayId()
     ])
-]));
+]);
 
 
 // Render and return the page grid
 return Grid::new()
            ->addGridColumn($notification_card                  , EnumDisplaySize::nine, true)
-           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

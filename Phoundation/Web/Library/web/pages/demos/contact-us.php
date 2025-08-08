@@ -14,19 +14,18 @@
 
 declare(strict_types=1);
 
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Requests\Response;
 
 
 // Set page meta data
 Response::setHeaderTitle(tr('Contact us'));
 Response::setHeaderSubTitle(tr('Demo'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/'           => tr('Home'),
-                                                           '/demos.html' => tr('Demos'),
-                                                           ''            => tr('Contact us'),
-                                                       ]));
-
+Response::setBreadcrumbs([
+   Anchor::new('/'          , tr('Home')),
+   Anchor::new('/demos.html', tr('Demos')),
+   Anchor::new(''           , tr('Contact us')),
+]);
 ?>
 <!-- Main content -->
 <section class="content">

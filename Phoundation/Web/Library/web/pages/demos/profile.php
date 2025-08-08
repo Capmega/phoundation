@@ -15,20 +15,21 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Sessions\Session;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
+
 // Set page meta data
 Response::setHeaderTitle(tr('Profile'));
 Response::setHeaderSubTitle(tr('Demo'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/'           => tr('Home'),
-                                                           '/demos.html' => tr('Demos'),
-                                                           ''            => tr('Profile'),
-                                                       ]));
+Response::setBreadcrumbs([
+   Anchor::new('/'          , tr('Home')),
+   Anchor::new('/demos.html', tr('Demos')),
+   Anchor::new(''           , tr('Profile')),
+]);
 
 ?>
 <!-- Main content -->

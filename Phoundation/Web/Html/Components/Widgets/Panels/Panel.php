@@ -26,7 +26,7 @@ use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Icons\Icon;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Logo;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs;
 use Phoundation\Web\Html\Components\Widgets\ImageMenu;
 use Phoundation\Web\Html\Components\Widgets\LanguagesDropDown;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenuInterface;
@@ -200,7 +200,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     {
         if (empty($this->breadcrumbs)) {
             $this->breadcrumbs = Iterator::new()
-                                         ->setAcceptedDataTypes('object:' . BreadCrumbs::class);
+                                         ->setAcceptedDataTypes('object:' . Breadcrumbs::class);
         }
 
         return $this->breadcrumbs;

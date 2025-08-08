@@ -18,7 +18,7 @@ namespace Phoundation\Filesystem\Commands;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Data\Traits\TraitDataPath;
+use Phoundation\Data\Traits\TraitDataObjectPath;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Command;
@@ -27,7 +27,7 @@ use Phoundation\Utils\Arrays;
 
 class Df extends Command
 {
-    use TraitDataPath;
+    use TraitDataObjectPath;
 
 
     /**

@@ -5,35 +5,35 @@
  *
  *
  *
- * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package Phoundation\Web
+ * @package   Phoundation\Web
  */
 
 
 declare(strict_types=1);
 
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Script;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 
 // Load required JavaScript & CSS libraries
-Response::loadJavascript('templates/adminlte/plugins/ekko-lightbox/ekko-lightbox');
-Response::loadJavascript('templates/adminlte/plugins/filterizr/jquery.filterizr');
+Response::loadJavaScript('templates/adminlte/plugins/ekko-lightbox/ekko-lightbox');
+Response::loadJavaScript('templates/adminlte/plugins/filterizr/jquery.filterizr');
 Response::loadCss('templates/adminlte/plugins/ekko-lightbox/ekko-lightbox');
 
 Response::setHeaderTitle(tr('Scanner gallery'));
 Response::setHeaderSubTitle(tr('Demo'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                   => tr('Home'),
-    '/demos.html'         => tr('Demos'),
-    '/demos/scanner.html' => tr('Scanner'),
-    ''                    => tr('Gallery'),
-]));
+Response::setBreadcrumbs([
+    Anchor::new('/'                  , tr('Home')),
+    Anchor::new('/demos.html'        , tr('Demos')),
+    Anchor::new('/demos/scanner.html', tr('Scanner')),
+    Anchor::new(''                   , tr('Gallery')),
+]);
 
 
 // Load specific test script

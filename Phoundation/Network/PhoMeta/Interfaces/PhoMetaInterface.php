@@ -9,11 +9,10 @@ interface PhoMetaInterface extends DataEntryInterface
     /**
      * @param bool $filter_meta
      * @param bool $filter_protected_columns
-     * @param bool $as_is
      *
      * @return array
      */
-    public function getSource(bool $filter_meta = false, bool $filter_protected_columns = true, bool $as_is = false): array;
+    public function getSource(bool $filter_meta = false, bool $filter_protected_columns = true): array;
 
 
     /**

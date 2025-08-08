@@ -343,11 +343,11 @@ interface ProcessVariablesInterface extends Stringable
      * @note This will reset the currently existing list of arguments.
      *
      * @param array|null $arguments
-     * @param bool       $escape
+     * @param bool       $escape_arguments
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function setArguments(?array $arguments, bool $escape = true): static;
+    public function setArguments(?array $arguments, bool $escape_arguments = true): static;
 
 
     /**

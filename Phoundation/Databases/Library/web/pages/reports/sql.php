@@ -18,7 +18,8 @@ use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\FilterForm;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
+use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -81,14 +82,14 @@ $results_card = Card::new()
 
 
 // Build relevant links
-$relevant_card = Card::new()
+$o_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::new('/reports.html')->makeWww() . '">' . tr('Reports') . '</a>');
+                     ->setContent(AnchorBlock::new(Url::new('/reports.html')->makeWww(), tr('Reports')));
 
 
 // Build documentation
-$documentation_card = Card::new()
+$o_documentation_card = Card::new()
                           ->setMode(EnumDisplayMode::info)
                           ->setTitle(tr('Documentation'))
                           ->setContent('<p>This manual query report generator allows you to generate any type of report manually by typing the query</p>
@@ -98,14 +99,14 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('SQL report'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'              => tr('Home'),
-    '/reports.html'  => tr('Reports'),
-    ''               => tr('SQL report'),
-]));
+Response::setBreadcrumbs([
+    Anchor::new('/'            , tr('Home')),
+    Anchor::new('/reports.html', tr('Reports')),
+    Anchor::new(''             , tr('SQL report')),
+]);
 
 
 // Render and return the page grid
 return Grid::new()
            ->addGridColumn($filters_card  . $results_card      , EnumDisplaySize::nine)
-           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

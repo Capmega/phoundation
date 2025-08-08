@@ -17,9 +17,9 @@
 // * This class is the Simple SQL database access class, which allows to easily execute queries
 // *
 // * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+// * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @package Phoundation\Databases
+// * @package   Phoundation\Databases
 // */
 //class SqlSimple
 //{
@@ -283,7 +283,7 @@
 //     * Return a valid PDO execute array
 //     *
 //     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
-//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+//     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package sql
 //     * @version 2.4.8: Added function and documentation

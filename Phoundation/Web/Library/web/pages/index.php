@@ -15,15 +15,21 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Sessions\Session;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Requests\Response;
+
+
+// This page accepts no GET parameters
+GetValidator::new()->validate();
+
 
 // Set page meta data
 Response::setPageTitle(tr('Dashboard'));
 Response::setHeaderTitle(tr('Dashboard'));
 Response::setHeaderSubTitle(tr('(:user)', [':user' => Session::getUserObject()->getDisplayName()]));
 Response::setDescription(tr(''));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/' => tr('Home'),
-    ''  => tr('Dashboard'),
-]));
+Response::setBreadcrumbs([
+    Anchor::new('/', tr('Home')),
+    Anchor::new('' , tr('Dashboard')),
+]);

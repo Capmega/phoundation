@@ -19,11 +19,10 @@ namespace Phoundation\Filesystem\Mimetypes;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryPriority;
-use Phoundation\Data\Traits\TraitDataPath;
+use Phoundation\Data\Traits\TraitDataObjectPath;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Filesystem\Interfaces\PhoMimetypeInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
@@ -35,8 +34,8 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
 {
     use TraitDataEntryNameDescription;
     use TraitDataEntryPriority;
-    use TraitDataPath {
-        setPath as protected __setPath;
+    use TraitDataObjectPath {
+        setPathObject as protected __setPathObject;
     }
 
 
@@ -92,32 +91,32 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
     /**
      * Returns a new mimetype object
      *
-     * @param PhoPathInterface $path
+     * @param PhoPathInterface $o_path
      *
      * @return static
      */
-    public static function newFromPath(PhoPathInterface $path): static
+    public static function newFromPath(PhoPathInterface $o_path): static
     {
-        return static::new()->setPath($path);
+        return static::new()->setPathObject($o_path);
     }
 
 
     /**
      * Sets the file property and reloads the mimetype data based off the path mimetype
      *
-     * @param PhoPathInterface|null $path
+     * @param PhoPathInterface|null $o_path
      *
      * @return static
      */
-    public function setPath(?PhoPathInterface $path): static
+    public function setPathObject(?PhoPathInterface $o_path): static
     {
         $this->initialize([
-            'mimetype'  => $path->getMimetype(),
-            'extension' => $path->getExtension(),
+            'mimetype'  => $o_path->getMimetype(),
+            'extension' => $o_path->getExtension(),
             'priority'  => 0
         ]);
 
-        return $this->__setPath($path);
+        return $this->__setPath($o_path);
     }
 
 

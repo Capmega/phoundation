@@ -16,10 +16,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
+use Phoundation\Accounts\Users\Sessions\Session;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputInterface;
@@ -566,15 +569,46 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
             return $this;
         }
 
-        throw ValidationFailedException::new(tr('The selected keys(s) ":values" in ":class" object ":name" do not exist in the InputSelect source', [
-            ':class'  => static::class,
-            ':name'   => $this->getName() ?? ('id: ' . $this->getId()),
-            ':values' => array_keys($diff),
-        ]))->addData([
-            ':selected' => $this->selected,
-            ':source'   => $this->source,
-            ':diff'     => $diff,
-        ]);
+        if ($this->source) {
+            Incident::new()
+                    ->setType('invalid-data')
+                    ->setTitle(tr('InputSelect selected keys do not exist in source'))
+                    ->setBody(tr('The selected keys(s) ":values" in ":class" object ":name" do not exist in the InputSelect source', [
+                        ':class'  => static::class,
+                        ':name'   => $this->getName() ?? ('id: ' . $this->getId()),
+                        ':values' => array_keys($diff),
+                    ]))
+                    ->setData([
+                        ':selected' => $this->selected,
+                        ':source'   => $this->source,
+                        ':diff'     => $diff,
+                    ])
+                    ->setLog(9)
+                    ->setNotifyRoles('developer')
+                    ->save()
+                    ->throw(ValidationFailedException::class, true);
+
+        } else {
+            Incident::new()
+                    ->setType('invalid-data')
+                    ->setTitle(tr('InputSelect with empty source has selected keys'))
+                    ->setBody(tr('The ":class" InputSelect object ":name" has an empty source, but does have selected keys(s) ":values"', [
+                        ':class'  => static::class,
+                        ':name'   => $this->getName() ?? ('id: ' . $this->getId()),
+                        ':values' => array_keys($diff),
+                    ]))
+                    ->setData([
+                        ':selected' => $this->selected,
+                        ':source'   => $this->source,
+                        ':diff'     => $diff,
+                    ])
+                    ->setLog(9)
+                    ->setNotifyRoles('developer')
+                    ->save()
+                    ->throw(ValidationFailedException::class, true);
+        }
+
+        return $this;
     }
 
 
@@ -583,7 +617,8 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      */
     public function render(): ?string
     {
-        $this->validateSelected();
+        $this->executeQuery()
+             ->validateSelected();
 
         if ($this->render_checkboxes) {
             $render = '';
@@ -644,9 +679,9 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      */
     public function renderBody(): ?string
     {
-        $return  = null;
-        $return .= $this->renderBodyQuery();
-        $return .= $this->renderBodyArray();
+        $this->executeQuery();
+
+        $return = $this->renderBodyArray();
 
         if (!$return) {
             return $this->renderBodyEmpty();
@@ -668,39 +703,52 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      * Return the body HTML for a <select> list
      *
      * @return string|null
-     * @see \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::render()
-     * @see \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::renderHeaders()
-     * @see ResourceElement::renderBody()
-     * @see ElementInterface::render()
-     * @todo Refactor this. Query rendering should render each row immediately once it comes from database fetch, instead of dumping it first in the source.
+     * @see    \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::render()
+     * @see    \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::renderHeaders()
+     * @see    ResourceElement::renderBody()
+     * @see    ElementInterface::render()
      */
     protected function renderBodyQuery(): ?string
     {
-        if (empty($this->source_query)) {
-            return null;
-        }
+        return null;
+    }
 
-        while ($row = $this->source_query->fetch()) {
-            if ($this->key_column) {
-                $key = $row[$this->key_column];
 
-            } else {
-                $key = $row[array_key_first($row)];
+    /**
+     * Generates and returns the HTML string for only the select body for query sources
+     *
+     * This will return all HTML WITHOUT the <select> tags around it
+     *
+     * Return the body HTML for a <select> list
+     *
+     * @return static
+     * @todo   Ensure support for QueryBuilder works correctly!
+     */
+    protected function executeQuery(): static
+    {
+        if ($this->source_query) {
+            while ($row = $this->source_query->fetch()) {
+                if ($this->key_column) {
+                    $key = $row[$this->key_column];
+
+                } else {
+                    $key = $row[array_key_first($row)];
+                }
+
+                if ($this->value_column) {
+                    $value = $row[$this->value_column];
+
+                } else {
+                    $value = $row[array_key_last($row)];
+                }
+
+                $this->source[$key] = $value;
             }
-
-            if ($this->value_column) {
-                $value = $row[$this->value_column];
-
-            } else {
-                $value = $row[array_key_last($row)];
-            }
-
-            $this->source[$key] = $value;
         }
 
         $this->source_query = null;
 
-        return null;
+        return $this;
     }
 
 

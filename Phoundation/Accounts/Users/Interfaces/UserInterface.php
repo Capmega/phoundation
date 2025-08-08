@@ -594,37 +594,6 @@ interface UserInterface extends DataEntryInterface
 
 
     /**
-     * Returns true if the user has ALL the specified rights
-     *
-     * @param array|string $rights
-     * @param string|null  $always_match
-     *
-     * @return bool
-     */
-    public function hasAllRights(array|string $rights, ?string $always_match = null): bool;
-
-
-    /**
-     * Returns an array of what rights this user misses
-     *
-     * @param array|string $rights
-     *
-     * @return array
-     */
-    public function getMissingRights(array|string $rights): array;
-
-
-    /**
-     * Returns true if the user has SOME of the specified rights
-     *
-     * @param array|string $rights
-     *
-     * @return bool
-     */
-    public function hasSomeRights(array|string $rights): bool;
-
-
-    /**
      * Creates and returns an HTML DataEntry form
      *
      * @param string $name

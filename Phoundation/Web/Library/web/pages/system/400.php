@@ -34,7 +34,7 @@ Response::setRenderMainWrapper(false);
 Response::setPageTitle('400 - Bad Request');
 Response::setHeaderTitle(tr('400 - Error'));
 Response::setDescription(tr('You sent incorrect or invalid information and your request was denied'));
-Response::setBreadCrumbs();
+Response::setBreadcrumbs();
 
 
 // Render and return the system page

@@ -98,6 +98,17 @@ class Password extends DataEntry implements PasswordInterface
 
 
     /**
+     * Returns true if the definitions of this DataEntry have their own methods
+     *
+     * @return bool
+     */
+    public static function requireDefinitionsMethods(): bool
+    {
+        return false;
+    }
+
+
+    /**
      * Returns true if the password is considered secure enough
      *
      * @param string      $password

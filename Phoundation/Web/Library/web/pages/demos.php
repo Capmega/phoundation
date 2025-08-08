@@ -15,17 +15,18 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Sessions\Session;
+use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Script;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 // Required javascript
-Response::loadJavascript('templates/adminlte/plugins/moment/moment');
-Response::loadJavascript('templates/adminlte/plugins/daterangepicker/daterangepicker');
-Response::loadJavascript('templates/adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4');
+Response::loadJavaScript('templates/adminlte/plugins/moment/moment');
+Response::loadJavaScript('templates/adminlte/plugins/daterangepicker/daterangepicker');
+Response::loadJavaScript('templates/adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4');
 
 
 // Required CSS
@@ -47,30 +48,30 @@ Response::setPageTitle(tr('Demo dashboard'));
 Response::setHeaderTitle(tr('Dashboard'));
 Response::setHeaderSubTitle(tr('(:user)', [':user' => Session::getUserObject()->getDisplayName()]));
 Response::setDescription(tr(''));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/' => tr('Home'),
-    ''  => tr('Demos'),
-]));
+Response::setBreadcrumbs([
+    Anchor::new('/', tr('Home')),
+    Anchor::new('' , tr('Demos')),
+]);
 
 
 echo Card::new()
          ->setTitle(tr('Demo page links'))
-         ->setContent('                  <a href="' . Url::new('/demos/timeline.html')->makeWww() . '">' . tr('Package timeline') . '</a><br>
-                  <a href="' . Url::new('/demos/calendar.html')->makeWww() . '">' . tr('User calendar') . '</a><br>
-                  <a href="' . Url::new('/demos/contact-us.html')->makeWww() . '">' . tr('Contact us') . '</a><br>
-                  <a href="' . Url::new('/demos/contacts.html')->makeWww() . '">' . tr('Contacts') . '</a><br>
-                  <a href="' . Url::new('/demos/profile.html')->makeWww() . '">' . tr('Employee profile page') . '</a><br>
-                  <a href="' . Url::new('/demos/fingerprint-screen.html')->makeWww() . '">' . tr('Finger print detection') . '</a><br>
-                  <a href="' . Url::new('/demos/lock-screen.html')->makeWww() . '">' . tr('Lock screen') . '</a><br>
-                  <a href="' . Url::new('/demos/invoice.html')->makeWww() . '">' . tr('Invoice') . '</a><br>
-                  <a href="' . Url::new('/demos/kanban.html')->makeWww() . '">' . tr('Kanban project management board') . '</a><br>
-                  <a href="' . Url::new('/demos/projects.html')->makeWww() . '">' . tr('Projects') . '</a><br>
-                  <a href="' . Url::new('/demos/project-detail.html')->makeWww() . '">' . tr('Projects detail page') . '</a><br>
-                  <a href="' . Url::new('/demos/project-edit.html')->makeWww() . '">' . tr('Projects edit page') . '</a><br>
-                  <a href="' . Url::new('/demos/mailbox.html')->makeWww() . '">' . tr('Mail box') . '</a><br>
-                  <a href="' . Url::new('/demos/read-mail.html')->makeWww() . '">' . tr('Read mail') . '</a><br>
-                  <a href="' . Url::new('/demos/compose.html')->makeWww() . '">' . tr('Compose mail') . '</a><br>
-                  <a href="' . Url::new('/demos/scanner/gallery.html')->makeWww() . '">' . tr('Scanner gallery') . '</a>')
+         ->setContent(AnchorBlock::new(Url::new('/demos/timeline.html')->makeWww(), tr('Package timeline')) .
+                      AnchorBlock::new(Url::new('/demos/calendar.html')->makeWww(), tr('User calendar')) .
+                      AnchorBlock::new(Url::new('/demos/contact-us.html')->makeWww(), tr('Contact us')) .
+                      AnchorBlock::new(Url::new('/demos/contacts.html')->makeWww(), tr('Contacts')) .
+                      AnchorBlock::new(Url::new('/demos/profile.html')->makeWww(), tr('Employee profile page')) .
+                      AnchorBlock::new(Url::new('/demos/fingerprint-screen.html')->makeWww(), tr('Finger print detection')) .
+                      AnchorBlock::new(Url::new('/demos/lock-screen.html')->makeWww(), tr('Lock screen')) .
+                      AnchorBlock::new(Url::new('/demos/invoice.html')->makeWww(), tr('Invoice')) .
+                      AnchorBlock::new(Url::new('/demos/kanban.html')->makeWww(), tr('Kanban project management board')) .
+                      AnchorBlock::new(Url::new('/demos/projects.html')->makeWww(), tr('Projects')) .
+                      AnchorBlock::new(Url::new('/demos/project-detail.html')->makeWww(), tr('Projects detail page')) .
+                      AnchorBlock::new(Url::new('/demos/project-edit.html')->makeWww(), tr('Projects edit page')) .
+                      AnchorBlock::new(Url::new('/demos/mailbox.html')->makeWww(), tr('Mail box')) .
+                      AnchorBlock::new(Url::new('/demos/read-mail.html')->makeWww(), tr('Read mail')) .
+                      AnchorBlock::new(Url::new('/demos/compose.html')->makeWww(), tr('Compose mail')) .
+                      AnchorBlock::new(Url::new('/demos/scanner/gallery.html')->makeWww(), tr('Scanner gallery')))
          ->render();
 ?>
     <div class="row">
@@ -155,8 +156,9 @@ echo Card::new()
                                 <a href="#" class="dropdown-item">Add new event</a>
                                 <a href="#" class="dropdown-item">Clear events</a>
                                 <div class="dropdown-divider"></div>
-                                <a href="<?= Url::new('calendar/calendar.html')->makeWww(); ?>" class="dropdown-item">View
-                                    calendar</a>
+                                <?= Anchor::new(Url::new('calendar/calendar.html'))
+                                          ->setContent(tr('View calendar'))
+                                          ->setClass('dropdown-item'); ?>
                             </div>
                         </div>
                         <button type="button" class="btn btn-success btn-sm" data-card-widget="collapse">

@@ -13,11 +13,11 @@ interface NotificationInterface extends DataEntryInterface
     /**
      * Sets the exception for this notification
      *
-     * @param \Throwable|null $e
+     * @param Throwable|null $exception
      *
      * @return static
      */
-    public function setException(?Throwable $e): static;
+    public function setException(?Throwable $exception): static;
 
 
     /**

@@ -50,10 +50,10 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Enums\EnumPoadTypes;
 use Phoundation\Data\Interfaces\ArraySourceInterface;
-use Phoundation\Data\Interfaces\PoadInterface;
 use Phoundation\Data\Poad\Poad;
 use Phoundation\Data\Traits\TraitMethodsPoad;
 use Phoundation\Developer\Debug\Debug;
+use Phoundation\Exception\Interfaces\PhoExceptionInterface;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\EnumSeverity;
@@ -65,8 +65,7 @@ use Phoundation\Utils\Utils;
 use RuntimeException;
 use Throwable;
 
-
-class PhoException extends RuntimeException implements PoadInterface
+class PhoException extends RuntimeException implements PhoExceptionInterface
 {
     use TraitMethodsPoad;
 

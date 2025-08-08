@@ -18,8 +18,9 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Connectors\FilterForm;
+use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -122,15 +123,15 @@ $connectors_card->getForm()
 
 
 // Build relevant links
-$relevant_card = Card::new()
+$o_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::new('/phoundation/databases/connectors/roles.html')->makeWww() . '">' . tr('Roles management') . '</a><br>
-                                   <a href="' . Url::new('/phoundation/databases/connectors/rights.html')->makeWww() . '">' . tr('Rights management') . '</a>');
+                     ->setContent(AnchorBlock::new(Url::new('/phoundation/databases/connectors/roles.html')->makeWww(), tr('Roles management')) .
+                                  AnchorBlock::new(Url::new('/phoundation/databases/connectors/rights.html')->makeWww(), tr('Rights management')));
 
 
 // Build documentation
-$documentation_card = Card::new()
+$o_documentation_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Documentation'))
                      ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
@@ -138,15 +139,15 @@ $documentation_card = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Database connectors'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                           => tr('Home'),
-    '/system-administration.html' => tr('System administration'),
-    '/phoundation/databases.html' => tr('Databases'),
-    ''                            => tr('Connectors'),
-]));
+Response::setBreadcrumbs([
+    Anchor::new('/'                          , tr('Home')),
+    Anchor::new('/system-administration.html', tr('System administration')),
+    Anchor::new('/phoundation/databases.html', tr('Databases')),
+    Anchor::new(''                           , tr('Connectors')),
+]);
 
 
 // Render and return the page grid
 return Grid::new()
            ->addGridColumn($filters_card  . $connectors_card   , EnumDisplaySize::nine)
-           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

@@ -476,7 +476,7 @@ class Request implements RequestInterface
      */
     public static function detectRequestedLanguage(): string
     {
-        $languages = config()->getArray('locale.language.supported', []);
+        $languages = config()->getArray('locale.languages.supported', []);
 
         switch (count($languages)) {
             case 0:
@@ -573,7 +573,7 @@ class Request implements RequestInterface
                     'locale'   => (str_contains($requested, '-') ? Strings::from($requested, '-') : null),
                 ];
 
-                if (empty(config()->get('locale.language.supported', [])[$requested['language']])) {
+                if (empty(config()->get('locale.languages.supported', [])[$requested['language']])) {
                     continue;
                 }
 
@@ -1274,8 +1274,7 @@ class Request implements RequestInterface
             // One or more of the rights do not exist
             Incident::new()
                     ->setType('Non existing rights')
-                    ->setSeverity(in_array('admin', Session::getUserObject()
-                                                           ->getMissingRights($rights)) ? EnumSeverity::high : EnumSeverity::medium)
+                    ->setSeverity(in_array('admin', Session::getUserObject()->getRightsObject()->getMissing($rights)) ? EnumSeverity::high : EnumSeverity::medium)
                     ->setTitle(tr('The requested rights ":rights" do not exist on this system and was not automatically created', [
                         ':rights'      => Strings::force(Rights::getNotExist($rights), ', '),
                     ]))
@@ -1301,14 +1300,14 @@ class Request implements RequestInterface
             // Registered user doesn't have the required rights
             Incident::new()
                     ->setType('403 - Forbidden')
-                    ->setSeverity(in_array('admin', Session::getUserObject()->getMissingRights($rights)) ? EnumSeverity::high : EnumSeverity::medium)
+                    ->setSeverity(in_array('admin', Session::getUserObject()->getRightsObject()->getMissing($rights)) ? EnumSeverity::high : EnumSeverity::medium)
                     ->setTitle(tr('User ":user" does not have the required rights ":rights"', [
                         ':user'        => Session::getUserObject()->getLogId(),
-                        ':rights'      => Session::getUserObject()->getMissingRights($rights),
+                        ':rights'      => Session::getUserObject()->getRightsObject()->getMissing($rights),
                     ]))
                     ->setBody(tr('User ":user" does not have the required rights ":rights" for target page ":target" (real target ":real_target"). Executing "system/:redirect" instead', [
                         ':user'        => Session::getUserObject()->getLogId(),
-                        ':rights'      => Session::getUserObject()->getMissingRights($rights),
+                        ':rights'      => Session::getUserObject()->getRightsObject()->getMissing($rights),
                         ':target'      => static::$o_target->getSource('web'),
                         ':real_target' => static::$main_target->getSource('web'),
                         ':redirect'    => $rights_redirect,
@@ -1318,7 +1317,7 @@ class Request implements RequestInterface
                         'uri'         => static::getUri(),
                         'target'      => static::$o_target->getSource('web'),
                         'real_target' => static::$main_target->getSource('web'),
-                        'rights'      => Session::getUserObject()->getMissingRights($rights),
+                        'rights'      => Session::getUserObject()->getRightsObject()->getMissing($rights),
                     ])
                     ->setNotifyRoles('security')
                     ->save()

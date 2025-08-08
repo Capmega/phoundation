@@ -8,11 +8,12 @@ use Phoundation\Data\DataEntries\Exception\DataEntryDisabledException;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
-use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -248,11 +249,11 @@ interface DataIteratorInterface extends IteratorInterface
     /**
      * Sets the parent
      *
-     * @param DataEntryInterface $o_parent
+     * @param DataEntryInterface|RenderInterface|UrlInterface|null $o_parent
      *
      * @return static
      */
-    public function setParentObject(DataEntryInterface $o_parent): static;
+    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $o_parent): static;
 
 
     /**
@@ -381,14 +382,16 @@ interface DataIteratorInterface extends IteratorInterface
      */
     public function getDisabled(): bool;
 
+
     /**
      * Sets if this object is disabled or not
      *
-     * @param bool $disabled
+     * @param bool      $disabled
+     * @param bool|null $set_readonly
      *
      * @return static
      */
-    public function setDisabled(bool $disabled): static;
+    public function setDisabled(bool $disabled, ?bool $set_readonly = null): static;
 
     /**
      * Returns the number of entries that have been modified

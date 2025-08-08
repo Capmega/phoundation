@@ -157,7 +157,7 @@ class UploadDropZone extends ResourceElement
     public function renderBody(): ?string
     {
         Response::loadCss('plugins/dropzone/min/dropzone');
-        Response::loadJavascript('plugins/dropzone/min/dropzone');
+        Response::loadJavaScript('plugins/dropzone/min/dropzone');
 
         return Script::new()
                      ->setJavascriptWrapper(EnumJavascriptWrappers::window)

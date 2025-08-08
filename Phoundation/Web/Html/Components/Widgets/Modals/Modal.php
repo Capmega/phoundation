@@ -19,13 +19,13 @@ namespace Phoundation\Web\Html\Components\Widgets\Modals;
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Data\Traits\TraitDataTitle;
 use Phoundation\Web\Html\Components\ElementsBlock;
-use Phoundation\Web\Html\Traits\TraitButtons;
+use Phoundation\Web\Html\Traits\TraitObjectButtons;
 
 
 abstract class Modal extends ElementsBlock
 {
     use TraitDataTitle;
-    use TraitButtons;
+    use TraitObjectButtons;
 
 
     /**

@@ -235,14 +235,14 @@ class Notification extends DataEntry implements NotificationInterface
     /**
      * Sets the exception for this notification
      *
-     * @param \Throwable|null $e
+     * @param Throwable|null $exception
      *
      * @return static
      */
-    public function setException(?Throwable $e): static
+    public function setException(?Throwable $exception): static
     {
-        if ($e instanceof PhoException) {
-            if ($e->isWarning()) {
+        if ($exception instanceof PhoException) {
+            if ($exception->isWarning()) {
                 $mode = EnumDisplayMode::warning;
 
             } else {
@@ -250,7 +250,7 @@ class Notification extends DataEntry implements NotificationInterface
             }
 
         } else {
-            $e    = new PhoException($e);
+            $e    = new PhoException($exception);
             $mode = EnumDisplayMode::exception;
         }
 
@@ -258,17 +258,17 @@ class Notification extends DataEntry implements NotificationInterface
 
         $this->setUrl(Url::newCurrent())
              ->setMode($mode)
-             ->setFile($e->getFile())
-             ->setLine($e->getLine())
-             ->setTrace($e->getTraceAsJson())
-             ->setCode('E-' . $e->getCode())
+             ->setFile($exception->getFile())
+             ->setLine($exception->getLine())
+             ->setTrace($exception->getTrace())
+             ->setCode('E-' . $exception->getCode())
              ->addRole('developer')
              ->setTitle(tr('Phoundation project ":project (:environment)" encountered an exception', [
                  ':project'     => $details['project'],
                  ':environment' => ENVIRONMENT,
              ]))
-             ->setMessage($this->generateExceptionHtmlMessage($e, $details))
-             ->e = $e;
+             ->setMessage($this->generateExceptionHtmlMessage($exception, $details))
+             ->e = $exception;
 
         return $this;
     }
@@ -329,11 +329,11 @@ FILES variables:
             ':platform'         =>   $details['platform'],
             ':user'             =>   $details['user'],
             ':_session'         =>   Json::encode($details['session']),
-            ':_env'             =>  ($details['environment_variables'] ? print_r($details['environment_variables'], true) : '-'),
-            ':_argv'            =>   $details['argv']  ? Strings::force($details['argv'], ' ') : '-',
-            ':_get'             =>   $details['get']   ? Json::encode($details['get'])         : '-',
-            ':_post'            =>   $details['post']  ? Json::encode($details['post'])        : '-',
-            ':_files'           =>   $details['files'] ? Json::encode($details['files'])       : '-',
+            ':_env'             =>   $details['environment_variables'] ? print_r($details['environment_variables'], true) : '-',
+            ':_argv'            =>   $details['argv']                  ? Strings::force($details['argv'], ' ')            : '-',
+            ':_get'             =>   $details['get']                   ? Json::encode($details['get'])                    : '-',
+            ':_post'            =>   $details['post']                  ? Json::encode($details['post'])                   : '-',
+            ':_files'           =>   $details['files']                 ? Json::encode($details['files'])                  : '-',
         ], clean: false);
     }
 

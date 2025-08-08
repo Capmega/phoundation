@@ -17,7 +17,7 @@ declare(strict_types=1);
 use Phoundation\Core\Meta\MetaList;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -53,11 +53,11 @@ $documentation = Card::new()
 
 // Set page meta data
 Response::setHeaderTitle(tr('Audit information'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'           => tr('Home'),
-    '/audit.html' => tr('Audits'),
-    ''            => Strings::truncate(Strings::force($get['id'], ', '), 32),
-]));
+Response::setBreadcrumbs([
+    Anchor::new('/'          , tr('Home')),
+    Anchor::new('/audit.html', tr('Audits')),
+    Anchor::new(''           , Strings::truncate(Strings::force($get['id'], ', '), 32)),
+]);
 
 
 // Render and return the page grid

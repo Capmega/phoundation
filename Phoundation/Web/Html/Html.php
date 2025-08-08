@@ -147,7 +147,7 @@ class Html
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright © 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
      * @see html_generate_js()
@@ -300,7 +300,7 @@ class Html
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright © 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
      * @see html_header()
@@ -342,7 +342,7 @@ class Html
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright © 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
      * @see html_header()
@@ -470,7 +470,7 @@ class Html
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright © 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
      * @see html_header()
@@ -566,7 +566,7 @@ class Html
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright © 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
      * @see html_header()
@@ -613,7 +613,7 @@ class Html
 //     *
 //     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
 //     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
-//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+//     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package html
 //     * @see html_flash_set()
@@ -786,7 +786,7 @@ class Html
 //     *
 //     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
 //     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
-//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+//     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package html
 //     * @see html_flash()
@@ -957,7 +957,7 @@ class Html
      * Return HTML for a multi select submit button. This button, once clicked, will show a list of selectable submit buttons.
      *
      * @copyright Copyright © 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
      * @see html_select()
@@ -1003,7 +1003,7 @@ class Html
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright © 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
      * @see html_select_body()
@@ -1081,7 +1081,7 @@ class Html
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright © 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
      * @see html_select()
@@ -1140,7 +1140,7 @@ class Html
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright © 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
      * @see html_select()
@@ -2356,7 +2356,7 @@ class Html
      * This function works by assuming that each checkbox with name NAME has a hidden field with name _NAME. If NAME is missing, _NAME will be moved to NAME
      *
      * @copyright Copyright © 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
      *
@@ -2381,7 +2381,7 @@ class Html
 //     *
 //     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
 //     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
-//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+//     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package html
 //     *
@@ -2438,7 +2438,7 @@ class Html
 //     *
 //     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
 //     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
-//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+//     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package html
 //     *
@@ -2455,7 +2455,7 @@ class Html
 //     *
 //     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
 //     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
-//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+//     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package html
 //     *
@@ -2472,7 +2472,7 @@ class Html
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright © 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
      * @version 2.5.0: Added function and documentation
@@ -2521,7 +2521,7 @@ class Html
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright © 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
      * @version 2.5.57: Added function and documentation
@@ -2647,7 +2647,7 @@ class Html
      *
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright © 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package html
      * @see strip_tags()

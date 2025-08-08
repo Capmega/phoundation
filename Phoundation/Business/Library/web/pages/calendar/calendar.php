@@ -23,8 +23,8 @@ use Phoundation\Web\Requests\Response;
 Response::loadCss('templates/adminlte/plugins/fullcalendar/main');
 
 // Load required Javascript
-Response::loadJavascript('templates/adminlte/plugins/moment/moment');
-Response::loadJavascript('templates/adminlte/plugins/fullcalendar/main');
+Response::loadJavaScript('templates/adminlte/plugins/moment/moment');
+Response::loadJavaScript('templates/adminlte/plugins/fullcalendar/main');
 
 Script::new()
       ->setJavascriptWrapper(EnumJavascriptWrappers::window)

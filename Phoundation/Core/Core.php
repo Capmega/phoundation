@@ -68,9 +68,11 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Os\Processes\Commands\Free;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\FlashMessage;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Exception\Http404Exception;
@@ -397,7 +399,7 @@ class Core implements CoreInterface
 
         define('DIRECTORY_DATA'       , $data . '/');
         define('DIRECTORY_SYSTEM'     , DIRECTORY_DATA   . 'system/');
-        define('DIRECTORY_CDN'        , realpath(DIRECTORY_DATA . 'content/cdn/'));
+        define('DIRECTORY_CDN'        , realpath(DIRECTORY_DATA . 'content/cdn') . '/');
         define('DIRECTORY_PUBTMP'     , DIRECTORY_CDN    . 'tmp/');
         define('DIRECTORY_TMP'        , DIRECTORY_SYSTEM . 'tmp/');
         define('DIRECTORY_COMMANDS'   , DIRECTORY_SYSTEM . 'cache/system/commands/');
@@ -1034,6 +1036,9 @@ class Core implements CoreInterface
      */
     #[NoReturn] public static function uncaughtExceptionHandler(Throwable $e): never
     {
+        // In case of uncaught exceptions, all logging must be turned on
+        Log::enable();
+
         // Uncomment the following line in case the exception handler is not working correctly and does not display exceptions
         //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); exit();
         Core::uncaughtExceptionHandlerAvoidEndlessLoop($e);
@@ -1048,10 +1053,6 @@ class Core implements CoreInterface
         Config::allowNoEnvironment();
         Core::ensureDefines();
         Core::playUncaughtExceptionAudio($e);
-
-        // Ensure the exception is a Phoundation exception
-        // TODO Fix this or get rid of this, it causes too much confusion with backtraces. Fixing would require removing line 1040 from backtraces!
-        $e = PhoException::ensurePhoundationException($e);
 
         // When in CLI auto complete mode, log and display a standard exception message
         if (CliAutoComplete::isActive()) {
@@ -1077,7 +1078,12 @@ class Core implements CoreInterface
                     }
                 }
 
-                // The system crashed before Core wsa ready
+                // The system crashed before Core was ready
+                if (CliAutoComplete::isActive()) {
+                    // If we're in autocomplete mode, so we're fine as it can end before Core is ready
+                    exit();
+                }
+
                 Log::error(ts('*** UNCAUGHT STARTUP EXCEPTION ":class" IN ":type" TYPE SCRIPT ":command" ***', [
                     ':class'   => get_class($e),
                     ':type'    => Request::getRequestType()->value,
@@ -1278,15 +1284,21 @@ class Core implements CoreInterface
 
 
     /**
-     * Set the language for this request
+     * Apply the specified or configured locale
+     *
+     * @param string|null $locale
      *
      * @return void
+     * @todo REWRITE THIS MESS!
+     * @todo MOVE THIS METHOD TO PHOLOCALE CLASS
      */
-    public static function setLanguage(): void
+    public static function setLanguageLocale(?string $locale = null): void
     {
+        // Setup locale and character encoding
+        // TODO Check this mess!
         try {
             if (PLATFORM_WEB) {
-                $supported = config()->get('locale.language.supported', [
+                $supported = config()->get('locale.languages.supported', [
                     'en',
                     'es',
                 ]);
@@ -1305,56 +1317,23 @@ class Core implements CoreInterface
                     }
 
                 } else {
-                    $language = config()->get('languages.default', 'en');
+                    $language = not_empty($locale, config()->get('locale.languages.default', 'en'));
                 }
 
             } else {
-                $language = config()->get('languages.default', 'en');
+                $language = not_empty($locale, config()->get('locale.languages.default', 'en'));
             }
 
-            define('LANGUAGE', $language);
-            define('LOCALE'  , $language . (empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
-
-            // Ensure $_SESSION['language'] available
-            if (empty($_SESSION['language'])) {
-                $_SESSION['language'] = LANGUAGE;
-            }
-
-        } catch (Throwable $e) {
-            // Language selection failed
-            if (!defined('LANGUAGE')) {
-                define('LANGUAGE', 'en');
-            }
-
-            throw new OutOfBoundsException(tr('Language selection failed'), $e);
-        }
-    }
-
-
-    /**
-     * Apply the specified or configured locale
-     *
-     * @param string|null $locale
-     *
-     * @return void
-     * @todo REWRITE THIS MESS!
-     * @todo MOVE THIS METHOD TO PHOLOCALE CLASS
-     */
-    public static function setLocale(?string $locale = null): void
-    {
-        // Setup locale and character encoding
-        // TODO Check this mess!
-        try {
-            $language = not_empty($locale, config()->get('locale.language.default', 'en'));
-
-            if (config()->get('locale.language.default', ['en']) and config()->exists('locale.language.supported.' . $language)) {
+            if (config()->get('locale.languages.default', ['en']) and config()->exists('locale.languages.supported.' . $language)) {
                 throw new CoreException(tr('Unknown language ":language" specified', [':language' => $language]));
             }
 
+            // TODO Don't access $_SESSION data like this directly, get it from Session class methods instead
             define('LANGUAGE', $language);
             define('LOCALE'  , $language . (empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
 
-            $_SESSION['language'] = $language;
+            $_SESSION['language'] = LANGUAGE;
+            $_SESSION['locale']   = LOCALE;
 
         } catch (Throwable $e) {
             // Language selection failed
@@ -1362,7 +1341,13 @@ class Core implements CoreInterface
                 define('LANGUAGE', 'en');
             }
 
-            $e = new CoreException('Language selection failed', $e);
+            // Language selection failed
+            if (!defined('LOCALE')) {
+                define('LOCALE', 'en_US');
+            }
+
+            // Store an incident for this issue
+            Incident::new(new CoreException('Language / Locale selection failed, falling back to "EN_US"', $e))->save();
         }
 
         // Setup locale and character encoding
@@ -1390,7 +1375,7 @@ class Core implements CoreInterface
             $language = LANGUAGE;
 
         } else {
-            $language = config()->get('locale.language.default', 'en');
+            $language = config()->get('locale.languages.default', 'en');
         }
 
         if (isset($_SESSION['location']['country']['code'])) {
@@ -2996,7 +2981,7 @@ class Core implements CoreInterface
     protected static function registerUncaughtExceptionIncident(Throwable $e): void
     {
         // Don't register warning exceptions
-        if (!$e->isWarning()) {
+        if ((!$e instanceof PhoException) or !$e->isWarning()) {
             if (Core::getReadonly()) {
                 Log::error('Not attempting to register the following uncaught exception incident in the database, system is in readonly mode');
 
@@ -3143,7 +3128,12 @@ class Core implements CoreInterface
 
                 if ($e->getDataKey('failures')) {
                     foreach ($e->getDataKey('failures') as $failure) {
-                        Log::printr($failure, 10, echo_header: false);
+                        if (is_array($failure)) {
+                            Log::printr(array_get_safe($failure, 'message', $failure), 10, echo_header: false);
+
+                        } else {
+                            Log::printr($failure, 10, echo_header: false);
+                        }
                     }
                 }
             }
@@ -3456,7 +3446,8 @@ class Core implements CoreInterface
                                 </tr>
                                 <tr>
                                     <td colspan="2">
-                                        <a href="' . Url::new('signout')->makeWww() . '">Sign out</a>
+                                        ' . Anchor::new(Url::new('signout')->makeWww(), tr('Sign out'))
+                                                  ->setClass('btn btn-sm btn-primary') . '
                                     </td>
                                 </tr>
                             </tbody>

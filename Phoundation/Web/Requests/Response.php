@@ -44,10 +44,10 @@ use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Script;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
-use Phoundation\Web\Html\Components\Widgets\Interfaces\BreadCrumbsInterface;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs;
+use Phoundation\Web\Html\Components\Widgets\Interfaces\BreadcrumbsInterface;
 use Phoundation\Web\Html\Enums\EnumAttachJavascript;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\Exception\HttpException;
@@ -62,7 +62,6 @@ use Phoundation\Web\Requests\Interfaces\ResponseInterface;
 use Phoundation\Web\Uploads\Interfaces\UploadHandlersInterface;
 use Stringable;
 use Throwable;
-
 
 class Response implements ResponseInterface
 {
@@ -184,9 +183,9 @@ class Response implements ResponseInterface
     /**
      * Bread crumbs for this page
      *
-     * @var BreadCrumbs
+     * @var Breadcrumbs
      */
-    protected static BreadCrumbs $bread_crumbs;
+    protected static Breadcrumbs $bread_crumbs;
 
     /**
      * If true, the template will build the <body> tag. If false, the page will have to build it itself
@@ -376,12 +375,12 @@ class Response implements ResponseInterface
     /**
      * Returns the bread crumbs for this page
      *
-     * @return BreadCrumbsInterface
+     * @return BreadcrumbsInterface
      */
-    public static function getBreadCrumbs(): BreadCrumbsInterface
+    public static function getBreadcrumbs(): BreadcrumbsInterface
     {
         if (empty(static::$bread_crumbs)) {
-            static::$bread_crumbs = new BreadCrumbs();
+            static::$bread_crumbs = new Breadcrumbs();
         }
 
         return static::$bread_crumbs;
@@ -391,14 +390,18 @@ class Response implements ResponseInterface
     /**
      * Sets the bread crumbs for this page
      *
-     * @param BreadCrumbsInterface|null $bread_crumbs
+     * @param BreadcrumbsInterface|array|null $bread_crumbs
      *
      * @return void
      */
-    public static function setBreadCrumbs(?BreadCrumbsInterface $bread_crumbs = null): void
+    public static function setBreadcrumbs(BreadcrumbsInterface|array|null $bread_crumbs = null): void
     {
         if (!$bread_crumbs) {
-            static::$bread_crumbs = new BreadCrumbs();
+            static::$bread_crumbs = new Breadcrumbs();
+
+        } elseif(is_array($bread_crumbs)) {
+            static::$bread_crumbs = new Breadcrumbs($bread_crumbs);
+
         } else {
             static::$bread_crumbs = $bread_crumbs;
         }
@@ -951,7 +954,7 @@ class Response implements ResponseInterface
      *
      * @return void
      */
-    public static function loadJavascript(string|array $urls, ?bool $header = null, bool $prefix = false): void
+    public static function loadJavaScript(string|array $urls, ?bool $header = null, bool $prefix = false): void
     {
         if ($header === null) {
             $header = !config()->getBoolean('web.javascript.delay', true);

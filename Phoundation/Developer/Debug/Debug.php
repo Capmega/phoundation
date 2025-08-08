@@ -1422,7 +1422,7 @@ class Debug
      *
      * Taken from prado3 framework TVarDumper class, written by Qiang Xue
      *
-     * @see https://github.com/google-code-export/prado3/blob/master/framework/Util/TVarDumper.php
+     * @see    https://github.com/google-code-export/prado3/blob/master/framework/Util/TVarDumper.php
      * @author Qiang Xue <qiang.xue@gmail.com>
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      *

@@ -79,6 +79,7 @@ class InputAutoSuggest extends InputText
         parent::__construct($content);
 
         $this->addAllowedEvent('onselect')
+             ->setDefaultSuffix()
              ->width = 300;
     }
 
@@ -125,11 +126,11 @@ class InputAutoSuggest extends InputText
             }
 
             if ($this->getId()) {
-                return '#' . $this->getId() . '_autosuggest_div';
+                return '#' . $this->getId() . $this->getSelectorSuffix();
             }
 
             if ($this->getName()) {
-                return '[name="' . $this->getName() . '_autosuggest_div"]';
+                return '[name="' . $this->getName() . $this->getSelectorSuffix();
             }
 
             throw new OutOfBoundsException(tr('Cannot return selector for InputAutosuggest object. No selector was specified and the object has no id or name specified either'));
@@ -235,6 +236,35 @@ class InputAutoSuggest extends InputText
                                    ->appendSource($this->o_attributes);
 
         return parent::render();
+    }
+
+
+    /**
+     * Sets the selector suffix to the default as indicated by the Template remder class
+     *
+     * @return static
+     */
+    protected function setDefaultSuffix(): static
+    {
+        $this->setSelectorSuffix(static::getDefaultSelectorSuffix());
+        return $this;
+    }
+
+
+    /**
+     * Returns the default "id" and "name" suffix used for selecting auto suggest components
+     *
+     * @return string|null
+     */
+    public static function getDefaultSelectorSuffix(): ?string
+    {
+        $class = static::getRenderClass(true);
+
+        if ($class) {
+            return $class::getJavaScriptSelectorSuffix();
+        }
+
+        return null;
     }
 
 

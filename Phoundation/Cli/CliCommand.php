@@ -29,6 +29,7 @@ use Phoundation\Accounts\Config\Config;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Cache\Cache;
 use Phoundation\Cache\InstanceCache;
+use Phoundation\Cli\Exception\CliArgumentsException;
 use Phoundation\Cli\Exception\CliAutoCompleteException;
 use Phoundation\Cli\Exception\CliCommandException;
 use Phoundation\Cli\Exception\CliCommandNotExistsException;
@@ -501,8 +502,11 @@ class CliCommand
      */
     protected static function checkPhoNotWorldExecutable(): void
     {
-        return;
-        throw new CliCommandException(tr('Refusing to startup, the "pho" command is world executable. Please fix this first by running "chmod o-rwx ./pho" in your projects root directory.'));
+        if (PhoFile::new(DIRECTORY_ROOT . 'pho', PhoRestrictions::newRootObject())->isWorldExecutable()) {
+            if (config()->getBoolean('security.commandline.pho.permit.execute.world', false)) {
+                throw new CliCommandException(tr('Refusing to start, the "pho" command is world executable which is a security risk. Please fix this first by running "chmod o-rwx ./pho" in your projects root directory.'));
+            }
+        }
     }
 
 
@@ -1752,13 +1756,15 @@ return 'under construction';
                                  ->select('-X,--ignore-readonly')->isOptional(false)->isBoolean()
                                  ->select('-Y,--clear-tmp')->isOptional(false)->isBoolean()
                                  ->select('-Z,--clear-caches')->isOptional(false)->isBoolean()
-                                 ->select('--auto-complete', true)->isOptional()->hasMaxCharacters(1024)
+                                 ->select('--auto-complete', true)->isOptional()->hasMaxCharacters(8192)
                                  ->select('--deleted')->isOptional(false)->isBoolean()
+                                 ->select('--iec')->isOptional(false)->isBoolean()
                                  ->select('--limit', true)->isOptional(0)->isNatural()
                                  ->select('--locale', true)->isOptional()->hasCharacters(5)
                                  ->select('--no-validation')->isOptional(false)->isBoolean()
                                  ->select('--no-password-validation')->isOptional(false)->isBoolean()
                                  ->select('--show-passwords')->isOptional(false)->isBoolean()
+                                 ->select('--si')->isOptional(false)->isBoolean()
                                  ->select('--status', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(16)
                                  ->select('--sudo')->isOptional(false)->isBoolean()
                                  ->select('--timezone', true)->isOptional()->isString()
@@ -1771,39 +1777,6 @@ return 'under construction';
 
         try {
             Core::detectProject();
-
-            // DEBUG CODE, uncomment these if manual $argv settings are required
-            //        $argv = [
-            //            'all'                    => false,
-            //            'no_color'               => false,
-            //            'debug'                  => false,
-            //            'environment'            => null,
-            //            'force'                  => false,
-            //            'help'                   => false,
-            //            'log_level'              => false,
-            //            'order_by'               => false,
-            //            'page'                   => 1,
-            //            'quiet'                  => false,
-            //            'very_quiet'             => false,
-            //            'prefix'                 => false,
-            //            'no_sound'               => false,
-            //            'status'                 => false,
-            //            'test'                   => false,
-            //            'json_input'             => null,
-            //            'json_output'            => null,
-            //            'usage'                  => false,
-            //            'verbose'                => false,
-            //            'no_warnings'            => false,
-            //            'language'               => false,
-            //            'deleted'                => false,
-            //            'version'                => false,
-            //            'limit'                  => false,
-            //            'timezone'               => null,
-            //            'auto_complete'          => null,
-            //            'show_passwords'         => false,
-            //            'no_validation'          => false,
-            //            'no_password_validation' => false
-            //    ];
 
             // Parse command line arguments in JSON format
             if ($argv['json_input']) {
@@ -1831,6 +1804,21 @@ return 'under construction';
 
             // Set session configuration in case session data must be accessed
             Session::initializePhpIni();
+
+            // What units to use for binary numbers?
+            if ($argv['iec']) {
+                if ($argv['si']) {
+                    throw new CliArgumentsException(ts('Cannot use both arguments --si and --iec, these arguments are mutually exclusive'));
+                }
+
+                define('UNITS', 'IEC');
+
+            } elseif ($argv['si']) {
+                define('UNITS', 'SI');
+
+            } else {
+                define('UNITS', config()->getStringUppercase('log.units', 'si'));
+            }
 
             // Define basic platform constants
             define('ADMIN'     , '');
@@ -1927,8 +1915,7 @@ return 'under construction';
 
             // Set required locale.
             // Set language and locale
-            Core::setLanguage();
-            Core::setLocale($argv['locale'] ?? config()->getString('locale.default', 'en-ca'));
+            Core::setLanguageLocale($argv['locale'] ?? config()->getString('locale.default', 'en-ca'));
 
             // Prepare for unicode usage
             if (Response::hasEncoding('UTF-8')) {
@@ -2093,7 +2080,7 @@ return 'under construction';
             CliCommand::$service = $argv['service'];
 
         } catch (Throwable $e) {
-            throw new CliCommandException(ts('Failed to process system arguments because: ' . $e->getMessage()), $e);
+            throw new CliCommandException(ts('Failed to process system arguments because: ') . $e->getMessage(), $e);
         }
     }
 
@@ -2323,6 +2310,10 @@ return 'under construction';
 
 [--deleted]                             Will show deleted DataEntry records
 
+[--iec]                                 Will display human readable amounts of data in IEC units (International Electrotechnical Commission, 1_024 = 1KB, 
+                                        1_048_576 = 1MB, etc) 
+                                        NOTE: Cannot be used with --si  
+
 [--limit NUMBER]                        Will limit table output to the number of specified fields
 
 [--no-validation]                       Will not validate any of the data input. 
@@ -2333,6 +2324,9 @@ return 'under construction';
                                         
 [--show-passwords]                      Will display passwords visibly on the command line. Both typed passwords and
                                         data output will show passwords in the clear!
+
+[--si]                                  Will display human readable amounts of data in SI units (1_000 = 1KB, 1_000_000 = 1MB, etc)
+                                        NOTE: Cannot be used with --iec  
 
 [--status STRING]                       If specified the system will only display entries with the specified status
 

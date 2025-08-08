@@ -1,0 +1,44 @@
+<?php
+
+/**
+ * Command file-system/mount/mount
+ *
+ * FsMounts the specified mount
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Filesystem
+ */
+
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Filesystem\Mounts\PhoMount;
+use Phoundation\Filesystem\Mounts\PhoMounts;
+
+
+CliDocumentation::setAutoComplete([
+    'positions' => [
+        0 => [
+            'word'   => function ($word) { return PhoMounts::new()->load()->keepMatchingValuesStartingWith($word)->limitAutoComplete(); },
+            'noword' => function ($word) { return PhoMounts::new()->load()->limitAutoComplete(); }
+        ]
+    ]
+]);
+
+CliDocumentation::setUsage('./pho filesystem mount MOUNTNAME');
+
+CliDocumentation::setHelp('This command will attempt to mount the specified configured mount point');
+
+
+// Get the arguments
+$argv = ArgvValidator::new()
+    ->select('mount')->isName()
+    ->validate();
+
+
+// FsMount the specified mount
+PhoMount::new($argv['mount'])->mount();

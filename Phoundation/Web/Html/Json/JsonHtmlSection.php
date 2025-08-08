@@ -17,10 +17,9 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Json;
 
 use Phoundation\Web\Exception\WebRenderException;
-use Phoundation\Web\Html\Components\Input\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Json\Enums\EnumJsonHtmlMethods;
 use Phoundation\Web\Html\Json\Interfaces\JsonHtmlSectionInterface;
-
 
 class JsonHtmlSection implements JsonHtmlSectionInterface
 {

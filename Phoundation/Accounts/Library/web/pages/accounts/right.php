@@ -20,9 +20,10 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -39,7 +40,7 @@ $get = GetValidator::new()
 
 
 // Build the page content
-$right = Right::new()->loadThis($get['id']);
+$o_right = Right::new()->loadThis($get['id']);
 
 
 // Validate POST and submit
@@ -48,62 +49,63 @@ if (Request::isPostRequestMethod()) {
         switch (PostValidator::new()->getSubmitButton()) {
             case tr('Save'):
                 // Update right
-                $right
-                    ->apply()
-                    ->save();
+                $o_right->apply()
+                        ->save();
 
 // TODO Implement timers
 //showdie(Timers::get('query'));
 
-                Response::getFlashMessagesObject()->addSuccess(tr('Right ":right" has been saved', [':right' => $right->getName()]));
-                Response::redirect(Url::new('/accounts/right+' . $right->getId() . '.html')->makeWww());
+                Response::getFlashMessagesObject()->addSuccess(tr('Right ":right" has been saved', [':right' => $o_right->getName()]));
+                Response::redirect(Url::new('/accounts/right+' . $o_right->getId() . '.html')->makeWww());
 
             case tr('Delete'):
-                $right->delete();
-                Response::getFlashMessagesObject()->addSuccess(tr('The right ":right" has been deleted', [':right' => $right->getName()]));
+                $o_right->delete();
+
+                Response::getFlashMessagesObject()->addSuccess(tr('The right ":right" has been deleted', [':right' => $o_right->getName()]));
                 Response::redirect();
 
             case tr('Undelete'):
-                $right->undelete();
-                Response::getFlashMessagesObject()->addSuccess(tr('The right ":right" has been undeleted', [':right' => $right->getName()]));
+                $o_right->undelete();
+
+                Response::getFlashMessagesObject()->addSuccess(tr('The right ":right" has been undeleted', [':right' => $o_right->getName()]));
                 Response::redirect();
         }
 
     } catch (IncidentsException | ValidationFailedException | AccessDeniedException $e) {
         // Oops! Show validation errors and remain on the page
         Response::getFlashMessagesObject()->addMessage($e);
-        $right->forceApply();
+        $o_right->forceApply();
     }
 }
 
 
 // Audit button.
-if (!$right->isNew()) {
-    $audit = Button::new()
-                   ->setFloatRight(true)
-                   ->setMode(EnumDisplayMode::information)
-                   ->setAnchorUrl('/audit/meta+' . $right->getMetaId() . '.html')
-                   ->setFloatRight(true)
-                   ->setContent(tr('Audit'));
+if (!$o_right->isNew()) {
+    $o_audit = Button::new()
+                     ->setFloatRight(true)
+                     ->setMode(EnumDisplayMode::information)
+                     ->setAnchorUrl('/audit/meta+' . $o_right->getMetaId() . '.html')
+                     ->setFloatRight(true)
+                     ->setContent(tr('Audit'));
 
-    if ($right->isDeleted()) {
-        $delete = Button::new()
-                        ->setFloatRight(true)
-                        ->setMode(EnumDisplayMode::warning)
-                        ->setOutlined(true)
-                        ->setContent(tr('Undelete'));
+    if ($o_right->isDeleted()) {
+        $o_delete = Button::new()
+                          ->setFloatRight(true)
+                          ->setMode(EnumDisplayMode::warning)
+                          ->setOutlined(true)
+                          ->setContent(tr('Undelete'));
 
     } else {
-        $delete = Button::new()
-                        ->setFloatRight(true)
-                        ->setMode(EnumDisplayMode::warning)
-                        ->setOutlined(true)
-                        ->setContent(tr('Delete'));
+        $o_delete = Button::new()
+                          ->setFloatRight(true)
+                          ->setMode(EnumDisplayMode::warning)
+                          ->setOutlined(true)
+                          ->setContent(tr('Delete'));
     }
 
-    $users = $right->getUsersObject();
+    $o_users = $o_right->getUsersObject();
 // :TODO: Fix Users class first, make sure that Users::load() uses query builder instead of direct queries!
-//    $users->getQueryBuilderObject()->addSelect('        `accounts_users`.`id`,
+//    $o_users->getQueryBuilderObject()->addSelect('        `accounts_users`.`id`,
 //                                                  TRIM(CONCAT(`first_names`, " ", `last_names`)) AS `name`,
 //                                                  `accounts_users`.`email`,
 //                                                  `accounts_users`.`status`,
@@ -119,63 +121,65 @@ if (!$right->isNew()) {
 //                             ->addGroupBy('       `accounts_users`.`id`');
 
     // Build the "users" list section
-    $users_card = Card::new()
-                      ->setTitle(tr('Users that have this right'))
-                      ->setCollapseSwitch(true)
-                      ->setMaximizeSwitch(true)
-                      ->setContent($users->load()->getHtmlDataTableObject([
-                          'id'            => tr('Id'),
-                          'profile_image' => tr('Profile image'),
-                          'email'         => tr('Email'),
-                          'name'          => tr('Name'),
-                          'roles'         => tr('Roles'),
-                          'status'        => tr('Status'),
-                          'sign_in_count' => tr('Signins'),
-                          'created_on'    => tr('Created on'),
-                      ])->setRowUrl('/accounts/user+:ROW.html'));
+    $o_users_card = Card::new()
+                        ->setTitle(tr('Users that have this right'))
+                        ->setCollapseSwitch(true)
+                        ->setMaximizeSwitch(true)
+                        ->setContent($o_users->load()->getHtmlDataTableObject([
+                                                         'id'            => tr('Id'),
+                                                         'profile_image' => tr('Profile image'),
+                                                         'email'         => tr('Email'),
+                                                         'name'          => tr('Name'),
+                                                         'roles'         => tr('Roles'),
+                                                         'status'        => tr('Status'),
+                                                         'sign_in_count' => tr('Signins'),
+                                                         'created_on'    => tr('Created on'),
+                                                     ])
+                                                     ->setRowUrl('/accounts/user+:ROW.html'));
 }
 
 
 // Build the right card
-$card = Card::new()
-            ->setTitle(tr('Edit data for right :name', [':name' => $right->getName()]))
-            ->setCollapseSwitch(true)
-            ->setMaximizeSwitch(true)
-            ->setContent($right->getHtmlDataEntryFormObject())
-            ->useForm(true)
-            ->setButtons(Buttons::new()
-                                ->addButton(tr('Save'))
-                                ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/rights.html'), true)
-                                ->addButton(isset_get($delete))
-                                ->addButton(isset_get($audit)));
+$o_card = Card::new()
+              ->setTitle(tr('Edit data for right :name', [':name' => $o_right->getName()]))
+              ->setCollapseSwitch(true)
+              ->setMaximizeSwitch(true)
+              ->setContent($o_right->getHtmlDataEntryFormObject())
+              ->useForm(true)
+              ->setButtons(Buttons::new()
+                                  ->addButton(tr('Save'))
+                                  ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/rights.html'), true)
+                                  ->addButton(isset_get($o_delete))
+                                  ->addButton(isset_get($o_audit)));
 
 
 // Build relevant links
-$relevant_card = Card::new()
-                     ->setMode(EnumDisplayMode::info)
-                     ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::new('/accounts/users.html')->makeWww() . '">' . tr('Users management') . '</a><br>
-                                   <a href="' . Url::new('/accounts/roles.html')->makeWww() . '">' . tr('Roles management') . '</a>');
+$o_relevant_card = Card::new()
+                       ->setMode(EnumDisplayMode::info)
+                       ->setTitle(tr('Relevant links'))
+                       ->setContent(AnchorBlock::new('/accounts/users.html', tr('Manage users')) .
+                                    AnchorBlock::new('/accounts/roles.html', tr('Manage roles')));
 
 
 // Build documentation
-$documentation_card = Card::new()
-                          ->setMode(EnumDisplayMode::info)
-                          ->setTitle(tr('Documentation'))
-                          ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
+$o_documentation_card = Card::new()
+                            ->setMode(EnumDisplayMode::info)
+                            ->setTitle(tr('Documentation'))
+                            ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
 // Set page meta data
 Response::setHeaderTitle(tr('Right'));
-Response::setHeaderSubTitle($right->getDisplayName());
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-    '/'                     => tr('Home'),
-    '/accounts/rights.html' => tr('Rights'),
-    ''                      => $right->getDisplayName(),
-]));
+Response::setHeaderSubTitle($o_right->getDisplayName());
+Response::setBreadcrumbs([
+    Anchor::new('/'                    , tr('Home')),
+    Anchor::new('/accounts.html'       , tr('Accounts')),
+    Anchor::new('/accounts/rights.html', tr('Rights')),
+    Anchor::new(''                     , $o_right->getDisplayName()),
+]);
 
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($card      . isset_get($users_card) , EnumDisplaySize::nine)
-           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($o_card          . isset_get($o_users_card), EnumDisplaySize::nine)
+           ->addGridColumn($o_relevant_card . $o_documentation_card   , EnumDisplaySize::three);

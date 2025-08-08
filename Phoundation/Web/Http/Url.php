@@ -18,11 +18,14 @@ declare(strict_types=1);
 namespace Phoundation\Web\Http;
 
 use Phoundation\Accounts\Config\Exception\ConfigPathDoesNotExistsException;
+use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
+use Phoundation\Accounts\Rights\RightsBySeoName;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Traits\TraitDataObjectRights;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
@@ -33,6 +36,9 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\Interfaces\AnchorInterface;
+use Phoundation\Web\Html\Enums\EnumAnchorTarget;
 use Phoundation\Web\Http\Exception\UrlConfiguredUrlNotFoundException;
 use Phoundation\Web\Http\Exception\UrlException;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
@@ -41,8 +47,12 @@ use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Stringable;
 
+
 class Url implements UrlInterface
 {
+    use TraitDataObjectRights;
+
+
     /**
      * Will be true if the current URL as-is is cloaked
      *
@@ -53,9 +63,9 @@ class Url implements UrlInterface
     /**
      * The url to work with
      *
-     * @var string|int $source
+     * @var string|int|null $source
      */
-    protected string|int $source;
+    protected string|int|null $source;
 
     /**
      * Tracks if this URL is properly encoded, or not
@@ -72,16 +82,14 @@ class Url implements UrlInterface
      */
     protected function __construct(Stringable|string|int|null $source = null)
     {
-        $source = trim((string) $source);
-
-        // This is either part of a URL or a complete URL
-        if (!Url::isValidUrl($source)) {
-            // This is a section
-            $this->source = Strings::ensureBeginsNotWith($source, '/');
+        if ($source instanceof UrlInterface) {
+            // Copy URL data from the specified source into this URL object
+            $this->setSource($source->getSource())
+                 ->setRightsObject($source->getRightsObject());
 
         } else {
-            // This is a valid URL, continue.
-            $this->source = $source;
+            // If the specified was a non UrlInterface stringable object, convert to string and use
+            $this->setSource((string) $source);
         }
     }
 
@@ -93,7 +101,7 @@ class Url implements UrlInterface
      */
     public function __toString(): string
     {
-        return $this->getSource();
+        return (string) $this->getSource();
     }
 
 
@@ -286,17 +294,17 @@ class Url implements UrlInterface
     {
         $url        = (string) $url;
         $configured = match (Strings::until($url, '.html')) {
-            'dashboard', 'index'   => config()->getString('web.pages.index'        , '/index'),
-            'sign-in'  , 'signin'  => config()->getString('web.pages.sign-in'      , '/sign-in'),
-            'sign-up'  , 'signup'  => config()->getString('web.pages.sign-up'      , '/sign-up'),
-            'sign-out' , 'signout' => config()->getString('web.pages.sign-out'     , '/sign-out'),
-            'sign-key' , 'signkey' => config()->getString('web.pages.sign-key'     , '/sign-key+:key'),
-            'profile'              => config()->getString('web.pages.profile'      , '/my/profile'),
-            'settings'             => config()->getString('web.pages.settings'     , '/my/settings'),
-            'mfa-create'           => config()->getString('web.pages.mfa.create'   , '/mfa/create'),
-            'mfa-verify'           => config()->getString('web.pages.mfa.verify'   , '/mfa/verify'),
-            'lost-password'        => config()->getString('web.pages.password.lost', '/lost-password'),
-            default                => config()->getString('web.pages.' . $url , '')
+            'index'   , 'dashboard' => config()->getString('web.pages.index'        , '/index'),
+            'sign-in' , 'signin'    => config()->getString('web.pages.sign-in'      , '/sign-in'),
+            'sign-up' , 'signup'    => config()->getString('web.pages.sign-up'      , '/sign-up'),
+            'sign-out', 'signout'   => config()->getString('web.pages.sign-out'     , '/sign-out'),
+            'sign-key', 'signkey'   => config()->getString('web.pages.sign-key'     , '/sign-key+:key'),
+            'profile'               => config()->getString('web.pages.profile'      , '/my/profile'),
+            'settings'              => config()->getString('web.pages.settings'     , '/my/settings'),
+            'mfa-create'            => config()->getString('web.pages.mfa.create'   , '/mfa/create'),
+            'mfa-verify'            => config()->getString('web.pages.mfa.verify'   , '/mfa/verify'),
+            'lost-password'         => config()->getString('web.pages.password.lost', '/lost-password'),
+            default                 => config()->getString('web.pages.' . $url      , '')
         };
 
         if ($configured) {
@@ -407,10 +415,10 @@ class Url implements UrlInterface
 
         } catch (ValidationFailedException) {
             Log::warning(ts('Validation for redirect url ":url" failed, ignoring', [
-                ':url' => GetValidator::new()
-                                      ->get('redirect'),
+                ':url' => GetValidator::new()->get('redirect'),
             ]));
         }
+
         if (isset_get($get['redirect'])) {
             // Use the redirect URL
             $url = $get['redirect'];
@@ -429,6 +437,7 @@ class Url implements UrlInterface
                     ':url' => $_SERVER['HTTP_REFERER'],
                 ]));
             }
+
             if (isset_get($server['HTTP_REFERER'])) {
                 // Use the referer
                 $url = $server['HTTP_REFERER'];
@@ -444,6 +453,37 @@ class Url implements UrlInterface
 
 
     /**
+     * Returns true if this URL can be transformed into www, cdn, image url, etc.
+     *
+     * @return bool
+     */
+    public function canMake(): bool
+    {
+        if (empty($this->source)) {
+            // This is a NULL URL, don't do anything
+            return false;
+        }
+
+        if ($this->source === '#') {
+            // This is a valid but "do nothing" link, don't do anything
+            return false;
+        }
+
+        if (str_starts_with($this->source, 'mailto:')) {
+            // This is a valid "mailto" link, don't do anything
+            return false;
+        }
+
+        if (str_starts_with($this->source, 'tel:')) {
+            // This is a valid "tel:" link, don't do anything
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /**
      * Returns a complete web URL
      *
      * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
@@ -453,18 +493,22 @@ class Url implements UrlInterface
      */
     public function makeWww(bool $use_configured_root = false): static
     {
-        if (!$this->source) {
-            return Url::newCurrent();
+        if (!$this->canMake()) {
+            // This URL can't be made into something else
+            return $this;
         }
 
+        // Use configured page extension
+        $extension = config()->getString('web.pages.extension', 'html');
+
         if (is_numeric($this->source)) {
-            $this->source = 'system/' . $this->source . 'html';
+            $this->source = 'system/' . $this->source . $extension;
 
         } elseif ($this->source === '/') {
             return $this->renderUrl('', null, $use_configured_root);
         }
 
-        return $this->renderUrl('html', null, $use_configured_root);
+        return $this->renderUrl($extension, null, $use_configured_root);
     }
 
 
@@ -477,6 +521,11 @@ class Url implements UrlInterface
      */
     public function makeCdn(?string $extension = null): static
     {
+        if (!$this->canMake()) {
+            // This URL can't be made into something else
+            return $this;
+        }
+
         return $this->renderCdn($extension);
     }
 
@@ -520,17 +569,20 @@ class Url implements UrlInterface
      */
     protected function makeJson(string $type, bool $use_configured_root = false): static
     {
+        if (!$this->canMake()) {
+            // This URL can't be made into something else
+            return $this;
+        }
+
         if (empty($this->source)) {
             throw new OutOfBoundsException(tr('No URL specified'));
         }
 
-        $url = $this->source;
+        if (is_numeric($this->source)) {
+            $this->source = 'system/' . $this->source . 'json';
 
-        if (is_numeric($url)) {
-            $url = 'system/' . $url . 'json';
-
-        } elseif (!str_contains($url, '.json?')) {
-            $url = Strings::ensureEndsWith($url, '.json');
+        } elseif (!str_contains($this->source, '.json?')) {
+            $this->source = Strings::ensureEndsWith($this->source, '.json');
         }
 
         return $this->renderUrl('json', $type . '/', $use_configured_root);
@@ -570,6 +622,11 @@ class Url implements UrlInterface
             return $this;
         }
 
+        if (!$this->canMake()) {
+            // This URL can't be made into something else
+            return $this;
+        }
+
 //        if ($directory) {
 //            throw new UnderConstructionException();
 //            // Return the local filesystem path instead of a public URL
@@ -595,7 +652,7 @@ class Url implements UrlInterface
 
 
     /**
-     * Returns the URL if it did not match any of the filter URL's
+     * Returns the URL if it didn't match any of the filter URL's
      *
      * @note Specified filters may be URL strings or UrlInterface objects. The filter will be converted to a URL object,
      *       so it also may be a pre-defined URL like "sign-in" or "index"
@@ -639,18 +696,31 @@ class Url implements UrlInterface
 
 
     /**
-     * When used as string, will always return the internal URL as available
+     * Returns true if this Url object contains no URL
+     *
+     * @return bool
+     */
+    public function isEmpty(): bool
+    {
+        return empty($this->source);
+    }
+
+
+    /**
+     * Returns the source URL of this URL object
      *
      * @param bool $strip_queries
      *
-     * @return string
+     * @return string|int|null
      */
-    public function getSource(bool $strip_queries = false): string
+    public function getSource(bool $strip_queries = false): string|int|null
     {
         // Auto cloak URL's?
         try {
-            if (Domains::getConfigurationKey($this->getDomain(), 'cloaked', false)) {
-                $this->cloak();
+            if ($this->source) {
+                if (Domains::getConfigurationKey($this->getDomain(), 'cloaked', false)) {
+                    $this->cloak();
+                }
             }
 
         } catch (ConfigPathDoesNotExistsException) {
@@ -666,28 +736,66 @@ class Url implements UrlInterface
 
 
     /**
+     * Sets the source URL of this URL object
+     *
+     * @param UrlInterface|string|int|null $source
+     *
+     * @return static
+     */
+    public function setSource(UrlInterface|string|int|null $source): static
+    {
+        $source = get_null(trim((string) $source));
+
+        if ($source === null) {
+            $this->source = null;
+
+        } else {
+            // This is either part of a URL or a complete URL
+            if (!Url::isValidUrl($source)) {
+                // This is (as we will assume) a section of a URL
+                if ($source) {
+                    $source = Strings::ensureBeginsNotWith($source, '/');
+
+                    if (empty($source)) {
+                        $source = '/';
+                    }
+                }
+            }
+
+            $this->source = $source;
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Returns the domain for the specified URL, NULL if the URL is invalid
      *
      * @return string|null
      */
     public function getDomain(): ?string
     {
-        $data = parse_url($this->source);
+        if ($this->source) {
+            $data = parse_url($this->source);
 
-        if (!$data) {
-            throw new OutOfBoundsException(tr('Failed to parse url ":url" to fetch domain', [
-                ':url' => $this->source,
-            ]));
+            if (!$data) {
+                throw new OutOfBoundsException(tr('Failed to parse url ":url" to fetch domain', [
+                    ':url' => $this->source,
+                ]));
+            }
+
+            $domain = isset_get($data['host']);
+
+            if ($domain === null) {
+                // Since there is no domain, assume we need the current domain
+                return Domains::getCurrent();
+            }
+
+            return $domain;
         }
 
-        $domain = isset_get($data['host']);
-
-        if ($domain === null) {
-            // Since there is no domain, assume we need the current domain
-            return Domains::getCurrent();
-        }
-
-        return $domain;
+        return null;
     }
 
 
@@ -702,9 +810,9 @@ class Url implements UrlInterface
     public function cloak(): static
     {
         $cloak = sql()->getColumn('SELECT `cloak`
-                                         FROM   `url_cloaks`
-                                         WHERE  `url`        = :url
-                                         AND    `created_by` = :created_by', [
+                                   FROM   `url_cloaks`
+                                   WHERE  `url`        = :url
+                                   AND    `created_by` = :created_by', [
             ':url'        => $this->source,
             ':created_by' => isset_get($_SESSION['user']['id']),
         ]);
@@ -745,6 +853,11 @@ class Url implements UrlInterface
      */
     protected function renderUrl(?string $extension, ?string $prefix, bool $use_configured_root): static
     {
+        if (empty($this->source)) {
+            // There is no URL to work with, we're done
+            return $this;
+        }
+
         $url = $this->source;
 
         if (static::isValidUrl($url)) {
@@ -802,6 +915,11 @@ class Url implements UrlInterface
 
         if (empty($url)) {
             throw new OutOfBoundsException(tr('No URL specified'));
+        }
+
+        if (!$this->canMake()) {
+            // This URL can't be made into something else
+            return $this;
         }
 
         if (static::isValidUrl($url)) {
@@ -1258,7 +1376,7 @@ class Url implements UrlInterface
          * Do language mapping, but only if routemap has been set
          */
         // :TODO: This will fail when using multiple CDN servers (WHY?)
-        if (!empty(config()->get('locale.language.supported', [])) and ($this->url_params['domain'] !== $_CONFIG['cdn']['domain'] . '/')) {
+        if (!empty(config()->get('locale.languages.supported', [])) and ($this->url_params['domain'] !== $_CONFIG['cdn']['domain'] . '/')) {
             if ($this->url_params['from_language'] !== 'en') {
                 /*
                  * Translate the current non-English URL to English first
@@ -1428,6 +1546,7 @@ class Url implements UrlInterface
 
             // Rebuild the URL back together again
             unset($query);
+
             $queries = implode('&', $queries);
             $url     = $url . '?' . $queries;
         }
@@ -1593,37 +1712,108 @@ class Url implements UrlInterface
 
 
     /**
-     * Returns true if the current session user (or the specified one) has access to this URL
+     * Returns the rights required by any user to view this URL using the current routing parameters
      *
-     * @param UserInterface|null $user
-     *
-     * @return bool
+     * @return array
      */
-    public function hasAccess(?UserInterface $user = null): bool
+    public function getRequiredRights(): array
     {
-        $user = $user ?? Session::getUserObject();
+        if (Request::hasRoutingParameters()) {
+            return array_merge(Request::getRoutingParametersObject()->getRights(), $this->parseRights(), $this->getRightsObject()->getSourceKeys());
+        }
 
-throw new UnderConstructionException();
+        return array_merge($this->parseRights(), $this->getRightsObject()->getSourceKeys());
+    }
+
+
+    /**
+     * Parses the rights required from the URL
+     *
+     * @return array
+     */
+    protected function parseRights(): array
+    {
+        if ($this->source) {
+            $url = parse_url($this->source, PHP_URL_PATH);
+
+            if ($url) {
+                if (preg_match_all('/^\/\w{2}\/(.+?)\/[^\/]+\.\w+$/', $url, $matches)) {
+                    $rights = $matches[1][0];
+                    $rights = explode('/', $rights);
+
+                    return $rights;
+                }
+            }
+
+            // No rights found in the URL
+        }
+
+        return  [];
     }
 
 
     /**
      * Returns true if the current session user (or the specified one) has access to this URL
      *
-     * @param UserInterface|null $user
+     * @param UserInterface|null $o_user
+     *
+     * @return bool
+     */
+    public function userHasAccess(?UserInterface $o_user = null): bool
+    {
+        return ($o_user ?? Session::getUserObject())->hasAllRights($this->getRequiredRights());
+    }
+
+
+    /**
+     * Throws an AccessDeniedException if the current session user (or the specified one) doesn't have access to this URL
+     *
+     * @param UserInterface|null $o_user
      *
      * @return static
      * @throws AccessDeniedException
      */
-    public function checkAccess(?UserInterface $user = null): static
+    public function checkUserAccess(?UserInterface $o_user = null): static
     {
-        if ($this->hasAccess($user)) {
+        if ($this->userHasAccess($o_user)) {
             return $this;
         }
 
-        throw new AccessDeniedException(tr('The user ":user" does not have access to URL ":url"', [
-            ':user' => $user->getLogId(),
+        throw AccessDeniedException::new(tr('The user ":user" does not have access to URL ":url"', [
+            ':user' => $o_user->getLogId(),
             ':url'  => $this->getSource(),
         ]));
+    }
+
+
+    /**
+     * Returns an Anchor object with this URL
+     *
+     * @param string|null           $content
+     * @param EnumAnchorTarget|null $o_target
+     *
+     * @return AnchorInterface
+     */
+    public function getAnchorObject(?string $content = null, ?EnumAnchorTarget $o_target = null): AnchorInterface
+    {
+        return Anchor::new($this, $content)->setTarget($o_target);
+    }
+
+
+    /**
+     * Returns the roles for this user
+     *
+     * @param bool $reload
+     * @param bool $order
+     *
+     * @return RightsInterface
+     */
+    public function getRightsObject(bool $reload = false, bool $order = false): RightsInterface
+    {
+        if (empty($this->o_rights) or $reload) {
+            $this->o_rights = RightsBySeoName::new()->setParentObject($this);
+        }
+
+        return $this->o_rights;
     }
 }

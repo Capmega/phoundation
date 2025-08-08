@@ -202,48 +202,48 @@ class Incident extends DataEntryCore implements IncidentInterface
     /**
      * Sets the exception for this incident
      *
-     * @param Throwable|string|null $e
+     * @param Throwable|string|null $exception
      * @param int                   $log
      * @param array|string          $notify_roles
      *
      * @return static
      */
-    public function setException(Throwable|string|null $e, int $log = 10, array|string $notify_roles = 'developer'): static
+    public function setException(Throwable|string|null $exception, int $log = 10, array|string $notify_roles = 'developer'): static
     {
-        if ($e) {
-            if (is_string($e)) {
+        if ($exception) {
+            if (is_string($exception)) {
                 // This is (presumably) a JSON encoded exception data source. Import it into a new exception
-                $e = PhoException::newFromSource($e);
+                $exception = PhoException::newFromSource($exception);
             }
 
-            if ($e instanceof PhoException) {
-                $this->setTitle(tr('Encountered exception: :e', [':e' => $e->getMessage()]))
+            if ($exception instanceof PhoException) {
+                $this->setTitle(tr('Encountered exception: :e', [':e' => $exception->getMessage()]))
                      ->setType('exception')
                      ->setUrl(PLATFORM_WEB ? Route::getRequest() : CliCommand::getRequest())
-                     ->setSeverity($e->isWarning() ? EnumSeverity::medium : EnumSeverity::high)
-                     ->setBody(get_null(implode(PHP_EOL, $e->getMessages())) ?? $e->getMessage())
+                     ->setSeverity($exception->isWarning() ? EnumSeverity::medium : EnumSeverity::high)
+                     ->setBody(get_null(implode(PHP_EOL, $exception->getMessages())) ?? $exception->getMessage())
                      ->setDetails([
-                         'exception' => $e->getPoadString(true),
-                         'data'      => $e->getData(),
+                         'exception' => $exception->getPoadString(true),
+                         'data'      => $exception->getData(),
                          'details'   => Core::getProcessDetails(),
-                         'backtrace' => $e->getTrace(),
+                         'backtrace' => $exception->getTrace(),
                      ]);
 
             } else {
-                $this->setTitle(tr('Encountered exception: :e', [':e' => $e->getMessage()]))
+                $this->setTitle(tr('Encountered exception: :e', [':e' => $exception->getMessage()]))
                      ->setType('exception')
                      ->setUrl(PLATFORM_WEB ? Route::getRequest() : CliCommand::getRequest())
                      ->setSeverity(EnumSeverity::severe)
-                     ->setBody($e->getMessage())
+                     ->setBody($exception->getMessage())
                      ->setDetails([
-                         'exception' => Poad::generateString(['message'   => $e->getMessage(), 'backtrace' => $e->getTrace()], PhoException::class, EnumPoadTypes::object, null, true),
+                         'exception' => Poad::generateString(['message' => $exception->getMessage(), 'backtrace' => $exception->getTrace()], PhoException::class, EnumPoadTypes::object, null, true),
                          'details'   => Core::getProcessDetails(),
                      ]);
             }
         }
 
         // Set this for all exceptions
-        return $this->__setException($e)
+        return $this->__setException($exception)
                     ->setNotifyRoles($notify_roles)
                     ->setLog($log);
     }
@@ -525,7 +525,7 @@ class Incident extends DataEntryCore implements IncidentInterface
      *
      * @return static
      */
-    #[NoReturn] public function throw(?string $exception = null, bool $non_production_environment_only = false): static
+    public function throw(?string $exception = null, bool $non_production_environment_only = false): static
     {
         if ($non_production_environment_only and Core::isProductionEnvironment()) {
             // We're on a production environment and can continue after registering the incident
@@ -556,7 +556,11 @@ class Incident extends DataEntryCore implements IncidentInterface
         }
 
         throw $exception::new($this->getTitle())
-                        ->addData(['details' => $this->getDetails()]);
+                        ->addMessages($this->getBody())
+                        ->addData([
+                            'data'    => $this->getData(),
+                            'details' => $this->getDetails()
+                        ]);
     }
 
 

@@ -47,10 +47,11 @@ interface PluginInterface
      * Sets if this plugin is disabled or not
      *
      * @param int|bool|null $disabled
+     * @param bool|null     $set_readonly (ignored)
      *
      * @return static
      */
-    public function setDisabled(int|bool|null $disabled): static;
+    public function setDisabled(int|bool|null $disabled, ?bool $set_readonly = null): static;
 
 
     /**

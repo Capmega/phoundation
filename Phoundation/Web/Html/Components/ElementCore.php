@@ -164,7 +164,7 @@ abstract class ElementCore implements ElementInterface
 
         $this->o_attributes->removeKeys('auto_submit');
 
-        $renderer_class  = Request::getTemplateObject()->getRendererClass($this);
+        $renderer_class  = $this->getRenderClass();
         $render_function = function () {
             $attributes = $this->renderAttributesArray();
             $attributes = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Utils::QUOTE_ALWAYS | Utils::HIDE_EMPTY_VALUES);
@@ -220,6 +220,29 @@ abstract class ElementCore implements ElementInterface
         }
 
         return $this->render = $render;
+    }
+
+
+    /**
+     * Returns the class that will render this Element class
+     *
+     * @param bool $return_empty
+     *
+     * @return string|null
+     */
+    public static function getRenderClass(bool $return_empty = false): ?string
+    {
+        $class = Request::getTemplateObject()->getRenderClass(static::class);
+
+        if ($class === static::class) {
+            if ($return_empty) {
+                return null;
+            }
+
+            return $class;
+        }
+
+        return $class;
     }
 
 

@@ -14,8 +14,8 @@
 
 declare(strict_types=1);
 
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Script;
-use Phoundation\Web\Html\Components\Widgets\BreadCrumbs;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Requests\Response;
 
@@ -23,18 +23,18 @@ use Phoundation\Web\Requests\Response;
 // Set page meta data
 Response::setHeaderTitle(tr('Calendar'));
 Response::setHeaderSubTitle(tr('Demo'));
-Response::setBreadCrumbs(BreadCrumbs::new()->setSource([
-                                                           '/'           => tr('Home'),
-                                                           '/demos.html' => tr('Demos'),
-                                                           ''            => tr('Calendar'),
-                                                       ]));
+Response::setBreadcrumbs([
+   Anchor::new('/'          , tr('Home')),
+   Anchor::new('/demos.html', tr('Demos')),
+   Anchor::new(''           , tr('Calendar')),
+]);
 
 // Load required CSS
 Response::loadCss('templates/adminlte/plugins/fullcalendar/main');
 
 // Load required Javascript
-Response::loadJavascript('templates/adminlte/plugins/moment/moment');
-Response::loadJavascript('templates/adminlte/plugins/fullcalendar/main');
+Response::loadJavaScript('templates/adminlte/plugins/moment/moment');
+Response::loadJavaScript('templates/adminlte/plugins/fullcalendar/main');
 
 Script::new()
       ->setJavascriptWrapper(EnumJavascriptWrappers::window)

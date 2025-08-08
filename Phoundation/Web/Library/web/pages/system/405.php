@@ -33,7 +33,7 @@ Response::setRenderMainWrapper(false);
 Response::setPageTitle('405 - Method not allowed');
 Response::setHeaderTitle(tr('405 - Method not allowed'));
 Response::setDescription(tr('The specified method is not allowed'));
-Response::setBreadCrumbs();
+Response::setBreadcrumbs();
 
 
 // Render and return the system page

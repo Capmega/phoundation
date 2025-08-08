@@ -21,6 +21,7 @@ use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Tables\HtmlDataTable;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
@@ -74,7 +75,7 @@ class MetaList
 
         foreach ($source as &$row) {
             if ($row['created_by']) {
-                $row['user'] = '<a href="' . Url::new('profiles/profile+' . $row['created_by'] . '.html')->makeWww() . '">' . $row['user'] . '</a>';
+                $row['user'] = Anchor::new(Url::new('profiles/profile+' . $row['created_by'] . '.html')->makeWww(), $row['user']);
             }
 
             try {
