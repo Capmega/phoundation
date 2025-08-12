@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Library\Tests\Phoundation\Data\DataEntry;
 
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Exception\DataEntryColumnsNotDefinedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryInvalidIdentifierException;
@@ -31,7 +30,6 @@ use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
-use PHPUnit\Event\TestData\TestData;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 
@@ -185,7 +183,10 @@ class DataEntryTest extends TestCase
         $entry->setName('test_name_' . $code);
         $entry->save();
 
-        $this->assertTrue($entry->isSaved(), '`isSaved()` should return true');
+        $this->assertTrue($entry->isCreated());
+        $this->assertTrue($entry->isInitialized());
+        $this->assertTrue($entry->isSaved());
+        $this->assertFalse($entry->isNew());
         $this->assertTrue((bool) $entry->getId(), '`getId()` should return a value');
 
         // Failure with exception (name is required)
@@ -225,7 +226,13 @@ class DataEntryTest extends TestCase
         $entry = TestDataEntry::new()->setName($name)->save();
 
         // Test load from ID
-        $loaded_entry = TestDataEntry::new()->load($entry->getId());
+        $loaded_entry = TestDataEntry::new();
+        $this->assertTrue($loaded_entry->isNew());
+        $this->assertFalse($loaded_entry->isLoaded());
+
+        $loaded_entry->load($entry->getId());
+        $this->assertFalse($loaded_entry->isNew());
+        $this->assertTrue($loaded_entry->isLoaded());
         $this->assertEquals($name, $loaded_entry->getName(), 'The loaded TestDataEntry should have the same name');
 
         // Test load from Name
@@ -243,36 +250,81 @@ class DataEntryTest extends TestCase
         } catch (Throwable $e) {
             $this->assertInstanceOf(SqlMultipleResultsException::class, $e);
         }
+    }
 
+
+    /**
+     * Tests DataEntry::loadNullOrNull()
+     *
+     * @return void
+     */
+    public function testLoadNull()
+    {
         // Test null identifier EnumLoadParameter::null
-        $test_1 = TestDataEntry::new()->load(null, EnumLoadParameters::null, EnumLoadParameters::null);
+        $test_1 = TestDataEntry::new()->loadNullOrNull();
         $this->assertNull($test_1);
 
+        // Test load from ID
+        $name = Strings::getRandom(4) . Numbers::getRandomInt(1000,9999);
+        $entry = TestDataEntry::new()->setName($name)->save();
+        $loaded_entry = TestDataEntry::new()->loadNullOrNull($entry->getId());
+        $this->assertEquals($name, $loaded_entry->getName(), 'The loaded TestDataEntry should have the same name');
+
+        // Test not exists EnumLoadParameter::null
+        $test_4 = TestDataEntry::new()->load(['name' => Strings::getUuid()], EnumLoadParameters::null, EnumLoadParameters::null);
+        $this->assertNull($test_4);
+    }
+
+
+    /**
+     * Tests DataEntry::loadThisOrThis()
+     *
+     * @return void
+     */
+    public function testLoadThisOrThis()
+    {
         // Test null identifier EnumLoadParameter::this
-        $test_2 = TestDataEntry::new()->setName('test_name')->load(null, EnumLoadParameters::this, EnumLoadParameters::null);
+        $test_2 = TestDataEntry::new()->setName('test_name')->loadThisOrThis();
         $this->assertNull($test_2->getId(false), 'TestDataEntry should not have loaded with an ID');
         $this->assertEquals('test_name', $test_2->getName(), 'TestDataEntry should have the same name');
 
+        // Test load from ID
+        $name = Strings::getRandom(4) . Numbers::getRandomInt(1000,9999);
+        $entry = TestDataEntry::new()->setName($name)->save();
+        $loaded_entry = TestDataEntry::new()->loadThisOrThis($entry->getId());
+        $this->assertEquals($name, $loaded_entry->getName(), 'The loaded TestDataEntry should have the same name');
+
+        // Test not exists EnumLoadParameter::this
+        $test_5 = TestDataEntry::new()->setTestColumn('test_value')->loadThisOrThis(['name' => Strings::getUuid()]);
+        $this->assertNull($test_2->getId(false), 'TestDataEntry should not have loaded with an ID');
+        $this->assertEquals('test_value', $test_5->getTestColumn(), 'TestDataEntry test column should have the same value');
+    }
+
+
+    /**
+     * Tests DataEntry::loadExceptionOrException()
+     *
+     * @return void
+     */
+    public function testLoadExceptionOrException()
+    {
+        // Test load from ID
+        $name = Strings::getRandom(4) . Numbers::getRandomInt(1000,9999);
+        $entry = TestDataEntry::new()->setName($name)->save();
+        $loaded_entry = TestDataEntry::new()->load($entry->getId(), EnumLoadParameters::exception, EnumLoadParameters::exception);
+        $this->assertEquals($name, $loaded_entry->getName(), 'The loaded TestDataEntry should have the same name');
+
         // Test null identifier EnumLoadParameter::exception
         try {
-            TestDataEntry::new()->load(null, EnumLoadParameters::exception, EnumLoadParameters::null);
+            TestDataEntry::new()->load(null, EnumLoadParameters::exception, EnumLoadParameters::exception);
             $this->fail('Expected DataEntryNoIdentifierSpecifiedException was not thrown');
         } catch (Throwable $e) {
             $this->assertInstanceOf(DataEntryNoIdentifierSpecifiedException::class, $e);
         }
 
-        // Test not exists EnumLoadParameter::null
-        $test_4 = TestDataEntry::new()->load(['name' => Strings::getUuid()], EnumLoadParameters::null, EnumLoadParameters::null);
-        $this->assertNull($test_4);
-
-        // Test not exists EnumLoadParameter::this
-        $test_5 = TestDataEntry::new()->setTestColumn('test_value')->load(['name' => Strings::getUuid()], EnumLoadParameters::null, EnumLoadParameters::this);
-        $this->assertNull($test_2->getId(false), 'TestDataEntry should not have loaded with an ID');
-        $this->assertEquals('test_value', $test_5->getTestColumn(), 'TestDataEntry test column should have the same value');
-
         // Test not exists EnumLoadParameter::exception
         try {
-            TestDataEntry::new()->load(['name' => Strings::getUuid()], EnumLoadParameters::null, EnumLoadParameters::exception);
+            TestDataEntry::new()->load(['name' => Strings::getUuid()], EnumLoadParameters::exception, EnumLoadParameters::exception);
             $this->fail('Expected DataEntryNotExistsException was not thrown');
         } catch (Throwable $e) {
             $this->assertInstanceOf(DataEntryNotExistsException::class, $e);
@@ -289,6 +341,8 @@ class DataEntryTest extends TestCase
     {
         $entry = TestDataEntry::new()->loadRandom();
         $this->assertFalse($entry->isNew(), 'A randomly loaded entry should have information in its source');
+        $this->assertNotEmpty($entry->getName());
+        $this->assertTrue($entry->isInitialized());
     }
 
 
@@ -309,7 +363,10 @@ class DataEntryTest extends TestCase
         $this->assertEquals('test_value', array_get_safe($test_source_2, 'test_column'));
         $this->assertNull(array_get_safe($test_source_2, 'id'));
 
-        // TODO test other parameters
+        $test_entry_2 = TestDataEntry::new();
+        $this->assertArrayNotHasKey('id', $test_entry_2->getSource());
+        $test_entry_2->initialize();
+        $this->assertArrayHasKey('id', $test_entry_2->getSource());
     }
 
 
@@ -324,8 +381,13 @@ class DataEntryTest extends TestCase
         TestDataEntry::new()->setName($name)->save();
 
         // Test setting a single column
-        $test_entry = TestDataEntry::new()->setSource(['seo_name' => $name, 'name' => $name, 'test_column' => 'test_value1']);
+        $test_entry = TestDataEntry::new();
+        $this->assertFalse($test_entry->isInitialized());
+
+        $test_entry->setSource(['seo_name' => $name, 'name' => $name, 'test_column' => 'test_value1']);
         $this->assertEquals($name, $test_entry->getName());
+        $this->assertTrue($test_entry->isInitialized());
+        $this->assertTrue($test_entry->isNew());
 
         // Test overwriting a column
         $test_entry->setSource(['test_column' => 'test_value2']);
@@ -337,11 +399,15 @@ class DataEntryTest extends TestCase
         $this->assertNull($test_entry->getTestColumn());
 
         // Test setting source with filter_meta: true
-        $test_entry_2 = TestDataEntry::new()->loadRandom();
+        $name = Strings::getRandom(4) . Numbers::getRandomInt(1000,9999);
+        $test_entry_2 = TestDataEntry::new()->setName($name)->save();
         $test_entry_3 = TestDataEntry::new();
-        show('-----------------------------------------------------');
         $test_entry_3->setSource($test_entry_2->getSource(), filter_meta: true);
         $this->assertNull($test_entry_3->getId(false));
+
+        // Test setting source and validating
+        $test_entry_2->setSource($test_entry->getSource());
+        $this->assertTrue($test_entry_2->isValidated());
 
         // Test setting source with non-existing column
         try {
@@ -365,6 +431,20 @@ class DataEntryTest extends TestCase
         // Test setting source with non-existing column
         $test_entry = TestDataEntry::new()->setSourceDirect(['invalid_column' => 'value', 'seo_name' => $name]);
         $this->assertEquals('value', $test_entry->get('invalid_column', false));
+        $this->assertFalse($test_entry->isValidated());
+
+        // Test setting source and validating
+        $test_entry_2 = TestDataEntry::new()->setName($name)->save();
+        $test_entry_2->setSourceDirect($test_entry->getSource());
+        $this->assertFalse($test_entry_2->isValidated());
+
+        // Test setting source with non-existing column AND no unique identifier
+        try {
+            TestDataEntry::new()->setSourceDirect(['invalid_column' => 'value']);
+            $this->fail('Expected DataEntryInvalidIdentifierException was not thrown');
+        } catch (Throwable $e) {
+            $this->assertInstanceOf(DataEntryInvalidIdentifierException::class, $e);
+        }
     }
 
 
@@ -388,7 +468,8 @@ class DataEntryTest extends TestCase
         }
 
         try {
-            TestDataEntry::new()->loadRandom()->setTestColumn(Strings::getUuid())->delete();
+            $test_entry_2 = TestDataEntry::new()->setName(Strings::getUuid())->save();
+            $test_entry_2->setTestColumn(Strings::getUuid())->delete();
             $this->fail('Expected OutOfBoundsException was not thrown since object was modified then deleted');
         } catch (Throwable $e) {
             $this->assertInstanceOf(OutOfBoundsException::class, $e);
@@ -414,9 +495,6 @@ class DataEntryTest extends TestCase
             $this->assertInstanceOf(DataEntryIsNewException::class, $e);
         }
     }
-
-
-    // DataEntryCore methods *******************************************************************************************
 
 
     /**
@@ -486,8 +564,6 @@ class DataEntryTest extends TestCase
         $test_data_entry = TestDataEntry::new()->setName(Strings::getUuid())->save();
         $id = $test_data_entry->getId();
         $this->assertEquals($id, $test_data_entry->__toInteger());
-        // TODO should this pass?
-//        $this->assertEquals($id, (int) $test_data_entry);
     }
 
 
@@ -611,8 +687,15 @@ class DataEntryTest extends TestCase
      */
     public function testGetSourceKeys()
     {
-        $this->assertTrue(true);
-        // TODO
+        $test_entry = TestDataEntry::new();
+        $this->assertEmpty($test_entry->getSourceKeys());
+
+        $test_entry->initialize();
+        $this->assertNotEmpty($test_entry->getSourceKeys());
+        $keys = ['id', 'created_on', 'created_by', 'meta_id', 'status', 'meta_state', 'name', 'seo_name', 'test_column'];
+        foreach ($keys as $key) {
+            $this->assertContains($key, $test_entry->getSourceKeys());
+        }
     }
 
 
