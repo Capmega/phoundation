@@ -19,6 +19,7 @@ namespace Phoundation\Data\Library\Tests\Phoundation\Data\DataEntry;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Exception\DataEntryColumnsNotDefinedException;
+use Phoundation\Data\DataEntries\Exception\DataEntryInvalidIdentifierException;
 use Phoundation\Data\DataEntries\Exception\DataEntryIsNewException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNoIdentifierSpecifiedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
@@ -343,8 +344,12 @@ class DataEntryTest extends TestCase
         $this->assertNull($test_entry_3->getId(false));
 
         // Test setting source with non-existing column
-        $test_entry_4 = TestDataEntry::new()->setSource(['invalid_column' => 'value']);
-        $this->assertNull($test_entry_4->get('invalid_column', false));
+        try {
+            TestDataEntry::new()->setSource(['invalid_column' => 'value']);
+            $this->fail('Expected DataEntryInvalidIdentifierException was not thrown');
+        } catch (Throwable $e) {
+            $this->assertInstanceOf(DataEntryInvalidIdentifierException::class, $e);
+        }
     }
 
 
@@ -355,8 +360,10 @@ class DataEntryTest extends TestCase
      */
     public function testSetSourceDirect()
     {
+        $name = Strings::getRandom(4) . Numbers::getRandomInt(1000,9999);
+
         // Test setting source with non-existing column
-        $test_entry = TestDataEntry::new()->setSourceDirect(['invalid_column' => 'value']);
+        $test_entry = TestDataEntry::new()->setSourceDirect(['invalid_column' => 'value', 'seo_name' => $name]);
         $this->assertEquals('value', $test_entry->get('invalid_column', false));
     }
 
@@ -452,6 +459,7 @@ class DataEntryTest extends TestCase
     {
         $test_data_entry = TestDataEntry::new();
         $this->assertEmpty($test_data_entry->getSource());
+
         $test_data_entry->initialize();
         $this->assertTrue($test_data_entry->isInitialized());
         $this->assertTrue(!(empty($test_data_entry->getSource())));
@@ -461,7 +469,7 @@ class DataEntryTest extends TestCase
         $test_data_entry_2 = TestDataEntry::new()->setName(Strings::getUuid())->save();
         $id = $test_data_entry_2->getId();
 
-        $test_data_entry_3 = TestDataEntry::new()->initialize($id);
+        $test_data_entry_3 = TestDataEntry::new($id);
         $this->assertTrue($test_data_entry_3->isInitialized());
         $this->assertTrue(!(empty($test_data_entry_3->getSource())));
         $this->assertTrue((bool) $test_data_entry_3->getId(false));
