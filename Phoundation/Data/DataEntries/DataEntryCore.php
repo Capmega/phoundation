@@ -356,6 +356,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         if ($identifier === false) {
             // If the identifier is false, do NOT automatically initialize the DataEntry object
+            $this->ready();
             return;
         }
 
@@ -363,6 +364,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $this->setOnLoadNullIdentifier($on_load_null_identifier)
              ->setOnLoadNotExists($on_load_not_exists)
              ->initialize(($identifier === null) ? false : $identifier);
+
+        if ($identifier) {
+            // An identifier was specified, load data immediately using DataEntry::load() (Data MUST exist!)
+            $this->load(null);
+
+        } elseif ($identifier === null) {
+            // Pre-initialize the DataEntry object
+            $this->copyMetaDataToSource()
+                 ->copyValuesToSource([], false)
+                 ->ready();
+        }
     }
 
 
@@ -452,34 +464,33 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         // Set the identifier
         $this->setIdentifier($identifier)
+             ->ensureMetaColumns()
              ->is_initializing_source = true;
 
+        // Set up the definitions for this object and initialize meta-data
+        $this->setMetaDefinitions()
+             ->setDefinitionsObject($this->o_definitions)
+             ->columns_filter_on_insert = [static::getIdColumn()];
+
+        $this->is_initialized = true;
+
+        return $this;
+    }
+
+
+    /**
+     * Ensures that the meta columns for this DataEntry object have been defined
+     *
+     * @return static
+     */
+    protected function ensureMetaColumns(): static
+    {
         // Set meta_columns for this class
         if (empty($this->meta_columns)) {
             $this->meta_columns = static::getDefaultMetaColumns();
         }
 
-        // Set up the definitions for this object and initialize meta-data
-        $this->setMetaDefinitions()
-             ->setDefinitionsObject($this->o_definitions)
-             ->copyMetaDataToSource() CHECK IF THIS SHOULD HAPPEN HERE!? IT IS DONE AUTOMATICALLY AFTER LOAD
-             ->columns_filter_on_insert = [static::getIdColumn()];
-
-        $this->is_initialized = true;
-
-        if ($identifier) {
-            // An identifier was specified, load data immediately using DataEntry::load() (Data MUST exist!)
-            return $this->load(null);
-        }
-
-        if ($identifier === false) {
-            // Don't initialize the object source
-            return $this->ready();
-        }
-
-        // Pre-initialize the DataEntry object
-        return $this->copyValuesToSource([], false)
-                    ->ready();
+        return $this;
     }
 
 
@@ -2057,46 +2068,22 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function setSource(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, bool $filter_meta = false): static
     {
+        $this->ensureMetaColumns();
         $this->is_loading = true;
         $this->source     = [];
 
-if (static::class === TestDataEntry::class) {
-show('filter meta: ' . $filter_meta);
-show('source:');
-show($source);
-show('a');
-show($this->source);
-}
-
         if ($source) {
             $source = $this->prepareSource($source, $execute, $filter_meta);
-
-if (static::class === TestDataEntry::class) {
-show('b');
-show($this->source);
-}
-
-// todo: initializeFromSource will initialize meta columns, even if filter_meta is true - should this be passed along as a flag?
 
             // Initialize the object
             if (!$this->is_initialized) {
                 $this->initializeFromSource($source);
             }
 
-if (static::class === TestDataEntry::class) {
-    show('c');
-    show($this->source);
-}
-
             if (!$filter_meta) {
                 // Load meta data too
                 $this->copyMetaDataToSource($source);
             }
-
-if (static::class === TestDataEntry::class) {
-show('d');
-show($this->source);
-}
 
             // Load data with object init
             $this->copyValuesToSource($source, false);
