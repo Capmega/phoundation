@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace Phoundation\Storage\Library;
 
 
-
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
     /**
@@ -28,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.15';
+        return '0.8.0';
     }
 
 
@@ -509,6 +508,23 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_storage_page_resources_pages_id` FOREIGN KEY (`pages_id`) REFERENCES `storage_pages` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_storage_page_resources_resources_id` FOREIGN KEY (`resources_id`) REFERENCES `storage_resources` (`id`) ON DELETE RESTRICT,
                 ')->create();
+
+        })->addUpdate('0.8.0', function () {
+            // Add support for modified_on and modified_by
+            $this->ensureModifiedColumns([
+                'storage_page_resources',
+                'storage_resources',
+                'storage_files',
+                'storage_file_limits',
+                'storage_key_values',
+                'storage_ratings',
+                'storage_comments',
+                'storage_keywords',
+                'storage_pages',
+                'storage_chapters',
+                'storage_books',
+                'storage_collections',
+            ]);
         });
     }
 }

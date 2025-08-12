@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace Phoundation\Security\Library;
 
 
-
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
     /**
@@ -28,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.1.2';
+        return '0.8.0';
     }
 
 
@@ -123,6 +122,13 @@ class Updates extends \Phoundation\Core\Libraries\Updates
         })->addUpdate('0.1.2', function () {
             sql()->getSchemaObject()->getTableObject('security_incidents')->alter()
                  ->modifyColumn('`details`'   , 'mediumtext COLLATE utf8mb4_general_ci NULL DEFAULT NULL,');
+
+        })->addUpdate('0.8.0', function () {
+            // Add support for modified_on and modified_by
+            $this->ensureModifiedColumns([
+                'security_incidents',
+                'security_puks_keys',
+            ]);
         });
     }
 }

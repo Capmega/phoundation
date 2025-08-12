@@ -20,8 +20,6 @@ namespace Phoundation\Accounts\Users;
 use DateTimeInterface;
 use Phoundation\Accounts\Enums\EnumAuthenticationAction;
 use Phoundation\Accounts\Exception\AccountsException;
-use Phoundation\Accounts\Rights\Interfaces\RightInterface;
-use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Rights\RightsBySeoName;
 use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
@@ -3248,6 +3246,9 @@ Log::backtrace();
                                            ->setSize(6)
                                            ->setHelpGroup(tr('Account information'))
                                            ->setHelpText(tr('Comments about this user by leaders or administrators that are not visible to the user')))
+
+                    ->add(DefinitionFactory::newData('session_state')
+                                           ->setRender(false))
 
                     ->add(DefinitionFactory::newCode('verification_code')
                                            ->setOptional(true)

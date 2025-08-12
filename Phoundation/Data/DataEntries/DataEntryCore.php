@@ -617,6 +617,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             'id',
             'created_on',
             'created_by',
+            'modified_on',
+            'modified_by',
             'meta_id',
             'status',
             'meta_state',
@@ -803,6 +805,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
                 case 'created_by':
                     $o_definitions->add(DefinitionFactory::newCreatedBy());
+                    break;
+
+                case 'modified_on':
+                    $o_definitions->add(DefinitionFactory::newModifiedOn());
+                    break;
+
+                case 'modified_by':
+                    $o_definitions->add(DefinitionFactory::newModifiedBy());
                     break;
 
                 case 'meta_id':
@@ -4480,6 +4490,99 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         return $this->set($created_on, 'created_on');
+    }
+
+
+    /**
+     * Returns the users_id that last modified this data entry
+     *
+     * @note Returns NULL if this class has no support for modified_by information or has not been written to disk yet
+     *
+     * @return int|null
+     */
+    public function getModifiedBy(): ?int
+    {
+        return $this->getTypesafe('int', 'modified_by');
+    }
+
+
+    /**
+     * Returns the user object that last modified this data entry
+     *
+     * @note Returns NULL if this class has no support for modified_by information or has not been written to disk yet
+     *
+     * @return UserInterface|null
+     */
+    public function getModifiedByObject(): ?UserInterface
+    {
+        $modified_by = $this->getTypesafe('int', 'modified_by');
+
+        if ($modified_by === null) {
+            return null;
+        }
+
+        return new User($modified_by);
+    }
+
+
+    /**
+     * Sets the modified_by field for this DataEntry object
+     *
+     * @param int|null $modified_by
+     *
+     * @return static
+     */
+    protected function setModifiedBy(?int $modified_by): static
+    {
+        return $this->set($modified_by, 'modified_by');
+    }
+
+
+    /**
+     * Returns the modified on value in integer format
+     *
+     * @note Returns NULL if this class has no support for modified_on information or has not been written to disk yet
+     *
+     * @return string|int|null
+     */
+    public function getModifiedOn(): string|int|null
+    {
+        return $this->getTypesafe('string|int', 'modified_on');
+    }
+
+
+    /**
+     * Returns the object that last modified this data entry
+     *
+     * @note Returns NULL if this class has no support for modified_by information or has not been written to disk yet
+     * @return PhoDateTimeInterface|null
+     */
+    public function getModifiedOnObject(): ?PhoDateTimeInterface
+    {
+        $modified_on = $this->getTypesafe('string', 'modified_on');
+
+        if ($modified_on === null) {
+            return null;
+        }
+
+        return new PhoDateTime($modified_on);
+    }
+
+
+    /**
+     * Sets the modified_on field for this DataEntry object
+     *
+     * @param string|int|null $modified_on
+     *
+     * @return static
+     */
+    protected function setModifiedOn(string|int|null $modified_on): static
+    {
+        if (is_int($modified_on)) {
+            $modified_on = PhoDateTime::new($modified_on)->format(EnumDateFormat::mysql_datetime);
+        }
+
+        return $this->set($modified_on, 'modified_on');
     }
 
 

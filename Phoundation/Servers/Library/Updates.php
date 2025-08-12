@@ -27,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.16';
+        return '0.8.0';
     }
 
 
@@ -154,6 +154,13 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             // name and seo_name must be nullable, fix
             sql()->getSchemaObject()->getTableObject('servers')->alter()->changeColumn('name'    , '`name`     varchar(128) NULL DEFAULT NULL,')
                                                                         ->changeColumn('seo_name', '`seo_name` varchar(128) NULL DEFAULT NULL,');
+
+        })->addUpdate('0.8.0', function () {
+            // Add support for modified_on and modified_by
+            $this->ensureModifiedColumns([
+                'ssh_accounts',
+                'servers',
+            ]);
         });
     }
 }

@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Library;
 
+
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
     /**
@@ -26,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.1.0';
+        return '0.8.0';
     }
 
 
@@ -69,6 +70,12 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_developer_unittests_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_developer_unittests_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                 ')->create();
+
+        })->addUpdate('0.8.0', function () {
+            // Add support for modified_on and modified_by
+            $this->ensureModifiedColumns([
+                'developer_unittests',
+            ]);
         });
     }
 }

@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace Phoundation\Emails\Library;
 
 
-
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
     /**
@@ -28,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.18';
+        return '0.8.0';
     }
 
 
@@ -243,6 +242,18 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->changeColumn('local_path', '`local_directory` varchar(128) NOT NULL')
                  ->dropIndex('local_path')
                  ->addIndex('UNIQUE KEY local_path (`local_directory`)');
+
+        })->addUpdate('0.8.0', function () {
+            // Add support for modified_on and modified_by
+            $this->ensureModifiedColumns([
+                'emails_attachments',
+                'emails_addresses_linked',
+                'emails_addresses',
+                'emails_accounts',
+                'emails_labels_links',
+                'emails_labels',
+                'emails',
+            ]);
         });
     }
 }

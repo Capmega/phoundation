@@ -1916,6 +1916,70 @@ class DefinitionFactory
 
 
     /**
+     * Returns a Definition object for modified_by
+     *
+     * @param string|null $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newModifiedBy(?string $column = 'modified_by'): DefinitionInterface
+    {
+        return DefinitionFactory::newDatabaseId($column)
+                                ->setDisabled(true)
+                                ->setSize(3)
+                                ->setLabel(tr('Modified by'))
+                                ->setTooltip(tr('This column contains the user who last modified this object. Other users may have made earlier edits to this object, that information may be found in the object\'s meta data'))
+                                ->setInputType(EnumInputType::dbid)
+                                ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                    $o_validator->columnExists(tr('must be an existing user'), table: 'accounts_users');
+                                })
+                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) {
+                                    if ($o_definition->getDataEntryObject()->isNew()) {
+                                        // This is a new DataEntry object, so the creator is.. Well, you!
+                                        return InputText::new()
+                                                        ->setDisabled(true)
+                                                        ->addClasses('text-center')
+                                                        ->setValue(Session::getUserObject()->getDisplayName());
+                                    }
+
+                                    // This is modified by a user or by the system user
+                                    if ($source[$key]) {
+                                        return InputText::new()
+                                                        ->setDisabled(true)
+                                                        ->addClasses('text-center')
+                                                        ->setValue(User::new()->load($source[$key])->getDisplayName());
+                                    }
+
+                                    return InputText::new()
+                                                    ->setDisabled(true)
+                                                    ->addClasses('text-center')
+                                                    ->setContent(tr('System'));
+                                });
+    }
+
+
+    /**
+     * Returns a Definition object for modified_on
+     *
+     * @param string|null $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newModifiedOn(?string $column = 'modified_on'): DefinitionInterface
+    {
+        return Definition::new($column)
+                         ->setDisabled(true)
+                         ->setInputType(EnumInputType::datetime_local)
+                         ->setDbNullInputType(EnumInputType::text)
+                         ->addClasses('text-center')
+                         ->setSize(3)
+                         ->setMaxLength(20)
+                         ->setTooltip(tr('This column contains the exact date / time when this object was last modified'))
+                         ->setLabel(tr('Modified on'));
+    }
+
+
+    /**
      * Returns a Definition object for meta_id
      *
      * @param string|null $column

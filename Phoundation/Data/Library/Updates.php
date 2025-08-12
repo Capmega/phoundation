@@ -28,7 +28,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.1.0';
+        return '0.8.0';
     }
 
 
@@ -176,6 +176,14 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->getSchemaObject()->getTableObject('categories')->alter()
                 ->dropIndex('parent_name')
                 ->addIndex('UNIQUE KEY `parents_id_name` (`parents_id`,`name`)');
+
+        })->addUpdate('0.8.0', function () {
+            // Add support for modified_on and modified_by
+            $this->ensureModifiedColumns([
+                'categories',
+                'entities',
+                'test_dataentries',
+            ]);
         });
     }
 }

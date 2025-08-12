@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace Phoundation\Business\Library;
 
 
-
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
     /**
@@ -28,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.9';
+        return '0.10.0';
     }
 
 
@@ -336,6 +335,19 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_business_invoices_items_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_business_invoices_items_invoices_id` FOREIGN KEY (`invoices_id`) REFERENCES `business_invoices` (`id`)
                 ')->create();
+
+        })->addUpdate('0.10.0', function () {
+            // Add support for modified_on and modified_by
+            $this->ensureModifiedColumns([
+                'business_branches',
+                'business_companies',
+                'business_customers',
+                'business_departments',
+                'business_employees',
+                'business_invoices',
+                'business_invoices_items',
+                'business_providers',
+            ]);
         });
     }
 }
