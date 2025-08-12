@@ -99,7 +99,7 @@ class MetaList
             unset($row['created_by']);
 
             if (Url::new($row['source'])->isValid()) {
-                $row['source'] = '<a href = "' . $row['source'] . '">' . $row['source'] . '</a>';
+                $row['source'] = Anchor::new($row['source'], $row['source']);
             }
 
             if (isset_get($row['data']['to'])) {

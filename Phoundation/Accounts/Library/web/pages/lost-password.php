@@ -25,6 +25,7 @@ use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\PhoException;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Pages\LostPasswordPage;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
@@ -90,7 +91,7 @@ if (Request::isPostRequestMethod()) {
         // Build email
         $mail->Body = tr('Hello :user, this email is sent because you (or somebody) requested a password reset because they lost the password for this account.<br><br>If you did not request this, please notify your systems administrator.<br><br>If you did request this, please click :here to continue.<br><br>If you cannot click on the previous link, then please copy / paste the following link into a new browser page:<br>:alt', [
             ':user' => $user->getDisplayName(),
-            ':here' => tr('<a href=":url">here</a>', [':url' => $key->getUrl()]),
+            ':here' => Anchor::new($key->getUrl(), tr('here')),
             ':alt'  => $key->getUrl(),
         ]);
 

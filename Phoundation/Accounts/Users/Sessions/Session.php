@@ -61,6 +61,7 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Geo\GeoIp\GeoIp;
+use Phoundation\Geo\States\Interfaces\StateInterface;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
@@ -169,6 +170,13 @@ class Session implements SessionInterface
      * @var int|null $sign_out_on_exit
      */
     protected static ?int $sign_out_on_exit = null;
+
+    /**
+     * Tracks session state data
+     *
+     * @var Interfaces\StateInterface $state
+     */
+    protected static Interfaces\StateInterface $state;
 
 
     /**
@@ -2682,8 +2690,24 @@ class Session implements SessionInterface
     {
         if ($time) {
             $_SESSION['auto_signed_out'] = $time;
+
         } else {
             $_SESSION['auto_signed_out'] = time();
         }
+    }
+
+
+    /**
+     * Returns session State object
+     *
+     * @return Interfaces\StateInterface
+     */
+    public static function getStateObject(): Interfaces\StateInterface
+    {
+        if (empty(static::$state)) {
+            static::$state = new State();
+        }
+
+        return static::$state;
     }
 }

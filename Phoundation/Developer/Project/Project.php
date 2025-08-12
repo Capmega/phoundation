@@ -54,6 +54,8 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Enums\EnumAnchorTarget;
 use Throwable;
 
 
@@ -1292,5 +1294,39 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
                 }
             }
         }
+    }
+
+
+    /**
+     * Returns a basic copyright message
+     *
+     * @param bool      $multi_line
+     * @param bool|null $html
+     *
+     * @return string
+     */
+    public static function getCopyright(bool $multi_line = false, ?bool $html = null): string
+    {
+        if ($html === null) {
+            $html = PLATFORM_WEB;
+        }
+
+        if ($html) {
+            return tr('Copyright © :year :url ' . ($multi_line ? '<br/>' : null) . '<small>:reserved</small>', [
+                ':reserved' => tr('All rights reserved'),
+                ':year'     => config()->getString('project.copyright', '2025'),
+                ':url'      => Anchor::new(config()->getString('project.owner.url', 'https://phoundation.org'))
+                                     ->setTarget(EnumAnchorTarget::blank)
+                                     ->setContent(config()->getString('project.owner.name', 'Phoundation'))
+            ]);
+        }
+
+        return tr('Copyright © :year :url ' . ($multi_line ? PHP_EOL : null) . ':reserved', [
+            ':reserved' => tr('All rights reserved'),
+            ':year'     => config()->getString('project.copyright', '2025'),
+            ':url'      => Anchor::new(config()->getString('project.owner.url', 'https://phoundation.org'))
+                                 ->setTarget(EnumAnchorTarget::blank)
+                                 ->setContent(config()->getString('project.owner.name', 'Phoundation'))
+        ]);
     }
 }

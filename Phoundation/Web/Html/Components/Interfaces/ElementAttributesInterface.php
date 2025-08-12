@@ -258,9 +258,9 @@ interface ElementAttributesInterface
     /**
      * Returns the extra element attribute code
      *
-     * @return string
+     * @return string|null
      */
-    public function getExtraAttributes(): string;
+    public function getExtraAttributes(): ?string;
 
     /**
      * Sets all the extra element attribute code
@@ -686,4 +686,20 @@ interface ElementAttributesInterface
      * @return static
      */
     public function addBeforeContent(RenderInterface|array|callable|string|null $before_content): static;
+
+    /**
+     * Returns the HTML title element attribute
+     *
+     * @return string|null
+     */
+    public function getTitle(): ?string;
+
+    /**
+     * Sets the HTML title element attribute
+     *
+     * @param string|null $title
+     *
+     * @return static
+     */
+    public function setTitle(?string $title): static;
 }

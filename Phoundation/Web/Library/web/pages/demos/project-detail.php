@@ -90,8 +90,8 @@ Response::setBreadcrumbs([
                                                        ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                        ->render() ?>
                                     <span class="username">
-                      <a href="<?= Url::new('/demos/profile.html')->makeWww(); ?>">Sven Olaf Oostenbrink</a>
-                    </span>
+                                        <?= Anchor::new(Url::new('/demos/profile.html'), 'Sven Olaf Oostenbrink') ?>
+                                    </span>
                                     <span class="description">Shared publicly - 7:45 PM today</span>
                                 </div>
                                 <!-- /.user-block -->
@@ -140,8 +140,11 @@ Response::setBreadcrumbs([
                                                        ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
                                                        ->render() ?>
                                     <span class="username">
-                      <a href="<?= Url::new('/demos/profile.html')->makeWww(); ?>">Sven Olaf Oostenbrink</a>
-                    </span>
+                                        <?=
+                                            Anchor::new(Url::new('/demos/profile.html'))
+                                                  ->setContent('Sven Olaf Oostenbrink')
+                                        ?>
+                                    </span>
                                     <span class="description">Shared publicly - 5 days ago</span>
                                 </div>
                                 <!-- /.user-block -->
@@ -175,22 +178,19 @@ Response::setBreadcrumbs([
                     <h5 class="mt-5 text-muted">Project files</h5>
                     <ul class="list-unstyled">
                         <li>
-                            <a href="" class="btn-link text-secondary"><i class="far fa-fw fa-file-word"></i>
-                                Functional-requirements.docx</a>
+                            <a href="#" class="btn-link text-secondary"><i class="far fa-fw fa-file-word"></i>Functional-requirements.docx</a>
                         </li>
                         <li>
-                            <a href="" class="btn-link text-secondary"><i class="far fa-fw fa-file-pdf"></i> UAT.pdf</a>
+                            <a href="#" class="btn-link text-secondary"><i class="far fa-fw fa-file-pdf"></i> UAT.pdf</a>
                         </li>
                         <li>
-                            <a href="" class="btn-link text-secondary"><i class="far fa-fw fa-envelope"></i>
-                                Email-from-flatbal.mln</a>
+                            <a href="#" class="btn-link text-secondary"><i class="far fa-fw fa-envelope"></i>Email-from-flatbal.mln</a>
                         </li>
                         <li>
-                            <a href="" class="btn-link text-secondary"><i class="far fa-fw fa-image "></i> Logo.png</a>
+                            <a href="#" class="btn-link text-secondary"><i class="far fa-fw fa-image "></i> Logo.png</a>
                         </li>
                         <li>
-                            <a href="" class="btn-link text-secondary"><i class="far fa-fw fa-file-word"></i>
-                                Contract-10_12_2014.docx</a>
+                            <a href="#" class="btn-link text-secondary"><i class="far fa-fw fa-file-word"></i> Contract-10_12_2014.docx</a>
                         </li>
                     </ul>
                     <div class="text-center mt-5 mb-3">

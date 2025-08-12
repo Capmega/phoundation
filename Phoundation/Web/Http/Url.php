@@ -39,6 +39,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Interfaces\AnchorInterface;
 use Phoundation\Web\Html\Enums\EnumAnchorTarget;
+use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Exception\UrlConfiguredUrlNotFoundException;
 use Phoundation\Web\Http\Exception\UrlException;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
@@ -89,7 +90,7 @@ class Url implements UrlInterface
 
         } else {
             // If the specified was a non UrlInterface stringable object, convert to string and use
-            $this->setSource((string) $source);
+            $this->setSource(Html::safe((string) $source));
         }
     }
 
@@ -464,7 +465,7 @@ class Url implements UrlInterface
             return false;
         }
 
-        if ($this->source === '#') {
+        if (str_starts_with($this->source, '#')) {
             // This is a valid but "do nothing" link, don't do anything
             return false;
         }
@@ -476,6 +477,11 @@ class Url implements UrlInterface
 
         if (str_starts_with($this->source, 'tel:')) {
             // This is a valid "tel:" link, don't do anything
+            return false;
+        }
+
+        if (str_starts_with($this->source, 'javascript:')) {
+            // This is a valid "javascript:" link, don't do anything
             return false;
         }
 
@@ -1719,10 +1725,15 @@ class Url implements UrlInterface
     public function getRequiredRights(): array
     {
         if (Request::hasRoutingParameters()) {
-            return array_merge(Request::getRoutingParametersObject()->getRights(), $this->parseRights(), $this->getRightsObject()->getSourceKeys());
+            $return = array_merge(Request::getRoutingParametersObject()->getRights(), $this->parseRights(), $this->getRightsObject()->getSourceKeys());
+
+        } else {
+            $return = array_merge($this->parseRights(), $this->getRightsObject()->getSourceKeys());
         }
 
-        return array_merge($this->parseRights(), $this->getRightsObject()->getSourceKeys());
+        // Filter out ../ and ./
+        Arrays::removeValues($return, ['../', './']);
+        return $return;
     }
 
 

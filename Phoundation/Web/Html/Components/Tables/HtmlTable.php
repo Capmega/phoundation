@@ -28,6 +28,7 @@ use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Input\InputCheckbox;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\ResourceElement;
@@ -997,7 +998,10 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
                 $url->addQueries($queries);
             }
 
-            return '<a' . $this->renderAnchorClassString() . ' href="' . $url . '"' . $attributes . '>' . $value . '</a>';
+            return Anchor::new($url, $value)
+                         ->setClass($this->renderAnchorClassString())
+                         ->setExtraAttributes($attributes)
+                         ->render();
         }
 
         return $url;

@@ -15,6 +15,10 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Sessions\Session;
+use Phoundation\Developer\Project\Project;
+use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
+use Phoundation\Web\Html\Enums\EnumAnchorTarget;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
@@ -33,8 +37,9 @@ Response::setRenderMainWrapper(false);
 <div class="lockscreen-wrapper card card-outline card-info">
     <div class="card-header text-center">
         <div class="lockscreen-logo">
-            <a href="<?= config()->getString('project.customer-url', 'https://phoundation.org'); ?>"
-               class="h1"><?= config()->getString('project.owner.label', '<span>Medi</span>web'); ?></a>
+            <?= Anchor::new(config()->getString('project.customer-url', 'https://phoundation.org'))
+                      ->setContent(config()->getString('project.owner.label', '<span>Medi</span>web'))
+                      ->setClass('h1'); ?>
         </div>
     </div>
     <div class="card-body">
@@ -56,11 +61,13 @@ Response::setRenderMainWrapper(false);
             Please authenticate using the fingerprint scanner to continue
         </div>
         <div class="text-center">
-            <a href="<?= Url::new('sign-out')->makeWww(); ?>">Or sign in as a different user</a>
+            <?=
+                Anchor::new(Url::new('sign-out'))
+                      ->setContent(tr('Or sign in as a different user'));
+            ?>
         </div>
         <div class="lockscreen-footer text-center">
-            <?= 'Copyright © ' . config()->getString('project.copyright', '2025') . ' <b><a href="' . config()->getString('project.owner.url', 'https://phoundation.org') . '" target="_blank">' . config()->getString('project.owner.name', 'Phoundation') . '</a></b><br>'; ?>
-            All rights reserved
+            <?= Project::getCopyright() ?>
         </div>
     </div>
 </div>

@@ -27,6 +27,7 @@ use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use ReturnTypeWillChange;
 use Stringable;
 use Throwable;
 use UnitEnum;
@@ -1396,4 +1397,53 @@ interface ValidatorInterface extends IteratorBaseInterface
      * @return array
      */
     public function getFailures(): array;
+
+    /**
+     * Returns the first key contained in this object without changing the internal pointer
+     *
+     * @return Stringable|string|float|int|null
+     */
+    public function getFirstKey(): Stringable|string|float|int|null;
+
+    /**
+     * Returns the last key contained in this object without changing the internal pointer
+     *
+     * @return Stringable|string|float|int|null
+     */
+    public function getLastKey(): Stringable|string|float|int|null;
+
+    /**
+     * Returns the first element contained in this object without changing the internal pointer
+     *
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function getFirstValue(): mixed;
+
+    /**
+     * Returns the last element contained in this object without changing the internal pointer
+     *
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function getLastValue(): mixed;
+
+    /**
+     * Returns if the specified key exists or not
+     *
+     * @param Stringable|string|int $key
+     *
+     * @return bool
+     */
+    public function keyExists(Stringable|string|int $key): bool;
+
+    /**
+     * Returns if the specified value exists in this Iterator or not
+     *
+     * @note Wrapper for IteratorCore::exists()
+     *
+     * @param mixed $value
+     * @param bool  $strict
+     *
+     * @return bool
+     */
+    public function valueExists(mixed $value, bool $strict = true): bool;
 }
