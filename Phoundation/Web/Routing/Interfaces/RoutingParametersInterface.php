@@ -44,7 +44,7 @@ interface RoutingParametersInterface
      *
      * @return array
      */
-    public function getRequiredRights(string $target): array;
+    public function getRequiredRightsForPath(string $target): array;
 
 
     /**

@@ -5,7 +5,7 @@ namespace Phoundation\Accounts\Users\Sessions\Interfaces;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Stringable;
 
-interface StateInterface
+interface SessionStateInterface
 {
     /**
      *

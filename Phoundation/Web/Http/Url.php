@@ -46,6 +46,7 @@ use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Requests\Enums\EnumDomainAllowed;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
+use Phoundation\Web\Routing\Route;
 use Stringable;
 
 
@@ -1724,16 +1725,33 @@ class Url implements UrlInterface
      */
     public function getRequiredRights(): array
     {
-        if (Request::hasRoutingParameters()) {
-            $return = array_merge(Request::getRoutingParametersObject()->getRights(), $this->parseRights(), $this->getRightsObject()->getSourceKeys());
-
-        } else {
-            $return = array_merge($this->parseRights(), $this->getRightsObject()->getSourceKeys());
+        if (empty($this->source)) {
+            return [];
         }
 
-        // Filter out ../ and ./
-        Arrays::removeValues($return, ['../', './']);
-        return $return;
+        // Only check rights on local URL's. This means only URL's without host, or with internal / configured hosts
+        $url   = parse_url($this->source);
+        $host  = array_get_safe($url, 'host');
+        $check = (empty($host) or Domains::isConfigured($host));
+
+        if ($check) {
+            // Is this an internal / configured host? If not, this is not ours to check and no rights will be required
+            $o_parameters = Route::getParametersObject()->select($this->source);
+
+            if ($o_parameters) {
+                $return = array_merge($o_parameters->getRequiredRightsForUrl($this->source), $this->parseRights(), $this->getRightsObject()->getSourceKeys());
+
+            } else {
+                $return = array_merge($this->parseRights(), $this->getRightsObject()->getSourceKeys());
+            }
+
+            // Filter out ../ and ./
+            Arrays::removeValues($return, ['../', './']);
+
+            return $return;
+        }
+
+        return [];
     }
 
 

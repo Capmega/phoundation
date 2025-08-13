@@ -1312,7 +1312,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         }
 
         if ($html) {
-            return tr('Copyright © :year :url ' . ($multi_line ? '<br/>' : null) . '<small>:reserved</small>', [
+            return tr('Copyright © :year <b>:url</b> ' . ($multi_line ? '<br/>' : null) . '<small>:reserved</small>', [
                 ':reserved' => tr('All rights reserved'),
                 ':year'     => config()->getString('project.copyright', '2025'),
                 ':url'      => Anchor::new(config()->getString('project.owner.url', 'https://phoundation.org'))

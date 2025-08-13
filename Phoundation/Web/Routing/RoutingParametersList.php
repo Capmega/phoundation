@@ -134,7 +134,9 @@ class RoutingParametersList
                 throw RouteException::new(tr('Routing regular expression pattern ":regex" failed with error ":e"', [
                     ':e'     => $e->getMessage(),
                     ':regex' => $pattern,
-                ]), $e)->addData(['failed_pattern' => $pattern]);
+                ]), $e)->addData([
+                    'failed_pattern' => $pattern
+                ]);
             }
 
             $parameters->setMatches($matches)->setUri($uri);
@@ -150,6 +152,7 @@ class RoutingParametersList
 
             return $parameters;
         }
+
         if (!isset($parameters)) {
             throw new RouteException(tr('Cannot find routing parameters for target ":target", no routing parameters available', [
                 ':target' => $uri,

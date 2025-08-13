@@ -30,6 +30,7 @@ use Phoundation\Data\Traits\TraitMethodHasRendered;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Csrf;
+use Phoundation\Web\Html\Enums\EnumAnchorRenderRightsFail;
 use Phoundation\Web\Html\Pages\Interfaces\TemplateInterface;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
@@ -147,6 +148,18 @@ class Template implements TemplateInterface
     {
         $this->__setName($name);
 
+        if (Session::isGuest()) {
+            $sign_out =  '<p>' . tr('Click :here to sign in', [
+                                     ':here' => Anchor::new(Url::new('sign-out'), tr('here'))->setRenderRightsFail(EnumAnchorRenderRightsFail::full)
+                                 ]) .
+                         '</p>';
+        } else {
+            $sign_out =  '<p>' . tr('Click :here to sign out', [
+                                     ':here' => Anchor::new(Url::new('sign-out'), tr('here'))->setRenderRightsFail(EnumAnchorRenderRightsFail::full)
+                                 ]) .
+                         '</p>';
+        }
+
         // TODO Get rid of this hard coded stuff
         switch ($this->name) {
             case '':
@@ -183,8 +196,8 @@ class Template implements TemplateInterface
                                                 <div class="border-top border-dark" style="width: 100px"></div>
                                                 <h2 class="display-4 mt-5 mb-4" style="color: #344e41"><i class="fas fa-exclamation-triangle text-:type"></i> :h2 :h3</h2>
                                                   <p>:p</p>
-                                                  <p>' . tr('Click :here to go to the index page', [':here' => Anchor::new(Url::newCurrentDomainRootUrl(), tr('here'))]) . '</p>' .
-               (Session::isGuest() ? null : '     <p>' . tr('Click :here to sign out', [':here' => Anchor::new(Url::new('sign-out'), tr('here'))]) .'</p>');
+                                                  <p>' . tr('Click :here to go to the index page', [':here' => Anchor::new(Url::newCurrentDomainRootUrl(), tr('here'))->setRenderRightsFail(EnumAnchorRenderRightsFail::full)]) . '</p>' .
+                                                  $sign_out;
 
                 if (Session::isUser()) {
                     $this->source .= '    <form class="search-form" method="post" action=":action">

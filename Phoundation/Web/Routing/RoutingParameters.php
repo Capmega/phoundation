@@ -30,7 +30,9 @@ use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
+use Stringable;
 use Templates\Phoundation\AdminLte\AdminLte;
+
 
 class RoutingParameters implements RoutingParametersInterface
 {
@@ -180,8 +182,29 @@ class RoutingParameters implements RoutingParametersInterface
         }
 
         $this->template = $template;
-
         return $this;
+    }
+
+
+    /**
+     * Returns the rights required for the specified URL
+     *
+     * @param Stringable|string $url
+     *
+     * @return array
+     * @todo Change static::getRequiredRightsForUrl and static::getRequiredRightsForPath, these methods are a mess. rights exceptions are stored with the .php extension which is needed for getRequiredRightsForPath, but getRequiredRightsForUrl will receive .html extensions, etc...
+     */
+    public function getRequiredRightsForUrl(Stringable|string $url): array
+    {
+        $url = basename($url);
+        $url = Strings::untilReverse($url, '.') . '.php';
+
+        // Is this file an exception for required rights?
+        if ($this->rights_exceptions and in_array($url, $this->rights_exceptions)) {
+            return [];
+        }
+
+        return $this->rights;
     }
 
 
@@ -192,7 +215,7 @@ class RoutingParameters implements RoutingParametersInterface
      *
      * @return array
      */
-    public function getRequiredRights(string $target): array
+    public function getRequiredRightsForPath(string $target): array
     {
         // Is this file an exception for required rights?
         if ($this->rights_exceptions and in_array(basename($target), $this->rights_exceptions)) {

@@ -40,6 +40,7 @@ use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionPostAndSignoutException;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionStartFailedException;
 use Phoundation\Accounts\Users\Sessions\Interfaces\SessionInterface;
+use Phoundation\Accounts\Users\Sessions\Interfaces\SessionStateInterface;
 use Phoundation\Accounts\Users\Sessions\Interfaces\UserSessionInterface;
 use Phoundation\Accounts\Users\SignInKey;
 use Phoundation\Accounts\Users\User;
@@ -61,7 +62,6 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Geo\GeoIp\GeoIp;
-use Phoundation\Geo\States\Interfaces\StateInterface;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
@@ -170,13 +170,6 @@ class Session implements SessionInterface
      * @var int|null $sign_out_on_exit
      */
     protected static ?int $sign_out_on_exit = null;
-
-    /**
-     * Tracks session state data
-     *
-     * @var Interfaces\StateInterface $state
-     */
-    protected static Interfaces\StateInterface $state;
 
 
     /**
@@ -2700,14 +2693,10 @@ class Session implements SessionInterface
     /**
      * Returns session State object
      *
-     * @return Interfaces\StateInterface
+     * @return SessionStateInterface
      */
-    public static function getStateObject(): Interfaces\StateInterface
+    public static function getStateObject(): SessionStateInterface
     {
-        if (empty(static::$state)) {
-            static::$state = new State();
-        }
-
-        return static::$state;
+        return static::getUserObject()->getSessionStateObject();
     }
 }

@@ -1105,7 +1105,15 @@ class Log implements LogInterface
             static::write(tr('Exception : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
             static::write(get_class($exception), $class, $threshold, true, true, false, $echo_screen);
             static::write(tr('Command   : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
+
             $has_logged = static::write(Request::getExecutedPath(true), $class, $threshold, true, true, false, $echo_screen);
+            $messages   = $exception->getMessages();
+
+            if ($messages) {
+                foreach ($messages as $message) {
+                    static::write($message, $class, $threshold, false, true, true, $echo_screen);
+                }
+            }
 
             // Log the exception data, the trace, and previous exception, if any.
             static::logExceptionTrace($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);

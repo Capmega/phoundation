@@ -44,6 +44,8 @@ use Phoundation\Accounts\Users\ProfileImages\ProfileImage;
 use Phoundation\Accounts\Users\ProfileImages\ProfileImages;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
 use Phoundation\Accounts\Users\Sessions\Interfaces\SessionInterface;
+use Phoundation\Accounts\Users\Sessions\Interfaces\SessionStateInterface;
+use Phoundation\Accounts\Users\Sessions\SessionState;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Accounts\Users\Sessions\Sessions;
 use Phoundation\Core\Core;
@@ -113,6 +115,7 @@ use Plugins\Phoundation\MultiFactorAuthentication\Interfaces\MultiFactorAuthenti
 use Plugins\Phoundation\MultiFactorAuthentication\MultiFactorAuthentication;
 use Stringable;
 use Throwable;
+
 
 
 class User extends DataEntry implements UserInterface
@@ -203,6 +206,13 @@ class User extends DataEntry implements UserInterface
      * @var bool $notifications_enabled
      */
     protected bool $notifications_enabled = true;
+
+    /**
+     * Tracks session state data
+     *
+     * @var SessionStateInterface $state
+     */
+    protected SessionStateInterface $state;
 
 
     /**
@@ -1523,6 +1533,45 @@ Log::backtrace();
     public function setLastSignin(?string $last_sign_in): static
     {
         return $this->set($last_sign_in, 'last_sign_in');
+    }
+
+
+    /**
+     * Returns the SessionState object for this user
+     *
+     * @return SessionStateInterface
+     */
+    public function getSessionStateObject(): SessionStateInterface
+    {
+        if (empty($this->state)) {
+            $this->state =  new SessionState($this);
+        }
+
+        return $this->state;
+    }
+
+
+    /**
+     * Returns the session_state for this user
+     *
+     * @return string|null
+     */
+    public function getSessionState(): ?string
+    {
+        return $this->getTypesafe('string', 'session_state');
+    }
+
+
+    /**
+     * Sets the session_state for this user
+     *
+     * @param string|null $session_state
+     *
+     * @return static
+     */
+    public function setSessionState(?string $session_state): static
+    {
+        return $this->set($session_state, 'session_state');
     }
 
 

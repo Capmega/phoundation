@@ -16,23 +16,28 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users\Sessions;
 
+use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionStateException;
-use Phoundation\Accounts\Users\Sessions\Interfaces\StateInterface;
+use Phoundation\Accounts\Users\Sessions\Interfaces\SessionStateInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Json;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Requests\Request;
 use Stringable;
 
 
-class State implements StateInterface
+class SessionState implements SessionStateInterface
 {
     /**
-     * State class constructor
+     * SessionState class constructor
      */
-    public function __construct()
+    public function __construct(UserInterface $o_user)
     {
-        Arrays::ensure($_SESSION, 'state', []);
+        if (!array_key_exists('state', $_SESSION)) {
+            $_SESSION['state'] = Json::decode($o_user->getSessionState());
+        }
     }
 
 
@@ -168,8 +173,6 @@ class State implements StateInterface
      */
     public function getPage(): string
     {
-        show(Request::getExecutedFile());
-        show(Request::getExecutedPath());
-        showdie();
+        return Strings::from(Request::getExecutedPath(), 'pages/');
     }
 }

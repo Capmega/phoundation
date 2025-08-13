@@ -2118,7 +2118,7 @@ class Response implements ResponseInterface
             ]), 4);
 
         } else {
-            Log::warning(ts('Warning: page generated no output for client, sent 0 bytes'));
+            Log::warning(ts('Page generated no output for client, sent "0" bytes'));
         }
     }
 

@@ -12,6 +12,8 @@ use Phoundation\Accounts\Users\Locale\Language\Interfaces\PhoLocaleInterface;
 use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImageInterface;
 use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImagesInterface;
 use Phoundation\Accounts\Users\Sessions\Interfaces\SessionInterface;
+use Phoundation\Accounts\Users\Sessions\Interfaces\SessionStateInterface;
+use Phoundation\Accounts\Users\Sessions\SessionState;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
@@ -850,4 +852,27 @@ interface UserInterface extends DataEntryInterface
      * @return PhoLocaleInterface
      */
     public function getLocaleObject(): PhoLocaleInterface;
+
+    /**
+     * Returns the SessionState object for this user
+     *
+     * @return SessionStateInterface
+     */
+    public function getSessionStateObject(): SessionStateInterface;
+
+    /**
+     * Returns the session_state for this user
+     *
+     * @return string|null
+     */
+    public function getSessionState(): ?string;
+
+    /**
+     * Sets the session_state for this user
+     *
+     * @param string|null $session_state
+     *
+     * @return static
+     */
+    public function setSessionState(?string $session_state): static;
 }
