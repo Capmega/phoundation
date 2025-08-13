@@ -25,7 +25,7 @@ interface FindInterface extends CommandInterface
      *
      * @return static
      */
-    public function setPathObject(PhoPathInterface|null $o_path): static;
+    public function setPathObject(?PhoPathInterface $o_path): static;
 
 
     /**

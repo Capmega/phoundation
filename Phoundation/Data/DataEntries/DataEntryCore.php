@@ -43,6 +43,7 @@ use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Definitions;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntries\Tests\TestDataEntry;
 use Phoundation\Data\Enums\EnumStateMismatchHandling;
 use Phoundation\Data\DataEntries\Exception\DataEntryAlreadyExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryColumnDefinitionInvalidException;
@@ -355,6 +356,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         if ($identifier === false) {
             // If the identifier is false, do NOT automatically initialize the DataEntry object
+            $this->ready();
             return;
         }
 
@@ -362,6 +364,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $this->setOnLoadNullIdentifier($on_load_null_identifier)
              ->setOnLoadNotExists($on_load_not_exists)
              ->initialize(($identifier === null) ? false : $identifier);
+
+        if ($identifier) {
+            // An identifier was specified, load data immediately using DataEntry::load() (Data MUST exist!)
+            $this->load(null);
+
+        } elseif ($identifier === null) {
+            // Pre-initialize the DataEntry object
+            $this->copyMetaDataToSource()
+                 ->copyValuesToSource([], false)
+                 ->ready();
+        }
     }
 
 
@@ -394,6 +407,46 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
+     * Initializes this DataEntry object with a unique code or ID column.
+     *
+     * Checks the source for a value in the unique identifier column. If that is not found, checks for a value in the
+     * ID column. If neither of these are found, throws an exception.
+     *
+     * @param array $source
+     *
+     * @return static
+     */
+    protected function initializeFromSource(array $source): static
+    {
+        $unique_column = static::getUniqueColumn();
+
+        if ($unique_column) {
+            // This DataEntry object has a unique column defined. Does the source have it too for initialization?
+            $unique_column_value = array_get_safe($source, $unique_column);
+
+            if ($unique_column_value) {
+                return $this->initialize($unique_column_value);
+            }
+        }
+
+        // Either this DataEntry has no unique column, or the source doesn't have the specified unique column.
+        // Try the ID column instead
+        $id_column       = static::getIdColumn();
+        $id_column_value = array_get_safe($source, $id_column);
+
+        if ($id_column_value) {
+            // This source has a correct ID column, initialize with that.
+            return $this->initialize($id_column_value);
+        }
+
+        throw DataEntryInvalidIdentifierException::new(tr('Specified source has no valid ":id" or ":unique" column required as a unique identifier', [
+            ':id'     => $id_column,
+            ':unique' => $unique_column
+        ]))->addData($source);
+    }
+
+
+    /**
      * Initializes this DataEntry object
      *
      * @param IdentifierInterface|array|string|int|false|null $identifier  The unique identifier for the data for this
@@ -411,34 +464,33 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         // Set the identifier
         $this->setIdentifier($identifier)
-            ->is_initializing_source = true;
+             ->ensureMetaColumns()
+             ->is_initializing_source = true;
 
+        // Set up the definitions for this object and initialize meta-data
+        $this->setMetaDefinitions()
+             ->setDefinitionsObject($this->o_definitions)
+             ->columns_filter_on_insert = [static::getIdColumn()];
+
+        $this->is_initialized = true;
+
+        return $this;
+    }
+
+
+    /**
+     * Ensures that the meta columns for this DataEntry object have been defined
+     *
+     * @return static
+     */
+    protected function ensureMetaColumns(): static
+    {
         // Set meta_columns for this class
         if (empty($this->meta_columns)) {
             $this->meta_columns = static::getDefaultMetaColumns();
         }
 
-        // Set up the definitions for this object and initialize meta-data
-        $this->setMetaDefinitions()
-             ->setDefinitionsObject($this->o_definitions)
-             ->setMetaData()
-            ->columns_filter_on_insert = [static::getIdColumn()];
-
-        $this->is_initialized = true;
-
-        if ($identifier) {
-            // An identifier was specified, load data immediately using DataEntry::load() (Data MUST exist!)
-            return $this->load(null);
-        }
-
-        if ($identifier === false) {
-            // Don't initialize the object source
-            return $this->ready();
-        }
-
-        // Pre-initialize the DataEntry object
-        return $this->copyValuesToSource([], false)
-                    ->ready();
+        return $this;
     }
 
 
@@ -2026,21 +2078,21 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function setSource(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, bool $filter_meta = false): static
     {
-        // Initialize the object
-        if (!$this->is_initialized) {
-            $this->initialize(false);
-        }
-
-        $this->is_initializing_source = true;
-        $this->is_loading             = true;
-        $this->source                 = [];
+        $this->ensureMetaColumns();
+        $this->is_loading = true;
+        $this->source     = [];
 
         if ($source) {
             $source = $this->prepareSource($source, $execute, $filter_meta);
 
+            // Initialize the object
+            if (!$this->is_initialized) {
+                $this->initializeFromSource($source);
+            }
+
             if (!$filter_meta) {
                 // Load meta data too
-                $this->setMetaData($source);
+                $this->copyMetaDataToSource($source);
             }
 
             // Load data with object init
@@ -2065,24 +2117,22 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function setSourceDirect(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, bool $filter_meta = false): static
     {
-        // Initialize the object
-        if (!$this->is_initialized) {
-            $this->initialize(false);
-        }
-
         // Mark the data in this object as unvalidated because this loading bypassed validation!
-        $this->is_initializing_source = true;
-        $this->is_loading             = true;
-        $this->is_validated           = false;
-        $this->source                 = [];
-
+        $this->is_loading   = true;
+        $this->is_validated = false;
+        $this->source       = [];
 
         if ($source) {
             $source = $this->prepareSource($source, $execute, $filter_meta);
 
+            // Initialize the object
+            if (!$this->is_initialized) {
+                $this->initializeFromSource($source);
+            }
+
             if (!$filter_meta) {
                 // Load meta data too
-                $this->setMetaData($source);
+                $this->copyMetaDataToSource($source);
             }
 
             // Load data directly
@@ -2120,6 +2170,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 // This is not JSON, is it an SQL query?
                 $source = sql()->list($source, $execute);
             }
+        }
+
+        if ($filter_meta) {
+            // Remove meta columns from the given source
+            $source = Arrays::removeKeys($source, $this->meta_columns);
         }
 
         return $source;
@@ -2327,7 +2382,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 }
 
                 // If data was found, store all data in the object
-                $this->setMetaData($source)
+                $this->copyMetaDataToSource($source)
                      ->copyValuesToSource($source, false);
             }
 
@@ -2882,16 +2937,16 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Sets all meta-data for this data entry at once with an array of information
      *
-     * @param ?array $data
+     * @param ?array $source
      * @param bool   $directly
      *
      * @return static
      */
-    protected function setMetaData(?array $data = null, bool $directly = false): static
+    protected function copyMetaDataToSource(?array $source = null, bool $directly = false): static
     {
         $this->checkDefinitionsObject();
 
-        if ($data === null) {
+        if ($source === null) {
             // No data specified, all columns should be null
             $this->source = Arrays::setKeys($this->meta_columns, null, $this->source);
 
@@ -2899,7 +2954,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // Reset meta columns
             try {
                 foreach ($this->meta_columns as $column) {
-                    $this->setColumnValueWithObjectSetter(array_get_safe($data, $column), $column, $directly, $this->getDefinitionsObject()->get($column));
+                    $this->setColumnValueWithObjectSetter(array_get_safe($source, $column), $column, $directly, $this->getDefinitionsObject()->get($column));
                 }
 
             } catch (TypeError | DataEntryException | DataEntryTypeException $e) {
@@ -2907,7 +2962,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                     ':class'  => static::class,
                 ]), $e)
                 ->setData([
-                    'source' => $data
+                    'source' => $source
                 ]);
             }
         }
@@ -4274,6 +4329,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 $this->setTableState();
 
                 if ($auto_save and $this->isNotNew()) {
+                    $this->updateMetaState();
+
                     SqlDataEntry::new(sql($this->o_connector), $this)
                                 ->setDebug($this->debug)
                                 ->setStatus($status, $comments);
@@ -5010,6 +5067,18 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function getSpreadSheet(): SpreadSheetInterface
     {
         return new SpreadSheet($this);
+    }
+
+
+    /**
+     * Updates the meta_state column with a random value
+     *
+     * @return static
+     */
+    protected function updateMetaState(): static
+    {
+        $this->setMetaState(Strings::getRandom(16));
+        return $this;
     }
 
 

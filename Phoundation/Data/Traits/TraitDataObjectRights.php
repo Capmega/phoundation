@@ -128,10 +128,9 @@ trait TraitDataObjectRights
         if ($o_right instanceof RightInterface) {
             $o_right = $o_right->getName();
         }
-show($this->getRightsObject()->getSourceKeys());
-show($o_right);
+
         $this->getRightsObject()->removeKeys($o_right);
-show($this->getRightsObject()->getSourceKeys());
+
         return $this;
     }
 }

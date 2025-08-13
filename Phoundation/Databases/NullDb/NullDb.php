@@ -24,12 +24,12 @@ class NullDb implements DatabaseInterface
     /**
      * Do nothing, really
      *
-     * @param string      $key
-     * @param string|null $namespace
+     * @param string|float|int|null $key
+     * @param callable|null         $cache_callback
      *
      * @return mixed (but really, always NULL)
      */
-    public function get(string $key, ?string $namespace = null): mixed
+    public function get(string|float|int|null $key, ?callable $cache_callback = null): mixed
     {
         return null;
     }
@@ -57,13 +57,16 @@ class NullDb implements DatabaseInterface
     /**
      * Do nothing, really
      *
-     * @param mixed       $value
-     * @param string      $key
-     * @param string|null $namespace
+     * @param mixed                 $value
+     * @param string|float|int|null $key
+     * @param string|null           $namespace
      *
-     * @return void
+     * @return static
      */
-    public function set(mixed $value, string $key, ?string $namespace = null): void {}
+    public function set(mixed $value, string|float|int|null $key, ?string $namespace = null): static
+    {
+        return $this;
+    }
 
 
     /**
@@ -96,5 +99,16 @@ class NullDb implements DatabaseInterface
     public function export(PhoFileInterface $file): static
     {
         return $this;
+    }
+
+
+    /**
+     * Do nothing, really
+     *
+     * @return bool
+     */
+    public function isConnected(): bool
+    {
+        return true;
     }
 }

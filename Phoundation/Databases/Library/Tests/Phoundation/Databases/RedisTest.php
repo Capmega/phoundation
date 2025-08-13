@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Databases\Library\tests\Phoundation\Databases;
+namespace Phoundation\Databases\Library\Tests\Phoundation\Databases;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Connectors\Connector;
@@ -107,7 +107,7 @@ class RedisTest extends TestCase
         $this->assertTrue($this->redis->ping(), 'Pinging connection should still return true');
         $this->redis->close();
 
-        $this->redis = Redis::new('test');
+        $this->redis = Redis::new('redis-test');
         $this->assertTrue($this->redis->ping(), 'Pinging connection (from string) should return true');
 
         $this->redis->close();
@@ -266,9 +266,8 @@ class RedisTest extends TestCase
      * Tests Redis::queuePeek()
      *
      * @return void
-     * @todo Rename this method, should be static::testQueuePeek()?
      */
-    public function testPeek()
+    public function testQueuePeek()
     {
         $this->ensureRedisConnectionOpen();
 
@@ -292,7 +291,6 @@ class RedisTest extends TestCase
     /**
      * Tests Redis::getQueueLength()
      *
-     * @todo Rename this method, should be static::testGetQueueLength()?  Should there be a static::testGetCount() too?
      * @return void
      */
     public function testGetQueueCount()

@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Data\Interfaces;
 
 
+use PDOStatement;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+
 interface PoadInterface
 {
     /**
@@ -34,11 +37,11 @@ interface PoadInterface
     /**
      * Returns a new DataEntry object from the specified array source
      *
-     * @param ArraySourceInterface|string|array $source
+     * @param DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source
      *
      * @return static
      */
-    public static function newFromSource(ArraySourceInterface|string|array $source): static;
+    public static function newFromSource(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null): static;
 
     /**
      * Returns a new DataEntry object from the specified array source or null

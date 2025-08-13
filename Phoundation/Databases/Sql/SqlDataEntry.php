@@ -562,9 +562,11 @@ class SqlDataEntry implements SqlDataEntryInterface
         // Update the row status
         $this->sql->setDebug($this->debug)
                          ->query('UPDATE `' . $this->table . '`
-                                  SET     `status`                   = :status
+                                  SET     `status`                   = :status,
+                                          `meta_state`               = :meta_state
                                   WHERE   `' . $this->id_column . '` = :' . $this->id_column, [
                                       ':status'              => $status,
+                                      ':meta_state'          => $entry->getMetaState(),
                                       ':' . $this->id_column => $entry->getId(),
                          ]);
 

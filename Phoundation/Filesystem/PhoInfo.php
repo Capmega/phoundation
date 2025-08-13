@@ -25,26 +25,26 @@ use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 class PhoInfo extends EntryCore implements PhoInfoInterface
 {
     use TraitDataObjectPath {
-        setPath as protected __setPath;
+        setPathObject as protected __setPathObject;
     }
 
 
     /**
      * PhoInfo class constructor
      *
-     * @param PhoPathInterface $path
+     * @param PhoPathInterface $o_path
      */
-    public function __construct(PhoPathInterface $path)
+    public function __construct(PhoPathInterface $o_path)
     {
-        $this->path = $path;
+        $this->o_path = $o_path;
 
         $this->source = [
-            'path'       => $path->getSource(),
-            'type'       => $path->getTypeName(),
-            'size'       => $path->getSize(),
-            'binary'     => $path->isBinary(),
-            'filesystem' => $path->getFilesystemObject()->getSource(),
-            'encrypted'  => $path->isEncrypted(),
+            'path'       => $o_path->getSource(),
+            'type'       => $o_path->getTypeName(),
+            'size'       => $o_path->getSize(),
+            'binary'     => $o_path->isBinary(),
+            'filesystem' => $o_path->getFilesystemObject()->getSource(),
+            'encrypted'  => $o_path->isEncrypted(),
         ];
     }
 }

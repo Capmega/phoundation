@@ -237,4 +237,22 @@ class MongoDb implements DatabaseInterface
         // TODO: Implement export() method.
         return $this;
     }
+
+
+    public function isConnected(): bool
+    {
+        // TODO: Implement isConnected() method.
+    }
+
+
+    public function get(float|int|string|null $key, ?callable $cache_callback = null): mixed
+    {
+        // TODO: Implement get() method.
+    }
+
+
+    public function set(mixed $value, float|int|string|null $key): static
+    {
+        // TODO: Implement set() method.
+    }
 }

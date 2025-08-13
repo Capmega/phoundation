@@ -43,13 +43,16 @@ declare(strict_types=1);
 
 namespace Phoundation\Exception;
 
+use PDOStatement;
 use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\LogException;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Enums\EnumPoadTypes;
 use Phoundation\Data\Interfaces\ArraySourceInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Poad\Poad;
 use Phoundation\Data\Traits\TraitMethodsPoad;
 use Phoundation\Developer\Debug\Debug;
@@ -64,6 +67,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
 use RuntimeException;
 use Throwable;
+
 
 class PhoException extends RuntimeException implements PhoExceptionInterface
 {
@@ -429,11 +433,11 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
     /**
      * Import exception data and return this as an exception
      *
-     * @param ArraySourceInterface|array|string $source
+     * @param DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source
      *
      * @return static
      */
-    public static function newFromSource(ArraySourceInterface|array|string $source): static
+    public static function newFromSource(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null): static
     {
         try {
             if (is_string($source)) {

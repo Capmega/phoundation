@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer;
 
-use Phoundation\Data\Traits\TraitDataPathInterface;
+use Phoundation\Data\Traits\TraitDataObjectPath;
 use Phoundation\Filesystem\PhoPath;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
@@ -24,35 +24,35 @@ use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 
 class Analyze
 {
-    use TraitDataPathInterface {
-        setPathObject as protected __setPath;
+    use TraitDataObjectPath {
+        setPathObject as protected __setPathObject;
     }
 
 
     /**
      * Analyze class constructor
      */
-    public function __construct(PhoPathInterface|string|null $path = null)
+    public function __construct(PhoPathInterface|string|null $o_path = null)
     {
-        $this->setPathObject($path);
+        $this->setPathObject($o_path);
     }
 
 
     /**
      * Sets the path
      *
-     * @param PhoPathInterface|null $o_path
+     * @param PhoPathInterface|null $path
      *
      * @return static
      */
-    public function setPathObject(PhoPathInterface|null $o_path = null): static
+    public function setPathObject(?PhoPathInterface $o_path = null): static
     {
         if (!$o_path) {
             // Default to the root directory of this project
             $o_path = new PhoPath(DIRECTORY_ROOT, PhoRestrictions::newReadonlyObject(DIRECTORY_ROOT));
         }
 
-        return $this->__setPath($o_path);
+        return $this->__setPathObject($o_path);
     }
 
 

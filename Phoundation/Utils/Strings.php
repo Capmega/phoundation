@@ -108,7 +108,7 @@ class Strings extends Utils
             return $source;
         }
 
-        return utf8_encode($source);
+        return mb_convert_encoding($source, 'UTF-8', 'ISO-8859-1');
     }
 
 
@@ -183,7 +183,7 @@ class Strings extends Utils
      */
     public static function escapeForJquery(Stringable|string $source, string $replace = '\\\\$&'): string
     {
-        return preg_replace('/[#;&,.+*~\':"!^$[\]()=>|\/]/gu', $replace, (string) $source);
+        return preg_replace('/[#;&,.+*~\':"!^$[\]()=>|\/]/u', $replace, (string) $source);
     }
 
 
@@ -706,7 +706,7 @@ class Strings extends Utils
                         throw new OutOfBoundsException(tr('Unknown type ":type" specified', [':type' => $type]));
                 }
 
-                str_replace($word, $replace, $string);
+                $string = str_replace($word, $replace, $string);
             }
         }
 

@@ -540,7 +540,6 @@ class Rights extends DataIterator implements RightsInterface
                                                  AND `accounts_users_rights`.`rights_id` = `accounts_rights`.`id`', [
                     ':users_id' => $this->o_parent->getId(),
                 ]);
-
                 // Load the rights so that we can add "everybody" after it
                 parent::load();
 
