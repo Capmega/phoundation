@@ -35,8 +35,11 @@ Response::setBreadcrumbs([
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-3">
-                <a href="mailbox.html" class="btn btn-primary btn-block mb-3">Back to Inbox</a>
-
+                <?=
+                    Anchor::new(Url::new('mailbox.html'))
+                          ->setContent(tr('Back to Inbox'))
+                          ->setClass('btn btn-primary btn-block mb-3')
+                ?>
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Folders</h3>
@@ -50,31 +53,39 @@ Response::setBreadcrumbs([
                     <div class="card-body p-0">
                         <ul class="nav nav-pills flex-column">
                             <li class="nav-item active">
-                                <a href="#" class="nav-link">
-                                    <i class="fas fa-inbox"></i> Inbox
-                                    <span class="badge bg-primary float-right">12</span>
-                                </a>
+                                <?=
+                                    Anchor::new(Url::new('#'))
+                                          ->setContent('<i class="fas fa-inbox"></i> ' . tr('Inbox') . '<span class="badge bg-primary float-right">12</span>')
+                                          ->setClass('nav-link')
+                                ?>
                             </li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="far fa-envelope"></i> Sent
-                                </a>
+                                <?=
+                                    Anchor::new(Url::new('#'))
+                                          ->setContent('<i class="far fa-envelope"></i> ' . tr('Sent'))
+                                          ->setClass('nav-link')
+                                ?>
                             </li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="far fa-file-alt"></i> Drafts
-                                </a>
+                                <?=
+                                    Anchor::new(Url::new('#'))
+                                          ->setContent('<i class="far fa-file-alt"></i> ' . tr('Drafts'))
+                                          ->setClass('nav-link')
+                                ?>
                             </li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="fas fa-filter"></i> Junk
-                                    <span class="badge bg-warning float-right">65</span>
-                                </a>
+                                <?=
+                                    Anchor::new(Url::new('#'))
+                                          ->setContent('<i class="far fa-filter"></i> ' . tr('Junk') . '<span class="badge bg-warning float-right">65</span>')
+                                          ->setClass('nav-link')
+                                ?>
                             </li>
                             <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="far fa-trash-alt"></i> Trash
-                                </a>
+                                <?=
+                                    Anchor::new(Url::new('#'))
+                                          ->setContent('<i class="far fa-trash-alt"></i> ' . tr('Trash') . '<span class="badge bg-warning float-right">65</span>')
+                                          ->setClass('nav-link')
+                                ?>
                             </li>
                         </ul>
                     </div>
@@ -94,14 +105,26 @@ Response::setBreadcrumbs([
                     <!-- /.card-header -->
                     <div class="card-body p-0">
                         <ul class="nav nav-pills flex-column">
-                            <li class="nav-item">
-                                <a class="nav-link" href="#"><i class="far fa-circle text-danger"></i> Important</a>
+                            <li class='nav-item'>
+                                <?=
+                                    Anchor::new(Url::new('#'))
+                                          ->setContent('<i class="far fa-circle text-danger"></i> ' . tr('Important'))
+                                          ->setClass('nav-link')
+                                ?>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#"><i class="far fa-circle text-warning"></i> Promotions</a>
+                                <?=
+                                    Anchor::new(Url::new('#'))
+                                          ->setContent('<i class="far fa-circle text-warning"></i> ' . tr('Promotions'))
+                                          ->setClass('nav-link')
+                                ?>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#"><i class="far fa-circle text-primary"></i> Social</a>
+                                <?=
+                                    Anchor::new(Url::new('#'))
+                                          ->setContent('<i class="far fa-circle text-primary"></i> ' . tr('Social'))
+                                          ->setClass('nav-link')
+                                ?>
                             </li>
                         </ul>
                     </div>
@@ -116,8 +139,18 @@ Response::setBreadcrumbs([
                         <h3 class="card-title">Read Mail</h3>
 
                         <div class="card-tools">
-                            <a href="#" class="btn btn-tool" title="Previous"><i class="fas fa-chevron-left"></i></a>
-                            <a href="#" class="btn btn-tool" title="Next"><i class="fas fa-chevron-right"></i></a>
+                            <?=
+                                Anchor::new(Url::new('#'))
+                                      ->setContent('<i class="fas fa-chevron-left"></i>')
+                                      ->setClass('btn btn-tool')
+                                      ->setTitle(tr('Previous'))
+                            ?>
+                            <?=
+                                Anchor::new(Url::new('#'))
+                                      ->setContent('<i class="fas fa-chevron-right"></i>')
+                                      ->setClass('btn btn-tool')
+                                      ->setTitle(tr('Next'))
+                            ?>
                         </div>
                     </div>
                     <!-- /.card-header -->
@@ -217,27 +250,39 @@ Response::setBreadcrumbs([
                                 <span class="mailbox-attachment-icon"><i class="far fa-file-pdf"></i></span>
 
                                 <div class="mailbox-attachment-info">
-                                    <a href="#" class="mailbox-attachment-name"><i class="fas fa-paperclip"></i>
-                                        Sep2014-report.pdf</a>
+                                    <?=
+                                        Anchor::new(Url::new('#'))
+                                              ->setContent('<i class="fas fa-paperclip"></i> Sep2014-report.pdf')
+                                              ->setClass('mailbox-attachment-name')
+                                    ?>
                                     <span class="mailbox-attachment-size clearfix mt-1">
-                      <span>1,245 KB</span>
-                      <a href="#" class="btn btn-default btn-sm float-right"><i
-                                  class="fas fa-cloud-download-alt"></i></a>
-                    </span>
+                                        <span>1,245 KB</span>
+                                        <?=
+                                            Anchor::new(Url::new('#'))
+                                                  ->setContent('<i class="fas fa-cloud-download-alt"></i>')
+                                                  ->setClass('btn btn-default btn-sm float-right')
+                                        ?>
+                                    </span>
                                 </div>
                             </li>
                             <li>
                                 <span class="mailbox-attachment-icon"><i class="far fa-file-word"></i></span>
 
                                 <div class="mailbox-attachment-info">
-                                    <a href="#" class="mailbox-attachment-name"><i class="fas fa-paperclip"></i> App
-                                        Description.docx</a>
+                                    <?=
+                                        Anchor::new(Url::new('#'))
+                                              ->setContent('<i class="fas fa-paperclip"></i> App Description.docx')
+                                              ->setClass('mailbox-attachment-name')
+                                    ?>
                                     <span class="mailbox-attachment-size clearfix mt-1">
-                      <span>1,245 KB</span>
-                      <a href="#" class="btn btn-default btn-sm float-right"><i
-                                  class="fas fa-cloud-download-alt"></i></a>
-                    </span>
-                                </div>
+                                        <span>1,245 KB</span>
+                                        <?=
+                                            Anchor::new(Url::new('#'))
+                                                  ->setContent('<i class="fas fa-cloud-download-alt"></i>')
+                                                  ->setClass('btn btn-default btn-sm float-right')
+                                        ?>
+                                    </span>
+                                    </div>
                             </li>
                             <li>
                                 <span class="mailbox-attachment-icon has-img"><img
@@ -245,12 +290,19 @@ Response::setBreadcrumbs([
                                             alt="Attachment"></span>
 
                                 <div class="mailbox-attachment-info">
-                                    <a href="#" class="mailbox-attachment-name"><i class="fas fa-camera"></i> image1.png</a>
+                                    <?=
+                                        Anchor::new(Url::new('#'))
+                                              ->setContent('<i class="fas fa-camera"></i> image1.png')
+                                              ->setClass('mailbox-attachment-name')
+                                    ?>
                                     <span class="mailbox-attachment-size clearfix mt-1">
-                      <span>2.67 MB</span>
-                      <a href="#" class="btn btn-default btn-sm float-right"><i
-                                  class="fas fa-cloud-download-alt"></i></a>
-                    </span>
+                                        <span>2.67 MB</span>
+                                        <?=
+                                            Anchor::new(Url::new('#'))
+                                                  ->setContent('<i class="fas fa-cloud-download-alt"></i>')
+                                                  ->setClass('btn btn-default btn-sm float-right')
+                                        ?>
+                                    </span>
                                 </div>
                             </li>
                             <li>
@@ -259,12 +311,19 @@ Response::setBreadcrumbs([
                                             alt="Attachment"></span>
 
                                 <div class="mailbox-attachment-info">
-                                    <a href="#" class="mailbox-attachment-name"><i class="fas fa-camera"></i> image2.png</a>
+                                    <?=
+                                        Anchor::new(Url::new('#'))
+                                              ->setContent('<i class="fas fa-camera"></i> image2.png')
+                                              ->setClass('mailbox-attachment-name')
+                                    ?>
                                     <span class="mailbox-attachment-size clearfix mt-1">
-                      <span>1.9 MB</span>
-                      <a href="#" class="btn btn-default btn-sm float-right"><i
-                                  class="fas fa-cloud-download-alt"></i></a>
-                    </span>
+                                        <span>1.9 MB</span>
+                                        <?=
+                                            Anchor::new(Url::new('#'))
+                                                  ->setContent('<i class="fas fa-cloud-download-alt"></i>')
+                                                  ->setClass('btn btn-default btn-sm float-right')
+                                        ?>
+                                    </span>
                                 </div>
                             </li>
                         </ul>
@@ -272,10 +331,18 @@ Response::setBreadcrumbs([
                     <!-- /.card-footer -->
                     <div class="card-footer">
                         <div class="float-right">
-                            <a href="<?= Url::new('/demos/compose.html')->makeWww(); ?>" type="button"
-                               class="btn btn-default"><i class="fas fa-reply"></i> Reply</a>
-                            <a href="<?= Url::new('/demos/compose.html')->makeWww(); ?>" type="button"
-                               class="btn btn-default"><i class="fas fa-share"></i> Forward</a>
+                            <?=
+                                Anchor::new(Url::new('/demos/compose.html'))
+                                      ->setContent('<i class="fas fa-reply"></i> ' . tr('Reply'))
+                                      ->setClass('btn btn-default')
+                                      ->setType('button');
+                            ?>
+                            <?=
+                                Anchor::new(Url::new('/demos/compose.html'))
+                                      ->setContent('<i class="fas fa-share"></i> ' . tr('Forward'))
+                                      ->setClass('btn btn-default')
+                                      ->setType('button');
+                            ?>
                         </div>
                         <button type="button" class="btn btn-default"><i class="far fa-trash-alt"></i> Delete</button>
                         <button type="button" class="btn btn-default"><i class="fas fa-print"></i> Print</button>

@@ -14,7 +14,11 @@
 
 declare(strict_types=1);
 
+use Phoundation\Developer\Project\Project;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Csrf;
+use Phoundation\Web\Html\Enums\EnumAnchorTarget;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Exception\PageNotFoundException;
 
 throw new PageNotFoundException(tr('The lock screen is under construction and not available yet.'));
@@ -39,7 +43,7 @@ throw new PageNotFoundException(tr('The lock screen is under construction and no
 <!-- Automatic element centering -->
 <div class="lockscreen-wrapper">
     <div class="lockscreen-logo">
-        <a href="../../index2.html"><b>Admin</b>LTE</a>
+        <?= Anchor::new('../../index2.html', '<b>Admin</b>LTE') ?>
     </div>
     <!-- User name -->
     <div class="lockscreen-name">John Doe</div>
@@ -73,11 +77,14 @@ throw new PageNotFoundException(tr('The lock screen is under construction and no
         Enter your password to retrieve your session
     </div>
     <div class="text-center">
-        <a href="login.html">Or sign in as a different user</a>
+        <?=
+            Anchor::new(Url::new('sign-out'))
+                  ->setContent(tr('Or sign in as a different user'));
+        ?>
     </div>
     <div class="lockscreen-footer text-center">
-        Copyright &copy; 2014-2021 <b><a href="https://adminlte.io" class="text-black">AdminLTE.io</a></b><br>
-        All rights reserved
+        <?= Project::getCopyright() ?>
+
     </div>
 </div>
 <!-- /.center -->

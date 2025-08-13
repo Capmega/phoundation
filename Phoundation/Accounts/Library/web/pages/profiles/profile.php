@@ -233,12 +233,15 @@ if (Session::getUserObject()->hasAllRights(['accounts'])) {
                 <div class="card">
                     <div class="card-header p-2">
                         <ul class="nav nav-pills">
-                            <li class="nav-item"><a class="nav-link active" href="#activity"
-                                                    data-toggle="tab"><?= tr('Activity') ?></a></li>
-                            <li class="nav-item"><a class="nav-link" href="#timeline"
-                                                    data-toggle="tab"><?= tr('Timeline') ?></a></li>
-                            <li class="nav-item"><a class="nav-link" href="#actions"
-                                                    data-toggle="tab"><?= tr('Actions') ?></a></li>
+                            <li class="nav-item">
+                                <?= Anchor::new('#activity', tr('Activity'))->addData('tab', 'toggle')->setClass('nav-link active') ?>
+                            </li>
+                            <li class="nav-item">
+                                <?= Anchor::new('#timeline', tr('Timeline'))->addData('tab', 'toggle')->setClass('nav-link') ?>
+                            </li>
+                            <li class="nav-item">
+                                <?= Anchor::new('#actions', tr('Actions'))->addData('tab', 'toggle')->setClass('nav-link') ?>
+                            </li>
                         </ul>
                     </div><!-- /.card-header -->
                     <div class="card-body">

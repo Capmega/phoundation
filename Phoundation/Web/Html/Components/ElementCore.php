@@ -166,8 +166,9 @@ abstract class ElementCore implements ElementInterface
 
         $renderer_class  = $this->getRenderClass();
         $render_function = function () {
-            $attributes = $this->renderAttributesArray();
-            $attributes = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Utils::QUOTE_ALWAYS | Utils::HIDE_EMPTY_VALUES);
+            $attributes  = $this->renderAttributesArray();
+            $attributes  = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Utils::QUOTE_ALWAYS | Utils::HIDE_EMPTY_VALUES);
+            $attributes .= $this->getExtraAttributes();
 
             if ($attributes) {
                 $attributes = ' ' . $attributes;
@@ -258,9 +259,13 @@ abstract class ElementCore implements ElementInterface
         $return = [
             'id'        => $this->id,
             'name'      => $this->name,
+            'role'      => $this->role,
+            'type'      => $this->type,
+            'title'     => $this->title,
             'class'     => $this->getClass(),
             'height'    => $this->height,
             'width'     => $this->width,
+            'style'     => $this->style,
             'autofocus' => ((static::$autofocus and (static::$autofocus === $this->id)) ? 'autofocus' : null),
             'readonly'  => ($this->readonly                                             ? 'readonly'  : null),
             'disabled'  => ($this->disabled                                             ? 'disabled'  : null),

@@ -15,6 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Enums\EnumAnchorTarget;
 use Phoundation\Web\Requests\Response;
 
 
@@ -182,11 +183,14 @@ Response::setBreadcrumbs([
                     <!-- this row will not appear when printing -->
                     <div class="row no-print">
                         <div class="col-12">
-                            <a href="invoice-print.html" rel="noopener" target="_blank" class="btn btn-default"><i
-                                        class="fas fa-print"></i> Print</a>
-                            <button type="button" class="btn btn-success float-right"><i class="far fa-credit-card"></i>
-                                Submit
-                                Payment
+                            <?= Anchor::new('invoice-print.html')
+                                      ->setContent('<i class="fas fa-print"></i> ' . tr('Print'))
+                                      ->setClass('btn btn-default')
+                                      ->setTarget(EnumAnchorTarget::blank)
+                                      ->addAttribute('noopener', 'rel'); ?>
+                            <button type="button" class="btn btn-success float-right">
+                                <i class="far fa-credit-card"></i>
+                                Submit payment
                             </button>
                             <button type="button" class="btn btn-primary float-right" style="margin-right: 5px;">
                                 <i class="fas fa-download"></i> Generate PDF

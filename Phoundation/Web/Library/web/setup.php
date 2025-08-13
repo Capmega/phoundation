@@ -25,6 +25,7 @@ use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Exception\EnvironmentExistsException;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
@@ -66,7 +67,7 @@ if (Request::isPostRequestMethod()) {
         <body class="hold-transition register-page" style="height: auto;">
         <div class="register-box">
             <div class="register-logo">
-                <a href="https://phoundation.org/"><b>Ph</b>oundation</a>
+                <?= Anchor::new(Url::new('https://phoundation.org/'))->setContent(tr('<b>Ph</b>oundation')) ?>
             </div>
             <div class="card">
                 <div class="card-body register-card-body">
@@ -76,8 +77,7 @@ if (Request::isPostRequestMethod()) {
                         to start using it!</p>
                     <hr>
                     <div class="mb-3">
-                        <a class="form-control btn btn-primary" href="<?= Url::newCurrentDomainRootUrl() ?>">Start
-                            using Phoundation!</a>
+                        <?= Anchor::new(Url::newCurrentDomainRootUrl(), tr('Start using Phoundation!'))->setClass('form-control btn btn-primary') ?>
                     </div>
                 </div>
                 <!-- /.form-box -->
@@ -102,7 +102,10 @@ Response::setRenderMainWrapper(false);
     <body class="hold-transition register-page" style="height: auto;">
     <div class="register-box">
         <div class="register-logo">
-            <a href="https://phoundation.org/"><b>Ph</b>oundation</a>
+            <?=
+                Anchor::new(Url::new('https://phoundation.org/'))
+                      ->setContent(tr('<b>Ph</b>oundation'))
+            ?>
         </div>
         <div class="card">
             <div class="card-body register-card-body">

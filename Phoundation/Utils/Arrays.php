@@ -615,6 +615,11 @@ class Arrays extends Utils
         }
 
         foreach ($source as $key => $value) {
+            if (is_enum($value)) {
+                // Get the value from
+                $value = $value->value;
+            }
+
             if (is_array($value)) {
                 // Recurse
                 $return[] .= $key . $key_separator . $row_separator . Arrays::implodeWithKeys($value, $row_separator, $key_separator, $quote_character, $options);

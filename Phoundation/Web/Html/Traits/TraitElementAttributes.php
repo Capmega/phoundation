@@ -46,6 +46,7 @@ use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
 
+
 trait TraitElementAttributes
 {
     use TraitMethodHasRendered;
@@ -175,9 +176,9 @@ trait TraitElementAttributes
     /**
      * Extra attributes or element content can be added through the "extra" variable
      *
-     * @var string $extra_attributes
+     * @var string|null $extra_attributes
      */
-    protected string $extra_attributes = '';
+    protected ?string $extra_attributes = null;
 
     /**
      * The element content
@@ -235,6 +236,34 @@ trait TraitElementAttributes
      */
     protected Stringable|string|float|int|null $null_display = null;
 
+    /**
+     * Tracks the title attribute for the element
+     *
+     * @var string|null $title
+     */
+    protected ?string $title = null;
+
+    /**
+     * Tracks the type attribute for the element
+     *
+     * @var string|null $type
+     */
+    protected ?string $type = null;
+
+    /**
+     * Tracks the role attribute for the element
+     *
+     * @var string|null $role
+     */
+    protected ?string $role = null;
+
+    /**
+     * Tracks the style attribute for the element
+     *
+     * @var string|null $style
+     */
+    protected ?string $style = null;
+
 
     /**
      * Class constructor
@@ -277,6 +306,120 @@ trait TraitElementAttributes
             }
         }
 
+        return $this;
+    }
+
+
+    /**
+     * Returns the HTML title element attribute
+     *
+     * @return string|null
+     */
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+
+    /**
+     * Sets the HTML title element attribute
+     *
+     * @param string|null $title
+     *
+     * @return static
+     */
+    public function setTitle(?string $title): static
+    {
+        $this->title = $title;
+        return $this;
+    }
+
+
+    /**
+     * Returns the HTML type element attribute
+     *
+     * @return string|null
+     */
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+
+    /**
+     * Sets the HTML type element attribute
+     *
+     * @param string|null $type
+     *
+     * @return static
+     */
+    public function setType(?string $type): static
+    {
+        $this->type = $type;
+        return $this;
+    }
+
+
+    /**
+     * Returns the HTML role element attribute
+     *
+     * @return string|null
+     */
+    public function getRole(): ?string
+    {
+        return $this->role;
+    }
+
+
+    /**
+     * Sets the HTML role element attribute
+     *
+     * @param string|null $role
+     *
+     * @return static
+     */
+    public function setRole(?string $role): static
+    {
+        $this->role = $role;
+        return $this;
+    }
+
+
+    /**
+     * Returns the HTML style element attribute
+     *
+     * @return string|null
+     */
+    public function getStyle(): ?string
+    {
+        return $this->style;
+    }
+
+
+    /**
+     * Sets the HTML style element attribute
+     *
+     * @param string|null $style
+     *
+     * @return static
+     */
+    public function setStyle(?string $style): static
+    {
+        $this->style = $style;
+        return $this;
+    }
+
+
+    /**
+     * Adds to the HTML style element attribute
+     *
+     * @param string|null $style
+     *
+     * @return static
+     */
+    public function addStyle(?string $style): static
+    {
+        $this->style .= $style;
         return $this;
     }
 
@@ -719,7 +862,7 @@ trait TraitElementAttributes
      */
     public function clearExtraAttributes(): static
     {
-        $this->extra_attributes = '';
+        $this->extra_attributes = null;
         return $this;
     }
 
@@ -727,9 +870,9 @@ trait TraitElementAttributes
     /**
      * Returns the extra element attribute code
      *
-     * @return string
+     * @return string|null
      */
-    public function getExtraAttributes(): string
+    public function getExtraAttributes(): ?string
     {
         return $this->extra_attributes;
     }
@@ -744,7 +887,7 @@ trait TraitElementAttributes
      */
     public function setExtraAttributes(?string $extra): static
     {
-        $this->extra_attributes = '';
+        $this->extra_attributes = null;
         return $this->addExtraAttributes($extra);
     }
 
@@ -776,7 +919,7 @@ trait TraitElementAttributes
         if (is_object($content)) {
             // This object is Stringable so it can be converted to string.
             // If it is a RenderableInterface, it will automatically render
-            $content   = (string) $content;
+            $content   = get_null((string) $content);
             $make_safe = false;
         }
 
