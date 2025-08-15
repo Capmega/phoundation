@@ -1019,7 +1019,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Returns the value of the unique column
+     * Sets the value of the unique column
      *
      * @param mixed $value
      * @param bool  $force
