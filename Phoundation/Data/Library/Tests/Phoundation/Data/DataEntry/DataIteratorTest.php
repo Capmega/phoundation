@@ -16,25 +16,22 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Library\Tests\Phoundation\Data\DataEntry;
 
+use PDOStatement;
+use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntries\DataEntry;
-use Phoundation\Data\DataEntries\Exception\DataEntryColumnsNotDefinedException;
-use Phoundation\Data\DataEntries\Exception\DataEntryIsNewException;
-use Phoundation\Data\DataEntries\Exception\DataEntryNoIdentifierSpecifiedException;
+use Phoundation\Data\DataEntries\Exception\DataEntryBadException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
-use Phoundation\Data\DataEntries\Exception\DataEntryNotSavedException;
 use Phoundation\Data\DataEntries\Tests\TestDataEntry;
 use Phoundation\Data\DataEntries\Tests\TestDataIterator;
-use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Exception\IteratorKeyExistsException;
-use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Input\InputSelect;
+use Phoundation\Web\Json\Users;
 use PHPUnit\Event\TestData\TestData;
 use PHPUnit\Framework\TestCase;
 use Throwable;
@@ -511,5 +508,180 @@ class DataIteratorTest extends TestCase
 //        $this->assertEquals($test_data_entry_2, $extracted_data_entry);
 //        $this->assertNotContains($test_data_entry_2->getId(), $test_data_iterator->getSourceKeys());
         $this->assertContains($test_data_entry->getId(), $test_data_iterator->getSourceKeys());
+    }
+
+
+    /*
+     * Methods from DataIterator
+     */
+    /**
+     * Tests DataIterator::new()
+     */
+    public function testNew()
+    {
+        $test_data_iterator = TestDataIterator::new();
+        $this->assertInstanceOf(TestDataIterator::class, $test_data_iterator);
+        $this->assertEmpty($test_data_iterator);
+
+        $test_data_entry_2    = TestDataEntry::new();
+        $test_data_iterator_2 = TestDataIterator::new([$test_data_entry_2]);
+        $this->assertInstanceOf(TestDataIterator::class, $test_data_iterator_2);
+        $this->assertContains($test_data_entry_2, $test_data_iterator_2);
+        $this->assertTrue($test_data_iterator_2->isLoaded());
+
+        $test_data_iterator_3 = TestDataIterator::new($test_data_iterator_2);
+        $this->assertInstanceOf(TestDataIterator::class, $test_data_iterator_3);
+        $this->assertContains($test_data_entry_2, $test_data_iterator_2);
+        $this->assertTrue($test_data_iterator_3->isLoaded());
+
+        $test_data_entry_4    = TestDataEntry::new()->setName(Strings::getUuid())->save();
+        $test_data_iterator_4 = TestDataIterator::new(Sql()->query('SELECT * FROM `test_dataentries` WHERE id = :id', [
+            'id' => $test_data_entry_4->getId()
+        ]));
+        $this->assertInstanceOf(TestDataIterator::class, $test_data_iterator_4);
+        $this->assertContains($test_data_entry_4->getId(), $test_data_iterator_4->getSourceKeys());
+        $this->assertTrue($test_data_iterator_4->isLoaded());
+    }
+
+
+    /*
+     * Methods from TraitDataSourceArray
+     */
+
+
+    /**
+     * Tests TraitDataSourceArray::__toString()
+     */
+    public function testToString()
+    {
+        $test_data_iterator = TestDataIterator::new();
+        $this->assertEquals($test_data_iterator->getPoadString(), (string) $test_data_iterator);
+    }
+
+
+    /**
+     * Tests TraitDataSourceArray::__toArray()
+     */
+    public function testToArray()
+    {
+        $test_data_iterator = TestDataIterator::new();
+        $this->assertEquals($test_data_iterator->getPoadArray(), $test_data_iterator->__toArray());
+    }
+
+
+    /**
+     * Tests TraitDataSourceArray::newFromSource
+     */
+    public function testNewFromSource()
+    {
+        // Test with empty source
+        $test_data_iterator = TestDataIterator::newFromSource();
+        $this->assertEmpty($test_data_iterator->getSource());
+
+        $test_data_entry_1  = TestDataEntry::new()->setName(Strings::getUuid())->save();
+        $test_data_entry_2  = TestDataEntry::new()->setName(Strings::getUuid())->save();
+
+        // Test successful operation
+        $test_data_iterator = TestDataIterator::newFromSource([
+            $test_data_entry_1, $test_data_entry_2
+        ]);
+
+        $this->assertContains($test_data_entry_1, $test_data_iterator);
+        $this->assertContains($test_data_entry_2, $test_data_iterator);
+
+
+        // Test using incorrect DataIterator class
+        $test_user  = User::new()->load(['email' => 'unittest@medinet.ca']);
+        $o_accounts = Users::new()->add($test_user);
+
+        try {
+            TestDataIterator::newFromSource($o_accounts);
+            $this->fail('Expected DataEntryBadException was not thrown');
+        } catch (Throwable $e) {
+            $this->assertInstanceOf(DataEntryBadException::class, $e);
+        }
+    }
+
+
+    /**
+     * Tests TraitDataSourceArray::newFromSourceOrNull()
+     */
+    public function testNewFromSourceOrNull()
+    {
+        $test_data_iterator = TestDataIterator::newFromSourceOrNull(null);
+        $this->assertNull($test_data_iterator);
+
+        $test_data_entry_1  = TestDataEntry::new()->setName(Strings::getUuid())->save();
+        $test_data_entry_2  = TestDataEntry::new()->setName(Strings::getUuid())->save();
+
+        // Test successful operation
+        $test_data_iterator = TestDataIterator::newFromSourceOrNull([
+            $test_data_entry_1, $test_data_entry_2
+        ]);
+
+        $this->assertContains($test_data_entry_1, $test_data_iterator);
+        $this->assertContains($test_data_entry_2, $test_data_iterator);
+    }
+
+
+    /*
+     * Methods from IteratorCore
+     */
+
+
+    /**
+     * Tests IteratorCore::getIteratorName()
+     */
+    public function testGetIteratorName()
+    {
+        $this->assertEquals('data', TestDataIterator::new()->getIteratorName());
+    }
+
+
+    /**
+     * Tests IteratorCore::getAcceptedDataType()
+     */
+    public function testGetAcceptedDataType()
+    {
+        $this->assertEquals(TestDataEntry::class, TestDataIterator::new()->getAcceptedDataType());
+    }
+
+
+    /**
+     * Tests IteratorCore::getDefaultContentDataType()
+     */
+    public function testGetDefaultContentDataType()
+    {
+        $this->assertEquals(TestDataEntry::class, TestDataIterator::new()->getDefaultContentDataType());
+    }
+
+
+    /**
+     * Tests IteratorCore::getInputSelectClass()
+     */
+    public function testGetInputSelectClass()
+    {
+        $this->assertEquals(InputSelect::class, TestDataIterator::new()->getInputSelectClass());
+    }
+
+
+    /**
+     * Tests IteratorCore::getName()
+     */
+    public function testGetName()
+    {
+        $this->assertEquals('TestDataIterator', TestDataIterator::new()->getName());
+    }
+
+
+    /**
+     * Tests IteratorCore::getColumns()
+     */
+    public function testGetColumns()
+    {
+        $test_data_entry_1  = TestDataEntry::new()->setName(Strings::getUuid())->save();
+        $test_data_iterator = TestDataIterator::new()->add($test_data_entry_1);
+
+        $this->assertNull($test_data_iterator->getColumns());
     }
 }

@@ -65,9 +65,14 @@ class DataEntryTest extends TestCase
     public function testGetDefaultMetaColumns()
     {
         $entry = DataEntry::new();
-        $expectedColumns = ['id', 'created_on', 'created_by', 'meta_id', 'status', 'meta_state'];
-
-        $this->assertEquals($expectedColumns, $entry->getDefaultMetaColumns(), 'getDefaultMetaColumns should return default metadata columns');
+        $this->assertContains('id', $entry->getDefaultMetaColumns());
+        $this->assertContains('created_on', $entry->getDefaultMetaColumns());
+        $this->assertContains('created_by', $entry->getDefaultMetaColumns());
+        $this->assertContains('meta_id', $entry->getDefaultMetaColumns());
+        $this->assertContains('status', $entry->getDefaultMetaColumns());
+        $this->assertContains('meta_state', $entry->getDefaultMetaColumns());
+        $this->assertContains('modified_on', $entry->getDefaultMetaColumns());
+        $this->assertContains('modified_by', $entry->getDefaultMetaColumns());
     }
 
     /**
@@ -92,13 +97,10 @@ class DataEntryTest extends TestCase
     public function testGetUniqueColumnValue()
     {
         $entry = TestDataEntry::new();
-
         $this->assertNull($entry->getUniqueColumnValue(), 'The TestDataEntry object should have no Unique Column Value');
 
         $value = 'unique-code';
-
         $entry->setUniqueColumnValue($value);
-
         $this->assertEquals($value, $entry->getUniqueColumnValue(), 'The TestDataEntry object should have the specified Unique Column Value');
     }
 
@@ -458,6 +460,7 @@ class DataEntryTest extends TestCase
         $test_entry = TestDataEntry::new()->setName(Strings::getUuid())->save();
         $test_entry->delete();
         $this->assertEquals('deleted', $test_entry->get('status'));
+        $this->assertTrue($test_entry->isDeleted());
         $this->assertNull($test_entry->getUniqueColumnValue(false));
 
         try {
@@ -494,6 +497,23 @@ class DataEntryTest extends TestCase
         } catch (Throwable $e) {
             $this->assertInstanceOf(DataEntryIsNewException::class, $e);
         }
+    }
+
+
+    /**
+     * Tests DataEntryCore::setStatus())
+     *
+     * @return void
+     */
+    public function testSetStatus()
+    {
+        $test_entry = TestDataEntry::new();
+        $this->assertNull($test_entry->getStatus());
+        $this->assertTrue($test_entry->isStatus(null));
+
+        $test_entry->setStatus('test');
+        $this->assertEquals('test', $test_entry->getStatus());
+        $this->assertTrue($test_entry->isStatus('test'));
     }
 
 
@@ -720,5 +740,29 @@ class DataEntryTest extends TestCase
     {
         $this->assertTrue(true);
         // TODO
+    }
+
+
+    /**
+     * Tests DataEntryCore::getClassName()
+     *
+     * @return void
+     */
+    public function testGetClassName()
+    {
+        $this->assertEquals('TestDataEntry', TestDataEntry::new()->getClassName());
+    }
+
+
+    /**
+     * Tests DataEntryCore::idColumnIs()
+     *
+     * @return void
+     */
+    public function testIdColumnIs()
+    {
+        $this->assertTrue(TestDataEntry::idColumnIs('id'));
+        $this->assertFalse(TestDataEntry::idColumnIs('seo_name'));
+        $this->assertFalse(TestDataEntry::idColumnIs('name'));
     }
 }
