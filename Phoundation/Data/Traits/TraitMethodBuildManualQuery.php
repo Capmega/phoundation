@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 
@@ -25,18 +26,18 @@ trait TraitMethodBuildManualQuery
     /**
      * Builds the query parts for manual filtering
      *
-     * @param array|string|int|null $identifiers
-     * @param string|null           $where
-     * @param string|null           $joins
-     * @param string|null           $group
-     * @param string|null           $order
-     * @param array|null            $execute
-     * @param string                $separator
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param string|null                               $where
+     * @param string|null                               $joins
+     * @param string|null                               $group
+     * @param string|null                               $order
+     * @param array|null                                $execute
+     * @param string                                    $separator
      *
      * @return void
      * @deprecated This method shouldn't be relied upon anymore as the QueryBuilder class will take over this job.
      */
-    protected static function buildManualQuery(array|string|int|null $identifiers, ?string &$where, ?string &$joins, ?string &$group, ?string &$order, ?array &$execute, string $separator = ' AND '): void
+    protected static function buildManualQuery(IdentifierInterface|array|string|int|null $identifiers, ?string &$where, ?string &$joins, ?string &$group, ?string &$order, ?array &$execute, string $separator = ' AND '): void
     {
         // Build the query parts
         $where   = [];

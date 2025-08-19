@@ -389,12 +389,12 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     /**
      * Selects if we use the default query or a query from the QueryBuilder
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $like
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                      $like
      *
      * @return static
      */
-    protected function selectQuery(array|string|int|null $identifiers = null, bool $like = false): static
+    protected function selectQuery(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
         // Use the query builder or hard-coded query
         if (isset($this->o_query_builder)) {
@@ -1332,13 +1332,13 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     /**
      * Load the Iterator list data from the database
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $like
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                      $like
      *
      * @return static
      * @todo Add support for specifying which column should be the identifier column instead of only id_column or unique_column
      */
-    public function load(array|string|int|null $identifiers = null, bool $like = false): static
+    public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
         $this->setIsLoading(true)
              ->selectQuery($identifiers, $like);
