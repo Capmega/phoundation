@@ -29,6 +29,7 @@ use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\DataEntries\Exception\DataEntryInvalidParentException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataAutoCreate;
 use Phoundation\Databases\Sql\SqlQueries;
@@ -525,12 +526,12 @@ class Rights extends DataIterator implements RightsInterface
     /**
      * Load the data for this rights list into the object
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $like
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                                                     $like
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $like = false): static
+    public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
         if ($this->o_parent) {
             // Load only rights for specified parent

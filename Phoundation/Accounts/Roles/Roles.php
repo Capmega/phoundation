@@ -28,6 +28,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\DataEntries\Exception\DataEntryInvalidParentException;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
@@ -415,12 +416,12 @@ class Roles extends DataIterator implements RolesInterface
     /**
      * Load the data for this "roles" list into the object
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $like
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                      $like
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $like = false): static
+    public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
         if ($this->o_parent) {
             if ($this->o_parent instanceof UserInterface) {
