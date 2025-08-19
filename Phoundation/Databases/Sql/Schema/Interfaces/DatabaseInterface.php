@@ -6,6 +6,7 @@ namespace Phoundation\Databases\Sql\Schema\Interfaces;
 
 use Phoundation\Databases\Sql\Schema\Database;
 use Phoundation\Databases\Sql\Schema\Table;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 
 interface DatabaseInterface extends SchemaAbstractInterface
 {
@@ -67,12 +68,12 @@ interface DatabaseInterface extends SchemaAbstractInterface
     /**
      * Load the table parameters from the database
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $like
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                      $like
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $like = false): static;
+    public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static;
 
 
     /**
