@@ -23,6 +23,7 @@ use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 
 
 class SshAccounts extends DataIterator
@@ -111,7 +112,7 @@ class SshAccounts extends DataIterator
     /**
      * @inheritDoc
      */
-    public function load(array|string|int|null $identifiers = null, bool $like = false): static
+    public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
         parent::load($identifiers, $like);
 
