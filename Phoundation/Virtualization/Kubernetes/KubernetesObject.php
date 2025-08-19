@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Virtualization\Kubernetes;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Traits\TraitDataArrayData;
 use Phoundation\Data\Traits\TraitDataArrayOutput;
 use Phoundation\Data\Traits\TraitDataStringName;
@@ -73,13 +74,13 @@ class KubernetesObject
     /**
      * Load the deployment description
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $like
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                      $like
      *
      * @return static
      * @todo Rewrite this using DataIterator::load() method
      */
-    public function load(array|string|int|null $identifiers = null, bool $like = false): static
+    public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
         if ($this->getName()) {
             $output = Process::new('kubectl')
