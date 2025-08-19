@@ -22,6 +22,7 @@ use Phoundation\Accounts\Users\Interfaces\EmailsInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Traits\TraitDataParent;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
@@ -34,6 +35,7 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
+
 
 class Emails extends DataIterator implements EmailsInterface
 {
@@ -113,12 +115,12 @@ class Emails extends DataIterator implements EmailsInterface
     /**
      * Returns an Emails Iterator object with emails for the specified user.
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $like
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                      $like
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $like = false): static
+    public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
         $this->o_parent = User::new()->load($this->o_parent);
         $this->execute  = [':users_id' => $this->o_parent->getId()];

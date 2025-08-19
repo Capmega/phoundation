@@ -17,11 +17,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
 
+use Exception;
 use Phoundation\Accounts\Users\Interfaces\PhoneInterface;
 use Phoundation\Accounts\Users\Interfaces\PhonesInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Traits\TraitDataParent;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -35,6 +37,7 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
+
 
 class Phones extends DataIterator implements PhonesInterface
 {
@@ -92,11 +95,11 @@ class Phones extends DataIterator implements PhonesInterface
     /**
      * Sets the parent
      *
-     * @param DataEntryInterface|RenderInterface|UrlInterface|null $o_parent
+     * @param DataEntryInterface $o_parent
      *
      * @return static
      */
-    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $o_parent): static
+    public function setParentObject(DataEntryInterface|UrlInterface|RenderInterface|null $o_parent): static
     {
         if ($o_parent instanceof UserInterface) {
             // Clear the source to avoid having a parent with the wrong children
@@ -114,12 +117,12 @@ class Phones extends DataIterator implements PhonesInterface
     /**
      * Returns a Phones Iterator object with phones for the specified user.
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $like
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                      $like
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $like = false): static
+    public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
         $this->o_parent  = User::new()->load($this->o_parent);
         $this->execute = [':users_id' => $this->o_parent->getId()];
