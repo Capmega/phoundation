@@ -1024,6 +1024,24 @@ class Log implements LogInterface
 
 
     /**
+     * Write a developer message in the log file
+     *
+     * @param mixed       $messages
+     * @param int         $threshold
+     * @param bool        $clean
+     * @param bool        $echo_newline
+     * @param string|bool $echo_prefix
+     * @param bool        $echo_screen
+     *
+     * @return bool
+     */
+    public static function developer(mixed $messages = null, int $threshold = 7, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
+    {
+        return Log::write($messages, 'warning', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+    }
+
+
+    /**
      * Logs an object in the log file
      *
      * @param object      $object
