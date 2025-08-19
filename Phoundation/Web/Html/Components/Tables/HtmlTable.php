@@ -917,9 +917,9 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
             }
         }
 
-        if (isset($url)) {
+        if (isset($url) and !is_empty($value)) {
             $queries = $this->getRowQueries();
-            $value = $this->renderUrl($row_id, $column, $value, $url, $queries);
+            $value   = $this->renderUrl($row_id, $column, $value, $url, $queries);
         }
 
         // Add data attributes?
