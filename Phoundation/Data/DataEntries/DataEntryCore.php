@@ -1137,7 +1137,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 return $this;
             }
 
-            if ($value === null) {
+            if (is_empty($value)) {
                 // Apply default values
                 if ($this->isNew()) {
                     $value = $o_definition->getInitialDefault() ?? $o_definition->getDefault();
@@ -3268,10 +3268,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         // Tell the validator what table this DataEntry is using and get the column prefix so that the validator knows
         // what columns to select
         $o_validator->setDataEntryObject($this)
-                  ->setDefinitionsObject($this->o_definitions)
-                  ->setPrefix($prefix)
-                  ->setMetaColumns($this->getMetaColumns())
-                  ->setTable(static::getTable());
+                    ->setDefinitionsObject($this->o_definitions)
+                    ->setPrefix($prefix)
+                    ->setMetaColumns($this->getMetaColumns())
+                    ->setTable(static::getTable());
 
         // Go over each column and let the column definition do the validation since it knows the specs
         foreach ($this->o_definitions as $column => $o_definition) {
@@ -3284,10 +3284,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 continue;
             }
 
-            if (!array_key_exists($column, $o_validator->getSource()) and $external) {
-                // External data does not apply defaults, if the column doesn't exist, skip it
-                continue;
-            }
+// TODO Remove support for whatever this is. If there is some requirement to permit an incomplete dataset (i.e., columns
+// TODO that are required are missing) then this should be done with  a separate proprty that can be set by ONLY the
+// TODO dataentry that implements this
+//            if (!array_key_exists($column, $o_validator->getSource()) and $external) {
+//                // External data does not apply defaults, if the column doesn't exist, skip it
+//                continue;
+//            }
 
             if ($this->debug) {
                 Log::debug('VALIDATING COLUMN "' . static::class . ' > ' . $column . '" WITH VALUE "'  . $this->get($column) . ' ['  . gettype($this->get($column)) . ']"', echo_header: false);
