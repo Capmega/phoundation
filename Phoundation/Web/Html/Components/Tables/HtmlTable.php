@@ -106,9 +106,9 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * The table column footers
      *
-     * @var IteratorInterface|null $footers
+     * @var array|null $footers
      */
-    protected ?IteratorInterface $footers = null;
+    protected ?array $footers = null;
 
     /**
      * URL's specific for columns
@@ -557,12 +557,12 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Returns the table headers
      *
-     * @return IteratorInterface
+     * @return array
      */
-    public function getFooters(): IteratorInterface
+    public function getFooters(): array
     {
         if (empty($this->footers)) {
-            $this->footers = new Iterator();
+            $this->footers = [];
         }
 
         return $this->footers;
@@ -578,12 +578,11 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      */
     public function setFooters(IteratorInterface|array|null $footers): static
     {
-        if (is_array($footers)) {
-            $footers = Iterator::new()->setSource($footers);
+        if ($footers instanceof IteratorInterface) {
+            $footers = $footers->getSource();
         }
 
         $this->footers = $footers;
-
         return $this;
     }
 
@@ -1164,11 +1163,10 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
         $first   = true;
         $return  = '<tfoot><tr>';
-        $footers = $this->footers->__toArray();
 
-        $this->executeRowCallbacks($footers, EnumTableRowType::footer, $params);
+        $this->executeRowCallbacks($this->footers, EnumTableRowType::footer, $params);
 
-        foreach ($footers as $column => $footer) {
+        foreach ($this->footers as $column => $footer) {
             if (!$this->renderColumn($column)) {
                 continue;
             }
@@ -1190,7 +1188,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
                         break;
 
                     case EnumTableIdColumn::visible:
-                        $return .= '<td>' . $header . '</td>';
+                        $return .= '<td>' . $footer . '</td>';
                         break;
                 }
 

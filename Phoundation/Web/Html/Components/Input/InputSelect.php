@@ -34,7 +34,6 @@ use Phoundation\Web\Html\Traits\TraitBeforeAfterContent;
 use Stringable;
 use Throwable;
 
-
 class InputSelect extends ResourceElement implements InputSelectInterface, InputInterface, SelectedInterface
 {
     use TraitBeforeAfterContent;
