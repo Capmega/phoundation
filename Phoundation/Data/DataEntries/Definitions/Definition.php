@@ -3245,7 +3245,7 @@ class Definition implements DefinitionInterface
     {
         $this->ensureElement(EnumElement::textarea);
 
-        if (isset_get($this->source['element']) !== EnumElement::textarea) {
+        if (array_get_safe($this->source, 'element') !== EnumElement::textarea) {
             throw new OutOfBoundsException(tr('Cannot define rows for column ":column", the element is a ":element" but should be a "textarea', [
                 ':column'  => $this->getColumn(),
                 ':element' => $this->source['element']->value,
@@ -3276,7 +3276,7 @@ class Definition implements DefinitionInterface
      */
     public function getInitialDefault(): mixed
     {
-        return isset_get($this->source['initial_default']);
+        return array_get_safe($this->source, 'initial_default');
     }
 
 
@@ -3983,6 +3983,6 @@ class Definition implements DefinitionInterface
      */
     public function getDefault(): mixed
     {
-        return isset_get($this->source['default']);
+        return array_get_safe($this->source, 'default');
     }
 }
