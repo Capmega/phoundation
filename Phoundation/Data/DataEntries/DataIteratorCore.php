@@ -32,11 +32,8 @@ use Phoundation\Data\DataEntries\Interfaces\ListOperationsInterface;
 use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\IteratorCore;
-use Phoundation\Data\Traits\TraitDataCacheKey;
-use Phoundation\Data\Traits\TraitDataColumns;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
-use Phoundation\Data\Traits\TraitDataFilterForm;
 use Phoundation\Data\Traits\TraitDataMetaEnabled;
 use Phoundation\Data\Traits\TraitDataStatusFilter;
 use Phoundation\Data\Traits\TraitMethodBuildManualQuery;
@@ -65,13 +62,8 @@ use Stringable;
 
 class DataIteratorCore extends IteratorCore implements DataIteratorInterface, IdentifierInterface
 {
-    use TraitDataColumns {
-        setColumns as protected __setColumns;
-    }
-    use TraitDataCacheKey;
     use TraitDataConnector;
     use TraitDataDebug;
-    use TraitDataFilterForm;
     use TraitDataStatusFilter;
     use TraitDataMetaEnabled;
     use TraitMethodBuildManualQuery;
@@ -1608,7 +1600,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     public function setColumns(ArrayableInterface|array|string|null $columns): static
     {
         // Tell the QueryBuilder object to only use the specified columns
-        $this->__setColumns($columns);
+        parent::setColumns($columns);
         $this->getQueryBuilderObject()->setSelects($this->getSqlSelectColumns());
 
         return $this;
