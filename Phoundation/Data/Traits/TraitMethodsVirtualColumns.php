@@ -108,10 +108,10 @@ trait TraitMethodsVirtualColumns {
                     ':class'  => $this::class,
                     ':column' => $virtual_table_column,
                 ]), $e)->setData([
-                                     'table'   => $table,
-                                     'class'   => $this::class,
-                                     'column'  => $virtual_table_column,
-                                 ]);
+                    'table'   => $table,
+                    'class'   => $this::class,
+                    'column'  => $virtual_table_column,
+                ]);
             }
         }
 
@@ -159,10 +159,10 @@ trait TraitMethodsVirtualColumns {
                     ':class'  => $this::class,
                     ':column' => $e->getDataKey('column'),
                 ]), $e)->setData([
-                                     'column'        => $e->getDataKey('column'),
-                                     'table'         => $table,
-                                     'configuration' => $configuration,
-                                 ]);
+                    'column'        => $e->getDataKey('column'),
+                    'table'         => $table,
+                    'configuration' => $configuration,
+                ]);
             }
         }
 
@@ -210,7 +210,7 @@ trait TraitMethodsVirtualColumns {
                 ]);
             }
 
-            if ($value === null) {
+            if (is_empty($value)) {
                 continue;
             }
 
