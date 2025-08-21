@@ -546,7 +546,15 @@ class Sql implements SqlInterface
                         throw SqlAmbiguousColumnException::new($message, $e)->addData(['column' => $column]);
 
                     case 1062:
-                        throw new SqlContstraintDuplicateEntryException($e);
+                        $value  = Strings::cut($e->getMessage(), 'Duplicate entry \'', "'");
+                        $column = Strings::cut($e->getMessage(), 'for key \'', "'");
+                        $column = Strings::from($column, '.');
+
+                        throw SqlContstraintDuplicateEntryException::new($e)
+                                                                   ->addData([
+                                                                       'column' => $column,
+                                                                       'value'  => $value
+                                                                   ]);
                 }
 
             case 42000:
