@@ -43,9 +43,8 @@ use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Definitions;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntries\Tests\TestDataEntry;
 use Phoundation\Data\Enums\EnumStateMismatchHandling;
-use Phoundation\Data\DataEntries\Exception\DataEntryAlreadyExistsException;
+use Phoundation\Data\DataEntries\Exception\DataEntryExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryColumnDefinitionInvalidException;
 use Phoundation\Data\DataEntries\Exception\DataEntryColumnsNotDefinedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryDeletedException;
@@ -96,6 +95,7 @@ use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Connectors\Connector;
+use Phoundation\Databases\Sql\Exception\SqlContstraintDuplicateEntryException;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
@@ -3750,7 +3750,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return bool
      *
-     * @throws OutOfBoundsException|DataEntryAlreadyExistsException
+     * @throws OutOfBoundsException|DataEntryExistsException
      */
     public static function notExists(array|Stringable|string|int $identifier, ?int $id = null, bool $throw_exception = false): bool
     {
@@ -3765,7 +3765,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
             // Exists and is not deleted
             if ($throw_exception) {
-                throw DataEntryAlreadyExistsException::new(tr('The ":type" type data entry with identifier ":id" already exists', [
+                throw DataEntryExistsException::new(tr('The ":type" type data entry with identifier ":id" already exists', [
                     ':type' => static::getClassName(),
                     ':id'   => $identifier,
                 ]));
@@ -4785,9 +4785,19 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
-        if ($this->saveBecauseModified($force)) {
-            // Object must ALWAYS be validated before writing! Validate data and write it to the database.
-            $this->validate($skip_validation)->write($force, $comments)->saveToCache()->setTableState();
+        try {
+            if ($this->saveBecauseModified($force)) {
+                // Object must ALWAYS be validated before writing! Validate data and write it to the database.
+                $this->validate($skip_validation)->write($force, $comments)->saveToCache()->setTableState();
+            }
+
+        } catch (SqlContstraintDuplicateEntryException $e) {
+            // The unique identifier for the entry being added already exists
+            throw new DataEntryExistsException(tr('Cannot save ":class" DataEntry, another entry with the unique column ":column" value ":value" for this object already exists', [
+                ':class'  => static::class,
+                ':column' => $e->getDataKey('column'),
+                ':value'  => $e->getDataKey('value'),
+            ]), $e);
         }
 
         return $this;
