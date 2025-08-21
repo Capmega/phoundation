@@ -2,14 +2,43 @@
 
 namespace Phoundation\Exception\Interfaces;
 
+use PDOStatement;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
+use Phoundation\Data\Interfaces\ArraySourceInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Interfaces\PoadInterface;
+use Phoundation\Exception\PhoException;
+use Phoundation\Exception\PhpException;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Utils\Utils;
+use Throwable;
 
 interface PhoExceptionInterface extends PoadInterface
 {
+    /**
+     * Returns the source data of this exception
+     *
+     * @return array
+     */
+    public function __toArray(): array;
+
+    /**
+     * Returns this exception object as a string
+     *
+     * @note Some (important!) information may be dropped, like the exception data
+     * @return string
+     */
+    public function __toString(): string;
+
+    /**
+     * Returns true if a PhoException object has ever been created
+     *
+     * @return bool
+     */
+    public static function hasBeenCreated(): bool;
+
     /**
      * Changes the exception message to the specified message
      *
@@ -18,7 +47,6 @@ interface PhoExceptionInterface extends PoadInterface
      * @return static
      */
     public function setMessage(string $message): static;
-
 
     /**
      * Returns true if the exception message matches the specified needle(s)
@@ -30,14 +58,12 @@ interface PhoExceptionInterface extends PoadInterface
      */
     public function messageContains(array|string $needle, bool $case_insensitive = true): bool;
 
-
     /**
      * Returns the exception messages
      *
      * @return array
      */
     public function getMessages(): array;
-
 
     /**
      * Changes the exception messages list to the specified messages
@@ -48,7 +74,6 @@ interface PhoExceptionInterface extends PoadInterface
      */
     public function setMessages(array $messages): static;
 
-
     /**
      * Returns true if this exception has data attached
      *
@@ -56,14 +81,12 @@ interface PhoExceptionInterface extends PoadInterface
      */
     public function hasData(): bool;
 
-
     /**
      * Return the exception-related data
      *
      * @return array
      */
     public function getData(): array;
-
 
     /**
      * Sets the specified data for this exception
@@ -74,7 +97,6 @@ interface PhoExceptionInterface extends PoadInterface
      */
     public function setData(mixed $data): static;
 
-
     /**
      * Sets the line where the exception occurred
      *
@@ -83,7 +105,6 @@ interface PhoExceptionInterface extends PoadInterface
      * @return static
      */
     public function setLine(int $line): static;
-
 
     /**
      * Sets the file where the exception occurred
@@ -94,7 +115,6 @@ interface PhoExceptionInterface extends PoadInterface
      */
     public function setFile(string $file): static;
 
-
     /**
      * Returns the exception messages
      *
@@ -104,6 +124,23 @@ interface PhoExceptionInterface extends PoadInterface
      */
     public function addMessages(array|string|null $messages): static;
 
+    /**
+     * Import exception data and return this as an exception
+     *
+     * @param ArraySourceInterface|array|string|null $source
+     *
+     * @return static|null
+     */
+    public static function newFromSourceOrNull(ArraySourceInterface|array|string|null $source): ?static;
+
+    /**
+     * Import exception data and return this as an exception
+     *
+     * @param DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source
+     *
+     * @return static
+     */
+    public static function newFromSource(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null): static;
 
     /**
      * Set the exception code
@@ -113,7 +150,6 @@ interface PhoExceptionInterface extends PoadInterface
      * @return static
      */
     public function setCode(string|int|null $code = null): static;
-
 
     /**
      * Returns the source data when cast to array in POA (Phoundation Object Array) format. This format allows any
@@ -131,14 +167,12 @@ interface PhoExceptionInterface extends PoadInterface
      */
     public function getPoadArray(): array;
 
-
     /**
      * Returns this exception object as an array
      *
      * @return array
      */
     public function getSource(): array;
-
 
     /**
      * Return the exception-related data
@@ -149,7 +183,6 @@ interface PhoExceptionInterface extends PoadInterface
      */
     public function getDataKey(string|int $key): mixed;
 
-
     /**
      * Returns true if the specified exception data key exists
      *
@@ -159,7 +192,6 @@ interface PhoExceptionInterface extends PoadInterface
      */
     public function dataKeyExists(string|int $key): bool;
 
-
     /**
      * Returns true if the exception data matches the specified needle(s)
      *
@@ -168,7 +200,6 @@ interface PhoExceptionInterface extends PoadInterface
      * @return bool
      */
     public function dataContains(array|string $needle): bool;
-
 
     /**
      * Returns true if the exception data matches the specified needle(s)
@@ -181,7 +212,6 @@ interface PhoExceptionInterface extends PoadInterface
      */
     public function dataMatches(array|string $needles, int $options = Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_CASE_INSENSITIVE, string|float|int|null $key = null): bool;
 
-
     /**
      * Returns exception data that matches the specified needle(s)
      *
@@ -193,7 +223,6 @@ interface PhoExceptionInterface extends PoadInterface
      */
     public function getDataMatch(array|string $needles, int $options = Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_CASE_INSENSITIVE, string|float|int|null $key = null): array;
 
-
     /**
      * Returns true if the exception data matches the specified Perl compatible regular expression
      *
@@ -202,7 +231,6 @@ interface PhoExceptionInterface extends PoadInterface
      * @return bool
      */
     public function dataMatchesRegex(string $regex): bool;
-
 
     /**
      * Returns the matches from the data with the Perl compatible regular expression
@@ -213,7 +241,6 @@ interface PhoExceptionInterface extends PoadInterface
      */
     public function getDataRegexMatches(string $regex): array;
 
-
     /**
      * Add relevant exception data
      *
@@ -223,7 +250,6 @@ interface PhoExceptionInterface extends PoadInterface
      * @return static
      */
     public function addData(mixed $data, ?string $key = null): static;
-
 
     /**
      * Returns true if the exception message matches the specified needle(s)
@@ -266,7 +292,6 @@ interface PhoExceptionInterface extends PoadInterface
      */
     public function messageMatches(DataIteratorInterface|array|string|null $needles, int $flags = Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_CASE_INSENSITIVE): bool;
 
-
     /**
      * Sets that this exception is a warning. If an exception is a warning, its message may be displayed completely
      *
@@ -275,7 +300,6 @@ interface PhoExceptionInterface extends PoadInterface
      */
     public function makeWarning(): static;
 
-
     /**
      * Returns true if this exception is a warning or false if not
      *
@@ -283,14 +307,12 @@ interface PhoExceptionInterface extends PoadInterface
      */
     public function isWarning(): bool;
 
-
     /**
      * Returns the warning setting for this exception. If true, the exception message may be displayed completely
      *
      * @return bool True if this exception is a warning, false otherwise.
      */
     public function getWarning(): bool;
-
 
     /**
      * Sets that this exception is a warning. If an exception is a warning, its message may be displayed completely
@@ -303,7 +325,6 @@ interface PhoExceptionInterface extends PoadInterface
      */
     public function setWarning(bool $warning): static;
 
-
     /**
      * Return the complete backtrace starting from the first exception that was thrown
      *
@@ -314,14 +335,12 @@ interface PhoExceptionInterface extends PoadInterface
      */
     public function getCompleteTrace(string $filters = 'args', bool $skip_own = true): array;
 
-
     /**
      * Write this exception to the log file
      *
      * @return static
      */
     public function log(): static;
-
 
     /**
      * Returns a notification object for this exception
@@ -330,6 +349,15 @@ interface PhoExceptionInterface extends PoadInterface
      */
     public function getNotificationObject(): NotificationInterface;
 
+    /**
+     * Returns a new exception object
+     *
+     * @param Throwable|array|string|null $messages
+     * @param Throwable|null              $previous
+     *
+     * @return static
+     */
+    public static function new(Throwable|array|string|null $messages, ?Throwable $previous = null): static;
 
     /**
      * Register this exception in the developer incidents log
@@ -341,6 +369,13 @@ interface PhoExceptionInterface extends PoadInterface
      */
     public function registerIncident(?EnumSeverity $severity = null, ?string $type = null): static;
 
+    /**
+     * @param Throwable $e
+     * @param string    $exception_class
+     *
+     * @return static
+     */
+    public static function ensurePhoundationException(Throwable $e, string $exception_class = PhpException::class): PhoException;
 
     /**
      * Returns the exception stack trace limited to everything after the execute_page() call
@@ -352,14 +387,12 @@ interface PhoExceptionInterface extends PoadInterface
      */
     public function getLimitedTrace(): array;
 
-
     /**
      * Returns the backtrace as a JSON string
      *
      * @return string
      */
     public function getTraceAsJson(): string;
-
 
     /**
      * Returns the backtrace as a string with nicely formatted lines
@@ -370,7 +403,6 @@ interface PhoExceptionInterface extends PoadInterface
      */
     public function getTraceAsFormattedString(int $indent = 0): string;
 
-
     /**
      * Returns the backtrace as an array with nicely formatted lines
      *
@@ -379,7 +411,6 @@ interface PhoExceptionInterface extends PoadInterface
      * @return array
      */
     public function getTraceAsFormattedArray(int $indent = 0): array;
-
 
     /**
      * Tracks if this exception has been logged
@@ -390,14 +421,12 @@ interface PhoExceptionInterface extends PoadInterface
      */
     public function hasBeenLogged(?bool $set = null): bool;
 
-
     /**
      * Returns the list of possible fixes for this exception, if available
      *
      * @return array|null
      */
     public function getFixes(): ?array;
-
 
     /**
      * Adds a possible fix to this exception
