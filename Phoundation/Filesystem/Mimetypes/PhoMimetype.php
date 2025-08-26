@@ -110,13 +110,13 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
      */
     public function setPathObject(?PhoPathInterface $o_path): static
     {
-        $this->initialize([
+        $this->__setPathObject($o_path);
+
+        return $this->load([
             'mimetype'  => $o_path->getMimetype(),
             'extension' => $o_path->getExtension(),
             'priority'  => 0
         ]);
-
-        return $this->__setPathObject($o_path);
     }
 
 
