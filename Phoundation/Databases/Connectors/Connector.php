@@ -194,12 +194,12 @@ class Connector extends DataEntry implements ConnectorInterface
      *       DataEntry::getId(), which should return a valid database id
      *
      * @param IdentifierInterface|array|string|int|null $identifier
-     * @param EnumLoadParameters|null                   $on_load_null_identifier
-     * @param EnumLoadParameters|null                   $on_load_not_exists
+     * @param EnumLoadParameters|null                   $on_null_identifier
+     * @param EnumLoadParameters|null                   $on_not_exists
      *
      * @return static|null
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static
     {
         if (is_numeric($identifier) and ($identifier < 0)) {
             // Negative identifier is a configured connector!
@@ -208,7 +208,7 @@ class Connector extends DataEntry implements ConnectorInterface
 
         try {
             // Load connector data and automatically cache it in the Datastores object
-            parent::load($identifier, $on_load_null_identifier, $on_load_not_exists);
+            parent::load($identifier, $on_null_identifier, $on_not_exists);
 
             // TODO $this->identifier['name'] should always exist for a connector, but what if someone specified $identifier['id'] ???
             Databases::getConnectorsObject()->add($this, $this->getUniqueColumnValue(), exception: false);

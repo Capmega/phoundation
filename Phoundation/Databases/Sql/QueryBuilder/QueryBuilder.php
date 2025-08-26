@@ -350,20 +350,20 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      * @note Will cause an exception if the parent has not been set
      *
      * @param IdentifierInterface|array|string|int|null $identifier
-     * @param EnumLoadParameters|null                   $on_load_null_identifier
-     * @param EnumLoadParameters|null                   $on_load_not_exists
+     * @param EnumLoadParameters|null                   $on_null_identifier
+     * @param EnumLoadParameters|null                   $on_not_exists
      *
      * @return static|null
      * @todo Improve this method, DataIterator objects have a $like argument that isn't passed here?
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static
     {
         if (empty($this->parent)) {
             throw new OutOfBoundsException(tr('Cannot load parent data from query, no parent has been specified'));
         }
 
         if ($this->parent instanceof DataEntryInterface) {
-            $this->parent->load($identifier, $on_load_null_identifier, $on_load_not_exists);
+            $this->parent->load($identifier, $on_null_identifier, $on_not_exists);
 
         } else {
             $this->parent->load($identifier);
