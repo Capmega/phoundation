@@ -355,12 +355,12 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      * Returns a single user object for a single user that has the specified alternate email address.
      *
      * @param IdentifierInterface|array|string|int|null $identifier
-     * @param EnumLoadParameters|null                   $on_load_null_identifier
-     * @param EnumLoadParameters|null                   $on_load_not_exists
+     * @param EnumLoadParameters|null                   $on_null_identifier
+     * @param EnumLoadParameters|null                   $on_not_exists
      *
      * @return static|null
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static
     {
         try {
             // Intercept loading "system" user
@@ -368,7 +368,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                 return $this->initSystemUser();
             }
 
-            $user = parent::load($identifier, $on_load_null_identifier, $on_load_not_exists);
+            $user = parent::load($identifier, $on_null_identifier, $on_not_exists);
 
         } catch (DataEntryNotExistsException $e) {
             if ($this->identifier === ['email' => 'guest']) {

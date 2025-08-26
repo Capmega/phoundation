@@ -12,12 +12,16 @@
 
 declare(strict_types=1);
 
+use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
+
+// No get parameters allowed
+GetValidator::new()->validate();
 
 // Set page meta data
 Response::setHeaderTitle(tr('My reports page'));
