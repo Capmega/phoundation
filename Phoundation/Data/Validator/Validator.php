@@ -541,6 +541,20 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
 
     /**
+     * Sets the currently selected value
+     *
+     * @param mixed $value
+     *
+     * @return static
+     */
+    public function setSelectedValue(mixed $value): static
+    {
+        $this->selected_value = $value;
+        return $this;
+    }
+
+
+    /**
      * Returns the currently selected field
      *
      * @return mixed
@@ -1042,17 +1056,16 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         }
 
         $failure = [
-            'hard'      => $hard,
-            'label'     => $field,
-            'column'    => $field,
-            'value'     => $this->selected_value,
-            'message'   => $failure
+            'hard'    => $hard,
+            'label'   => $field,
+            'column'  => $field,
+            'value'   => $this->selected_value,
+            'message' => $failure
         ];
 
-        if ($this->getDefinitionsObject()) {
-            $failure['datatype']  = $this->getDefinitionsObject()->get($field)->getDatatype();
-            $failure['maxlength'] = $this->getDefinitionsObject()->get($field)->getMaxLength();
-
+        if ($this->getDefinitionsObject()?->keyExists($field)) {
+            $failure['required_datatype']  = $this->getDefinitionsObject()->get($field)->getDatatype();
+            $failure['required_maxlength'] = $this->getDefinitionsObject()->get($field)->getMaxLength();
         }
 
         // Store the failure
@@ -1522,15 +1535,15 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             $o_definition = $this->getDataEntryObject()?->getDefinitionsObject()?->get($column);
 
             if ($failure['hard']) {
-                if (array_key_exists('datatype', $failure)) {
+                if (array_key_exists('required_datatype', $failure)) {
                     // Force datatype
-                    switch ($failure['datatype']) {
+                    switch ($failure['required_datatype']) {
                         case 'string':
                             $this->source[$column] = (string) $this->source[$column];
 
-                            if (array_key_exists('maxlength', $failure)) {
+                            if (array_key_exists('required_maxlength', $failure)) {
                                 // Force maxlength
-                                $this->source[$column] = substr((string) $this->source[$column], 0, $failure['maxlength'] - 1);
+                                $this->source[$column] = substr((string) $this->source[$column], 0, $failure['required_maxlength'] - 1);
                             }
 
                             break;
