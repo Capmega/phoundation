@@ -168,7 +168,7 @@ class RoutingParametersList
             ':directory' => $parameters->getRootDirectory(),
             ':template'  => $parameters->getTemplate(),
             ':pattern'   => $pattern,
-        ]));
+        ]), 2);
 
         return $parameters;
     }

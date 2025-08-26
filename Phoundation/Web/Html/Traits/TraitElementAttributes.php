@@ -1386,7 +1386,6 @@ trait TraitElementAttributes
                  ->setAfterContent($o_definition->getAfterContent())
                  ->setBeforeContent($o_definition->getBeforeContent())
                  ->setVisible($o_definition->getVisible())
-                 ->setRequired($o_definition->getRequired())
                  ->addClasses($o_definition->getClasses())
                  ->setDataObject($o_definition->getData())
                  ->setAriaObject($o_definition->getAria())

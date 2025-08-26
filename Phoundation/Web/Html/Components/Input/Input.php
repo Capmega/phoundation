@@ -54,6 +54,11 @@ abstract class Input extends Element implements InputInterface, ValueInterface
      */
     protected function renderAttributesArray(): IteratorInterface
     {
+
+if ($this->getName() === 'payees_code') {
+//show(parent::renderAttributesArray());
+}
+
         $this->o_attributes = $this->renderInputAttributes()->appendSource($this->o_attributes);
         return parent::renderAttributesArray();
     }
@@ -87,6 +92,7 @@ abstract class Input extends Element implements InputInterface, ValueInterface
     {
         // Copy data used for input controls
         return parent::setDefinitionObject($o_definition)
+                     ->setRequired($o_definition->getRequired(false))
                      ->setHidden($o_definition->getHidden())
                      ->setAutoSubmit($o_definition->getAutoSubmit());
     }

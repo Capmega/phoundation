@@ -80,9 +80,9 @@ class Url implements UrlInterface
     /**
      * Url class constructor
      *
-     * @param Stringable|string|int|null $source
+     * @param UrlInterface|string|int|null $source
      */
-    protected function __construct(Stringable|string|int|null $source = null)
+    protected function __construct(UrlInterface|string|int|null $source = null)
     {
         if ($source instanceof UrlInterface) {
             // Copy URL data from the specified source into this URL object
@@ -91,7 +91,7 @@ class Url implements UrlInterface
 
         } else {
             // If the specified was a non UrlInterface stringable object, convert to string and use
-            $this->setSource(Html::safe((string) $source));
+            $this->setSource($source);
         }
     }
 
@@ -110,11 +110,11 @@ class Url implements UrlInterface
     /**
      * Returns a new Url object
      *
-     * @param Stringable|string|int|null $source
+     * @param UrlInterface|string|int|null $source
      *
      * @return static
      */
-    public static function new(Stringable|string|int|null $source = null): static
+    public static function new(UrlInterface|string|int|null $source = null): static
     {
         return new static($source);
     }
@@ -1079,6 +1079,8 @@ class Url implements UrlInterface
         $remove_keys = Arrays::force($remove_keys);
 
         foreach ($queries as $query) {
+            $query = Strings::ensureBeginsNotWith($query, 'amp;');
+            // TODO why does this show as "amp;" after Arrays::force()
             if (empty($query)) {
                 continue;
             }
