@@ -103,10 +103,10 @@ Response::setHeaderSubTitle($notification->getDisplayId());
 Response::setBreadcrumbs([
     Anchor::new('/'                      , tr('Home')),
     Anchor::new('/notifications/all.html', tr('Notifications')),
-    Anchor::new(''                       , tr(':id [:title]'), [
+    Anchor::new(''                       , tr(':id [:title]', [
         ':title' => $notification->getTitle(),
         ':id'    => $notification->getDisplayId()
-    ])
+    ]))
 ]);
 
 
