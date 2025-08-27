@@ -235,6 +235,7 @@ throw new UnderConstructionException(tr('Subset is not yet supported for icons')
                 // TODO This sort of negates subsets, which need to be supported!
                 $this->addClasses([$this->getVendor(), $this->getLabel(), 'fa-lg']);
                 $this->setContent(null);
+                break;
 
             default:
                 Log::warning(tr('The Icon vendor ":vendor" is not yet supported or the Icon is being created improperly', [

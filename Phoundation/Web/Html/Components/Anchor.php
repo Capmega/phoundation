@@ -324,7 +324,7 @@ class Anchor extends SpanCore implements AnchorInterface
             $this->setElement('span')->addClass('anchor');
 
         } else {
-            if (empty($this->content)) {
+            if (is_empty($this->content)) {
                 // This Anchor contains a URL but no text content to display. Use the URL as content instead
                 $this->setContent($this->o_href->getSource());
             }
