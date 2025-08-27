@@ -309,16 +309,16 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Tracks the handling of NULL identifiers
      *
-     * @var EnumLoadParameters $on_load_null_identifier
+     * @var EnumLoadParameters $on_null_identifier
      */
-    protected EnumLoadParameters $on_load_null_identifier = EnumLoadParameters::exception;
+    protected EnumLoadParameters $on_null_identifier = EnumLoadParameters::exception;
 
     /**
      * Tracks the handling of identifier not found
      *
-     * @var EnumLoadParameters $on_load_not_exists
+     * @var EnumLoadParameters $on_not_exists
      */
-    protected EnumLoadParameters $on_load_not_exists = EnumLoadParameters::exception;
+    protected EnumLoadParameters $on_not_exists = EnumLoadParameters::exception;
 
     /**
      * Tracks columns that aren't defined but permitted anyway
@@ -347,10 +347,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *                                                                    FALSE, the object will NOT initialize, and the
      *                                                                    DataEntry::initialize() method must be called
      *                                                                    separately.
-     * @param EnumLoadParameters|null                         $on_load_null_identifier
-     * @param EnumLoadParameters|null                         $on_load_not_exists
+     * @param EnumLoadParameters|null                         $on_null_identifier
+     * @param EnumLoadParameters|null                         $on_not_exists
      */
-    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null)
+    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null)
     {
         $this->cache = Cache::isEnabled();
 
@@ -361,8 +361,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         // Initialize the DataEntry object
-        $this->setOnLoadNullIdentifier($on_load_null_identifier)
-             ->setOnLoadNotExists($on_load_not_exists)
+        $this->setOnLoadNullIdentifier($on_null_identifier)
+             ->setOnLoadNotExists($on_not_exists)
              ->initialize(($identifier === null) ? false : $identifier);
 
         if ($identifier) {
@@ -439,10 +439,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             return $this->initialize($id_column_value);
         }
 
-        throw DataEntryInvalidIdentifierException::new(tr('Specified source has no valid ":id" or ":unique" column required as a unique identifier', [
-            ':id'     => $id_column,
-            ':unique' => $unique_column
-        ]))->addData($source);
+        return $this->initialize(false);
     }
 
 
@@ -501,21 +498,21 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function getOnLoadNullIdentifier(): ?EnumLoadParameters
     {
-        return $this->on_load_null_identifier;
+        return $this->on_null_identifier;
     }
 
 
     /**
      * Sets the handling of NULL identifiers
      *
-     * @param EnumLoadParameters|null $on_load_null_identifier
+     * @param EnumLoadParameters|null $on_null_identifier
      *
      * @return static
      */
-    public function setOnLoadNullIdentifier(?EnumLoadParameters $on_load_null_identifier): static
+    public function setOnLoadNullIdentifier(?EnumLoadParameters $on_null_identifier): static
     {
-        if ($on_load_null_identifier) {
-            $this->on_load_null_identifier = $on_load_null_identifier;
+        if ($on_null_identifier) {
+            $this->on_null_identifier = $on_null_identifier;
         }
 
         return $this;
@@ -529,21 +526,21 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function getOnLoadNotExists(): ?EnumLoadParameters
     {
-        return $this->on_load_not_exists;
+        return $this->on_not_exists;
     }
 
 
     /**
      * Sets the handling of identifier not found
      *
-     * @param EnumLoadParameters|null $on_load_not_exists
+     * @param EnumLoadParameters|null $on_not_exists
      *
      * @return static
      */
-    public function setOnLoadNotExists(?EnumLoadParameters $on_load_not_exists): static
+    public function setOnLoadNotExists(?EnumLoadParameters $on_not_exists): static
     {
-        if ($on_load_not_exists) {
-            $this->on_load_not_exists = $on_load_not_exists;
+        if ($on_not_exists) {
+            $this->on_not_exists = $on_not_exists;
         }
 
         return $this;
@@ -1285,16 +1282,16 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * (MUST exist in the database)
      *
      * @param IdentifierInterface|array|string|int|null $identifier
-     * @param EnumLoadParameters|null                   $on_load_null_identifier
-     * @param EnumLoadParameters|null                   $on_load_not_exists
+     * @param EnumLoadParameters|null                   $on_null_identifier
+     * @param EnumLoadParameters|null                   $on_not_exists
      * @param array|string                              $columns
      *
      * @return static
      */
-    public function loadColumns(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null, array|string $columns = 'id'): static
+    public function loadColumns(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null, array|string $columns = 'id'): static
     {
         return $this->setColumns($columns)
-                    ->load($identifier, $on_load_null_identifier, $on_load_not_exists);
+                    ->load($identifier, $on_null_identifier, $on_not_exists);
     }
 
 
@@ -1322,7 +1319,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *                                                                           or a string value which will convert to
      *                                                                           [unique_column => string_value]]
      *
-     * @param EnumLoadParameters|null                   $on_load_null_identifier Specifies how this load method will
+     * @param EnumLoadParameters|null                   $on_null_identifier Specifies how this load method will
      *                                                                           handle the specified identifier being
      *                                                                           NULL. Options are:
      *                                                                           EnumLoadParameters::exception: Throws a
@@ -1336,7 +1333,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *                                                                           Defaults to
      *                                                                           EnumLoadParameters::exception
      *
-     * @param EnumLoadParameters|null                   $on_load_not_exists      Specifies how this load method will
+     * @param EnumLoadParameters|null                   $on_not_exists      Specifies how this load method will
      *                                                                           handle the specified identifier not
      *                                                                           existing in the database. Options are:
      *                                                                           EnumLoadParameters::exception: Throws a
@@ -1352,11 +1349,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * @return static|null
      *
      * @throws DataEntryNoIdentifierSpecifiedException Thrown when the specified identifier is empty and
-     *                                                 $on_load_null_identifier is set to EnumLoadParameters::exception
+     *                                                 $on_null_identifier is set to EnumLoadParameters::exception
      * @throws DataEntryNotExistsException             Thrown when the specified identifier doesn't exist and
-     *                                                 $on_load_not_exists is set to EnumLoadParameters::exception
+     *                                                 $on_not_exists is set to EnumLoadParameters::exception
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static
     {
         if ($this->debug) {
             Log::debug('TRY LOADING CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($identifier) . '"', 10, echo_header: false);
@@ -1381,8 +1378,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // This already is a DataEntry object, no need to create one. Validate that this is the same class
             if (($identifier instanceof static) or is_subclass_of(static::class, get_class($identifier))) {
                 // The identifier is the same as this, or extended this. Copy its source inside this object
-                return $this->setOnLoadNullIdentifier($on_load_null_identifier)
-                            ->setOnLoadNotExists($on_load_not_exists)
+                return $this->setOnLoadNullIdentifier($on_null_identifier)
+                            ->setOnLoadNotExists($on_not_exists)
                             ->setIdentifier($identifier->getIdentifier())
                             ->setSource($identifier->getSource(false, false))
                             ->ready(true);
@@ -1399,8 +1396,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         // Set the identifier and event handling modifiers
-        $this->setOnLoadNullIdentifier($on_load_null_identifier)
-             ->setOnLoadNotExists($on_load_not_exists)
+        $this->setOnLoadNullIdentifier($on_null_identifier)
+             ->setOnLoadNotExists($on_not_exists)
              ->setIdentifier($identifier)
              ->is_initializing_source = true;
 
@@ -1411,7 +1408,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         if (empty($this->identifier)) {
             // Oh noes, no identifier specified!
-            switch ($this->on_load_null_identifier) {
+            switch ($this->on_null_identifier) {
                 case EnumLoadParameters::null:
                     return null;
 
@@ -1446,7 +1443,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                         ->ready(true);
 
         } catch (DataEntryNotExistsException $e) {
-            switch ($this->on_load_not_exists) {
+            switch ($this->on_not_exists) {
                 case EnumLoadParameters::null:
                     return null;
 
@@ -1475,13 +1472,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * identifier was specified
      *
      * @param IdentifierInterface|array|string|int|null $identifier
-     * @param EnumLoadParameters|null                   $on_load_not_exists
+     * @param EnumLoadParameters|null                   $on_not_exists
      *
      * @return static|null
      */
-    public function loadNull(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
+    public function loadNull(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static
     {
-        return $this->load($identifier, EnumLoadParameters::null, $on_load_not_exists);
+        return $this->load($identifier, EnumLoadParameters::null, $on_not_exists);
     }
 
 
@@ -1490,13 +1487,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * object
      *
      * @param IdentifierInterface|array|string|int|null $identifier
-     * @param EnumLoadParameters|null                   $on_load_not_exists
+     * @param EnumLoadParameters|null                   $on_not_exists
      *
      * @return static
      */
-    public function loadThis(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_not_exists = null): static
+    public function loadThis(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_not_exists = null): static
     {
-        return $this->load($identifier, EnumLoadParameters::this, $on_load_not_exists);
+        return $this->load($identifier, EnumLoadParameters::this, $on_not_exists);
     }
 
 
@@ -1505,13 +1502,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * identifier was specified
      *
      * @param IdentifierInterface|array|string|int|null $identifier
-     * @param EnumLoadParameters|null                   $on_load_null_identifier
+     * @param EnumLoadParameters|null                   $on_null_identifier
      *
      * @return static|null
      */
-    public function loadOrThis(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null): ?static
+    public function loadOrThis(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null): ?static
     {
-        return $this->load($identifier, $on_load_null_identifier, EnumLoadParameters::this);
+        return $this->load($identifier, $on_null_identifier, EnumLoadParameters::this);
     }
 
 
@@ -1520,13 +1517,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * identifier was specified
      *
      * @param IdentifierInterface|array|string|int|null $identifier
-     * @param EnumLoadParameters|null                   $on_load_null_identifier
+     * @param EnumLoadParameters|null                   $on_null_identifier
      *
      * @return static|null
      */
-    public function loadOrNull(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null): ?static
+    public function loadOrNull(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null): ?static
     {
-        return $this->load($identifier, $on_load_null_identifier, EnumLoadParameters::null);
+        return $this->load($identifier, $on_null_identifier, EnumLoadParameters::null);
     }
 
 
@@ -3178,18 +3175,18 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         if ($this->debug) {
-            Log::debug('APPLY ' . static::getEntryName() . ' (' . static::class . ')', 10, echo_header: false);
-            Log::debug('CURRENT DATA', 10         , echo_header: false);
-            Log::vardump($this->source            , echo_header: false);
-            Log::debug('UNVALIDATED NEW DATA'     , echo_header: false);
-            Log::vardump($data_source->getSource(), echo_header: false);
+            Log::debug(($force ? 'FORCE ' : null) . 'APPLY ' . static::getEntryName() . ' (' . static::class . ')', 10, echo_header: false);
+            Log::debug('CURRENT DATA'                                                                             , 10, echo_header: false);
+            Log::vardump($this->source                                                                                , echo_header: false);
+            Log::debug('UNVALIDATED NEW DATA'                                                                         , echo_header: false);
+            Log::vardump($force ? $data_source->getBackup() : $data_source->getSource()                               , echo_header: false);
         }
 
         // Get the source array from the validator into the DataEntry object
         if ($force) {
             // Force was used, but the object will now be in readonly mode, so we can save failed data
             // Validate data and copy data into the source array
-            $data_source = $this->doNotValidate($data_source, $require_clean_source);
+            $data_source = $this->doNotValidate($data_source, $require_clean_source, $force);
             $this->copyValuesToSource($data_source, true, true);
 
         } else {
@@ -3223,13 +3220,20 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @param ValidatorInterface $o_validator
      * @param bool               $require_clean_source
+     * @param bool               $force
      *
      * @return array
      */
-    protected function doNotValidate(ValidatorInterface $o_validator, bool $require_clean_source): array
+    protected function doNotValidate(ValidatorInterface $o_validator, bool $require_clean_source, bool $force = false): array
     {
         $return = [];
-        $source = $o_validator->getSource();
+
+        if ($force) {
+            $source = $o_validator->getBackup();
+        } else {
+            $source = $o_validator->getSource();
+        }
+
         $prefix = $this->getDefinitionsObject()->getPrefix();
 
         foreach ($source as $key => $value) {
@@ -3251,18 +3255,19 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @param ValidatorInterface $o_validator
      * @param bool               $require_clean_source
-     * @param bool               $external
+     * @param bool               $use_prefix
      *
      * @return array
      */
-    protected function validateSource(ValidatorInterface $o_validator, bool $require_clean_source, bool $external): array
+    protected function validateSource(ValidatorInterface $o_validator, bool $require_clean_source, bool $use_prefix): array
     {
         if (!$this->validate) {
             // This data entry won't validate data, just continue.
             return $o_validator->getSource();
         }
 
-        $prefix = $this->getDefinitionsObject()->getPrefix();
+        // Set what prefix to use
+        $prefix = $use_prefix ? $this->getDefinitionsObject()->getPrefix() : null;
 
         // Set ID so that the array validator can do unique lookups, etc.
         // Tell the validator what table this DataEntry is using and get the column prefix so that the validator knows
@@ -3313,7 +3318,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         try {
             // Execute the validate method to get the results of the validation
             $source             = $o_validator->setPermitValidationFailures($this->getPermitValidationFailures())
-                                            ->validate($require_clean_source);
+                                              ->validate($require_clean_source);
             $this->is_validated = true;
 
             if (!$this->hasPermitValidationFailures(EnumSoftHard::none)) {
@@ -4944,32 +4949,31 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return array
      */
-    public function getSqlColumns(bool $insert): array
+    public function getSqlSource(bool $insert): array
     {
         $return = [];
 
         // Run over all definitions and generate a data column
         foreach ($this->o_definitions as $column => $o_definition) {
-            if ($insert) {
-                // We're about to insert
-                if (in_array($column, $this->columns_filter_on_insert)) {
-                    if ($o_definition->isMeta()) {
-                        continue;
-                    }
-                }
-            }
-
-            $column = $o_definition->getColumn();
-
             if ($o_definition->getVirtual()) {
                 // This is a virtual column, ignore it.
                 continue;
             }
 
+            if ($insert) {
+                // We're about to insert, make sure to filter columns that aren't allowed for the first insert
+                if (in_array($column, $this->columns_filter_on_insert)) {
+                    continue;
+                }
+            }
+
+            $column = $o_definition->getColumn();
+
+            // TODO The next line should and AFAIK IS applied during validation, what is it doing here? DELETE!
             // Apply definition default
             $return[$column] = array_get_safe($this->source, $column) ?? $o_definition->getDefault();
 
-            // Ensure value is string, float, int, or NULL
+            // Ensure values are scalar for the SQL query
             if (($return[$column] !== null) and !is_scalar($return[$column])) {
                 if (is_enum($return[$column])) {
                     $return[$column] = $return[$column]->value;
@@ -4980,18 +4984,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 } else {
                     $return[$column] = Json::ensureEncoded($return[$column]);
                 }
-            }
-
-            // Apply definition prefix and postfix only if they are not empty
-            $prefix = $o_definition->getPrefix();
-            $suffix = $o_definition->getSuffix();
-
-            if ($prefix) {
-                $return[$column] = $prefix . $return[$column];
-            }
-
-            if ($suffix) {
-                $return[$column] .= $suffix;
             }
         }
 
