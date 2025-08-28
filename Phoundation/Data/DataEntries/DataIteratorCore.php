@@ -743,7 +743,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
                    ->setValueColumn($value_column);
 
         } else {
-            $query = 'SELECT ' . $key_column . ', ' . $value_column . '
+            $query = ' SELECT ' . $key_column . ', ' . $value_column . '
                       FROM  `' . static::getTable() . '`
                       ' . Strings::force($joins, ' ');
 
