@@ -433,13 +433,13 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
             EnumDateFormat::system_date,
             EnumDateFormat::mysql_date      => 'Y-m-d',
             EnumDateFormat::iso_date_time,
-            EnumDateFormat::mysql_datetime  => 'Y-m-d>>SEPARATOR<<H:i:s',
+            EnumDateFormat::mysql_datetime  => 'Y-m-d>>TIMESEPARATOR<<H:i:s',
             EnumDateFormat::file            => 'ymd-His',
             default                         => $format,
         };
 
         if ($compact) {
-            return str_replace('>>SEPARATOR<<', ' ', str_replace(' ', '', $format));
+            return str_replace('>>TIMESEPARATOR<<', ' ', str_replace(' ', '', $format));
         }
 
         return $format;

@@ -41,7 +41,7 @@ class PhoDateTimeFormats
     protected static array $defaults = [
         'date'     => 'Y / m / d',
         'time'     => 'H : i : s',
-        'datetime' => 'Y / m / d>>SEPARATOR<<H : i : s',
+        'datetime' => 'Y / m / d>>TIMESEPARATOR<<H : i : s',
     ];
 
 
@@ -66,7 +66,7 @@ class PhoDateTimeFormats
             $default = str_replace(' ', '', $default);
         }
 
-        return str_replace('>>SEPARATOR<<', ' ', $default);
+        return $default;
     }
 
 
@@ -158,7 +158,7 @@ class PhoDateTimeFormats
             $default = str_replace(' ', '', $default);
         }
 
-        return str_replace('>>SEPARATOR<<', ' ', $default);
+        return str_replace('>>TIMESEPARATOR<<', config()->getString('locale.dates.formats.separator', ' '), $default);
     }
 
 
@@ -217,7 +217,7 @@ class PhoDateTimeFormats
      * @param string $php_format
      *
      * @return string
-     * @todo Improve this method by supporting more conversions
+     * @todo This conversion method is incomplete! Complete it when possible
      * @see https://www.php.net/manual/en/datetime.format.php for PHP date/time formatting options
      * @see https://blog.stevenlevithan.com/archives/javascript-date-format
      * @see https://momentjs.com/docs/#/displaying/format/ for JavaScript date/time formatting options
@@ -344,6 +344,7 @@ class PhoDateTimeFormats
      * @return string
      * @throws OutOfBoundsException|UnsupportedException
      * @see https://momentjs.com/docs/#/displaying/format/ for JavaScript date/time formatting options
+     * @todo This conversion method is incomplete! Complete it when possible
      */
     public static function convertJsToPhp(string $js_format): string
     {
@@ -466,6 +467,7 @@ class PhoDateTimeFormats
      *
      * @return string
      * @throws OutOfBoundsException|UnsupportedException
+     * @todo This conversion method is incomplete! Complete it when possible
      */
     public static function convertJsToMoment(string $js_format): string
     {
@@ -475,10 +477,10 @@ class PhoDateTimeFormats
             'MM'        => ['out' => 'MM'],
             'MMM'       => ['out' => 'MMM'],
             'MMMM'      => ['out' => 'MMMM'],
-            'D'         => ['out' => 'd'],
-            'DD'        => ['out' => 'dd'],
+            'D'         => ['out' => 'D'],
+            'DD'        => ['out' => 'DD'],
             'DDD'       => ['out' => 'ddd'],
-            'DDDd'      => ['out' => 'dddd'],
+            'DDDD'      => ['out' => 'dddd'],
             'YY'        => ['out' => 'yy'],
             'YYYY'      => ['out' => 'yyyy'],
             'H'         => ['out' => 'H'],
@@ -614,7 +616,7 @@ class PhoDateTimeFormats
     public static function normalizeDateFormat(Stringable|string $format, string $date_replace = '-', string $time_replace = ':', string $date_time_replace = ' ', string $microsecond_replace = '.'): string
     {
         $format = trim((string) $format);
-        $format = str_replace('>>SEPARATOR<<', ' ', $format);
+        $format = str_replace('>>TIMESEPARATOR<<', config()->getString('locale.dates.formats.separator', ' '), $format);
 
         // Do we have a datetime or date? Try matching something like DD-MM-YYYY HH:MM:II (and maybe microseconds)
         if (preg_match_all('/^([a-z]+)[^a-z]+([a-z]+)[^a-z]+([a-z]+)[^a-z]+([a-z]+)[^a-z]+([a-z]+)[^a-z]+([a-z]+)(?:[^a-z]+([a-z]+))?$/i', $format, $matches)) {
