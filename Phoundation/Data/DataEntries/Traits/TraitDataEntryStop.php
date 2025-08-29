@@ -29,7 +29,7 @@ trait TraitDataEntryStop
      */
     public function getStop(): ?PhoDateTimeInterface
     {
-        return $this->getTypesafe('datetime', 'stop');
+        return PhoDateTime::newOrNull($this->getTypesafe(PhoDateTimeInterface::class . '|string', 'stop'));
     }
 
 
