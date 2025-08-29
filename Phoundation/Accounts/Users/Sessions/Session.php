@@ -368,7 +368,7 @@ class Session implements SessionInterface
                     static::$domain = sql()->getColumn('SELECT `domain` 
                                                         FROM   `whitelabels` 
                                                         WHERE  `domain` = :domain 
-                                                          AND  `status` IS NULL', [
+                                                        AND   (`status` IS NULL OR `status` != "deleted")', [
                                                               ':domain' => $_SERVER['HTTP_HOST']
                     ]);
 
@@ -590,14 +590,16 @@ class Session implements SessionInterface
                 Core::writeRegister(403, 'page_show');
 
             } else {
-                if (!is_writable(session_save_path())) {
-                    throw new SessionException(tr('Session startup failed because the session directory ":directory" is not writable for platform ":platform"', [
-                        ':directory' => session_save_path(),
-                        ':platform'  => PLATFORM,
-                    ]), $e);
+                if (str_starts_with(session_save_path(), '/')) {
+                    if (!is_writable(session_save_path())) {
+                        throw new SessionException(tr('Session startup failed because the session directory ":directory" is not writable for platform ":platform"', [
+                            ':directory' => session_save_path(),
+                            ':platform'  => PLATFORM,
+                        ]), $e);
+                    }
                 }
 
-                throw new SessionException(tr('Session startup failed'), $e);
+                throw new SessionException(tr('Session startup failed, see previous exception why'), $e);
             }
         }
     }
@@ -645,10 +647,6 @@ class Session implements SessionInterface
             if (!Memcached::getEnabled()) {
                 throw new SessionException(tr('Cannot use memcached session handler (Configured in configuration path "web.sessions.handler") because memcached is not enabled'));
             }
-        }
-
-        if (config()->getBoolean('web.sessions.check-referrer', true)) {
-            ini_set('session.referer_check', static::$domain);
         }
 
         if (Debug::isEnabled() or !config()->getBoolean('cache.http.enabled', true)) {
@@ -1263,13 +1261,13 @@ class Session implements SessionInterface
                 // TODO Add support for session users. For now we return the system user
                 if (Request::isRequestType(EnumRequestTypes::api)) {
                     $busy = false;
-                    return User::newSystem();
+                    return static::getSystemUserObject();
                 }
 
                 throw new SessionException(tr('Cannot access session data yet, session has not yet been initialized'));
             }
 
-            $return = User::newSystem();
+            $return = static::getSystemUserObject();
 
         } elseif (!empty($_SESSION['user']['impersonate_id'])) {
             // We can return impersonated user IF exists
@@ -1648,6 +1646,30 @@ class Session implements SessionInterface
 
 
     /**
+     * Returns the user for this session
+     *
+     * @return UserInterface
+     */
+    protected static function getSystemUserObject(): UserInterface
+    {
+        // Return the system user
+        if (static::$user) {
+            if (!static::$user->isSystem()) {
+                static::$user = null;
+            }
+        }
+
+        if (empty(static::$user)) {
+            // There is no user, this is a system session
+            static::$user = User::newSystem();
+        }
+
+        // Return from cache
+        return static::$user;
+    }
+
+
+    /**
      * Validate sign in data
      *
      * @param ValidatorInterface|null $o_validator
@@ -1722,7 +1744,7 @@ class Session implements SessionInterface
         }
 
         // No supported language found, set the default language
-        return config()->getString('languages.default', 'en');
+        return config()->getString('locale.languages.default', 'en');
     }
 
 

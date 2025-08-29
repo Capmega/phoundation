@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Requests\Response;
 
 
@@ -28,9 +28,9 @@ GetValidator::new()->validate();
 Response::setHeaderTitle(tr('My session sate'));
 Response::setHeaderSubTitle(Session::getUserObject()->getDisplayName());
 Response::setBreadcrumbs([
-    Anchor::new('/'       , tr('Home')),
-    Anchor::new('/my.html', tr('My pages')),
-    Anchor::new(''        , tr('My state information')),
+    Breadcrumb::new('/'       , tr('Home')),
+    Breadcrumb::new('/my.html', tr('My pages')),
+    Breadcrumb::new(''        , tr('My state information')),
 ]);
 
 

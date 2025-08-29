@@ -581,6 +581,46 @@ class Config implements ConfigInterface
 
 
     /**
+     * Return configuration INTEGER for the specified key path
+     *
+     * @note Will throw a ConfigException if a non-integer value is returned
+     *
+     * @param string|array                   $path                     The configuration path for which the value should be returned
+     * @param IteratorInterface|array|string $in_array                 The values in which the configured value must lie
+     * @param string|float|int|null          $default                  The default value to return if the configuration path doesn't
+     *                                                                 exist. If not specified, or NULL, an exception will be thrown when
+     *                                                                 the path doesn't exist
+     * @param bool                           $allow_user_configuration If true will allow user configuration to override system
+     *                                                                 configuration
+     * @param bool                           $use_cache                If true will allow user configuration to be stored in and read from
+     *                                                                 cache
+     *
+     * @return string|float|int                                        The value for the requested path
+     *
+     */
+    public function getInArray(string|array $path, IteratorInterface|array|string $in_array, string|float|int|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): string|float|int
+    {
+        $in_array = Arrays::force($in_array);
+        $return   = $this->get($path, $default, $allow_user_configuration, $use_cache);
+
+        if (in_array($return, $in_array)) {
+            return $return;
+        }
+
+        throw ConfigDataTypeException::new(tr('The configuration path ":path" should be one of ":in" but has value ":value" instead', [
+            ':path'  => $path,
+            ':value' => $return,
+            ':in'    => Strings::force($in_array),
+        ]))->addData([
+            'path'       => $path,
+            'value'      => $return,
+            'must_be_in' => $in_array,
+            'value_type' => gettype($return)
+        ]);
+    }
+
+
+    /**
      * Return configuration POSITIVE INTEGER for the specified key path
      *
      * @note Will throw an OutOfBoundsException if a non-positive integer default is specified

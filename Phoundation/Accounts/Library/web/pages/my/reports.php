@@ -12,8 +12,8 @@
 
 declare(strict_types=1);
 
-use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
@@ -22,8 +22,8 @@ use Phoundation\Web\Requests\Response;
 // Set page meta data
 Response::setHeaderTitle(tr('My reports page'));
 Response::setBreadcrumbs([
-   Anchor::new('/', tr('Home')),
-   Anchor::new('' , tr('Reports')),
+   Breadcrumb::new('/', tr('Home')),
+   Breadcrumb::new('' , tr('Reports')),
 ]);
 
 return Card::new()

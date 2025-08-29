@@ -25,6 +25,7 @@ use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Forms\Form;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Requests\Request;
@@ -44,10 +45,10 @@ $user = User::new()->load($get['id']);
 Response::setHeaderTitle(tr('Profile'));
 Response::setHeaderSubTitle($user->getDisplayName());
 Response::setBreadcrumbs([
-    Anchor::new('/'                       , tr('Home')),
-    Anchor::new('/profiles.html'          , tr('Profiles')),
-    Anchor::new('/profiles/employees.html', tr('Employees')),
-    Anchor::new(''                        , $user->getDisplayName()),
+    Breadcrumb::new('/'                       , tr('Home')),
+    Breadcrumb::new('/profiles.html'          , tr('Profiles')),
+    Breadcrumb::new('/profiles/employees.html', tr('Employees')),
+    Breadcrumb::new(''                        , $user->getDisplayName()),
 ]);
 
 

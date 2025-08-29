@@ -139,35 +139,35 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
     /**
      * Automatically apply current filters to the query builder
      *
-     * @param QueryBuilderInterface $builder
+     * @param QueryBuilderInterface $o_builder
      *
      * @return static
      */
-    public function applyFiltersToQueryBuilder(QueryBuilderInterface $builder): static
+    public function applyFiltersToQueryBuilder(QueryBuilderInterface $o_builder): static
     {
-        if ($this->apply_filters->keyExists('roles_id') and $this->o_definitions->isRendered('roles_id', false)) {
+        if ($this->o_applied_filters->keyExists('roles_id') and $this->o_definitions->isRendered('roles_id', false)) {
             if ($this->getRolesId()) {
-                $builder->addJoin('JOIN  `accounts_users_roles` AS `accounts_users_roles_filter`
+                $o_builder->addJoin('JOIN  `accounts_users_roles` AS `accounts_users_roles_filter`
                                    ON    `accounts_users_roles_filter`.`roles_id` = :roles_id
                                      AND `accounts_users_roles_filter`.`users_id`  = `accounts_users`.`id` ', [
                                          ':roles_id' => $this->getRolesId()]);
             }
         }
 
-        if ($this->apply_filters->keyExists('rights_id') and $this->o_definitions->isRendered('rights_id', false)) {
+        if ($this->o_applied_filters->keyExists('rights_id') and $this->o_definitions->isRendered('rights_id', false)) {
             if ($this->getRightsId()) {
-                $builder->addJoin('JOIN  `accounts_users_rights` AS `accounts_users_rights_filter`
+                $o_builder->addJoin('JOIN  `accounts_users_rights` AS `accounts_users_rights_filter`
                                    ON    `accounts_users_rights_filter`.`rights_id` = :rights_id
                                      AND `accounts_users_rights_filter`.`users_id`  = `accounts_users`.`id` ', [
                                          ':rights_id' => $this->getRightsId()]);
             }
         }
 
-        $this->apply_filters->removeKeys([
+        $this->o_applied_filters->removeKeys([
             'roles_id',
             'rights_id',
         ]);
 
-        return parent::applyFiltersToQueryBuilder($builder);
+        return parent::applyFiltersToQueryBuilder($o_builder);
     }
 }

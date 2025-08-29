@@ -36,6 +36,7 @@ use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
 
+
 class Roles extends DataIterator implements RolesInterface
 {
     /**
@@ -43,7 +44,7 @@ class Roles extends DataIterator implements RolesInterface
      */
     public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
     {
-        $this->setAcceptedDataTypes(RoleInterface::class)
+        $this->setAcceptedDataTypes(Role::class)
              ->getQueryBuilderObject()->addSelect('`accounts_roles`.`id`, 
                                                    `accounts_roles`.`seo_name`, 
                                                    `accounts_roles`.`description`,

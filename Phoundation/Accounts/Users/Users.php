@@ -47,6 +47,7 @@ use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
 
+
 class Users extends DataIterator implements UsersInterface
 {
     /**
@@ -55,9 +56,8 @@ class Users extends DataIterator implements UsersInterface
      * @param IteratorInterface|array|string|PDOStatement|null $source
      */
     public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null) {
-        $this->setAcceptedDataTypes(UserInterface::class);
-
         parent::__construct($source);
+        $this->setAcceptedDataTypes(User::class);
     }
 
 

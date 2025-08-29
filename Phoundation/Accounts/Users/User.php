@@ -401,13 +401,13 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                 $user = sql()->getRow('SELECT `users_id`, `verified_on`
                                        FROM   `accounts_emails` 
                                        WHERE  `email` = :email 
-                                         AND  `status` IS NULL', [
+                                       AND    `status` IS NULL', [
                     ':email' => $this->identifier['email'],
                 ]);
 
                 if ($user) {
                     if ($user['verified_on'] or !config()->getBoolean('security.accounts.identify.email.verification.required', true)) {
-                        $user = static::new()->setMetaEnabled($this->meta_enabled)
+                        $user = static::new()->setMetaEnabled($this->getMetaEnabled())
                                              ->setIgnoreDeleted($this->ignore_deleted)
                                              ->load($user['users_id']);
 
@@ -2393,7 +2393,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                             ->load();
 
         $entry  = DataEntryForm::new()->setRenderContentsOnly(true);
-        $select = $roles->getHtmlSelectOld()->setCache(true)
+        $select = $roles->getHtmlSelectOld()
                         ->setNotSelectedLabel(null)
                         ->setMultiple(true)
                         ->setName($name)
@@ -2686,7 +2686,12 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
         parent::__construct(false);
 
-        $this->loadOrThis(['email' => 'guest']);
+        $o_user = $this->loadOrThis(['email' => 'guest']);
+
+        if ($o_user !== $this) {
+            $this->setSource($o_user->getSourceUnprocessed())
+                 ->setObjectState($o_user->getObjectState());
+        }
 
         $this->source['redirect'] = null;
         $this->source['email']    = 'guest';
@@ -2694,7 +2699,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         $this->source['nickname'] = tr('Guest');
 
         if ($this->isNew()) {
-            // Guest user does not yet exist, save it now. Since guest user MAY be created automatically by guest itself
+            // Guest user doesn't yet exist, save it now. Since guest user MAY be created automatically by guest itself
             // we will NOT save the created_by column (making created_by the system user)
             $this->setMetaColumns([
                 'id',
@@ -3043,7 +3048,12 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                                $o_validator->orColumn('leaders_id')
                                                          ->isEmail()
-                                                         ->setColumnFromQuery('leaders_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leaders_email']);
+                                                         ->setColumnFromQuery('leaders_id', 'SELECT `id` 
+                                                                                             FROM   `accounts_users` 
+                                                                                             WHERE  `email` = :email 
+                                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                                 ':email' => '$leaders_email'
+                                                         ]);
                                            }))
 
                     ->add(DefinitionFactory::newUsersId('leaders_id')
@@ -3054,7 +3064,12 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                                $o_validator->orColumn('leaders_email')
                                                          ->isDbId()
-                                                         ->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$leaders_id']);
+                                                         ->isQueryResult('SELECT `id` 
+                                                                          FROM   `accounts_users` 
+                                                                          WHERE  `id` = :id 
+                                                                          AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                              ':id' => '$leaders_id'
+                                                         ]);
                                            }))
 
                     ->add(Definition::new('is_leader')
