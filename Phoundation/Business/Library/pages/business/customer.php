@@ -17,10 +17,10 @@ declare(strict_types=1);
 use Phoundation\Business\Customers\Customer;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Img;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -110,9 +110,9 @@ $documentation = Card::new()
 Response::setHeaderTitle(tr('Customer'));
 Response::setHeaderSubTitle($customer->getDisplayName());
 Response::setBreadcrumbs([
-    Anchor::new('/'                       , tr('Home')),
-    Anchor::new('/business/customers.html', tr('Customers')),
-    Anchor::new(''                        , $customer->getDisplayName()),
+    Breadcrumb::new('/'                       , tr('Home')),
+    Breadcrumb::new('/business/customers.html', tr('Customers')),
+    Breadcrumb::new(''                        , $customer->getDisplayName()),
 ]);
 
 

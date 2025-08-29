@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Traits;
 
-use Phoundation\Cache\InstanceCache;
+use Phoundation\Cache\LocalCache;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -1250,13 +1250,13 @@ trait TraitProcessVariables
                 // Check if the command exist on disk
                 if (($command !== 'which') and !file_exists($command)) {
                     // The specified command was not found, we'll have to look for it anyway!
-                    if (InstanceCache::exists('Process::setCommand', $command)) {
-                        return InstanceCache::getLastChecked();
+                    if (LocalCache::exists('Process::setCommand', $command)) {
+                        return LocalCache::getLastChecked();
                     }
 
                     try {
                         $real_command = Which::new($this->execution_directory)->which($command);
-                        $real_command = InstanceCache::set($real_command, 'Process::setCommand', $command);
+                        $real_command = LocalCache::set($real_command, 'Process::setCommand', $command);
 
                     } catch (CommandsException) {
                         // The command does not exist, but maybe we can auto install?
