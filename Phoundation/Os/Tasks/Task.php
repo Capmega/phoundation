@@ -167,7 +167,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getStart(): ?PhoDateTimeInterface
     {
-        return $this->getTypesafe('datetime', 'start');
+        return $this->getTypesafe(PhoDateTimeInterface::class, 'start');
     }
 
 
@@ -178,7 +178,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getStop(): ?PhoDateTimeInterface
     {
-        return $this->getTypesafe('datetime', 'stop');
+        return $this->getTypesafe(PhoDateTimeInterface::class, 'stop');
     }
 
 
