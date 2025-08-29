@@ -24,4 +24,5 @@ enum EnumCacheGroups: string
     case html        = 'cache-html';
     case objects     = 'cache-objects';
     case values      = 'cache-values';
+    case cache       = 'cache';
 }
