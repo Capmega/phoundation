@@ -19,6 +19,7 @@ namespace Phoundation\Utils;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Exception\JsonException;
+use Phoundation\Utils\Exception\JsonSyntaxErrorException;
 use Throwable;
 
 
@@ -50,10 +51,11 @@ class Json
      * @param mixed $source
      * @param int   $options
      * @param int   $depth Until what depth will we recurse until an exception will be thrown
+     * @param bool  $force_single_line
      *
      * @return string|null
      */
-    public static function encode(mixed $source, int $options = 0, int $depth = 512): ?string
+    public static function encode(mixed $source, int $options = 0, int $depth = 512, bool $force_single_line = false): ?string
     {
         if ($source === null) {
             return null;
@@ -62,7 +64,7 @@ class Json
         // JavaScript doesn't handle the big numbers that Phoundation manages, so always require JSON_BIGINT_AS_STRING!
         $options |= JSON_BIGINT_AS_STRING;
 
-        if (Debug::isEnabled()) {
+        if (Debug::isEnabled() and !$force_single_line) {
             // When debug mode is enabled, always encode to pretty print for readability
             $options |= JSON_PRETTY_PRINT;
         }
@@ -76,6 +78,10 @@ class Json
 
         } catch (\JsonException $e) {
             throw new JsonException(tr('JSON encoding failed with :error', [':error' => json_last_error_msg()]), $e);
+        }
+
+        if ($force_single_line) {
+            $return = str_replace(PHP_EOL, '', $return);
         }
 
         return $return;
@@ -149,21 +155,35 @@ class Json
             return null;
         }
 
+        if (str_starts_with($source, 'POADJSON')) {
+            $source = substr($source, 8);
+        }
+
         try {
             $return = json_decode($source, $as_array, $depth, $options | JSON_THROW_ON_ERROR);
 
             if (json_last_error()) {
                 throw JsonException::new(tr('JSON decoding failed with ":error"', [':error' => json_last_error_msg()]))
                                    ->addData([
-                                       'source' => $source,
+                                       'source'     => $source,
+                                       'error_code' => json_last_error()
                                    ]);
             }
 
         } catch (\JsonException $e) {
-            throw JsonException::new(tr('JSON decoding failed with :error', [':error' => json_last_error_msg()]), $e)
-                               ->addData([
-                                   'source' => $source,
-                               ]);
+            switch ($e->getCode()) {
+                case 4:
+                    throw JsonSyntaxErrorException::new(tr('JSON decoding failed with syntax error'), $e)
+                                                  ->addData([
+                                                      'source' => $source,
+                                                  ]);
+
+                default:
+                    throw JsonException::new(tr('JSON decoding failed with :error', [':error' => json_last_error_msg()]), $e)
+                                       ->addData([
+                                           'source' => $source,
+                                       ]);
+            }
         }
 
         return $return;
