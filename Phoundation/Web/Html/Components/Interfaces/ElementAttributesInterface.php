@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Interfaces;
 
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
+use Phoundation\Data\Interfaces\ContentObjectInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Components\Span;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Interfaces\TooltipInterface;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
 
-interface ElementAttributesInterface
+
+interface ElementAttributesInterface extends ContentObjectInterface
 {
     /**
      * Returns the HTML id element attribute
@@ -280,42 +282,27 @@ interface ElementAttributesInterface
      */
     public function addExtraAttributes(Stringable|string|null $extra): static;
 
+
     /**
      * Appends the specified content to the content of the element
      *
-     * @param Stringable|string|float|int|null $content
-     * @param bool                             $make_safe
+     * @param RenderInterface|callable|string|float|int|null $content
+     * @param bool                                           $make_safe
      *
      * @return static
      */
-    public function appendContent(Stringable|string|float|int|null $content, bool $make_safe = false): static;
+    public function appendContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = true): static;
+
 
     /**
      * Prepends the specified content to the content of the element
      *
-     * @param Stringable|string|float|int|null $content
-     * @param bool                             $make_safe
+     * @param RenderInterface|callable|string|float|int|null $content
+     * @param bool                                           $make_safe
      *
      * @return static
      */
-    public function prependContent(Stringable|string|float|int|null $content, bool $make_safe = false): static;
-
-    /**
-     * Returns the content of the element to display
-     *
-     * @return Stringable|string|float|int|null
-     */
-    public function getContent(): Stringable|string|float|int|null;
-
-    /**
-     * Sets the content of the element
-     *
-     * @param Stringable|string|float|int|null $content
-     * @param bool                             $make_safe
-     *
-     * @return static
-     */
-    public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false): static;
+    public function prependContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = true): static;
 
     /**
      * Returns the height of the element to display

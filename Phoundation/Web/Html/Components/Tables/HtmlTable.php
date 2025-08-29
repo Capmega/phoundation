@@ -38,6 +38,7 @@ use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use Phoundation\Web\Html\Enums\EnumTableRowType;
 use Phoundation\Web\Html\Traits\TraitObjectButtons;
 use Phoundation\Web\Html\Traits\TraitObjectTopButtons;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
 use Stringable;
 
@@ -85,9 +86,9 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * URLs that apply to all rows
      *
-     * @var string|null $row_url
+     * @var UrlInterface|null $row_url
      */
-    protected ?string $row_url = null;
+    protected ?UrlInterface $row_url = null;
 
     /**
      * queries that apply to all rows
@@ -186,6 +187,13 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      * @var array|null $column_cache
      */
     protected ?array $column_cache = null;
+
+    /**
+     * Tracks a list of cached Anchors
+     *
+     * @var array $anchors
+     */
+    protected array $anchors = [];
 
 
     /**
@@ -505,9 +513,9 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Returns the URL that applies to each row
      *
-     * @return string|null
+     * @return UrlInterface|null
      */
-    public function getRowUrl(): ?string
+    public function getRowUrl(): ?UrlInterface
     {
         return $this->row_url;
     }
@@ -516,14 +524,13 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Sets the URL that applies to each row
      *
-     * @param Stringable|string|null $row_url
+     * @param UrlInterface|string|null $row_url
      *
      * @return static
      */
-    public function setRowUrl(Stringable|string|null $row_url): static
+    public function setRowUrl(UrlInterface|string|null $row_url): static
     {
-        $this->row_url = (string) $row_url;
-
+        $this->row_url = Url::new($row_url);
         return $this;
     }
 
@@ -684,9 +691,8 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function renderRow(int $row_id): string
     {
         $row = $this->getRow($row_id);
-
         $this->executeRowCallbacks($row, EnumTableRowType::row, $params);
-        return $this->doRenderRow($row_id, $row, $params);
+        return $this->doRenderRow($row_id, $row, []);
     }
 
 
@@ -888,7 +894,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         $url        = $this->getColumnUrls()->get($column, false);
         $convert    = $this->getConvertColumns()->get($column, false);
 
-        if (!$url and $this->row_url) {
+        if (empty($url)) {
             $url = $this->row_url;
         }
 
@@ -919,7 +925,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
         if (isset($url)) {
             $queries = $this->getRowQueries();
-            $value = $this->renderUrl($row_id, $column, $value, $url, $queries);
+            $value   = $this->renderAnchor($row_id, $column, $value, $url, $queries);
         }
 
         // Add data attributes?
@@ -935,6 +941,20 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
 
     /**
+     * Sets the URL that applies to each column
+     *
+     * @param IteratorInterface $urls
+     *
+     * @return static
+     */
+    public function setColumnUrls(IteratorInterface $urls): static
+    {
+        $this->column_urls = $urls->setAcceptedDataTypes(Url::class);
+        return $this;
+    }
+
+
+    /**
      * Returns the URL that applies to each column
      *
      * @return IteratorInterface
@@ -942,7 +962,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function getColumnUrls(): IteratorInterface
     {
         if (empty($this->column_urls)) {
-            $this->column_urls = new Iterator();
+            $this->column_urls = Iterator::new()->setAcceptedDataTypes(Url::class);
         }
 
         return $this->column_urls;
@@ -967,24 +987,29 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Builds a URL around the specified column value
      *
-     * @param mixed      $row_id
-     * @param mixed      $column
-     * @param string     $value
-     * @param string     $url
-     * @param array|null $queries
+     * @param mixed             $row_id
+     * @param mixed             $column
+     * @param string            $value
+     * @param UrlInterface|null $o_url
+     * @param array|null        $queries
      *
-     * @return string
+     * @return string|null
      */
-    protected function renderUrl(mixed $row_id, mixed $column, string $value, string $url, ?array $queries): string
+    protected function renderAnchor(mixed $row_id, mixed $column, string $value, ?UrlInterface $o_url, ?array $queries): ?string
     {
-        if ($url) {
+        if ($o_url) {
             // Ensure all :ROW and :COLUMN markings are converted
-            $url = str_replace(':ROW'     , urlencode((string) $row_id), $url);
-            $url = str_replace('%3AROW'   , urlencode((string) $row_id), $url);
-            $url = str_replace(':COLUMN'  , urlencode((string) $column), $url);
-            $url = str_replace('%3ACOLUMN', urlencode((string) $column), $url);
-
+            $url        = $o_url->getSource();
+            $anchor_url = $url;
+            $anchor_url = str_replace(':ROW'     , urlencode((string) $row_id), $anchor_url);
+            $anchor_url = str_replace('%3AROW'   , urlencode((string) $row_id), $anchor_url);
+            $anchor_url = str_replace(':COLUMN'  , urlencode((string) $column), $anchor_url);
+            $anchor_url = str_replace('%3ACOLUMN', urlencode((string) $column), $anchor_url);
             $attributes = '';
+
+            if ($queries) {
+                $o_url->addQueries($queries);
+            }
 
             if ($this->anchor_data_attributes) {
                 foreach ($this->anchor_data_attributes as $data_key => $data_value) {
@@ -992,19 +1017,26 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
                 }
             }
 
-            $url = Url::new($url)->makeWww();
+            $o_anchor = array_get_safe($this->anchors, $url);
 
-            if ($queries) {
-                $url->addQueries($queries);
+            if (empty($o_anchor)) {
+                $o_anchor = Anchor::new($o_url)
+                                  ->setClass($this->renderAnchorClassString())
+                                  ->setExtraAttributes($attributes);
+
+                if (!$o_anchor->hasRequiredRights()) {
+                    return null;
+                }
+
+                $this->anchors[$url] = $o_anchor;
             }
 
-            return Anchor::new($url, $value)
-                         ->setClass($this->renderAnchorClassString())
-                         ->setExtraAttributes($attributes)
-                         ->render();
+            return $o_anchor->setHref($anchor_url, false)
+                            ->setContent($value)
+                            ->render();
         }
 
-        return $url;
+        return $value;
     }
 
 
@@ -1240,7 +1272,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
             unset($value);
             $this->setHeaders(new Iterator($source));
 
-        }elseif (!$this->columns) {
+        } elseif (!$this->columns) {
             $this->setHeaders(new Iterator($source));
         }
     }

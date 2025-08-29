@@ -491,7 +491,7 @@ class Request implements RequestInterface
 
                 if (empty($requested)) {
                     // Go for default language
-                    return config()->getString('languages.default', 'en');
+                    return config()->getString('locale.languages.default', 'en');
                 }
 
                 foreach ($requested as $locale) {
@@ -513,7 +513,7 @@ class Request implements RequestInterface
                             ]))
                             ->send();
 
-                return config()->getString('languages.default', 'en');
+                return config()->getString('locale.languages.default', 'en');
         }
     }
 
@@ -540,7 +540,7 @@ class Request implements RequestInterface
             // No accept language headers were specified
             $return = [
                 '1.0' => [
-                    'language' => config()->get('languages.default', 'en'),
+                    'language' => config()->get('locale.languages.default', 'en'),
                     'locale'   => Strings::cut(config()->get('locale.LC_ALL', 'US'), '_', '.'),
                 ],
             ];
@@ -622,10 +622,11 @@ class Request implements RequestInterface
      * @param EnumDomainAllowed|string $allowed_domain The type of domain that is allowed to be redirected to
      *
      * @return UrlInterface|null
+     * @todo To make sense, update this to just ONLY return the referer. If we need more, have another method return that.
      */
     public static function getReferer(string|bool $default = false, EnumDomainAllowed|string $allowed_domain = EnumDomainAllowed::current): ?UrlInterface
     {
-        $url = isset_get($_SERVER['HTTP_REFERER']);
+        $url = array_get_safe($_SERVER, 'HTTP_REFERER');
 
         if ($url) {
             return Url::new($url)->checkDomain($allowed_domain);

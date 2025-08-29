@@ -18,20 +18,22 @@ use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Script;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
+
 // Required javascript
-Response::loadJavaScript('templates/adminlte/plugins/moment/moment');
-Response::loadJavaScript('templates/adminlte/plugins/daterangepicker/daterangepicker');
-Response::loadJavaScript('templates/adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4');
+Response::loadJavaScript('adminlte/plugins/moment/moment');
+Response::loadJavaScript('adminlte/plugins/daterangepicker/daterangepicker');
+Response::loadJavaScript('adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4');
 
 
 // Required CSS
-Response::loadCss('templates/adminlte/plugins/daterangepicker/daterangepicker');
-Response::loadCss('templates/adminlte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4');
+Response::loadCss('adminlte/plugins/daterangepicker/daterangepicker');
+Response::loadCss('adminlte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4');
 Response::loadCss('https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css');
 
 Script::new()
@@ -49,8 +51,8 @@ Response::setHeaderTitle(tr('Dashboard'));
 Response::setHeaderSubTitle(tr('(:user)', [':user' => Session::getUserObject()->getDisplayName()]));
 Response::setDescription(tr(''));
 Response::setBreadcrumbs([
-    Anchor::new('/', tr('Home')),
-    Anchor::new('' , tr('Demos')),
+    Breadcrumb::new('/', tr('Home')),
+    Breadcrumb::new('' , tr('Demos')),
 ]);
 
 

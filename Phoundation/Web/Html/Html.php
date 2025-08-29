@@ -23,6 +23,7 @@ use Phoundation\Developer\Debug\Debug;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Exception\HtmlException;
 use Stringable;
@@ -91,14 +92,19 @@ class Html
     /**
      * Wrapper for htmlspecialchars() that can conditionally execute and accept more data types
      *
-     * @param Stringable|string|float|int|null $html
-     * @param bool                             $enabled
+     * @param RenderInterface|string|float|int|null $html
+     * @param bool                                  $enabled
      *
-     * @return string|null
+     * @return RenderInterface|string|null
      * @see htmlentities()
      */
-    public static function safe(Stringable|string|float|int|null $html, bool $enabled = true): ?string
+    public static function safe(RenderInterface|string|float|int|null $html, bool $enabled = true): RenderInterface|string|null
     {
+        if (is_object($html)) {
+            // We can't make objects safe
+            return $html;
+        }
+
         if ($html === null) {
             return null;
         }

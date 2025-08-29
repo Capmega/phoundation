@@ -37,15 +37,7 @@ class Flash
      *
      * @return void
      */
-    public function add(string $message, #[ExpectedValues(values: [
-        'info',
-        'information',
-        'success',
-        'notice',
-        'warning',
-        'error',
-        'exception',
-    ])] string                 $type): void
+    public function add(string $message, #[ExpectedValues(values: ['info', 'information', 'success', 'notice', 'warning', 'error', 'exception', ])] string $type): void
     {
         $this->messages[] = [
             'type'    => $type,

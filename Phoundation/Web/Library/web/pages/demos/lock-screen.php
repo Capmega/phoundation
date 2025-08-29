@@ -39,7 +39,7 @@ Response::setRenderMainWrapper(false);
     <div class="card-header text-center">
         <div class="lockscreen-logo">
             <?= AnchorBlock::new(config()->getString('project.customer-url', 'https://phoundation.org'))
-                           ->setContent(config()->getString('project.owner.label', '<span>Medi</span>web'))
+                           ->setContent(config()->getString('project.owner.label', '<span>Medi</span>web'), false)
                            ->setClass('h1') .
                 tr('Screen is locked');
             ?>

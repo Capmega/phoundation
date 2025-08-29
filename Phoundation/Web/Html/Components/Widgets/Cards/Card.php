@@ -26,11 +26,11 @@ use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabsInterface;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Tabs;
 use Phoundation\Web\Html\Components\Widgets\Widget;
-use Phoundation\Web\Html\Traits\TraitObjectTopButtons;
 use Stringable;
 
 
@@ -480,7 +480,7 @@ class Card extends Widget
     /**
      * @inheritDoc
      */
-    public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
+    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = true): static
     {
         if ($content !== null) {
             if (!empty($this->tabs)) {

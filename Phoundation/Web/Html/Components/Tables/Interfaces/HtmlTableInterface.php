@@ -9,6 +9,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
 use Phoundation\Web\Html\Components\Tables\HtmlTable;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
 
 interface HtmlTableInterface extends ResourceElementInterface
@@ -184,19 +185,19 @@ interface HtmlTableInterface extends ResourceElementInterface
     /**
      * Returns the URL that applies to each row
      *
-     * @return string|null
+     * @return UrlInterface|null
      */
-    public function getRowUrl(): ?string;
+    public function getRowUrl(): ?UrlInterface;
 
 
     /**
      * Sets the URL that applies to each row
      *
-     * @param Stringable|string|null $row_url
+     * @param UrlInterface|string|null $row_url
      *
      * @return static
      */
-    public function setRowUrl(Stringable|string|null $row_url): static;
+    public function setRowUrl(UrlInterface|string|null $row_url): static;
 
 
     /**

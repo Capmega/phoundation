@@ -86,9 +86,9 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
     /**
      * Returns the filters that (still) have to be applied
      *
-     * @var IteratorInterface $apply_filters
+     * @var IteratorInterface $o_applied_filters
      */
-    protected IteratorInterface $apply_filters;
+    protected IteratorInterface $o_applied_filters;
 
     /**
      * Tracks if special users should be filtered out
@@ -142,6 +142,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                           ->setAutoSubmit(true)
                                                           ->setElement(EnumElement::select)
                                                           ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+show('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
                                                               if (empty($this->source[$key])) {
                                                                   if (empty($this->source['date_range'])) {
                                                                       $source = $this->getDateRangeDefault();
@@ -575,13 +576,13 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      *
      * @return Iterator|null
      */
-    public function getApplyFilters(): ?IteratorInterface
+    public function getAppliedFiltersObject(): ?IteratorInterface
     {
-        if (empty($this->apply_filters)) {
+        if (empty($this->o_applied_filters)) {
             return null;
         }
 
-        return $this->apply_filters;
+        return $this->o_applied_filters;
     }
 
 
@@ -595,21 +596,26 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      */
     protected function applyValidator(string $class, ?bool $require_clean_source = null): static
     {
+show();
+        // Local objects for faster lookups
+        $o_definitions        = $this->o_definitions;
         $require_clean_source = $require_clean_source ?? $this->require_clean_source;
 
         // Auto apply
         if ($class === static::class) {
-            $o_validator = $this->selectValidator()->setDefinitionsObject($this->o_definitions);
+show();
+            $o_validator = $this->selectValidator()->setDefinitionsObject($o_definitions);
 
             // Go over each field and let the field definition do the validation since it knows the specs
-            foreach ($this->o_definitions as $column => $o_definition) {
+            foreach ($o_definitions as $column => $o_definition) {
+show($column);
 //if ($column !== 'action') continue;
                 $o_definition->validate($o_validator, null);
             }
 
             // Validate buttons too
-            if ($this->o_definitions->hasButtons()) {
-                foreach ($this->o_definitions->getButtons() as $button) {
+            if ($o_definitions->hasButtons()) {
+                foreach ($o_definitions->getButtons() as $button) {
                     $o_validator->select($button->getName())->isOptional()->hasValue($button->getValue());
                 }
             }
@@ -624,7 +630,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
             }
 
             // Generate a list of all available filters so that we can tick them off one by one when we apply them later
-            $this->apply_filters = new Iterator($this->o_definitions->getKeyIndices());
+            $this->o_applied_filters = new Iterator($o_definitions->getKeyIndices());
         }
 
         return $this;
@@ -634,47 +640,51 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
     /**
      * Automatically apply current filters to the query builder
      *
-     * @param QueryBuilderInterface $builder
+     * @param QueryBuilderInterface $o_builder
      *
      * @return static
      */
-    public function applyFiltersToQueryBuilder(QueryBuilderInterface $builder): static
+    public function applyFiltersToQueryBuilder(QueryBuilderInterface $o_builder): static
     {
-        if ($this->apply_filters->keyExists('status') and $this->o_definitions->isRendered('status', false)) {
+        // Local objects for faster lookups
+        $o_definitions     = $this->o_definitions;
+        $o_applied_filters = $this->o_applied_filters;
+
+        if ($o_applied_filters->keyExists('status') and $o_definitions->isRendered('status', false)) {
             // Is the status filter rendered and available?
             if ($this->getStatus() !== false) {
                 // Is the status filter not set to "All"?
                 if ($this->getStatus() !== 'all') {
-                    $builder->addWhere(
-                        SqlQueries::is('`' . $builder->getFrom() . '`.`status`', $this->getStatus(), ':from_status', $builder->getExecuteByReference())
+                    $o_builder->addWhere(
+                        SqlQueries::is('`' . $o_builder->getFrom() . '`.`status`', $this->getStatus(), ':from_status', $o_builder->getExecuteByReference())
                     );
                 }
             }
         }
 
-        if ($this->apply_filters->keyExists('date_range') and $this->o_definitions->isRendered('date_range', false)) {
+        if ($o_applied_filters->keyExists('date_range') and $o_definitions->isRendered('date_range', false)) {
             if ($this->getStartDate()) {
-                $builder->addWhere(
-                    '`' . $builder->getFrom() . '`.`created_on` >= :start', [':start' => $this->getStartDate()->format(EnumDateFormat::mysql_datetime)]
+                $o_builder->addWhere(
+                    '`' . $o_builder->getFrom() . '`.`created_on` >= :start', [':start' => $this->getStartDate()->format(EnumDateFormat::mysql_datetime)]
                 );
             }
 
             if ($this->getStopDate()) {
-                $builder->addWhere(
-                    '`' . $builder->getFrom() . '`.`created_on` <= :stop', [':stop' => $this->getStopDate()->format(EnumDateFormat::mysql_datetime)]
+                $o_builder->addWhere(
+                    '`' . $o_builder->getFrom() . '`.`created_on` <= :stop', [':stop' => $this->getStopDate()->format(EnumDateFormat::mysql_datetime)]
                 );
             }
         }
 
-        if ($this->apply_filters->keyExists('users_id') and $this->o_definitions->isRendered('users_id', false)) {
+        if ($o_applied_filters->keyExists('users_id') and $o_definitions->isRendered('users_id', false)) {
             if ($this->getUsersId()) {
-                $builder->addWhere(
-                    '`' . $builder->getFrom() . '`.`created_by` = :created_by', [':created_by' => $this->getUsersId()]
+                $o_builder->addWhere(
+                    '`' . $o_builder->getFrom() . '`.`created_by` = :created_by', [':created_by' => $this->getUsersId()]
                 );
             }
         }
 
-        $this->apply_filters->removeKeys([
+        $o_applied_filters->removeKeys([
             'status',
             'date_range',
             'users_id',

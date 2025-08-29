@@ -17,7 +17,7 @@ declare(strict_types=1);
 use Phoundation\Core\Meta\MetaList;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -32,7 +32,7 @@ $get = GetValidator::new()
 
 
 $meta  = MetaList::new($get['id']);
-$card  = Card::new()
+$o_card  = Card::new()
              ->setTitle('Registered activities')
              ->setSwitches('reload,maximize')
              ->setContent($meta->getHtmlDataTableObject([
@@ -54,13 +54,13 @@ $documentation = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Audit information'));
 Response::setBreadcrumbs([
-    Anchor::new('/'          , tr('Home')),
-    Anchor::new('/audit.html', tr('Audits')),
-    Anchor::new(''           , Strings::truncate(Strings::force($get['id'], ', '), 32)),
+    Breadcrumb::new('/'          , tr('Home')),
+    Breadcrumb::new('/audit.html', tr('Audits')),
+    Breadcrumb::new(''           , Strings::truncate(Strings::force($get['id'], ', '), 32)),
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($card         , EnumDisplaySize::nine)
+           ->addGridColumn($o_card         , EnumDisplaySize::nine)
            ->addGridColumn($documentation, EnumDisplaySize::three);

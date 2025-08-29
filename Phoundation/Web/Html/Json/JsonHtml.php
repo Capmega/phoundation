@@ -30,7 +30,7 @@ class JsonHtml extends IteratorCore implements JsonHtmlInterface
      */
     public function __construct(?JsonHtmlSectionInterface $source = null)
     {
-        $this->setAcceptedDataTypes(JsonHtmlSectionInterface::class)
+        $this->setAcceptedDataTypes(JsonHtmlSection::class)
              ->add($source);
     }
 

@@ -115,7 +115,7 @@ class ImgCore extends SpanCore implements ImgInterface
 
         if ($lazy_load) {
             $this->addClasses('lazy');
-            Response::loadJavaScript('templates/phoundation/jquery/lazyload/jquery.lazyload');
+            Response::loadJavaScript('phoundation/jquery/lazyload/jquery.lazyload');
         }
 
         $this->lazy_load = $lazy_load;

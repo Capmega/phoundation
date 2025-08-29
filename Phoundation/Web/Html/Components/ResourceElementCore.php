@@ -188,7 +188,7 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
      *
      * @return bool
      */
-    public function getCache(): bool
+    public function getUseCache(): bool
     {
         return $this->cache;
     }
@@ -201,7 +201,7 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
      *
      * @return static
      */
-    public function setCache(bool $cache): static
+    public function setUseCache(bool $cache): static
     {
         $this->cache = $cache;
         return $this;
@@ -330,25 +330,23 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
     /**
      * Generates and returns a unique cache key for this DataEntry object
      *
-     * @param String|null $append_string
-     *
      * @return string|null
      */
-    public function getCacheKeySeed(?String $append_string = null): ?string
+    public function getCacheKeySeed(): ?string
     {
         if ($this->o_iterator) {
-            // Get cache key from DataEntry object
-            return 'ResourceElement-' . $this->o_iterator->getCacheKeySeed('-render') . $append_string;
+            // Get the cache key from the Iterator object
+            return PROJECT . '#ResourceElement#' . static::class . '#' . Json::encode(['render', $this->o_iterator->getCacheKeySeed()], force_single_line: true);
         }
 
         if ($this instanceof SelectedInterface) {
             // This resource element contains a single or multiple selected value
-            return 'ResourceElement-' . static::class . '-' . $this->getId() . '-' . $this->getName() . '-' . Json::encode($this->getSelected()) . '-render' . $append_string;
+            return PROJECT . '#ResourceElement#' . static::class . '#' . Json::encode(['render', $this->getId(), $this->getName(), $this->getSelected()], force_single_line: true);
         }
 
         if ($this instanceof ValueInterface) {
             // This resource element contains a single value
-            return 'ResourceElement-' . static::class . '-' . $this->getId() . '-' . $this->getName() . '-' . $this->getValue() . '-render' . $append_string;
+            return PROJECT . '#ResourceElement#' . static::class . '#' . Json::encode(['render', $this->getId(), $this->getName(), $this->getValue()], force_single_line: true);
         }
 
         // This object can't be cached

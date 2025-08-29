@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Requests\Response;
 
 
@@ -22,9 +22,9 @@ use Phoundation\Web\Requests\Response;
 Response::setHeaderTitle(tr('Contact us'));
 Response::setHeaderSubTitle(tr('Demo'));
 Response::setBreadcrumbs([
-   Anchor::new('/'          , tr('Home')),
-   Anchor::new('/demos.html', tr('Demos')),
-   Anchor::new(''           , tr('Contact us')),
+   Breadcrumb::new('/'          , tr('Home')),
+   Breadcrumb::new('/demos.html', tr('Demos')),
+   Breadcrumb::new(''           , tr('Contact us')),
 ]);
 ?>
 <!-- Main content -->

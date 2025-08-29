@@ -50,7 +50,7 @@ interface ResourceElementInterface extends ElementInterface
      *
      * @return bool
      */
-    public function getCache(): bool;
+    public function getUseCache(): bool;
 
 
     /**
@@ -60,7 +60,7 @@ interface ResourceElementInterface extends ElementInterface
      *
      * @return static
      */
-    public function setCache(bool $cache): static;
+    public function setUseCache(bool $cache): static;
 
 
     /**
