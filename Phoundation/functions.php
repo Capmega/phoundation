@@ -850,13 +850,6 @@ function get_safe_typed(array|string $types, array $source, string|float|int $ke
 
                     break;
 
-                case 'datetime':
-                    if ($variable instanceof DateTimeInterface) {
-                        return $variable;
-                    }
-
-                    break;
-
                 case 'object':
                     if (is_object($variable)) {
                         return $variable;
