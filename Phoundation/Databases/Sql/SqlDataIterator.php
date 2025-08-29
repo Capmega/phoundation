@@ -184,7 +184,7 @@ class SqlDataIterator implements SqlDataIteratorInterface
         }
 
         // Update the meta data
-        if ($this->meta_enabled) {
+        if ($this->getMetaEnabled()) {
             Meta::get($list['meta_id'], false)
                 ->action(tr('Changed status'), $comments, Json::encode([
                     'status' => $status,

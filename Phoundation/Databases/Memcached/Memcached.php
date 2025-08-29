@@ -108,14 +108,15 @@ class Memcached implements MemcachedInterface
 
 
     /**
-     *
+     * Sets the database connector object
      *
      * @param ConnectorInterface|null $o_connector
-     * @param string|null             $database
+     * @param string|int|null         $database
      *
      * @return static
      */
-    public function setConnectorObject(?ConnectorInterface $o_connector = null, ?string $database = null): static {
+    public function setConnectorObject(?ConnectorInterface $o_connector, string|int|null $database = null): static
+    {
         $this->__setConnectorObject($o_connector, $database)
              ->configuration = $this->getConnectorObject()->getMemcachedConfiguration();
 
@@ -645,24 +646,16 @@ class Memcached implements MemcachedInterface
         $key = (string) $key;
 
         if (strlen($key) > 250) {
-            // Invalid key!
-            Incident::new()
-                ->setSeverity(EnumSeverity::low)
-                ->setType(ts('Database issue'))
-                ->setTitle(ts('Invalid memcached key length'))
-                ->setBody(ts('The length of the specified memcached key ":key" is ":count" characters, which is longer than 250 characters, which is not allowed by memcached. Converting to SHA1 instead', [
-                    ':key'   => $key,
-                    ':count' => strlen($key),
-                ]))
-                ->setData([
-                    'key'   => $key,
-                    'count' => strlen($key),
-                ])
-                ->setNotifyRoles('developer')
-                ->setLog(9)
-                ->save();
+            $sha = sha1($key) . ' - this key was too long and was converted to sha1';
 
-            $key = sha1($key) . 'this key was too long and was converted to sha1';
+            // Invalid key!
+            Log::warning(ts('Detected memcached key ":key" with length ":count" characters, which is longer than 250 characters, which is not allowed by memcached. Converting to SHA1 ":sha"', [
+                ':key'   => $key,
+                ':sha'   => $sha,
+                ':count' => strlen($key),
+            ]), 3);
+
+            $key = $sha;
         }
 
         $key = str_replace(["\0", "\r", "\n", "\t", ' '], '-', $key);

@@ -16,6 +16,10 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases;
 
+use Phoundation\Cache\Cache;
+use Phoundation\Cache\Enums\EnumCacheGroups;
+use Phoundation\Cache\Interfaces\CacheInterface;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
@@ -33,7 +37,7 @@ use Phoundation\Databases\Redis\Redis;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
-
+use Phoundation\Web\Html\Components\P;
 
 class Databases
 {
@@ -66,6 +70,7 @@ class Databases
             'null',
             'file',
             'mysql',
+            'cache',
             'redis',
             'mongo',
             'memcached',
@@ -162,6 +167,34 @@ class Databases
         if (!array_key_exists($connector_name, static::$databases)) {
             // This connector isn't registered yet, so connect and add it to the "connectors" list
             static::$databases[$connector_name] = new $class($o_connector, $connect, $use_database);
+        }
+
+        return static::$databases[$connector_name];
+    }
+
+
+    /**
+     * Access SQL database connectors
+     *
+     * @param EnumCacheGroups|string $connector_name
+     * @param bool                   $allow_alternate_connector
+     *
+     * @return CacheInterface
+     */
+    public static function getCache(EnumCacheGroups|string $connector_name, bool $allow_alternate_connector = true): CacheInterface
+    {
+        if (!$connector_name) {
+            // Default to system connector
+            $connector_name = 'cache';
+        }
+
+        if ($connector_name instanceof EnumCacheGroups) {
+            $connector_name = $connector_name->value;
+        }
+
+        if (!array_key_exists($connector_name, static::$databases)) {
+            // This connector isn't registered yet, so connect and add it to the "connectors" list
+            static::$databases[$connector_name] = new Cache($connector_name, allow_alternate_connector: $allow_alternate_connector);
         }
 
         return static::$databases[$connector_name];
