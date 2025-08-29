@@ -1721,7 +1721,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function getFingerprintObject(): ?DateTimeInterface
     {
-        return PhoDateTime::newNull($this->getFingerprint());
+        return PhoDateTime::newOrNull($this->getFingerprint());
     }
 
 
