@@ -29,6 +29,8 @@ use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Interfaces\ListOperationsInterface;
+use Phoundation\Data\Exception\IteratorDataTypeNotAcceptedException;
+use Phoundation\Data\Exception\IteratorValidatorFailedException;
 use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\IteratorCore;
@@ -48,9 +50,11 @@ use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Exception\NotExistsException;
+use Phoundation\Exception\ObsoleteException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
@@ -76,6 +80,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     use TraitDataMetaEnabled;
     use TraitMethodBuildManualQuery;
     use TraitMethodsTableState;
+    use TraitDataMetaEnabled;
 
 
     /**
@@ -153,7 +158,14 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      *
      * @var bool $inject_source_directly
      */
-    protected bool $inject_source_directly = false;
+    protected bool $inject_source_directly = true;
+
+    /**
+     * Tracks if added object must have a key that match either the objects id or unique identifier
+     *
+     * @var bool $require_key_match_unique_identifier
+     */
+    protected bool $require_key_match_unique_identifier = true;
 
 
     /**
@@ -166,8 +178,9 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
         parent::__construct($source);
 
         // If this data iterator had a source specified, consider it loaded
+        $this->setAcceptedDataTypes(DataEntry::class, false);
         $this->is_loaded = (bool) $source;
-        $this->cache     = Cache::isEnabled();
+        $this->use_cache = Cache::isEnabled();
     }
 
 
@@ -222,10 +235,16 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      * Sets the datatype restrictions for all elements in this iterator, NULL if none
      *
      * @param array|string|null $data_types
+     * @param bool              $overwrite
+     *
      * @return static
      */
-    public function setAcceptedDataTypes(array|string|null $data_types): static
+    public function setAcceptedDataTypes(array|string|null $data_types, bool $overwrite = true): static
     {
+        if ($this->accepted_data_types and !$overwrite) {
+            return $this;
+        }
+
         $data_types = Arrays::force($data_types, '|');
 
         if (count($data_types) != 1) {
@@ -235,7 +254,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
             ]));
         }
 
-        return parent::setAcceptedDataTypes($data_types);
+        return parent::setAcceptedDataTypes($data_types, $overwrite);
     }
 
 
@@ -247,6 +266,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      */
     public static function directOperations(): ListOperationsInterface
     {
+throw new ObsoleteException();
         return new ListOperations(static::class);
     }
 
@@ -341,6 +361,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
         if (empty($this->o_query_builder)) {
             $this->o_query_builder = QueryBuilder::new($this)
                                                  ->setDebug($this->debug)
+                                                 ->setMetaEnabled($this->getMetaEnabled())
                                                  ->setConnectorObject($this->getConnectorObject())
                                                  ->setSelects($this->getSqlSelectColumns());
 
@@ -435,6 +456,56 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
             }
         }
 
+        return $this;
+    }
+
+
+    /**
+     * Returns if added object must have a key that match either the objects id or unique identifier
+     *
+     * @return bool
+     */
+    public function getRequireKeyMatchUniqueIdentifier(): bool
+    {
+        return $this->require_key_match_unique_identifier;
+    }
+
+
+    /**
+     * Sets if added object must have a key that match either the objects id or unique identifier
+     *
+     * @param bool $require_key_match_unique_identifier
+     *
+     * @return static
+     */
+    public function setRequireKeyMatchUniqueIdentifier(bool $require_key_match_unique_identifier): static
+    {
+        $this->require_key_match_unique_identifier = $require_key_match_unique_identifier;
+        return $this;
+    }
+
+
+    /**
+     * Returns if the source keys will be the DataEntry object id or DataEntry unique identifier
+     *
+     * @return bool
+     */
+    public function getKeysAreUniqueColumn(): bool
+    {
+        return $this->keys_are_unique_column;
+    }
+
+
+    /**
+     * Sets if the source keys will be the DataEntry object id or DataEntry unique identifier
+     *
+     * @param bool $value
+     *
+     * @return static
+     */
+    public function setKeysAreUniqueColumn(bool $value): static
+    {
+        $this->keys_are_unique_column = $value;
         return $this;
     }
 
@@ -1035,7 +1106,9 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
             if (is_data_scalar($value)) {
                 // Try to load the specified value from the database, assuming $value is the unique identifier
                 try {
-                    $value = static::getDefaultContentDataType()::new()->load($value);
+                    $value = static::getDefaultContentDataType()::new()
+                                                                ->setMetaEnabled($this->getMetaEnabled())
+                                                                ->load($value);
 
                 } catch (DataEntryNotExistsException $e) {
                     throw new DataEntryNotExistsException(tr('Cannot add specified value ":value" it must be an instance of DataEntryInterface or a unique identifier value for the class ":class"', [
@@ -1059,15 +1132,17 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
 
         if ($this->keys_are_unique_column) {
             if ($key) {
-                if (!$value->isNew() and ($key != $value->getUniqueColumnValue())) {
-                    // Key must either not be specified or match the id of the DataEntry
-                    throw new OutOfBoundsException(tr('Cannot add ":class" class DataEntry with id ":id", the specified key ":key" must either match the value ":value" of the unique column ":unique" or be null', [
-                        ':value'  => $value->getUniqueColumnValue(),
-                        ':unique' => $value::getUniqueColumn(),
-                        ':class'  => $value::class,
-                        ':id'     => $value->getId() ?? 'N/A',
-                        ':key'    => $key,
-                    ]));
+                if ($this->require_key_match_unique_identifier) {
+                    if (!$value->isNew() and ($key != $value->getUniqueColumnValue())) {
+                        // Key must either not be specified or match the id of the DataEntry
+                        throw new OutOfBoundsException(tr('Cannot add ":class" class DataEntry with id ":id", the specified key ":key" must either match the value ":value" of the unique column ":unique" or be null', [
+                            ':value'  => $value->getUniqueColumnValue(),
+                            ':unique' => $value::getUniqueColumn(),
+                            ':class'  => $value::class,
+                            ':id'     => $value->getId() ?? 'N/A',
+                            ':key'    => $key,
+                        ]));
+                    }
                 }
 
                 // Either the specified DataEntry object has no value for its unique column, or the unique column
@@ -1087,13 +1162,16 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
 
         } else {
             if ($key) {
-                if ($key != $value->getId()) {
-                    // Key must either not be specified or match the id of the DataEntry
-                    throw new OutOfBoundsException(tr('Cannot add ":class" class DataEntry with id ":id", the specified key ":key" must either match the id or be null', [
-                        ':class' => $value::class,
-                        ':id'    => $value->getId(),
-                        ':key'   => $key,
-                    ]));
+                if ($this->require_key_match_unique_identifier) {
+                    if ($key != $value->getId()) {
+                        // Key must either not be specified or match the id of the DataEntry
+                        throw new OutOfBoundsException(tr('Cannot add ":class" class DataEntry with id ":id" and unique column value ":unique", the specified key ":key" must either match the id, unique column value, or be null', [
+                            ':class'  => $value::class,
+                            ':id'     => $value->getId(),
+                            ':unique' => $value->getUniqueColumnValue(),
+                            ':key'    => $key,
+                        ]));
+                    }
                 }
 
                 // Either the specified DataEntry object is new or the id matches the specified key, we're good to go
@@ -1180,6 +1258,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     {
         return $this->getAcceptedDataType()::new()
                                            ->setDebug($this->debug)
+                                           ->setMetaEnabled($this->getMetaEnabled())
                                            ->setRestrictionsObject($this->o_restrictions)
                                            ->setConnectorObject($this->getConnectorObject())
                                            ->loadOrThis($identifier);
@@ -1202,10 +1281,16 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
                 if (is_array($this->source[$key])) {
                     // Source is stored as an array. Create a new DataEntry and copy the source array into the entry
                     if ($this->inject_source_directly) {
-                        $entry = $this->getAcceptedDataType()::newFromSourceDirect($this->source[$key]);
+                        $entry = $this->getAcceptedDataType()::new()
+                                                             ->setDebug($this->getDebug())
+                                                             ->setMetaEnabled($this->getMetaEnabled())
+                                                             ->setSourceDirect($this->source[$key]);
 
                     } else {
-                        $entry = $this->getAcceptedDataType()::newFromSource($this->source[$key]);
+                        $entry = $this->getAcceptedDataType()::new()
+                                                             ->setDebug($this->getDebug())
+                                                             ->setMetaEnabled($this->getMetaEnabled())
+                                                             ->setSource($this->source[$key]);
                     }
 
                 } elseif ($this->source[$key] === null) {
@@ -1295,13 +1380,11 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
     /**
      * Returns a cache key for this object
      *
-     * @param String|null $append_string
-     *
      * @return string|null
      */
-    public function getCacheKeySeed(?String $append_string = null): ?string
+    public function getCacheKeySeed(): ?string
     {
-        return 'DataIterator-' . static::class . '-' . static::getTableState() . '-' . $this->getQueryHash() . ($append_string ? '-' . $append_string : null);
+        return PROJECT . '#DataIterator#' . static::class . '#' . Json::encode([static::getTableState() . '-' . $this->getQueryHash()], force_single_line: true);
     }
 
 
@@ -1398,6 +1481,39 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
 
         unset($value);
         return $source;
+    }
+
+
+    /**
+     * Check if the datatype of the given value or Interface (in case of an object) is allowed
+     *
+     * Throws an OutOfBounds exception if the datatype or Interface is not allowed
+     *
+     * @param mixed                            $value
+     * @param Stringable|string|float|int|null $key
+     *
+     * @return mixed
+     * @throws IteratorDataTypeNotAcceptedException | IteratorValidatorFailedException
+     */
+    protected function checkDataTypeAndContent(mixed $value, Stringable|string|float|int|null $key = null): mixed
+    {
+        if (is_array($value)) {
+            // Since values may only be DataEntry type objects, convert arrays to the correct DataEntry object type
+            if ($this->inject_source_directly) {
+                $value = $this->getAcceptedDataType()::new()
+                                                     ->setDebug($this->getDebug())
+                                                     ->setMetaEnabled($this->getMetaEnabled())
+                                                     ->setSourceDirect($value);
+
+            } else {
+                $value = $this->getAcceptedDataType()::new()
+                                                     ->setDebug($this->getDebug())
+                                                     ->setMetaEnabled($this->getMetaEnabled())
+                                                     ->Source($value);
+            }
+        }
+
+        return parent::checkDataTypeAndContent($value, $key);
     }
 
 

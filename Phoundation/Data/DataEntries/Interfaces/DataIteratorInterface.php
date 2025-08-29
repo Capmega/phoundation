@@ -331,12 +331,12 @@ interface DataIteratorInterface extends IteratorInterface
     /**
      * Sets the database connector
      *
-     * @param ConnectorInterface $o_connector
-     * @param string|null        $database
+     * @param ConnectorInterface|null $o_connector
+     * @param string|int|null         $database
      *
      * @return static
      */
-    public function setConnectorObject(ConnectorInterface $o_connector, ?string $database = null): static;
+    public function setConnectorObject(?ConnectorInterface $o_connector, string|int|null $database = null): static;
 
     /**
      * Sets the QueryBuilder object to modify the internal query for this object
@@ -420,4 +420,20 @@ interface DataIteratorInterface extends IteratorInterface
      * @todo Add support for specifying which column should be the identifier column instead of only id_column or unique_column
      */
     public function loadForAutocomplete(?string $word = null, ?string $column = null): static;
+
+    /**
+     * Returns if the source keys will be the DataEntry object id or DataEntry unique identifier
+     *
+     * @return bool
+     */
+    public function getKeysAreUniqueColumn(): bool;
+
+    /**
+     * Sets if the source keys will be the DataEntry object id or DataEntry unique identifier
+     *
+     * @param bool $value
+     *
+     * @return static
+     */
+    public function setKeysAreUniqueColumn(bool $value): static;
 }

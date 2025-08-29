@@ -142,8 +142,17 @@ class DataEntry extends DataEntryCore
      *
      * @return static
      */
-    public static function new(IdentifierInterface|array|string|int|false|null $identifier = false): static
+    public static function new(IdentifierInterface|array|string|int|false|null $identifier = false): DataEntryInterface
     {
+        if ($identifier) {
+            // Can we get a cached version of this?
+            $data_entry = static::loadFromCache(static::generateCacheKeySeed(static::normalizeIdentifier($identifier), null), true, true);
+
+            if ($data_entry) {
+                return $data_entry;
+            }
+        }
+
         return new static($identifier);
     }
 

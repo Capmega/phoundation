@@ -501,12 +501,12 @@ interface DefinitionInterface extends BeforeAfterContentInterface
     /**
      * Sets the HTML component to be used for this column
      *
-     * @param RenderInterface|callable|string|null $value
-     * @param bool                                 $make_safe
+     * @param RenderInterface|callable|string|float|int|null $content
+     * @param bool                                           $make_safe
      *
      * @return static
      */
-    public function setContent(RenderInterface|callable|string|null $value, bool $make_safe = false): static;
+    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = true): static;
 
 
     /**

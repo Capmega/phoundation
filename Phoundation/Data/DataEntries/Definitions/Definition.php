@@ -1563,18 +1563,18 @@ class Definition implements DefinitionInterface
     /**
      * Sets the HTML content to be shown for this column
      *
-     * @param RenderInterface|callable|string|null $value
-     * @param bool                                 $make_safe
+     * @param RenderInterface|callable|string|float|int|null $content
+     * @param bool                                           $make_safe
      *
      * @return static
      */
-    public function setContent(RenderInterface|callable|string|null $value, bool $make_safe = false): static
+    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = true): static
     {
-        if ($make_safe and !is_callable($value)) {
-            $value = Html::safe($value);
+        if ($make_safe and !is_callable($content)) {
+            $content = Html::safe($content);
         }
 
-        return $this->setKey($value, 'content');
+        return $this->setKey($content, 'content');
     }
 
 
@@ -3276,7 +3276,13 @@ class Definition implements DefinitionInterface
      */
     public function getInitialDefault(): mixed
     {
-        return isset_get($this->source['initial_default']);
+        $return = isset_get($this->source['initial_default']);
+
+        if (is_callable($return)) {
+            $return = $return();
+        }
+
+        return $return;
     }
 
 
@@ -3983,6 +3989,12 @@ class Definition implements DefinitionInterface
      */
     public function getDefault(): mixed
     {
-        return isset_get($this->source['default']);
+        $return = isset_get($this->source['default']);
+
+        if (is_callable($return)) {
+            $return = $return();
+        }
+
+        return $return;
     }
 }

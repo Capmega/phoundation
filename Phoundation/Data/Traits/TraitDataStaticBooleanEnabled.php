@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Trait TraitDataEnabled
+ * Trait TraitDataStaticBooleanEnabled
  *
  *
  *
@@ -17,14 +17,14 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 
-trait TraitDataEnabled
+trait TraitDataStaticBooleanEnabled
 {
     /**
      * Tracks the enabled flag
      *
      * @var bool $enabled
      */
-    protected bool $enabled = true;
+    protected static bool $enabled = true;
 
 
     /**
@@ -32,9 +32,9 @@ trait TraitDataEnabled
      *
      * @return bool
      */
-    public function getEnabled(): bool
+    public static function getEnabled(): bool
     {
-        return $this->enabled;
+        return static::$enabled;
     }
 
 
@@ -43,16 +43,15 @@ trait TraitDataEnabled
      *
      * @param bool|null $enabled
      *
-     * @return static
+     * @return void
      */
-    public function setEnabled(?bool $enabled): static
+    public static function setEnabled(?bool $enabled): void
     {
         if ($enabled === null) {
             // Don't modify the enabled flag, keep the default
-            return $this;
+            return;
         }
 
-        $this->enabled = $enabled;
-        return $this;
+        static::$enabled = $enabled;
     }
 }

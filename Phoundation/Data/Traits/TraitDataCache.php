@@ -16,38 +16,83 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
+use Phoundation\Cache\Cache;
+use Phoundation\Data\Interfaces\CacheableObjectInterface;
+use Phoundation\Data\Interfaces\ContentObjectInterface;
 
 trait TraitDataCache
 {
     /**
      * Tracks if cache is enabled for this object or not
      *
-     * @var bool $cache
+     * @var bool $use_cache
      */
-    protected bool $cache = false;
+    protected bool $use_cache = true;
 
 
     /**
-     * Returns the cache value
+     * Returns if caching should be used, or not
+     *
+     * @note If global caching has been disabled, this method will always return false, even if the use_cache was set to true using object::setUseCache(true)
      *
      * @return bool
      */
-    public function getCache(): bool
+    public function getUseCache(): bool
     {
-        return $this->cache;
+        if (Cache::isEnabled()) {
+            return $this->use_cache;
+        }
+
+        return false;
     }
 
 
     /**
-     * Sets the cache value
+     * Returns if caching should be used, or not
      *
-     * @param bool $cache
+     * @note If global caching has been disabled, this method will always return false, even if the use_cache was set to true using object::setUseCache(true)
+     *
+     * @return bool
+     */
+    public function getUseLocalCache(): bool
+    {
+        return $this->getUseCache() and config()->getBoolean('cache.local.enabled', true);
+    }
+
+
+    /**
+     * Returns if caching should be used, or not
+     *
+     * @note If global caching has been disabled, this method will always return false, even if the use_cache was set to true using object::setUseCache(true)
+     *
+     * @return bool
+     */
+    public function getUseGlobalCache(): bool
+    {
+        return $this->getUseCache() and config()->getBoolean('cache.global.enabled', true);
+    }
+
+
+    /**
+     * Sets if caching should be used, or not
+     *
+     * @param bool $use_cache
      *
      * @return static
      */
-    public function setCache(bool $cache): static
+    public function setUseCache(bool $use_cache): static
     {
-        $this->cache = $cache;
+        $this->use_cache = $use_cache;
+
+        // Pass
+        if ($this instanceof ContentObjectInterface) {
+            $o_content = $this->getContent();
+
+            if ($o_content instanceof CacheableObjectInterface) {
+                $o_content->setUseCache($use_cache);
+            }
+        }
+
         return $this;
     }
 }
