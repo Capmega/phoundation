@@ -101,7 +101,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      *
      * @return PhoDateTime|null
      */
-    public static function newNull(PhoDateTimeInterface|string|float|int|null $datetime = 'now', DateTimeZone|string|null $timezone = null): ?static
+    public static function newOrNull(PhoDateTimeInterface|string|float|int|null $datetime = 'now', DateTimeZone|string|null $timezone = null): ?static
     {
         if (empty($datetime)) {
             return null;
