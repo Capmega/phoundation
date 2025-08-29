@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem;
 
-use Phoundation\Cache\InstanceCache;
+use Phoundation\Cache\LocalCache;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\UnderConstructionException;
@@ -101,13 +101,13 @@ class PhoFilesystem extends PhoFile implements PhoFilesystemInterface
      */
     protected function getDfData(): array
     {
-        $results = InstanceCache::getOrGenerate('df', 'all', function () {
+        $results = LocalCache::getOrGenerate(function () {
             $results = Df::new()
                          ->executeNoReturn()
                          ->getResults();
 
-            return InstanceCache::set($results, 'df', 'all');
-        });
+            return LocalCache::set($results, 'df', 'all');
+        }, 'df', 'all');
 
         // Adjust values to be byte precise
         $results = $results->get($this->source, false);

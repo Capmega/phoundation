@@ -32,6 +32,4 @@ class BtrfsProperty extends Btrfs {
     {
         return new static ($o_path);
     }
-
-
 }
