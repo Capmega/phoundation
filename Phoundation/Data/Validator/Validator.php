@@ -5588,33 +5588,6 @@ throw new ObsoleteException();
 
 
     /**
-     * Makes the current field a boolean value
-     *
-     * This method ensures that the specified array key is a boolean
-     *
-     * @return static
-     */
-    public function sanitizeToDate(): static
-    {
-        $this->test_count++;
-
-        return $this->validateValues(function (&$value) {
-            if (!$this->hasOptionalValue($value)) {
-                $this->isDate();
-
-                if ($this->process_value_failed or $this->selected_is_default) {
-                    // Validation already failed or defaulted, don't test anything more
-                    return;
-                }
-
-throw new UnderConstructionException(tr('The PhoDate class is still under construction, so is Validator::sanitizeToDate()'));
-                $value = PhoDate::new($value);
-            }
-        });
-    }
-
-
-    /**
      * Makes the current field a DataEntry object of the specified class, loaded with the specified identifier.
      * The object MUST exist.
      *

@@ -1455,4 +1455,13 @@ interface ValidatorInterface extends IteratorBaseInterface
      * @return bool
      */
     public function valueExists(mixed $value, bool $strict = true): bool;
+
+    /**
+     * Makes the current field a boolean value
+     *
+     * This method ensures that the specified array key is a boolean
+     *
+     * @return static
+     */
+    public function sanitizeToDateTime(): static;
 }
