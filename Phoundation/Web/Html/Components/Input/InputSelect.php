@@ -16,9 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
-use Phoundation\Accounts\Users\Sessions\Session;
-use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -913,5 +912,19 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
         }
 
         return null;
+    }
+
+
+    /**
+     * Set the DataEntry Definition on this element
+     *
+     * @param DefinitionInterface|null $o_definition
+     *
+     * @return static
+     */
+    public function setDefinitionObject(?DefinitionInterface $o_definition): static
+    {
+        return parent::setDefinitionObject($o_definition)
+                     ->setRequired($o_definition->getRequired(false));
     }
 }

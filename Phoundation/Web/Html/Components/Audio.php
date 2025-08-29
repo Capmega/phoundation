@@ -99,7 +99,7 @@ class Audio extends Element
     {
         // For the moment generate the HTML directly
         return '<audio class="' . $this->getClass() . '" preload="auto">
-                    <source src="' . Url::new($this->o_attributes->get('src', false) ?? $this->content)->makeCdn() . '" type="audio/mpeg">
+                    <source src="' . Url::new((string) $this->o_attributes->get('src', false) ?? $this->content)->makeCdn() . '" type="audio/mpeg">
                 </audio>';
     }
 }

@@ -106,7 +106,7 @@ Response::setBreadcrumbs([
     Breadcrumb::new(''                       , tr(':id [:title]'), [
         ':title' => $notification->getTitle(),
         ':id'    => $notification->getDisplayId()
-    ])
+    ]))
 ]);
 
 

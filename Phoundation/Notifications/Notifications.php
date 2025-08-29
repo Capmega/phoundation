@@ -139,7 +139,7 @@ class Notifications extends DataIterator implements NotificationsInterface
 //    /**
 //     * @inheritDoc
 //     */
-//    public function load(array|string|int|null $identifiers = null, bool $like = false): static
+//    public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
 //    {
 //        $this->source = sql()->list('SELECT `notifications`.`id`, `notifications`.`title`
 //                                   FROM     `notifications`

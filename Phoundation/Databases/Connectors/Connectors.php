@@ -19,6 +19,7 @@ namespace Phoundation\Databases\Connectors;
 use PDOStatement;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIterator;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
@@ -75,13 +76,13 @@ class Connectors extends DataIterator implements ConnectorsInterface
     /**
      * Load the id list from the database
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $like
-     * @param bool                  $ignore_sql_exceptions
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                      $like
+     * @param bool                                      $ignore_sql_exceptions
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $like = false, bool $ignore_sql_exceptions = false): static
+    public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false, bool $ignore_sql_exceptions = false): static
     {
         try {
             parent::load($identifiers, $like);

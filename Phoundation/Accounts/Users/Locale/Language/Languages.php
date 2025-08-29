@@ -19,7 +19,7 @@ namespace Phoundation\Accounts\Users\Locale\Language;
 
 use Phoundation\Accounts\Users\Locale\Language\Interfaces\LanguagesInterface;
 use Phoundation\Data\DataEntries\DataIterator;
-
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 
 class Languages extends DataIterator implements LanguagesInterface
 {
@@ -72,13 +72,13 @@ class Languages extends DataIterator implements LanguagesInterface
     /**
      * Load the id list from the database
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $like
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                      $like
      *
      * @return static
      * @todo Rewrite this using the DataIterator::load() method
      */
-    public function load(array|string|int|null $identifiers = null, bool $like = false): static
+    public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
         $this->source = sql()->list('SELECT `core_languages`.`id`, substring_index(substring_index(`core_languages`.`name`, "(", 1), ",", 1) AS `name`
                                    FROM     `core_languages`

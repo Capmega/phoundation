@@ -142,7 +142,6 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                           ->setAutoSubmit(true)
                                                           ->setElement(EnumElement::select)
                                                           ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
-show('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
                                                               if (empty($this->source[$key])) {
                                                                   if (empty($this->source['date_range'])) {
                                                                       $source = $this->getDateRangeDefault();
@@ -160,6 +159,11 @@ show('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
                                                                                    ->setValue($this->source[$key]);
                                                           })
                                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                                              if (empty($o_validator->getSelectedValue())) {
+                                                                  $source = $this->getDateRangeDefault();
+                                                                  $o_validator->setSelectedValue(PhoDateTime::new($source[0])->format(EnumDateFormat::user_date, true) . ' - ' . PhoDateTime::new($source[1])->format(EnumDateFormat::user_date, true));
+                                                              }
+
                                                               $o_validator->isOptional()->isDateRange()->copyToKey('date_range_split');
                                                           }))
 
@@ -468,15 +472,8 @@ show('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
         static $return;
 
         if (!isset($return)) {
-            $range = parent::get('date_range'      , false);
-            $split = parent::get('date_range_split', false);
-
-            if ($range and $split) {
-                $return = PhoDateTime::new($split[0], $timezone)->getBeginningOfDay();
-
-            } else {
-                $return = null;
-            }
+            $range  = parent::get('date_range_split', false);
+            $return = $range ? PhoDateTime::new($range[0], $timezone)->getBeginningOfDay() : null;
         }
 
         return $return;
@@ -495,15 +492,8 @@ show('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
         static $return;
 
         if (!isset($return)) {
-            $range = parent::get('date_range'      , false);
-            $split = parent::get('date_range_split', false);
-
-            if ($range and $split) {
-                $return = PhoDateTime::new($split[1], $timezone)->getEndOfDay();
-
-            } else {
-                $return = null;
-            }
+            $range  = parent::get('date_range_split', false);
+            $return = $range ? PhoDateTime::new($range[1], $timezone)->getEndOfDay() : null;
         }
 
         return $return;
@@ -596,21 +586,22 @@ show('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
      */
     protected function applyValidator(string $class, ?bool $require_clean_source = null): static
     {
-show();
         // Local objects for faster lookups
         $o_definitions        = $this->o_definitions;
         $require_clean_source = $require_clean_source ?? $this->require_clean_source;
 
         // Auto apply
         if ($class === static::class) {
-show();
             $o_validator = $this->selectValidator()->setDefinitionsObject($o_definitions);
 
             // Go over each field and let the field definition do the validation since it knows the specs
             foreach ($o_definitions as $column => $o_definition) {
-show($column);
 //if ($column !== 'action') continue;
                 $o_definition->validate($o_validator, null);
+
+                if ($o_definition->getDefault()) {
+                    $o_validator->set($o_definition->getDefault(), $column);
+                }
             }
 
             // Validate buttons too

@@ -229,9 +229,9 @@ interface HtmlTableInterface extends ResourceElementInterface
     /**
      * Returns the table headers
      *
-     * @return IteratorInterface
+     * @return array
      */
-    public function getFooters(): IteratorInterface;
+    public function getFooters(): array;
 
 
     /**

@@ -394,7 +394,7 @@ class Anchor extends SpanCore implements AnchorInterface
             $this->setElement('span')->addClass('anchor');
 
         } else {
-            if (empty($this->content)) {
+            if (is_empty($this->content)) {
                 switch ($this->render_empty) {
                     case EnumAnchorRenderEmpty::not:
                         return null;

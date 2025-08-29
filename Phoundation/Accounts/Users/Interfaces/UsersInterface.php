@@ -6,6 +6,7 @@ namespace Phoundation\Accounts\Users\Interfaces;
 
 use Phoundation\Accounts\Users\User;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Stringable;
 
 interface UsersInterface extends DataIteratorInterface
@@ -42,12 +43,12 @@ interface UsersInterface extends DataIteratorInterface
     /**
      * Load the data for this users list into the object
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $like
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                      $like
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $like = false): static;
+    public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static;
 
     /**
      * Save the data for this users list in the database

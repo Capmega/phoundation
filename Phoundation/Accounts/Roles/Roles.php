@@ -28,6 +28,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\DataEntries\Exception\DataEntryInvalidParentException;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
@@ -44,8 +45,9 @@ class Roles extends DataIterator implements RolesInterface
      */
     public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
     {
-        $this->setAcceptedDataTypes(Role::class)
-             ->getQueryBuilderObject()->addSelect('`accounts_roles`.`id`, 
+        parent::__construct($source);
+
+        $this->getQueryBuilderObject()->addSelect('`accounts_roles`.`id`, 
                                                    `accounts_roles`.`seo_name`, 
                                                    `accounts_roles`.`description`,
                                                    CONCAT(
@@ -65,8 +67,6 @@ class Roles extends DataIterator implements RolesInterface
                                       ->addWhere('`accounts_roles`.`status` IS NULL OR `accounts_roles`.`status` != "deleted"')
                                       ->addGroupBy('`accounts_roles`.`id`')
                                       ->addOrderBy('`accounts_roles`.`name`');
-
-        parent::__construct($source);
     }
 
 
@@ -416,12 +416,12 @@ class Roles extends DataIterator implements RolesInterface
     /**
      * Load the data for this "roles" list into the object
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $like
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                      $like
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $like = false): static
+    public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
         if ($this->o_parent) {
             if ($this->o_parent instanceof UserInterface) {

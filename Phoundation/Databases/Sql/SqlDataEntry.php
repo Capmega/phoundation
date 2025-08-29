@@ -198,8 +198,8 @@ class SqlDataEntry implements SqlDataEntryInterface
                         $random_id = Numbers::getRandomInt($this->o_data_entry->getIdLowerLimit(), $this->o_data_entry->getIdUpperLimit());
                     }
 
-                    $update = $this->o_data_entry->getSqlColumns(false);
-                    $insert = $this->o_data_entry->getSqlColumns(true);
+                    $update = $this->o_data_entry->getSqlSource(false);
+                    $insert = $this->o_data_entry->getSqlSource(true);
 
                     // With these queries always do add the id column
                     $insert[$this->o_data_entry->getIdColumn()] = ($update[$this->o_data_entry->getIdColumn()] ?? $random_id);
@@ -212,14 +212,14 @@ class SqlDataEntry implements SqlDataEntryInterface
                         $random_id = Numbers::getRandomInt($this->o_data_entry->getIdLowerLimit(), $this->o_data_entry->getIdUpperLimit());
                     }
 
-                    $insert = $this->o_data_entry->getSqlColumns(true);
+                    $insert = $this->o_data_entry->getSqlSource(true);
                     $insert = Arrays::prepend($insert, $this->id_column, $random_id);
 
                     return $this->insert($insert, $comments, $this->o_data_entry->getDiff());
                 }
 
                 // EXISTING ENTRY, UPDATE
-                return $this->update($this->o_data_entry->getSqlColumns(false), $comments, $this->o_data_entry->getDiff());
+                return $this->update($this->o_data_entry->getSqlSource(false), $comments, $this->o_data_entry->getDiff());
 
             } catch (SqlException $e) {
                 if ($e->getCode() !== 1062) {

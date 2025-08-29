@@ -34,11 +34,8 @@ use Phoundation\Data\Exception\IteratorValidatorFailedException;
 use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\IteratorCore;
-use Phoundation\Data\Traits\TraitDataCacheKey;
-use Phoundation\Data\Traits\TraitDataColumns;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
-use Phoundation\Data\Traits\TraitDataFilterForm;
 use Phoundation\Data\Traits\TraitDataMetaEnabled;
 use Phoundation\Data\Traits\TraitDataStatusFilter;
 use Phoundation\Data\Traits\TraitMethodBuildManualQuery;
@@ -69,13 +66,8 @@ use Stringable;
 
 class DataIteratorCore extends IteratorCore implements DataIteratorInterface, IdentifierInterface
 {
-    use TraitDataColumns {
-        setColumns as protected __setColumns;
-    }
-    use TraitDataCacheKey;
     use TraitDataConnector;
     use TraitDataDebug;
-    use TraitDataFilterForm;
     use TraitDataStatusFilter;
     use TraitDataMetaEnabled;
     use TraitMethodBuildManualQuery;
@@ -178,7 +170,8 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
         parent::__construct($source);
 
         // If this data iterator had a source specified, consider it loaded
-        $this->setAcceptedDataTypes(DataEntry::class, false);
+        $this->setAcceptedDataTypes(static::getDefaultContentDataType(), false);
+
         $this->is_loaded = (bool) $source;
         $this->use_cache = Cache::isEnabled();
     }
@@ -410,12 +403,12 @@ throw new ObsoleteException();
     /**
      * Selects if we use the default query or a query from the QueryBuilder
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $like
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                      $like
      *
      * @return static
      */
-    protected function selectQuery(array|string|int|null $identifiers = null, bool $like = false): static
+    protected function selectQuery(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
         // Use the query builder or hard-coded query
         if (isset($this->o_query_builder)) {
@@ -822,7 +815,7 @@ throw new ObsoleteException();
                    ->setValueColumn($value_column);
 
         } else {
-            $query = 'SELECT ' . $key_column . ', ' . $value_column . '
+            $query = ' SELECT ' . $key_column . ', ' . $value_column . '
                       FROM  `' . static::getTable() . '`
                       ' . Strings::force($joins, ' ');
 
@@ -1415,13 +1408,13 @@ throw new ObsoleteException();
     /**
      * Load the Iterator list data from the database
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $like
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                      $like
      *
      * @return static
      * @todo Add support for specifying which column should be the identifier column instead of only id_column or unique_column
      */
-    public function load(array|string|int|null $identifiers = null, bool $like = false): static
+    public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
         $this->setIsLoading(true)
              ->selectQuery($identifiers, $like);
@@ -1724,7 +1717,7 @@ throw new ObsoleteException();
     public function setColumns(ArrayableInterface|array|string|null $columns): static
     {
         // Tell the QueryBuilder object to only use the specified columns
-        $this->__setColumns($columns);
+        parent::setColumns($columns);
         $this->getQueryBuilderObject()->setSelects($this->getSqlSelectColumns());
 
         return $this;

@@ -110,10 +110,10 @@ trait TraitMethodsVirtualColumns {
                     ':class'  => $this::class,
                     ':column' => $virtual_table_column,
                 ]), $e)->setData([
-                                     'table'   => $table,
-                                     'class'   => $this::class,
-                                     'column'  => $virtual_table_column,
-                                 ]);
+                    'table'   => $table,
+                    'class'   => $this::class,
+                    'column'  => $virtual_table_column,
+                ]);
             }
         }
 
@@ -232,7 +232,7 @@ trait TraitMethodsVirtualColumns {
                 ]);
             }
 
-            if ($value === null) {
+            if (is_empty($value)) {
                 continue;
             }
 

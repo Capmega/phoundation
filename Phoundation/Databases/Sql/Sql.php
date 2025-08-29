@@ -51,7 +51,6 @@ use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\Exception\SqlNoDatabaseSelectedException;
 use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
 use Phoundation\Databases\Sql\Exception\SqlConnectionTimedOutException;
-use Phoundation\Databases\Sql\Exception\SqlSyntaxErrorException;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
@@ -548,6 +547,11 @@ class Sql implements SqlInterface
 
             case 23000:
                 switch ($e->getSqlSecondaryState()) {
+                    case 1048:
+                        throw SqlColumnCannotBeNullException::new(static::getConnectorLogPrefix() . $e->getMessage(), $e)->addData([
+                            'column' => Strings::cut($e->getMessage(), '1048 Column \'', '\''),
+                        ]);
+
                     case 1052:
                         $message = Strings::from($e->getMessage(), '1052');
                         $message = trim($message);
@@ -556,12 +560,15 @@ class Sql implements SqlInterface
                         throw SqlAmbiguousColumnException::new($message, $e)->addData(['column' => $column]);
 
                     case 1062:
-                        throw new SqlContstraintDuplicateEntryException($e);
+                        $value  = Strings::cut($e->getMessage(), 'Duplicate entry \'', "'");
+                        $column = Strings::cut($e->getMessage(), 'for key \''        , "'");
+                        $column = Strings::from($column, '.');
 
-                    case 1048:
-                        throw SqlColumnCannotBeNullException::new(static::getConnectorLogPrefix() . $e->getMessage(), $e)->addData([
-                            'column' => Strings::cut($e->getMessage(), '1048 Column \'', '\''),
-                        ]);
+                        throw SqlContstraintDuplicateEntryException::new($e)
+                                                                   ->addData([
+                                                                       'column' => $column,
+                                                                       'value'  => $value
+                                                                   ]);
                 }
 
                 break;

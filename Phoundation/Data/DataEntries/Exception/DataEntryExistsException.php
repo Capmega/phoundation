@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class DataEntryAlreadyExistsException
+ * Class DataEntryExistsException
  *
- * This exception is thrown when a data entry already exists
+ * This exception is thrown when the unique identifier for a DataEntry already exists
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -16,6 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries\Exception;
 
-class DataEntryAlreadyExistsException extends DataEntryException
+class DataEntryExistsException extends DataEntryException
 {
 }

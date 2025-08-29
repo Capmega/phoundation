@@ -54,6 +54,28 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Requests\Request;
 
+
+/**
+ * Improved version of PHP's empty that makes slightly more sense
+ *
+ * @param mixed $value
+ *
+ * @return bool
+ */
+function is_empty(mixed $value): bool
+{
+    if (empty($value)) {
+        if ($value === '0') {
+            return false;
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+
 /**
  * Returns the value for the Nth array key
  *

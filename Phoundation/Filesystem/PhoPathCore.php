@@ -89,6 +89,8 @@ use Phoundation\Security\Incidents\Incident;
 use Phoundation\Servers\Traits\TraitDataServer;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Icons\Icon;
+use Phoundation\Web\Html\Components\Icons\Interfaces\IconInterface;
 use Stringable;
 use Throwable;
 
@@ -4821,9 +4823,9 @@ class PhoPathCore implements PhoPathInterface
     /**
      * Returns an appropriate icon string for this file
      *
-     * @return string
+     * @return IconInterface
      */
-    public function getIcon(): string
+    public function getIcon(): IconInterface
     {
         Log::warning('The PhoPathCore::getIcon() method is still under construction and currently only returns PDF icons!');
 
@@ -4832,13 +4834,13 @@ class PhoPathCore implements PhoPathInterface
                 // no break
 
             case 'xlsx':
-                return 'far fa-fw fa-file-excel';
+                return Icon::new('far', 'fa-fw fa-file-excel');
 
             case 'pdf':
-                return 'far fa-fw fa-file-pdf';
+                return Icon::new('far', 'fa-fw fa-file-pdf');
         }
 
-        return 'far fa-fw fa-file';
+        return Icon::new('far', 'fa-fw fa-file');
     }
 
 

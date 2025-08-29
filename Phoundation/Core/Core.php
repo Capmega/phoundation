@@ -42,7 +42,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Modes\Interfaces\ModeInterface;
 use Phoundation\Core\Modes\Mode;
-use Phoundation\Data\DataEntries\Exception\DataEntryAlreadyExistsException;
+use Phoundation\Data\DataEntries\Exception\DataEntryExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
@@ -3255,7 +3255,7 @@ class Core implements CoreInterface
         } catch (Http405Exception | DataEntryReadonlyException | RequestMethodRestrictionsException $e) {
             static::executeUncaughtExceptionSystemPage(405, $e, tr('Page did not catch the following "Http405Exception" or "DataEntryReadonlyException" or "RequestMethodRestrictionsException" warning. Executing "system/405" instead'));
 
-        } catch (Http409Exception | DataEntryAlreadyExistsException $e) {
+        } catch (Http409Exception | DataEntryExistsException $e) {
             static::executeUncaughtExceptionSystemPage(409, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
 
         } catch (Http503Exception | CoreReadonlyException $e) {

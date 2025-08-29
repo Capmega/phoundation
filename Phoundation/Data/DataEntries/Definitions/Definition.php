@@ -2976,15 +2976,42 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns the render_html_required_attribute_for_new flag for this column
+     *
+     * @return bool
+     */
+    public function getRenderHtmlRequiredAttributeForNew(): bool
+    {
+        return get_safe_typed('bool', $this->source, 'render_html_required_attribute_for_new', true);
+    }
+
+
+    /**
+     * Sets the render_html_required_attribute_for_new flag for this column
+     *
+     * @param bool|null $value
+     *
+     * @return static
+     */
+    public function setRenderHtmlRequiredAttributeForNew(?bool $value): static
+    {
+        return $this->setKey($value ?? true, 'render_html_required_attribute_for_new');
+    }
+
+
+    /**
      * Returns if this column is required or not
      *
      * @note Is the exact opposite of Definition::getOptional()
      * @note Defaults to true
+     *
+     * @param bool $get_real_value
+     *
      * @return bool
      */
-    public function getRequired(): bool
+    public function getRequired(bool $get_real_value = true): bool
     {
-        return !$this->getOptional();
+        return !$this->getOptional($get_real_value);
     }
 
 
@@ -2992,11 +3019,38 @@ class Definition implements DefinitionInterface
      * Returns if this column is optional or not
      *
      * @note Defaults to false
+     *
+     * @note If the column is not optional (so it is required) and the render_html_required_attribute_for_new flag is set in this
+     *       Definition, it may still be set to optional if a couple of criteria is met:
+     *          - the column is required
+     *          - the object in the column is new
+     *          - the flag for "get_render_html_required_attribute_for_new" is false
+     *       If all of these criteria are met, this method will return true, or just if the column isn't required to
+     *       begin with.
+     *
+     * @param bool $get_real_value
+     *
      * @return bool
      */
-    public function getOptional(): bool
+    public function getOptional(bool $get_real_value = true): bool
     {
-        return get_safe_typed('bool', $this->source, 'optional', false);
+        $return = get_safe_typed('bool', $this->source, 'optional', false);
+
+        if ($return) {
+            return true;
+        }
+
+        if ($get_real_value) {
+            return false;
+        }
+
+        if ($this->getRenderHtmlRequiredAttributeForNew() === false) {
+            if ($this->getDataEntryObject()->isNew()) {
+                return true;
+            } //todo see if this is working properly
+        }
+
+        return false;
     }
 
 
@@ -3006,19 +3060,20 @@ class Definition implements DefinitionInterface
      * @note Defaults to false
      *
      * @param bool|null $value
-     * @param mixed     $initial_default
+     * @param mixed     $default
      *
      * @return static
      */
-    public function setOptional(?bool $value, mixed $initial_default = null): static
+    public function setOptional(?bool $value, mixed $default = null): static
     {
-        if (!$value and $initial_default) {
+        if (!$value and $default) {
             // If not optional, we cannot have a default value
             throw new OutOfBoundsException(tr('Cannot assign default value ":value" when the definition is not optional', [
-                ':value' => $initial_default,
+                ':value' => $default,
             ]));
         }
-        $this->setKey($initial_default, 'default');
+
+        $this->setKey($default, 'default');
         $this->setKey((bool) $value, 'optional');
 
         return $this;
@@ -3245,7 +3300,7 @@ class Definition implements DefinitionInterface
     {
         $this->ensureElement(EnumElement::textarea);
 
-        if (isset_get($this->source['element']) !== EnumElement::textarea) {
+        if (array_get_safe($this->source, 'element') !== EnumElement::textarea) {
             throw new OutOfBoundsException(tr('Cannot define rows for column ":column", the element is a ":element" but should be a "textarea', [
                 ':column'  => $this->getColumn(),
                 ':element' => $this->source['element']->value,
@@ -3253,6 +3308,23 @@ class Definition implements DefinitionInterface
         }
 
         return $this->setKey($value, 'rows');
+    }
+
+
+    /**
+     * Returns the default value for this column
+     *
+     * @return mixed
+     */
+    public function getDefault(): mixed
+    {
+        $return = array_get_safe($this->source, 'default');
+
+        if (is_callable($return)) {
+            $return = $return();
+        }
+
+        return $return;
     }
 
 
@@ -3276,7 +3348,7 @@ class Definition implements DefinitionInterface
      */
     public function getInitialDefault(): mixed
     {
-        $return = isset_get($this->source['initial_default']);
+        $return = array_get_safe($this->source, 'initial_default');
 
         if (is_callable($return)) {
             $return = $return();
@@ -3976,23 +4048,6 @@ class Definition implements DefinitionInterface
         if (str_starts_with($return, '[') and str_ends_with($return, ']')) {
             // Strip the []
             $return = substr($return, 1, -1);
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Returns the default value for this column
-     *
-     * @return mixed
-     */
-    public function getDefault(): mixed
-    {
-        $return = isset_get($this->source['default']);
-
-        if (is_callable($return)) {
-            $return = $return();
         }
 
         return $return;

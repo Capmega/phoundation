@@ -404,7 +404,6 @@ show('NO CACHE!');
                                 $o_component   = match ($o_definition->getInputType()) {
                                     EnumInputType::number       => $element_class::new()
                                                                                  ->setDefinitionObject($o_definition)
-                                                                                 ->setRequired($o_definition->getRequired())
                                                                                  ->setMin($o_definition->getMin())
                                                                                  ->setMax($o_definition->getMax())
                                                                                  ->setStep($o_definition->getStep())
@@ -413,7 +412,6 @@ show('NO CACHE!');
 
                                     EnumInputType::date         => $element_class::new()
                                                                                  ->setDefinitionObject($o_definition)
-                                                                                 ->setRequired($o_definition->getRequired())
                                                                                  ->setMin($o_definition->getMin())
                                                                                  ->setMax($o_definition->getMax())
                                                                                  ->setName($field_name)
@@ -421,7 +419,6 @@ show('NO CACHE!');
 
                                     EnumInputType::auto_suggest => $element_class::new()
                                                                                  ->setDefinitionObject($o_definition)
-                                                                                 ->setRequired($o_definition->getRequired())
                                                                                  ->setAutoComplete(false)
                                                                                  ->setMinLength($o_definition->getMinLength())
                                                                                  ->setMaxLength($o_definition->getMaxLength())
@@ -432,13 +429,11 @@ show('NO CACHE!');
 
                                     EnumInputType::select       => $element_class::new()
                                                                                  ->setDefinitionObject($o_definition)
-                                                                                 ->setRequired($o_definition->getRequired())
                                                                                  ->setName($field_name)
                                                                                  ->setValue($source[$column]),
 
                                     EnumInputType::checkbox     => $element_class::new()
                                                                                  ->setDefinitionObject($o_definition)
-                                                                                 ->setRequired($o_definition->getRequired())
                                                                                  ->setName($field_name)
                                                                                  ->setValue('1')
                                                                                  ->setChecked((bool)$source[$column]),
@@ -449,6 +444,7 @@ show('NO CACHE!');
                                                                          ->setHidden($o_definition->getHidden())
                                                                          ->setValue($o_definition->getValue()),
 
+                                    // TODO This should be using ->setDefinitionObject($o_definition)!
                                     EnumInputType::hidden       => $element_class::new()
                                                                                  ->setRequired($o_definition->getRequired())
                                                                                  ->setName($field_name)
@@ -456,7 +452,6 @@ show('NO CACHE!');
 
                                     default                     => $element_class::new()
                                                                                  ->setDefinitionObject($o_definition)
-                                                                                 ->setRequired($o_definition->getRequired())
                                                                                  ->setMinLength($o_definition->getMinLength())
                                                                                  ->setMaxLength($o_definition->getMaxLength())
                                                                                  ->setAutoComplete($o_definition->getAutoComplete())

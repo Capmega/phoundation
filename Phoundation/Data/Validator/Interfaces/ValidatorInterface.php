@@ -66,6 +66,15 @@ interface ValidatorInterface extends IteratorBaseInterface
     public function getSelectedValue(): mixed;
 
     /**
+     * Sets the currently selected value
+     *
+     * @param mixed $value
+     *
+     * @return static
+     */
+    public function setSelectedValue(mixed $value): static;
+
+    /**
      * Allow the validator to check each element in a list of values.
      *
      * Basically, each method will expect to process a list always and ->select() will put the selected value in an

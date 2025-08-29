@@ -244,7 +244,7 @@ class SqlQueries
                     $not   = true;
                 }
 
-                if (($value === null) or (strtoupper(substr((string) $value, -4, 4)) === 'NULL')) {
+                if (($value === null) or (strtoupper($value) === 'NULL')) {
                     $null = ($not ? '!NULL' : 'NULL');
                     continue;
                 }
@@ -260,7 +260,14 @@ class SqlQueries
             if ($in) {
                 $in       = static::in($in);
                 $execute  = array_merge((array) $execute, $in);
-                $return[] = ' ' . $column . ' IN (' . implode(', ', array_keys($in)) . ')';
+
+                if (isset($null)) {
+                    $return[] = ' (' . $column . ' IN (' . implode(', ', array_keys($in)) . ') 
+                                OR ' . static::isSingle($column, $null, $label, $execute) . ')';
+
+                } else {
+                    $return[] = ' ' . $column . ' IN (' . implode(', ', array_keys($in)) . ')';
+                }
             }
 
             if ($notin) {
@@ -268,16 +275,11 @@ class SqlQueries
                 $execute = array_merge((array) $execute, $notin);
 
                 if (!isset($null)) {
-                    // (My)Sql curiosity: When comparing != string, NULL values are NOT evaluated
                     $return[] = ' (' . $column . ' NOT IN (' . implode(', ', array_keys($notin)) . ') OR ' . $column . ' IS NULL)';
 
                 } else {
                     $return[] = ' ' . $column . ' NOT IN (' . implode(', ', array_keys($notin)) . ')';
                 }
-            }
-
-            if (isset($null)) {
-                $return[] = static::isSingle($column, $null, $label, $execute);
             }
 
             if (isset($query_builder)) {
