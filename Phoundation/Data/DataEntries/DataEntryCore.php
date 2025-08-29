@@ -842,7 +842,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                                                 ->setDisabled(true)
                                                 ->setInputType(EnumInputType::dbid)
                                                 ->addClasses('text-center')
-                                                ->setSize(3)
+                                                ->setSize(4)
                                                 ->setCliAutoComplete(true)
                                                 ->setTooltip(tr('This column contains the unique identifier for this object inside the database. It cannot be changed and is used to identify objects'))
                                                 ->setLabel(tr('Database ID')));
@@ -2641,6 +2641,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 unset($source[$key]);
 
             } elseif (empty($this->source[$key])) {
+                // TODO THIS SHOULD (and is??) BE DONE IN DataEntryCore::set()
                 // This is empty in the specified source and empty in the internal source,default it
                 if ($this->isNew()) {
                     // This is a new (unsaved) object, apply initial default
@@ -2826,7 +2827,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             try {
                 if ($this->getDefinitionsObject()->get($column)->getContainsData()) {
                     if ($this->debug) {
-                        Log::debug('SET "' . Strings::fromReverse(static::class, '\\') . '::$' . $column . '" using ' . Strings::fromReverse(static::class, '\\') . '::' . $method . '() ' . (method_exists($this, $method) ? '(exists)' : '(NOT exists)') . ' TO "' . Strings::log($value) . ' [' . gettype($value) . ']"', 10, echo_header: false);
+                        Log::debug('SET "' . Strings::fromReverse(static::class, '\\') . '::$' . $column . '" using ' . Strings::fromReverse(static::class, '\\') . '::' . $method . '() ' . (method_exists($this, $method) ? '(exists)' : '(NOT exists)') . ' TO "' . Strings::log($value) . ' [' . get_class_or_datatype($value) . ']"', 10, echo_header: false);
                     }
 
                     $this->$method($value);

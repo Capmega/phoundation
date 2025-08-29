@@ -1901,14 +1901,14 @@ class Definition implements DefinitionInterface
             case EnumInputType::datetime_local:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->isDateTime();
+                         $o_validator->sanitizeToDateTime();
                      });
                 break;
 
             case EnumInputType::date:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->isDate();
+                         $o_validator->sanitizeToDateTime();
                      });
                 break;
 
@@ -3312,6 +3312,23 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns the default value for this column
+     *
+     * @return mixed
+     */
+    public function getDefault(): mixed
+    {
+        $return = array_get_safe($this->source, 'default');
+
+        if (is_callable($return)) {
+            $return = $return();
+        }
+
+        return $return;
+    }
+
+
+    /**
      * Sets the default value for this column
      *
      * @param mixed $value
@@ -4028,16 +4045,5 @@ class Definition implements DefinitionInterface
         }
 
         return $return;
-    }
-
-
-    /**
-     * Returns the default value for this column
-     *
-     * @return mixed
-     */
-    public function getDefault(): mixed
-    {
-        return array_get_safe($this->source, 'default');
     }
 }

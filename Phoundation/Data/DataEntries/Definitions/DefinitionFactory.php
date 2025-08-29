@@ -57,7 +57,7 @@ class DefinitionFactory
         return Definition::new($column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::dbid)
-                         ->setSize(3);
+                         ->setSize(4);
     }
 
 
@@ -1079,7 +1079,7 @@ class DefinitionFactory
     {
         return DefinitionFactory::newDatabaseId($column)
                                 ->setRender(false)
-                                ->setSize(3)
+                                ->setSize(4)
                                 ->setCliAutoComplete(true);
     }
 
@@ -1263,7 +1263,7 @@ class DefinitionFactory
                          ->setOptional(true)
                          ->setInputType(EnumInputType::datetime_local)
                          ->setSize(3)
-                         ->setMaxLength(20)
+                         ->setMaxLength(32)
                          ->setLabel(tr('Date time'));
     }
 
@@ -1862,7 +1862,7 @@ class DefinitionFactory
     {
         return DefinitionFactory::newDatabaseId($column)
                                 ->setDisabled(true)
-                                ->setSize(3)
+                                ->setSize(4)
                                 ->setLabel(tr('Created by'))
                                 ->setTooltip(tr('This column contains the user who created this object. Other users may have made further edits to this object, that information may be found in the object\'s meta data'))
                                 ->setInputType(EnumInputType::dbid)
@@ -1908,7 +1908,7 @@ class DefinitionFactory
                          ->setInputType(EnumInputType::datetime_local)
                          ->setDbNullInputType(EnumInputType::text)
                          ->addClasses('text-center')
-                         ->setSize(3)
+                         ->setSize(4)
                          ->setMaxLength(20)
                          ->setTooltip(tr('This column contains the exact date / time when this object was created'))
                          ->setLabel(tr('Created on'));
@@ -1926,8 +1926,8 @@ class DefinitionFactory
     {
         return DefinitionFactory::newDatabaseId($column)
                                 ->setDisabled(true)
-                                ->setSize(3)
-                                ->setLabel(tr('Modified by'))
+                                ->setSize(4)
+                                ->setLabel(tr('Last modified by'))
                                 ->setTooltip(tr('This column contains the user who last modified this object. Other users may have made earlier edits to this object, that information may be found in the object\'s meta data'))
                                 ->setInputType(EnumInputType::dbid)
                                 ->addValidationFunction(function (ValidatorInterface $o_validator) {
@@ -1972,10 +1972,10 @@ class DefinitionFactory
                          ->setInputType(EnumInputType::datetime_local)
                          ->setDbNullInputType(EnumInputType::text)
                          ->addClasses('text-center')
-                         ->setSize(3)
+                         ->setSize(4)
                          ->setMaxLength(20)
                          ->setTooltip(tr('This column contains the exact date / time when this object was last modified'))
-                         ->setLabel(tr('Modified on'));
+                         ->setLabel(tr('Last modified'));
     }
 
 
@@ -2059,7 +2059,7 @@ class DefinitionFactory
                          ->setInputType(EnumInputType::text)
                          ->setTooltip(tr('This column contains the current status of this object. A typical status is "Ok", but objects may also be "Deleted" or "In process", for example. Depending on their status, objects may be visible in tables, or not'))
                          ->addClasses('text-center')
-                         ->setSize(3)
+                         ->setSize(4)
                          ->setMaxLength(32)
                          ->setLabel(tr('Status'));
     }
