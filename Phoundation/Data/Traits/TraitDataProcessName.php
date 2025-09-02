@@ -48,7 +48,7 @@ trait TraitDataProcessName
      *
      * @return static
      */
-    public function setProcessName(?string $process_name, bool $make_safe = true): static
+    public function setProcessName(?string $process_name, bool $make_safe = false): static
     {
         if ($make_safe) {
             $process_name = Html::safe($process_name);

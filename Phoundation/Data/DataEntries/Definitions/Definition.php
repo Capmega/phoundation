@@ -1568,7 +1568,7 @@ class Definition implements DefinitionInterface
      *
      * @return static
      */
-    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = true): static
+    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static
     {
         if ($make_safe and !is_callable($content)) {
             $content = Html::safe($content);

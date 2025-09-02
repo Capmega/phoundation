@@ -48,7 +48,7 @@ trait TraitDataStringValue
      *
      * @return static
      */
-    public function setValue(?string $value, bool $make_safe = true): static
+    public function setValue(?string $value, bool $make_safe = false): static
     {
         if ($make_safe) {
             $value = Html::safe($value);

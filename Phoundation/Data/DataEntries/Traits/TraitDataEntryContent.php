@@ -41,7 +41,7 @@ trait TraitDataEntryContent
      *
      * @return static
      */
-    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = true): static
+    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static
     {
         return $this->set(get_null(Html::safe($content, $make_safe)), 'content');
     }

@@ -522,7 +522,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return static
      */
-    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = true): static;
+    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static;
 
 
     /**

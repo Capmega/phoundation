@@ -39,7 +39,7 @@ trait TraitDataContent
      *
      * @return static
      */
-    public function appendContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = true): static
+    public function appendContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static
     {
         $this->content = $this->content . Html::safe($content, $make_safe);
         return $this;
@@ -54,7 +54,7 @@ trait TraitDataContent
      *
      * @return static
      */
-    public function prependContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = true): static
+    public function prependContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static
     {
         $this->content = Html::safe($content, $make_safe) . $this->content;
         return $this;
@@ -88,7 +88,7 @@ trait TraitDataContent
      *
      * @return static
      */
-    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = true): static
+    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static
     {
         $this->content = get_null(Html::safe($content, $make_safe));
         return $this;
