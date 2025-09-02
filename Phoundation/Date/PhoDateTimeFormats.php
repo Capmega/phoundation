@@ -21,6 +21,8 @@ namespace Phoundation\Date;
 use Phoundation\Accounts\Config\Exception\ConfigurationInvalidException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
+use Phoundation\Date\Enums\EnumDateTimeWidth;
 use Phoundation\Date\Exception\UnsupportedDateFormatException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnsupportedException;
@@ -48,39 +50,27 @@ class PhoDateTimeFormats
     /**
      * Returns the default PHP date format string
      *
-     * @param bool $compact
+     * @param EnumDateTimeWidth $width
      *
      * @return string
      */
-    public static function getDefaultDateFormatPhp(bool $compact = false): string
+    public static function getDefaultDateFormatPhp(EnumDateTimeWidth $width = EnumDateTimeWidth::wide): string
     {
-        $default = static::getSupportedPhp()->get('date');
-
-        if (!is_string($default)) {
-            throw new ConfigurationInvalidException(tr('The default configuration value ":value" for the path "locale.formats.date" must be a string', [
-                ':value' => $default
-            ]));
-        }
-
-        if ($compact) {
-            $default = str_replace(' ', '', $default);
-        }
-
-        return $default;
+        return static::getSupportedPhp($width)->get('date');
     }
 
 
     /**
      * Returns the default JavaScript date format string
      *
-     * @param bool $lowercase
-     * @param bool $compact
+     * @param bool              $lowercase
+     * @param EnumDateTimeWidth $width
      *
      * @return string
      */
-    public static function getDefaultDateFormatJavaScript(bool $lowercase = false, bool $compact = false): string
+    public static function getDefaultDateFormatJavaScript(bool $lowercase = false, EnumDateTimeWidth $width = EnumDateTimeWidth::wide): string
     {
-        $default = static::getDefaultDateFormatPhp($compact);
+        $default = static::getDefaultDateFormatPhp($width);
         $default = static::convertPhpToJs($default);
 
         if ($lowercase) {
@@ -94,39 +84,27 @@ class PhoDateTimeFormats
     /**
      * Returns the default PHP time format string
      *
-     * @param bool $compact
+     * @param EnumDateTimeWidth $width
      *
      * @return string
      */
-    public static function getDefaultTimeFormatPhp(bool $compact = false): string
+    public static function getDefaultTimeFormatPhp(EnumDateTimeWidth $width = EnumDateTimeWidth::wide): string
     {
-        $default = static::getSupportedPhp()->get('time');
-
-        if (!is_string($default)) {
-            throw new ConfigurationInvalidException(tr('The default configuration value ":value" for the path "locale.formats.time" must be a string', [
-                ':value' => $default
-            ]));
-        }
-
-        if ($compact) {
-            $default = str_replace(' ', '', $default);
-        }
-
-        return $default;
+        return static::getSupportedPhp($width)->get('time');
     }
 
 
     /**
      * Returns the default JavaScript time format string
      *
-     * @param bool $lowercase
-     * @param bool $compact
+     * @param bool              $lowercase
+     * @param EnumDateTimeWidth $width
      *
      * @return string
      */
-    public static function getDefaultTimeFormatJavaScript(bool $lowercase = false, bool $compact = false): string
+    public static function getDefaultTimeFormatJavaScript(bool $lowercase = false, EnumDateTimeWidth $width = EnumDateTimeWidth::wide): string
     {
-        $default = static::getDefaultTimeFormatPhp($compact);
+        $default = static::getDefaultTimeFormatPhp($width);
         $default = static::convertPhpToJs($default);
 
         if ($lowercase) {
@@ -140,39 +118,27 @@ class PhoDateTimeFormats
     /**
      * Returns the default PHP date format string
      *
-     * @param bool $compact
+     * @param EnumDateTimeWidth $width
      *
      * @return string
      */
-    public static function getDefaultDateTimeFormatPhp(bool $compact = false): string
+    public static function getDefaultDateTimeFormatPhp(EnumDateTimeWidth $width = EnumDateTimeWidth::wide): string
     {
-        $default = static::getSupportedPhp()->get('datetime');
-
-        if (!is_string($default)) {
-            throw new ConfigurationInvalidException(tr('The default configuration value ":value" for the path "locale.formats.date" must be a string', [
-                ':value' => $default
-            ]));
-        }
-
-        if ($compact) {
-            $default = str_replace(' ', '', $default);
-        }
-
-        return str_replace('>>TIMESEPARATOR<<', config()->getString('locale.dates.formats.separator', ' '), $default);
+        return static::getSupportedPhp()->get('datetime');
     }
 
 
     /**
      * Returns the default JavaScript date format string
      *
-     * @param bool $lowercase
-     * @param bool $compact
+     * @param bool              $lowercase
+     * @param EnumDateTimeWidth $width
      *
      * @return string
      */
-    public static function getDefaultDateTimeFormatJavaScript(bool $lowercase = false, bool $compact = false): string
+    public static function getDefaultDateTimeFormatJavaScript(bool $lowercase = false, EnumDateTimeWidth $width = EnumDateTimeWidth::wide): string
     {
-        $default = static::getDefaultDateTimeFormatPhp($compact);
+        $default = static::getDefaultDateTimeFormatPhp($width);
         $default = static::convertPhpToJs($default);
 
         if ($lowercase) {
@@ -186,28 +152,218 @@ class PhoDateTimeFormats
     /**
      * Returns the supported JavaScript date format strings
      *
+     * @note These supported formats come from PhoDateTimeFormats::
+     *
+     * @note These
+     *
+     * @note This method will cache both compact and full format lists internally
+     *
+     * @param EnumDateTimeWidth $width
+     *
      * @return IteratorInterface
      */
-    public static function getSupportedJavaScript(): IteratorInterface
+    public static function getSupportedJavaScript(EnumDateTimeWidth $width = EnumDateTimeWidth::default): IteratorInterface
     {
-        $supported = static::getSupportedPhp();
+        static $return_wide, $return_normal, $return_compact;
 
-        foreach ($supported as &$date) {
-            $date = PhoDateTimeFormats::convertPhpToJs($date);
+        switch (static::resolveDefaultWidth($width)) {
+            case EnumDateTimeWidth::wide:
+                if (empty($return_wide)) {
+                    $return_wide = static::getSupportedPhp($width);
+
+                    foreach ($return_wide as &$date) {
+                        $date = PhoDateTimeFormats::convertPhpToJs($date);
+                    }
+
+                    $return_wide = static::getCleanDates($width);
+                }
+
+                return $return_wide;
+
+            case EnumDateTimeWidth::compact:
+                if (empty($return_compact)) {
+                    $return_compact = static::getSupportedPhp($width);
+
+                    foreach ($return_compact as &$date) {
+                        $date = PhoDateTimeFormats::convertPhpToJs($date);
+                    }
+
+                    $return_compact = static::getCleanDates($width);
+                }
+
+                return $return_compact;
+
+            case EnumDateTimeWidth::normal:
+                // no break
+
+            default:
+                if (empty($return_normal)) {
+                    $return_normal = static::getSupportedPhp($width);
+
+                    foreach ($return_normal as &$date) {
+                        $date = PhoDateTimeFormats::convertPhpToJs($date);
+                    }
+
+                    $return_normal = static::getCleanDates($width);
+                }
+
+                return $return_normal;
         }
-
-        return $supported;
     }
 
 
     /**
      * Returns the supported PHP date format strings
      *
+     * @note These supported formats come from configuration path "locale.formats.date" and default to the list specified in PhoDateTimeFormats::$defaults
+     *
+     * @note This method will cache both compact and full format lists internally
+     *
+     * @param EnumDateTimeWidth $width
+     *
      * @return IteratorInterface
      */
-    public static function getSupportedPhp(): IteratorInterface
+    public static function getSupportedPhp(EnumDateTimeWidth $width = EnumDateTimeWidth::default): IteratorInterface
     {
-        return config()->getIteratorObject('locale.formats.date', static::$defaults);
+        static $return_wide, $return_normal, $return_compact;
+
+        switch (static::resolveDefaultWidth($width)) {
+            case EnumDateTimeWidth::wide:
+                if (empty($return_wide)) {
+                    $return_wide = static::getCleanDates($width);
+                }
+
+                return $return_wide;
+
+            case EnumDateTimeWidth::compact:
+                if (empty($return_compact)) {
+                    $return_compact = static::getCleanDates($width);
+                }
+
+                return $return_compact;
+
+            case EnumDateTimeWidth::normal:
+                // no break;
+
+            default:
+                if (empty($return_normal)) {
+                    $return_normal = static::getCleanDates($width);
+                }
+
+                return $return_normal;
+        }
+    }
+
+
+    /**
+     * Returns a list of clean dates
+     *
+     * @param EnumDateTimeWidth $width
+     *
+     * @return IteratorInterface
+     */
+    protected static function getCleanDates(EnumDateTimeWidth $width): IteratorInterface
+    {
+        $return = config()->getArray('locale.formats.date', static::$defaults);
+
+        foreach ($return as &$date) {
+            $date = static::cleanDateFormat($date, $width);
+        }
+
+        return new Iterator($return);
+    }
+
+
+    /**
+     * Checks and formats the given date
+     *
+     * @note Will throw a ConfigurationInvalidException exception if the specified date is not a string
+     *
+     * @param mixed             $date
+     * @param EnumDateTimeWidth $width
+     *
+     * @return string
+     */
+    public static function cleanDateFormat(mixed $date, EnumDateTimeWidth $width): string
+    {
+        if (!is_string($date)) {
+            throw new ConfigurationInvalidException(tr('The default configuration value ":value" for the path "locale.formats.date" must be a string', [
+                ':value' => $date
+            ]));
+        }
+
+        switch (static::resolveDefaultWidth($width)) {
+            case EnumDateTimeWidth::normal:
+                $date = str_replace(' ', '', $date);
+                // no break
+
+            case EnumDateTimeWidth::wide:
+                $date = str_replace('>>TIMESEPARATOR<<', PhoDateTimeFormats::getConfiguredSeparator(), $date);
+                break;
+
+            case EnumDateTimeWidth::compact:
+                $date = str_replace(' ', '', $date);
+                $date = str_replace('>>TIMESEPARATOR<<', PhoDateTimeFormats::getConfiguredSeparator(), $date);
+                $date = str_replace([' ', '/', '\\', ':', '-', '_'], '', $date);
+                break;
+        }
+
+        return $date;
+    }
+
+
+    /**
+     * Returns the correct default width for EnumDateTimeWidth::default
+     *
+     * @param EnumDateTimeWidth|null $width
+     *
+     * @return EnumDateTimeWidth
+     */
+    public static function resolveDefaultWidth(?EnumDateTimeWidth $width = null): EnumDateTimeWidth
+    {
+        if ($width === EnumDateTimeWidth::default) {
+            return PhoDateTimeFormats::getConfiguredWidth();
+        }
+
+        return $width;
+    }
+
+
+    /**
+     * Returns the configured default separator
+     *
+     * @param string $default
+     *
+     * @return string
+     */
+    public static function getConfiguredSeparator(string $default = ' '): string
+    {
+        static $return;
+
+        if (!isset($return)) {
+            $return = config()->getString('locale.dates.formats.separator', $default);
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the configured default width for EnumDateTimeWidth::default
+     *
+     * @param string $default
+     *
+     * @return EnumDateTimeWidth
+     */
+    public static function getConfiguredWidth(string $default = EnumDateTimeWidth::normal->value): EnumDateTimeWidth
+    {
+        static $return;
+
+        if (!isset($return)) {
+            $return = EnumDateTimeWidth::from(config()->getString('locale.dates.formats.width', $default));
+        }
+
+        return $return;
     }
 
 
@@ -217,7 +373,9 @@ class PhoDateTimeFormats
      * @param string $php_format
      *
      * @return string
+     *
      * @todo This conversion method is incomplete! Complete it when possible
+     *
      * @see https://www.php.net/manual/en/datetime.format.php for PHP date/time formatting options
      * @see https://blog.stevenlevithan.com/archives/javascript-date-format
      * @see https://momentjs.com/docs/#/displaying/format/ for JavaScript date/time formatting options
@@ -616,7 +774,7 @@ class PhoDateTimeFormats
     public static function normalizeDateFormat(Stringable|string $format, string $date_replace = '-', string $time_replace = ':', string $date_time_replace = ' ', string $microsecond_replace = '.'): string
     {
         $format = trim((string) $format);
-        $format = str_replace('>>TIMESEPARATOR<<', config()->getString('locale.dates.formats.separator', ' '), $format);
+        $format = str_replace('>>TIMESEPARATOR<<', PhoDateTimeFormats::getConfiguredSeparator(), $format);
 
         // Do we have a datetime or date? Try matching something like DD-MM-YYYY HH:MM:II (and maybe microseconds)
         if (preg_match_all('/^([a-z]+)[^a-z]+([a-z]+)[^a-z]+([a-z]+)[^a-z]+([a-z]+)[^a-z]+([a-z]+)[^a-z]+([a-z]+)(?:[^a-z]+([a-z]+))?$/i', $format, $matches)) {

@@ -23,8 +23,10 @@ use DateTimeInterface;
 use DateTimeZone;
 use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
 use Phoundation\Accounts\Users\Sessions\Session;
+use Phoundation\Core\Core;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\Enums\EnumDateTimeSegment;
+use Phoundation\Date\Enums\EnumDateTimeWidth;
 use Phoundation\Date\Exception\DateIntervalException;
 use Phoundation\Date\Exception\DateTimeException;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
@@ -370,11 +372,11 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      * y    A two digit representation of a year    Examples: 99 or 03
      *
      * Time    ---    ---
-     * a    Lowercase Ante meridiem and Post meridiem    am or pm
-     * A    Uppercase Ante meridiem and Post meridiem    AM or PM
+     * a    Lowercase Ante meridiem and Post meridiem       am or pm
+     * A    Uppercase Ante meridiem and Post meridiem       AM or PM
      * B    Swatch Internet time    000 through 999
-     * g    12-hour format of an hour without leading zeros    1 through 12
-     * G    24-hour format of an hour without leading zeros    0 through 23
+     * g    12-hour format of an hour without leading zeros  1 through 12
+     * G    24-hour format of an hour without leading zeros  0 through 23
      * h    12-hour format of an hour with leading zeros    01 through 12
      * H    24-hour format of an hour with leading zeros    00 through 23
      * i    Minutes with leading zeros    00 to 59
@@ -400,13 +402,13 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      * U    Seconds since the Unix Epoch (January 1, 1970 00:00:00 GMT)    See also time()
      *
      * @param EnumDateFormat|string|null $format
-     * @param bool                       $compact
+     * @param EnumDateTimeWidth          $width
      *
      * @return string
      */
-    public function format(EnumDateFormat|string|null $format = null, bool $compact = false): string
+    public function format(EnumDateFormat|string|null $format = null, EnumDateTimeWidth $width = EnumDateTimeWidth::default): string
     {
-        return parent::format(static::parseFormat($format, $compact));
+        return parent::format(static::parseFormat($format, $width));
     }
 
 
@@ -414,13 +416,12 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      * Applies specific format strings
      *
      * @param EnumDateFormat|string|null $format
-     * @param bool                       $compact
+     * @param EnumDateTimeWidth          $width
      *
      * @return string
      * @todo Currently the human_* formats come from configuration, maybe this is better coming from locale?
-     *
      */
-    protected static function parseFormat(EnumDateFormat|string|null $format = null, bool $compact = false): string
+    protected static function parseFormat(EnumDateFormat|string|null $format = null, EnumDateTimeWidth $width = EnumDateTimeWidth::default): string
     {
         $format = match ($format) {
             EnumDateFormat::user_time       => Session::getLocaleObject()->getTimeFormatPhp(),
@@ -438,11 +439,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
             default                         => $format,
         };
 
-        if ($compact) {
-            return str_replace('>>TIMESEPARATOR<<', ' ', str_replace(' ', '', $format));
-        }
-
-        return $format;
+        return PhoDateTimeFormats::cleanDateFormat($format, $width);
     }
 
 
