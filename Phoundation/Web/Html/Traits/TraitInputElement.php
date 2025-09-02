@@ -183,7 +183,7 @@ trait TraitInputElement
      *
      * @return static
      */
-    public function setValue(Stringable|string|float|int|null $value, bool $make_safe = true): static
+    public function setValue(Stringable|string|float|int|null $value, bool $make_safe = false): static
     {
         if ($make_safe) {
             $this->value = Html::safe($value);

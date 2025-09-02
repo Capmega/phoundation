@@ -291,7 +291,7 @@ interface ElementAttributesInterface extends ContentObjectInterface
      *
      * @return static
      */
-    public function appendContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = true): static;
+    public function appendContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static;
 
 
     /**
@@ -302,7 +302,7 @@ interface ElementAttributesInterface extends ContentObjectInterface
      *
      * @return static
      */
-    public function prependContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = true): static;
+    public function prependContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static;
 
     /**
      * Returns the height of the element to display

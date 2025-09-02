@@ -61,7 +61,7 @@ class Button extends Input implements ButtonInterface
      * @return static
      * @todo add documentation for when button is floating as it is unclear what is happening there
      */
-    public function setValue(Stringable|string|float|int|null $value, bool $make_safe = true): static
+    public function setValue(Stringable|string|float|int|null $value, bool $make_safe = false): static
     {
         if ($this->floating) {
             // What does this do?????????????
@@ -103,7 +103,7 @@ class Button extends Input implements ButtonInterface
      * @return static
      * @todo add documentation for when button is floating as it is unclear what is happening there
      */
-    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = true): static
+    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static
     {
         if ($this->floating) {
             // What does this do?????????????

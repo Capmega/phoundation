@@ -36,7 +36,7 @@ interface ValueInterface
      *
      * @return static
      */
-    public function setValue(Stringable|string|float|int|null $value, bool $make_safe = true): static;
+    public function setValue(Stringable|string|float|int|null $value, bool $make_safe = false): static;
 
     /**
      * Returns the HTML "null_display" element attribute

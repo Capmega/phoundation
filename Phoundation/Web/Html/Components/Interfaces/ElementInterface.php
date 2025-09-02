@@ -38,7 +38,7 @@ interface ElementInterface extends ComponentInterface, ElementAttributesInterfac
      *
      * @return static
      */
-    public function appendContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = true): static;
+    public function appendContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static;
 
 
     /**
@@ -49,7 +49,7 @@ interface ElementInterface extends ComponentInterface, ElementAttributesInterfac
      *
      * @return static
      */
-    public function prependContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = true): static;
+    public function prependContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static;
 
 
     /**

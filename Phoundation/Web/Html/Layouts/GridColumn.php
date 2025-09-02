@@ -51,7 +51,7 @@ class GridColumn extends Layout
      *
      * @return static
      */
-    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = true, EnumDisplaySize|int|null $size = null): static
+    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false, EnumDisplaySize|int|null $size = null): static
     {
         if ($size !== null) {
             $this->setSize($size);

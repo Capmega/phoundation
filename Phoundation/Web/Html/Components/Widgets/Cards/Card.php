@@ -480,7 +480,7 @@ class Card extends Widget
     /**
      * @inheritDoc
      */
-    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = true): static
+    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static
     {
         if ($content !== null) {
             if (!empty($this->tabs)) {

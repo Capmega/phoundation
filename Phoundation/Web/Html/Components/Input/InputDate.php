@@ -61,7 +61,7 @@ class InputDate extends InputText
      *
      * @return static
      */
-    public function setValue(PhoDateTimeInterface|Stringable|string|float|int|null $value, bool $make_safe = true): static
+    public function setValue(PhoDateTimeInterface|Stringable|string|float|int|null $value, bool $make_safe = false): static
     {
         if ($value instanceof PhoDateTimeInterface) {
             $value = $value->format($this->getDateFormat(Session::getLocaleObject()->getDateFormatPhp()));

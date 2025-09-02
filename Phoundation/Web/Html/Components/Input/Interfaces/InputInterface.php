@@ -44,7 +44,7 @@ interface InputInterface extends ElementInterface, BeforeAfterContentInterface
      *
      * @return static
      */
-    public function setDescription(?string $description, bool $make_safe = true): static;
+    public function setDescription(?string $description, bool $make_safe = false): static;
 
 
     /**
