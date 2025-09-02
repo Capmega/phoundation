@@ -722,7 +722,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         $first = true;
 
         foreach ($this->columns as $column) {
-            $value         = isset_get($row_values[$column]);
+            $value         = array_get_safe($row_values, $column);
             $made_checkbox = false;
 
             if ($first) {
@@ -731,7 +731,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
                 $first = false;
 
                 $params['htmlentities'] = !($this->process_entities or $made_checkbox);
-                $params['no_url']       = (isset_get($params['no_url'], false) or $made_checkbox or !$value);
+                $params['no_url']       = (array_get_safe($params, 'no_url', false) or $made_checkbox or !$value);
 
                 // If HtmlTable::renderCheckboxColumn() returned NULL, it means that we should not render this cell
                 if ($value !== null) {
@@ -897,7 +897,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
             $url = $this->row_url;
         }
 
-        if (isset_get($params['no_url'])) {
+        if (array_get_safe($params, 'no_url')) {
             $url = null;
         }
 
@@ -1030,7 +1030,8 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
                 $this->anchors[$url] = $o_anchor;
             }
 
-            return $o_anchor->setHref($anchor_url, false)
+            return $o_anchor->clearRenderCache() // TODO Remove this once setting Element attributes automatically clears the render cache!
+                            ->setHref($anchor_url, false)
                             ->setContent($value)
                             ->render();
         }
