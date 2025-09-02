@@ -251,19 +251,8 @@ class Connector extends DataEntry implements ConnectorInterface
             }
         }
 
-        try {
-            // Load connector data and automatically cache it in the Datastores object
-            parent::load($identifier, $on_null_identifier, $on_not_exists);
-
-            // TODO $this->identifier['name'] should always exist for a connector, but what if someone specified $identifier['id'] ???
-            Databases::getConnectorsObject()->add($this, $this->getUniqueColumnValue(), exception: false);
-            return $this;
-
-        } catch (DataEntryNotExistsException $e) {
-            throw ConnectorNotExistsException::new(tr('The connector ":connector" does not exist', [
-                ':connector' => $identifier,
-            ]), $e);
-        }
+        Databases::getConnectorsObject()->add($this, $this->getUniqueColumnValue(), exception: false);
+        return $this;
     }
 
 
