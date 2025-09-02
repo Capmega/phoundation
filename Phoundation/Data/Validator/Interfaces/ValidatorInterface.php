@@ -21,17 +21,14 @@ use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Interfaces\IteratorBaseInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Date\Enums\EnumDateTimeWidth;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
-use Phoundation\Date\PhoDateTime;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use ReturnTypeWillChange;
 use Stringable;
 use Throwable;
-use UnitEnum;
 
 
 interface ValidatorInterface extends IteratorBaseInterface
@@ -566,7 +563,7 @@ interface ValidatorInterface extends IteratorBaseInterface
      *
      * @return static
      */
-    public function isDateTime(EnumDateTimeWidth $width = EnumDateTimeWidth::default): static
+    public function isDateTime(EnumDateTimeWidth $width = EnumDateTimeWidth::default): static;
 
     /**
      * Validates that the selected field is in the past
