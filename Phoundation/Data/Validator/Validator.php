@@ -48,6 +48,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
+use Phoundation\Date\Enums\EnumDateTimeWidth;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDate;
 use Phoundation\Date\PhoDateTime;
@@ -3833,16 +3834,16 @@ throw new ObsoleteException();
      * @todo Add locale support, see https://www.php.net/manual/en/book.intl.php and
      *       https://stackoverflow.com/questions/8827514/get-date-format-according-to-the-locale-in-php (INTL section)
      *
-     * @param array|string|null $formats
+     * @param EnumDateTimeWidth $width
      *
      * @return static
      */
-    public function isDateTime(array|string|null $formats = null): static
+    public function isDateTime(EnumDateTimeWidth $width = EnumDateTimeWidth::default): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($formats) {
+        return $this->validateValues(function (&$value) use ($width) {
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
             $this->sanitizeTrim()
                  ->hasMaxCharacters(32);
@@ -3853,11 +3854,8 @@ throw new ObsoleteException();
             }
 
             // Ensure we have formats to work with
-            if (!$formats) {
-                // Default to a number of acceptable formats
-                $formats = PhoDateTimeFormats::getSupportedPhp();
-            }
-
+            // Default to a number of acceptable formats
+            $formats = PhoDateTimeFormats::getSupportedPhp($width);
             $formats = Arrays::force($formats, null);
 
             // If the datetime has milliseconds or microseconds, then remove those

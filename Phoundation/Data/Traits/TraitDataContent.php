@@ -90,7 +90,7 @@ trait TraitDataContent
      */
     public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static
     {
-        $this->content = get_null(Html::safe($content, $make_safe));
+        $this->content = Html::safe($content, $make_safe);
         return $this;
     }
 }
