@@ -36,9 +36,11 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\Exception\IteratorDataTypeNotAcceptedException;
 use Phoundation\Data\Exception\IteratorException;
 use Phoundation\Data\Exception\IteratorKeyExistsException;
 use Phoundation\Data\Exception\IteratorKeyNotExistsException;
+use Phoundation\Data\Exception\IteratorValidatorFailedException;
 use Phoundation\Data\Interfaces\ArraySourceInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataArraySource;
@@ -56,6 +58,7 @@ use Phoundation\Databases\Sql\Limit;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Input\InputSelect;
@@ -415,7 +418,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        $this->checkDataTypeAndContent($value, $key);
+        $value = $this->checkDataTypeAndContent($value, $key);
 
         // NULL keys will be added as numerical "next" entries
         if ($key === null) {
@@ -448,14 +451,15 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      * @param mixed                            $value
      * @param Stringable|string|float|int|null $key
      *
-     * @return void
+     * @return mixed
+     * @throws IteratorDataTypeNotAcceptedException | IteratorValidatorFailedException
      */
-    protected function checkDataTypeAndContent(mixed $value, Stringable|string|float|int|null $key = null): void
+    protected function checkDataTypeAndContent(mixed $value, Stringable|string|float|int|null $key = null): mixed
     {
         if ($this->accepted_data_types) {
             if (!is_datatype_or_class($this->accepted_data_types, $value)) {
                 // Failed data Tests
-                throw new OutOfBoundsException(tr('Iterator value argument is restricted to type(s) ":allowed", value ":value" has datatype ":type"', [
+                throw new IteratorDataTypeNotAcceptedException(tr('Iterator value argument is restricted to type(s) ":allowed", value ":value" has datatype ":type"', [
                     ':value'   => $value,
                     ':type'    => (is_object($value) ? get_class($value) : gettype($value)),
                     ':allowed' => Strings::force($this->accepted_data_types, ', '),
@@ -467,7 +471,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         if (isset($this->validators)) {
             foreach ($this->validators as $name => $o_validator) {
                 if (!$o_validator($value)) {
-                    throw OutOfBoundsException::new(tr('Iterator value argument ":key" with value ":value" failed to pass validator ":validator"', [
+                    throw IteratorValidatorFailedException::new(tr('Iterator value argument ":key" with value ":value" failed to pass validator ":validator"', [
                         ':key'       => $key ?? tr('N/A'),
                         ':value'     => $value,
                         ':validator' => $name,
@@ -482,6 +486,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         }
 
         // Passed both datatype and validator Tests, yay!
+        return $value;
     }
 
 
@@ -577,7 +582,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        $this->checkDataTypeAndContent($value, $key);
+        $value = $this->checkDataTypeAndContent($value, $key);
 
         // NULL keys will be added as numerical "first" entries
         if ($key === null) {
@@ -621,7 +626,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        $this->checkDataTypeAndContent($value, $key);
+        $value = $this->checkDataTypeAndContent($value, $key);
 
         // Ensure the before key exists
         if (!array_key_exists($before, $this->source)) {
@@ -696,7 +701,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        $this->checkDataTypeAndContent($value, $key);
+        $value = $this->checkDataTypeAndContent($value, $key);
 
         // Ensure the after key exists
         if (!array_key_exists($after, $this->source)) {
@@ -746,7 +751,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        $this->checkDataTypeAndContent($value, $key);
+        $value = $this->checkDataTypeAndContent($value, $key);
 
         // Ensure the before key exists
         $before_key = array_search($before, $this->source, $strict);
@@ -798,7 +803,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        $this->checkDataTypeAndContent($value, $key);
+        $value = $this->checkDataTypeAndContent($value, $key);
 
         // Ensure the after value exists
         $after_key = array_search($after, $this->source, $strict);
@@ -1056,10 +1061,16 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      * Sets the datatype restrictions for all elements in this iterator, NULL if none
      *
      * @param array|string|null $data_types
+     * @param bool              $overwrite
+     *
      * @return static
      */
-    public function setAcceptedDataTypes(array|string|null $data_types): static
+    public function setAcceptedDataTypes(array|string|null $data_types, bool $overwrite = true): static
     {
+        if ($this->accepted_data_types and !$overwrite) {
+            return $this;
+        }
+
         $data_types = Arrays::force($data_types, '|');
 
         foreach ($data_types as $data_type) {
@@ -1077,6 +1088,13 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         }
 
         $this->accepted_data_types = $data_types;
+
+        if ($this->source) {
+            // This iterator already contains a data source! Ensure all entries match the accepted datatypes
+            foreach ($this->source as $key => &$value) {
+                $value = $this->checkDataTypeAndContent($value, $key);
+            }
+        }
 
         return $this;
     }
@@ -2042,13 +2060,11 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Returns a cache key for this object
      *
-     * @param String|null $append_string
-     *
      * @return string|null
      */
-    public function getCacheKeySeed(?String $append_string = null): ?string
+    public function getCacheKeySeed(): ?string
     {
-        return static::class . '-' . Request::getTargetObject()->getRootname() . ($this->o_parent ? '-' . $this->o_parent::class . '-' . $this->o_parent->getId() : '') . $append_string;
+        return PROJECT . '#Iterator#' . static::class . '#' . Json::encode([Request::getTargetObject()->getRootname(), $this->getName(), ($this->o_parent ? ($this->o_parent::class . '-' . $this->o_parent->getId()) : '')]);
     }
 
 

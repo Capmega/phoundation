@@ -22,6 +22,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Filesystem\PhoFiles;
 use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
 use Phoundation\Filesystem\Interfaces\PhoUploadedFileInterface;
+use Phoundation\Filesystem\PhoUploadedFile;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Http\Url;
@@ -94,7 +95,7 @@ class UploadHandler implements UploadHandlerInterface
     {
         if (empty($this->files)) {
             $this->files = new PhoFiles();
-            $this->files->setAcceptedDataTypes(PhoUploadedFileInterface::class)
+            $this->files->setAcceptedDataTypes(PhoUploadedFile::class)
                         ->getRestrictionsObject()
                             ->addDirectory(DIRECTORY_TMP, true)
                             ->addDirectory('/tmp/', true);

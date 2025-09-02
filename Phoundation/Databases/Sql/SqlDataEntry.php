@@ -370,7 +370,7 @@ class SqlDataEntry implements SqlDataEntryInterface
 
         // Log meta_id action
         if ($this->o_data_entry->isMetaColumn('meta_id')) {
-            if ($this->meta_enabled) {
+            if ($this->getMetaEnabled()) {
                 Meta::get($row['meta_id'])
                     ->action($meta_action, $comments, $diff);
             }
@@ -552,7 +552,7 @@ class SqlDataEntry implements SqlDataEntryInterface
         }
 
         // Update the meta data
-        if ($this->meta_enabled) {
+        if ($this->getMetaEnabled()) {
             Meta::get($entry->getMetaId(), false)
                 ->action(tr('Changed status'), $comments, Json::encode([
                     'status' => $status,

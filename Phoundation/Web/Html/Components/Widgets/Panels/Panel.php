@@ -26,7 +26,7 @@ use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Icons\Icon;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Logo;
-use Phoundation\Web\Html\Components\Widgets\Breadcrumbs;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\ImageMenu;
 use Phoundation\Web\Html\Components\Widgets\LanguagesDropDown;
 use Phoundation\Web\Html\Components\Widgets\Menus\Interfaces\MenuInterface;
@@ -39,7 +39,6 @@ use Phoundation\Web\Html\Components\Widgets\ProfileImage;
 use Phoundation\Web\Html\Enums\EnumBootstrapColor;
 use Phoundation\Web\Html\Traits\TraitBootstrapColor;
 use Phoundation\Web\Html\Traits\TraitMode;
-
 
 abstract class Panel extends ElementsBlock implements PanelInterface
 {
@@ -152,7 +151,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     {
         if (empty($this->logos)) {
             $this->logos = Iterator::new()
-                                   ->setAcceptedDataTypes('object:' . Logo::class);
+                                   ->setAcceptedDataTypes(Logo::class);
         }
 
         return $this->logos;
@@ -168,7 +167,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     {
         if (empty($this->menus)) {
             $this->menus = Iterator::new()
-                                   ->setAcceptedDataTypes('object:' . Menu::class);
+                                   ->setAcceptedDataTypes(Menu::class);
         }
 
         return $this->menus;
@@ -184,7 +183,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     {
         if (empty($this->buttons)) {
             $this->buttons = Iterator::new()
-                                     ->setAcceptedDataTypes('object:' . Button::class);
+                                     ->setAcceptedDataTypes(Button::class);
         }
 
         return $this->buttons;
@@ -199,8 +198,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     public function getBreadcrumbs(): IteratorInterface
     {
         if (empty($this->breadcrumbs)) {
-            $this->breadcrumbs = Iterator::new()
-                                         ->setAcceptedDataTypes('object:' . Breadcrumbs::class);
+            $this->breadcrumbs = Iterator::new()->setAcceptedDataTypes(Breadcrumb::class);
         }
 
         return $this->breadcrumbs;
@@ -232,7 +230,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     {
         if (empty($this->avatars)) {
             $this->avatars = Iterator::new()
-                                     ->setAcceptedDataTypes('object:' . Avatar::class);
+                                     ->setAcceptedDataTypes(Avatar::class);
         }
 
         return $this->avatars;
@@ -248,7 +246,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     {
         if (empty($this->icons)) {
             $this->icons = Iterator::new()
-                                   ->setAcceptedDataTypes('object:' . Icon::class);
+                                   ->setAcceptedDataTypes(Icon::class);
         }
 
         return $this->icons;

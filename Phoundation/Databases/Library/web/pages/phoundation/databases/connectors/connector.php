@@ -21,10 +21,10 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
-use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -216,11 +216,11 @@ Response::setPageTitle(tr('Connector :connector', [':connector' => $connector->g
 Response::setHeaderTitle(tr('Connector'));
 Response::setHeaderSubTitle($connector->getDisplayName() . ($connector->sourceLoadedFromConfiguration() ? ' [' . tr('Configured') . ']' : ''));
 Response::setBreadcrumbs([
-    Anchor::new('/'                                                , tr('Home')),
-    Anchor::new('/system-administration.html'                      , tr('System administration')),
-    Anchor::new('/phoundation/databases.html'                      , tr('Databases')),
-    Anchor::new('/phoundation/databases/connectors/connectors.html', tr('Connectors')),
-    Anchor::new(''                                                 , $connector->getDisplayName()),
+    Breadcrumb::new('/'                                                , tr('Home')),
+    Breadcrumb::new('/system-administration.html'                      , tr('System administration')),
+    Breadcrumb::new('/phoundation/databases.html'                      , tr('Databases')),
+    Breadcrumb::new('/phoundation/databases/connectors/connectors.html', tr('Connectors')),
+    Breadcrumb::new(''                                                 , $connector->getDisplayName()),
 ]);
 
 

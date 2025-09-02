@@ -13,8 +13,8 @@
 declare(strict_types=1);
 
 use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
@@ -23,13 +23,16 @@ use Phoundation\Web\Requests\Response;
 // No get parameters allowed
 GetValidator::new()->validate();
 
+
 // Set page meta data
 Response::setHeaderTitle(tr('My reports page'));
 Response::setBreadcrumbs([
-   Anchor::new('/', tr('Home')),
-   Anchor::new('' , tr('Reports')),
+   Breadcrumb::new('/', tr('Home')),
+   Breadcrumb::new('' , tr('Reports')),
 ]);
 
+
+// Return the card
 return Card::new()
            ->setTitle(tr('Reports available to me'))
            ->setContent(AnchorBlock::new(Url::new('/timesheets/my-timesheet-reports/review.html')->makeWww(), tr('Review & submit')) .

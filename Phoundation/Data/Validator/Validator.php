@@ -3980,7 +3980,7 @@ throw new ObsoleteException();
                 return;
             }
 
-            $cards = [
+            $o_cards = [
                 'Amex Card'          => '^3[47][0-9]{13}$',
                 'BCGlobal'           => '^(6541|6556)[0-9]{12}$',
                 'Carte Blanche Card' => '^389[0-9]{11}$',
@@ -3999,7 +3999,7 @@ throw new ObsoleteException();
                 'Visa Master Card'   => '^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14})$',
             ];
 
-            foreach ($cards as $regex) {
+            foreach ($o_cards as $regex) {
                 if (preg_match($regex, $value)) {
                     return;
                 }

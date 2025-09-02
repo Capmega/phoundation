@@ -53,24 +53,24 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
     /**
      * Automatically apply current filters to the query builder
      *
-     * @param QueryBuilderInterface $builder
+     * @param QueryBuilderInterface $o_builder
      *
      * @return static
      */
-    public function applyFiltersToQueryBuilder(QueryBuilderInterface $builder): static
+    public function applyFiltersToQueryBuilder(QueryBuilderInterface $o_builder): static
     {
-        if ($this->apply_filters->keyExists('severity') and $this->o_definitions->isRendered('severity', false)) {
+        if ($this->o_applied_filters->keyExists('severity') and $this->o_definitions->isRendered('severity', false)) {
             if ($this->getSeverities()) {
                 $values = SqlQueries::in($this->getSeverities());
-                $builder->addWhere('`security_incidents`.`severity` IN (' . SqlQueries::inColumns($values) . ')', $values);
+                $o_builder->addWhere('`security_incidents`.`severity` IN (' . SqlQueries::inColumns($values) . ')', $values);
             }
         }
 
-        $this->apply_filters->removeKeys([
+        $this->o_applied_filters->removeKeys([
             'severity',
         ]);
 
-        return parent::applyFiltersToQueryBuilder($builder);
+        return parent::applyFiltersToQueryBuilder($o_builder);
     }
 
 

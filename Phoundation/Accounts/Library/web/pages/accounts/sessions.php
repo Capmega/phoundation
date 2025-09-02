@@ -15,9 +15,9 @@
 declare(strict_types=1);
 
 use Phoundation\Data\Iterator;
-use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Forms\FilterForm;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -77,25 +77,25 @@ if ($o_user) {
     Response::setHeaderTitle(tr('Sessions for user'));
     Response::setHeaderSubTitle($o_user->getDisplayName());
     Response::setBreadcrumbs([
-        Anchor::new('/'                          , tr('Home')),
-        Anchor::new('/accounts/users.html'       , tr('Users')),
-        Anchor::new('/accounts/session+:ROW.html', $o_user->getDisplayName()),
-        Anchor::new(''                           , tr('Sessions')),
+        Breadcrumb::new('/'                          , tr('Home')),
+        Breadcrumb::new('/accounts/users.html'       , tr('Users')),
+        Breadcrumb::new('/accounts/session+:ROW.html', $o_user->getDisplayName()),
+        Breadcrumb::new(''                           , tr('Sessions')),
     ]);
 
 } else {
     // Set page meta data
     Response::setHeaderTitle(tr('User sessions'));
     Response::setBreadcrumbs([
-        Anchor::new('/'                   , tr('Home')),
-        Anchor::new('/accounts.html'      , tr('Accounts')),
-        Anchor::new('/accounts/users.html', tr('Users')),
-        Anchor::new(''                    , tr('Sessions')),
+        Breadcrumb::new('/'                   , tr('Home')),
+        Breadcrumb::new('/accounts.html'      , tr('Accounts')),
+        Breadcrumb::new('/accounts/users.html', tr('Users')),
+        Breadcrumb::new(''                    , tr('Sessions')),
     ]);
 }
 
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($o_filters_card  . $o_sessions_card     , EnumDisplaySize::nine)
+           ->addGridColumn($o_filters_card . $o_sessions_card     , EnumDisplaySize::nine)
            ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

@@ -17,8 +17,8 @@ declare(strict_types=1);
 use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Security\Incidents\FilterForm;
 use Phoundation\Security\Incidents\Incidents;
-use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -29,7 +29,7 @@ use Phoundation\Web\Requests\Response;
 
 // Build users filter card
 $filters      = FilterForm::new();
-$filters_card = Card::new()
+$o_filters_card = Card::new()
                     ->setCollapseSwitch(true)
                     ->setTitle('Incidents filters')
                     ->setContent($filters);
@@ -87,13 +87,13 @@ $o_documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Incidents management'));
 Response::setBreadcrumbs([
-    Anchor::new('/'             , tr('Home')),
-    Anchor::new('/security.html', tr('Security')),
-    Anchor::new(''              , tr('Incidents management')),
+    Breadcrumb::new('/'             , tr('Home')),
+    Breadcrumb::new('/security.html', tr('Security')),
+    Breadcrumb::new(''              , tr('Incidents management')),
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($filters_card  . $incidents_card    , EnumDisplaySize::nine)
+           ->addGridColumn($o_filters_card . $incidents_card    , EnumDisplaySize::nine)
            ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

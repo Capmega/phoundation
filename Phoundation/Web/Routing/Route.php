@@ -251,19 +251,21 @@ class Route
         if ($this->detectFaviconRequest()) {
             // This is a favicon request that by default won't be logged, unless exceptions are encountered
             // Ensure the post-processing function is registered
-            Log::information(ts('[:method] ":url" from client ":client" (Favicon request, logging disabled unless exception encountered)', [
+            Log::information(ts('[:method] ":url" from client ":client" with referer ":referer" (Favicon request, logging disabled unless exception encountered)', [
                 ':method' => static::$method,
                 ':url'    => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
                 ':client' => Session::getIpAddress() . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')'),
+                ':referer' => array_get_safe($_SERVER, 'HTTP_REFERER'),
             ]), 9);
             Log::disable();
 
         } else {
             // Log all other requests normally
-            Log::information(ts('[:method] ":url" from client ":client"', [
-                ':method' => static::$method,
-                ':url'    => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
-                ':client' => Session::getIpAddress() . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')'),
+            Log::information(ts('[:method] ":url" from client ":client" with referer ":referer"', [
+                ':method'  => static::$method,
+                ':url'     => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
+                ':client'  => Session::getIpAddress() . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')'),
+                ':referer' => array_get_safe($_SERVER, 'HTTP_REFERER'),
             ]), 9);
         }
 
@@ -1495,12 +1497,14 @@ class Route
             if (static::$apply_static_routes) {
                 // Check if remote IP is registered for special routing
                 $exists = sql()->getRow('SELECT   `id`, `url`, `regex`, `route`, `flags`
-                                      FROM     `routes_static` 
-                                      WHERE    `ip` = :ip 
-                                        AND    `status` IS NULL 
-                                        AND    `expiredon` >= NOW() 
-                                      ORDER BY `created_on` DESC 
-                                      LIMIT 1', [':ip' => static::$ip]);
+                                         FROM     `routes_static` 
+                                         WHERE    `ip` = :ip 
+                                         AND     (`status` IS NULL OR `status` != "deleted")
+                                         AND      `expiredon` >= NOW() 
+                                         ORDER BY `created_on` DESC 
+                                         LIMIT 1', [
+                                             ':ip' => static::$ip
+                ]);
 
                 if ($exists) {
                     // Apply semi-permanent routing for this IP
@@ -1517,7 +1521,12 @@ class Route
                     static::$route     = $exists['route'];
                     static::$flags     = explode(',', $exists['flags']);
 
-                    sql()->query('UPDATE `routes_static` SET `applied` = `applied` + 1 WHERE `id` = :id', [':id' => $exists['id']]);
+                    sql()->query('UPDATE `routes_static` 
+                                  SET    `applied` = `applied` + 1 
+                                  WHERE  `id` = :id', [
+                                      ':id' => $exists['id']
+                    ]);
+
                     unset($exists);
                 }
 

@@ -1221,27 +1221,27 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     {
         // HtmlDataTable objects handle caching themselves to avoid Script class output not being cached
         return cache('html')->get($this->getCacheKey(), function () {
-            $this->setCache(false);
+            $this->setUseCache(false);
 
             // TODO Load many of these javascripts conditionally and only if their functions are enabled (button is there, functionality is required, etc)
             Response::loadJavaScript([
-                'templates/adminlte/plugins/datatables/jquery.dataTables',
-                'templates/adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4',
-                'templates/adminlte/plugins/datatables-responsive/js/dataTables.responsive',
-                'templates/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4',
-                'templates/adminlte/plugins/datatables-buttons/js/dataTables.buttons',
-                'templates/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4',
-                'templates/adminlte/plugins/jszip/jszip',
-                'templates/adminlte/plugins/pdfmake/pdfmake',
-                'templates/adminlte/plugins/pdfmake/vfs_fonts',
-                'templates/adminlte/plugins/datatables-buttons/js/buttons.html5',
-                'templates/adminlte/plugins/datatables-buttons/js/buttons.print',
-                'templates/adminlte/plugins/datatables-buttons/js/buttons.colVis',
+                'adminlte/plugins/datatables/jquery.dataTables',
+                'adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4',
+                'adminlte/plugins/datatables-responsive/js/dataTables.responsive',
+                'adminlte/plugins/datatables-responsive/js/responsive.bootstrap4',
+                'adminlte/plugins/datatables-buttons/js/dataTables.buttons',
+                'adminlte/plugins/datatables-buttons/js/buttons.bootstrap4',
+                'adminlte/plugins/jszip/jszip',
+                'adminlte/plugins/pdfmake/pdfmake',
+                'adminlte/plugins/pdfmake/vfs_fonts',
+                'adminlte/plugins/datatables-buttons/js/buttons.html5',
+                'adminlte/plugins/datatables-buttons/js/buttons.print',
+                'adminlte/plugins/datatables-buttons/js/buttons.colVis',
             ]);
 
-            Response::loadCss('templates/adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4');
-            Response::loadCss('templates/adminlte/plugins/datatables-responsive/css/responsive.bootstrap4');
-            Response::loadCss('templates/adminlte/plugins/datatables-buttons/css/buttons.bootstrap4');
+            Response::loadCss('adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4');
+            Response::loadCss('adminlte/plugins/datatables-responsive/css/responsive.bootstrap4');
+            Response::loadCss('adminlte/plugins/datatables-buttons/css/buttons.bootstrap4');
 
             // Build options
             $options = [];
@@ -1341,9 +1341,9 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
 
             if ($this->js_date_format) {
                 Response::loadJavaScript([
-                    'templates/adminlte/plugins/moment/moment',
-                    'templates/adminlte/plugins/datatables-DateTime-1.5.1/js/dataTables.dateTime',
-                    'templates/adminlte/plugins/datatables-sorting/datetime-moment',
+                    'adminlte/plugins/moment/moment',
+                    'adminlte/plugins/datatables-DateTime-1.5.1/js/dataTables.dateTime',
+                    'adminlte/plugins/datatables-sorting/datetime-moment',
                 ]);
 
                 $content .= 'DataTable.moment("' . $this->js_date_format . '");' . PHP_EOL;

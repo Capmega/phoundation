@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Requests\Response;
 
 
@@ -22,9 +22,9 @@ use Phoundation\Web\Requests\Response;
 Response::setHeaderTitle(tr('Package timeline'));
 Response::setHeaderSubTitle(tr('demo'));
 Response::setBreadcrumbs([
-    Anchor::new('/'          , tr('Home')),
-    Anchor::new('/demos.html', tr('Demos')),
-    Anchor::new(''           , tr('Package timeline')),
+    Breadcrumb::new('/'          , tr('Home')),
+    Breadcrumb::new('/demos.html', tr('Demos')),
+    Breadcrumb::new(''           , tr('Package timeline')),
 ]);
 
 ?>

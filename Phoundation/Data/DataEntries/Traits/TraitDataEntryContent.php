@@ -16,8 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries\Traits;
 
-
-use Stringable;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Html;
 
 
 trait TraitDataEntryContent
@@ -36,12 +36,13 @@ trait TraitDataEntryContent
     /**
      * Sets the content for this object
      *
-     * @param Stringable|string|float|int|null $content $content
+     * @param RenderInterface|callable|string|float|int|null $content
+     * @param bool                                           $make_safe
      *
      * @return static
      */
-    public function setContent(Stringable|string|float|int|null $content): static
+    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = true): static
     {
-        return $this->set(get_null((string) $content), 'content');
+        return $this->set(get_null(Html::safe($content, $make_safe)), 'content');
     }
 }

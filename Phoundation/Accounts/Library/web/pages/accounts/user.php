@@ -20,10 +20,10 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
-use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -296,11 +296,10 @@ if (!$o_user->isNew()) {
 $o_picture_card = Card::new()
                       ->setTitle(tr('Users profile picture'))
                       ->setId('profile-picture-card')
-                      ->setContent($o_user->getProfileImageObject()
-                                        ->getHtmlImgObject()
-                                            ->setId('profile-picture')
-                                            ->addClasses('w100')
-                                            ->setAlt(tr('My profile picture')));
+                      ->setContent($o_user->getProfileImageObject()->getHtmlImgObject()
+                                                                   ->setId('profile-picture')
+                                                                   ->addClasses('w100')
+                                                                   ->setAlt(tr('My profile picture')));
 
 
 // Build relevant links
@@ -330,10 +329,10 @@ Response::setPageTitle(tr('User :user', [':user' => $o_user->getDisplayName()]))
 Response::setHeaderTitle(tr('User'));
 Response::setHeaderSubTitle($o_user->getDisplayName());
 Response::setBreadcrumbs([
-    Anchor::new('/'                   , tr('Home')),
-    Anchor::new('/accounts.html'      , tr('Accounts')),
-    Anchor::new('/accounts/users.html', tr('Users')),
-    Anchor::new(''                    , $o_user->getDisplayName()),
+    Breadcrumb::new('/'                   , tr('Home')),
+    Breadcrumb::new('/accounts.html'      , tr('Accounts')),
+    Breadcrumb::new('/accounts/users.html', tr('Users')),
+    Breadcrumb::new(''                    , $o_user->getDisplayName()),
 ]);
 
 

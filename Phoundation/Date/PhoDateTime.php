@@ -1207,10 +1207,10 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
                 break;
 
             case 12:
-                $return = substr($source, 0, 4)  . $date_separator .
-                          substr($source, 4, 2)  . $date_separator .
-                          substr($source, 6, 2)  . $date_separator .
-                          substr($source, 8, 2)  . $time_separator .
+                $return = substr($source, 0, 4) . $date_separator .
+                          substr($source, 4, 2) . $date_separator .
+                          substr($source, 6, 2) . $date_separator .
+                          substr($source, 8, 2) . $time_separator .
                           substr($source, 10, 2) . $time_separator
                           . '00';
                 break;

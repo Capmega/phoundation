@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
 
+use PDOStatement;
 use Phoundation\Accounts\Rights\Interfaces\RightInterface;
 use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
 use Phoundation\Accounts\Roles\Role;

@@ -22,6 +22,7 @@ use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Traits\TraitDataContent;
 use Phoundation\Data\Traits\TraitDataDefinition;
 use Phoundation\Data\Traits\TraitDataDisabled;
 use Phoundation\Data\Traits\TraitDataProperties;
@@ -56,9 +57,10 @@ trait TraitElementAttributes
         setDefinitionObject as protected __setDefinitionObject;
         getDefinitionObject as protected __getDefinitionObject;
     }
-    use TraitDataScripts;
+    use TraitDataContent;
     use TraitDataReadonly;
     use TraitDataDisabled;
+    use TraitDataScripts;
 
 
     /**
@@ -183,9 +185,9 @@ trait TraitElementAttributes
     /**
      * The element content
      *
-     * @var string|null $content
+     * @var RenderInterface|string|float|int|null $content
      */
-    protected ?string $content = null;
+    protected RenderInterface|string|float|int|null $content = null;
 
     /**
      * The element height
@@ -903,87 +905,6 @@ trait TraitElementAttributes
     {
         $this->extra_attributes .= $extra;
         return $this;
-    }
-
-
-    /**
-     * Appends the specified content to the content of the element
-     *
-     * @param Stringable|string|float|int|null $content
-     * @param bool                             $make_safe
-     *
-     * @return static
-     */
-    public function appendContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
-    {
-        if (is_object($content)) {
-            // This object is Stringable so it can be converted to string.
-            // If it is a RenderableInterface, it will automatically render
-            $content   = get_null((string) $content);
-            $make_safe = false;
-        }
-
-        if ($make_safe) {
-            $content = Html::safe($content);
-        }
-
-        $this->content .= $content;
-
-        return $this;
-    }
-
-
-    /**
-     * Prepends the specified content to the content of the element
-     *
-     * @param Stringable|string|float|int|null $content
-     * @param bool                             $make_safe
-     *
-     * @return static
-     */
-    public function prependContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
-    {
-        if ($content instanceof Stringable) {
-            // This object is Stringable so it can be converted to string.
-            // If it is a RenderableInterface, it will automatically render
-            $content   = (string) $content;
-            $make_safe = false;
-        }
-
-        if ($make_safe) {
-            $content = Html::safe($content);
-        }
-
-        $this->content = $content . $this->content;
-
-        return $this;
-    }
-
-
-    /**
-     * Returns the content of the element to display
-     *
-     * @return Stringable|string|float|int|null
-     */
-    public function getContent(): Stringable|string|float|int|null
-    {
-        return $this->content ?? $this->null_display;
-    }
-
-
-    /**
-     * Sets the content of the element
-     *
-     * @param Stringable|string|float|int|null $content
-     * @param bool                             $make_safe
-     *
-     * @return static
-     */
-    public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
-    {
-        $this->content = null;
-
-        return $this->appendContent($content, $make_safe);
     }
 
 

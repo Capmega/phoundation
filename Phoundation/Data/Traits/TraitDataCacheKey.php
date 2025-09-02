@@ -17,8 +17,6 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 
-use Phoundation\Core\Log\Log;
-
 trait TraitDataCacheKey
 {
     use TraitDataCache;
@@ -35,18 +33,16 @@ trait TraitDataCacheKey
     /**
      * Returns what cache key will be used for this object
      *
-     * @param string|null $append
-     *
      * @return string|null
      */
-    public function getCacheKey(?string $append = null): ?string
+    public function getCacheKey(): ?string
     {
-        if ($this->cache) {
+        if ($this->getUseCache()) {
             if (empty($this->cache_key)) {
-                $this->cache_key = PROJECT . '-' . $this->getCacheKeySeed();
+                $this->cache_key = $this->getCacheKeySeed();
             }
 
-            return $this->cache_key . ($append ? '-' . $append : null);
+            return $this->cache_key;
         }
 
         return null;

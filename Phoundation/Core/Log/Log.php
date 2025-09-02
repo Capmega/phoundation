@@ -108,6 +108,11 @@ class Log implements LogInterface
     protected static bool $failed = false;
 
     /**
+     * Keeps track of the LOG object being ready
+     */
+    protected static bool $ready = false;
+
+    /**
      * The current threshold level of the log class. The higher this value, the less will be logged
      *
      * @var int $threshold
@@ -190,6 +195,13 @@ class Log implements LogInterface
      * @var bool $newline_done
      */
     protected static bool $newline_done = true;
+
+    /**
+     * Tracks the time fraction to use for log entries. Must be one of 'v' (milliseconds, default), or "u" (microseconds"
+     *
+     * @var string
+     */
+    protected static string $fraction;
 
 
     /**
@@ -413,6 +425,19 @@ class Log implements LogInterface
         if (php_sapi_name() !== 'cli') {
             flush();
         }
+    }
+
+
+    /**
+     * Returns true if the Log object is ready for logging operations.
+     *
+     * @note The Log class CAN already log before its ready (output would go to the system log file instead)
+     *
+     * @return bool
+     */
+    public static function isReady(): bool
+    {
+        return static::$ready;
     }
 
 
@@ -757,6 +782,11 @@ class Log implements LogInterface
 
         if (static::$init) {
             // Don't log anything while locked, initializing, or while dealing with a Log internal failure
+            // Check if we passed the log threshold. If not, discard the message
+            if (!static::passesThreshold($threshold)) {
+                return false;
+            }
+
             if (static::$screen_enabled and static::$file_enabled) {
                 foreach (Arrays::force($messages, null) as $message) {
                     if ($message instanceof Throwable) {
@@ -898,7 +928,7 @@ class Log implements LogInterface
             // TODO Check max process id in /proc/sys/kernel/pid_max and use that as max length instead of static 7
             if (is_bool($echo_prefix)) {
                 // Build the log message with the default prefix
-                $prefix = PhoDateTime::new(null, 'server')->format('Y-m-d H:i:s.v') . ' ' .
+                $prefix = PhoDateTime::new(null, 'server')->format('Y-m-d H:i:s.' . Log::getPrecision()) . ' ' .
                           ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' .
                           Strings::size(getmypid(), 7, ' ', true) . ' ' .
                           Core::getGlobalId() . ' ' . (PLATFORM_CLI ? 'C' : 'W') . ' ' . Core::getLocalId() . (Core::isStateShutdown() ? '#' : ' ');
@@ -918,6 +948,21 @@ class Log implements LogInterface
         } catch (Throwable $e) {
             return Log::writeExceptionHandler($e, $messages, $threshold);
         }
+    }
+
+
+    /**
+     * Returns the time fraction to use for log entries. Must be one of 'v' (milliseconds, default), or 'u' (microseconds"
+     *
+     * @return string
+     */
+    #[ExpectedValues(values: ['u', 'v'])] public static function getPrecision(): string
+    {
+        if (empty(static::$fraction)) {
+            static::$fraction = config()->getInArray('log.timestamps.fractions', ['u', 'v'], 'v');
+        }
+
+        return static::$fraction;
     }
 
 
@@ -978,6 +1023,8 @@ class Log implements LogInterface
                         ':threshold' => static::$threshold,
                     ]), 3);
                 }
+
+                static::$ready = true;
             }
 
         } catch (Throwable $e) {
@@ -1084,14 +1131,16 @@ class Log implements LogInterface
      * @param int         $threshold
      * @param string|bool $echo_prefix
      * @param bool        $echo_screen
-     * @param bool        $echo_header
      *
      * @return bool
      */
 
-    public static function memoryUsage(int $threshold = 10, string|bool $echo_prefix = true, bool $echo_screen = true, bool $echo_header = true): bool
+    public static function memoryUsage(int $threshold = 10, string|bool $echo_prefix = true, bool $echo_screen = true): bool
     {
-        return Log::printr(Numbers::getHumanReadableAndPreciseBytes(memory_get_usage()), $threshold, $echo_prefix, $echo_screen, $echo_header);
+        return Log::printr(tr('Memory usage :usage :location', [
+            ':usage'     => Numbers::getHumanReadableAndPreciseBytes(memory_get_usage()),
+            ':location'  => static::getSourceCodeLocationText(include_class_and_file: false)
+        ]), $threshold, $echo_prefix, $echo_screen, false);
     }
 
 
@@ -1101,14 +1150,16 @@ class Log implements LogInterface
      * @param int         $threshold
      * @param string|bool $echo_prefix
      * @param bool        $echo_screen
-     * @param bool        $echo_header
      *
      * @return bool
      */
 
-    public static function memoryUsagePeak(int $threshold = 10, string|bool $echo_prefix = true, bool $echo_screen = true, bool $echo_header = true): bool
+    public static function memoryUsagePeak(int $threshold = 10, string|bool $echo_prefix = true, bool $echo_screen = true): bool
     {
-        return Log::printr(Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()), $threshold, $echo_prefix, $echo_screen, $echo_header);
+        return Log::printr(tr('Peak memory usage :usage :location', [
+            ':usage'     => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
+            ':location'  => static::getSourceCodeLocationText(include_class_and_file: false)
+        ]), $threshold, $echo_prefix, $echo_screen, false);
     }
 
 
@@ -1683,6 +1734,33 @@ class Log implements LogInterface
 
 
     /**
+     * Write a debug message in the log file
+     *
+     * @param mixed       $messages
+     * @param int         $threshold
+     * @param bool        $clean
+     * @param bool        $echo_newline
+     * @param string|bool $echo_prefix
+     * @param bool        $echo_screen
+     * @param bool        $echo_header
+     *
+     * @return bool
+     */
+    public static function dump(mixed $messages = null, int $threshold = 10, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true, bool $echo_header = true): bool
+    {
+        if ($echo_header) {
+            Log::logDebugHeader('DEBUG', get_class_or_datatype($messages), 1, $threshold, echo_screen: $echo_screen);
+        }
+
+        if (empty($messages) and (!is_numeric($messages))) {
+            $messages = '-';
+        }
+
+        return Log::write(Strings::log($messages, ensure_visible: true), 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+    }
+
+
+    /**
      * Write a debug message containing the hash and size of the specified message
      *
      * @param mixed       $messages
@@ -1705,6 +1783,7 @@ class Log implements LogInterface
      * Write a debug header message in the log file
      *
      * @param string      $keyword
+     * @param string      $datatype
      * @param int         $trace
      * @param int         $threshold
      * @param bool        $echo_screen
@@ -1714,25 +1793,53 @@ class Log implements LogInterface
      */
     protected static function logDebugHeader(string $keyword, string $datatype, int $trace = 4, int $threshold = 10, bool $echo_screen = true, string|bool $echo_prefix = true): bool
     {
-        // Get the class, method, file and line data.
-        $class    = Debug::currentClass($trace);
-        $function = Debug::currentFunction($trace);
-        $file     = Strings::from(Debug::currentFile($trace), DIRECTORY_ROOT);
-        $line     = Debug::currentLine($trace);
-
-        if ($class) {
-            // Add class - method separator
-            $class .= '::';
-        }
-
-        return Log::write(tr('Showing debug ":datatype" data with ":keyword" ":class:function()" in ":file@:line"', [
+        return Log::write(tr('Showing debug ":datatype" data with ":keyword" at :location', [
             ':keyword'  => $keyword,
-            ':class'    => $class,
-            ':function' => $function,
-            ':file'     => $file,
-            ':line'     => $line,
+            ':location' => static::getSourceCodeLocationText($trace - 1),
             ':datatype' => $datatype,
         ]), 'debug', $threshold, echo_prefix: $echo_prefix, echo_screen: $echo_screen);
+    }
+
+
+    /**
+     * Returns a text indicating location in code
+     *
+     * @param int  $trace
+     * @param bool $include_class_and_file
+     *
+     * @return string
+     */
+    protected static function getSourceCodeLocationText(int $trace = 1, bool $include_class_and_file = true): string
+    {
+        // Get the class, method, file and line data.
+        $file = Debug::currentFile($trace);
+        $file = Strings::from($file, DIRECTORY_ROOT);
+        $file = Strings::from($file, DIRECTORY_WEB);
+        $file = Strings::from($file, DIRECTORY_COMMANDS);
+        $file = Strings::from($file, DIRECTORY_PLUGINS);
+        $line = Debug::currentLine($trace);
+
+        if ($include_class_and_file) {
+            $class    = Debug::currentClass($trace);
+            $function = Debug::currentFunction($trace);
+
+            if ($class) {
+                // Add class - method separator
+                $class .= '::';
+            }
+
+            return tr('":class:function()" in ":file@:line"', [
+                ':class'    => $class,
+                ':function' => $function,
+                ':file'     => $file,
+                ':line'     => $line,
+            ]);
+        }
+
+        return tr('at ":file@:line"', [
+            ':file' => $file,
+            ':line' => $line,
+        ]);
     }
 
 
@@ -1899,7 +2006,7 @@ class Log implements LogInterface
     public static function printr(mixed $messages = null, int $threshold = 10, string|bool $echo_prefix = true, bool $echo_screen = true, bool $echo_header = true): bool
     {
         if ($echo_header) {
-            Log::logDebugHeader('PRINTR', get_class_or_datatype($messages), 1, $threshold, echo_screen: $echo_screen);
+            Log::logDebugHeader('PRINTR', get_class_or_datatype($messages), 3, $threshold, echo_screen: $echo_screen);
         }
 
         if (empty($messages)) {

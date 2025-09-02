@@ -147,7 +147,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
                     try {
                         $mount = config()->getArray('filesystem.mounts.' . str_replace(' ', '-', $this->identifier['name']));
 
-                        return static::newFromSource($mount)->setMetaEnabled($this->meta_enabled)
+                        return static::newFromSource($mount)->setMetaEnabled($this->getMetaEnabled())
                                      ->setIgnoreDeleted($this>$this->ignore_deleted);
 
                     } catch (ConfigPathDoesNotExistsException) {
@@ -161,14 +161,14 @@ class PhoMount extends DataEntry implements PhoMountInterface
                     // This is a mount that SHOULD already exist on the system
                     $mount = PhoMounts::getMountSources(new PhoDirectory($this->identifier['source_path']));
 
-                    return static::new($mount)->setMetaEnabled($this>$this->meta_enabled)
+                    return static::new($mount)->setMetaEnabled($this->getMetaEnabled())
                                               ->setIgnoreDeleted($this>$this->ignore_deleted);
 
                 case 'target_path':
                     // This is a mount that SHOULD already exist on the system
                     $mount = PhoMounts::getMountTargets(new PhoDirectory($this->identifier['target_path']));
 
-                    return static::new($mount)->setMetaEnabled($this>$this->meta_enabled)
+                    return static::new($mount)->setMetaEnabled($this->getMetaEnabled())
                                               ->setIgnoreDeleted($this>$this->ignore_deleted);
             }
 

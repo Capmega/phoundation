@@ -18,9 +18,9 @@ use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -129,7 +129,7 @@ $buttons = Buttons::new()->addButton('Save', right: true);
 
 
 // Build the "user" form
-$card = Card::new()
+$o_card = Card::new()
             ->setCollapseSwitch(true)
             ->setTitle(tr('My profile information'))
             ->setContent($user->getHtmlDataEntryFormObject())
@@ -138,7 +138,7 @@ $card = Card::new()
 
 // Build the grid column with a form containing the user and roles cards
 $column = GridColumn::new()
-                    ->addContent($card->render())
+                    ->addContent($o_card->render())
                     ->setSize(9)
                     ->useForm(true);
 
@@ -179,8 +179,8 @@ $documentation = Card::new()
 Response::setHeaderTitle(tr('My profile'));
 Response::setHeaderSubTitle($user->getDisplayName());
 Response::setBreadcrumbs([
-    Anchor::new('/', tr('Home')),
-    Anchor::new('' , tr('My profile')),
+    Breadcrumb::new('/', tr('Home')),
+    Breadcrumb::new('' , tr('My profile')),
 ]);
 
 

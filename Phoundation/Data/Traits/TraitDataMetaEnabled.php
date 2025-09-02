@@ -22,9 +22,9 @@ trait TraitDataMetaEnabled
     /**
      * Tracks if the meta-system is enabled or disabled for this (type of) DataEntry
      *
-     * @var bool $meta_enabled
+     * @var bool|null $meta_enabled
      */
-    protected bool $meta_enabled = true;
+    protected ?bool $meta_enabled = null;
 
 
     /**
@@ -34,6 +34,10 @@ trait TraitDataMetaEnabled
      */
     public function getMetaEnabled(): bool
     {
+        if ($this->meta_enabled === null) {
+            $this->meta_enabled = config()->getBoolean('storage.dataentries.meta.read.enabled', true);
+        }
+
         return $this->meta_enabled;
     }
 

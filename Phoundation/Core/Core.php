@@ -408,6 +408,7 @@ class Core implements CoreInterface
         define('DIRECTORY_WEB'        , DIRECTORY_SYSTEM . 'cache/system/web/');
         define('DIRECTORY_CRON'       , DIRECTORY_SYSTEM . 'cache/system/cron/');
         define('DIRECTORY_TESTS'      , DIRECTORY_SYSTEM . 'cache/system/Tests/');
+        define('DIRECTORY_PLUGINS'    , realpath(DIRECTORY_ROOT . 'Plugins') . '/');
         define('DIRECTORY_PHOUNDATION', realpath(__DIR__ . '/..') . '/');
     }
 
@@ -1311,18 +1312,17 @@ class Core implements CoreInterface
                     $language = Strings::until($url, '/');
 
                     if (!in_array($language, $supported, true)) {
-                        $language = config()->get('languages.default', 'en');
                         Log::warning(ts('Detected language ":language" is not supported, falling back to default. See configuration path "language.supported"', [
-                            ':language' => $language,
+                            ':language' => config()->get('locale.languages.default', 'en'),
                         ]));
                     }
 
                 } else {
-                    $language = not_empty($locale, config()->get('locale.languages.default', 'en'));
+                    $language = not_empty(Strings::until(Strings::until($locale, '_'), '-'), config()->get('locale.languages.default', 'en'));
                 }
 
             } else {
-                $language = not_empty($locale, config()->get('locale.languages.default', 'en'));
+                $language = not_empty(Strings::until(Strings::until($locale, '_'), '-'), config()->get('locale.languages.default', 'en'));
             }
 
             if (config()->get('locale.languages.default', ['en']) and config()->exists('locale.languages.supported.' . $language)) {
@@ -3307,13 +3307,12 @@ class Core implements CoreInterface
                     header('Content-Type: text/html', true);
                 }
 
-                if (method_exists($e, 'getMessages')) {
+                Log::error($e->getMessage(), 10);
+
+                if ($e instanceof PhoException) {
                     foreach ($e->getMessages() as $message) {
                         Log::error($message, 10);
                     }
-
-                } else {
-                    Log::error($e->getMessage(), 10);
                 }
 
                 Core::exit(1, tr('System startup exception. Please check your DIRECTORY_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));

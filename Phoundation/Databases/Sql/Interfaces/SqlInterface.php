@@ -6,6 +6,8 @@ namespace Phoundation\Databases\Sql\Interfaces;
 
 use PDO;
 use PDOStatement;
+use Phoundation\Data\DataEntries\DataIterator;
+use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Schema\Interfaces\SchemaInterface;
@@ -348,6 +350,20 @@ interface SqlInterface extends DatabaseInterface
      */
     public function listKeyValues(string|PDOStatement $query, ?array $execute = null, ?string $id_column = null): array;
 
+
+    /**
+     * Executes the query for two or more columns and will return the results in a DataIterator object
+     *
+     * The key will be the first selected column but will be included in the value array
+     *
+     * @param string|PDOStatement $query
+     * @param array|null          $execute
+     * @param string|null         $id_column
+     * @param string|null         $datatype
+     *
+     * @return DataIteratorInterface
+     */
+    public function listDataIterator(string|PDOStatement $query, ?array $execute = null, ?string $id_column = null, ?string $datatype = DataIterator::class): DataIteratorInterface;
 
     /**
      * Executes the query for two or more columns and will return the results as a key => values-in-array array,

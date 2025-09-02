@@ -30,7 +30,8 @@ class SlowPages extends Incidents
         $this->table_name  = 'developer_slow_pages';
         $this->setHtmlQuery('SELECT   `id`, `created_on`, `status`, `title` 
                              FROM     `accounts_users` 
-                             WHERE    `type` = "slow_page" AND `status` IS NULL 
+                             WHERE    `type` = "slow_page" 
+                             AND     (`status` IS NULL OR `status` != "deleted") 
                              ORDER BY `created_on`');
         parent::__construct();
     }

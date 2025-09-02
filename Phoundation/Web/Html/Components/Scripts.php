@@ -38,7 +38,7 @@ class Scripts extends Iterator implements ScriptsInterface
     public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
     {
         parent::__construct($source);
-        $this->setAcceptedDataTypes(ScriptInterface::class . '|closure');
+        $this->setAcceptedDataTypes(Script::class . '|closure');
     }
 
 

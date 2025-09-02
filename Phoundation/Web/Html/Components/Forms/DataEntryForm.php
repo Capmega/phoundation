@@ -131,13 +131,11 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     /**
      * Returns the cache key for this DataEntryForm object
      *
-     * @param String|null $append_string
-     *
      * @return string|null
      */
-    public function getCacheKeySeed(?String $append_string = null): ?string
+    public function getCacheKeySeed(): ?string
     {
-        return 'DataEntryForm-' . ($this->o_data_entry?->getCacheKey() ?? (static::class . Json::encode($this->source))) . '-render' . $append_string;
+        return PROJECT . '#DataEntryForm#' . static::class . '#' . Json::encode(['render', $this->o_data_entry?->getCacheKey(), $this->source], force_single_line: true);
     }
 
 
@@ -148,7 +146,11 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
      */
     public function render(): ?string
     {
+show(static::class);
+show($this->getUseCache());
+show($this->getCacheKey());
         return cache('html')->get($this->getCacheKey(), function () {
+show('NO CACHE!');
             if (!$this->getDefinitionsObject()) {
                 if ($this->render_contents_only) {
                     return $this->content;

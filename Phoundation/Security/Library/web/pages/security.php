@@ -15,8 +15,8 @@
 declare(strict_types=1);
 
 use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
@@ -37,13 +37,13 @@ Response::setPageTitle(tr('Security portal'));
 Response::setHeaderTitle(tr('Security portal'));
 Response::setDescription(tr(''));
 Response::setBreadcrumbs([
-    Anchor::new('/', tr('Home')),
-    Anchor::new('' , tr('Security')),
+    Breadcrumb::new('/', tr('Home')),
+    Breadcrumb::new('' , tr('Security')),
 ]);
 
 
 // Build link cards
-$card = Card::new()
+$o_card = Card::new()
             ->setTitle(tr('Security management'))
             ->setContent(AnchorBlock::new('/security/authentications.html', tr('Authentications management')) .
                          AnchorBlock::new('/security/incidents.html', tr('Incidents management')) .
@@ -52,4 +52,4 @@ $card = Card::new()
 
 // Render and return the grid
 return Grid::new()
-           ->addGridColumn($card, EnumDisplaySize::twelve);
+           ->addGridColumn($o_card, EnumDisplaySize::twelve);

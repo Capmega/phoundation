@@ -5,6 +5,8 @@
  *
  * This class is the main SQL database access class
  *
+ * @see https://github.com/marcocesarato/PHP-CPDO
+ *
  * @note      [E2] PHP ERROR: Packets out of order. Expected 1 received 0. Packet size=145 means ????
  * @note      [E2] PHP ERROR: Packets out of order. Expected 1 received 0. Packet size=32  means SQL query was too heavy, MySQL rejected it or something
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -28,6 +30,8 @@ use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Timers;
+use Phoundation\Data\DataEntries\DataIterator;
+use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Connectors\Exception\ConnectorException;
@@ -36,6 +40,7 @@ use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
 use Phoundation\Databases\Exception\DatabaseTestException;
 use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
 use Phoundation\Databases\Sql\Exception\SqlAmbiguousColumnException;
+use Phoundation\Databases\Sql\Exception\SqlColumnCannotBeNullException;
 use Phoundation\Databases\Sql\Exception\SqlColumnDoesNotExistsException;
 use Phoundation\Databases\Sql\Exception\SqlConnectException;
 use Phoundation\Databases\Sql\Exception\SqlConnectionRefusedException;
@@ -46,7 +51,6 @@ use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\Exception\SqlNoDatabaseSelectedException;
 use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
 use Phoundation\Databases\Sql\Exception\SqlConnectionTimedOutException;
-use Phoundation\Databases\Sql\Exception\SqlSyntaxErrorException;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
@@ -63,6 +67,7 @@ use Phoundation\Servers\Servers;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Throwable;
+
 
 class Sql implements SqlInterface
 {
@@ -83,7 +88,7 @@ class Sql implements SqlInterface
      *
      * @var ConnectorsInterface
      */
-    protected static ConnectorsInterface $connectors;
+    protected static ConnectorsInterface $o_connectors;
 
     /**
      * All SQL database configuration
@@ -338,6 +343,8 @@ class Sql implements SqlInterface
     /**
      * Executes specified query and returns a PDOStatement object
      *
+     * @todo Improve timer statistics gathering as currently each timer is an object that takes hundreds of bytes. After hundreds of queries, it is starting to take a lot of memory!
+     *
      * @param PDOStatement|SqlQueryInterface|string $query
      * @param array|null                            $execute
      *
@@ -415,6 +422,7 @@ class Sql implements SqlInterface
                      ->setTime($timer->getTotal());
             }
 
+            unset($timer);
             return $query;
 
         } catch (Throwable $e) {
@@ -514,6 +522,7 @@ class Sql implements SqlInterface
                 foreach ($e->getMessages() as $message) {
                     Log::error(static::getConnectorLogPrefix() . $message);
                 }
+
                 exit(1);
 
             case '42S02':
@@ -538,6 +547,11 @@ class Sql implements SqlInterface
 
             case 23000:
                 switch ($e->getSqlSecondaryState()) {
+                    case 1048:
+                        throw SqlColumnCannotBeNullException::new(static::getConnectorLogPrefix() . $e->getMessage(), $e)->addData([
+                            'column' => Strings::cut($e->getMessage(), '1048 Column \'', '\''),
+                        ]);
+
                     case 1052:
                         $message = Strings::from($e->getMessage(), '1052');
                         $message = trim($message);
@@ -547,7 +561,7 @@ class Sql implements SqlInterface
 
                     case 1062:
                         $value  = Strings::cut($e->getMessage(), 'Duplicate entry \'', "'");
-                        $column = Strings::cut($e->getMessage(), 'for key \'', "'");
+                        $column = Strings::cut($e->getMessage(), 'for key \''        , "'");
                         $column = Strings::from($column, '.');
 
                         throw SqlContstraintDuplicateEntryException::new($e)
@@ -556,6 +570,8 @@ class Sql implements SqlInterface
                                                                        'value'  => $value
                                                                    ]);
                 }
+
+                break;
 
             case 42000:
                 switch ($e->getDriverState()) {
@@ -571,13 +587,13 @@ class Sql implements SqlInterface
 
                     case 1049:
                         throw SqlUnknownDatabaseException::new(static::getConnectorLogPrefix() . tr('Unknown database ":database"', [
-                            ':database' => $this->configuration['database']
-                        ]), $e)->addData([
-                            'database'  => $this->configuration['database']
+                                ':database' => $this->configuration['database']
+                            ]), $e)->addData([
+                                'database'  => $this->configuration['database']
                         ]);
                 }
 
-                throw SqlSyntaxErrorException::new(static::getConnectorLogPrefix() . tr('Syntax error in query ":query" with connector ":connector"', [
+                throw SqlException::new(static::getConnectorLogPrefix() . tr('Unknown error in query ":query" with connector ":connector"', [
                     ':query'     => $query,
                     ':connector' => $this->connector,
                 ]), $e)->addData([
@@ -1117,14 +1133,13 @@ class Sql implements SqlInterface
      *
      * @return ConnectorsInterface
      */
-    public static function getConnectors(): ConnectorsInterface
+    public static function getConnectorsObject(): ConnectorsInterface
     {
-        if (empty(static::$connectors)) {
-            static::$connectors = Connectors::new()
-                                            ->load();
+        if (empty(static::$o_connectors)) {
+            static::$o_connectors = Connectors::new()->load();
         }
 
-        return static::$connectors;
+        return static::$o_connectors;
     }
 
 
@@ -1209,12 +1224,13 @@ class Sql implements SqlInterface
      * Sets the database connector
      *
      * @note  If the specified $o_connector is NULL, it will be ignored
+     *
      * @param ConnectorInterface|null $o_connector
-     * @param string|null             $database
+     * @param string|int|null         $database
      *
      * @return static
      */
-    public function setConnectorObject(?ConnectorInterface $o_connector = null, ?string $database = null): static
+    public function setConnectorObject(?ConnectorInterface $o_connector, string|int|null $database = null): static
     {
         if ($this->isConnected()) {
             throw new ConnectorException(tr('Cannot set connector ":connector", the database object ":database" is already connected', [
@@ -1715,6 +1731,49 @@ class Sql implements SqlInterface
         }
 
         return $return;
+    }
+
+
+    /**
+     * Executes the query for two or more columns and will return the results in a DataIterator object
+     *
+     * The key will be the first selected column but will be included in the value array
+     *
+     * @param string|PDOStatement $query
+     * @param array|null          $execute
+     * @param string|null         $id_column
+     * @param string|null         $datatype
+     *
+     * @return DataIteratorInterface
+     */
+    public function listDataIterator(string|PDOStatement $query, ?array $execute = null, ?string $id_column = null, ?string $datatype = DataIterator::class): DataIteratorInterface
+    {
+        $datatype  = $datatype ?? DataIterator::class;
+        $return    = [];
+        $statement = $this->getPdoStatement($query, $execute);
+
+        while ($row = $this->fetch($statement)) {
+            try {
+                if (!$id_column) {
+                    $key = $row[array_key_first($row)];
+
+                } else {
+                    $key = $row[$id_column];
+                }
+
+            } catch (Throwable $e) {
+                throw OutOfBoundsException::new(tr('Specified column ":column" does not exist in result row', [
+                    ':column' => $id_column,
+                ]), $e)->addData([
+                    'column' => $id_column,
+                    'row'    => $row,
+                ]);
+            }
+
+            $return[$key] = $row;
+        }
+
+        return $datatype::new($return);
     }
 
 

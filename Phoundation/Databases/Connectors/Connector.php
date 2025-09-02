@@ -88,14 +88,30 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false, ?string $database = null)
     {
-        $this->initializeVirtualConfiguration(['timezones' => ['name']])
-             ->setPermittedColumns('pdo_attributes')
-             ->connector = 'system';
+        if ($identifier === 'system') {
+            $this->connector = 'system';
 
-        parent::__construct($identifier);
+            $this->initializeVirtualConfiguration(['timezones' => ['name']])
+                 ->setPermittedColumns('pdo_attributes')
+                 ->connector = 'system';
 
-        if ($database) {
-            $this->setDatabase($database);
+            parent::__construct($identifier);
+
+            $source = $this->loadFromConfiguration(static::getConfigurationPath(), 'system');
+
+            $this->setSource($source)
+                 ->setReadonly(true);
+
+        } else {
+            $this->initializeVirtualConfiguration(['timezones' => ['name']])
+                 ->setPermittedColumns('pdo_attributes')
+                ->connector = 'system';
+
+            parent::__construct($identifier);
+
+            if ($database) {
+                $this->setDatabase($database);
+            }
         }
     }
 
@@ -153,6 +169,24 @@ class Connector extends DataEntry implements ConnectorInterface
 
 
     /**
+     * @inheritDoc
+     */
+    public function getConnector(): string
+    {
+        return 'system';
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function getConnectorObject(): static
+    {
+        return $this;
+    }
+
+
+    /**
      * Returns the database for this Connector, if connected. Will return NULL if not connected
      *
      * @return DatabaseInterface|null
@@ -203,22 +237,22 @@ class Connector extends DataEntry implements ConnectorInterface
     {
         if (is_numeric($identifier) and ($identifier < 0)) {
             // Negative identifier is a configured connector!
-            return Connector::newFromSource(Connectors::new()->load()->get($identifier));
+            $this->setSource(Connectors::new()->load()->get($identifier));
+
+        } else {
+            try {
+                // Load connector data and automatically and cache it in the Databases::Connectors object
+                parent::load($identifier, $on_null_identifier, $on_not_exists);
+
+            } catch (DataEntryNotExistsException $e) {
+                throw ConnectorNotExistsException::new(tr('The connector ":connector" does not exist', [
+                    ':connector' => $this->identifier,
+                ]), $e);
+            }
         }
 
-        try {
-            // Load connector data and automatically cache it in the Datastores object
-            parent::load($identifier, $on_null_identifier, $on_not_exists);
-
-            // TODO $this->identifier['name'] should always exist for a connector, but what if someone specified $identifier['id'] ???
-            Databases::getConnectorsObject()->add($this, $this->getUniqueColumnValue(), exception: false);
-            return $this;
-
-        } catch (DataEntryNotExistsException $e) {
-            throw ConnectorNotExistsException::new(tr('The connector ":connector" does not exist', [
-                ':connector' => $identifier,
-            ]), $e);
-        }
+        Databases::getConnectorsObject()->add($this, $this->getUniqueColumnValue(), exception: false);
+        return $this;
     }
 
 
@@ -240,8 +274,7 @@ class Connector extends DataEntry implements ConnectorInterface
         }
 
         // We don't have a database connected, so don't even try to use the normal database load!
-        return $this->checkIdentifier($action)
-                    ->tryLoadFromConfiguration();
+        return $this->tryLoadFromConfiguration();
     }
 
 
@@ -303,7 +336,7 @@ class Connector extends DataEntry implements ConnectorInterface
 
 
     /**
-     * Returns the unique identifier for this database entry, which will be the ID column if it does not have any
+     * Returns the unique identifier for this database entry, which will be the ID column if it doesn't have any
      *
      * @param bool $exception
      *

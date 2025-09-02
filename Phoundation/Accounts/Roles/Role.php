@@ -125,7 +125,7 @@ class Role extends DataEntry implements RoleInterface
                ->load();
 
         $entry  = DataEntryForm::new()->setRenderContentsOnly(true);
-        $select = $rights->getHtmlSelectOld()->setCache(true)
+        $select = $rights->getHtmlSelectOld()
                          ->setNotSelectedLabel(null)
                          ->setMultiple(true)
                          ->setName($name)
@@ -310,9 +310,9 @@ class Role extends DataEntry implements RoleInterface
                                                $o_validator->isUnique();
                                            }))
 
-                    ->add(DefinitionFactory::newSeoName())
+                    ->add(DefinitionFactory::newSeoName());
 
-                    ->add(DefinitionFactory::newDescription()
+                    $o_definitions->add(DefinitionFactory::newDescription()
                                            ->setHelpText(tr('The description for this role')));
 
         return $this;

@@ -227,14 +227,14 @@ class Import
 
 
     /**
-     * Sets the source
+     * Sets the database connector object
      *
-     * @param ConnectorInterface $o_connector
-     * @param string|null        $database
+     * @param ConnectorInterface|null $o_connector
+     * @param string|int|null         $database
      *
      * @return static
      */
-    public function setConnectorObject(ConnectorInterface $o_connector, ?string $database = null): static
+    public function setConnectorObject(?ConnectorInterface $o_connector, string|int|null $database = null): static
     {
         $this->__setConnectorObject($o_connector, $database);
 

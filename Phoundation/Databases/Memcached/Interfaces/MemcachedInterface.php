@@ -10,14 +10,14 @@ use Stringable;
 interface MemcachedInterface extends DatastoreInterface
 {
     /**
-     *
+     * Sets the database connector object
      *
      * @param ConnectorInterface|null $o_connector
-     * @param string|null             $database
+     * @param string|int|null         $database
      *
      * @return static
      */
-    public function setConnectorObject(?ConnectorInterface $o_connector = null, ?string $database = null): static;
+    public function setConnectorObject(?ConnectorInterface $o_connector, string|int|null $database = null): static;
 
 
     /**

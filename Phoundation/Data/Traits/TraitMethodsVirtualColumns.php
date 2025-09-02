@@ -16,10 +16,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Exception\DataEntryColumnsNotDefinedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryInvalidVirtualConfigurationException;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Plugins\Medinet\Claims\FilterForm;
 
@@ -146,15 +148,35 @@ trait TraitMethodsVirtualColumns {
      */
     protected function setVirtualObject(string $table, ?DataEntryInterface $o_object = null): static
     {
+        if (array_key_exists($table, $this->virtual_objects)) {
+            // The virtual object has already been loaded
+            return $this;
+        }
+
         $configuration = $this->getVirtualConfiguration($table);
 
         if (empty($o_object)) {
             try {
                 $identifier = $this->getVirtualLoadIdentifier($configuration['columns'], array_get_safe($configuration, 'additional_filters'));
-                $o_object   = $configuration['class']::new()->loadNull($identifier);
+
+                if (empty($identifier)) {
+                    // There is no identifier for this object, meaning that all related columns are empty, so the requested object column will be empty also.
+                    return $this;
+                }
+
+                Log::warning(tr('Automatically loading virtual object ":object" for class ":class" with identifier ":identifier"', [
+                    ':object'     => $configuration['class'],
+                    ':class'      => static::class,
+                    ':identifier' => Json::encode($identifier),
+                ]));
+
+                $o_object = $configuration['class']::new()
+                                                   ->setDebug($this->getDebug())
+                                                   ->setMetaEnabled($this->getMetaEnabled())
+                                                   ->loadNull($identifier);
 
             } catch (DataEntryInvalidVirtualConfigurationException $e) {
-                // This means that a column was specified to be checked that does not exist in the Definitions object
+                // This means that a column was specified to be checked that doesn't exist in the Definitions object
                 throw DataEntryInvalidVirtualConfigurationException::new(tr('Cannot find value for defined virtual column ":column" in class ":class", this column does not exist in the definitions object', [
                     ':class'  => $this::class,
                     ':column' => $e->getDataKey('column'),
@@ -184,9 +206,9 @@ trait TraitMethodsVirtualColumns {
      * @param array      $columns
      * @param array|null $additional_filters
      *
-     * @return array
+     * @return array|null
      */
-    protected function getVirtualLoadIdentifier(array $columns, ?array $additional_filters = null): array
+    protected function getVirtualLoadIdentifier(array $columns, ?array $additional_filters = null): ?array
     {
         $return = [];
 
@@ -217,9 +239,15 @@ trait TraitMethodsVirtualColumns {
             $return[$column] = $value;
         }
 
-        if ($return and $additional_filters) {
-            // Additional identifier filters were specified, add those too
-            $return = array_merge($additional_filters, $return);
+        if ($return) {
+            if ($additional_filters) {
+                // Additional identifier filters were specified, add those too
+                $return = array_merge($additional_filters, $return);
+            }
+
+        } else {
+            // There are no identifiers for this virtual column
+            return null;
         }
 
         // If we have the unique table id then return only that.
@@ -299,7 +327,7 @@ trait TraitMethodsVirtualColumns {
             }
         }
 
-        // Configuration does not exist. Can we autoload it?
+        // Configuration doesn't exist. Can we autoload it?
         $table_name = Strings::capitalize($table);
 
         if (str_contains($table_name, '_')) {

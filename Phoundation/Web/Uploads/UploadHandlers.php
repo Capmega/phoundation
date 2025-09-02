@@ -33,6 +33,7 @@ use Phoundation\Filesystem\Exception\FileUploadException;
 use Phoundation\Filesystem\Exception\FileUploadHandlerException;
 use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
 use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoFiles;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Filesystem\PhoUploadedFile;
@@ -98,7 +99,7 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
     public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
     {
         parent::__construct($source);
-        $this->setAcceptedDataTypes(UploadHandlerInterface::class);
+        $this->setAcceptedDataTypes(UploadHandler::class);
     }
 
 
@@ -159,7 +160,7 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
         if (isset(static::$files)) {
             if (static::$files->getCount()) {
                 $files                    = clone static::$files;
-                static::$mimetypes_groups = Iterator::new()->setAcceptedDataTypes(PhoFilesInterface::class);
+                static::$mimetypes_groups = Iterator::new()->setAcceptedDataTypes(PhoFile::class);
 
                 while ($files->getCount()) {
                     // Get the mimetype of the first available file, yoink all files with that mimetype out of the list
@@ -228,7 +229,7 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
 
         // Return a new files object
         return PhoFiles::new()
-                       ->setAcceptedDataTypes(PhoFilesInterface::class)
+                       ->setAcceptedDataTypes(PhoFile::class)
                        ->setSource([0 => $file]);
     }
 
@@ -265,7 +266,7 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
 
         // Return a new files object
         return PhoFiles::new()
-                       ->setAcceptedDataTypes(PhoFilesInterface::class)
+                       ->setAcceptedDataTypes(PhoFile::class)
                        ->setSource($return);
     }
 

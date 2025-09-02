@@ -37,6 +37,7 @@ use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
 
+
 class Roles extends DataIterator implements RolesInterface
 {
     /**
@@ -44,8 +45,9 @@ class Roles extends DataIterator implements RolesInterface
      */
     public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
     {
-        $this->setAcceptedDataTypes(RoleInterface::class)
-             ->getQueryBuilderObject()->addSelect('`accounts_roles`.`id`, 
+        parent::__construct($source);
+
+        $this->getQueryBuilderObject()->addSelect('`accounts_roles`.`id`, 
                                                    `accounts_roles`.`seo_name`, 
                                                    `accounts_roles`.`description`,
                                                    CONCAT(
@@ -65,8 +67,6 @@ class Roles extends DataIterator implements RolesInterface
                                       ->addWhere('`accounts_roles`.`status` IS NULL OR `accounts_roles`.`status` != "deleted"')
                                       ->addGroupBy('`accounts_roles`.`id`')
                                       ->addOrderBy('`accounts_roles`.`name`');
-
-        parent::__construct($source);
     }
 
 

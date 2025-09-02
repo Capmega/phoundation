@@ -36,6 +36,7 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Exception\RouteException;
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Interfaces\AnchorInterface;
 use Phoundation\Web\Html\Enums\EnumAnchorTarget;
@@ -950,7 +951,7 @@ class Url implements UrlInterface
         $base = Strings::ensureEndsWith($base, '/');
         $base = str_replace(':LANGUAGE', Session::getLanguage(), $base);
         $url  = Strings::ensureBeginsNotWith($url, '/');
-        $url .= static::addExtension($extension);
+        $url  = static::addExtension($url, $extension);
 
         $this->source = $base . $url;
 
@@ -1021,21 +1022,29 @@ class Url implements UrlInterface
     /**
      * Returns the extension for the URL
      *
+     * @param string      $url
      * @param string|null $extension
      *
      * @return string|null
      */
-    protected static function addExtension(?string $extension): ?string
+    protected static function addExtension(string $url, ?string $extension): ?string
     {
-        if (!$extension) {
-            return $extension;
+        if (empty($extension)) {
+            return $url;
         }
 
         if (config()->get('web.minify', true)) {
-            return '.min.' . $extension;
+            $extension = '.min.' . $extension;
+
+        } else {
+            $extension = '.' . $extension;
         }
 
-        return '.' . $extension;
+        if (str_ends_with($url, $extension)) {
+            return $url;
+        }
+
+        return $url . $extension;
     }
 
 
@@ -1053,7 +1062,7 @@ class Url implements UrlInterface
         Log::notice(ts('Cleaning up `url_cloaks` table'));
 
         $r = sql()->query('DELETE FROM `url_cloaks` 
-                                 WHERE `created_on` < DATE_SUB(NOW(), INTERVAL ' . config()->get('web.url.cloaking.expires', 86400) . ' SECOND);');
+                           WHERE       `created_on` < DATE_SUB(NOW(), INTERVAL ' . config()->get('web.url.cloaking.expires', 86400) . ' SECOND);');
 
         Log::success(ts('Removed ":count" expired entries from the `url_cloaks` table', [
             ':count' => $r->rowCount(),
@@ -1738,7 +1747,12 @@ class Url implements UrlInterface
 
         if ($check) {
             // Is this an internal / configured host? If not, this is not ours to check and no rights will be required
-            $o_parameters = Route::getParametersObject()->select($this->source);
+            try {
+                $o_parameters = Route::getParametersObject()->select($this->source);
+
+            } catch (RouteException) {
+                $o_parameters = null;
+            }
 
             if ($o_parameters) {
                 $return = array_merge($o_parameters->getRequiredRightsForUrl($this->source), $this->parseRights(), $this->getRightsObject()->getSourceKeys());

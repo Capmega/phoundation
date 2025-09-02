@@ -52,6 +52,19 @@ trait TraitCacheStatistics
      * Returns the number of cache hits so far
      *
      * @return int
+     * @todo Implement
+     */
+    public static function getCount(): int
+    {
+        Log::warning('Implement Cache::getCount()');
+        return 0;
+    }
+
+
+    /**
+     * Returns the number of cache hits so far
+     *
+     * @return int
      */
     public static function getHits(): int
     {
@@ -107,7 +120,7 @@ trait TraitCacheStatistics
         if (Debug::isEnabled() and Log::getVerbose()) {
             Log::write(ts('STATISTIC ":class" object has ":count" cached object(s) with ":checks" checks, ":hits" hits, and ":percent" effectiveness', [
                 ':class'   => Strings::fromReverse(static::class, '\\'),
-                ':count'   => static::geSectionCount(),
+                ':count'   => static::getCount(),
                 ':checks'  => static::getLookups(),
                 ':hits'    => static::getHits(),
                 ':percent' => number_format(static::getEfficiency(), 2) . '%',

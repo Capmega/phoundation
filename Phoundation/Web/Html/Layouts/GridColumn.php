@@ -18,6 +18,7 @@ namespace Phoundation\Web\Html\Layouts;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Bootstrap;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Enums\EnumContainerTier;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Traits\TraitUsesSize;
@@ -44,13 +45,13 @@ class GridColumn extends Layout
     /**
      * Sets the content of the grid
      *
-     * @param Stringable|string|float|int|null $content
-     * @param bool                             $make_safe
-     * @param EnumDisplaySize|int|null         $size
+     * @param RenderInterface|callable|string|float|int|null $content
+     * @param bool                                           $make_safe
+     * @param EnumDisplaySize|int|null                       $size
      *
      * @return static
      */
-    public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false, EnumDisplaySize|int|null $size = null): static
+    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = true, EnumDisplaySize|int|null $size = null): static
     {
         if ($size !== null) {
             $this->setSize($size);

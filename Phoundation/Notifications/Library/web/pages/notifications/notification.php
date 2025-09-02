@@ -18,10 +18,10 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Notifications\Notification;
-use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -101,9 +101,9 @@ $o_documentation_card = Card::new()
 Response::setHeaderTitle(tr('Notification'));
 Response::setHeaderSubTitle($notification->getDisplayId());
 Response::setBreadcrumbs([
-    Anchor::new('/'                      , tr('Home')),
-    Anchor::new('/notifications/all.html', tr('Notifications')),
-    Anchor::new(''                       , tr(':id [:title]', [
+    Breadcrumb::new('/'                      , tr('Home')),
+    Breadcrumb::new('/notifications/all.html', tr('Notifications')),
+    Breadcrumb::new(''                       , tr(':id [:title]'), [
         ':title' => $notification->getTitle(),
         ':id'    => $notification->getDisplayId()
     ]))
@@ -112,5 +112,5 @@ Response::setBreadcrumbs([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($notification_card                  , EnumDisplaySize::nine, true)
+           ->addGridColumn($notification_card                      , EnumDisplaySize::nine, true)
            ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

@@ -24,8 +24,8 @@ use Phoundation\Databases\Sql\Limit;
 CliDocumentation::setAutoComplete([
                                       'positions' => [
                                           0 => [
-                                              'word'   => 'SELECT `name` FROM `core_plugins` WHERE `name` LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
-                                              'noword' => 'SELECT `name` FROM `core_plugins` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+                                              'word'   => 'SELECT `name` FROM `core_plugins` WHERE `name` LIKE :word AND (`status` IS NULL OR `status` != "deleted") LIMIT ' . Limit::shellAutoCompletion(),
+                                              'noword' => 'SELECT `name` FROM `core_plugins` WHERE                       (`status` IS NULL OR `status` != "deleted") LIMIT ' . Limit::shellAutoCompletion(),
                                           ],
                                       ],
                                       'arguments' => [

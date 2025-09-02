@@ -42,13 +42,14 @@ use Phoundation\Cache\Exception\CacheGroupNotExistsException;
 use Phoundation\Cache\Interfaces\CacheInterface;
 use Phoundation\Cache\Traits\TraitCacheStatistics;
 use Phoundation\Core\Core;
+use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Enums\EnumPoadTypes;
 use Phoundation\Data\Interfaces\PoadInterface;
 use Phoundation\Data\Poad\Poad;
 use Phoundation\Data\Traits\TraitDataConnector;
-use Phoundation\Data\Traits\TraitDataEnabled;
+use Phoundation\Data\Traits\TraitDataStaticBooleanEnabled;
 use Phoundation\Databases\Connectors\Exception\ConnectorNotExistsException;
 use Phoundation\Databases\Database;
 use Phoundation\Databases\Memcached\Memcached;
@@ -67,13 +68,14 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Web\Requests\Response;
 use Stringable;
 
+
 class Cache extends Database implements CacheInterface
 {
     use TraitCacheStatistics;
     use TraitDataConnector {
         setConnector as protected __setConnector;
     }
-    use TraitDataEnabled;
+    use TraitDataStaticBooleanEnabled;
 
 
     /**
@@ -82,13 +84,6 @@ class Cache extends Database implements CacheInterface
      * @var bool $has_been_cleared
      */
     protected static bool $has_been_cleared = false;
-
-    /**
-     * Tracks if caching is enabled or not
-     *
-     * @var bool $enabled
-     */
-    protected static bool $global_enabled = true;
 
 
     /**
@@ -101,16 +96,17 @@ class Cache extends Database implements CacheInterface
     public function __construct(EnumCacheGroups|string|null $connector, ?string $database = null, bool $allow_alternate_connector = true)
     {
         try {
-            $this->setEnabled(Cache::isEnabled())
-                 ->setConnector($connector, $database, $allow_alternate_connector);
+            $this->setEnabled(Cache::isEnabled());
+            $this->setConnector($connector, $database, $allow_alternate_connector);
 
         } catch (CacheGroupNotExistsException $e) {
             if ($allow_alternate_connector) {
                 throw $e;
             }
 
-            // Alternate connector isn't allowed, continue disabled quietly
-            $this->enabled = false;
+            // Alternate connector isn't allowed, continue with cache disabled
+            static::$enabled = false;
+            Incident::new($e)->save();
         }
     }
 
@@ -131,24 +127,19 @@ class Cache extends Database implements CacheInterface
 
 
     /**
-     * Disables caching for all Cache objects
+     * Returns if caching is enabled or not
      *
      * @return bool
      */
-    public static function disable(): bool
+    public static function isEnabled(): bool
     {
-        return static::$global_enabled = false;
-    }
+        static $enabled = null;
 
+        if ($enabled === null) {
+            $enabled = Core::isReady() and config()->getBoolean('cache.enabled', false) and static::$enabled;
+        }
 
-    /**
-     * Enables caching for all Cache objects
-     *
-     * @return bool
-     */
-    public static function enable(): bool
-    {
-        return static::$global_enabled = true;
+        return $enabled;
     }
 
 
@@ -157,45 +148,60 @@ class Cache extends Database implements CacheInterface
      *
      * @return bool
      */
-    public static function isEnabled(): bool
+    public static function webIsEnabled(): bool
     {
-        return Core::isReady() and config()->getBoolean('cache.enabled', false) and static::$global_enabled;
+        static $enabled = null;
+
+        if ($enabled === null) {
+            $enabled = Core::isReady() and config()->getBoolean('cache.web.enabled', false) and static::$enabled;
+        }
+
+        return $enabled;
     }
 
 
     /**
-     * Returns if cache is enabled or disabled for the entire process
+     * Returns if caching is enabled or not
      *
      * @return bool
      */
-    public function getGlobalEnabled(): bool
+    public static function localIsEnabled(): bool
     {
-        return static::$global_enabled;
+        static $enabled = null;
+
+        if ($enabled === null) {
+            $enabled = Core::isReady() and config()->getBoolean('cache.local.enabled', false) and static::$enabled;
+        }
+
+        return $enabled;
     }
 
 
     /**
-     * Sets if cache is enabled or disabled for the entire process
+     * Returns if caching is enabled or not
      *
-     * @param bool $enabled
-     *
-     * @return static
+     * @return bool
      */
-    public function setGlobalEnabled(bool $enabled): static
+    public static function globalIsEnabled(): bool
     {
-        static::$global_enabled = $enabled;
-        return $this;
+        static $enabled = null;
+
+        if ($enabled === null) {
+            $enabled = Core::isReady() and config()->getBoolean('cache.global.enabled', false) and static::$enabled;
+        }
+
+        return $enabled;
     }
 
 
     /**
      * Converts the specified cache group into a connector string
      *
-     * @param EnumCacheGroups|string|null $group
+     * @param EnumCacheGroups|string $group
      *
-     * @return string|null
+     * @return string
      */
-    protected function getConnectorStringFromCacheGroup(EnumCacheGroups|string|null $group): ?string
+    protected function getConnectorStringFromCacheGroup(EnumCacheGroups|string $group): string
     {
         if (is_enum($group)) {
             return $group->value;
@@ -212,7 +218,7 @@ class Cache extends Database implements CacheInterface
      */
     public function getStatistics(): array
     {
-        if ($this->enabled) {
+        if (Cache::isEnabled()) {
             return $this->getDriver()?->getStatistics();
         }
 
@@ -229,7 +235,7 @@ class Cache extends Database implements CacheInterface
      */
     public function getStatistic(string $key): array
     {
-        if ($this->enabled) {
+        if (Cache::isEnabled()) {
             $return  = [];
             $servers = $this->getStatistics();
 
@@ -258,12 +264,12 @@ class Cache extends Database implements CacheInterface
      */
     public static function geSectionCount(): int
     {
-        $total  = Arrays::sum(cache('autosuggest', allow_alternate_connector: false)->getStatistic('curr_items'));
-        $total += Arrays::sum(cache('dataentries', allow_alternate_connector: false)->getStatistic('curr_items'));
-        $total += Arrays::sum(cache('html'       , allow_alternate_connector: false)->getStatistic('curr_items'));
-        $total += Arrays::sum(cache('objects'    , allow_alternate_connector: false)->getStatistic('curr_items'));
-        $total += Arrays::sum(cache('values'     , allow_alternate_connector: false)->getStatistic('curr_items'));
-        $total += Arrays::sum(cache('cache'      , allow_alternate_connector: false)->getStatistic('curr_items'));
+        $total  = Arrays::sum(cache('autosuggest')->getStatistic('curr_items'));
+        $total += Arrays::sum(cache('dataentries')->getStatistic('curr_items'));
+        $total += Arrays::sum(cache('html')->getStatistic('curr_items'));
+        $total += Arrays::sum(cache('objects')->getStatistic('curr_items'));
+        $total += Arrays::sum(cache('values')->getStatistic('curr_items'));
+        $total += Arrays::sum(cache('cache')->getStatistic('curr_items'));
 
         return $total;
     }
@@ -280,16 +286,16 @@ class Cache extends Database implements CacheInterface
      */
     public function setConnector(EnumCacheGroups|string|null $connector, ?string $database = null, bool $allow_alternate = true): static
     {
-        if (static::$global_enabled) {
+        if (static::$enabled) {
             $connector = $this->getConnectorStringFromCacheGroup($connector);
 
             try {
                 return $this->__setConnector($connector, $database);
 
             } catch (ConnectorNotExistsException $e) {
-                // The requested cache connector does not exist, try the default "cache" connector instead
+                // The requested cache connector doesn't exist, try the default "cache" connector instead
                 try {
-                    // The requested connector does not exist. If the specified connector is a valid cache connector, then just
+                    // The requested connector doesn't exist. If the specified connector is a valid cache connector, then just
                     // use the general "cache" connector instead as a default
                     if ($allow_alternate) {
                         if (EnumCacheGroups::tryFrom($connector)) {
@@ -297,7 +303,7 @@ class Cache extends Database implements CacheInterface
                         }
                     }
 
-                    // The specified group was not recognized, maybe the "cache-" prefix was missing? Try adding it
+                    // The specified group wasn't recognized, maybe the "cache-" prefix was missing? Try adding it
                     if (EnumCacheGroups::tryFrom('cache-' . $connector)) {
                         return $this->setConnector('cache-' . $connector, $database, $allow_alternate);
                     }
@@ -314,7 +320,7 @@ class Cache extends Database implements CacheInterface
 
                 } catch (ConnectorNotExistsException $e) {
                     // So the "cache" connector has not been configured either, we can't use cache!
-                    static::$global_enabled = false;
+                    static::$enabled = false;
 
                     Incident::new()
                             ->setException($e)
@@ -340,7 +346,7 @@ class Cache extends Database implements CacheInterface
      */
     public function clear(bool $force = false): static
     {
-        if ($this->enabled) {
+        if (Cache::isEnabled()) {
             $this->getDriver()?->clear();
         }
 
@@ -357,7 +363,7 @@ class Cache extends Database implements CacheInterface
      */
     public static function clearAll(bool $force = false): bool
     {
-        Log::action(ts('Clearing all caches'), 3);
+        Log::action(ts('Clearing all caches'), 2);
 
         Cache::new(EnumCacheGroups::autosuggest)->clear();
         Cache::new(EnumCacheGroups::dataentries)->clear();
@@ -366,7 +372,7 @@ class Cache extends Database implements CacheInterface
         Cache::new(EnumCacheGroups::html)->clear();
         Cache::new('cache')->clear();
 
-        Log::action(ts('Clearing all file caches'), 3);
+        Log::action(ts('Clearing all file caches'), 2);
 
         PhoPath::new(DIRECTORY_SYSTEM . 'cache/files/', PhoRestrictions::newWritableObject(DIRECTORY_SYSTEM . 'cache/files/'))
                ->delete();
@@ -378,7 +384,7 @@ class Cache extends Database implements CacheInterface
         }
 
         // Clear web cache, but rebuild (clear & build) command cache as we will ALWAYS need commands available
-        Log::action(ts('Rebuilding system caches'), 3);
+        Log::action(ts('Rebuilding system caches'), 2);
 
         Libraries::rebuildWebCache();
         Libraries::rebuildHooksCache();
@@ -401,7 +407,7 @@ class Cache extends Database implements CacheInterface
      */
     public function delete(Stringable|string|float|int|null $key): static
     {
-        if ($this->enabled) {
+        if (Cache::isEnabled()) {
             $this->getDriver()?->delete($key);
         }
 
@@ -473,7 +479,7 @@ class Cache extends Database implements CacheInterface
      */
     public function getAllKeys(): array
     {
-        if ($this->enabled) {
+        if (Cache::isEnabled()) {
             return $this->getDriver()?->getAllKeys();
         }
 
@@ -516,7 +522,7 @@ class Cache extends Database implements CacheInterface
             return $callback ? $callback() : null;
         }
 
-        if ($this->enabled) {
+        if (Cache::isEnabled()) {
             $return = $this->getDriver()?->get($key);
 
             if ($return === null) {
@@ -533,7 +539,7 @@ class Cache extends Database implements CacheInterface
 
             Log::success($this->log(ts('Found cache entry for key ":key"', [
                 ':key' => $key,
-            ])), 3);
+            ])), 2);
 
             static::$cache_hits++;
             return Poad::new($return)->getObject($process_headers_footers);
@@ -586,7 +592,7 @@ class Cache extends Database implements CacheInterface
      */
     public function set(PoadInterface|array|string|float|int|null $value, Stringable|string|float|int|null $key): static
     {
-        if ($this->enabled) {
+        if (Cache::isEnabled()) {
             if ($key === null) {
                 // NULL key will never store anything
                 return $this;
@@ -597,11 +603,11 @@ class Cache extends Database implements CacheInterface
                 $this->delete($key);
 
             } else {
-                if ($value instanceof Stringable) {
+                if ($value instanceof ArrayableInterface) {
                     // Prefix the JSON string from this object with PAODJSON to indicate that this is a
                     // Phoundation Object Array Data (POAD) string with JSON encoding that, upon Memcached::get() can be
                     // converted back into an object
-                    $value = $value->getPoadString();
+                    $value = $value->getPoadArray();
                 }
 
                 try {
