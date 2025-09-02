@@ -99,13 +99,15 @@ trait TraitDataIdentifier
     {
         if ($identifier) {
             if ($this->identifier) {
-                $e = new DataEntryDoubleIdentifierSpecifiedException(tr('Cannot set identifier ":new" for DataEntry object of class ":class", it already has identifier ":identifier" specified', [
+                Incident::new(DataEntryDoubleIdentifierSpecifiedException::new(tr('Cannot set identifier ":new" for DataEntry object of class ":class", it already has identifier ":identifier" specified', [
                     ':new'        => $identifier,
                     ':identifier' => $this->identifier,
                     ':class'      => $this::class,
-                ]));
-
-                Incident::new($e)->save()->throw();
+                ]))->setData([
+                    'new'        => $identifier,
+                    'identifier' => $this->identifier,
+                    ':class'      => $this::class,
+                ]))->save()->throw();
             }
 
             if ($this->isNotNew()) {

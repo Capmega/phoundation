@@ -366,8 +366,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         // Initialize the DataEntry object
         $this->setOnLoadNullIdentifier($on_null_identifier)
-             ->setOnLoadNotExists($on_not_exists)
-             ->initialize(($identifier === null) ? false : $identifier);
+             ->setOnLoadNotExists($on_not_exists);
 
         if ($identifier) {
             // An identifier was specified, load data immediately using DataEntry::load() (Data MUST exist!)
@@ -4953,7 +4952,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         // Write the list, if exists
         $this->list?->save();
 
-        // Make sure we have an identifier
+        // Update the identifier to a databse ID based identifier
         if (empty($this->identifier)) {
             $this->identifier = ['id' => $this->getId()];
         }
