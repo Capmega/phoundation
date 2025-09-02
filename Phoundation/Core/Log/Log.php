@@ -197,11 +197,11 @@ class Log implements LogInterface
     protected static bool $newline_done = true;
 
     /**
-     * Tracks the time fraction to use for log entries. Must be one of 'v' (milliseconds, default), or "u" (microseconds"
+     * Tracks the time fraction to use for log entries. Must be one of "v" (milliseconds, default), or "u" (microseconds), or "none" for no timestamp
      *
      * @var string
      */
-    protected static string $fraction;
+    protected static string $precision;
 
 
     /**
@@ -927,11 +927,21 @@ class Log implements LogInterface
             // Build message prefix
             // TODO Check max process id in /proc/sys/kernel/pid_max and use that as max length instead of static 7
             if (is_bool($echo_prefix)) {
-                // Build the log message with the default prefix
-                $prefix = PhoDateTime::new(null, 'server')->format('Y-m-d H:i:s.' . Log::getPrecision()) . ' ' .
-                          ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' .
-                          Strings::size(getmypid(), 7, ' ', true) . ' ' .
-                          Core::getGlobalId() . ' ' . (PLATFORM_CLI ? 'C' : 'W') . ' ' . Core::getLocalId() . (Core::isStateShutdown() ? '#' : ' ');
+                switch (Log::getPrecision()) {
+                    case 'none':
+                        // Build the log message with the default prefix
+                        $prefix = ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' .
+                                  Strings::size(getmypid(), 7, ' ', true) . ' ' .
+                                  Core::getGlobalId() . ' ' . (PLATFORM_CLI ? 'C' : 'W') . ' ' . Core::getLocalId() . (Core::isStateShutdown() ? '#' : ' ');
+                        break;
+
+                    default:
+                        // Build the log message with the default prefix
+                        $prefix = PhoDateTime::new(null, 'server')->format('Y-m-d H:i:s.' . Log::getPrecision()) . ' ' .
+                                  ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' .
+                                  Strings::size(getmypid(), 7, ' ', true) . ' ' .
+                                  Core::getGlobalId() . ' ' . (PLATFORM_CLI ? 'C' : 'W') . ' ' . Core::getLocalId() . (Core::isStateShutdown() ? '#' : ' ');
+                }
 
             } else {
                 $prefix = $echo_prefix;
@@ -952,17 +962,17 @@ class Log implements LogInterface
 
 
     /**
-     * Returns the time fraction to use for log entries. Must be one of 'v' (milliseconds, default), or 'u' (microseconds"
+     * Returns the time fraction to use for log entry timestamps. Must be one of "v" (milliseconds, default), or "u" (microseconds", or "none" for no timestamp
      *
      * @return string
      */
-    #[ExpectedValues(values: ['u', 'v'])] public static function getPrecision(): string
+    #[ExpectedValues(values: ['u', 'v', 'none'])] public static function getPrecision(): string
     {
-        if (empty(static::$fraction)) {
-            static::$fraction = config()->getInArray('log.timestamps.fractions', ['u', 'v'], 'v');
+        if (empty(static::$precision)) {
+            static::$precision = config()->getInArray('log.timestamps.precision', ['u', 'v', 'none'], 'v');
         }
 
-        return static::$fraction;
+        return static::$precision;
     }
 
 
