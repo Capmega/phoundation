@@ -40,6 +40,7 @@ use Phoundation\Web\Html\Enums\EnumInputType;
 use Stringable;
 use Throwable;
 
+
 class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 {
     use TraitDataCacheKey;

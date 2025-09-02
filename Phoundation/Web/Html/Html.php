@@ -101,7 +101,9 @@ class Html
     public static function safe(RenderInterface|string|float|int|null $html, bool $enabled = true): RenderInterface|string|null
     {
         if (is_object($html)) {
-            // We can't make objects safe
+            // We don't make objects safe! We know these are renderable objects, but:
+            // a) We'd need to render them before making them safe, even though that may not be wanted yet because we might need to set properties still later
+            // b) it would make the entire content of the object safe, which likely isn't what we want as those types of objects almost always contain HTML.
             return $html;
         }
 
@@ -110,10 +112,10 @@ class Html
         }
 
         if ($enabled) {
-            return trim(htmlspecialchars((string) $html));
+            return get_null(trim(htmlspecialchars((string) $html)));
         }
 
-        return (string) $html;
+        return get_null((string) $html);
     }
 
 

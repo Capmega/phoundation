@@ -3,6 +3,7 @@
 namespace Phoundation\Web\Html\Components\Forms\Interfaces;
 
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
+use Phoundation\Date\PhoDateTime;
 use Stringable;
 
 
@@ -72,7 +73,7 @@ interface FilterFormInterface extends DataEntryFormInterface
      *
      * @return PhoDateTimeInterface|null
      */
-    public function getStartDate(?string $timezone = 'user'): ?PhoDateTimeInterface;
+    public function getStartDateObject(?string $timezone = 'user'): ?PhoDateTimeInterface;
 
 
     /**
@@ -82,7 +83,7 @@ interface FilterFormInterface extends DataEntryFormInterface
      *
      * @return PhoDateTimeInterface|null
      */
-    public function getStopDate(?string $timezone = 'user'): ?PhoDateTimeInterface;
+    public function getStopDateObject(?string $timezone = 'user'): ?PhoDateTimeInterface;
 
 
     /**
@@ -104,4 +105,18 @@ interface FilterFormInterface extends DataEntryFormInterface
      * @return string|false|null
      */
     public function getStatus(): string|false|null;
+
+    /**
+     * Returns the start date, if available
+     *
+     * @return string|null
+     */
+    public function getStartDate(): ?string;
+
+    /**
+     * Returns the stop date, if available
+     *
+     * @return string|null
+     */
+    public function getStopDate(): ?string;
 }

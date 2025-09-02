@@ -145,7 +145,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                               if (empty($this->source[$key])) {
                                                                   if (empty($this->source['date_range'])) {
                                                                       $source = $this->getDateRangeDefault();
-                                                                      $this->source[$key] = PhoDateTime::new($source[0])->format(EnumDateFormat::user_date, true) . ' - ' . PhoDateTime::new($source[1])->format(EnumDateFormat::user_date, true);
+                                                                      $this->source[$key] = PhoDateTime::new($source[0])->format(EnumDateFormat::user_date) . ' - ' . PhoDateTime::new($source[1])->format(EnumDateFormat::user_date);
                                                                   }
                                                               }
 
@@ -161,7 +161,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                                               if (empty($o_validator->getSelectedValue())) {
                                                                   $source = $this->getDateRangeDefault();
-                                                                  $o_validator->setSelectedValue(PhoDateTime::new($source[0])->format(EnumDateFormat::user_date, true) . ' - ' . PhoDateTime::new($source[1])->format(EnumDateFormat::user_date, true));
+                                                                  $o_validator->setSelectedValue(PhoDateTime::new($source[0])->format(EnumDateFormat::user_date) . ' - ' . PhoDateTime::new($source[1])->format(EnumDateFormat::user_date));
                                                               }
 
                                                               $o_validator->isOptional()->isDateRange()->copyToKey('date_range_split');
@@ -461,19 +461,17 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
 
     /**
-     * Returns the start date, if selected
+     * Returns the start date, if available
      *
-     * @param string|null $timezone
-     *
-     * @return PhoDateTimeInterface|null
+     * @return string|null
      */
-    public function getStartDate(?string $timezone = 'user'): ?PhoDateTimeInterface
+    public function getStartDate(): ?string
     {
         static $return;
 
         if (!isset($return)) {
-            $range  = parent::get('date_range_split', false);
-            $return = $range ? PhoDateTime::new($range[0], $timezone)->getBeginningOfDay() : null;
+            $return = parent::get('date_range_split', false);
+            $return = ($return ? $return[0] : null);
         }
 
         return $return;
@@ -481,19 +479,57 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
 
     /**
-     * Returns the stop date, if selected
+     * Returns the start date, if available
      *
      * @param string|null $timezone
      *
      * @return PhoDateTimeInterface|null
      */
-    public function getStopDate(?string $timezone = 'user'): ?PhoDateTimeInterface
+    public function getStartDateObject(?string $timezone = 'user'): ?PhoDateTimeInterface
     {
         static $return;
 
         if (!isset($return)) {
-            $range  = parent::get('date_range_split', false);
-            $return = $range ? PhoDateTime::new($range[1], $timezone)->getEndOfDay() : null;
+            $return = parent::get('date_range_split', false);
+            $return = ($return ? PhoDateTime::new($return[0], $timezone)->getBeginningOfDay() : null);
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the stop date, if available
+     *
+     * @return string|null
+     */
+    public function getStopDate(): ?string
+    {
+        static $return;
+
+        if (!isset($return)) {
+            $return = parent::get('date_range_split', false);
+            $return = ($return ? $return[1] : null);
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the stop date object, if available
+     *
+     * @param string|null $timezone
+     *
+     * @return PhoDateTimeInterface|null
+     */
+    public function getStopDateObject(?string $timezone = 'user'): ?PhoDateTimeInterface
+    {
+        static $return;
+
+        if (!isset($return)) {
+            $return = parent::get('date_range_split', false);
+            $return = ($return ? PhoDateTime::new($return[1], $timezone)->getEndOfDay() : null);
         }
 
         return $return;
@@ -654,15 +690,15 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
         }
 
         if ($o_applied_filters->keyExists('date_range') and $o_definitions->isRendered('date_range', false)) {
-            if ($this->getStartDate()) {
+            if ($this->getStartDateObject()) {
                 $o_builder->addWhere(
-                    '`' . $o_builder->getFrom() . '`.`created_on` >= :start', [':start' => $this->getStartDate()->format(EnumDateFormat::mysql_datetime)]
+                    '`' . $o_builder->getFrom() . '`.`created_on` >= :start', [':start' => $this->getStartDateObject()->format(EnumDateFormat::mysql_datetime)]
                 );
             }
 
-            if ($this->getStopDate()) {
+            if ($this->getStopDateObject()) {
                 $o_builder->addWhere(
-                    '`' . $o_builder->getFrom() . '`.`created_on` <= :stop', [':stop' => $this->getStopDate()->format(EnumDateFormat::mysql_datetime)]
+                    '`' . $o_builder->getFrom() . '`.`created_on` <= :stop', [':stop' => $this->getStopDateObject()->format(EnumDateFormat::mysql_datetime)]
                 );
             }
         }

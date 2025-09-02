@@ -19,6 +19,7 @@ namespace Phoundation\Web\Html\Components\Input;
 use Phoundation\Data\Traits\TraitDataStartDate;
 use Phoundation\Data\Traits\TraitDataStopDate;
 use Phoundation\Date\Enums\EnumDateFormat;
+use Phoundation\Date\Enums\EnumDateTimeWidth;
 use Phoundation\Date\PhoDateTimeFormats;
 use Phoundation\Date\PhoDateRangePickerRanges;
 use Phoundation\Date\Interfaces\PhoDateRangePickerRangesInterface;
@@ -59,7 +60,7 @@ class InputDateRange extends InputText
      */
     public function __construct(?string $content = null)
     {
-        $this->setFormat(PhoDateTimeFormats::getDefaultDateFormatJavaScript(compact: true))
+        $this->setFormat(PhoDateTimeFormats::getDefaultDateFormatJavaScript(width: EnumDateTimeWidth::normal))
              ->input_type = EnumInputType::text;
 
         parent::__construct($content);
@@ -87,7 +88,6 @@ class InputDateRange extends InputText
     public function setParentSelector(?string $selector): static
     {
         $this->parent_selector = $selector;
-
         return $this;
     }
 
@@ -162,8 +162,8 @@ class InputDateRange extends InputText
                     },
                     parentEl: "' . $this->parent_selector . '",
                     ' . $this->renderRanges() . ',
-                      ' . ($this->getMinimumDateObject() ? 'minDate: "' . $this->getMinimumDateObject()->format(EnumDateFormat::human_date, true) . '",' : null) . '
-                      ' . ($this->getMaximumDateObject() ? 'maxDate: "' . $this->getMaximumDateObject()->format(EnumDateFormat::human_date, true) . '",' : null) . '
+                      ' . ($this->getMinimumDateObject() ? 'minDate: "' . $this->getMinimumDateObject()->format(EnumDateFormat::human_date) . '",' : null) . '
+                      ' . ($this->getMaximumDateObject() ? 'maxDate: "' . $this->getMaximumDateObject()->format(EnumDateFormat::human_date) . '",' : null) . '
 //                    startDate: moment().subtract(29, "days"),
 //                    endDate  : moment()
                 },
