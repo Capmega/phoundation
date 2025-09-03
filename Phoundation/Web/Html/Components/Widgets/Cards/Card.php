@@ -124,7 +124,7 @@ class Card extends Widget
      *
      * @return ButtonsInterface
      */
-    public function getButtons(): ButtonsInterface
+    public function getButtonsObject(): ButtonsInterface
     {
         if (empty($this->buttons)) {
             $this->buttons = new Buttons();
@@ -141,7 +141,7 @@ class Card extends Widget
      *
      * @return static
      */
-    public function setButtons(ButtonsInterface|ButtonInterface|null $buttons): static
+    public function setButtonsObject(ButtonsInterface|ButtonInterface|null $buttons): static
     {
         if ($buttons) {
             if (is_object($buttons) and ($buttons instanceof ButtonInterface)) {
@@ -492,7 +492,7 @@ class Card extends Widget
             $this->addClass('form');
 
             if ($content->getDefinitionsObject()?->hasButtons()) {
-                $this->setButtons($content->getDefinitionsObject()->getButtons());
+                $this->setButtonsObject($content->getDefinitionsObject()->getButtons());
             }
 
         } elseif ($content instanceof HtmlTableInterface) {

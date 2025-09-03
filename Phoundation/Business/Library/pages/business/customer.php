@@ -71,7 +71,7 @@ $customer_card = Card::new()
                      ->setCollapseSwitch(true)
                      ->setTitle(tr('Edit data for customer :name', [':name' => $customer->getName()]))
                      ->setContent($customer->getHtmlDataEntryFormObject()->render())
-                     ->setButtons($buttons);
+                     ->setButtonsObject($buttons);
 
 
 // Build the grid column with a form containing the customer and roles cards

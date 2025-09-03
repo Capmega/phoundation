@@ -137,11 +137,11 @@ $o_role_card = Card::new()
                    ->setMaximizeSwitch(true)
                    ->setContent($o_role->getHtmlDataEntryFormObject())
                    ->useForm(true)
-                   ->setButtons(Buttons::new()
-                                       ->addButton(tr('Save'))
-                                       ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/roles.html'), true)
-                                       ->addButton(isset_get($o_delete))
-                                       ->addButton(isset_get($o_audit)));
+                   ->setButtonsObject(Buttons::new()
+                                             ->addButton(tr('Save'))
+                                             ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/roles.html'), true)
+                                             ->addButton(isset_get($o_delete))
+                                             ->addButton(isset_get($o_audit)));
 
 
 // Build relevant links

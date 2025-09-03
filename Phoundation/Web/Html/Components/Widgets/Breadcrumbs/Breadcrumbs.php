@@ -27,9 +27,9 @@ class Breadcrumbs extends ElementsBlock implements BreadcrumbsInterface
     /**
      * Breadcrumbs class constructor
      *
-     * @param IteratorInterface|array|string|PDOStatement|null $source
+     * @param IteratorInterface|PDOStatement|array|string|null $source
      */
-    public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null) {
+    public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null) {
         parent::__construct($source);
         $this->setAcceptedDataTypes(Breadcrumb::class);
     }

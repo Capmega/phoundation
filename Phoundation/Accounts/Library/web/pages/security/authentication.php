@@ -96,10 +96,10 @@ $form = $authentication->getHtmlDataEntryFormObject();
 $o_card = Card::new()
             ->setTitle(tr('Edit data for authentication :id', [':id' => $authentication->getId()]))
             ->setContent($form)
-            ->setButtons(Buttons::new()
-                                ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/authentications.html'), true)
-                                ->addButton(isset_get($delete))
-                                ->addButton(isset_get($audit)));
+            ->setButtonsObject(Buttons::new()
+                                      ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/authentications.html'), true)
+                                      ->addButton(isset_get($delete))
+                                      ->addButton(isset_get($audit)));
 
 
 // Build relevant links

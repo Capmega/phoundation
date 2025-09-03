@@ -118,7 +118,7 @@ $requirements_card = Card::new()
             ->setRowUrl('/phoundation/file-system/requirements/requirement+:ROW.html')
             ->setOrder([1 => 'asc']))
     ->useForm(true)
-    ->setButtons($buttons);
+    ->setButtonsObject($buttons);
 
 $requirements_card->getForm()
     ->setAction(Url::newCurrent())

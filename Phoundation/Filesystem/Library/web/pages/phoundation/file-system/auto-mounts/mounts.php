@@ -114,7 +114,7 @@ $mounts_card = Card::new()
             ->setRowUrl('/phoundation/file-system/mount+:ROW.html')
             ->setOrder([1 => 'asc']))
     ->useForm(true)
-    ->setButtons($buttons);
+    ->setButtonsObject($buttons);
 
 $mounts_card->getForm()
             ->setAction(Url::newCurrent())

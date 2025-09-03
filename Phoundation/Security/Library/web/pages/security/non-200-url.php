@@ -40,7 +40,7 @@ $o_card = Card::new()
             ->setTitle($url->getDisplayName())
             ->setMaximizeSwitch(true)
             ->setContent($form)
-            ->setButtons(Buttons::new()->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/security/non-200-urls.html'), true));
+            ->setButtonsObject(Buttons::new()->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/security/non-200-urls.html'), true));
 
 
 // Build relevant links

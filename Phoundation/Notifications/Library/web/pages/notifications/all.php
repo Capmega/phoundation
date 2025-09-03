@@ -85,8 +85,8 @@ $o_notifications_card = Card::new()
                      ->setSwitches('reload')
                      ->setContent($table)
                      ->useForm(true)
-                     ->setButtons(Buttons::new()
-                                         ->addButton(tr('Mark all as read')));
+                     ->setButtonsObject(Buttons::new()
+                                               ->addButton(tr('Mark all as read')));
 
 $o_notifications_card->getForm()
                    ->setAction(Url::newCurrent())

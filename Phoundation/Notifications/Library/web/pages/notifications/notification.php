@@ -73,10 +73,10 @@ $notification_card = Card::new()
     ->setMaximizeSwitch(true)
     ->setTitle($notification->getTitle())
     ->setContent($notification->getHtmlDataEntryFormObject())
-    ->setButtons(Buttons::new()
-                        ->addButton(tr('Mark unread'))
-                        ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/notifications/notifications.html'), true)
-                        ->addButton(isset_get($go)));
+    ->setButtonsObject(Buttons::new()
+                              ->addButton(tr('Mark unread'))
+                              ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/notifications/notifications.html'), true)
+                              ->addButton(isset_get($go)));
 
 
 // Build relevant links

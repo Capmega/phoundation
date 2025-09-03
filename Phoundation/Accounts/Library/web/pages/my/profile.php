@@ -133,7 +133,7 @@ $o_card = Card::new()
             ->setCollapseSwitch(true)
             ->setTitle(tr('My profile information'))
             ->setContent($user->getHtmlDataEntryFormObject())
-            ->setButtons($buttons);
+            ->setButtonsObject($buttons);
 
 
 // Build the grid column with a form containing the user and roles cards

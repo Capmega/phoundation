@@ -231,13 +231,13 @@ $o_user_card = Card::new()
                    ->setMaximizeSwitch(true)
                    ->setTitle(tr('Edit profile for user :name', [':name' => $o_user->getDisplayName()]))
                    ->setContent($o_user->getHtmlDataEntryFormObject())
-                   ->setButtons(Buttons::new()
-                                       ->addButton(isset_get($o_button_save))
-                                       ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/users.html'), true)
-                                       ->addButton(isset_get($o_button_audit))
-                                       ->addButton(isset_get($o_button_delete))
-                                       ->addButton(isset_get($o_button_lock))
-                                       ->addButton(isset_get($o_button_impersonate)));
+                   ->setButtonsObject(Buttons::new()
+                                             ->addButton(isset_get($o_button_save))
+                                             ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/users.html'), true)
+                                             ->addButton(isset_get($o_button_audit))
+                                             ->addButton(isset_get($o_button_delete))
+                                             ->addButton(isset_get($o_button_lock))
+                                             ->addButton(isset_get($o_button_impersonate)));
 
 
 // Build the additional cards only if we're not working on a new user
@@ -247,9 +247,9 @@ if (!$o_user->isNew()) {
                         ->setCollapsed(true)
                         ->setTitle(tr('Edit roles for this user (:count)', [':count' => $o_user->getRolesObject()->getCount()]))
                         ->setContent($o_user->getRolesHtmlDataEntryFormObject())
-                        ->setButtons(Buttons::new()
-                                            ->addButton(tr('Save'))
-                                            ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/users.html'), true));
+                        ->setButtonsObject(Buttons::new()
+                                                  ->addButton(tr('Save'))
+                                                  ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/users.html'), true));
 
     $o_rights_card = Card::new()
                          ->setCollapseSwitch(true)
@@ -263,7 +263,7 @@ if (!$o_user->isNew()) {
                                                  ->setLengthChangeEnabled(false)
                                                  ->setSearchingEnabled(false)
                                                  ->setPagingEnabled(false)
-                                                 ->setButtons('copy,csv,excel,pdf,print')
+                                                 ->setButtonsObject('copy,csv,excel,pdf,print')
                                                  ->setOrder([0 => 'asc'])
                                                  ->setOrderColumns([
                                                      0 => true,
@@ -277,18 +277,18 @@ if (!$o_user->isNew()) {
                          ->setCollapsed(true)
                          ->setTitle(tr('Additional email addresses for this user (:count)', [':count' => $o_user->getEmailsObject()->getCount()]))
                          ->setContent($o_user->getEmailsObject()->getHtmlDataEntryFormObject())
-                         ->setButtons(Buttons::new()
-                                             ->addButton(tr('Save'))
-                                             ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/users.html'), true));
+                         ->setButtonsObject(Buttons::new()
+                                                   ->addButton(tr('Save'))
+                                                   ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/users.html'), true));
 
     $o_phones_card = Card::new()
                          ->setCollapseSwitch(true)
                          ->setCollapsed(true)
                          ->setTitle(tr('Additional phone numbers for this user (:count)', [':count' => $o_user->getPhonesObject()->getCount()]))
                          ->setContent($o_user->getPhonesObject()->getHtmlDataEntryFormObject())
-                         ->setButtons(Buttons::new()
-                                             ->addButton(tr('Save'))
-                                             ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/users.html'), true));
+                         ->setButtonsObject(Buttons::new()
+                                                   ->addButton(tr('Save'))
+                                                   ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/users.html'), true));
 }
 
 

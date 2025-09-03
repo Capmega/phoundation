@@ -132,12 +132,12 @@ $mount_card = Card::new()
     ->setMaximizeSwitch(true)
     ->setTitle(tr('Edit mount :name', [':name' => $mount->getDisplayName()]))
     ->setContent($mount->getHtmlDataEntryFormObject())
-    ->setButtons(Buttons::new()
-                        ->addButton(isset_get($save))
-                        ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/phoundation/file-system/mounts.html'), true)
-                        ->addButton(isset_get($audit))
-                        ->addButton(isset_get($delete))
-                        ->addButton(isset_get($impersonate)));
+    ->setButtonsObject(Buttons::new()
+                              ->addButton(isset_get($save))
+                              ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/phoundation/file-system/mounts.html'), true)
+                              ->addButton(isset_get($audit))
+                              ->addButton(isset_get($delete))
+                              ->addButton(isset_get($impersonate)));
 
 
 // Build profile picture card

@@ -147,13 +147,13 @@ $o_requirement_card = Card::new()
                         ->setMaximizeSwitch(true)
                         ->setTitle(tr('Edit requirement :name', [':name' => $o_requirement->getDisplayName()]))
                         ->setContent($o_requirement->getHtmlDataEntryFormObject())
-                        ->setButtons(Buttons::new()
-                                            ->addButton(isset_get($o_save))
-                                            ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/phoundation/file-system/requirements/requirements.html'), true)
-                                            ->addButton(isset_get($o_audit))
-                                            ->addButton(isset_get($o_delete))
-                                            ->addButton(isset_get($o_lock))
-                                            ->addButton(isset_get($o_impersonate)));
+                        ->setButtonsObject(Buttons::new()
+                                                  ->addButton(isset_get($o_save))
+                                                  ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/phoundation/file-system/requirements/requirements.html'), true)
+                                                  ->addButton(isset_get($o_audit))
+                                                  ->addButton(isset_get($o_delete))
+                                                  ->addButton(isset_get($o_lock))
+                                                  ->addButton(isset_get($o_impersonate)));
 
 
 // Build profile picture card

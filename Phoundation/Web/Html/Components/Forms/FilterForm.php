@@ -642,7 +642,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
             // Validate buttons too
             if ($o_definitions->hasButtons()) {
-                foreach ($o_definitions->getButtons() as $button) {
+                foreach ($o_definitions->getButtonsObject() as $button) {
                     $o_validator->select($button->getName())->isOptional()->hasValue($button->getValue());
                 }
             }
