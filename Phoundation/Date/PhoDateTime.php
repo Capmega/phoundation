@@ -38,6 +38,7 @@ use Stringable;
 use Throwable;
 use ValueError;
 
+
 class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTimeInterface
 {
     /**
@@ -57,14 +58,14 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
         }
 
         if (is_numeric($datetime)) {
-            $datetime = PhoDateTime::new('now', $timezone)->setTimestamp((int) $datetime)->format('Y-m-d>>TIMESEPARATOR<<00H:i:s.u');
+            $datetime = PhoDateTime::new('now', $timezone)->setTimestamp((int) $datetime)->format('Y-m-d>>DATETIMESEPARATOR<<H:i:s.u');
         }
 
         // Return Phoundation DateTime object for whatever given $datetime
         try {
             if (is_object($datetime)) {
                 // Return a new DateTime object with the specified date in the specified timezone
-                parent::__construct($datetime->format('Y-m-d>>TIMESEPARATOR<<00H:i:s.u'), $timezone ?? $datetime->getTimezone());
+                parent::__construct($datetime->format('Y-m-d H:i:s.u'), $timezone ?? $datetime->getTimezone());
 
             } else {
                 $normalized = PhoDateTimeFormats::normalizeDate($datetime, '-');
@@ -169,7 +170,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public function getSource(): string
     {
-        return $this->format('Y-m-d>>TIMESEPARATOR<<00H:i:s');
+        return $this->format('Y-m-d>>DATETIMESEPARATOR<<H:i:s');
     }
 
 
@@ -446,7 +447,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
             EnumDateFormat::system_date,
             EnumDateFormat::mysql_date      => 'Y-m-d',
             EnumDateFormat::iso_date_time,
-            EnumDateFormat::mysql_datetime  => 'Y-m-d>>TIMESEPARATOR<<H:i:s',
+            EnumDateFormat::mysql_datetime  => 'Y-m-d>>DATETIMESEPARATOR<<H:i:s',
             EnumDateFormat::file            => 'ymd-His',
             default                         => null,
         };
@@ -542,7 +543,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
     public function getBeginningOfDay(DateTimeZone|string|null $timezone = null): static
     {
         return new static(
-            $this->format('Y-m-d>>TIMESEPARATOR<<00:00:00'),
+            $this->format('Y-m-d>>DATETIMESEPARATOR<<00:00:00'),
             static::selectTimezone($this, $timezone)
         );
     }
@@ -558,7 +559,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
     public function getEndOfDay(DateTimeZone|string|null $timezone = null): static
     {
         return new static(
-            $this->format('Y-m-d>>TIMESEPARATOR<<23:59:59.999999'),
+            $this->format('Y-m-d>>DATETIMESEPARATOR<<23:59:59.999999'),
             static::selectTimezone($this, $timezone)
         );
     }
@@ -770,13 +771,13 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
         if ($date_day >= 16) {
             // 1 - 15 this month
-            return PhoDateTime::new($datetime->format('Y-m-1>>TIMESEPARATOR<<00:00:00'), $datetime->getTimezone());
+            return PhoDateTime::new($datetime->format('Y-m-1>>DATETIMESEPARATOR<<00:00:00'), $datetime->getTimezone());
         }
 
         // 16 - 3(0|1) previous month
         $start = $datetime->sub(PhoDateInterval::createFromDateString('1 month'));
 
-        return PhoDateTime::new($start->format('Y-m-16>>TIMESEPARATOR<<00:00:00'), $datetime->getTimezone());
+        return PhoDateTime::new($start->format('Y-m-16>>DATETIMESEPARATOR<<00:00:00'), $datetime->getTimezone());
     }
 
 
@@ -794,11 +795,11 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
             // 1 - 15 next month
             $start = $datetime->add(PhoDateInterval::createFromDateString('1 month'));
 
-            return PhoDateTime::new($start->format('Y-m-1>>TIMESEPARATOR<<00:00:00'), $datetime->getTimezone());
+            return PhoDateTime::new($start->format('Y-m-1>>DATETIMESEPARATOR<<00:00:00'), $datetime->getTimezone());
         }
 
         // 16 - 3(0|1) this month
-        return PhoDateTime::new($datetime->format('Y-m-16>>TIMESEPARATOR<<00:00:00'), $datetime->getTimezone());
+        return PhoDateTime::new($datetime->format('Y-m-16>>DATETIMESEPARATOR<<00:00:00'), $datetime->getTimezone());
     }
 
 
@@ -814,11 +815,11 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
         if ($date_day >= 16) {
             // 15-30 this month
-            return PhoDateTime::new($datetime->format('Y-m-16>>TIMESEPARATOR<<00:00:00'), $datetime->getTimezone());
+            return PhoDateTime::new($datetime->format('Y-m-16>>DATETIMESEPARATOR<<00:00:00'), $datetime->getTimezone());
         }
 
         // 16 - 3(0|1) this month
-        return PhoDateTime::new($datetime->format('Y-m-1>>TIMESEPARATOR<<00:00:00'), $datetime->getTimezone());
+        return PhoDateTime::new($datetime->format('Y-m-1>>DATETIMESEPARATOR<<00:00:00'), $datetime->getTimezone());
     }
 
 
@@ -834,11 +835,11 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
         if ($date_day >= 16) {
             // 15-30 this month
-            return PhoDateTime::new($datetime->format('Y-m-t>>TIMESEPARATOR<<23:59:59.999999'), $datetime->getTimezone());
+            return PhoDateTime::new($datetime->format('Y-m-t>>DATETIMESEPARATOR<<23:59:59.999999'), $datetime->getTimezone());
         }
 
         // 16 - 3(0|1) this month
-        return PhoDateTime::new($datetime->format('Y-m-15>>TIMESEPARATOR<<23:59:59.999999'), $datetime->getTimezone());
+        return PhoDateTime::new($datetime->format('Y-m-15>>DATETIMESEPARATOR<<23:59:59.999999'), $datetime->getTimezone());
     }
 
 
@@ -849,7 +850,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public function getMonthStart(): static
     {
-        return PhoDateTime::new($this->format('Y-m-1>>TIMESEPARATOR<<00:00:00'), $this->getTimezone());
+        return PhoDateTime::new($this->format('Y-m-1>>DATETIMESEPARATOR<<00:00:00'), $this->getTimezone());
     }
 
 
@@ -860,7 +861,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public function getMonthStop(): static
     {
-        return PhoDateTime::new($this->format('Y-m-t>>TIMESEPARATOR<<23:59:59.999999'), $this->getTimezone());
+        return PhoDateTime::new($this->format('Y-m-t>>DATETIMESEPARATOR<<23:59:59.999999'), $this->getTimezone());
     }
 
 
@@ -871,7 +872,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public function getDayStart(): static
     {
-        return PhoDateTime::new($this->format('Y-m-d>>TIMESEPARATOR<<00:00:00'), $this->getTimezone());
+        return PhoDateTime::new($this->format('Y-m-d>>DATETIMESEPARATOR<<00:00:00'), $this->getTimezone());
     }
 
 
@@ -882,7 +883,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public function getDayStop(): static
     {
-        return PhoDateTime::new($this->format('Y-m-d>>TIMESEPARATOR<<23:59:59.999999'), $this->getTimezone());
+        return PhoDateTime::new($this->format('Y-m-d>>DATETIMESEPARATOR<<23:59:59.999999'), $this->getTimezone());
     }
 
 
@@ -1036,7 +1037,6 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
     {
         $date = $this->format('Y m d');
         $date = explode(' ', $date);
-
         $this->setDate((int) $date[0], (int) $date[1], (int) $date[2]);
         $this->setTime(0, 0, 0, 0);
 
