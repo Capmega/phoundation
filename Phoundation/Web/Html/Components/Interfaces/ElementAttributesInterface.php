@@ -584,31 +584,16 @@ interface ElementAttributesInterface extends ContentObjectInterface
      */
     public function getNullDisplay(): Stringable|string|float|int|null;
 
+
     /**
      * Set the HTML "null_display" element attribute
      *
-     * @param Stringable|string|float|int|null $null_display
+     * @param RenderInterface|string|float|int|null $value
+     * @param bool                                  $make_safe
      *
      * @return static
      */
-    public function setNullDisplay(Stringable|string|float|int|null $null_display): static;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    public function setNullDisplay(RenderInterface|string|float|int|null $value, bool $make_safe = false): static;
 
     /**
      * Returns if this input element has after content

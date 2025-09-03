@@ -43,7 +43,7 @@ class PhoDateTimeFormats
     protected static array $defaults = [
         'date'     => 'Y / m / d',
         'time'     => 'H : i : s',
-        'datetime' => 'Y / m / d>>TIMESEPARATOR<<H : i : s',
+        'datetime' => 'Y / m / d>>DATETIMESEPARATOR<<H : i : s',
     ];
 
 
@@ -292,12 +292,12 @@ class PhoDateTimeFormats
                 // no break
 
             case EnumDateTimeWidth::wide:
-                $date = str_replace('>>TIMESEPARATOR<<', PhoDateTimeFormats::getConfiguredSeparator(), $date);
+                $date = str_replace('>>DATETIMESEPARATOR<<', PhoDateTimeFormats::getConfiguredSeparator(), $date);
                 break;
 
             case EnumDateTimeWidth::compact:
                 $date = str_replace(' ', '', $date);
-                $date = str_replace('>>TIMESEPARATOR<<', PhoDateTimeFormats::getConfiguredSeparator(), $date);
+                $date = str_replace('>>DATETIMESEPARATOR<<', PhoDateTimeFormats::getConfiguredSeparator(), $date);
                 $date = str_replace([' ', '/', '\\', ':', '-', '_'], '', $date);
                 break;
         }
@@ -683,38 +683,38 @@ class PhoDateTimeFormats
     /**
      * Ensures that the date only uses $replace as element separators, will replace " ", "-", "_", "/", "\"
      *
-     * @param Stringable|string $date                The date or datetime string to process
-     * @param string            $date_replace        The character to use between date component sections
-     * @param string            $time_replace        The character to use between time component sections
-     * @param string            $date_time_replace   The character to use between a date component and a time component
-     * @param string            $microsecond_replace The character to use between a time component and a micro-seconds component
+     * @param Stringable|string $date                  The date or datetime string to process
+     * @param string            $date_separator        The character to use between date component sections
+     * @param string            $time_separator        The character to use between time component sections
+     * @param string            $datetime_separator    The character to use between a date component and a time component
+     * @param string            $microsecond_separator The character to use between a time component and a micro-seconds component
      *
      * @return string
      */
-    public static function normalizeDate(Stringable|string $date, string $date_replace = '-', string $time_replace = ':', string $date_time_replace = ' ', string $microsecond_replace = '.'): string
+    public static function normalizeDate(Stringable|string $date, string $date_separator = '-', string $time_separator = ':', string $datetime_separator = ' ', string $microsecond_separator = '.'): string
     {
         $date = trim((string) $date);
 
         // Do we have a datetime or date? Try matching something like DD-MM-YYYY HH:MM:II (and maybe microseconds)
         if (preg_match_all('/^(\d+)\D+(\d+)\D+(\d+)\D+(\d{2})\D+(\d{2})\D+(\d{2})(?:\D+(\d+))?$/', $date, $matches)) {
             if (array_get_safe(array_get_safe($matches, 7), 0)) {
-                $microseconds = $microsecond_replace . $matches[7][0];
+                $microseconds = $microsecond_separator . $matches[7][0];
             }
 
             // This is a datetime
-            return static::normalizeNumber($matches[1][0]) . $date_replace .
-                   static::normalizeNumber($matches[2][0]) . $date_replace .
-                   static::normalizeNumber($matches[3][0]) . $date_time_replace .
-                   static::normalizeNumber($matches[4][0]) . $time_replace .
-                   static::normalizeNumber($matches[5][0]) . $time_replace .
+            return static::normalizeNumber($matches[1][0]) . $date_separator .
+                   static::normalizeNumber($matches[2][0]) . $date_separator .
+                   static::normalizeNumber($matches[3][0]) . $datetime_separator .
+                   static::normalizeNumber($matches[4][0]) . $time_separator .
+                   static::normalizeNumber($matches[5][0]) . $time_separator .
                    static::normalizeNumber($matches[6][0]) . isset_get($microseconds);
         }
 
         // Do we have a datetime or date? Try matching something like DD-MM-YYYY
         if (preg_match('/^(\d+)\D+(\d+)\D+(\d+)$/', $date, $matches)) {
             // This is a date
-            return static::normalizeNumber($matches[1]) . $date_replace .
-                   static::normalizeNumber($matches[2]) . $date_replace .
+            return static::normalizeNumber($matches[1]) . $date_separator .
+                   static::normalizeNumber($matches[2]) . $date_separator .
                    static::normalizeNumber($matches[3]);
         }
 
@@ -768,7 +768,7 @@ class PhoDateTimeFormats
     public static function normalizeDateFormat(Stringable|string $format, string $date_replace = '-', string $time_replace = ':', string $date_time_replace = ' ', string $microsecond_replace = '.'): string
     {
         $format = trim((string) $format);
-        $format = str_replace('>>TIMESEPARATOR<<', PhoDateTimeFormats::getConfiguredSeparator(), $format);
+        $format = str_replace('>>DATETIMESEPARATOR<<', PhoDateTimeFormats::getConfiguredSeparator(), $format);
 
         // Do we have a datetime or date? Try matching something like DD-MM-YYYY HH:MM:II (and maybe microseconds)
         if (preg_match_all('/^([a-z]+)[^a-z]+([a-z]+)[^a-z]+([a-z]+)[^a-z]+([a-z]+)[^a-z]+([a-z]+)[^a-z]+([a-z]+)(?:[^a-z]+([a-z]+))?$/i', $format, $matches)) {

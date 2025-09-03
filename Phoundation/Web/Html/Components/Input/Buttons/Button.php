@@ -55,13 +55,13 @@ class Button extends Input implements ButtonInterface
     /**
      * Set the content for this button
      *
-     * @param Stringable|string|float|int|null $value
-     * @param bool                             $make_safe
+     * @param RenderInterface|string|float|int|null $value
+     * @param bool                                  $make_safe
      *
      * @return static
      * @todo add documentation for when button is floating as it is unclear what is happening there
      */
-    public function setValue(Stringable|string|float|int|null $value, bool $make_safe = false): static
+    public function setValue(RenderInterface|string|float|int|null $value, bool $make_safe = false): static
     {
         if ($this->floating) {
             // What does this do?????????????
