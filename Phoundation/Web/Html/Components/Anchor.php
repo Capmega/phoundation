@@ -75,11 +75,11 @@ class Anchor extends SpanCore implements AnchorInterface
     /**
      * Form class constructor
      *
-     * @param string|null                                $content
-     * @param RenderInterface|array|callable|string|null $before_content
-     * @param UrlInterface|string|null                   $o_href
+     * @param RenderInterface|callable|string|float|int|null $content
+     * @param RenderInterface|array|callable|string|null     $before_content
+     * @param UrlInterface|string|null                       $o_href
      */
-    public function __construct(UrlInterface|string|null $o_href = null, ?string $content = null, RenderInterface|array|callable|string|null $before_content = null)
+    public function __construct(UrlInterface|string|null $o_href = null, RenderInterface|callable|string|float|int|null $content = null, RenderInterface|array|callable|string|null $before_content = null)
     {
         // Execute the ElementCore TraitElementAttributes constructor
         parent::___construct();
@@ -95,13 +95,13 @@ class Anchor extends SpanCore implements AnchorInterface
     /**
      * Returns a new static class
      *
-     * @param UrlInterface|string|null                   $o_href
-     * @param Stringable|string|null                     $content
-     * @param RenderInterface|array|callable|string|null $before_content
+     * @param UrlInterface|string|null                       $o_href
+     * @param RenderInterface|callable|string|float|int|null $content
+     * @param RenderInterface|array|callable|string|null     $before_content
      *
      * @return static
      */
-    public static function new(UrlInterface|string|null $o_href = null, Stringable|string|null $content = null, RenderInterface|array|callable|string|null $before_content = null): static
+    public static function new(UrlInterface|string|null $o_href = null, RenderInterface|callable|string|float|int|null $content = null, RenderInterface|array|callable|string|null $before_content = null): static
     {
         return new static($o_href, $content, $before_content);
     }
