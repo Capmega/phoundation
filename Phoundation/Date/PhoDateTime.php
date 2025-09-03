@@ -415,6 +415,9 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
     /**
      * Applies specific format strings
      *
+     * @note If the specified format is a string instead of a EnumDateFormat, the $width will be forced to EnumDateTimeWidth::wide so that no modifications to
+     *       the format are made
+     *
      * @param EnumDateFormat|string|null $format
      * @param EnumDateTimeWidth          $width
      *
@@ -445,8 +448,14 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
             EnumDateFormat::iso_date_time,
             EnumDateFormat::mysql_datetime  => 'Y-m-d>>TIMESEPARATOR<<H:i:s',
             EnumDateFormat::file            => 'ymd-His',
-            default                         => $format,
+            default                         => null,
         };
+
+        if ($return === null) {
+            // Return the format as-is
+            return PhoDateTimeFormats::cleanDateFormat($format, EnumDateTimeWidth::wide);
+        }
+
 
         return PhoDateTimeFormats::cleanDateFormat($return, $width);
     }

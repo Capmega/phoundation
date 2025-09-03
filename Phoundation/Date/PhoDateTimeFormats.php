@@ -279,19 +279,13 @@ class PhoDateTimeFormats
      *
      * @note Will throw a ConfigurationInvalidException exception if the specified date is not a string
      *
-     * @param mixed             $date
+     * @param string            $date
      * @param EnumDateTimeWidth $width
      *
      * @return string
      */
-    public static function cleanDateFormat(mixed $date, EnumDateTimeWidth $width): string
+    public static function cleanDateFormat(string $date, EnumDateTimeWidth $width): string
     {
-        if (!is_string($date)) {
-            throw new ConfigurationInvalidException(tr('The default configuration value ":value" for the path "locale.formats.date" must be a string', [
-                ':value' => $date
-            ]));
-        }
-
         switch (static::resolveDefaultWidth($width)) {
             case EnumDateTimeWidth::normal:
                 $date = str_replace(' ', '', $date);
