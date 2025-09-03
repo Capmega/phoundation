@@ -98,7 +98,7 @@ trait TraitMethodsVirtualColumns {
                     $this->set($value, $virtual_table_column);
 
                 } else {
-                    if (!$this->is_initializing_source) {
+                    if (!$this->is_initializing_source and !$this->isApplying()) {
                         $this->set(null, $virtual_table_column);
                     }
                 }
