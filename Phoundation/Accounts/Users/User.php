@@ -104,6 +104,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Seo;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
@@ -115,7 +116,6 @@ use Plugins\Phoundation\MultiFactorAuthentication\Interfaces\MultiFactorAuthenti
 use Plugins\Phoundation\MultiFactorAuthentication\MultiFactorAuthentication;
 use Stringable;
 use Throwable;
-
 
 
 class User extends DataEntry implements UserInterface
@@ -1078,8 +1078,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                  ->setMessage(tr('An account has been created on :project by :user. To enter the system, you can click the link :link or copy/paste the :url in your browser. This will immediately take you to your account where you only have to enter your desired password', [
                      ':url'     => $key->getUrl(),
                      ':link'    => Anchor::new($key->getUrl(), tr('here')),
-                     ':user'    => Session::getUserObject()
-                                          ->getDisplayName(),
+                     ':user'    => Session::getUserObject()->getDisplayName(),
                      ':project' => config()->getString('project.name', 'Phoundation'),
                  ]))
                  ->save()

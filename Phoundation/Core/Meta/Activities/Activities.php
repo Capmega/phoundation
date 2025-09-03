@@ -257,9 +257,9 @@ class Activities extends IteratorCore
     public function render(): ?string
     {
         if (empty($this->render)) {
-            foreach ($this as $activity) {
-                if (!$this->hide_reads or !$activity->isAction('read')) {
-                    $this->render .= $activity->render();
+            foreach ($this as $o_activity) {
+                if (!$this->hide_reads or !$o_activity->isAction('read')) {
+                    $this->render .= $o_activity->render();
                 }
             }
         }
