@@ -148,11 +148,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
      */
     public function render(): ?string
     {
-Log::dump('DATAENTRYFORM RENDER (CACHE): ' . static::class);
-Log::dump('DATAENTRYFORM RENDER (CACHE): ' . $this->getUseCache());
-Log::dump('DATAENTRYFORM RENDER (CACHE): ' . $this->getCacheKey());
         return cache('html')->get($this->getCacheKey(), function () {
-Log::dump('DATAENTRYFORM RENDER (CACHE): NO CACHE!');
             if (!$this->getDefinitionsObject()) {
                 if ($this->render_contents_only) {
                     return $this->content;
